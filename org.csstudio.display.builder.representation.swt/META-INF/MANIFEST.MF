@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Display Builder SWT Representation
+Bundle-Description: Better Opi Builder Representation for SWT
+Bundle-SymbolicName: org.csstudio.display.builder.representation.swt
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: Kay Kasemir - SNS
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.jface,
+ org.epics.vtype;bundle-version="2.9.1",
+ org.csstudio.display.builder.model;bundle-version="1.0.0",
+ org.csstudio.display.builder.representation;bundle-version="1.0.0"
+Export-Package: org.csstudio.display.builder.representation.swt

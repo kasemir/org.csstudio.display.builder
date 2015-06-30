@@ -1,0 +1,6576 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Display</name>
+  <width>1400</width>
+  <height>1000</height>
+  <widget type="group" version="1.0.0">
+    <name>Group 0</name>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 0</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>0</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 0</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 0</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 1</name>
+    <y>50</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 1</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>1</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 1</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 1</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 2</name>
+    <y>100</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 2</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>2</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 2</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 2</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 3</name>
+    <y>150</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 3</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>3</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 3</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 3</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 4</name>
+    <y>200</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 4</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>4</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 4</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 4</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 5</name>
+    <y>250</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 5</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>5</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 5</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 5</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 6</name>
+    <y>300</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 6</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>6</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 6</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 6</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 7</name>
+    <y>350</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 7</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>7</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 7</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 7</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 8</name>
+    <y>400</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 8</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>8</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 8</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 8</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 9</name>
+    <y>450</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 9</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>9</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 9</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 9</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 10</name>
+    <y>500</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 10</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>10</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 10</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 10</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 11</name>
+    <y>550</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 11</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>11</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 11</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 11</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 12</name>
+    <y>600</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 12</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>12</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 12</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 12</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 13</name>
+    <y>650</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 13</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>13</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 13</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 13</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 14</name>
+    <y>700</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 14</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>14</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 14</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 14</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 15</name>
+    <y>750</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 15</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>15</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 15</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 15</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 16</name>
+    <y>800</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 16</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>16</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 16</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 16</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 17</name>
+    <y>850</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 17</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>17</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 17</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 17</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 18</name>
+    <y>900</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 18</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>18</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 18</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 18</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 19</name>
+    <y>950</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 19</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>19</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 19</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 19</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 20</name>
+    <x>132</x>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 20</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>20</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 20</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 20</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 21</name>
+    <x>132</x>
+    <y>50</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 21</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>21</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 21</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 21</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 22</name>
+    <x>132</x>
+    <y>100</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 22</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>22</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 22</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 22</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 23</name>
+    <x>132</x>
+    <y>150</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 23</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>23</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 23</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 23</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 24</name>
+    <x>132</x>
+    <y>200</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 24</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>24</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 24</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 24</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 25</name>
+    <x>132</x>
+    <y>250</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 25</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>25</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 25</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 25</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 26</name>
+    <x>132</x>
+    <y>300</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 26</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>26</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 26</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 26</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 27</name>
+    <x>132</x>
+    <y>350</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 27</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>27</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 27</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 27</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 28</name>
+    <x>132</x>
+    <y>400</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 28</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>28</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 28</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 28</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 29</name>
+    <x>132</x>
+    <y>450</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 29</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>29</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 29</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 29</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 30</name>
+    <x>132</x>
+    <y>500</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 30</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>30</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 30</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 30</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 31</name>
+    <x>132</x>
+    <y>550</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 31</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>31</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 31</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 31</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 32</name>
+    <x>132</x>
+    <y>600</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 32</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>32</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 32</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 32</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 33</name>
+    <x>132</x>
+    <y>650</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 33</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>33</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 33</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 33</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 34</name>
+    <x>132</x>
+    <y>700</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 34</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>34</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 34</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 34</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 35</name>
+    <x>132</x>
+    <y>750</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 35</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>35</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 35</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 35</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 36</name>
+    <x>132</x>
+    <y>800</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 36</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>36</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 36</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 36</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 37</name>
+    <x>132</x>
+    <y>850</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 37</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>37</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 37</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 37</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 38</name>
+    <x>132</x>
+    <y>900</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 38</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>38</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 38</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 38</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 39</name>
+    <x>132</x>
+    <y>950</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 39</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>39</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 39</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 39</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 40</name>
+    <x>264</x>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 40</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>40</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 40</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 40</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 41</name>
+    <x>264</x>
+    <y>50</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 41</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>41</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 41</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 41</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 42</name>
+    <x>264</x>
+    <y>100</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 42</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>42</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 42</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 42</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 43</name>
+    <x>264</x>
+    <y>150</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 43</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>43</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 43</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 43</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 44</name>
+    <x>264</x>
+    <y>200</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 44</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>44</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 44</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 44</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 45</name>
+    <x>264</x>
+    <y>250</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 45</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>45</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 45</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 45</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 46</name>
+    <x>264</x>
+    <y>300</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 46</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>46</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 46</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 46</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 47</name>
+    <x>264</x>
+    <y>350</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 47</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>47</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 47</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 47</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 48</name>
+    <x>264</x>
+    <y>400</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 48</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>48</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 48</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 48</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 49</name>
+    <x>264</x>
+    <y>450</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 49</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>49</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 49</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 49</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 50</name>
+    <x>264</x>
+    <y>500</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 50</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>50</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 50</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 50</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 51</name>
+    <x>264</x>
+    <y>550</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 51</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>51</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 51</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 51</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 52</name>
+    <x>264</x>
+    <y>600</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 52</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>52</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 52</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 52</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 53</name>
+    <x>264</x>
+    <y>650</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 53</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>53</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 53</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 53</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 54</name>
+    <x>264</x>
+    <y>700</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 54</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>54</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 54</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 54</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 55</name>
+    <x>264</x>
+    <y>750</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 55</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>55</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 55</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 55</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 56</name>
+    <x>264</x>
+    <y>800</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 56</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>56</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 56</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 56</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 57</name>
+    <x>264</x>
+    <y>850</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 57</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>57</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 57</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 57</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 58</name>
+    <x>264</x>
+    <y>900</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 58</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>58</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 58</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 58</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 59</name>
+    <x>264</x>
+    <y>950</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 59</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>59</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 59</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 59</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 60</name>
+    <x>396</x>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 60</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>60</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 60</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 60</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 61</name>
+    <x>396</x>
+    <y>50</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 61</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>61</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 61</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 61</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 62</name>
+    <x>396</x>
+    <y>100</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 62</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>62</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 62</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 62</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 63</name>
+    <x>396</x>
+    <y>150</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 63</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>63</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 63</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 63</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 64</name>
+    <x>396</x>
+    <y>200</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 64</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>64</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 64</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 64</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 65</name>
+    <x>396</x>
+    <y>250</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 65</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>65</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 65</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 65</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 66</name>
+    <x>396</x>
+    <y>300</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 66</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>66</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 66</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 66</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 67</name>
+    <x>396</x>
+    <y>350</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 67</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>67</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 67</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 67</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 68</name>
+    <x>396</x>
+    <y>400</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 68</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>68</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 68</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 68</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 69</name>
+    <x>396</x>
+    <y>450</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 69</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>69</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 69</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 69</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 70</name>
+    <x>396</x>
+    <y>500</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 70</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>70</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 70</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 70</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 71</name>
+    <x>396</x>
+    <y>550</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 71</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>71</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 71</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 71</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 72</name>
+    <x>396</x>
+    <y>600</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 72</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>72</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 72</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 72</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 73</name>
+    <x>396</x>
+    <y>650</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 73</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>73</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 73</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 73</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 74</name>
+    <x>396</x>
+    <y>700</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 74</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>74</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 74</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 74</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 75</name>
+    <x>396</x>
+    <y>750</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 75</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>75</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 75</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 75</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 76</name>
+    <x>396</x>
+    <y>800</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 76</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>76</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 76</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 76</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 77</name>
+    <x>396</x>
+    <y>850</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 77</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>77</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 77</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 77</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 78</name>
+    <x>396</x>
+    <y>900</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 78</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>78</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 78</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 78</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 79</name>
+    <x>396</x>
+    <y>950</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 79</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>79</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 79</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 79</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 80</name>
+    <x>528</x>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 80</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>80</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 80</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 80</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 81</name>
+    <x>528</x>
+    <y>50</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 81</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>81</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 81</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 81</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 82</name>
+    <x>528</x>
+    <y>100</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 82</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>82</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 82</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 82</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 83</name>
+    <x>528</x>
+    <y>150</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 83</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>83</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 83</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 83</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 84</name>
+    <x>528</x>
+    <y>200</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 84</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>84</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 84</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 84</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 85</name>
+    <x>528</x>
+    <y>250</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 85</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>85</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 85</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 85</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 86</name>
+    <x>528</x>
+    <y>300</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 86</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>86</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 86</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 86</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 87</name>
+    <x>528</x>
+    <y>350</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 87</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>87</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 87</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 87</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 88</name>
+    <x>528</x>
+    <y>400</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 88</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>88</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 88</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 88</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 89</name>
+    <x>528</x>
+    <y>450</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 89</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>89</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 89</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 89</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 90</name>
+    <x>528</x>
+    <y>500</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 90</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>90</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 90</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 90</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 91</name>
+    <x>528</x>
+    <y>550</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 91</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>91</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 91</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 91</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 92</name>
+    <x>528</x>
+    <y>600</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 92</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>92</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 92</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 92</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 93</name>
+    <x>528</x>
+    <y>650</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 93</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>93</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 93</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 93</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 94</name>
+    <x>528</x>
+    <y>700</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 94</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>94</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 94</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 94</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 95</name>
+    <x>528</x>
+    <y>750</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 95</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>95</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 95</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 95</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 96</name>
+    <x>528</x>
+    <y>800</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 96</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>96</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 96</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 96</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 97</name>
+    <x>528</x>
+    <y>850</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 97</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>97</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 97</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 97</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 98</name>
+    <x>528</x>
+    <y>900</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 98</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>98</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 98</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 98</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 99</name>
+    <x>528</x>
+    <y>950</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 99</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>99</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 99</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 99</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 100</name>
+    <x>660</x>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 100</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>100</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 100</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 100</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 101</name>
+    <x>660</x>
+    <y>50</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 101</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>101</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 101</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 101</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 102</name>
+    <x>660</x>
+    <y>100</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 102</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>102</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 102</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 102</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 103</name>
+    <x>660</x>
+    <y>150</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 103</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>103</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 103</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 103</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 104</name>
+    <x>660</x>
+    <y>200</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 104</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>104</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 104</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 104</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 105</name>
+    <x>660</x>
+    <y>250</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 105</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>105</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 105</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 105</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 106</name>
+    <x>660</x>
+    <y>300</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 106</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>106</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 106</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 106</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 107</name>
+    <x>660</x>
+    <y>350</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 107</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>107</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 107</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 107</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 108</name>
+    <x>660</x>
+    <y>400</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 108</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>108</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 108</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 108</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 109</name>
+    <x>660</x>
+    <y>450</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 109</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>109</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 109</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 109</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 110</name>
+    <x>660</x>
+    <y>500</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 110</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>110</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 110</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 110</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 111</name>
+    <x>660</x>
+    <y>550</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 111</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>111</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 111</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 111</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 112</name>
+    <x>660</x>
+    <y>600</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 112</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>112</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 112</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 112</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 113</name>
+    <x>660</x>
+    <y>650</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 113</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>113</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 113</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 113</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 114</name>
+    <x>660</x>
+    <y>700</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 114</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>114</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 114</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 114</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 115</name>
+    <x>660</x>
+    <y>750</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 115</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>115</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 115</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 115</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 116</name>
+    <x>660</x>
+    <y>800</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 116</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>116</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 116</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 116</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 117</name>
+    <x>660</x>
+    <y>850</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 117</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>117</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 117</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 117</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 118</name>
+    <x>660</x>
+    <y>900</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 118</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>118</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 118</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 118</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 119</name>
+    <x>660</x>
+    <y>950</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 119</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>119</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 119</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 119</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 120</name>
+    <x>792</x>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 120</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>120</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 120</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 120</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 121</name>
+    <x>792</x>
+    <y>50</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 121</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>121</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 121</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 121</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 122</name>
+    <x>792</x>
+    <y>100</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 122</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>122</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 122</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 122</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 123</name>
+    <x>792</x>
+    <y>150</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 123</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>123</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 123</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 123</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 124</name>
+    <x>792</x>
+    <y>200</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 124</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>124</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 124</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 124</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 125</name>
+    <x>792</x>
+    <y>250</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 125</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>125</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 125</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 125</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 126</name>
+    <x>792</x>
+    <y>300</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 126</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>126</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 126</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 126</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 127</name>
+    <x>792</x>
+    <y>350</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 127</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>127</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 127</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 127</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 128</name>
+    <x>792</x>
+    <y>400</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 128</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>128</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 128</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 128</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 129</name>
+    <x>792</x>
+    <y>450</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 129</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>129</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 129</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 129</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 130</name>
+    <x>792</x>
+    <y>500</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 130</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>130</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 130</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 130</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 131</name>
+    <x>792</x>
+    <y>550</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 131</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>131</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 131</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 131</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 132</name>
+    <x>792</x>
+    <y>600</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 132</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>132</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 132</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 132</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 133</name>
+    <x>792</x>
+    <y>650</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 133</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>133</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 133</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 133</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 134</name>
+    <x>792</x>
+    <y>700</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 134</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>134</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 134</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 134</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 135</name>
+    <x>792</x>
+    <y>750</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 135</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>135</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 135</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 135</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 136</name>
+    <x>792</x>
+    <y>800</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 136</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>136</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 136</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 136</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 137</name>
+    <x>792</x>
+    <y>850</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 137</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>137</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 137</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 137</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 138</name>
+    <x>792</x>
+    <y>900</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 138</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>138</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 138</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 138</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 139</name>
+    <x>792</x>
+    <y>950</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 139</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>139</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 139</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 139</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 140</name>
+    <x>924</x>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 140</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>140</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 140</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 140</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 141</name>
+    <x>924</x>
+    <y>50</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 141</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>141</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 141</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 141</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 142</name>
+    <x>924</x>
+    <y>100</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 142</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>142</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 142</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 142</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 143</name>
+    <x>924</x>
+    <y>150</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 143</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>143</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 143</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 143</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 144</name>
+    <x>924</x>
+    <y>200</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 144</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>144</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 144</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 144</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 145</name>
+    <x>924</x>
+    <y>250</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 145</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>145</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 145</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 145</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 146</name>
+    <x>924</x>
+    <y>300</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 146</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>146</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 146</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 146</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 147</name>
+    <x>924</x>
+    <y>350</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 147</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>147</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 147</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 147</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 148</name>
+    <x>924</x>
+    <y>400</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 148</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>148</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 148</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 148</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 149</name>
+    <x>924</x>
+    <y>450</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 149</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>149</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 149</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 149</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 150</name>
+    <x>924</x>
+    <y>500</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 150</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>150</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 150</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 150</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 151</name>
+    <x>924</x>
+    <y>550</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 151</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>151</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 151</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 151</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 152</name>
+    <x>924</x>
+    <y>600</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 152</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>152</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 152</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 152</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 153</name>
+    <x>924</x>
+    <y>650</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 153</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>153</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 153</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 153</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 154</name>
+    <x>924</x>
+    <y>700</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 154</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>154</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 154</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 154</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 155</name>
+    <x>924</x>
+    <y>750</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 155</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>155</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 155</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 155</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 156</name>
+    <x>924</x>
+    <y>800</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 156</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>156</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 156</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 156</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 157</name>
+    <x>924</x>
+    <y>850</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 157</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>157</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 157</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 157</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 158</name>
+    <x>924</x>
+    <y>900</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 158</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>158</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 158</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 158</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 159</name>
+    <x>924</x>
+    <y>950</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 159</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>159</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 159</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 159</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 160</name>
+    <x>1056</x>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 160</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>160</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 160</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 160</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 161</name>
+    <x>1056</x>
+    <y>50</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 161</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>161</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 161</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 161</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 162</name>
+    <x>1056</x>
+    <y>100</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 162</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>162</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 162</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 162</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 163</name>
+    <x>1056</x>
+    <y>150</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 163</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>163</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 163</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 163</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 164</name>
+    <x>1056</x>
+    <y>200</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 164</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>164</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 164</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 164</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 165</name>
+    <x>1056</x>
+    <y>250</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 165</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>165</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 165</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 165</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 166</name>
+    <x>1056</x>
+    <y>300</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 166</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>166</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 166</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 166</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 167</name>
+    <x>1056</x>
+    <y>350</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 167</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>167</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 167</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 167</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 168</name>
+    <x>1056</x>
+    <y>400</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 168</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>168</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 168</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 168</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 169</name>
+    <x>1056</x>
+    <y>450</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 169</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>169</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 169</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 169</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 170</name>
+    <x>1056</x>
+    <y>500</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 170</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>170</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 170</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 170</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 171</name>
+    <x>1056</x>
+    <y>550</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 171</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>171</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 171</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 171</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 172</name>
+    <x>1056</x>
+    <y>600</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 172</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>172</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 172</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 172</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 173</name>
+    <x>1056</x>
+    <y>650</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 173</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>173</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 173</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 173</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 174</name>
+    <x>1056</x>
+    <y>700</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 174</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>174</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 174</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 174</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 175</name>
+    <x>1056</x>
+    <y>750</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 175</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>175</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 175</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 175</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 176</name>
+    <x>1056</x>
+    <y>800</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 176</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>176</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 176</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 176</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 177</name>
+    <x>1056</x>
+    <y>850</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 177</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>177</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 177</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 177</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 178</name>
+    <x>1056</x>
+    <y>900</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 178</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>178</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 178</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 178</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 179</name>
+    <x>1056</x>
+    <y>950</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 179</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>179</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 179</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 179</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 180</name>
+    <x>1188</x>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 180</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>180</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 180</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 180</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 181</name>
+    <x>1188</x>
+    <y>50</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 181</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>181</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 181</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 181</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 182</name>
+    <x>1188</x>
+    <y>100</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 182</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>182</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 182</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 182</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 183</name>
+    <x>1188</x>
+    <y>150</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 183</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>183</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 183</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 183</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 184</name>
+    <x>1188</x>
+    <y>200</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 184</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>184</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 184</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 184</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 185</name>
+    <x>1188</x>
+    <y>250</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 185</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>185</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 185</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 185</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 186</name>
+    <x>1188</x>
+    <y>300</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 186</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>186</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 186</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 186</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 187</name>
+    <x>1188</x>
+    <y>350</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 187</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>187</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 187</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 187</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 188</name>
+    <x>1188</x>
+    <y>400</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 188</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>188</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 188</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 188</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 189</name>
+    <x>1188</x>
+    <y>450</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 189</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>189</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 189</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 189</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 190</name>
+    <x>1188</x>
+    <y>500</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 190</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>190</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 190</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 190</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 191</name>
+    <x>1188</x>
+    <y>550</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 191</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>191</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 191</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 191</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 192</name>
+    <x>1188</x>
+    <y>600</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 192</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>192</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 192</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 192</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 193</name>
+    <x>1188</x>
+    <y>650</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 193</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>193</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 193</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 193</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 194</name>
+    <x>1188</x>
+    <y>700</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 194</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>194</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 194</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 194</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 195</name>
+    <x>1188</x>
+    <y>750</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 195</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>195</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 195</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 195</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 196</name>
+    <x>1188</x>
+    <y>800</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 196</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>196</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 196</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 196</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 197</name>
+    <x>1188</x>
+    <y>850</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 197</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>197</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 197</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 197</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 198</name>
+    <x>1188</x>
+    <y>900</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 198</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>198</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 198</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 198</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 199</name>
+    <x>1188</x>
+    <y>950</y>
+    <width>125</width>
+    <height>53</height>
+    <widget type="label" version="1.0.0">
+      <name>Label 199</name>
+      <y>4</y>
+      <width>15</width>
+      <height>15</height>
+      <text>199</text>
+    </widget>
+    <widget type="rectangle" version="1.0.0">
+      <name>Rect 199</name>
+      <x>10</x>
+      <width>80</width>
+      <height>19</height>
+      <scripts>
+        <script path="fudge_width.py">
+          <pv>noise</pv>
+        </script>
+      </scripts>
+    </widget>
+    <widget type="textupdate" version="1.0.0">
+      <name>Text 199</name>
+      <x>30</x>
+      <y>4</y>
+      <width>45</width>
+      <height>15</height>
+      <pv_name>ramp</pv_name>
+    </widget>
+  </widget>
+</display>

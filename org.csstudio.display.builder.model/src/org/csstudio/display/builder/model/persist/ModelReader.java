@@ -1,0 +1,154 @@
+/*******************************************************************************
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
+package org.csstudio.display.builder.model.persist;
+
+import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetFactory;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
+
+/** Read model from XML.
+ *
+ *  Stream (SAX, StAX) or DOM (JAXB, JDOM, org.w3c.dom)?
+ *  ==============================================
+ *  JAXB would allow direct mapping of XML elements into widget properties.
+ *  But widgets evolve, properties change.
+ *  "hidden=true" may turn into "visible=false".
+ *  Multiple properties can be combined into a new one,
+ *  or one original property can change into multiple new ones.
+ *  Only a DOM allows the new widget to inspect _all_ the properties saved in
+ *  a legacy file and transform them into new properties.
+ *  Doing this via SAX/StAX can result in not knowing all necessary properties
+ *  when trying to transform a specific one.
+ *
+ *  JDOM, version 2.x, is a little nicer than org.w3c.dom.
+ *  org.w3c.dom on the other hand is in JRE. XMLUtil makes it usable.
+ *
+ *  How to get from XML to widgets?
+ *  ===============================
+ *  1) As before:
+ *  Read <widget type="xy">,
+ *  create xyWidget,
+ *  then for each property <x>,
+ *  use widget.getProperty("x").readFromXML(reader)
+ *
+ *  + Properties know how to read their own data
+ *  + Widget A Property X of type Integer,
+ *    Widget B Property X of type String?
+ *    No problem, since xyWidget.getProperty("x") returns the correct one,
+ *    which can then read its own data.
+ *  - As widget version changes, what if xyWidget no longer has "x"?
+ *
+ *  2) Each widget registers a factory.
+ *  Factory receives XML reader.
+ *  DefaultWidgetFactory behaves as above:
+ *  For each property <x> in XML,
+ *  use widget.getProperty("x").readFromXML(reader).
+ *  .. but xyWidgetFactory could override, and handle legacy properties
+ *  in a different way.
+ *
+ *  @author Kay Kasemir
+ */
+@SuppressWarnings("nls")
+public class ModelReader
+{
+    private final Logger logger = Logger.getLogger(getClass().getName());
+    private final Element root;
+    private final Version version;
+
+    /** Create reader.
+     *  @param stream Input stream to read, will be closed
+     *  @throws Exception on error
+     */
+    public ModelReader(final InputStream stream) throws Exception
+    {
+        root = XMLUtil.openXMLDocument(stream, XMLTags.DISPLAY);
+        version = readVersion(root);
+    }
+
+    /** Read model from XML.
+     *  @return Model
+     *  @throws Exception on error
+     */
+    public DisplayModel readModel() throws Exception
+    {
+        final DisplayModel model = new DisplayModel();
+
+        // Read display's own properties
+        model.getConfigurator(version).configureFromXML(model, root);
+        // Read widgets of model
+        readChildWidgets(model, root);
+        return model;
+    }
+
+    /** Read all <widget>.. child entries
+     *  @param parent_widget Parent widget
+     *  @param parent_xml XML of the parent widget from which child entries are read
+     */
+    private void readChildWidgets(final ContainerWidget parent_widget, final Element parent_xml)
+    {
+        for (final Element widget_xml : XMLUtil.getChildElements(parent_xml, XMLTags.WIDGET))
+        {
+            try
+            {
+                final Widget widget = readWidget(widget_xml);
+                parent_widget.addChild(widget);
+            }
+            catch (final Throwable ex)
+            {   // Log, but continue with next widget
+                logger.log(Level.WARNING,
+                    "Widget configuration file error, line " + XMLUtil.getLineInfo(widget_xml), ex);
+            }
+        }
+    }
+
+    /** Read widget from XML
+     *  @param widget_xml Widget's XML element
+     *  @return Widget
+     *  @throws Exception on error
+     */
+    private Widget readWidget(final Element widget_xml) throws Exception
+    {
+        final Version xml_version = readVersion(widget_xml);
+        String type = widget_xml.getAttribute(XMLTags.TYPE);
+        final String name = XMLUtil.getChildString(widget_xml, XMLTags.NAME).orElse("");
+        if (type.isEmpty())
+        {
+            // Fall back to legacy opibuilder:
+            // <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+            type = widget_xml.getAttribute("typeId");
+            if (type.isEmpty())
+                throw new Exception("Missing widget type");
+        }
+        final Widget widget = WidgetFactory.getInstance().createWidget(type, name);
+        widget.getConfigurator(xml_version).configureFromXML(widget, widget_xml);
+
+        if (widget instanceof ContainerWidget)
+            readChildWidgets((ContainerWidget) widget, widget_xml);
+
+        return widget;
+    }
+
+    /** @param element Element
+     *  @return {@link Version} from element attribute
+     *  @throws IllegalArgumentException on parse error
+     */
+    private static Version readVersion(final Element element)
+    {
+        final String text = element.getAttribute(XMLTags.VERSION);
+        if (text.isEmpty())
+            return new Version(0, 0, 0);
+        return new Version(text);
+    }
+}

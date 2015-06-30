@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Display Builder
+Bundle-Description: Better Opi Builder Model
+Bundle-SymbolicName: org.csstudio.display.builder.model
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ org.epics.vtype
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: Kay Kasemir - SNS
+Export-Package: org.csstudio.display.builder.model,
+ org.csstudio.display.builder.model.persist,
+ org.csstudio.display.builder.model.properties,
+ org.csstudio.display.builder.model.util,
+ org.csstudio.display.builder.model.widgets

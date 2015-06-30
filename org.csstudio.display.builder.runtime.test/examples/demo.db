@@ -1,0 +1,13 @@
+record(calc, "ramp")
+{
+    field(SCAN, ".1 second")
+    field(INPA, "ramp")
+    field(CALC, "A<100?A+1:0")
+}
+
+record(calc, "noise")
+{
+    field(SCAN, ".1 second")
+    field(CALC, "RNDM")
+}
+

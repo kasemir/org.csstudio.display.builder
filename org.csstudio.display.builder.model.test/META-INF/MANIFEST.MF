@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Display Builder Test
+Bundle-Description: Better Opi Builder Model
+Bundle-SymbolicName: org.csstudio.display.builder.model.test
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: org.csstudio.display.builder.model
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: Kay Kasemir - SNS
+Require-Bundle: org.junit
