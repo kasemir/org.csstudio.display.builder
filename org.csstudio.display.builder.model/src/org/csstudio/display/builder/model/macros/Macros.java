@@ -44,7 +44,7 @@ public class Macros
 
     /** Get value for macro
      *  @param name Name of the macro
-     *  @return Value of the macro
+     *  @return Value of the macro or <code>null</code> if not defined
      */
     public String getValue(final String name)
     {

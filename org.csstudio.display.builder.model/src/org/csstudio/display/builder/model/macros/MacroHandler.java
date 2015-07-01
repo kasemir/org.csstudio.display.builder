@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 @SuppressWarnings("nls")
 public class MacroHandler
 {
+    // Pattern for $(xxx) or ${xxx}
     private static final Pattern spec = Pattern.compile("\\$\\((\\w+)\\)" + "|" + "\\$\\{(\\w+)\\}");
 
     /** Replace macros in input
@@ -27,13 +28,25 @@ public class MacroHandler
      */
     public static String replace(final Macros macros, final String input)
     {
+        return replace(macros, input, 0);
+    }
+
+    /** Replace macros in input
+     *
+     *  @param macros {@link Macros} to use
+     *  @param input Text that may contain macros "$(NAME)" or "${NAME}",
+     *               also allowing nested "${{INNER}}"
+     *  @return Text where all macros have been resolved
+     */
+    public static String replace(final Macros macros, final String input, final int from)
+    {
         // Short cut if there is nothing to replace
-        if (! input.contains("$"))
+        if (input.indexOf('$',  from) < 0)
             return input;
 
         // Find first macro
         final Matcher matcher = spec.matcher(input);
-        if (matcher.find() == false)
+        if (matcher.find(from) == false)
             return input;
 
         // Was it a $(macro) or ${macro}?
@@ -44,14 +57,21 @@ public class MacroHandler
         final String name = input.substring(start, end);
         // Resolve
         final String value = macros.getValue(name);
-        // Replace macro in input, removing the '$(' resp. ')'
-        final String result = input.substring(0, start-2) + value + input.substring(end+1);
+        if (value != null)
+        {
+            // Replace macro in input, removing the '$(' resp. ')'
+            final String result = input.substring(0, start-2) + value + input.substring(end+1);
 
-        // Text has now changed.
-        // Subsequent calls to find() would return indices for the original text
-        // which are no longer valid for the changed text
-        // -> Recurse with updated text for next macro,
-        //    which also handles nested $($(INNER))
-        return replace(macros, result);
+            // Text has now changed.
+            // Subsequent calls to find() would return indices for the original text
+            // which are no longer valid for the changed text
+            // -> Recurse with updated text for next macro,
+            //    which also handles nested $($(INNER))
+            return replace(macros, result, 0);
+        }
+        else
+        {   // Leave macro unresolved, continue with remaining input
+            return replace(macros, input, end+1);
+        }
     }
 }
