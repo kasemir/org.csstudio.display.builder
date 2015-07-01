@@ -17,6 +17,7 @@ public interface XMLTags
     public static final String COLOR = "color";
     public static final String DESCRIPTION = "description";
     public static final String DISPLAY = "display";
+    public static final String MACROS = "macros";
     public static final String NAME = "name";
     public static final String PATH = "path";
     public static final String PV = "pv";

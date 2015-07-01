@@ -94,9 +94,11 @@ public class ActionButtonRepresentation extends SWTBaseRepresentation<Button, Ac
         {
             final OpenDisplayActionInfo orig = (OpenDisplayActionInfo) action;
             if ((state_mask & SWT.CONTROL) != 0)
-                action = new OpenDisplayActionInfo(orig.getDescription(), orig.getPath(), OpenDisplayActionInfo.Target.TAB);
+                action = new OpenDisplayActionInfo(orig.getDescription(), orig.getPath(),
+                                                   orig.getMacros(), OpenDisplayActionInfo.Target.TAB);
             if ((state_mask & SWT.SHIFT) != 0)
-                action = new OpenDisplayActionInfo(orig.getDescription(), orig.getPath(), OpenDisplayActionInfo.Target.WINDOW);
+                action = new OpenDisplayActionInfo(orig.getDescription(), orig.getPath(),
+                                                   orig.getMacros(), OpenDisplayActionInfo.Target.WINDOW);
         }
 
         try

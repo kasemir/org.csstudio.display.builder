@@ -19,6 +19,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.w3c.dom.Element;
@@ -73,6 +74,12 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 writer.writeStartElement(XMLTags.PATH);
                 writer.writeCharacters(action.getPath());
                 writer.writeEndElement();
+                if (! action.getMacros().getNames().isEmpty())
+                {
+                    writer.writeStartElement(XMLTags.MACROS);
+                    MacrosWidgetProperty.writeMacros(writer, action.getMacros());
+                    writer.writeEndElement();
+                }
                 writer.writeStartElement(XMLTags.TARGET);
                 writer.writeCharacters(action.getTarget().name().toLowerCase());
                 writer.writeEndElement();
@@ -114,7 +121,14 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                                .orElse(OpenDisplayActionInfo.Target.REPLACE.name())
                                .toUpperCase() );
 
-                scripts.add(new OpenDisplayActionInfo(description, path, target));
+                final Macros macros;
+                final Element macro_xml = XMLUtil.getChildElement(action_xml, XMLTags.MACROS);
+                if (macro_xml != null)
+                    macros = MacrosWidgetProperty.readMacros(macro_xml);
+                else
+                    macros = new Macros();
+
+                scripts.add(new OpenDisplayActionInfo(description, path, macros, target));
             }
             else
                 Logger.getLogger(getClass().getName())

@@ -162,7 +162,7 @@ public class XMLUtil
      *  @param node Node where to start.
      *  @return Returns node, next Element sibling or <code>null</code>.
      */
-    private static final Element findElement(Node node)
+    public static final Element findElement(Node node)
     {
         while (node != null)
         {
