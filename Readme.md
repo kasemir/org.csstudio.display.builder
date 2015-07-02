@@ -145,3 +145,33 @@ Both `RuntimeDemoJavaFX` and CSS can execute
 `org.csstudio.display.builder.runtime.test/examples/legacy.opi`.
 
 Linux: RuntimeDemo 10% CPU, CSS 20% CPU.
+
+
+Macros
+------
+
+Similar to BOY, macros can be in the format `$(macro_name)` as well as `${macro_name}`.
+
+Macros are provided in the following order:
+
+  1. TODO Preferences
+  2. OpenDisplayAction
+  3. EmbeddedWidget
+  4. DisplayModel
+  5. GroupWidget
+
+While BOY limits macros to string-based properties, more properties support macros.
+For example, the numeric 'x' position can be specified as $(POS).
+If the macro does not expand to a valid specification, for example if the macro POS has the value 'eight'
+instead of '8', the default value for that property will be used, and a warning is logged.
+
+Previous XML format could not distinguish between a valid macro name `"include_parent_macros"`
+and the corresponding replacement behavior.
+
+Compared to `org.csstudio.apputil.macros.MacroUtil`, `org.csstudio.display.builder.model.macros.MacroHandler` simply recurses instead of maintaining its own stack/lockstack/parsedMacros.
+May have to check for infinite loop.
+
+Properties that support macros are based on `MacroizedWidgetProperty`.
+They distinguish between the original value specification,
+which is a text that may contain macros like `"$(INSTANCE_NUMBER)"`,
+and the current value, which evaluates the current macro settings and may be an integer like `8`.

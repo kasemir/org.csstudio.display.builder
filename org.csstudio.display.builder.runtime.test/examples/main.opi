@@ -53,6 +53,9 @@
         <action type="open_display">
           <file>$(FILE)</file>
           <target>window</target>
+          <macros>
+            <CONTAINER>Action</CONTAINER>
+          </macros>
         </action>
       </actions>
     </widget>

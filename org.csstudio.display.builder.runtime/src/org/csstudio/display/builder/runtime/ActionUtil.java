@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.MacroHandler;
+import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -62,8 +63,11 @@ public class ActionUtil
             final DisplayModel widget_model = RuntimeUtil.getDisplayModel(source_widget);
             // Resolve new display path relative to the source widget, not the 'top'!
             final String parent_path = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-            final String expanded_path =
-                    MacroHandler.replace(source_widget.getEffectiveMacros(), action.getFile());
+            // Path to resolve, after expanding macros
+            final Macros macros = Macros.merge(source_widget.getEffectiveMacros(), action.getMacros());
+            final String expanded_path = MacroHandler.replace(macros, action.getFile());
+
+            // Load the model
             final DisplayModel new_model = RuntimeUtil.loadModel(parent_path, expanded_path);
 
             // Model is standalone; The source_widget (Action button, ..) is _not_ the parent,
