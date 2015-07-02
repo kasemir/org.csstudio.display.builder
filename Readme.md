@@ -46,7 +46,6 @@ Each new widget is added as its own class derived from the base `Widget` and reg
 
 Major TODOs:
 
- * Macros
  * Properties for color names, font
 
 ** Representation **
@@ -83,7 +82,6 @@ The base `WidgetRuntime` handles the following:
 
 Major TODOs:
 
- * Macros
  * Add 'control'. For now only 'monitor'.
  
 ** Editor **
@@ -169,7 +167,7 @@ Previous XML format could not distinguish between a valid macro name `"include_p
 and the corresponding replacement behavior.
 
 Compared to `org.csstudio.apputil.macros.MacroUtil`, `org.csstudio.display.builder.model.macros.MacroHandler` simply recurses instead of maintaining its own stack/lockstack/parsedMacros.
-May have to check for infinite loop.
+Need to check for infinite loop.
 
 Properties that support macros are based on `MacroizedWidgetProperty`.
 They distinguish between the original value specification,
