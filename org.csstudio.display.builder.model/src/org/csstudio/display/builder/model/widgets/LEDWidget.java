@@ -13,6 +13,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import java.util.Arrays;
 import java.util.List;
 
+import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
@@ -22,12 +23,13 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.epics.vtype.VType;
 
 /** Widget that displays an LED which reflects the enumerated state of a PV
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class LEDWidget extends Widget
+public class LEDWidget extends BaseWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR
@@ -84,5 +86,29 @@ public class LEDWidget extends Widget
         properties.add(off_color.createProperty(this, new WidgetColor(60, 100, 60)));
         properties.add(on_color.createProperty(this, new WidgetColor(60, 255, 60)));
         properties.add(runtimeValue.createProperty(this, null));
+    }
+
+    /** @return Behavior 'pv_name' */
+    public WidgetProperty<String> behaviorPVName()
+    {
+        return getProperty(behaviorPVName);
+    }
+
+    /** @return 'off_color' */
+    public WidgetProperty<WidgetColor> offColor()
+    {
+        return getProperty(off_color);
+    }
+
+    /** @return 'off_color' */
+    public WidgetProperty<WidgetColor> onColor()
+    {
+        return getProperty(on_color);
+    }
+
+    /** @return Runtime 'value' */
+    public WidgetProperty<VType> runtimeValue()
+    {
+        return getProperty(runtimeValue);
     }
 }

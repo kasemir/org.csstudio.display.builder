@@ -10,7 +10,6 @@ package org.csstudio.display.builder.model;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorActions;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorScripts;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionVisible;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
@@ -34,6 +33,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.osgi.framework.Version;
 
@@ -144,6 +145,7 @@ public class Widget
         prelim_properties.add(positionY.createProperty(this, 0));
         prelim_properties.add(positionWidth.createProperty(this, 100));
         prelim_properties.add(positionHeight.createProperty(this, 20));
+        prelim_properties.add(behaviorActions.createProperty(this, Collections.emptyList()));
         prelim_properties.add(behaviorScripts.createProperty(this, Collections.emptyList()));
 
         // -- Widget-specific properties --
@@ -212,10 +214,47 @@ public class Widget
         // Derived class should invoke
         //    super.defineProperties(properties)
         // and may then add its own properties.
-        properties.add(positionVisible.createProperty(this, true));
-        properties.add(behaviorActions.createProperty(this, Collections.emptyList()));
+    }
 
-        // TODO colors, border
+    // Accessors to properties are not strictly needed
+    // because of generic getProperty(..),
+    // but can sometimes be useful in IDE when dealing with
+    // known widget type
+
+    /** @return Position 'x' */
+    public WidgetProperty<Integer> positionX()
+    {
+        return getProperty(positionX);
+    }
+
+    /** @return Position 'y' */
+    public WidgetProperty<Integer> positionY()
+    {
+        return getProperty(positionY);
+    }
+
+    /** @return Position 'width' */
+    public WidgetProperty<Integer> positionWidth()
+    {
+        return getProperty(positionWidth);
+    }
+
+    /** @return Position 'height' */
+    public WidgetProperty<Integer> positionHeight()
+    {
+        return getProperty(positionHeight);
+    }
+
+    /** @return Behavior 'actions' */
+    public WidgetProperty<List<ActionInfo>> behaviorActions()
+    {
+        return getProperty(behaviorActions);
+    }
+
+    /** @return Behavior 'scripts' */
+    public WidgetProperty<List<ScriptInfo>> behaviorScripts()
+    {
+        return getProperty(behaviorScripts);
     }
 
     /** Obtain configurator.

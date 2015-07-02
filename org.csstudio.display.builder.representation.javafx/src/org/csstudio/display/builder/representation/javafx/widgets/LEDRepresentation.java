@@ -66,8 +66,8 @@ public class LEDRepresentation extends JFXBaseRepresentation<Ellipse, LEDWidget>
     {
         colors = new Color[]
         {
-            JFXUtil.convert(model_widget.getPropertyValue(off_color)),
-            JFXUtil.convert(model_widget.getPropertyValue(on_color))
+            JFXUtil.convert(model_widget.offColor().getValue()),
+            JFXUtil.convert(model_widget.onColor().getValue())
         };
     }
 
@@ -116,10 +116,10 @@ public class LEDRepresentation extends JFXBaseRepresentation<Ellipse, LEDWidget>
     {
         if (dirty_position.checkAndClear())
         {
-            final int x = model_widget.getPropertyValue(positionX);
-            final int y = model_widget.getPropertyValue(positionY);
-            final int w = model_widget.getPropertyValue(positionWidth);
-            final int h = model_widget.getPropertyValue(positionHeight);
+            final int x = model_widget.positionX().getValue();
+            final int y = model_widget.positionY().getValue();
+            final int w = model_widget.positionWidth().getValue();
+            final int h = model_widget.positionHeight().getValue();
             jfx_node.setCenterX(x + w/2);
             jfx_node.setCenterY(y + h/2);
             jfx_node.setRadiusX(w/2);

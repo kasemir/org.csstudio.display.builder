@@ -16,8 +16,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class ContainerWidget extends Widget
+public class ContainerWidget extends BaseWidget
 {
+    // TODO Not a property as usual, no change notification..
     /** Child Widgets
      *
      *  <p>Fundamentally thread safe.

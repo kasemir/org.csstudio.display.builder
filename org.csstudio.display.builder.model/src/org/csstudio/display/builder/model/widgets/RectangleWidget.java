@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model.widgets;
 import java.util.Arrays;
 import java.util.List;
 
+import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
@@ -20,7 +21,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class RectangleWidget extends Widget
+public class RectangleWidget extends BaseWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR

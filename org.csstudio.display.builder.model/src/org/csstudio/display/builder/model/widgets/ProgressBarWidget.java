@@ -13,17 +13,19 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import java.util.Arrays;
 import java.util.List;
 
+import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.epics.vtype.VType;
 
 /** Widget that displays a progress bar
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class ProgressBarWidget extends Widget
+public class ProgressBarWidget extends BaseWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR
@@ -49,5 +51,17 @@ public class ProgressBarWidget extends Widget
         super.defineProperties(properties);
         properties.add(behaviorPVName.createProperty(this, ""));
         properties.add(runtimeValue.createProperty(this, null));
+    }
+
+    /** @return Behavior 'pv_name' */
+    public WidgetProperty<String> behaviorPVName()
+    {
+        return getProperty(behaviorPVName);
+    }
+
+    /** @return Runtime 'value' */
+    public WidgetProperty<VType> runtimeValue()
+    {
+        return getProperty(runtimeValue);
     }
 }

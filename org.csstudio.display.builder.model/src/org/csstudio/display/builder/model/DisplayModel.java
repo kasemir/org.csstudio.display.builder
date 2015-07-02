@@ -53,10 +53,14 @@ public class DisplayModel extends ContainerWidget
     @Override
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
-        // Does NOT invoke super.defineProperties()
-        // because Display does not need the normal Widget properties
-
+        super.defineProperties(properties);
         properties.add(widgetMacros.createProperty(this, new Macros()));
+    }
+
+    /** @return Widget 'macros' */
+    public WidgetProperty<Macros> widgetMacros()
+    {
+        return getProperty(widgetMacros);
     }
 
     @Override

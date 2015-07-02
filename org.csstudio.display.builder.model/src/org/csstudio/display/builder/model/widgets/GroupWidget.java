@@ -66,6 +66,18 @@ public class GroupWidget extends ContainerWidget
         properties.add(displayBackgroundColor.createProperty(this, new WidgetColor(255, 255, 255)));
     }
 
+    /** @return Widget 'macros' */
+    public WidgetProperty<Macros> widgetMacros()
+    {
+        return getProperty(widgetMacros);
+    }
+
+    /** @return Display 'background_color' */
+    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    {
+        return getProperty(displayBackgroundColor);
+    }
+
     /** Group widget extends parent macros
      *  @return {@link Macros}
      */

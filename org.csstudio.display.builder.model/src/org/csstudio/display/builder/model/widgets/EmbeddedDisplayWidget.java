@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
@@ -29,7 +30,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class EmbeddedDisplayWidget extends Widget
+public class EmbeddedDisplayWidget extends BaseWidget
 {
     /** Reserved widget user data key for representation container.
      *
@@ -89,8 +90,20 @@ public class EmbeddedDisplayWidget extends Widget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(displayFile.createProperty(this, ""));
         properties.add(widgetMacros.createProperty(this, new Macros()));
+        properties.add(displayFile.createProperty(this, ""));
+    }
+
+    /** @return Widget 'macros' */
+    public WidgetProperty<Macros> widgetMacros()
+    {
+        return getProperty(widgetMacros);
+    }
+
+    /** @return Display 'file' */
+    public WidgetProperty<String> displayFile()
+    {
+        return getProperty(displayFile);
     }
 
     @Override

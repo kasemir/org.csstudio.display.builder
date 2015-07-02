@@ -11,13 +11,13 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 
 import java.beans.PropertyChangeEvent;
 
-import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
-
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -56,6 +56,6 @@ public class LabelRepresentation extends JFXBaseRepresentation<Label, LabelWidge
     {
         super.updateChanges();
         if (dirty_content.checkAndClear())
-            jfx_node.setText(model_widget.getPropertyValue(displayText));
+            jfx_node.setText(model_widget.displayText().getValue());
     }
 }
