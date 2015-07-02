@@ -7,15 +7,15 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
 import org.junit.Test;
 
 /** JUnit test of widget properties
@@ -28,7 +28,7 @@ public class WidgetPropertyUnitTest
     @Test
     public void testCommonWidgetProperty()
     {
-        final Widget widget = new Widget("generic");
+        final Widget widget = new BaseWidget("generic");
         System.out.println(widget);
         widget.setPropertyValue(widgetName, "test1");
         assertThat(widget.getName(), equalTo("test1"));

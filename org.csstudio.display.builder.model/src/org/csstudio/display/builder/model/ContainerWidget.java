@@ -18,13 +18,45 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @SuppressWarnings("nls")
 public class ContainerWidget extends BaseWidget
 {
-    // TODO Not a property as usual, no change notification..
-    /** Child Widgets
-     *
-     *  <p>Fundamentally thread safe.
-     *  Still lock on 'children' for get-and-update operations.
-     */
-    protected final List<Widget> children = new CopyOnWriteArrayList<>();
+    // 'children' is a property to allow notifications,
+    // but setting its value or creating additional property instances
+    // is not supported.
+    //
+    // All access must be via the ContainerWidget.add/removeChild() methods.
+    private static final WidgetPropertyDescriptor<List<Widget>> CHILD_PROPERTY_DESCRIPTOR =
+            new WidgetPropertyDescriptor<List<Widget>>(
+                    WidgetPropertyCategory.RUNTIME, "children", "Child widgets")
+    {
+        @Override
+        public WidgetProperty<List<Widget>> createProperty(final Widget widget,
+                final List<Widget> ignored)
+        {
+            throw new UnsupportedOperationException();
+        }
+    };
+
+    private static class ChildrenWidgetsProperty extends RuntimeWidgetProperty<List<Widget>>
+    {
+        public ChildrenWidgetsProperty(final Widget widget)
+        {
+            super(CHILD_PROPERTY_DESCRIPTOR, widget, new CopyOnWriteArrayList<>());
+        }
+
+        @Override
+        public void setValueFromObject(final Object value) throws Exception
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setValue(final List<Widget> value)
+        {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    /** Child Widgets */
+    protected final ChildrenWidgetsProperty children;
 
     /** Widget constructor.
      *  @param type Widget type
@@ -32,28 +64,36 @@ public class ContainerWidget extends BaseWidget
     public ContainerWidget(final String type)
     {
     	super(type);
+    	children = new ChildrenWidgetsProperty(this);
     }
 
 	/** @return Child widgets in Widget tree */
     public List<Widget> getChildren()
     {
-        return Collections.unmodifiableList(children);
+        return Collections.unmodifiableList(children.getValue());
     }
 
     /** @param child Widget to add as child in widget tree */
     public void addChild(final Widget child)
     {
-        if (children.contains(child))
-            throw new IllegalArgumentException(this +
-                    " already has child widget " + child);
-        children.add(child);
+        final List<Widget> list = children.getValue();
+        synchronized (list)
+        {
+            if (list.contains(child))
+                throw new IllegalArgumentException(this +
+                        " already has child widget " + child);
+            list.add(child);
+        }
         child.setParent(this);
+        firePropertyChange(children, null, child);
     }
 
     /** @param child Widget to remove as child from widget tree */
     public void removeChild(final Widget child)
     {
-        children.remove(child);
+        final List<Widget> list = children.getValue();
+        list.remove(child);
         child.setParent(null);
+        firePropertyChange(children, child, null);
     }
 }

@@ -113,7 +113,7 @@ public class DisplayModel extends ContainerWidget
     public void replaceWith(final DisplayModel other_model)
     {
         // removeChild also updates the child's parent. children.clear() wouldn't
-        for (Widget child : children)
+        for (Widget child : getChildren())
             removeChild(child);
         for (Widget child : other_model.getChildren())
         {
