@@ -11,6 +11,8 @@ import java.util.List;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.macros.MacroHandler;
+import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.runtime.ResourceUtil;
@@ -43,8 +45,10 @@ public class RuntimeScriptHandler implements PVListener
         this.widget = widget;
         this.infos = script_info.getPVs();
 
+        final Macros macros = widget.getEffectiveMacros();
+
         // Compile script
-        final String script_name = script_info.getFile();
+        final String script_name = MacroHandler.replace(macros, script_info.getFile());
         final ScriptSupport scripting = RuntimeUtil.getScriptSupport(widget);
 
         final DisplayModel model = RuntimeUtil.getDisplayModel(widget);
@@ -55,8 +59,10 @@ public class RuntimeScriptHandler implements PVListener
         // Create PVs
         pvs = new PV[infos.size()];
         for (int i=0; i<pvs.length; ++i)
-            pvs[i] = PVPool.getPV(infos.get(i).getName());
-
+        {
+            final String pv_name = MacroHandler.replace(macros, infos.get(i).getName());
+            pvs[i] = PVPool.getPV(pv_name);
+        }
         // Subscribe to trigger PVs
         for (int i=0; i<pvs.length; ++i)
             if (infos.get(i).isTrigger())
