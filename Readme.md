@@ -65,7 +65,7 @@ Major TODOs:
  
 ** Runtime **
 
-Connects to PVs, executes Jython scripts in background threads.
+Connects to PVs, executes Jython and JavaScript in background threads.
 Throttled updates on user interface thread.
 Resolves embedded displays relative to parent.
 

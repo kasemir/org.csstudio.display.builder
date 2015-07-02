@@ -25,7 +25,7 @@ import org.epics.vtype.VType;
 /** Handler for one script of a widget.
  *
  *  <p>Compiles script, connects to PVs,
- *  invokes script on trigger PV changes.
+ *  invokes script when trigger PVs change.
  *
  *  @author Kay Kasemir
  */
@@ -34,6 +34,8 @@ public class RuntimeScriptHandler implements PVListener
     private final Widget widget;
     private final List<ScriptPV> infos;
     private final Script script;
+
+    /** 'pvs' is aligned with 'infos', i.e. pv[i] goes with infos.get(i) */
     private final PV[] pvs;
 
     /** @param widget Widget on which the script is invoked
@@ -69,11 +71,6 @@ public class RuntimeScriptHandler implements PVListener
                 pvs[i].addListener(this);
     }
 
-    private void invoke_script()
-    {
-        script.submit(widget, pvs);
-    }
-
     /** Must be invoked to dispose PVs */
     public void shutdown()
     {
@@ -88,7 +85,8 @@ public class RuntimeScriptHandler implements PVListener
     @Override
     public void valueChanged(final PV pv, final VType value)
     {
-        RuntimeUtil.getExecutor().execute(this::invoke_script);
+        // Request execution of script
+        script.submit(widget, pvs);
     }
 
     @Override

@@ -9,26 +9,27 @@ package org.csstudio.display.builder.runtime.script;
 
 import java.util.concurrent.Future;
 
+import javax.script.CompiledScript;
+
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.vtype.pv.PV;
-import org.python.core.PyCode;
 
-/** Compiled Jython script
+/** Compiled Java script
  *  @author Kay Kasemir
  */
-class JythonScript implements Script
+class JavaScript implements Script
 {
-    private final JythonScriptSupport support;
+    private final JavaScriptSupport support;
     private final String name;
-    private final PyCode code;
+    private final CompiledScript code;
 
     /** Parse and compile script file
      *
-     *  @param support {@link JythonScriptSupport} that will execute this script
+     *  @param support {@link JavaScriptSupport} that will execute this script
      *  @param name Name of script (file name, URL)
      *  @param code Compiled code
      */
-    public JythonScript(final JythonScriptSupport support, final String name, final PyCode code)
+    public JavaScript(final JavaScriptSupport support, final String name, final CompiledScript code)
     {
         this.support = support;
         this.name = name;
@@ -42,7 +43,7 @@ class JythonScript implements Script
     }
 
     /** @return Compiled code */
-    public PyCode getCode()
+    public CompiledScript getCode()
     {
         return code;
     }

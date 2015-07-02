@@ -10,6 +10,8 @@ package org.csstudio.display.builder.runtime.script;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
+import org.csstudio.display.builder.model.util.NamedDaemonPool;
+
 /** Script (Jython, Javascript) Support
  *
  *  <p>Each instance of the support module maintains one interpreter instance.
@@ -23,12 +25,16 @@ import java.io.InputStream;
 @SuppressWarnings("nls")
 public class ScriptSupport
 {
+    /** Pool for script related executors */
+    static final NamedDaemonPool POOL = new NamedDaemonPool("ScriptSupport");
+
     private final JythonScriptSupport jython;
-    // TODO Implement for JavaScript
+    private final JavaScriptSupport javascript;
 
     public ScriptSupport() throws Exception
     {
         jython = new JythonScriptSupport();
+        javascript = new JavaScriptSupport();
     }
 
     /** Parse and compile script file
@@ -53,13 +59,15 @@ public class ScriptSupport
     {
         if (name.endsWith(".py"))
             return jython.compile(name, stream);
-        // TODO Handle ".js"
+        else if (name.endsWith(".js"))
+            return javascript.compile(name, stream);
         throw new Exception("Cannot compile '" + name + "'");
     }
 
     /** Release resources (interpreter, ...) */
     public void close()
     {
+        javascript.close();
         jython.close();
     }
 }

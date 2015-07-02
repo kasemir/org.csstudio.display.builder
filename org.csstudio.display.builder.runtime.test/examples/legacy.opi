@@ -186,6 +186,9 @@ $(pv_value)</tooltip>
         <path pathString="fudge_width.py" checkConnect="true" sfe="false" seoe="false">
           <pv trig="true">noise</pv>
         </path>
+        <path pathString="test.js" checkConnect="true" sfe="false" seoe="false">
+          <pv trig="true">noise</pv>
+        </path>
       </scripts>
       <border_alarm_sensitive>false</border_alarm_sensitive>
       <height>26</height>
