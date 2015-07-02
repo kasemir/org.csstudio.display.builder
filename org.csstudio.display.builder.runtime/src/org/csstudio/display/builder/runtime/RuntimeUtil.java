@@ -110,7 +110,13 @@ public class RuntimeUtil
     public static ScriptSupport getScriptSupport(final Widget widget) throws Exception
     {
         final DisplayModel model = getTopDisplayModel(widget);
-        synchronized (Widget.USER_DATA_SCRIPT_SUPPORT)
+        // During display startup, several widgets will concurrently request script support.
+        // Assert that only one ScriptSupport is created.
+        // Synchronizing on the model seems straight forward because this is about script support
+        // for this specific model, but don't want to conflict with other code that may eventually
+        // need to lock the model for other reasons.
+        // So sync'ing on the ScriptSupport class
+        synchronized (ScriptSupport.class)
         {
             ScriptSupport scripting = model.getUserData(Widget.USER_DATA_SCRIPT_SUPPORT);
             if (scripting == null)
