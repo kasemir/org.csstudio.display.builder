@@ -76,6 +76,23 @@ public class Macros
         return macros.get(name);
     }
 
+    // Hash based on content
+    @Override
+    public int hashCode()
+    {
+        return macros.hashCode();
+    }
+
+    // Compare based on content
+    @Override
+    public boolean equals(final Object obj)
+    {
+        if (! (obj instanceof Macros))
+            return false;
+        final Macros other = (Macros) obj;
+        return other.macros.equals(macros);
+    }
+
     /** @return String representation for debugging */
     @Override
     public String toString()

@@ -59,20 +59,21 @@ public class ActionUtil
     {
         try
         {
-            // Load new model. If that fails, no reason to continue.
-            final DisplayModel widget_model = RuntimeUtil.getDisplayModel(source_widget);
-            // Resolve new display path relative to the source widget, not the 'top'!
-            final String parent_path = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
             // Path to resolve, after expanding macros
             final Macros macros = Macros.merge(source_widget.getEffectiveMacros(), action.getMacros());
+            logger.log(Level.FINER, "{0}, effective macros {1}", new Object[] { action, macros });
             final String expanded_path = MacroHandler.replace(macros, action.getFile());
 
-            // Load the model
-            final DisplayModel new_model = RuntimeUtil.loadModel(parent_path, expanded_path);
+            // Resolve new display file relative to the source widget model (not 'top'!)
+            final DisplayModel widget_model = RuntimeUtil.getDisplayModel(source_widget);
+            final String parent_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
 
-            // Model is standalone; The source_widget (Action button, ..) is _not_ the parent,
-            // but it does provide set initial macros.
-            new_model.setPropertyValue(widgetMacros, source_widget.getEffectiveMacros());
+            // Load new model. If that fails, no reason to continue.
+            final DisplayModel new_model = RuntimeUtil.loadModel(parent_file, expanded_path);
+
+            // Model is standalone; source_widget (Action button, ..) is _not_ the parent,
+            // but it does provide initial macros.
+            new_model.setPropertyValue(widgetMacros, macros);
 
             // On UI thread...
             final DisplayModel top_model = RuntimeUtil.getTopDisplayModel(source_widget);
