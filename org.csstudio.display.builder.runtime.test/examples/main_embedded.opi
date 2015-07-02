@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Embedded</name>
+  <width>500</width>
+  <height>400</height>
+  
+  <widget type="label" version="1.0.0">
+    <y>4</y>
+    <width>15</width>
+    <height>15</height>
+    <text>$(TEXT)</text>
+  </widget>
+
+  <widget type="label" version="1.0.0">
+    <y>24</y>
+    <width>15</width>
+    <height>15</height>
+    <text>Hello from $(CONTAINER)</text>
+  </widget>
+ 
+</display>

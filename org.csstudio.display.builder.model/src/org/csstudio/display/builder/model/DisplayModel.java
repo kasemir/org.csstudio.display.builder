@@ -56,9 +56,7 @@ public class DisplayModel extends ContainerWidget
         // Does NOT invoke super.defineProperties()
         // because Display does not need the normal Widget properties
 
-        final Macros macros = new Macros();
-        // TODO Initialize macros from preferences, instead of starting with empty macros
-        properties.add(widgetMacros.createProperty(this, macros));
+        properties.add(widgetMacros.createProperty(this, new Macros()));
     }
 
     @Override
@@ -128,6 +126,15 @@ public class DisplayModel extends ContainerWidget
     @Override
     public Macros getEffectiveMacros()
     {
-        return getPropertyValue(widgetMacros);
+        final Macros my_macros = getPropertyValue(widgetMacros);
+        final Widget embedder = getUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET);
+        if (embedder != null)
+            return Macros.merge(embedder.getEffectiveMacros(), my_macros);
+        else
+        {
+            // TODO Merge macros from preferences with my_macros
+            // return Macros.merge(Preferences.getMacros(), my_macros);
+            return my_macros;
+        }
     }
 }

@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFile;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +20,7 @@ import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
@@ -69,7 +71,7 @@ public class EmbeddedDisplayWidget extends Widget
             super.configureFromXML(widget, xml);
 
             // Fall back to legacy opi_file for display file
-            if (widget.getPropertyValue(displayFile).isEmpty())
+            if (XMLUtil.getChildElement(xml, displayFile.getName()) == null)
             {
                 final Optional<String> opi_file = XMLUtil.getChildString(xml, "opi_file");
                 if (opi_file.isPresent())
@@ -88,6 +90,7 @@ public class EmbeddedDisplayWidget extends Widget
     {
         super.defineProperties(properties);
         properties.add(displayFile.createProperty(this, ""));
+        properties.add(widgetMacros.createProperty(this, new Macros()));
     }
 
     @Override
@@ -95,5 +98,16 @@ public class EmbeddedDisplayWidget extends Widget
             throws Exception
     {
         return new EmbeddedDisplayWidgetConfigurator(persisted_version);
+    }
+
+    /** Embedded widget adds/replaces parent macros
+     *  @return {@link Macros}
+     */
+    @Override
+    public Macros getEffectiveMacros()
+    {
+        final Macros base = super.getEffectiveMacros();
+        final Macros my_macros = getPropertyValue(widgetMacros);
+        return Macros.merge(base, my_macros);
     }
 }

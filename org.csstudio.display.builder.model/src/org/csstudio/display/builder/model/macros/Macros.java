@@ -25,6 +25,31 @@ public class Macros
 {
     private final Map<String, String> macros = new HashMap<>();
 
+    /** Create empty macro map */
+    public Macros()
+    {
+    }
+
+    /** Merge two macro maps
+     *
+     *  @param base Base macros
+     *  @param addition Additional macros that may override 'base'
+     *  @return Merged macros
+     */
+    public static Macros merge(final Macros base, final Macros addition)
+    {
+        // Optimize if one is empty
+        if (addition.macros.isEmpty())
+            return base;
+        if (base.macros.isEmpty())
+            return addition;
+        // Construct new macros
+        final Macros merged = new Macros();
+        merged.macros.putAll(base.macros);
+        merged.macros.putAll(addition.macros);
+        return merged;
+    }
+
     /** Add a macro
      *  @param name Name of the macro
      *  @param value Value of the macro

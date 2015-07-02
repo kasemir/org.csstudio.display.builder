@@ -3,11 +3,10 @@
   <name>Display</name>
   <width>1400</width>
   <height>1000</height>
-  
   <macros>
     <INSET>10</INSET>
     <TEXT>Hello from main display</TEXT>
-    <SHOW>true</SHOW>
+    <SHOW>false</SHOW>
   </macros>
 
   <widget type="group" version="1.0.0">
@@ -16,6 +15,10 @@
     <y>$(INSET)</y>
     <width>500</width>
     <height>400</height>
+    <macros>
+      <SHOW>true</SHOW>
+    </macros>
+    
     <widget type="label" version="1.0.0">
       <name>Hello</name>
       <y>4</y>
@@ -24,6 +27,17 @@
       <text>$(TEXT)</text>
       <visible>$(SHOW)</visible>
     </widget>
+
+    <widget type="embedded" version="1.0.0">
+      <x>10</x>
+      <y>30</y>
+      <width>400</width>
+      <height>300</height>
+      <file>main_embedded.opi</file>
+      <macros>
+        <CONTAINER>Embedded Display</CONTAINER>
+      </macros>
+    </widget>
   </widget>
- 
+  
 </display>
