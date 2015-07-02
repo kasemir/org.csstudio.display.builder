@@ -17,7 +17,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.csstudio.display.builder.model.Widget;
 import org.junit.Test;
 
 /** JUnit test of widget property subscriptions
@@ -31,7 +30,7 @@ public class WidgetPropertySubscriptionUnitTest
     public void testBasicSubscription()
     {
         final AtomicInteger updates = new AtomicInteger(0);
-        final Widget widget = new Widget("generic", "test5");
+        final Widget widget = new Widget("generic");
         final PropertyChangeListener listener = (final PropertyChangeEvent event) ->
         {
             updates.incrementAndGet();
@@ -59,7 +58,7 @@ public class WidgetPropertySubscriptionUnitTest
     @Test
     public void testSpecificSubscription()
     {
-        final Widget widget = new Widget("generic", "test6");
+        final Widget widget = new Widget("generic");
 
         final AtomicInteger updates = new AtomicInteger(0);
         final PropertyChangeListener listener = (final PropertyChangeEvent event) ->
@@ -109,7 +108,7 @@ public class WidgetPropertySubscriptionUnitTest
     @Test
     public void testInvalidSubscription()
     {
-        final Widget widget = new Widget("generic", "test6");
+        final Widget widget = new Widget("generic");
         final PropertyChangeListener listener = (p) -> {};
 
         try

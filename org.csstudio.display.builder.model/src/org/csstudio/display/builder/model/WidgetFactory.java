@@ -112,15 +112,14 @@ public class WidgetFactory
 
     /** Create a widget
      *  @param type Type ID of the widget to create
-     *  @param name Initial name for the new widget
      *  @return {@link Widget}
      *  @throws Exception on error
      */
-    public Widget createWidget(final String type, final String name) throws Exception
+    public Widget createWidget(final String type) throws Exception
     {
         final WidgetDescriptor descriptor = descriptor_by_type.get(type);
         if (descriptor == null)
             throw new Exception("Unknown widget type '" + type + "'");
-        return descriptor.createWidget(name);
+        return descriptor.createWidget();
     }
 }

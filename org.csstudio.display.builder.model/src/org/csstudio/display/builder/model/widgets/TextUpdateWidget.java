@@ -32,16 +32,15 @@ public class TextUpdateWidget extends Widget
                 Arrays.asList("org.csstudio.opibuilder.widgets.TextUpdate"))
         {
             @Override
-            public Widget createWidget(final String name)
+            public Widget createWidget()
             {
-                return new TextUpdateWidget(name);
+                return new TextUpdateWidget();
             }
         };
 
-    /** @param name Widget name */
-    public TextUpdateWidget(final String name)
+    public TextUpdateWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), name);
+        super(WIDGET_DESCRIPTOR.getType());
     }
 
     @Override

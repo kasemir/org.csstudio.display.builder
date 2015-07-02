@@ -73,7 +73,7 @@ public class MacrosUnitTest
     {
         Macros macros = MacroParser.parseDefinition("");
         System.out.println(macros);
-        assertThat(macros.toString(), equalTo(""));
+        assertThat(macros.toString(), equalTo("[]"));
 
         assertThat(MacroHandler.replace(macros, "Plain Text"), equalTo("Plain Text"));
         assertThat(MacroHandler.replace(macros, "Nothing for ${S} <-- this one"), equalTo("Nothing for ${S} <-- this one"));

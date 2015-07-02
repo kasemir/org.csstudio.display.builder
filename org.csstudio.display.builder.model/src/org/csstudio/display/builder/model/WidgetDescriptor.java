@@ -108,10 +108,9 @@ public abstract class WidgetDescriptor
     }
 
     /** Create a widget
-     *  @param name Initial name of the widget
-     *  @return
+     *  @return {@link Widget}
      */
-    abstract public Widget createWidget(final String name);
+    abstract public Widget createWidget();
 
     /** @return Debug representation */
     @Override

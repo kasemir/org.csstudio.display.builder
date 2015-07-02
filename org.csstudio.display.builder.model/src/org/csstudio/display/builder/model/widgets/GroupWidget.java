@@ -45,16 +45,15 @@ public class GroupWidget extends ContainerWidget
                 Arrays.asList("org.csstudio.opibuilder.widgets.groupingContainer"))
         {
             @Override
-            public Widget createWidget(final String name)
+            public Widget createWidget()
             {
-                return new GroupWidget(name);
+                return new GroupWidget();
             }
         };
 
-    /** @param name Widget name */
-    public GroupWidget(final String name)
+    public GroupWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), name);
+        super(WIDGET_DESCRIPTOR.getType());
     }
 
     @Override

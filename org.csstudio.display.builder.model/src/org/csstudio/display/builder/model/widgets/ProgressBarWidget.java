@@ -32,16 +32,15 @@ public class ProgressBarWidget extends Widget
                 Arrays.asList("org.csstudio.opibuilder.widgets.progressbar"))
         {
             @Override
-            public Widget createWidget(final String name)
+            public Widget createWidget()
             {
-                return new ProgressBarWidget(name);
+                return new ProgressBarWidget();
             }
         };
 
-    /** @param name Widget name */
-    public ProgressBarWidget(final String name)
+    public ProgressBarWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), name);
+        super(WIDGET_DESCRIPTOR.getType());
     }
 
     @Override

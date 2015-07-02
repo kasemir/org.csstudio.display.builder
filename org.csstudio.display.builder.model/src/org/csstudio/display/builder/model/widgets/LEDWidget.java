@@ -36,9 +36,9 @@ public class LEDWidget extends Widget
                 Arrays.asList("org.csstudio.opibuilder.widgets.LED"))
         {
             @Override
-            public Widget createWidget(final String name)
+            public Widget createWidget()
             {
-                return new LEDWidget(name);
+                return new LEDWidget();
             }
         };
 
@@ -71,10 +71,9 @@ public class LEDWidget extends Widget
     // so with the same nominal size an "alarm sensitive" LED
     // was smaller than a non-a.s. LED
 
-    /** @param name Widget name */
-    public LEDWidget(final String name)
+    public LEDWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), name);
+        super(WIDGET_DESCRIPTOR.getType());
     }
 
     @Override

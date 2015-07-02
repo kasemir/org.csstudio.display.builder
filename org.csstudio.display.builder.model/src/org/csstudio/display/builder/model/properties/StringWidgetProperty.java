@@ -9,8 +9,8 @@ package org.csstudio.display.builder.model.properties;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.w3c.dom.Element;
@@ -19,7 +19,7 @@ import org.w3c.dom.Element;
  *
  *  @author Kay Kasemir
  */
-public class StringWidgetProperty extends WidgetProperty<String>
+public class StringWidgetProperty extends MacroizedWidgetProperty<String>
 {
     /** Constructor
      *  @param descriptor Property descriptor
@@ -32,6 +32,12 @@ public class StringWidgetProperty extends WidgetProperty<String>
             final String default_value)
     {
         super(descriptor, widget, default_value);
+    }
+
+    @Override
+    protected String parseExpandedSpecification(final String text) throws Exception
+    {
+        return text;
     }
 
     @Override
@@ -49,6 +55,6 @@ public class StringWidgetProperty extends WidgetProperty<String>
     @Override
     public void readFromXML(final Element property_xml) throws Exception
     {
-        setValue(XMLUtil.getString(property_xml));
+        setSpecification(XMLUtil.getString(property_xml));
     }
 }

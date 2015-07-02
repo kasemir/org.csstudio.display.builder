@@ -31,16 +31,15 @@ public class LabelWidget extends Widget
                 Arrays.asList("org.csstudio.opibuilder.widgets.Label"))
         {
             @Override
-            public Widget createWidget(final String name)
+            public Widget createWidget()
             {
-                return new LabelWidget(name);
+                return new LabelWidget();
             }
         };
 
-    /** @param name Widget name */
-    public LabelWidget(final String name)
+    public LabelWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), name);
+        super(WIDGET_DESCRIPTOR.getType());
     }
 
     @Override

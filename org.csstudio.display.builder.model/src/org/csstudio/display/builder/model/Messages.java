@@ -39,6 +39,7 @@ public class Messages extends NLS
     public static String WidgetProperties_BackgroundColor;
     public static String WidgetProperties_File;
     public static String WidgetProperties_Height;
+    public static String WidgetProperties_Macros;
     public static String WidgetProperties_Name;
     public static String WidgetProperties_PVName;
     public static String WidgetProperties_Scripts;
@@ -55,7 +56,6 @@ public class Messages extends NLS
     public static String WidgetPropertyCategory_Position;
     public static String WidgetPropertyCategory_Runtime;
     public static String WidgetPropertyCategory_Widget;
-
 
     static
     {

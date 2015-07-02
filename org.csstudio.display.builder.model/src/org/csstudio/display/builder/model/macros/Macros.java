@@ -55,8 +55,9 @@ public class Macros
     @Override
     public String toString()
     {
-        return getNames().stream()
-                         .map((macro) -> macro + " = '" + macros.get(macro) + "'")
-                         .collect(Collectors.joining(", "));
+        return "[" + getNames().stream()
+                               .map((macro) -> macro + " = '" + macros.get(macro) + "'")
+                               .collect(Collectors.joining(", ")) +
+               "]";
     }
 }

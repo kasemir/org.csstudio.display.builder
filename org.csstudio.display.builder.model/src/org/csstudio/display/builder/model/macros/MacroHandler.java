@@ -38,7 +38,7 @@ public class MacroHandler
      *               also allowing nested "${{INNER}}"
      *  @return Text where all macros have been resolved
      */
-    public static String replace(final Macros macros, final String input, final int from)
+    private static String replace(final Macros macros, final String input, final int from)
     {
         // Short cut if there is nothing to replace
         if (input.indexOf('$',  from) < 0)

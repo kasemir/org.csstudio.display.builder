@@ -10,10 +10,12 @@ package org.csstudio.display.builder.model.properties;
 import java.util.List;
 
 import org.csstudio.display.builder.model.Messages;
+import org.csstudio.display.builder.model.RuntimeWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.macros.Macros;
 import org.epics.vtype.VType;
 
 /** Common widget properties.
@@ -58,6 +60,19 @@ public class CommonWidgetProperties
                                                      final String name)
         {
             return new StringWidgetProperty(this, widget, name);
+        }
+    };
+
+    /** Widget 'macros' */
+    public static final WidgetPropertyDescriptor<Macros> widgetMacros =
+        new WidgetPropertyDescriptor<Macros>(
+            WidgetPropertyCategory.WIDGET, "macros", Messages.WidgetProperties_Macros)
+    {
+        @Override
+        public WidgetProperty<Macros> createProperty(final Widget widget,
+                                                     final Macros macros)
+        {
+            return new MacrosWidgetProperty(this, widget, macros);
         }
     };
 

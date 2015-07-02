@@ -27,25 +27,19 @@ import org.w3c.dom.Element;
 public abstract class WidgetProperty<T extends Object>
 {
     /** 'Parent', widget that holds this property */
-    private final Widget widget;
+    protected final Widget widget;
 
+    /** Property descriptor */
     private final WidgetPropertyDescriptor<T> descriptor;
 
-    // TODO Macro or dynamic value description
-    // The property type may be Integer, but the configuration
-    // is set to "$(SOME_MACRO)".
-    //
-    // --> Add private String specification;
-    //
-    // This specification be entered and persisted.
-    // At runtime, the specification is evalutated by
-    // replacing macros, setting the actual value.
-    //
-    // Also allow entering dynamic value description
-    // (PVManager formula "=`pv1`*2" ?)?
-    // Runtime then establishes subscription and updates value?
+    /** Default value
+     *
+     *  <p>Initial value, can also be used as fallback
+     *  when receiving an invalid new value.
+     */
     protected final T default_value;
 
+    /** Current value of the property */
     protected volatile T value;
 
     /** Constructor
@@ -142,7 +136,7 @@ public abstract class WidgetProperty<T extends Object>
 
     /** Set value from Object.
      *
-     *  <p>Type-safe access via <code>setValue()</code> is preferred,
+     *  <p>Type-safe access via <code>setValue()</code> is preferred,Helper for implementing Runtime properties
      *  but if property type is not known, this method allows setting
      *  the property value from an Object.
      *
@@ -170,6 +164,6 @@ public abstract class WidgetProperty<T extends Object>
     @Override
     public String toString()
     {
-        return "Property " + getName() + " = " + value;
+        return "'" + getName() + "' = " + value;
     }
 }

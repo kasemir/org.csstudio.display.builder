@@ -7,8 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
+
 import java.util.List;
 
+import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 
 /** Display Model.
@@ -44,7 +47,7 @@ public class DisplayModel extends ContainerWidget
     /** Create display model */
     public DisplayModel()
     {
-        super("display", "Display");
+        super("display");
     }
 
     @Override
@@ -52,6 +55,10 @@ public class DisplayModel extends ContainerWidget
     {
         // Does NOT invoke super.defineProperties()
         // because Display does not need the normal Widget properties
+
+        final Macros macros = new Macros();
+        // TODO Initialize macros from preferences, instead of starting with empty macros
+        properties.add(widgetMacros.createProperty(this, macros));
     }
 
     @Override
@@ -113,5 +120,14 @@ public class DisplayModel extends ContainerWidget
         }
         user_data.clear();
         user_data.putAll(other_model.user_data);
+    }
+
+    /** Display model provides macros for all its widgets.
+     *  @return {@link Macros}
+     */
+    @Override
+    public Macros getEffectiveMacros()
+    {
+        return getPropertyValue(widgetMacros);
     }
 }

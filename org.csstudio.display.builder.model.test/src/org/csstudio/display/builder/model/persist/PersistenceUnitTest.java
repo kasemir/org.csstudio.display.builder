@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.persist;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -66,12 +67,17 @@ public class PersistenceUnitTest
             final ModelWriter writer = new ModelWriter(stream);
         )
         {
-            final Widget widget = new CustomWidget("Demo");
+            final Widget widget = new CustomWidget();
+            widget.setPropertyValue(widgetName, "Demo");
             widget.getProperty(CustomWidget.miscZeroTen).setValue(7);
             writer.writeWidget(widget);
 
-            final GroupWidget group = new GroupWidget("My Group");
-            group.addChild(new Widget("base", "Jänner"));
+            final GroupWidget group = new GroupWidget();
+            group.setPropertyValue(widgetName, "My Group");
+
+            final Widget child = new Widget("base");
+            child.setPropertyValue(widgetName, "Jänner");
+            group.addChild(child);
 
             writer.writeWidget(group);
         }
@@ -117,7 +123,7 @@ public class PersistenceUnitTest
     @Test
     public void testMultilineString() throws Exception
     {
-        final WidgetPropertyDescriptor<String> prop = CommonWidgetProperties.widgetName;
+        final WidgetPropertyDescriptor<String> prop = widgetName;
         final String written_value = "Line 1\n" +
                                      "Line 2\n" +
                                      "Line 3";
@@ -128,7 +134,8 @@ public class PersistenceUnitTest
             final ModelWriter writer = new ModelWriter(out);
         )
         {
-            final Widget widget = new Widget("base", "StringTest");
+            final Widget widget = new Widget("base");
+            widget.setPropertyValue(prop, "StringTest");
             assertThat(widget.getProperty(prop),
                        instanceOf(StringWidgetProperty.class));
             widget.getProperty(prop).setValue(written_value);
@@ -187,7 +194,8 @@ public class PersistenceUnitTest
         model.getProperty("width").setValueFromObject(400);
         model.getProperty("height").setValueFromObject(800);
 
-        final Widget widget = new Widget("base", "Test");
+        final Widget widget = new Widget("base");
+        widget.setPropertyValue(widgetName, "Test");
         widget.getProperty("x").setValueFromObject(42);
         model.addChild(widget);
 

@@ -122,7 +122,6 @@ public class ModelReader
     {
         final Version xml_version = readVersion(widget_xml);
         String type = widget_xml.getAttribute(XMLTags.TYPE);
-        final String name = XMLUtil.getChildString(widget_xml, XMLTags.NAME).orElse("");
         if (type.isEmpty())
         {
             // Fall back to legacy opibuilder:
@@ -131,7 +130,7 @@ public class ModelReader
             if (type.isEmpty())
                 throw new Exception("Missing widget type");
         }
-        final Widget widget = WidgetFactory.getInstance().createWidget(type, name);
+        final Widget widget = WidgetFactory.getInstance().createWidget(type);
         widget.getConfigurator(xml_version).configureFromXML(widget, widget_xml);
 
         if (widget instanceof ContainerWidget)

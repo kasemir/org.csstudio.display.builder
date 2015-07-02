@@ -48,9 +48,9 @@ public class EmbeddedDisplayWidget extends Widget
                 Arrays.asList("org.csstudio.opibuilder.widgets.linkingContainer"))
         {
             @Override
-            public Widget createWidget(final String name)
+            public Widget createWidget()
             {
-                return new EmbeddedDisplayWidget(name);
+                return new EmbeddedDisplayWidget();
             }
         };
 
@@ -78,10 +78,9 @@ public class EmbeddedDisplayWidget extends Widget
         }
     }
 
-    /** @param name Widget name */
-    public EmbeddedDisplayWidget(final String name)
+    public EmbeddedDisplayWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), name);
+        super(WIDGET_DESCRIPTOR.getType());
     }
 
     @Override

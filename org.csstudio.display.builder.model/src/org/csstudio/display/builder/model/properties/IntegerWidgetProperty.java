@@ -9,8 +9,8 @@ package org.csstudio.display.builder.model.properties;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.w3c.dom.Element;
@@ -20,7 +20,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class IntegerWidgetProperty extends WidgetProperty<Integer>
+public class IntegerWidgetProperty extends MacroizedWidgetProperty<Integer>
 {
     final private Integer min, max;
 
@@ -61,6 +61,27 @@ public class IntegerWidgetProperty extends WidgetProperty<Integer>
     }
 
     @Override
+    protected Integer parseExpandedSpecification(final String text) throws Exception
+    {
+        try
+        {   // Should be integer..
+            return Integer.valueOf(text);
+        }
+        catch (final NumberFormatException ex)
+        {   // .. but also allow "1e9", strictly a double, then truncate
+            try
+            {
+                return Double.valueOf(text).intValue();
+            }
+            catch (final NumberFormatException ex2)
+            {
+                throw new Exception("Integer property '" + getName() +
+                                    "' has invalid value " + text);
+            }
+        }
+    }
+
+    @Override
     protected Integer restrictValue(final Integer requested_value)
     {
         if (requested_value.compareTo(min) < 0)
@@ -78,25 +99,7 @@ public class IntegerWidgetProperty extends WidgetProperty<Integer>
         else if (value instanceof Number)
             setValue( ((Number)value).intValue());
         else if (value instanceof String)
-        {
-            final String text = (String) value;
-            try
-            {   // Should be integer..
-                setValue(Integer.valueOf(text));
-            }
-            catch (final NumberFormatException ex)
-            {   // .. but also allow "1e9", strictly a double, then truncate
-                try
-                {
-                    setValue(Double.valueOf(text).intValue());
-                }
-                catch (final NumberFormatException ex2)
-                {
-                    throw new Exception("Integer property " + getName() +
-                                        " has invalid value " + text);
-                }
-            }
-        }
+            setValue(parseExpandedSpecification((String)value));
         else
             throw new IllegalArgumentException("Property '" + getName() +
                 "' requires int, but received " + value.getClass().getName());
@@ -111,7 +114,6 @@ public class IntegerWidgetProperty extends WidgetProperty<Integer>
     @Override
     public void readFromXML(final Element property_xml) throws Exception
     {
-        final String text = XMLUtil.getString(property_xml);
-        setValueFromObject(text);
+        setSpecification(XMLUtil.getString(property_xml));
     }
 }

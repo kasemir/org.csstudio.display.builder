@@ -48,14 +48,9 @@ public class CustomWidget extends Widget
             }
         };
 
-    public CustomWidget(final String name)
-    {
-        super("custom", name);
-    }
-
     public CustomWidget()
     {
-        this("My Custom Widget");
+        super("custom");
     }
 
     @Override

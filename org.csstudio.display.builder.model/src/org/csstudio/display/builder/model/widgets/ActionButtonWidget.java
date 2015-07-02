@@ -31,16 +31,15 @@ public class ActionButtonWidget extends Widget
                 Arrays.asList("org.csstudio.opibuilder.widgets.ActionButton"))
         {
             @Override
-            public Widget createWidget(final String name)
+            public Widget createWidget()
             {
-                return new ActionButtonWidget(name);
+                return new ActionButtonWidget();
             }
         };
 
-    /** @param name Widget name */
-    public ActionButtonWidget(final String name)
+    public ActionButtonWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), name);
+        super(WIDGET_DESCRIPTOR.getType());
     }
 
     @Override

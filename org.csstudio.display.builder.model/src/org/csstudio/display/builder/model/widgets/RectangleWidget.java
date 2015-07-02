@@ -29,16 +29,15 @@ public class RectangleWidget extends Widget
                 Arrays.asList("org.csstudio.opibuilder.widgets.Rectangle"))
         {
             @Override
-            public Widget createWidget(final String name)
+            public Widget createWidget()
             {
-                return new RectangleWidget(name);
+                return new RectangleWidget();
             }
         };
 
-    /** @param name Widget name */
-    public RectangleWidget(final String name)
+    public RectangleWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), name);
+        super(WIDGET_DESCRIPTOR.getType());
     }
 
     @Override

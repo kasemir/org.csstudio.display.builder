@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionVisible;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
 
@@ -83,6 +84,7 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
      */
     protected void registerListeners()
     {
+        model_widget.addPropertyListener(positionVisible, this::positionChanged);
         model_widget.addPropertyListener(positionX, this::positionChanged);
         model_widget.addPropertyListener(positionY, this::positionChanged);
         // Would like to also listen to positionWidth & height,
@@ -103,7 +105,10 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
     public void updateChanges()
     {
         if (dirty_position.checkAndClear())
+        {
             jfx_node.relocate(model_widget.getPropertyValue(positionX).doubleValue(),
                               model_widget.getPropertyValue(positionY).doubleValue());
+            jfx_node.setVisible(model_widget.getPropertyValue(positionVisible));
+        }
     }
 }

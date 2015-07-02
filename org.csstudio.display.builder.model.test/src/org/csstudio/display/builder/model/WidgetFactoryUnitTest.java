@@ -41,9 +41,9 @@ public class WidgetFactoryUnitTest
                 "Widget base class, only useful for tests")
         {
             @Override
-            public Widget createWidget(final String name)
+            public Widget createWidget()
             {
-                return new Widget(getType(), name);
+                return new Widget(getType());
             }
         });
         factory.addWidgetType(new WidgetDescriptor("custom",
@@ -52,9 +52,9 @@ public class WidgetFactoryUnitTest
                 Arrays.asList("older_custom1", "old_custom2"))
         {
             @Override
-            public Widget createWidget(final String name)
+            public Widget createWidget()
             {
-                return new CustomWidget(name);
+                return new CustomWidget();
             }
         });
     }
@@ -93,15 +93,13 @@ public class WidgetFactoryUnitTest
     @Test
     public void testWidgetCreation() throws Exception
     {
-        Widget widget = WidgetFactory.getInstance().createWidget("base", "Test 1");
+        Widget widget = WidgetFactory.getInstance().createWidget("base");
         System.out.println(widget);
         assertThat(widget.getType(), equalTo("base"));
-        assertThat(widget.getName(), equalTo("Test 1"));
 
-        widget = WidgetFactory.getInstance().createWidget("custom", "Test 2");
+        widget = WidgetFactory.getInstance().createWidget("custom");
         System.out.println(widget);
         assertThat(widget.getType(), equalTo("custom"));
-        assertThat(widget.getName(), equalTo("Test 2"));
     }
 
     /** Fail on unknown widget
@@ -112,7 +110,7 @@ public class WidgetFactoryUnitTest
     {
         try
         {
-            WidgetFactory.getInstance().createWidget("bogus", "Nonsense");
+            WidgetFactory.getInstance().createWidget("bogus");
             fail("Created unknown widget?!");
         }
         catch (final Exception ex)
@@ -127,12 +125,12 @@ public class WidgetFactoryUnitTest
     @Test
     public void testAlternateWidgetTypes() throws Exception
     {
-        Widget widget = WidgetFactory.getInstance().createWidget("older_custom1", "Test 1");
+        Widget widget = WidgetFactory.getInstance().createWidget("older_custom1");
         assertThat(widget, not(nullValue()));
         System.out.println(widget);
         assertThat(widget.getType(), equalTo("custom"));
 
-        widget = WidgetFactory.getInstance().createWidget("old_custom2", "Test 2");
+        widget = WidgetFactory.getInstance().createWidget("old_custom2");
         assertThat(widget, not(nullValue()));
         System.out.println(widget);
         assertThat(widget.getType(), equalTo("custom"));

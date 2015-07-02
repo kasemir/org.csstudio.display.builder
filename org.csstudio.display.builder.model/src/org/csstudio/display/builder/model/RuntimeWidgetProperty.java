@@ -5,14 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.model.properties;
+package org.csstudio.display.builder.model;
 
 import javax.xml.stream.XMLStreamWriter;
 
-import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.WidgetPropertyCategory;
-import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.w3c.dom.Element;
 
 /** Helper for implementing Runtime properties.

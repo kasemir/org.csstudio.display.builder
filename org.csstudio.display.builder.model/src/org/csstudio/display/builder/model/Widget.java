@@ -33,6 +33,7 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.osgi.framework.Version;
 
@@ -128,9 +129,8 @@ public class Widget
 
     /** Widget constructor.
      *  @param type Widget type
-     *  @param name Widget name
      */
-    public Widget(final String type, final String name)
+    public Widget(final String type)
     {
         listener_support = new PropertyChangeSupport(this);
 
@@ -139,10 +139,7 @@ public class Widget
 
         // -- Mandatory properties --
         prelim_properties.add(widgetType.createProperty(this, type));
-        // Name defaults to null, is then set to the current name
-        final WidgetProperty<String> name_property = widgetName.createProperty(this, null);
-        name_property.setValue(name);
-        prelim_properties.add(name_property);
+        prelim_properties.add(widgetName.createProperty(this, ""));
         prelim_properties.add(positionX.createProperty(this, 0));
         prelim_properties.add(positionY.createProperty(this, 0));
         prelim_properties.add(positionWidth.createProperty(this, 100));
@@ -451,6 +448,24 @@ public class Widget
             final Object old_value, final Object new_value)
     {
         listener_support.firePropertyChange(property.getName(), old_value, new_value);
+    }
+
+    /** Determine effective macros.
+     *
+     *  <p>Default implementation requests macros
+     *  from parent.
+     *
+     *  @return {@link Macros}
+     *  @throws IllegalStateException
+     */
+    public Macros getEffectiveMacros()
+    {
+        final Optional<Widget> the_parent = getParent();
+        // Attempts to resolve macros should only occur
+        // for widgets that are in model
+        if (! the_parent.isPresent())
+            throw new IllegalStateException("Cannot determine macros for " + this);
+        return the_parent.get().getEffectiveMacros();
     }
 
     /** Set user data

@@ -27,11 +27,10 @@ public class ContainerWidget extends Widget
 
     /** Widget constructor.
      *  @param type Widget type
-     *  @param name Widget name
      */
-    public ContainerWidget(final String type, final String name)
+    public ContainerWidget(final String type)
     {
-    	super(type, name);
+    	super(type);
     }
 
 	/** @return Child widgets in Widget tree */

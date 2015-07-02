@@ -13,9 +13,9 @@ import static org.junit.Assert.assertThat;
 
 import java.util.List;
 
-import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
 import org.junit.Test;
 
 /** JUnit test of widget properties
@@ -28,10 +28,11 @@ public class WidgetPropertyUnitTest
     @Test
     public void testCommonWidgetProperty()
     {
-        final Widget widget = new Widget("generic", "test1");
+        final Widget widget = new Widget("generic");
         System.out.println(widget);
+        widget.setPropertyValue(widgetName, "test1");
         assertThat(widget.getName(), equalTo("test1"));
-        assertThat(widget.getProperty(CommonWidgetProperties.widgetName).getValue(), equalTo("test1"));
+        assertThat(widget.getProperty(widgetName).getValue(), equalTo("test1"));
 
         assertThat(widget.getProperty("name").getValue(), instanceOf(String.class));
         assertThat(widget.getProperty("x").getValue(), instanceOf(Integer.class));
@@ -42,8 +43,8 @@ public class WidgetPropertyUnitTest
     @Test
     public void testPropertyWrite()
     {
-        final Widget widget = new Widget("generic", "test2");
-        final WidgetProperty<Integer> property = widget.getProperty(CommonWidgetProperties.positionX);
+        final Widget widget = new Widget("generic");
+        final WidgetProperty<Integer> property = widget.getProperty(positionX);
         assertThat(property.getValue(), equalTo(0));
         assertThat(property.isDefaultValue(), equalTo(true));
 
@@ -56,7 +57,7 @@ public class WidgetPropertyUnitTest
     {
         TestWidget()
         {
-            super("generic", "test3");
+            super("generic");
         }
 
         @Override
@@ -103,9 +104,9 @@ public class WidgetPropertyUnitTest
     @Test
     public void testReadonly()
     {
-        final Widget widget = new Widget("generic", "test4");
-        final WidgetProperty<String> type = widget.getProperty(CommonWidgetProperties.widgetType);
-        final WidgetProperty<String> name = widget.getProperty(CommonWidgetProperties.widgetName);
+        final Widget widget = new Widget("generic");
+        final WidgetProperty<String> type = widget.getProperty(widgetType);
+        final WidgetProperty<String> name = widget.getProperty(widgetName);
         assertThat(type.isReadonly(), equalTo(true));
         assertThat(name.isReadonly(), equalTo(false));
 

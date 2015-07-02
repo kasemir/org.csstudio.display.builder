@@ -9,8 +9,8 @@ package org.csstudio.display.builder.model.properties;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.w3c.dom.Element;
@@ -19,7 +19,8 @@ import org.w3c.dom.Element;
  *
  *  @author Kay Kasemir
  */
-public class BooleanWidgetProperty extends WidgetProperty<Boolean>
+@SuppressWarnings("nls")
+public class BooleanWidgetProperty extends MacroizedWidgetProperty<Boolean>
 {
     /** Constructor
      *  @param descriptor Property descriptor
@@ -35,12 +36,30 @@ public class BooleanWidgetProperty extends WidgetProperty<Boolean>
     }
 
     @Override
+    protected Boolean parseExpandedSpecification(final String text) throws Exception
+    {
+        if (text == null  ||  text.isEmpty())
+            return default_value;
+        if ("true".equalsIgnoreCase(text) ||
+            "yes".equalsIgnoreCase(text)  ||
+            "1".equals(text))
+            return true;
+        if ("false".equalsIgnoreCase(text) ||
+            "no".equalsIgnoreCase(text)  ||
+            "0".equals(text))
+            return false;
+
+        throw new Exception("Boolean property '" + getName() +
+                "' has invalid value " + text);
+    }
+
+    @Override
     public void setValueFromObject(final Object value) throws Exception
     {
         if (value instanceof Boolean)
             setValue( (Boolean) value);
         else
-            setValue(Boolean.valueOf(value.toString()));
+            setValue(parseExpandedSpecification(value.toString()));
     }
 
     @Override
@@ -52,6 +71,6 @@ public class BooleanWidgetProperty extends WidgetProperty<Boolean>
     @Override
     public void readFromXML(final Element property_xml) throws Exception
     {
-        setValue(XMLUtil.parseBoolean(XMLUtil.getString(property_xml), default_value));
+        setSpecification(XMLUtil.getString(property_xml));
     }
 }

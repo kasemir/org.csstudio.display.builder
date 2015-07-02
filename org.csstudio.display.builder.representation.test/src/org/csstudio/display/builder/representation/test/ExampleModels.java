@@ -38,13 +38,15 @@ public class ExampleModels
             final int x = 0 + (i / 20) * 132;
             final int y = 0 + (i % 20) * 50;
 
-            final GroupWidget group = new GroupWidget("Group " + i);
+            final GroupWidget group = new GroupWidget();
+            group.setPropertyValue(CommonWidgetProperties.widgetName, "Group " + i);
             group.setPropertyValue(CommonWidgetProperties.positionX, x);
             group.setPropertyValue(CommonWidgetProperties.positionY, y);
             group.setPropertyValue(CommonWidgetProperties.positionWidth, 125);
             group.setPropertyValue(CommonWidgetProperties.positionHeight, 53);
 
-            final LabelWidget label = new LabelWidget("Label " + i);
+            final LabelWidget label = new LabelWidget();
+            label.setPropertyValue(CommonWidgetProperties.widgetName, "Label " + i);
             label.setPropertyValue(CommonWidgetProperties.positionX, 0);
             label.setPropertyValue(CommonWidgetProperties.positionY, 4);
             label.setPropertyValue(CommonWidgetProperties.positionWidth, 15);
@@ -54,7 +56,8 @@ public class ExampleModels
 
             // For SWT implementation, rect. is not 'transparent',
             // so needs to be behind text
-            final RectangleWidget rect = new RectangleWidget("Rect " + i);
+            final RectangleWidget rect = new RectangleWidget();
+            rect.setPropertyValue(CommonWidgetProperties.widgetName, "Rect " + i);
             rect.setPropertyValue(CommonWidgetProperties.positionX, 10);
             rect.setPropertyValue(CommonWidgetProperties.positionY, 0);
             rect.setPropertyValue(CommonWidgetProperties.positionWidth, 80);
@@ -63,7 +66,8 @@ public class ExampleModels
                     Arrays.asList(new ScriptInfo("fudge_width.py", new ScriptPV("noise"))));
             group.addChild(rect);
 
-            final TextUpdateWidget text = new TextUpdateWidget("Text " + i);
+            final TextUpdateWidget text = new TextUpdateWidget();
+            text.setPropertyValue(CommonWidgetProperties.widgetName, "Text " + i);
             text.setPropertyValue(CommonWidgetProperties.positionX, 30);
             text.setPropertyValue(CommonWidgetProperties.positionY, 4);
             text.setPropertyValue(CommonWidgetProperties.positionWidth, 45);
