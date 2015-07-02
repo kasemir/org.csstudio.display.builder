@@ -120,8 +120,10 @@ public class DisplayModel extends ContainerWidget
             other_model.removeChild(child);
             addChild(child);
         }
+        widgetMacros().setValue(other_model.widgetMacros().getValue());
         user_data.clear();
         user_data.putAll(other_model.user_data);
+        firePropertyChange(null, null, null);
     }
 
     /** Display model provides macros for all its widgets.

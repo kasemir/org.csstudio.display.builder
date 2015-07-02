@@ -479,14 +479,17 @@ public class Widget
      *  but in multi-threaded context value might already have changed
      *  _again_ by the time this executes.
      *
-     *  @param property Property that changed
+     *  @param property Property that changed, or <code>null</code> for "widget"
      *  @param old_value Original value
      *  @param new_value New value
      */
     void firePropertyChange(final WidgetProperty<?> property,
             final Object old_value, final Object new_value)
     {
-        listener_support.firePropertyChange(property.getName(), old_value, new_value);
+        if (property != null)
+            listener_support.firePropertyChange(property.getName(), old_value, new_value);
+        else
+            listener_support.firePropertyChange("widget", old_value, new_value);
     }
 
     /** Determine effective macros.
