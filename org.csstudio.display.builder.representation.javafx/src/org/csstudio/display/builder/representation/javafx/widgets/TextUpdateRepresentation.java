@@ -34,6 +34,7 @@ public class TextUpdateRepresentation extends JFXBaseRepresentation<Label, TextU
                                     final TextUpdateWidget model_widget)
     {
         super(toolkit, model_widget);
+        value_text = "<" + model_widget.behaviorPVName().getValue() + ">";
     }
 
     @Override
