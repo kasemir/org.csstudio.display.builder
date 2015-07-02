@@ -10,6 +10,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Kay Kasemir - SNS
 Export-Package: org.csstudio.display.builder.model,
+ org.csstudio.display.builder.model.macros,
  org.csstudio.display.builder.model.persist,
  org.csstudio.display.builder.model.properties,
  org.csstudio.display.builder.model.util,

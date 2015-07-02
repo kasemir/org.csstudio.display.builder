@@ -44,7 +44,7 @@ public class RuntimeScriptHandler implements PVListener
         this.infos = script_info.getPVs();
 
         // Compile script
-        final String script_name = script_info.getPath();
+        final String script_name = script_info.getFile();
         final ScriptSupport scripting = RuntimeUtil.getScriptSupport(widget);
 
         final DisplayModel model = RuntimeUtil.getDisplayModel(widget);

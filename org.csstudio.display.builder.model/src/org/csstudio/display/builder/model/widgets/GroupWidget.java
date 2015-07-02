@@ -66,7 +66,7 @@ public class GroupWidget extends ContainerWidget
         properties.add(displayBackgroundColor.createProperty(this, new WidgetColor(255, 255, 255)));
     }
 
-    /** Group widget adds/replaces parent macros
+    /** Group widget extends parent macros
      *  @return {@link Macros}
      */
     @Override

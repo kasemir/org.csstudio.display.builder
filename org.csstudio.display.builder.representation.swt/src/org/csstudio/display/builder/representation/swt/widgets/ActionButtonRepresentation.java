@@ -94,10 +94,10 @@ public class ActionButtonRepresentation extends SWTBaseRepresentation<Button, Ac
         {
             final OpenDisplayActionInfo orig = (OpenDisplayActionInfo) action;
             if ((state_mask & SWT.CONTROL) != 0)
-                action = new OpenDisplayActionInfo(orig.getDescription(), orig.getPath(),
+                action = new OpenDisplayActionInfo(orig.getDescription(), orig.getFile(),
                                                    orig.getMacros(), OpenDisplayActionInfo.Target.TAB);
             if ((state_mask & SWT.SHIFT) != 0)
-                action = new OpenDisplayActionInfo(orig.getDescription(), orig.getPath(),
+                action = new OpenDisplayActionInfo(orig.getDescription(), orig.getFile(),
                                                    orig.getMacros(), OpenDisplayActionInfo.Target.WINDOW);
         }
 

@@ -116,7 +116,7 @@ public class WidgetRuntime<MW extends Widget>
             catch (Exception ex)
             {
                 logger.log(Level.WARNING,
-                    "Widget " + widget.getName() + " script " + script_info.getPath() + " failed to initialize", ex);
+                    "Widget " + widget.getName() + " script " + script_info.getFile() + " failed to initialize", ex);
             }
         }
     }

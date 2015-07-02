@@ -59,7 +59,7 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
         for (ScriptInfo info : value)
         {
             writer.writeStartElement(XMLTags.SCRIPT);
-            writer.writeAttribute(XMLTags.PATH, info.getPath());
+            writer.writeAttribute(XMLTags.FILE, info.getFile());
             for (ScriptPV pv : info.getPVs())
             {
                 writer.writeStartElement(XMLTags.PV);
@@ -88,11 +88,11 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
         final List<ScriptInfo> scripts = new ArrayList<>();
         for (Element xml : script_xml)
         {
-            String path = xml.getAttribute(XMLTags.PATH);
-            if (path.isEmpty())
-                path = xml.getAttribute("pathString");
+            String file = xml.getAttribute(XMLTags.FILE);
+            if (file.isEmpty())
+                file = xml.getAttribute("pathString");
             final List<ScriptPV> pvs = readPVs(xml);
-            scripts.add(new ScriptInfo(path, pvs));
+            scripts.add(new ScriptInfo(file, pvs));
         }
         setValue(scripts);
     }

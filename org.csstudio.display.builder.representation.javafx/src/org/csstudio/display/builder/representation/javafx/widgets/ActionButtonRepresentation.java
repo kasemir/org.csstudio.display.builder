@@ -113,7 +113,7 @@ public class ActionButtonRepresentation extends JFXBaseRepresentation<ButtonBase
         if (action instanceof OpenDisplayActionInfo  &&  target_modifier.isPresent())
         {
             final OpenDisplayActionInfo orig = (OpenDisplayActionInfo) action;
-            action = new OpenDisplayActionInfo(orig.getDescription(), orig.getPath(), orig.getMacros(), target_modifier.get());
+            action = new OpenDisplayActionInfo(orig.getDescription(), orig.getFile(), orig.getMacros(), target_modifier.get());
         }
 
         try

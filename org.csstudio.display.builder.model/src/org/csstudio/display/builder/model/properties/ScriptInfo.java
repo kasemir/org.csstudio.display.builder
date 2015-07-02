@@ -26,12 +26,12 @@ import java.util.Objects;
 @SuppressWarnings("nls")
 public class ScriptInfo
 {
-    private final String path;
+    private final String file;
     private final List<ScriptPV> pvs;
 
-    public ScriptInfo(final String path, final List<ScriptPV> pvs)
+    public ScriptInfo(final String file, final List<ScriptPV> pvs)
     {
-        this.path = Objects.requireNonNull(path);
+        this.file = Objects.requireNonNull(file);
         this.pvs = Objects.requireNonNull(pvs);
     }
 
@@ -40,10 +40,10 @@ public class ScriptInfo
         this(path, Arrays.asList(pvs));
     }
 
-    /** @return Path to the script. File ending determines type of script */
-    public String getPath()
+    /** @return Path to the script. May be URL, or contain macros. File ending determines type of script */
+    public String getFile()
     {
-        return path;
+        return file;
     }
 
     /** @return Input/Output PVs used by the script */
@@ -55,6 +55,6 @@ public class ScriptInfo
     @Override
     public String toString()
     {
-        return "ScriptInfo(path='" + path + "', " + pvs + ")";
+        return "ScriptInfo('" + file + "', " + pvs + ")";
     }
 }

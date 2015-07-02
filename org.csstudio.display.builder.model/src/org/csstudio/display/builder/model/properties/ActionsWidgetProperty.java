@@ -71,8 +71,8 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
             {
                 final OpenDisplayActionInfo action = (OpenDisplayActionInfo) info;
                 writer.writeAttribute(XMLTags.TYPE, OPEN_DISPLAY);
-                writer.writeStartElement(XMLTags.PATH);
-                writer.writeCharacters(action.getPath());
+                writer.writeStartElement(XMLTags.FILE);
+                writer.writeCharacters(action.getFile());
                 writer.writeEndElement();
                 if (! action.getMacros().getNames().isEmpty())
                 {
@@ -102,8 +102,10 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
             final String type = action_xml.getAttribute(XMLTags.TYPE);
             final String description = XMLUtil.getChildString(action_xml, XMLTags.DESCRIPTION).orElse("");
             if (OPEN_DISPLAY.equalsIgnoreCase(type)) // legacy used uppercase type name
-            {
-                final String path = XMLUtil.getChildString(action_xml, XMLTags.PATH).orElse("");
+            {   // Use <file>, falling back to legacy <path>
+                final String file = XMLUtil.getChildString(action_xml, XMLTags.FILE)
+                                           .orElse(XMLUtil.getChildString(action_xml, "path")
+                                                          .orElse(""));
 
                 OpenDisplayActionInfo.Target target = OpenDisplayActionInfo.Target.REPLACE;
                 // Legacy used <replace> with value 0/1/2 for TAB/REPLACE/WINDOW
@@ -128,7 +130,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 else
                     macros = new Macros();
 
-                scripts.add(new OpenDisplayActionInfo(description, path, macros, target));
+                scripts.add(new OpenDisplayActionInfo(description, file, macros, target));
             }
             else
                 Logger.getLogger(getClass().getName())

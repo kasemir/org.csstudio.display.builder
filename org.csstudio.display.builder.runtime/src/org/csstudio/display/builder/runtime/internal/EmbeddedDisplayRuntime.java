@@ -65,7 +65,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
             // Attach toolkit to embedded model
             final ToolkitRepresentation<Object, ?> toolkit = RuntimeUtil.getToolkit(RuntimeUtil.getDisplayModel(widget));
 
-            // Place hint in embedded model that it is embedded by this widget
+            // Tell embedded model that it is held by this widget
             content_model.setUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET, widget);
 
             // Represent on UI thread

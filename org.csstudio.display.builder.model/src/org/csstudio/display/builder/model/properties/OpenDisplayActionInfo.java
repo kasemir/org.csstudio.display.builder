@@ -30,27 +30,27 @@ public class OpenDisplayActionInfo extends ActionInfo
         WINDOW;
     }
 
-    private final String path;
+    private final String file;
     private final Macros macros;
     private final Target target;
 
     /** @param description Action description
-     *  @param path Path to the display
+     *  @param file Path to the display
      *  @param macros Macros
      *  @param target Where to show the display
      */
-    public OpenDisplayActionInfo(final String description, final String path, final Macros macros, final Target target)
+    public OpenDisplayActionInfo(final String description, final String file, final Macros macros, final Target target)
     {
         super(description);
-        this.path = Objects.requireNonNull(path);
+        this.file = Objects.requireNonNull(file);
         this.macros = macros;
         this.target = target;
     }
 
-    /** @return Path to the display */
-    public String getPath()
+    /** @return Path to file (may also be URL, and contain macros) to the display */
+    public String getFile()
     {
-        return path;
+        return file;
     }
 
     /** @return Macros */
@@ -68,7 +68,7 @@ public class OpenDisplayActionInfo extends ActionInfo
     @Override
     public String toString()
     {
-        String info = "OpenDisplayAction '" + getDescription() + "', " + path + " [" + target + "]";
+        String info = "OpenDisplayAction '" + getDescription() + "', " + file + " [" + target + "]";
         final String macro_info = macros.toString();
         if (macro_info.isEmpty())
             return info;
