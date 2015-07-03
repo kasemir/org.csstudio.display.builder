@@ -131,7 +131,7 @@ but JavaFX in SWT FXCanvas uses about twice the CPU.
 Linux:
 Works on RedHat 6, JDK 1.8.0_25, 64 bit.
 Time in UI updates just "1 ms", but pure JavaFX has 8% CPU while FXCanvas version uses 20% CPU.
-On Ubunty crashes in FXCanvas creation. Problems with SWT-from-Eclipse vs. `jfxswt.jar` from JDK1.8?
+On Ubunty crashes in FXCanvas creation, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=469126
 
 __-> JFX under Eclipse (in SWT FXCanvas) cannot get full performance of standalone JavaFX.__
 
