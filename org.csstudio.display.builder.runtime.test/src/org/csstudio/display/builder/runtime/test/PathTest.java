@@ -22,7 +22,12 @@ public class PathTest
     @Test
     public void testPaths() throws Exception
     {
-        String path = ResourceUtil.combineDisplayPaths(null, "example.opi");
+        String path;
+
+        path = ResourceUtil.normalize("C:\\some path\\subdir\\file.opi");
+        assertThat(path, equalTo("C:/some path/subdir/file.opi"));
+
+        path = ResourceUtil.combineDisplayPaths(null, "example.opi");
         assertThat(path, equalTo("example.opi"));
 
         path = ResourceUtil.combineDisplayPaths("examples/dummy.opi", "example.opi");

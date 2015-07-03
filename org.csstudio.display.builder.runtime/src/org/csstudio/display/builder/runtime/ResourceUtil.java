@@ -17,7 +17,6 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
@@ -46,6 +45,18 @@ public class ResourceUtil
                isURL(path);
     }
 
+    /** Normalize a windows-type path with '\'
+     *  @param path Path that may use Windows '\'
+     *  @return Path with only '/'
+     */
+    public static String normalize(final String path)
+    {
+        // Pattern: '\(?!\)', i.e. backslash _not_ followed by another one.
+        // Each \ is doubled as \\ to get one '\' into the string,
+        // then doubled once more to tell regex that we want a '\'
+        return path.replaceAll("\\\\(?!\\\\)", "/");
+    }
+
     /** Combine display paths
      *  @param parent_display Path to a 'parent' file, may be <code>null</code>
      *  @param display_file Display file. If relative, it is resolved relative to the parent display
@@ -57,9 +68,13 @@ public class ResourceUtil
         if (parent_display == null  ||  parent_display.isEmpty())
             return display_file;
 
+        display_file = normalize(display_file);
+
         // Is display already absolute?
         if (isAbsolute(display_file))
             return display_file;
+
+        parent_display = normalize(parent_display);
 
         // Remove last segment from parent_display to get path
         int sep = parent_display.lastIndexOf('/');
@@ -105,7 +120,7 @@ public class ResourceUtil
             return display_file;
 
         // .. relative to parent?
-        String combined = combineDisplayPaths(parent_display, display_file);
+        final String combined = combineDisplayPaths(parent_display, display_file);
         if (isURL(combined))
             return combined;
 
@@ -178,14 +193,7 @@ public class ResourceUtil
         HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 
         // All-trusting host name verifier
-        final HostnameVerifier allHostsValid = new HostnameVerifier()
-        {
-            @Override
-            public boolean verify(String hostname, SSLSession session)
-            {
-                return true;
-            }
-        };
+        final HostnameVerifier allHostsValid = (hostname, session) -> true;
         HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
 
         trusting_anybody = true;
