@@ -37,6 +37,7 @@ public abstract class WidgetDescriptor
     final private WidgetCategory category;
     final private String name;
     final private String description;
+    // TODO Each Widget needs an icon for editor's palette
 
     /** @param type Type ID of the widget
      *  @param category Widget category
