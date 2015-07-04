@@ -12,15 +12,12 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 
 import java.beans.PropertyChangeEvent;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
-import org.csstudio.display.builder.representation.WidgetRepresentationListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -33,7 +30,6 @@ import org.eclipse.swt.widgets.MenuItem;
 /** Creates SWT item for model widget
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
 public class ActionButtonRepresentation extends SWTBaseRepresentation<Button, ActionButtonWidget>
 {
     private final DirtyFlag dirty_representation = new DirtyFlag();
@@ -66,7 +62,7 @@ public class ActionButtonRepresentation extends SWTBaseRepresentation<Button, Ac
         else
         {   // Add context menu if there are multiple actions
             final Menu menu = new Menu(button);
-            for (ActionInfo action : actions)
+            for (final ActionInfo action : actions)
             {
                 final MenuItem item = new MenuItem(menu, SWT.PUSH);
                 item.setText(action.getDescription());
@@ -100,17 +96,7 @@ public class ActionButtonRepresentation extends SWTBaseRepresentation<Button, Ac
                 action = new OpenDisplayActionInfo(orig.getDescription(), orig.getFile(),
                                                    orig.getMacros(), OpenDisplayActionInfo.Target.WINDOW);
         }
-
-        try
-        {
-            for (WidgetRepresentationListener listener : getListeners())
-                listener.handleAction(model_widget, action);
-        }
-        catch (Throwable ex)
-        {
-            Logger.getLogger(getClass().getName())
-                .log(Level.WARNING, "Action failure when invoking " + action + " for " + model_widget, ex);
-        }
+        toolkit.fireAction(model_widget, action);
     }
 
     @Override

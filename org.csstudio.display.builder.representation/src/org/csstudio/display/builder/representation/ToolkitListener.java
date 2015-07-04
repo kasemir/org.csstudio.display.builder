@@ -17,7 +17,7 @@ import org.csstudio.display.builder.model.properties.ActionInfo;
  *
  *  @author Kay Kasemir
  */
-public interface WidgetRepresentationListener
+public interface ToolkitListener
 {
     /** User invoked an action
      *

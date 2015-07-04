@@ -7,9 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.csstudio.display.builder.model.Widget;
 
 /** Toolkit representation for a model widget
@@ -29,11 +26,6 @@ abstract public class WidgetRepresentation<TWP, TW, MW extends Widget>
 
     /** Model widget that is represented in toolkit */
     final protected MW model_widget;
-
-    /** Listener list.
-     *  <p>Created when first listener registers
-     */
-    private List<WidgetRepresentationListener> listeners = null;
 
     /** Construct representation for a model widget
      *  @param toolkit Toolkit helper
@@ -68,24 +60,5 @@ abstract public class WidgetRepresentation<TWP, TW, MW extends Widget>
      *  <p>Override must call base class.
      */
     abstract public void updateChanges();
-
-    /** @return (Lazily created) listener list */
-    protected synchronized List<WidgetRepresentationListener> getListeners()
-    {
-        if (listeners == null)
-            listeners = new CopyOnWriteArrayList<>();
-        return listeners;
-    }
-
-    /** @param listener Listener to add */
-    public void addListener(final WidgetRepresentationListener listener)
-    {
-        getListeners().add(listener);
-    }
-
-    /** @param listener Listener to remove */
-    public void removeListener(final WidgetRepresentationListener listener)
-    {
-        getListeners().remove(listener);
-    }
 }
+

@@ -8,9 +8,11 @@
 package org.csstudio.display.builder.representation;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
@@ -21,6 +23,7 @@ import java.util.logging.Logger;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.representation.internal.UpdateThrottle;
 
 /** Representation for a toolkit.
@@ -42,9 +45,14 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
 {
     private final UpdateThrottle throttle = new UpdateThrottle(this);
 
+    // TODO Split into Factory with static map of representations,
+    //      and the per-instance ToolkitRepresentation
     /** Registered representations based on widget class */
     private final Map<Class<? extends Widget>,
                       Class<? extends WidgetRepresentation<TWP, TW, ? extends Widget>>> representations = new HashMap<>();
+
+    /** Listener list */
+    private final List<ToolkitListener> listeners = new CopyOnWriteArrayList<>();
 
     /** Register the toolkit's representation of a model widget
      *  @param widget_class Class of a model's {@link Widget}
@@ -85,7 +93,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
             {
                 representWidget(Objects.requireNonNull(parent, "Missing parent widget"), child);
             }
-            catch (Exception ex)
+            catch (final Exception ex)
             {
                 Logger.getLogger(getClass().getName()).log(Level.WARNING, "Model representation error", ex);
             }
@@ -121,7 +129,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
                 {
                     representWidget(re_parent, child);
                 }
-                catch (Exception ex)
+                catch (final Exception ex)
                 {
                     Logger.getLogger(getClass().getName())
                           .log(Level.WARNING, "Cannot represent " + child, ex);
@@ -157,6 +165,38 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         final FutureTask<T> future = new FutureTask<>(callable);
         execute(future);
         return future;
+    }
+
+    /** @param listener Listener to add */
+    public void addListener(final ToolkitListener listener)
+    {
+        System.out.println("Adding " + listener);
+        listeners.add(listener);
+    }
+
+    /** @param listener Listener to remove */
+    public void removeListener(final ToolkitListener listener)
+    {
+        System.out.println("Removing " + listener);
+        listeners.remove(listener);
+    }
+
+    /** Notify listeners that action has been invoked
+     *  @param widget Widget that invoked the action
+     *  @param action Action to perform
+     */
+    public void fireAction(final Widget widget, final ActionInfo action)
+    {
+        try
+        {
+            for (final ToolkitListener listener : listeners)
+                listener.handleAction(widget, action);
+        }
+        catch (final Throwable ex)
+        {
+            Logger.getLogger(getClass().getName())
+                  .log(Level.WARNING, "Action failure when invoking " + action + " for " + widget, ex);
+        }
     }
 
     /** Remove all the toolkit items of the model

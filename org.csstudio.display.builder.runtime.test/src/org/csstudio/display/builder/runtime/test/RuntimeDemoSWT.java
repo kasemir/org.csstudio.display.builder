@@ -45,6 +45,7 @@ public class RuntimeDemoSWT implements Runnable
     {
         final Display display = new Display();
         toolkit = new SWTRepresentation(display);
+        RuntimeUtil.hookListener(toolkit);
 
         // Load model in background
         RuntimeUtil.getExecutor().execute(() -> loadModel(display));
@@ -59,7 +60,7 @@ public class RuntimeDemoSWT implements Runnable
         display.dispose();
 
         int refs = 0;
-        for (RefCountMap.ReferencedEntry<PV> ref : PVPool.getPVReferences())
+        for (final RefCountMap.ReferencedEntry<PV> ref : PVPool.getPVReferences())
         {
             refs += ref.getReferences();
             logger.log(Level.SEVERE, "PV {0} left with {1} references", new Object[] { ref.getEntry().getName(), ref.getReferences() });
@@ -95,7 +96,7 @@ public class RuntimeDemoSWT implements Runnable
             parent = toolkit.openNewWindow(model, this::handleClose);
             toolkit.representModel(parent, model);
         }
-        catch (Exception ex)
+        catch (final Exception ex)
         {
             ex.printStackTrace();
             return;
@@ -112,7 +113,7 @@ public class RuntimeDemoSWT implements Runnable
             {
                 toolkit.disposeRepresentation(model);
             }
-            catch (Exception ex)
+            catch (final Exception ex)
             {
                 ex.printStackTrace();
             }
@@ -125,7 +126,7 @@ public class RuntimeDemoSWT implements Runnable
         toolkit.disposeRepresentation(model);
 
         int refs = 0;
-        for (RefCountMap.ReferencedEntry<PV> ref : PVPool.getPVReferences())
+        for (final RefCountMap.ReferencedEntry<PV> ref : PVPool.getPVReferences())
         {
             refs += ref.getReferences();
             logger.log(Level.SEVERE, "PV {0} left with {1} references", new Object[] { ref.getEntry().getName(), ref.getReferences() });

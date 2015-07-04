@@ -15,15 +15,12 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import java.beans.PropertyChangeEvent;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
-import org.csstudio.display.builder.representation.WidgetRepresentationListener;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -36,7 +33,6 @@ import javafx.scene.input.MouseEvent;
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
 public class ActionButtonRepresentation extends JFXBaseRepresentation<ButtonBase, ActionButtonWidget>
 {
     // Uses a Button if there is only one action,
@@ -77,7 +73,7 @@ public class ActionButtonRepresentation extends JFXBaseRepresentation<ButtonBase
         else
         {
             final MenuButton button = new MenuButton();
-            for (ActionInfo action : actions)
+            for (final ActionInfo action : actions)
             {
                 final MenuItem item = new MenuItem(action.getDescription());
                 final ActionInfo the_action = action;
@@ -115,17 +111,7 @@ public class ActionButtonRepresentation extends JFXBaseRepresentation<ButtonBase
             final OpenDisplayActionInfo orig = (OpenDisplayActionInfo) action;
             action = new OpenDisplayActionInfo(orig.getDescription(), orig.getFile(), orig.getMacros(), target_modifier.get());
         }
-
-        try
-        {
-            for (WidgetRepresentationListener listener : getListeners())
-                listener.handleAction(model_widget, action);
-        }
-        catch (Throwable ex)
-        {
-            Logger.getLogger(getClass().getName())
-                .log(Level.WARNING, "Action failure when invoking " + action + " for " + model_widget, ex);
-        }
+        toolkit.fireAction(model_widget, action);
     }
 
     @Override

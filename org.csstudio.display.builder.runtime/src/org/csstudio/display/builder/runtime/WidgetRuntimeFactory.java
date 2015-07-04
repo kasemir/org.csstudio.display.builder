@@ -12,9 +12,7 @@ import java.util.Map;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
-import org.csstudio.display.builder.runtime.internal.ActionButtonRuntime;
 import org.csstudio.display.builder.runtime.internal.DisplayRuntime;
 import org.csstudio.display.builder.runtime.internal.EmbeddedDisplayRuntime;
 
@@ -34,7 +32,6 @@ public class WidgetRuntimeFactory
         // TODO Locate runtimes in registry
         register(DisplayModel.class, DisplayRuntime.class);
 
-        register(ActionButtonWidget.class, ActionButtonRuntime.class);
         register(EmbeddedDisplayWidget.class, EmbeddedDisplayRuntime.class);
     }
 

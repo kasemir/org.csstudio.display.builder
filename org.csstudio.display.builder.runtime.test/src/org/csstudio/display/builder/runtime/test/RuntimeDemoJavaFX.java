@@ -46,6 +46,7 @@ public class RuntimeDemoJavaFX extends Application
     public void start(final Stage stage)
     {
         toolkit = new JFXRepresentation(stage);
+        RuntimeUtil.hookListener(toolkit);
         // Load model in background
         RuntimeUtil.getExecutor().execute(() -> loadModel(stage));
     }
@@ -73,7 +74,7 @@ public class RuntimeDemoJavaFX extends Application
             final Group parent = toolkit.openNewWindow(model, this::handleClose);
             toolkit.representModel(parent, model);
         }
-        catch (Exception ex)
+        catch (final Exception ex)
         {
             ex.printStackTrace();
         }
@@ -88,7 +89,7 @@ public class RuntimeDemoJavaFX extends Application
         toolkit.disposeRepresentation(model);
 
         int refs = 0;
-        for (RefCountMap.ReferencedEntry<PV> ref : PVPool.getPVReferences())
+        for (final RefCountMap.ReferencedEntry<PV> ref : PVPool.getPVReferences())
         {
             refs += ref.getReferences();
             logger.log(Level.SEVERE, "PV {0} left with {1} references", new Object[] { ref.getEntry().getName(), ref.getReferences() });
