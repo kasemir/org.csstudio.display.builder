@@ -170,14 +170,12 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     /** @param listener Listener to add */
     public void addListener(final ToolkitListener listener)
     {
-        System.out.println("Adding " + listener);
         listeners.add(listener);
     }
 
     /** @param listener Listener to remove */
     public void removeListener(final ToolkitListener listener)
     {
-        System.out.println("Removing " + listener);
         listeners.remove(listener);
     }
 
