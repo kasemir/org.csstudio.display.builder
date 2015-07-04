@@ -243,4 +243,27 @@ public class CommonWidgetProperties
             };
         }
     };
+
+    /** Runtime 'insets': Container widget representations may set these. */
+    public static final WidgetPropertyDescriptor<int[]> runtimeInsets =
+        new WidgetPropertyDescriptor<int[]>(
+            WidgetPropertyCategory.RUNTIME, "insets", Messages.WidgetProperties_Insets)
+    {
+        @Override
+        public WidgetProperty<int[]> createProperty(final Widget widget,
+                                                    final int[] value)
+        {
+            return new RuntimeWidgetProperty<int[]>(this, widget, value)
+            {
+                @Override
+                public void setValueFromObject(final Object value) throws Exception
+                {
+                    if (value instanceof int[])
+                        setValue((int[]) value);
+                    else
+                        throw new Exception("Need int[2], got " + value);
+                }
+            };
+        }
+    };
 }

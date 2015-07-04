@@ -10,6 +10,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeInsets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
 
 import java.beans.PropertyChangeEvent;
@@ -71,6 +72,8 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
 
         inner = new Group();
         inner.relocate(inset, 2*inset);
+
+        model_widget.setPropertyValue(runtimeInsets, new int[] { inset, 2*inset });
 
         // Would be easy to scale the content
         // in case it needs to grow/shrink to fit

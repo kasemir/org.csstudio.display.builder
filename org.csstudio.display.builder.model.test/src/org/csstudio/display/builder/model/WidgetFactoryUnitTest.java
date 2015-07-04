@@ -37,7 +37,7 @@ public class WidgetFactoryUnitTest
             return;
 
         factory.addWidgetType(new WidgetDescriptor("base",
-                WidgetCategory.MISC, "Base",
+                WidgetCategory.MISC, "Base", "dummy_icon.png",
                 "Widget base class, only useful for tests")
         {
             @Override
@@ -47,7 +47,7 @@ public class WidgetFactoryUnitTest
             }
         });
         factory.addWidgetType(new WidgetDescriptor("custom",
-                WidgetCategory.GRAPHIC, "Custom",
+                WidgetCategory.GRAPHIC, "Custom", "dummy_icon.png",
                 "Custom Widget, has a few additional properties",
                 Arrays.asList("older_custom1", "old_custom2"))
         {

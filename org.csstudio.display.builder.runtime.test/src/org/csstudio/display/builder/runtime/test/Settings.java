@@ -18,9 +18,9 @@ public class Settings
 {
     public static final String example_name =
 //        "example.opi";
-        "legacy.opi";
+//        "legacy.opi";
 //        "legacy_embed.opi";
-//        "https://webopi.sns.gov/webopi/opi/Instruments.opi";
+        "https://webopi.sns.gov/webopi/opi/Instruments.opi";
 //          "main.opi";
 
     public static void setup() throws Exception

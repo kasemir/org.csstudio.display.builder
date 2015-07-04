@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeInsets;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -67,7 +69,14 @@ public class ContainerWidget extends BaseWidget
     	children = new ChildrenWidgetsProperty(this);
     }
 
-	/** @return Child widgets in Widget tree */
+    @Override
+    protected void defineProperties(final List<WidgetProperty<?>> properties)
+    {
+        super.defineProperties(properties);
+        properties.add(runtimeInsets.createProperty(this, new int[] { 0, 0 }));
+    }
+
+    /** @return Child widgets in Widget tree */
     public List<Widget> getChildren()
     {
         return Collections.unmodifiableList(children.getValue());
