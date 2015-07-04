@@ -33,7 +33,7 @@ public class LEDWidget extends BaseWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR
-        = new WidgetDescriptor("led", WidgetCategory.GRAPHIC,
+        = new WidgetDescriptor("led", WidgetCategory.MONITOR,
                 Messages.LEDWidget_Name, Messages.LEDWidget_Description,
                 Arrays.asList("org.csstudio.opibuilder.widgets.LED"))
         {
