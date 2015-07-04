@@ -30,7 +30,9 @@ public class TextUpdateWidget extends BaseWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR
         = new WidgetDescriptor("textupdate", WidgetCategory.MONITOR,
-                Messages.TextUpdateWidget_Name, Messages.TextUpdateWidget_Description,
+                Messages.TextUpdateWidget_Name,
+                "platform:/plugin/org.csstudio.display.builder.model/icons/textupdate.png",
+                Messages.TextUpdateWidget_Description,
                 Arrays.asList("org.csstudio.opibuilder.widgets.TextUpdate"))
         {
             @Override

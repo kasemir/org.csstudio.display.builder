@@ -30,7 +30,9 @@ public class ProgressBarWidget extends BaseWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR
         = new WidgetDescriptor("progressbar", WidgetCategory.MONITOR,
-                Messages.ProgressBar_Name, Messages.ProgressBar_Description,
+                Messages.ProgressBar_Name,
+                "platform:/plugin/org.csstudio.display.builder.model/icons/progressbar.png",
+                Messages.ProgressBar_Description,
                 Arrays.asList("org.csstudio.opibuilder.widgets.progressbar"))
         {
             @Override

@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,31 +38,35 @@ public abstract class WidgetDescriptor
     final private List<String> alternate_types;
     final private WidgetCategory category;
     final private String name;
+    final private String icon;
     final private String description;
-    // TODO Each Widget needs an icon for editor's palette
 
     /** @param type Type ID of the widget
      *  @param category Widget category
      *  @param name Human readable name
+     *  @param icon Icon path
      *  @param description Longer description of the widget
      */
     public WidgetDescriptor(final String type,
             final WidgetCategory category,
             final String name,
+            final String icon,
             final String description)
     {
-        this(type, category, name, description, Collections.emptyList());
+        this(type, category, name, icon, description, Collections.emptyList());
     }
 
     /** @param type Type ID of the widget
      *  @param category Widget category
      *  @param name Human readable name
+     *  @param icon Icon path
      *  @param description Longer description of the widget
      *  @param alternate_types Alternate type IDs
      */
     public WidgetDescriptor(final String type,
             final WidgetCategory category,
             final String name,
+            final String icon,
             final String description,
             final List<String> alternate_types)
     {
@@ -68,6 +74,7 @@ public abstract class WidgetDescriptor
         this.category = category;
         this.alternate_types = alternate_types;
         this.name = name;
+        this.icon = icon;
         this.description = description;
     }
 
@@ -100,6 +107,17 @@ public abstract class WidgetDescriptor
     public String getName()
     {
         return name;
+    }
+
+    /** @return Stream for icon's content
+     *  @throws Exception on error
+     */
+    public InputStream getIconStream() throws Exception
+    {
+        // TODO Handle "plugin://.." type path for icons inside Eclipse plugin
+        // This only works for tests
+        final String resolved = icon.replace("platform:/plugin/", "../");
+        return new FileInputStream(resolved);
     }
 
     /** @return Description of the widget */

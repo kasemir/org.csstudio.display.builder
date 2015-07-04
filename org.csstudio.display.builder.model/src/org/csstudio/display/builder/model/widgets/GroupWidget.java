@@ -43,7 +43,9 @@ public class GroupWidget extends ContainerWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR
         = new WidgetDescriptor("group", WidgetCategory.STRUCTURE,
-                Messages.GroupWidget_Name, Messages.GroupWidget_Description,
+                Messages.GroupWidget_Name,
+                "platform:/plugin/org.csstudio.display.builder.model/icons/group.png",
+                Messages.GroupWidget_Description,
                 Arrays.asList("org.csstudio.opibuilder.widgets.groupingContainer"))
         {
             @Override

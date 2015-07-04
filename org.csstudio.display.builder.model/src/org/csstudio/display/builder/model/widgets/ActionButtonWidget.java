@@ -30,7 +30,9 @@ public class ActionButtonWidget extends BaseWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR
         = new WidgetDescriptor("action_button", WidgetCategory.CONTROL,
-                Messages.ActionButtonWidget_Name, Messages.ActionButtonWidget_Description,
+                Messages.ActionButtonWidget_Name,
+                "platform:/plugin/org.csstudio.display.builder.model/icons/action_button.png",
+                Messages.ActionButtonWidget_Description,
                 Arrays.asList("org.csstudio.opibuilder.widgets.ActionButton"))
         {
             @Override

@@ -47,7 +47,9 @@ public class EmbeddedDisplayWidget extends BaseWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR
         = new WidgetDescriptor("embedded", WidgetCategory.STRUCTURE,
-                Messages.EmbeddedDisplayWidget_Name, Messages.EmbeddedDisplayWidget_Description,
+                Messages.EmbeddedDisplayWidget_Name,
+                "platform:/plugin/org.csstudio.display.builder.model/icons/embedded.png",
+                Messages.EmbeddedDisplayWidget_Description,
                 Arrays.asList("org.csstudio.opibuilder.widgets.linkingContainer"))
         {
             @Override

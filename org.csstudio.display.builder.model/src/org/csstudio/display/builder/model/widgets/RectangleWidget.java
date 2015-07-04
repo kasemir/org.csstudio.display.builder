@@ -26,7 +26,9 @@ public class RectangleWidget extends BaseWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR
         = new WidgetDescriptor("rectangle", WidgetCategory.GRAPHIC,
-                Messages.RectangleWidget_Name, Messages.RectangleWidget_Description,
+                Messages.RectangleWidget_Name,
+                "platform:/plugin/org.csstudio.display.builder.model/icons/rectangle.png",
+                Messages.RectangleWidget_Description,
                 Arrays.asList("org.csstudio.opibuilder.widgets.Rectangle"))
         {
             @Override
