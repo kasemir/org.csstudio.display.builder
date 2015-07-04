@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -36,12 +37,19 @@ public class RuntimeUtil
 {
     private static final Logger logger = Logger.getLogger(RuntimeUtil.class.getName());
 
-    private static final ToolkitListener toolkit_listener = (widget, action) -> ActionUtil.handleAction(widget, action);
+    private static final ToolkitListener toolkit_listener = new ToolkitListener()
+    {
+        @Override
+        public void handleAction(final Widget widget, final ActionInfo action)
+        {
+            ActionUtil.handleAction(widget, action);
+        }
+    };
 
     /** Connect runtime listener to toolkit
      *  @param toolkit Toolkit that runtime needs to monitor
      */
-    public static void hookListener(ToolkitRepresentation<?,?> toolkit)
+    public static void hookListener(final ToolkitRepresentation<?,?> toolkit)
     {
         toolkit.addListener(toolkit_listener);
     }

@@ -48,7 +48,14 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
     {
         jfx_node = createJFXNode();
         if (jfx_node != null)
+        {
             parent.getChildren().add(jfx_node);
+            jfx_node.setOnMouseClicked((e) ->
+            {
+                toolkit.fireClick(model_widget);
+                e.consume();
+            });
+        }
         registerListeners();
         updateChanges();
         return getChildParent(parent);

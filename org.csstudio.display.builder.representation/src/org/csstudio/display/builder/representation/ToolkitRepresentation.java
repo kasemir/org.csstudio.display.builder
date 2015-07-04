@@ -197,6 +197,15 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         }
     }
 
+    /** Notify listeners that a widget has been clicked
+     *  @param widget Widget
+     */
+    public void fireClick(Widget widget)
+    {
+        for (final ToolkitListener listener : listeners)
+            listener.handleClick(widget);
+    }
+
     /** Remove all the toolkit items of the model
      *
      *  @param model Display model

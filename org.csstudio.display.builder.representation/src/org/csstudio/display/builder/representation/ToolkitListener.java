@@ -24,5 +24,7 @@ public interface ToolkitListener
      *  @param widget {@link Widget} on which user invoked the action
      *  @param action Information about the action that user wants to be executed
      */
-    public void handleAction(Widget widget, ActionInfo action);
+    default public void handleAction(Widget widget, ActionInfo action) {};
+
+    default public void handleClick(Widget widget) {};
 }

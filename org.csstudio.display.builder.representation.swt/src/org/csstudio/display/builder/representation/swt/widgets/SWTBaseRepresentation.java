@@ -18,6 +18,8 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
@@ -47,6 +49,15 @@ abstract public class SWTBaseRepresentation<W extends Control, MW extends Widget
     final public Composite init(final Composite parent) throws Exception
     {
         control = createSWTControl(parent);
+        control.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseDown(MouseEvent e)
+            {
+                toolkit.fireClick(model_widget);
+            }
+        });
+
         registerListeners();
         updateChanges();
         return getChildParent(parent);
