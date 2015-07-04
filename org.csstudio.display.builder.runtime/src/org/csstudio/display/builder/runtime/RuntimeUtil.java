@@ -71,7 +71,7 @@ public class RuntimeUtil
      */
     public static DisplayModel getTopDisplayModel(final Widget widget) throws Exception
     {
-        DisplayModel model = getDisplayModel(widget);
+        DisplayModel model = widget.getDisplayModel();
         while (true)
         {
             final EmbeddedDisplayWidget embedder = model.getUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET);
@@ -79,21 +79,6 @@ public class RuntimeUtil
                 return model;
             model = getTopDisplayModel(embedder);
         }
-    }
-
-    /** Locate display model, i.e. root of widget tree
-     *  @param widget Widget within model
-     *  @return {@link DisplayModel} for widget
-     *  @throws Exception if widget is not part of a model
-     */
-    public static DisplayModel getDisplayModel(final Widget widget) throws Exception
-    {
-        Widget candidate = widget;
-        while (candidate.getParent().isPresent())
-            candidate = candidate.getParent().get();
-        if (candidate instanceof DisplayModel)
-            return (DisplayModel) candidate;
-        throw new Exception("Missing DisplayModel for " + widget);
     }
 
     /** Obtain script support

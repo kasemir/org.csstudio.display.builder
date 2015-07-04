@@ -55,7 +55,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         try
         {
             // Load model for displayFile, allowing lookup relative to this widget's model
-            final DisplayModel model = RuntimeUtil.getDisplayModel(widget);
+            final DisplayModel model = widget.getDisplayModel();
             final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
             final String display_file = widget.getPropertyValue(displayFile);
             content_model = RuntimeUtil.loadModel(parent_display, display_file);
@@ -63,7 +63,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
             content_model.setPropertyValue(widgetName, "EmbeddedDisplay " + display_file);
 
             // Attach toolkit to embedded model
-            final ToolkitRepresentation<Object, ?> toolkit = RuntimeUtil.getToolkit(RuntimeUtil.getDisplayModel(widget));
+            final ToolkitRepresentation<Object, ?> toolkit = RuntimeUtil.getToolkit(model);
 
             // Tell embedded model that it is held by this widget
             content_model.setUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET, widget);
@@ -71,7 +71,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
             // Represent on UI thread
             toolkit.execute(() -> representContent(toolkit));
         }
-        catch (Exception ex)
+        catch (final Exception ex)
         {
             Logger.getLogger(getClass().getName()).log(Level.WARNING,
                     "Failed to load embedded display", ex);
@@ -88,7 +88,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
             // Start runtimes of child widgets off the UI thread
             RuntimeUtil.getExecutor().execute(() -> RuntimeUtil.startRuntime(content_model));
         }
-        catch (Exception ex)
+        catch (final Exception ex)
         {
             Logger.getLogger(getClass().getName()).log(Level.WARNING,
                     "Failed to represent embedded display", ex);

@@ -65,7 +65,7 @@ public class ActionUtil
             final String expanded_path = MacroHandler.replace(macros, action.getFile());
 
             // Resolve new display file relative to the source widget model (not 'top'!)
-            final DisplayModel widget_model = RuntimeUtil.getDisplayModel(source_widget);
+            final DisplayModel widget_model = source_widget.getDisplayModel();
             final String parent_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
 
             // Load new model. If that fails, no reason to continue.
@@ -109,7 +109,7 @@ public class ActionUtil
                 RuntimeUtil.startRuntime(new_model);
             }
         }
-        catch (Exception ex)
+        catch (final Exception ex)
         {
             logger.log(Level.WARNING, "Error handling " + action, ex);
         }

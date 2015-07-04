@@ -53,7 +53,7 @@ public class RuntimeScriptHandler implements PVListener
         final String script_name = MacroHandler.replace(macros, script_info.getFile());
         final ScriptSupport scripting = RuntimeUtil.getScriptSupport(widget);
 
-        final DisplayModel model = RuntimeUtil.getDisplayModel(widget);
+        final DisplayModel model = widget.getDisplayModel();
         final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
         final String resolved = ResourceUtil.resolveDisplay(parent_display, script_name);
         script = scripting.compile(script_name, ResourceUtil.openInputStream(resolved));

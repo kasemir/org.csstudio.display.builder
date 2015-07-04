@@ -202,6 +202,20 @@ public class Widget
         this.parent = parent;
     }
 
+    /** Locate display model, i.e. root of widget tree
+     *  @return {@link DisplayModel} for widget
+     *  @throws Exception if widget is not part of a model
+     */
+    public DisplayModel getDisplayModel() throws Exception
+    {
+        Widget candidate = this;
+        while (candidate.getParent().isPresent())
+            candidate = candidate.getParent().get();
+        if (candidate instanceof DisplayModel)
+            return (DisplayModel) candidate;
+        throw new Exception("Missing DisplayModel for " + this);
+    }
+
     /** Called on construction to define widget's properties.
      *
      *  <p>Mandatory properties have already been defined.
