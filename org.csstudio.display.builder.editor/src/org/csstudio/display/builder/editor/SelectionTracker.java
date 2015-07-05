@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.Widget;
 
+import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
@@ -30,6 +31,11 @@ import javafx.scene.shape.Rectangle;
 public class SelectionTracker extends Group
 {
     private static final int handle_size = 15;
+
+    // TODO Set/change contraint from toolbar button
+    // TODO Implement TrackerSnapConstraint that snaps to nearby corners
+//    private final TrackerConstraint constraint = new TrackerNullConstraint();
+    private final TrackerConstraint constraint = new TrackerGridConstraint(10);
 
     /** Main rectangle of tracker */
     private final Rectangle tracker;
@@ -87,7 +93,8 @@ public class SelectionTracker extends Group
         tracker.setOnMouseDragged((MouseEvent event) ->
         {
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
-            updateTracker(orig_x + dx, orig_y + dy, orig_width, orig_height);
+            final Point2D point = constraint.constrain(orig_x + dx, orig_y + dy);
+            updateTracker(point.getX(), point.getY(), orig_width, orig_height);
         });
         tracker.setOnKeyPressed(this::handleKeyEvent);
 
@@ -95,49 +102,64 @@ public class SelectionTracker extends Group
         handle_top_left.setOnMouseDragged((MouseEvent event) ->
         {
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
-            updateTracker(orig_x + dx, orig_y + dy, orig_width - dx, orig_height - dy);
+            final Point2D tl = constraint.constrain(orig_x + dx, orig_y + dy);
+            updateTracker(tl.getX(), tl.getY(),
+                          orig_width - (tl.getX() - orig_x),
+                          orig_height - (tl.getY() - orig_y));
         });
         handle_top.setCursor(Cursor.N_RESIZE);
         handle_top.setOnMouseDragged((MouseEvent event) ->
         {
             final double dy = event.getY() - start_y;
-            updateTracker(orig_x, orig_y + dy, orig_width, orig_height - dy);
+            final Point2D t = constraint.constrain(orig_x, orig_y + dy);
+            updateTracker(t.getX(), t.getY(),
+                          orig_width - (t.getX() - orig_x),
+                          orig_height - (t.getY() - orig_y));
         });
         handle_top_right.setCursor(Cursor.NE_RESIZE);
         handle_top_right.setOnMouseDragged((MouseEvent event) ->
         {
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
-            updateTracker(orig_x, orig_y + dy, orig_width + dx, orig_height - dy);
+            final Point2D tr = constraint.constrain(orig_x + orig_width + dx, orig_y + dy);
+            updateTracker(orig_x, tr.getY(),
+                          tr.getX() - orig_x, orig_height - (tr.getY() - orig_y));
         });
         handle_right.setCursor(Cursor.W_RESIZE);
         handle_right.setOnMouseDragged((MouseEvent event) ->
         {
             final double dx = event.getX() - start_x;
-            updateTracker(orig_x, orig_y, orig_width + dx, orig_height);
+            final Point2D r = constraint.constrain(orig_x + orig_width + dx, orig_y);
+            updateTracker(orig_x, orig_y, r.getX() - orig_x, orig_height);
         });
         handle_bottom_right.setCursor(Cursor.SE_RESIZE);
         handle_bottom_right.setOnMouseDragged((MouseEvent event) ->
         {
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
-            updateTracker(orig_x, orig_y, orig_width + dx, orig_height + dy);
+            final Point2D br = constraint.constrain(orig_x + orig_width + dx, orig_y + orig_height + dy);
+            updateTracker(orig_x, orig_y, br.getX() - orig_x, br.getY() - orig_y);
         });
         handle_bottom.setCursor(Cursor.S_RESIZE);
         handle_bottom.setOnMouseDragged((MouseEvent event) ->
         {
             final double dy = event.getY() - start_y;
-            updateTracker(orig_x, orig_y, orig_width, orig_height + dy);
+            final Point2D b = constraint.constrain(orig_x, orig_y + orig_height + dy);
+            updateTracker(orig_x, orig_y, orig_width, b.getY() - orig_y);
         });
         handle_bottom_left.setCursor(Cursor.SW_RESIZE);
         handle_bottom_left.setOnMouseDragged((MouseEvent event) ->
         {
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
-            updateTracker(orig_x + dx, orig_y, orig_width - dx, orig_height + dy);
+            final Point2D bl = constraint.constrain(orig_x + dx, orig_y + orig_height + dy);
+            updateTracker(bl.getX(), orig_y,
+                          orig_width - (bl.getX() - orig_x),
+                          bl.getY() - orig_y);
         });
         handle_left.setCursor(Cursor.W_RESIZE);
         handle_left.setOnMouseDragged((MouseEvent event) ->
         {
             final double dx = event.getX() - start_x;
-            updateTracker(orig_x + dx, orig_y, orig_width - dx, orig_height);
+            final Point2D l = constraint.constrain(orig_x + dx, orig_y);
+            updateTracker(l.getX(), orig_y, orig_width - (l.getX() - orig_x), orig_height);
         });
     }
 
