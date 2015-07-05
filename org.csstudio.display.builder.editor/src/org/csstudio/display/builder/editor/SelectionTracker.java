@@ -33,9 +33,8 @@ public class SelectionTracker extends Group
     private static final int handle_size = 15;
 
     // TODO Set/change constraint from toolbar button
-    // TODO Implement TrackerSnapConstraint that snaps to nearby corners
 //    private final TrackerConstraint constraint = new TrackerNullConstraint();
-    private final TrackerConstraint constraint = new TrackerGridConstraint(10);
+    private TrackerConstraint constraint = new TrackerGridConstraint(10);
 
     /** Main rectangle of tracker */
     private final Rectangle tracker;
@@ -355,6 +354,18 @@ public class SelectionTracker extends Group
         unbindFromWidgets();
 
         this.widgets = widgets;
+
+        try
+        {
+            // TODO Set constraint from toolbar, then in here update current constraint
+            //      with required data
+            constraint = new TrackerSnapConstraint(widgets.get(0).getDisplayModel(), widgets);
+        }
+        catch (final Exception ex)
+        {
+            ex.printStackTrace();
+        }
+
         setVisible(true);
 
         updateTrackerFromWidgets(null);
