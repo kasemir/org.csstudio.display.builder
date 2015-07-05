@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -26,8 +27,9 @@ import javafx.scene.layout.VBox;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class PropertyGUI
+public class PropertyPanel
 {
+    private final List<WidgetPropertyBinding<?>> bindings = new ArrayList<>();
     private GridPane grid;
 
     // TODO Monitor properties for change
@@ -49,12 +51,12 @@ public class PropertyGUI
         return box_scroll;
     }
 
-    /** Activate the tracker
-     *  @param widgets Widgets to control by tracker
+    /** Populate GUI with properties of widgets
+     *  @param widgets Widgets to configure
      */
     public void setSelectedWidgets(final List<Widget> widgets)
     {
-        grid.getChildren().clear();
+        clear();
 
         // TODO Get common properties
         if (widgets.size() != 1)
@@ -82,14 +84,32 @@ public class PropertyGUI
             final Label label = new Label(property.getDescription());
             final TextField value = new TextField();
             if (property instanceof MacroizedWidgetProperty)
-                value.setText(String.valueOf(((MacroizedWidgetProperty<?>) property).getSpecification()));
+            {
+                final MacroizedWidgetPropertyBinding binding =
+                        new MacroizedWidgetPropertyBinding(value.textProperty(),
+                                                           (MacroizedWidgetProperty<?>)property);
+                bindings.add(binding);
+                binding.bind();
+            }
             else
+            {
+                // TODO
                 value.setText(String.valueOf(property.getValue()));
+            }
+
             label.getStyleClass().add("property_name");
             value.getStyleClass().add("property_value");
 
             grid.add(label, 0, row);
             grid.add(value, 1, row++);
         }
+    }
+
+    /** Clear the property GUI */
+    private void clear()
+    {
+        bindings.forEach(WidgetPropertyBinding::unbind);
+        bindings.clear();
+        grid.getChildren().clear();
     }
 }

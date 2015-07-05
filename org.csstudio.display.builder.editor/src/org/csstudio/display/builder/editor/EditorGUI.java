@@ -47,12 +47,11 @@ public class EditorGUI
 
     private volatile DisplayModel model;
     private final SelectionTracker selection_tracker;
-    private final PropertyGUI property_gui;
+    private final PropertyPanel property_panel;
 
     public EditorGUI(final Stage stage)
     {
         toolkit = new JFXRepresentation(stage);
-
         toolkit.addListener(new ToolkitListener()
         {
             @Override
@@ -63,33 +62,31 @@ public class EditorGUI
 
                 final List<Widget> selected_widgets = Arrays.asList(widget);
                 selection_tracker.setSelectedWidgets(selected_widgets);
-                property_gui.setSelectedWidgets(selected_widgets);
+                property_panel.setSelectedWidgets(selected_widgets);
             }
         });
 
         // BorderPane with
         //    toolbar
-        //    center
+        //    center = editor | palette | property_panel
         //    status
-        //
-        // Center with
-        // Editor  Palette  Properties
 
         final ToolBar toolbar = new ToolBar(
                 new Button("Do"),
                 new Separator(),
                 new Button("Something"));
 
+        // editor: model's representation in background, edit_tools on top
         model_parent = new Group();
         edit_tools = new Group();
         final ScrollPane editor = new ScrollPane(new Pane(model_parent, edit_tools));
 
         final Palette palette = new Palette();
 
-        property_gui = new PropertyGUI();
+        property_panel = new PropertyPanel();
 
-        final SplitPane center = new SplitPane(editor, palette.create(), property_gui.create());
-        center.setDividerPositions(0.6, 0.8);
+        final SplitPane center = new SplitPane(editor, palette.create(), property_panel.create());
+        center.setDividerPositions(0.6, 0.78);
 
         final Label status = new Label("Status");
 
@@ -100,7 +97,7 @@ public class EditorGUI
         BorderPane.setAlignment(center, Pos.TOP_LEFT);
 
         stage.setTitle("Editor");
-        final Scene scene = new Scene(toolbar_center_status, 800, 600);
+        final Scene scene = new Scene(toolbar_center_status, 1000, 600);
         stage.setScene(scene);
 
         // Set style sheet

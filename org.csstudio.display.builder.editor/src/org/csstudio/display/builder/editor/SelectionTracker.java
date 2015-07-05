@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
+import java.beans.PropertyChangeEvent;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -159,12 +160,18 @@ public class SelectionTracker extends Group
         orig_y = tracker.getY();
         orig_width = tracker.getWidth();
         orig_height = tracker.getHeight();
+
+        // Take snapshot of widget coords relative to parent, not absolute
         orig_position = widgets.stream().map(GeometryTools::getBounds).collect(Collectors.toList());
+
+        // Get focus to allow use of arrow keys
+        tracker.requestFocus();
     }
 
     private void endMouseDrag(final MouseEvent event)
     {
-        // updateWidgets();
+        // Get focus to allow use of arrow keys
+        tracker.requestFocus();
     }
 
     /** Allow move/resize with cursor keys.
@@ -256,30 +263,56 @@ public class SelectionTracker extends Group
         handle_left.setX(x - handle_size);
         handle_left.setY(y + (height - handle_size)/2);
 
-        updateWidgets();
-
-        // Get focus to allow use of arrow keys
-        tracker.requestFocus();
+        updateWidgetsFromTracker();
     }
 
+    /** Break update loops JFX change -> model change -> JFX change -> ... */
+    private boolean updating = false;
+
     /** Updates widgets to current tracker size */
-    private void updateWidgets()
+    private void updateWidgetsFromTracker()
     {
-        if (widgets == null  ||  orig_position == null)
+        if (updating  ||  widgets == null  ||  orig_position == null)
             return;
-        final double dx = tracker.getX() - orig_x;
-        final double dy = tracker.getY() - orig_y;
-        final double dw = tracker.getWidth() - orig_width;
-        final double dh = tracker.getHeight() - orig_height;
-        final int N = Math.min(widgets.size(), orig_position.size());
-        for (int i=0; i<N; ++i)
+        updating = true;
+        try
         {
-            final Widget widget = widgets.get(i);
-            final Rectangle2D orig = orig_position.get(i);
-            widget.positionX().setValue((int) (orig.getMinX() + dx));
-            widget.positionY().setValue((int) (orig.getMinY() + dy));
-            widget.positionWidth().setValue((int) (orig.getWidth() + dw));
-            widget.positionHeight().setValue((int) (orig.getHeight() + dh));
+            final double dx = tracker.getX() - orig_x;
+            final double dy = tracker.getY() - orig_y;
+            final double dw = tracker.getWidth() - orig_width;
+            final double dh = tracker.getHeight() - orig_height;
+            final int N = Math.min(widgets.size(), orig_position.size());
+            for (int i=0; i<N; ++i)
+            {
+                final Widget widget = widgets.get(i);
+                final Rectangle2D orig = orig_position.get(i);
+                widget.positionX().setValue((int) (orig.getMinX() + dx));
+                widget.positionY().setValue((int) (orig.getMinY() + dy));
+                widget.positionWidth().setValue((int) (orig.getWidth() + dw));
+                widget.positionHeight().setValue((int) (orig.getHeight() + dh));
+            }
+        }
+        finally
+        {
+            updating = false;
+        }
+    }
+
+    private void updateTrackerFromWidgets(final PropertyChangeEvent event)
+    {
+        if (updating)
+            return;
+        updating = true;
+        try
+        {
+            final Rectangle2D rect = widgets.stream()
+                                            .map(GeometryTools::getDisplayBounds)
+                                            .reduce(null, GeometryTools::join);
+            updateTracker(rect.getMinX(), rect.getMinY(), rect.getWidth(), rect.getHeight());
+        }
+        finally
+        {
+            updating = false;
         }
     }
 
@@ -288,14 +321,38 @@ public class SelectionTracker extends Group
      */
     public void setSelectedWidgets(final List<Widget> widgets)
     {
-        // TODO getBounds -> getBoundsAbsolute
-        // TODO Then update widget with coords relative to parent
-        this.widgets = widgets;
-        final Rectangle2D rect = widgets.stream()
-                                        .map(GeometryTools::getDisplayBounds)
-                                        .reduce(null, GeometryTools::join);
+        unbindFromWidgets();
 
+        this.widgets = widgets;
         setVisible(true);
-        updateTracker(rect.getMinX(), rect.getMinY(), rect.getWidth(), rect.getHeight());
+
+        updateTrackerFromWidgets(null);
+
+        bindToWidgets();
+
+        // Get focus to allow use of arrow keys
+        tracker.requestFocus();
+    }
+
+    private void bindToWidgets()
+    {
+        for (final Widget widget : widgets)
+        {
+            widget.positionX().addPropertyListener(this::updateTrackerFromWidgets);
+            widget.positionY().addPropertyListener(this::updateTrackerFromWidgets);
+            widget.positionWidth().addPropertyListener(this::updateTrackerFromWidgets);
+            widget.positionHeight().addPropertyListener(this::updateTrackerFromWidgets);
+        }
+    }
+
+    private void unbindFromWidgets()
+    {
+        for (final Widget widget : widgets)
+        {
+            widget.positionX().removePropertyListener(this::updateTrackerFromWidgets);
+            widget.positionY().removePropertyListener(this::updateTrackerFromWidgets);
+            widget.positionWidth().removePropertyListener(this::updateTrackerFromWidgets);
+            widget.positionHeight().removePropertyListener(this::updateTrackerFromWidgets);
+        }
     }
 }
