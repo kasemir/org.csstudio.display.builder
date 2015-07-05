@@ -11,6 +11,7 @@ package org.csstudio.display.builder.model.properties;
  *  @author Kay Kasemir
  */
 // Implementation avoids AWT, SWT, JavaFX color
+@SuppressWarnings("nls")
 public class WidgetColor
 {
     private final int red, green, blue;
@@ -45,5 +46,11 @@ public class WidgetColor
     public int getBlue()
     {
         return blue;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "RGB(" + red + "," + green + "," + blue + ")";
     }
 }

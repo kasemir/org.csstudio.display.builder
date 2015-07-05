@@ -86,8 +86,11 @@ Major TODOs:
  
 ** Editor **
 
-Not even started. 
+Demo to test if Model provides required information.
 
+Major TODOs:
+
+ * Determine status of GEF 4.
 
 Performance: JavaFX vs. SWT
 ---------------------------

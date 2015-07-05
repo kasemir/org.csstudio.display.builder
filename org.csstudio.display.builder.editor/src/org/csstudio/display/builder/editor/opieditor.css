@@ -1,0 +1,63 @@
+/* Style sheet used by Editor
+ */
+
+.tracker
+{
+   -fx-stroke-width: 1;
+   -fx-fill: rgb(0,0,255,0.05);
+   -fx-stroke: blue;
+   -fx-stroke-dash-array: 5.0, 5.0;
+   -fx-effect: dropshadow(one-pass-box, black, 10, 0, 0, 0);
+}
+
+.tracker_handle
+{
+   -fx-stroke-width: 1;
+   -fx-fill: rgb(0,0,255,0.2);
+   -fx-stroke: blue;
+   -fx-arc-width: 10;
+   -fx-arc-height: 10;
+}
+
+
+/* Header on top of palette and property panel */
+.header
+{
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-color: darkslateblue ;
+    -fx-padding: 2 5 2 5;
+    -fx-background-radius: 2;
+}
+
+.palette_category > .title 
+{
+    -fx-font-weight: bold;
+    -fx-background-color: lightsalmon;
+    -fx-padding: 2 5 2 5;
+    -fx-background-radius: 2;
+}
+
+.palette_group
+{
+     -fx-padding: 2 5 2 5;
+     -fx-vgap: 2;
+}
+
+.property_category
+{
+    -fx-font-weight: bold;
+    -fx-background-color: lightsalmon;
+    -fx-padding: 2 5 2 5;
+    -fx-background-radius: 2;
+}
+
+.property_name
+{
+    -fx-padding: 2 5 2 5;
+}
+
+.property_value
+{
+    -fx-padding: 2 5 2 5;
+}
