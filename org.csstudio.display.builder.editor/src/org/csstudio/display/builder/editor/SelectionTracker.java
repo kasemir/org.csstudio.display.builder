@@ -82,7 +82,7 @@ public class SelectionTracker extends Group
     private void hookEvents()
     {
         tracker.setCursor(Cursor.MOVE);
-        tracker.setOnMousePressed(this::startMouseDrag);
+        tracker.setOnMousePressed(this::startDrag);
         tracker.setOnMouseReleased(this::endMouseDrag);
         tracker.setOnMouseDragged((MouseEvent event) ->
         {
@@ -146,16 +146,25 @@ public class SelectionTracker extends Group
     {
         final Rectangle handle = new Rectangle(handle_size, handle_size);
         handle.getStyleClass().add("tracker_handle");
-        handle.setOnMousePressed(this::startMouseDrag);
+        handle.setOnMousePressed(this::startDrag);
         handle.setOnMouseReleased(this::endMouseDrag);
         return handle;
     }
 
-    private void startMouseDrag(final MouseEvent event)
+    /** @param event {@link MouseEvent}; <code>null</code> if not triggered by mouse */
+    private void startDrag(final MouseEvent event)
     {
         // Take snapshot of current positions
-        start_x = event.getX();
-        start_y = event.getY();
+        if (event == null)
+        {
+            start_x = 0;
+            start_y = 0;
+        }
+        else
+        {
+            start_x = event.getX();
+            start_y = event.getY();
+        }
         orig_x = tracker.getX();
         orig_y = tracker.getY();
         orig_width = tracker.getWidth();
@@ -327,6 +336,8 @@ public class SelectionTracker extends Group
         setVisible(true);
 
         updateTrackerFromWidgets(null);
+
+        startDrag(null);
 
         bindToWidgets();
 
