@@ -32,7 +32,7 @@ public class SelectionTracker extends Group
 {
     private static final int handle_size = 15;
 
-    // TODO Set/change contraint from toolbar button
+    // TODO Set/change constraint from toolbar button
     // TODO Implement TrackerSnapConstraint that snaps to nearby corners
 //    private final TrackerConstraint constraint = new TrackerNullConstraint();
     private final TrackerConstraint constraint = new TrackerGridConstraint(10);
