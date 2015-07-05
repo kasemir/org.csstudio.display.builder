@@ -8,6 +8,8 @@
 package org.csstudio.display.builder.model.persist;
 
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -92,6 +94,8 @@ public class ModelReader
         return model;
     }
 
+    final private Set<String> unknown_widget_type = new HashSet<>();
+
     /** Read all <widget>.. child entries
      *  @param parent_widget Parent widget
      *  @param parent_xml XML of the parent widget from which child entries are read
@@ -106,9 +110,21 @@ public class ModelReader
                 parent_widget.addChild(widget);
             }
             catch (final Throwable ex)
-            {   // Log, but continue with next widget
-                logger.log(Level.WARNING,
-                    "Widget configuration file error, line " + XMLUtil.getLineInfo(widget_xml), ex);
+            {
+                // Mention missing widget only once per reader
+                final String message = ex.getMessage();
+                if (message.startsWith("Unknown widget type"))
+                {
+                    if (! unknown_widget_type.contains(message))
+                    {
+                        logger.log(Level.WARNING, message + ", line " + XMLUtil.getLineInfo(widget_xml));
+                        unknown_widget_type.add(message);
+                    }
+                }
+                else
+                    logger.log(Level.WARNING,
+                        "Widget configuration file error, line " + XMLUtil.getLineInfo(widget_xml), ex);
+                // Continue with next widget
             }
         }
     }
