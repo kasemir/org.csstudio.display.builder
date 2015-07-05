@@ -42,7 +42,7 @@ public class LabelRepresentation extends SWTBaseRepresentation<Label, LabelWidge
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.addPropertyListener(displayText, this::contentChanged);
+        model_widget.displayText().addPropertyListener(this::contentChanged);
     }
 
     private void contentChanged(final PropertyChangeEvent event)

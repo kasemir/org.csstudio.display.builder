@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
 
 import java.beans.PropertyChangeEvent;
@@ -51,9 +49,9 @@ public class GroupRepresentation extends SWTBaseRepresentation<Group, GroupWidge
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.addPropertyListener(widgetName, this::borderChanged);
-        model_widget.addPropertyListener(positionWidth, this::borderChanged);
-        model_widget.addPropertyListener(positionHeight, this::borderChanged);
+        model_widget.widgetName().addPropertyListener(this::borderChanged);
+        model_widget.positionWidth().addPropertyListener(this::borderChanged);
+        model_widget.positionHeight().addPropertyListener(this::borderChanged);
     }
 
     private void borderChanged(final PropertyChangeEvent event)

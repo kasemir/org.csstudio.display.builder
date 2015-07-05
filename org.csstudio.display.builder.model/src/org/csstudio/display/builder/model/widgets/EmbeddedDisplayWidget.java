@@ -123,6 +123,6 @@ public class EmbeddedDisplayWidget extends BaseWidget
     {
         final Macros base = super.getEffectiveMacros();
         final Macros my_macros = getPropertyValue(widgetMacros);
-        return Macros.merge(base, my_macros);
+        return base == null ? my_macros : Macros.merge(base, my_macros);
     }
 }

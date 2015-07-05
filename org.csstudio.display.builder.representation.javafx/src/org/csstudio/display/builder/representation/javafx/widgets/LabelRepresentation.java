@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
-
 import java.beans.PropertyChangeEvent;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -42,7 +40,7 @@ public class LabelRepresentation extends JFXBaseRepresentation<Label, LabelWidge
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.addPropertyListener(displayText, this::contentChanged);
+        model_widget.displayText().addPropertyListener(this::contentChanged);
     }
 
     private void contentChanged(final PropertyChangeEvent event)

@@ -13,8 +13,8 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 
 import java.beans.PropertyChangeEvent;
 
+import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.DirtyFlag;
-import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 
@@ -26,7 +26,7 @@ import javafx.scene.Node;
  *  @param <MW> Model widget
  *  @author Kay Kasemir
  */
-abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget> extends WidgetRepresentation<Group, Node, MW>
+abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWidget> extends WidgetRepresentation<Group, Node, MW>
 {
     protected JFX jfx_node;
 
@@ -91,9 +91,9 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
      */
     protected void registerListeners()
     {
-        model_widget.addPropertyListener(positionVisible, this::positionChanged);
-        model_widget.addPropertyListener(positionX, this::positionChanged);
-        model_widget.addPropertyListener(positionY, this::positionChanged);
+        model_widget.positionVisible().addPropertyListener(this::positionChanged);
+        model_widget.positionX().addPropertyListener(this::positionChanged);
+        model_widget.positionY().addPropertyListener(this::positionChanged);
         // Would like to also listen to positionWidth & height,
         // then call jfx_node.resizeRelocate(x, y, width, height),
         // but resizeRelocate tends to ignore the width & height on

@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import java.beans.PropertyChangeListener;
 import java.util.Objects;
 
 import javax.xml.stream.XMLStreamWriter;
@@ -56,6 +57,28 @@ public abstract class WidgetProperty<T extends Object>
         this.descriptor = Objects.requireNonNull(descriptor);
         this.default_value = default_value;
         this.value = this.default_value;
+    }
+
+    /** Subscribe to property changes
+     *  @param listener Listener to invoke
+     */
+    public void addPropertyListener(final PropertyChangeListener listener)
+    {
+        getWidget().addPropertyListener(descriptor, listener);
+    }
+
+    /** Unsubscribe from property changes
+     *  @param listener Listener to remove
+     */
+    public void removePropertyListener(final PropertyChangeListener listener)
+    {
+        getWidget().removePropertyListener(descriptor, listener);
+    }
+
+    /** @return Widget that has this property */
+    public Widget getWidget()
+    {
+        return widget;
     }
 
     /** @return {@link WidgetPropertyCategory} of this property */

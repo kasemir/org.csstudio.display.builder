@@ -7,14 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
-import static org.csstudio.display.builder.model.widgets.LEDWidget.off_color;
-import static org.csstudio.display.builder.model.widgets.LEDWidget.on_color;
-
 import java.beans.PropertyChangeEvent;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -76,13 +68,13 @@ public class LEDRepresentation extends JFXBaseRepresentation<Ellipse, LEDWidget>
     {
         // NOT calling  super.registerListeners()
         // because Ellipse uses center instead of top-left X/Y
-        model_widget.addPropertyListener(positionX,      this::positionChanged);
-        model_widget.addPropertyListener(positionY,      this::positionChanged);
-        model_widget.addPropertyListener(positionWidth,  this::positionChanged);
-        model_widget.addPropertyListener(positionHeight, this::positionChanged);
-        model_widget.addPropertyListener(off_color,      this::configChanged);
-        model_widget.addPropertyListener(on_color,       this::configChanged);
-        model_widget.addPropertyListener(runtimeValue,   this::contentChanged);
+        model_widget.positionX().addPropertyListener(this::positionChanged);
+        model_widget.positionY().addPropertyListener(this::positionChanged);
+        model_widget.positionWidth().addPropertyListener(this::positionChanged);
+        model_widget.positionHeight().addPropertyListener(this::positionChanged);
+        model_widget.offColor().addPropertyListener(this::configChanged);
+        model_widget.onColor().addPropertyListener(this::configChanged);
+        model_widget.runtimeValue().addPropertyListener(this::contentChanged);
     }
 
     private void positionChanged(final PropertyChangeEvent event)

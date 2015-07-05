@@ -10,7 +10,6 @@ package org.csstudio.display.builder.runtime.internal;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFile;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
 
-import java.beans.PropertyChangeEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,7 +51,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         // Registering for changes after the initial load
         // prevents double-loading based on the change triggered in
         // the initial load
-        widget.addPropertyListener(displayFile, (final PropertyChangeEvent event) -> loadContent());
+        widget.displayFile().addPropertyListener(event -> loadContent());
     }
 
     private void loadContent()

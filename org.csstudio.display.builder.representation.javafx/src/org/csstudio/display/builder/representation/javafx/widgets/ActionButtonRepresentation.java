@@ -118,9 +118,9 @@ public class ActionButtonRepresentation extends JFXBaseRepresentation<ButtonBase
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.addPropertyListener(positionWidth, this::representationChanged);
-        model_widget.addPropertyListener(positionHeight, this::representationChanged);
-        model_widget.addPropertyListener(displayText, this::representationChanged);
+        model_widget.positionWidth().addPropertyListener(this::representationChanged);
+        model_widget.positionHeight().addPropertyListener(this::representationChanged);
+        model_widget.displayText().addPropertyListener(this::representationChanged);
     }
 
     private void representationChanged(final PropertyChangeEvent event)

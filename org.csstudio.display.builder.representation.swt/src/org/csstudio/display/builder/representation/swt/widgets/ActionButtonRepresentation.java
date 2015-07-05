@@ -103,7 +103,7 @@ public class ActionButtonRepresentation extends SWTBaseRepresentation<Button, Ac
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.addPropertyListener(displayText, this::representationChanged);
+        model_widget.displayText().addPropertyListener(this::representationChanged);
     }
 
     private void representationChanged(final PropertyChangeEvent event)

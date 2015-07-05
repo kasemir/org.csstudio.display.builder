@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 import static org.csstudio.display.builder.model.widgets.LEDWidget.off_color;
 import static org.csstudio.display.builder.model.widgets.LEDWidget.on_color;
 
@@ -55,7 +54,7 @@ public class LEDRepresentation extends SWTBaseRepresentation<Canvas, LEDWidget>
 
         canvas.addDisposeListener((e) ->
         {
-            for (Color color : colors)
+            for (final Color color : colors)
                 color.dispose();
         });
         return canvas;
@@ -83,7 +82,7 @@ public class LEDRepresentation extends SWTBaseRepresentation<Canvas, LEDWidget>
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.addPropertyListener(runtimeValue, this::contentChanged);
+        model_widget.runtimeValue().addPropertyListener(this::contentChanged);
     }
 
     private void contentChanged(final PropertyChangeEvent event)

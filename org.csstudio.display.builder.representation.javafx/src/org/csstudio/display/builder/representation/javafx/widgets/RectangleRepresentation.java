@@ -14,15 +14,15 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 
 import java.beans.PropertyChangeEvent;
 
+import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.widgets.RectangleWidget;
+import org.csstudio.display.builder.representation.ToolkitRepresentation;
+
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
-
-import org.csstudio.display.builder.model.DirtyFlag;
-import org.csstudio.display.builder.model.widgets.RectangleWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -56,8 +56,8 @@ public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, Re
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.addPropertyListener(positionWidth, this::contentChanged);
-        model_widget.addPropertyListener(positionHeight, this::contentChanged);
+        model_widget.positionWidth().addPropertyListener(this::contentChanged);
+        model_widget.positionHeight().addPropertyListener(this::contentChanged);
     }
 
     private void contentChanged(final PropertyChangeEvent event)

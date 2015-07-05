@@ -76,8 +76,8 @@ public class EmbeddedDisplayRepresentation extends JFXBaseRepresentation<Group, 
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.addPropertyListener(positionWidth, this::borderChanged);
-        model_widget.addPropertyListener(positionHeight, this::borderChanged);
+        model_widget.positionWidth().addPropertyListener(this::borderChanged);
+        model_widget.positionHeight().addPropertyListener(this::borderChanged);
     }
 
     private void borderChanged(final PropertyChangeEvent event)

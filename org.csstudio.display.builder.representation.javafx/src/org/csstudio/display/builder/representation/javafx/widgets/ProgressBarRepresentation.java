@@ -9,7 +9,6 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.beans.PropertyChangeEvent;
 
@@ -58,9 +57,9 @@ public class ProgressBarRepresentation extends JFXBaseRepresentation<ProgressBar
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.addPropertyListener(positionWidth,  this::positionChanged);
-        model_widget.addPropertyListener(positionHeight, this::positionChanged);
-        model_widget.addPropertyListener(runtimeValue,   this::contentChanged);
+        model_widget.positionWidth().addPropertyListener(this::positionChanged);
+        model_widget.positionHeight().addPropertyListener(this::positionChanged);
+        model_widget.runtimeValue().addPropertyListener(this::contentChanged);
     }
 
     private void positionChanged(final PropertyChangeEvent event)
@@ -90,7 +89,7 @@ public class ProgressBarRepresentation extends JFXBaseRepresentation<ProgressBar
 
         // Determine percentage of value within the min..max range
         final double value = VTypeUtil.getValueNumber(vtype).doubleValue();
-        double percentage = (value - min_val) / (max_val - min_val);
+        final double percentage = (value - min_val) / (max_val - min_val);
         // Limit to 0.0 .. 1.0
         if (percentage < 0.0)
             this.percentage = 0.0;

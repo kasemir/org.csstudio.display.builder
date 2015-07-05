@@ -94,10 +94,10 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.addPropertyListener(displayBackgroundColor, this::borderChanged);
-        model_widget.addPropertyListener(widgetName, this::borderChanged);
-        model_widget.addPropertyListener(positionWidth, this::borderChanged);
-        model_widget.addPropertyListener(positionHeight, this::borderChanged);
+        model_widget.displayBackgroundColor().addPropertyListener(this::borderChanged);
+        model_widget.widgetName().addPropertyListener(this::borderChanged);
+        model_widget.positionWidth().addPropertyListener(this::borderChanged);
+        model_widget.positionHeight().addPropertyListener(this::borderChanged);
 
     }
 

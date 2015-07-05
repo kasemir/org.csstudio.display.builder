@@ -93,10 +93,10 @@ abstract public class SWTBaseRepresentation<W extends Control, MW extends Widget
      */
     protected void registerListeners()
     {
-        model_widget.addPropertyListener(positionX, this::positionChanged);
-        model_widget.addPropertyListener(positionY, this::positionChanged);
-        model_widget.addPropertyListener(positionWidth, this::positionChanged);
-        model_widget.addPropertyListener(positionHeight, this::positionChanged);
+        model_widget.positionX().addPropertyListener(this::positionChanged);
+        model_widget.positionY().addPropertyListener(this::positionChanged);
+        model_widget.positionWidth().addPropertyListener(this::positionChanged);
+        model_widget.positionHeight().addPropertyListener(this::positionChanged);
     }
 
     private void positionChanged(final PropertyChangeEvent event)

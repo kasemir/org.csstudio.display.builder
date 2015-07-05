@@ -235,6 +235,12 @@ public class Widget
     // but can sometimes be useful in IDE when dealing with
     // known widget type
 
+    /** @return Widget 'name' */
+    public WidgetProperty<String> widgetName()
+    {
+        return getProperty(widgetName);
+    }
+
     /** @return Position 'x' */
     public WidgetProperty<Integer> positionX()
     {
@@ -511,16 +517,17 @@ public class Widget
      *  <p>Default implementation requests macros
      *  from parent.
      *
+     *  <p>Macros will be <code>null</code> while
+     *  the widget is loaded until it is included in a model.
+     *
      *  @return {@link Macros}
      *  @throws IllegalStateException
      */
     public Macros getEffectiveMacros()
     {
         final Optional<Widget> the_parent = getParent();
-        // Attempts to resolve macros should only occur
-        // for widgets that are in model
         if (! the_parent.isPresent())
-            throw new IllegalStateException("Cannot determine macros for " + this);
+            return null;
         return the_parent.get().getEffectiveMacros();
     }
 
