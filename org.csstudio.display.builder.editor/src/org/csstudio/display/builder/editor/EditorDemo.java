@@ -7,6 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
+import java.io.FileInputStream;
+import java.util.logging.LogManager;
+
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -22,6 +25,8 @@ public class EditorDemo extends Application
      */
     public static void main(final String[] args) throws Exception
     {
+        LogManager.getLogManager().readConfiguration(new FileInputStream("../org.csstudio.display.builder.runtime.test/examples/logging.properties"));
+
         launch(args);
     }
 
