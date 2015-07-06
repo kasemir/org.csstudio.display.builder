@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.editor;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
@@ -17,10 +18,13 @@ import org.csstudio.display.builder.model.Widget;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Group;
+import javafx.scene.shape.Line;
 
 /** Constraint on the movement of the Tracker that snaps to other widgets
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class TrackerSnapConstraint implements TrackerConstraint
 {
     /** If number of widgets to check exceeds this threshold,
@@ -28,9 +32,15 @@ public class TrackerSnapConstraint implements TrackerConstraint
      */
     public static final int PARALLEL_THRESHOLD = 2;
 
-    private final DisplayModel model;
-    private final List<Widget>selected_widgets;
     private final double snap_distance = 10;
+
+    private final Group group;
+
+    private DisplayModel model = null;
+    private List<Widget>selected_widgets = Collections.emptyList();
+
+    private final Line vert_guide;
+
 
     /** Horizontal and/or vertical position to which we 'snapped' */
     private static class SnapResult
@@ -174,14 +184,22 @@ public class TrackerSnapConstraint implements TrackerConstraint
         }
     }
 
-    /** @param model Model that provides widgets to snap to
-     *  @param selected_widgets Currently selected widgets
-     */
-    public TrackerSnapConstraint(final DisplayModel model, final List<Widget> selected_widgets)
+    public TrackerSnapConstraint(final Group group)
+    {
+        this.group = group;
+        vert_guide = new Line();
+        vert_guide.getStyleClass().add("guide_line");
+        vert_guide.setVisible(false);
+        group.getChildren().add(vert_guide);
+    }
+
+    @Override
+    public void configure(final DisplayModel model, final List<Widget> selected_widgets)
     {
         this.model = model;
         this.selected_widgets = selected_widgets;
     }
+
 
     @Override
     public Point2D constrain(double x, double y)
@@ -189,12 +207,21 @@ public class TrackerSnapConstraint implements TrackerConstraint
         final SnapSearch task = new SnapSearch(Arrays.asList(model), x, y);
         final SnapResult result = task.compute();
 
+        // TODO Show alignment guides
         if (result.horiz != SnapResult.INVALID)
             x = result.horiz;
-        if (result.vert != SnapResult.INVALID)
+        if (result.vert == SnapResult.INVALID)
+            vert_guide.setVisible(false);
+        else
+        {
             y = result.vert;
-
-        // TODO Show alignment guides
+            // Unclear about correct size, using scene which is too large
+            vert_guide.setStartX(0);
+            vert_guide.setStartY(y);
+            vert_guide.setEndX(vert_guide.getScene().getWidth());
+            vert_guide.setEndY(y);
+            vert_guide.setVisible(true);
+        }
 
         return new Point2D(x, y);
     }

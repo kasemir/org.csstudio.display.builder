@@ -7,6 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
+import java.util.List;
+
+import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Widget;
+
 import javafx.geometry.Point2D;
 
 /** Constraint on the movement of the Tracker
@@ -14,12 +19,18 @@ import javafx.geometry.Point2D;
  */
 public interface TrackerConstraint
 {
+    /** Configure tracker
+     *  @param model Current model
+     *  @param selected_widgets Selected widgets
+     */
+    default public void configure(DisplayModel model, List<Widget> selected_widgets) {}
+
     /** Constrain the movement of the tracker
-     * 
+     *
      *  <p>Called with an x/y coordinate, implementation
      *  may return a modified coordinate to restrict the valid
      *  coordinate space.
-     *  
+     *
      *  @param x Requested X position
      *  @param y Requested Y position
      *

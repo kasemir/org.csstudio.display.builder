@@ -3,22 +3,26 @@
 
 .tracker
 {
-   -fx-stroke-width: 1;
-   -fx-fill: rgb(0,0,255,0.05);
-   -fx-stroke: blue;
-   -fx-stroke-dash-array: 5.0, 5.0;
-   -fx-effect: dropshadow(one-pass-box, black, 10, 0, 0, 0);
+    -fx-stroke-width: 1;
+    -fx-fill: rgb(0,0,255,0.05);
+    -fx-stroke: blue;
+    -fx-stroke-dash-array: 5.0, 5.0;
+    -fx-effect: dropshadow(one-pass-box, black, 10, 0, 0, 0);
 }
 
 .tracker_handle
 {
-   -fx-stroke-width: 1;
-   -fx-fill: rgb(0,0,255,0.2);
-   -fx-stroke: blue;
-   -fx-arc-width: 10;
-   -fx-arc-height: 10;
+    -fx-stroke-width: 1;
+    -fx-fill: rgb(0,0,255,0.2);
+    -fx-stroke: blue;
+    -fx-arc-width: 10;
+    -fx-arc-height: 10;
 }
 
+.guide_line
+{
+    -fx-stroke: aqua;
+}
 
 /* Header on top of palette and property panel */
 .header
