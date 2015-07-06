@@ -12,7 +12,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
@@ -76,11 +75,14 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
         if (stage == null)
             stage = new Stage();
 
-        stage.setTitle(model.getPropertyValue(CommonWidgetProperties.widgetName));
+        stage.setTitle(model.widgetName().getValue());
+        stage.setWidth(model.positionWidth().getValue());
+        stage.setHeight(model.positionHeight().getValue());
+
         final Group parent = new Group();
         final Scene scene = new Scene(parent,
-                model.getPropertyValue(CommonWidgetProperties.positionWidth).doubleValue(),
-                model.getPropertyValue(CommonWidgetProperties.positionHeight).doubleValue());
+                model.positionWidth().getValue().doubleValue(),
+                model.positionHeight().getValue().doubleValue());
         stage.setScene(scene);
 
         // Set style sheet
