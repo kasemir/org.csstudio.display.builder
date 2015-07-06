@@ -98,6 +98,8 @@ public class EditorGUI
         BorderPane.setAlignment(center, Pos.TOP_LEFT);
 
         stage.setTitle("Editor");
+        stage.setWidth(1000);
+        stage.setHeight(600);
         final Scene scene = new Scene(toolbar_center_status, 1000, 600);
         stage.setScene(scene);
 
