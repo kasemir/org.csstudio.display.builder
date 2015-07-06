@@ -34,12 +34,10 @@ public class TrackerSnapConstraint implements TrackerConstraint
 
     private final double snap_distance = 10;
 
-    private final Group group;
-
     private DisplayModel model = null;
     private List<Widget>selected_widgets = Collections.emptyList();
 
-    private final Line vert_guide;
+    private final Line horiz_guide, vert_guide;
 
 
     /** Horizontal and/or vertical position to which we 'snapped' */
@@ -186,11 +184,13 @@ public class TrackerSnapConstraint implements TrackerConstraint
 
     public TrackerSnapConstraint(final Group group)
     {
-        this.group = group;
+        horiz_guide = new Line();
+        horiz_guide.getStyleClass().add("guide_line");
+        horiz_guide.setVisible(false);
         vert_guide = new Line();
         vert_guide.getStyleClass().add("guide_line");
         vert_guide.setVisible(false);
-        group.getChildren().add(vert_guide);
+        group.getChildren().addAll(horiz_guide, vert_guide);
     }
 
     @Override
@@ -207,9 +207,19 @@ public class TrackerSnapConstraint implements TrackerConstraint
         final SnapSearch task = new SnapSearch(Arrays.asList(model), x, y);
         final SnapResult result = task.compute();
 
-        // TODO Show alignment guides
-        if (result.horiz != SnapResult.INVALID)
+        // Unclear about correct size for guide lines.
+        // Using scene which is too large
+        if (result.horiz == SnapResult.INVALID)
+            horiz_guide.setVisible(false);
+        else
+        {
             x = result.horiz;
+            horiz_guide.setStartX(x);
+            horiz_guide.setStartY(0);
+            horiz_guide.setEndX(x);
+            horiz_guide.setEndY(horiz_guide.getScene().getHeight());
+            horiz_guide.setVisible(true);
+        }
         if (result.vert == SnapResult.INVALID)
             vert_guide.setVisible(false);
         else

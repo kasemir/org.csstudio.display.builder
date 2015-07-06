@@ -21,6 +21,7 @@
 
 .guide_line
 {
+    -fx-stroke-width: 1;
     -fx-stroke: aqua;
 }
 
