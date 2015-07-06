@@ -39,9 +39,9 @@ public class Macros
     public static Macros merge(final Macros base, final Macros addition)
     {
         // Optimize if one is empty
-        if (addition.macros.isEmpty())
+        if (addition == null  ||  addition.macros.isEmpty())
             return base;
-        if (base.macros.isEmpty())
+        if (base == null  ||  base.macros.isEmpty())
             return addition;
         // Construct new macros
         final Macros merged = new Macros();

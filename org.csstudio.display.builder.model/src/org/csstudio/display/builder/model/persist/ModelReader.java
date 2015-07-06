@@ -113,7 +113,7 @@ public class ModelReader
             {
                 // Mention missing widget only once per reader
                 final String message = ex.getMessage();
-                if (message.startsWith("Unknown widget type"))
+                if (message != null  &&  message.startsWith("Unknown widget type"))
                 {
                     if (! unknown_widget_type.contains(message))
                     {
