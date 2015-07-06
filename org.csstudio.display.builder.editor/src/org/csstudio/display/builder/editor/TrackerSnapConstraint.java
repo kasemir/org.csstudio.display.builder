@@ -28,9 +28,13 @@ import javafx.scene.shape.Line;
 public class TrackerSnapConstraint implements TrackerConstraint
 {
     /** If number of widgets to check exceeds this threshold,
-     *  the search is parallelized is into 2 sub-tasks
+     *  the search is parallelized is into 2 sub-tasks.
+     *
+     *  When too small, creating of threads defeats the parallel gain.
+     *
+     *  TODO Preference setting for PARALLEL_THRESHOLD
      */
-    public static final int PARALLEL_THRESHOLD = 2;
+    public static final int PARALLEL_THRESHOLD = 50;
 
     private final double snap_distance = 10;
 
@@ -104,6 +108,7 @@ public class TrackerSnapConstraint implements TrackerConstraint
             final int N = widgets.size();
             if (N > PARALLEL_THRESHOLD)
             {
+                // System.out.println("Splitting the search");
                 final int split = N / 2;
                 final SnapSearch sub1 = new SnapSearch(widgets.subList(0, split), x, y);
                 final SnapSearch sub2 = new SnapSearch(widgets.subList(split, N), x, y);
@@ -204,8 +209,10 @@ public class TrackerSnapConstraint implements TrackerConstraint
     @Override
     public Point2D constrain(double x, double y)
     {
+        // System.out.println("Snap search:");
         final SnapSearch task = new SnapSearch(Arrays.asList(model), x, y);
         final SnapResult result = task.compute();
+        // System.out.println("Done");
 
         // Unclear about correct size for guide lines.
         // Using scene which is too large
