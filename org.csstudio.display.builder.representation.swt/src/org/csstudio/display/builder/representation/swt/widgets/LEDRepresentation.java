@@ -7,9 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt.widgets;
 
-import static org.csstudio.display.builder.model.widgets.LEDWidget.off_color;
-import static org.csstudio.display.builder.model.widgets.LEDWidget.on_color;
-
 import java.beans.PropertyChangeEvent;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -64,8 +61,8 @@ public class LEDRepresentation extends SWTBaseRepresentation<Canvas, LEDWidget>
     {
         colors = new Color[]
         {
-            ((SWTRepresentation)toolkit).convert(model_widget.getPropertyValue(off_color)),
-            ((SWTRepresentation)toolkit).convert(model_widget.getPropertyValue(on_color))
+            ((SWTRepresentation)toolkit).convert(model_widget.offColor().getValue()),
+            ((SWTRepresentation)toolkit).convert(model_widget.onColor().getValue())
         };
         value_color = colors[0];
     }

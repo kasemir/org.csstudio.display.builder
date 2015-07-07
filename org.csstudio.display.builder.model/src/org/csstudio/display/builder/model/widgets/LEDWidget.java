@@ -47,7 +47,7 @@ public class LEDWidget extends BaseWidget
         };
 
     /** Property for the 'off' color */
-    public static final WidgetPropertyDescriptor<WidgetColor> off_color = new WidgetPropertyDescriptor<WidgetColor>(
+    public static final WidgetPropertyDescriptor<WidgetColor> displayOffColor = new WidgetPropertyDescriptor<WidgetColor>(
             WidgetPropertyCategory.DISPLAY, "off_color", Messages.LEDWidget_OffColor)
     {
         @Override
@@ -59,7 +59,7 @@ public class LEDWidget extends BaseWidget
     };
 
     /** Property for the 'on' color */
-    public static final WidgetPropertyDescriptor<WidgetColor> on_color = new WidgetPropertyDescriptor<WidgetColor>(
+    public static final WidgetPropertyDescriptor<WidgetColor> displayOnColor = new WidgetPropertyDescriptor<WidgetColor>(
             WidgetPropertyCategory.DISPLAY, "on_color", Messages.LEDWidget_OnColor)
     {
         @Override
@@ -69,6 +69,11 @@ public class LEDWidget extends BaseWidget
             return new ColorWidgetProperty(this, widget, default_color);
         }
     };
+
+    private WidgetProperty<String> pv_name;
+    private WidgetProperty<WidgetColor> off_color;
+    private WidgetProperty<WidgetColor> on_color;
+    private WidgetProperty<VType> value;
 
     // TODO Handle legacy LED sizing
     // Border was included in the size,
@@ -84,33 +89,37 @@ public class LEDWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(behaviorPVName.createProperty(this, ""));
-        properties.add(off_color.createProperty(this, new WidgetColor(60, 100, 60)));
-        properties.add(on_color.createProperty(this, new WidgetColor(60, 255, 60)));
-        properties.add(runtimeValue.createProperty(this, null));
+        pv_name = behaviorPVName.createProperty(this, "");
+        off_color = displayOffColor.createProperty(this, new WidgetColor(60, 100, 60));
+        on_color = displayOnColor.createProperty(this, new WidgetColor(60, 255, 60));
+        value = runtimeValue.createProperty(this, null);
+        properties.add(pv_name);
+        properties.add(off_color);
+        properties.add(on_color);
+        properties.add(value);
     }
 
     /** @return Behavior 'pv_name' */
     public WidgetProperty<String> behaviorPVName()
     {
-        return getProperty(behaviorPVName);
+        return pv_name;
     }
 
     /** @return 'off_color' */
     public WidgetProperty<WidgetColor> offColor()
     {
-        return getProperty(off_color);
+        return off_color;
     }
 
     /** @return 'off_color' */
     public WidgetProperty<WidgetColor> onColor()
     {
-        return getProperty(on_color);
+        return on_color;
     }
 
     /** @return Runtime 'value' */
     public WidgetProperty<VType> runtimeValue()
     {
-        return getProperty(runtimeValue);
+        return value;
     }
 }

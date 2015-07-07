@@ -55,6 +55,9 @@ public class GroupWidget extends ContainerWidget
             }
         };
 
+    private WidgetProperty<Macros> macros;
+    private WidgetProperty<WidgetColor> background;
+
     public GroupWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
@@ -64,20 +67,20 @@ public class GroupWidget extends ContainerWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(widgetMacros.createProperty(this, new Macros()));
-        properties.add(displayBackgroundColor.createProperty(this, new WidgetColor(255, 255, 255)));
+        properties.add(macros = widgetMacros.createProperty(this, new Macros()));
+        properties.add(background = displayBackgroundColor.createProperty(this, new WidgetColor(255, 255, 255)));
     }
 
     /** @return Widget 'macros' */
     public WidgetProperty<Macros> widgetMacros()
     {
-        return getProperty(widgetMacros);
+        return macros;
     }
 
     /** @return Display 'background_color' */
     public WidgetProperty<WidgetColor> displayBackgroundColor()
     {
-        return getProperty(displayBackgroundColor);
+        return background;
     }
 
     /** Group widget extends parent macros

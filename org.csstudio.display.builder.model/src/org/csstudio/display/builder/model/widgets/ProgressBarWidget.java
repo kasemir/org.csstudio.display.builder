@@ -42,6 +42,9 @@ public class ProgressBarWidget extends BaseWidget
             }
         };
 
+    private WidgetProperty<String> pv_name;
+    private WidgetProperty<VType> value;
+
     public ProgressBarWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
@@ -51,19 +54,19 @@ public class ProgressBarWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(behaviorPVName.createProperty(this, ""));
-        properties.add(runtimeValue.createProperty(this, null));
+        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
+        properties.add(value = runtimeValue.createProperty(this, null));
     }
 
     /** @return Behavior 'pv_name' */
     public WidgetProperty<String> behaviorPVName()
     {
-        return getProperty(behaviorPVName);
+        return pv_name;
     }
 
     /** @return Runtime 'value' */
     public WidgetProperty<VType> runtimeValue()
     {
-        return getProperty(runtimeValue);
+        return value;
     }
 }

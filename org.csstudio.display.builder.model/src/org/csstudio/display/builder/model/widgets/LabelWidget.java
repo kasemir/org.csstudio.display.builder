@@ -40,6 +40,8 @@ public class LabelWidget extends BaseWidget
             }
         };
 
+    private WidgetProperty<String> text;
+
     public LabelWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
@@ -49,12 +51,12 @@ public class LabelWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(displayText.createProperty(this, Messages.LabelWidget_Text));
+        properties.add(text = displayText.createProperty(this, Messages.LabelWidget_Text));
     }
 
     /** @return Display 'text' */
     public WidgetProperty<String> displayText()
     {
-        return getProperty(displayText);
+        return text;
     }
 }

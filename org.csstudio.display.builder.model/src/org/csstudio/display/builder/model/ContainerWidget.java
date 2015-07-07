@@ -60,6 +60,8 @@ public class ContainerWidget extends BaseWidget
     /** Child Widgets */
     protected final ChildrenWidgetsProperty children;
 
+    private WidgetProperty<int[]> insets;
+
     /** Widget constructor.
      *  @param type Widget type
      */
@@ -73,7 +75,7 @@ public class ContainerWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(runtimeInsets.createProperty(this, new int[] { 0, 0 }));
+        properties.add(insets = runtimeInsets.createProperty(this, new int[] { 0, 0 }));
     }
 
     /** @return Child widgets in Widget tree */
@@ -104,5 +106,10 @@ public class ContainerWidget extends BaseWidget
         list.remove(child);
         child.setParent(null);
         firePropertyChange(children, child, null);
+    }
+
+    public WidgetProperty<int[]> insets()
+    {
+        return insets;
     }
 }

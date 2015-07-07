@@ -42,6 +42,9 @@ public class ActionButtonWidget extends BaseWidget
             }
         };
 
+    private WidgetProperty<Macros> macros;
+    private WidgetProperty<String> text;
+
     public ActionButtonWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
@@ -51,20 +54,20 @@ public class ActionButtonWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(widgetMacros.createProperty(this, new Macros()));
-        properties.add(displayText.createProperty(this, "Action"));
+        properties.add(macros = widgetMacros.createProperty(this, new Macros()));
+        properties.add(text = displayText.createProperty(this, "Action"));
     }
 
     /** @return Widget 'macros' */
     public WidgetProperty<Macros> widgetMacros()
     {
-        return getProperty(widgetMacros);
+        return macros;
     }
 
     /** @return Display 'text' */
     public WidgetProperty<String> displayText()
     {
-        return getProperty(displayText);
+        return text;
     }
 
     /** Action button widget extends parent macros

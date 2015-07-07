@@ -83,6 +83,9 @@ public class EmbeddedDisplayWidget extends BaseWidget
         }
     }
 
+    private WidgetProperty<Macros> macros;
+    private WidgetProperty<String> file;
+
     public EmbeddedDisplayWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
@@ -92,20 +95,20 @@ public class EmbeddedDisplayWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(widgetMacros.createProperty(this, new Macros()));
-        properties.add(displayFile.createProperty(this, ""));
+        properties.add(macros = widgetMacros.createProperty(this, new Macros()));
+        properties.add(file = displayFile.createProperty(this, ""));
     }
 
     /** @return Widget 'macros' */
     public WidgetProperty<Macros> widgetMacros()
     {
-        return getProperty(widgetMacros);
+        return macros;
     }
 
     /** @return Display 'file' */
     public WidgetProperty<String> displayFile()
     {
-        return getProperty(displayFile);
+        return file;
     }
 
     @Override

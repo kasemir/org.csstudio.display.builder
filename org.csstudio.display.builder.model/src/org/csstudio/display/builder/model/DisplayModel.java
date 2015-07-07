@@ -43,6 +43,7 @@ public class DisplayModel extends ContainerWidget
      */
     public static final String USER_DATA_EMBEDDING_WIDGET = "_embedding_widget";
 
+    private WidgetProperty<Macros> macros;
 
     /** Create display model */
     public DisplayModel()
@@ -54,13 +55,13 @@ public class DisplayModel extends ContainerWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(widgetMacros.createProperty(this, new Macros()));
+        properties.add(macros = widgetMacros.createProperty(this, new Macros()));
     }
 
     /** @return Widget 'macros' */
     public WidgetProperty<Macros> widgetMacros()
     {
-        return getProperty(widgetMacros);
+        return macros;
     }
 
     @Override
@@ -84,7 +85,7 @@ public class DisplayModel extends ContainerWidget
 
     private static Widget searchChildByName(final ContainerWidget container, final String name)
     {
-        for (Widget child : container.getChildren())
+        for (final Widget child : container.getChildren())
         {
             if (child.getName().equals(name))
                 return child;
@@ -113,9 +114,9 @@ public class DisplayModel extends ContainerWidget
     public void replaceWith(final DisplayModel other_model)
     {
         // removeChild also updates the child's parent. children.clear() wouldn't
-        for (Widget child : getChildren())
+        for (final Widget child : getChildren())
             removeChild(child);
-        for (Widget child : other_model.getChildren())
+        for (final Widget child : other_model.getChildren())
         {
             other_model.removeChild(child);
             addChild(child);

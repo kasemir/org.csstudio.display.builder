@@ -42,6 +42,9 @@ public class TextUpdateWidget extends BaseWidget
             }
         };
 
+    private WidgetProperty<String> pv_name;
+    private WidgetProperty<VType> value;
+
     public TextUpdateWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
@@ -51,19 +54,21 @@ public class TextUpdateWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(behaviorPVName.createProperty(this, ""));
-        properties.add(runtimeValue.createProperty(this, null));
+        pv_name = behaviorPVName.createProperty(this, "");
+        runtimeValue.createProperty(this, null);
+        properties.add(pv_name);
+        properties.add(value);
     }
 
     /** @return Behavior 'pv_name' */
     public WidgetProperty<String> behaviorPVName()
     {
-        return getProperty(behaviorPVName);
+        return pv_name;
     }
 
     /** @return Runtime 'value' */
     public WidgetProperty<VType> runtimeValue()
     {
-        return getProperty(runtimeValue);
+        return value;
     }
 }

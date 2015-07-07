@@ -83,7 +83,12 @@ public class PropertyPanel
 
             final Label label = new Label(property.getDescription());
             final TextField value = new TextField();
-            if (property instanceof MacroizedWidgetProperty)
+            if (property.isReadonly())
+            {
+                value.setText(property.getValue().toString());
+                value.setEditable(false);
+            }
+            else if (property instanceof MacroizedWidgetProperty)
             {
                 final MacroizedWidgetPropertyBinding binding =
                         new MacroizedWidgetPropertyBinding(value.textProperty(),

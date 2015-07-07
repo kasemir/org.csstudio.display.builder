@@ -89,12 +89,11 @@ public class Widget
      */
     public static final String USER_DATA_SCRIPT_SUPPORT = "_script_support";
 
-
     /** Parent widget */
     private volatile Widget parent = null;
 
     /** All properties, ordered by category, then sequence of definition */
-    final protected Set<WidgetProperty<?>> properties;
+    protected final Set<WidgetProperty<?>> properties;
 
     // Design decision:
     //
@@ -113,7 +112,17 @@ public class Widget
     // getProperties(), getProperty(), getPropertyValue(), setPropertyValue()
 
     /** Map of property names to properties */
-    final protected Map<String, WidgetProperty<?>> property_map;
+    protected final Map<String, WidgetProperty<?>> property_map;
+
+    // Actual properties
+    private WidgetProperty<String> type;
+    private WidgetProperty<String> name;
+    private WidgetProperty<Integer> x;
+    private WidgetProperty<Integer> y;
+    private WidgetProperty<Integer> width;
+    private WidgetProperty<Integer> height;
+    private WidgetProperty<List<ActionInfo>> actions;
+    private WidgetProperty<List<ScriptInfo>> scripts;
 
     // Design decision:
     //
@@ -122,34 +131,34 @@ public class Widget
     // Does that add an unwanted dependency to a specific UI library?
 
     /** Support listeners to selected or all properties of this widget */
-    final private PropertyChangeSupport listener_support;
+    private final PropertyChangeSupport listener_support = new PropertyChangeSupport(this);
 
     /** Map of user data */
-    final protected Map<String, Object> user_data = new HashMap<>(1);
-    // Reserve room for "runtime"
+    protected final Map<String, Object> user_data = new HashMap<>(4); // Reserve room for "representation", "runtime"
+
 
     /** Widget constructor.
      *  @param type Widget type
      */
     public Widget(final String type)
     {
-        listener_support = new PropertyChangeSupport(this);
-
         // Collect properties
         final List<WidgetProperty<?>> prelim_properties = new ArrayList<>();
 
         // -- Mandatory properties --
-        prelim_properties.add(widgetType.createProperty(this, type));
-        prelim_properties.add(widgetName.createProperty(this, ""));
-        prelim_properties.add(positionX.createProperty(this, 0));
-        prelim_properties.add(positionY.createProperty(this, 0));
-        prelim_properties.add(positionWidth.createProperty(this, 100));
-        prelim_properties.add(positionHeight.createProperty(this, 20));
-        prelim_properties.add(behaviorActions.createProperty(this, Collections.emptyList()));
-        prelim_properties.add(behaviorScripts.createProperty(this, Collections.emptyList()));
+        prelim_properties.add(this.type = widgetType.createProperty(this, type));
+        prelim_properties.add(name = widgetName.createProperty(this, ""));
+        prelim_properties.add(x = positionX.createProperty(this, 0));
+        prelim_properties.add(y = positionY.createProperty(this, 0));
+        prelim_properties.add(width = positionWidth.createProperty(this, 100));
+        prelim_properties.add(height = positionHeight.createProperty(this, 20));
+        prelim_properties.add(actions = behaviorActions.createProperty(this, Collections.emptyList()));
+        prelim_properties.add(scripts = behaviorScripts.createProperty(this, Collections.emptyList()));
 
         // -- Widget-specific properties --
         defineProperties(prelim_properties);
+        if (prelim_properties.contains(null))
+            throw new IllegalStateException("Null properties");
 
         // Sort by category, then order of definition.
         // Prelim_properties has the original order of definition,
@@ -157,6 +166,7 @@ public class Widget
         // after property category.
         final List<WidgetProperty<?>> sorted = new ArrayList<>(prelim_properties.size());
         sorted.addAll(prelim_properties);
+
         final Comparator<WidgetProperty<?>> byCategory =
                 Comparator.comparing(WidgetProperty::getCategory);
         final Comparator<WidgetProperty<?>> byOrder =
@@ -179,13 +189,13 @@ public class Widget
     /** @return Widget Type */
     public String getType()
     {
-        return getProperty(widgetType).getValue();
+        return type.getValue();
     }
 
     /** @return Widget Name */
     public String getName()
     {
-        return getProperty(widgetName).getValue();
+        return name.getValue();
     }
 
     /** @return Parent widget in Widget tree */
@@ -238,43 +248,43 @@ public class Widget
     /** @return Widget 'name' */
     public WidgetProperty<String> widgetName()
     {
-        return getProperty(widgetName);
+        return name;
     }
 
     /** @return Position 'x' */
     public WidgetProperty<Integer> positionX()
     {
-        return getProperty(positionX);
+        return x;
     }
 
     /** @return Position 'y' */
     public WidgetProperty<Integer> positionY()
     {
-        return getProperty(positionY);
+        return y;
     }
 
     /** @return Position 'width' */
     public WidgetProperty<Integer> positionWidth()
     {
-        return getProperty(positionWidth);
+        return width;
     }
 
     /** @return Position 'height' */
     public WidgetProperty<Integer> positionHeight()
     {
-        return getProperty(positionHeight);
+        return height;
     }
 
     /** @return Behavior 'actions' */
     public WidgetProperty<List<ActionInfo>> behaviorActions()
     {
-        return getProperty(behaviorActions);
+        return actions;
     }
 
     /** @return Behavior 'scripts' */
     public WidgetProperty<List<ScriptInfo>> behaviorScripts()
     {
-        return getProperty(behaviorScripts);
+        return scripts;
     }
 
     /** Obtain configurator.

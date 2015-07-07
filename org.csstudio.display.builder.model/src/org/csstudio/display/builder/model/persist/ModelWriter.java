@@ -19,7 +19,6 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
-import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 
 /** Write model as XML.
  *
@@ -98,8 +97,8 @@ public class ModelWriter implements Closeable
             // Skip runtime properties
             if (property.getCategory() == WidgetPropertyCategory.RUNTIME)
                 continue;
-            // Skip 'type', already in attribute
-            if (property.getName().equals(CommonWidgetProperties.widgetType.getName()))
+            // Skip read-only properties
+            if (property.isReadonly())
                 continue;
             // Skip writing default values for certain properties
             if (property.isDefaultValue())

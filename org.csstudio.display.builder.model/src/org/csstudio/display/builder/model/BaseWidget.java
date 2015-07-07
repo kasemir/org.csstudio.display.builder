@@ -16,6 +16,8 @@ import java.util.List;
  */
 public class BaseWidget extends Widget
 {
+    private WidgetProperty<Boolean> visible;
+
     public BaseWidget(final String type)
     {
         super(type);
@@ -32,7 +34,7 @@ public class BaseWidget extends Widget
    protected void defineProperties(final List<WidgetProperty<?>> properties)
    {
        super.defineProperties(properties);
-       properties.add(positionVisible.createProperty(this, true));
+       properties.add(visible = positionVisible.createProperty(this, true));
 
        // TODO colors, border
    }
@@ -40,6 +42,6 @@ public class BaseWidget extends Widget
    /** @return Position 'visible' */
    public WidgetProperty<Boolean> positionVisible()
    {
-       return getProperty(positionVisible);
+       return visible;
    }
 }
