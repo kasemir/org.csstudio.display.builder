@@ -5,25 +5,28 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.editor;
-
-import java.util.List;
-
-import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.model.Widget;
+package org.csstudio.display.builder.editor.tracker;
 
 import javafx.geometry.Point2D;
 
 /** Constraint on the movement of the Tracker
  *  @author Kay Kasemir
  */
-public interface TrackerConstraint
+abstract public class TrackerConstraint
 {
-    /** Configure tracker
-     *  @param model Current model
-     *  @param selected_widgets Selected widgets
-     */
-    default public void configure(DisplayModel model, List<Widget> selected_widgets) {}
+    private boolean enabled = false;
+
+    /** @param enabled Enable this constraint? */
+    public void setEnabled(final boolean enabled)
+    {
+        this.enabled = enabled;
+    }
+
+    /** @return Enable this constraint? */
+    public boolean isEnabled()
+    {
+        return enabled;
+    }
 
     /** Constrain the movement of the tracker
      *
@@ -36,5 +39,5 @@ public interface TrackerConstraint
      *
      *  @return Constrained coordinate
      */
-    public Point2D constrain(double x, double y);
+    abstract public Point2D constrain(double x, double y);
 }

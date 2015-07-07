@@ -7,10 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
+
+import org.csstudio.display.builder.model.util.Icons;
 
 /** Description of a widget.
  *
@@ -114,11 +115,7 @@ public abstract class WidgetDescriptor
      */
     public InputStream getIconStream() throws Exception
     {
-        // TODO Handle "plugin://.." type path for icons inside Eclipse plugin
-        // This only works for tests
-        final String resolved = icon.replace("platform:/plugin/", "../");
-        return new FileInputStream(resolved);
-    }
+        return Icons.getStream(icon);    }
 
     /** @return Description of the widget */
     public String getDescription()

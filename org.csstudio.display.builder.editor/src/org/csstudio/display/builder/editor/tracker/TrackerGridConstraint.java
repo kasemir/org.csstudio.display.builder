@@ -5,14 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.editor;
+package org.csstudio.display.builder.editor.tracker;
 
 import javafx.geometry.Point2D;
 
 /** Constraint on the movement of the Tracker that snaps to a gird
  *  @author Kay Kasemir
  */
-public class TrackerGridConstraint implements TrackerConstraint
+public class TrackerGridConstraint extends TrackerConstraint
 {
     private final int grid_x;
     private final int grid_y;

@@ -5,13 +5,16 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.editor;
+package org.csstudio.display.builder.editor.tracker;
 
 import java.beans.PropertyChangeEvent;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.csstudio.display.builder.editor.GeometryTools;
 import org.csstudio.display.builder.model.Widget;
 
 import javafx.geometry.Point2D;
@@ -32,10 +35,8 @@ public class SelectionTracker extends Group
 {
     private static final int handle_size = 15;
 
-    // TODO Set/change constraint from toolbar button
-//    private final TrackerConstraint constraint = new TrackerNullConstraint();
-//    private TrackerConstraint constraint = new TrackerGridConstraint(10);
-    private final TrackerConstraint constraint = new TrackerSnapConstraint(this);
+    private final TrackerGridConstraint grid_constraint = new TrackerGridConstraint(10);
+    private final TrackerSnapConstraint snap_constraint = new TrackerSnapConstraint(this);
 
     /** Main rectangle of tracker */
     private final Rectangle tracker;
@@ -93,7 +94,7 @@ public class SelectionTracker extends Group
         tracker.setOnMouseDragged((MouseEvent event) ->
         {
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
-            final Point2D point = constraint.constrain(orig_x + dx, orig_y + dy);
+            final Point2D point = constrain(orig_x + dx, orig_y + dy);
             updateTracker(point.getX(), point.getY(), orig_width, orig_height);
         });
         tracker.setOnKeyPressed(this::handleKeyEvent);
@@ -102,7 +103,7 @@ public class SelectionTracker extends Group
         handle_top_left.setOnMouseDragged((MouseEvent event) ->
         {
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
-            final Point2D tl = constraint.constrain(orig_x + dx, orig_y + dy);
+            final Point2D tl = constrain(orig_x + dx, orig_y + dy);
             updateTracker(tl.getX(), tl.getY(),
                           orig_width - (tl.getX() - orig_x),
                           orig_height - (tl.getY() - orig_y));
@@ -111,7 +112,7 @@ public class SelectionTracker extends Group
         handle_top.setOnMouseDragged((MouseEvent event) ->
         {
             final double dy = event.getY() - start_y;
-            final Point2D t = constraint.constrain(orig_x, orig_y + dy);
+            final Point2D t = constrain(orig_x, orig_y + dy);
             updateTracker(t.getX(), t.getY(),
                           orig_width - (t.getX() - orig_x),
                           orig_height - (t.getY() - orig_y));
@@ -120,7 +121,7 @@ public class SelectionTracker extends Group
         handle_top_right.setOnMouseDragged((MouseEvent event) ->
         {
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
-            final Point2D tr = constraint.constrain(orig_x + orig_width + dx, orig_y + dy);
+            final Point2D tr = constrain(orig_x + orig_width + dx, orig_y + dy);
             updateTracker(orig_x, tr.getY(),
                           tr.getX() - orig_x, orig_height - (tr.getY() - orig_y));
         });
@@ -128,28 +129,28 @@ public class SelectionTracker extends Group
         handle_right.setOnMouseDragged((MouseEvent event) ->
         {
             final double dx = event.getX() - start_x;
-            final Point2D r = constraint.constrain(orig_x + orig_width + dx, orig_y);
+            final Point2D r = constrain(orig_x + orig_width + dx, orig_y);
             updateTracker(orig_x, orig_y, r.getX() - orig_x, orig_height);
         });
         handle_bottom_right.setCursor(Cursor.SE_RESIZE);
         handle_bottom_right.setOnMouseDragged((MouseEvent event) ->
         {
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
-            final Point2D br = constraint.constrain(orig_x + orig_width + dx, orig_y + orig_height + dy);
+            final Point2D br = constrain(orig_x + orig_width + dx, orig_y + orig_height + dy);
             updateTracker(orig_x, orig_y, br.getX() - orig_x, br.getY() - orig_y);
         });
         handle_bottom.setCursor(Cursor.S_RESIZE);
         handle_bottom.setOnMouseDragged((MouseEvent event) ->
         {
             final double dy = event.getY() - start_y;
-            final Point2D b = constraint.constrain(orig_x, orig_y + orig_height + dy);
+            final Point2D b = constrain(orig_x, orig_y + orig_height + dy);
             updateTracker(orig_x, orig_y, orig_width, b.getY() - orig_y);
         });
         handle_bottom_left.setCursor(Cursor.SW_RESIZE);
         handle_bottom_left.setOnMouseDragged((MouseEvent event) ->
         {
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
-            final Point2D bl = constraint.constrain(orig_x + dx, orig_y + orig_height + dy);
+            final Point2D bl = constrain(orig_x + dx, orig_y + orig_height + dy);
             updateTracker(bl.getX(), orig_y,
                           orig_width - (bl.getX() - orig_x),
                           bl.getY() - orig_y);
@@ -158,9 +159,24 @@ public class SelectionTracker extends Group
         handle_left.setOnMouseDragged((MouseEvent event) ->
         {
             final double dx = event.getX() - start_x;
-            final Point2D l = constraint.constrain(orig_x + dx, orig_y);
+            final Point2D l = constrain(orig_x + dx, orig_y);
             updateTracker(l.getX(), orig_y, orig_width - (l.getX() - orig_x), orig_height);
         });
+    }
+
+    /** Apply enabled constraints to requested position
+     *  @param x Requested X position
+     *  @param y Requested Y position
+     *  @return Constrained coordinate
+     */
+    private Point2D constrain(final double x, final double y)
+    {
+        Point2D result = new Point2D(x, y);
+        if (grid_constraint.isEnabled())
+            result = grid_constraint.constrain(result.getX(), result.getY());
+        if (snap_constraint.isEnabled())
+            result = snap_constraint.constrain(result.getX(), result.getY());
+        return result;
     }
 
     /** @return 'Handle' type rectangle */
@@ -347,6 +363,18 @@ public class SelectionTracker extends Group
         }
     }
 
+    /** @param enable Enable grid? */
+    public void enableGrid(final boolean enable)
+    {
+        grid_constraint.setEnabled(enable);
+    }
+
+    /** @param enable Enable snap? */
+    public void enableSnap(final boolean enable)
+    {
+        snap_constraint.setEnabled(enable);
+    }
+
     /** Activate the tracker
      *  @param widgets Widgets to control by tracker
      */
@@ -358,11 +386,12 @@ public class SelectionTracker extends Group
 
         try
         {
-            constraint.configure(widgets.get(0).getDisplayModel(), widgets);
+            snap_constraint.configure(widgets.get(0).getDisplayModel(), widgets);
         }
         catch (final Exception ex)
         {
-            ex.printStackTrace();
+            Logger.getLogger(getClass().getName())
+                  .log(Level.WARNING, "Cannot obtain widget model", ex);
         }
 
         setVisible(true);

@@ -7,16 +7,25 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
-import javafx.geometry.Point2D;
+import org.eclipse.osgi.util.NLS;
 
-/** Constraint on the movement of the Tracker that allows any coordinate
+/** Externalized Strings
  *  @author Kay Kasemir
  */
-public class TrackerNullConstraint implements TrackerConstraint
+public class Messages extends NLS
 {
-    @Override
-    public Point2D constrain(final double x, final double y)
+    private static final String BUNDLE_NAME = "org.csstudio.display.builder.editor.messages"; //$NON-NLS-1$
+
+    public static String Grid;
+    public static String Snap;
+
+    static
     {
-        return new Point2D(x, y);
+        // initialize resource bundle
+        NLS.initializeMessages(BUNDLE_NAME, Messages.class);
+    }
+
+    private Messages()
+    {
     }
 }

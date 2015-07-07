@@ -5,13 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.editor;
+package org.csstudio.display.builder.editor.tracker;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
+import org.csstudio.display.builder.editor.GeometryTools;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
@@ -25,7 +26,7 @@ import javafx.scene.shape.Line;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class TrackerSnapConstraint implements TrackerConstraint
+public class TrackerSnapConstraint extends TrackerConstraint
 {
     /** If number of widgets to check exceeds this threshold,
      *  the search is parallelized is into 2 sub-tasks.
@@ -198,7 +199,10 @@ public class TrackerSnapConstraint implements TrackerConstraint
         group.getChildren().addAll(horiz_guide, vert_guide);
     }
 
-    @Override
+    /** Configure tracker
+     *  @param model Current model
+     *  @param selected_widgets Selected widgets
+     */
     public void configure(final DisplayModel model, final List<Widget> selected_widgets)
     {
         this.model = model;

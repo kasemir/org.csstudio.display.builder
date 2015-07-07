@@ -15,6 +15,11 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.display.builder.editor.actions.ActionGUIHelper;
+import org.csstudio.display.builder.editor.actions.EnableGridAction;
+import org.csstudio.display.builder.editor.actions.EnableSnapAction;
+import org.csstudio.display.builder.editor.properties.PropertyPanel;
+import org.csstudio.display.builder.editor.tracker.SelectionTracker;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelReader;
@@ -46,7 +51,7 @@ public class EditorGUI
     private final Group edit_tools;
 
     private volatile DisplayModel model;
-    private final SelectionTracker selection_tracker;
+    private final SelectionTracker selection_tracker = new SelectionTracker();
     private final PropertyPanel property_panel;
 
     public EditorGUI(final Stage stage)
@@ -70,9 +75,11 @@ public class EditorGUI
         //    toolbar
         //    center = editor | palette | property_panel
         //    status
-
         final ToolBar toolbar = new ToolBar(
                 new Button("Do"),
+                new Separator(),
+                ActionGUIHelper.createToggleButton(new EnableGridAction(selection_tracker)),
+                ActionGUIHelper.createToggleButton(new EnableSnapAction(selection_tracker)),
                 new Separator(),
                 new Button("Something"));
 
@@ -107,8 +114,6 @@ public class EditorGUI
         scene.getStylesheets().add(getClass().getResource("opieditor.css").toExternalForm());
 
         stage.show();
-
-        selection_tracker = new SelectionTracker();
 
         edit_tools.getChildren().addAll(selection_tracker);
     }
