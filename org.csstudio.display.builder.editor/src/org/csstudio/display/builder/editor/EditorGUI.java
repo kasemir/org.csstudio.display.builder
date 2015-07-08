@@ -9,6 +9,7 @@ package org.csstudio.display.builder.editor;
 
 import java.io.FileInputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
@@ -37,6 +38,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToolBar;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -47,30 +49,27 @@ public class EditorGUI
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final Executor executor = ForkJoinPool.commonPool();
     private final ToolkitRepresentation<Group, Node> toolkit;
-    private final Group model_parent;
-    private final Group edit_tools;
+
+    private final Group model_parent = new Group();
+    private final Group edit_tools = new Group();
+    // editor: model's representation in background, edit_tools on top
+    private final ScrollPane editor = new ScrollPane(new Pane(model_parent, edit_tools));
+
+    private final SelectionTracker selection_tracker = new SelectionTracker();
+    private final PropertyPanel property_panel = new PropertyPanel();
 
     private volatile DisplayModel model;
-    private final SelectionTracker selection_tracker = new SelectionTracker();
-    private final PropertyPanel property_panel;
 
     public EditorGUI(final Stage stage)
     {
+        // Create all elements here so they can be 'final'
         toolkit = new JFXRepresentation(stage);
-        toolkit.addListener(new ToolkitListener()
-        {
-            @Override
-            public void handleClick(final Widget widget)
-            {
-                // TODO
-                System.out.println("Selected " + widget);
+        createElements(stage);
+        hookListeners();
+    }
 
-                final List<Widget> selected_widgets = Arrays.asList(widget);
-                selection_tracker.setSelectedWidgets(selected_widgets);
-                property_panel.setSelectedWidgets(selected_widgets);
-            }
-        });
-
+    private void createElements(final Stage stage)
+    {
         // BorderPane with
         //    toolbar
         //    center = editor | palette | property_panel
@@ -83,14 +82,7 @@ public class EditorGUI
                 new Separator(),
                 new Button("Something"));
 
-        // editor: model's representation in background, edit_tools on top
-        model_parent = new Group();
-        edit_tools = new Group();
-        final ScrollPane editor = new ScrollPane(new Pane(model_parent, edit_tools));
-
         final Palette palette = new Palette();
-
-        property_panel = new PropertyPanel();
 
         final SplitPane center = new SplitPane();
         center.getItems().addAll(editor, palette.create(), property_panel.create());
@@ -116,6 +108,33 @@ public class EditorGUI
         stage.show();
 
         edit_tools.getChildren().addAll(selection_tracker);
+    }
+
+    private void hookListeners()
+    {
+        toolkit.addListener(new ToolkitListener()
+        {
+            @Override
+            public void handleClick(final Widget widget)
+            {
+                // TODO Toggle selection (add to existing) when Ctrl is held
+                logger.log(Level.FINE, "Selected {0}",  widget);
+                setSelectedWidgets(Arrays.asList(widget));
+            }
+        });
+
+        editor.setOnMousePressed((MouseEvent event) ->
+        {
+            logger.log(Level.FINE, "Clicked in 'editor' De-select all widgets");
+            setSelectedWidgets(Collections.emptyList());
+        });
+    }
+
+    /** @param selected_widgets Selected widgets */
+    private void setSelectedWidgets(final List<Widget> selected_widgets)
+    {
+        selection_tracker.setSelectedWidgets(selected_widgets);
+        property_panel.setSelectedWidgets(selected_widgets);
     }
 
     public void loadModel(final String filename)

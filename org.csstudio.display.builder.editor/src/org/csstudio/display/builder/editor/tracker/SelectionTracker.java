@@ -202,6 +202,7 @@ public class SelectionTracker extends Group
         {
             start_x = event.getX();
             start_y = event.getY();
+            event.consume();
         }
         orig_x = tracker.getX();
         orig_y = tracker.getY();
@@ -219,6 +220,8 @@ public class SelectionTracker extends Group
     {
         // Get focus to allow use of arrow keys
         tracker.requestFocus();
+        if (event != null)
+            event.consume();
     }
 
     /** Allow move/resize with cursor keys.
@@ -376,13 +379,19 @@ public class SelectionTracker extends Group
     }
 
     /** Activate the tracker
-     *  @param widgets Widgets to control by tracker
+     *  @param widgets Widgets to control by tracker,
+     *                 empty to de-select
      */
     public void setSelectedWidgets(final List<Widget> widgets)
     {
         unbindFromWidgets();
 
         this.widgets = widgets;
+        if (widgets.size() <= 0)
+        {
+            setVisible(false);
+            return;
+        }
 
         try
         {

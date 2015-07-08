@@ -52,7 +52,7 @@ abstract public class SWTBaseRepresentation<W extends Control, MW extends Widget
         control.addMouseListener(new MouseAdapter()
         {
             @Override
-            public void mouseDown(MouseEvent e)
+            public void mouseDown(final MouseEvent e)
             {
                 toolkit.fireClick(model_widget);
             }
