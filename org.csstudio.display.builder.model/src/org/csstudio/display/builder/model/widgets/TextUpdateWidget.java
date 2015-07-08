@@ -54,10 +54,8 @@ public class TextUpdateWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        pv_name = behaviorPVName.createProperty(this, "");
-        runtimeValue.createProperty(this, null);
-        properties.add(pv_name);
-        properties.add(value);
+        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
+        properties.add(value = runtimeValue.createProperty(this, null));
     }
 
     /** @return Behavior 'pv_name' */
