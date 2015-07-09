@@ -49,7 +49,7 @@ public class StringWidgetProperty extends MacroizedWidgetProperty<String>
     @Override
     public void writeToXML(final XMLStreamWriter writer) throws Exception
     {
-        writer.writeCharacters(value);
+        writer.writeCharacters(specification);
     }
 
     @Override

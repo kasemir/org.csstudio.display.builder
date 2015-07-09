@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Display</name>
+  <width>1400</width>
+  <height>1000</height>
+  <widget type="label" version="1.0.0">
+    <name>Label 0</name>
+    <x>1</x>
+    <y>1</y>
+    <width>15</width>
+    <height>15</height>
+    <visible>false</visible>
+    <text>A Label</text>
+    <actions>
+      <action type="open_display">
+        <file>some_other_display.opi</file>
+        <target>replace</target>
+        <description></description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="some_other_display.opi">
+        <pv trigger="false">some_pv</pv>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="rectangle" version="1.0.0">
+    <name>Rect 0</name>
+    <x>10</x>
+    <y>10</y>
+    <width>80</width>
+    <height>19</height>
+    <visible>false</visible>
+    <actions>
+      <action type="open_display">
+        <file>some_other_display.opi</file>
+        <target>replace</target>
+        <description></description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="fudge_width.py">
+        <pv>noise</pv>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="led" version="1.0.0">
+    <name>Rect 0</name>
+    <x>10</x>
+    <y>10</y>
+    <width>80</width>
+    <height>19</height>
+    <visible>false</visible>
+    <off_color>
+      <color red="100" green="100" blue="100">
+      </color>
+    </off_color>
+    <on_color>
+      <color red="100" green="100" blue="100">
+      </color>
+    </on_color>
+    <actions>
+      <action type="open_display">
+        <file>some_other_display.opi</file>
+        <target>replace</target>
+        <description></description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="fudge_width.py">
+        <pv>noise</pv>
+      </script>
+    </scripts>
+    <pv_name>some_pv</pv_name>
+  </widget>
+  <widget type="progressbar" version="1.0.0">
+    <name>Rect 0</name>
+    <x>10</x>
+    <y>10</y>
+    <width>80</width>
+    <height>19</height>
+    <visible>false</visible>
+    <actions>
+      <action type="open_display">
+        <file>some_other_display.opi</file>
+        <target>replace</target>
+        <description></description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="fudge_width.py">
+        <pv>noise</pv>
+      </script>
+    </scripts>
+    <pv_name>some_pv</pv_name>
+  </widget>
+  <widget type="textupdate" version="1.0.0">
+    <name>Rect 0</name>
+    <x>10</x>
+    <y>10</y>
+    <width>80</width>
+    <height>19</height>
+    <visible>false</visible>
+    <actions>
+      <action type="open_display">
+        <file>some_other_display.opi</file>
+        <target>replace</target>
+        <description></description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="fudge_width.py">
+        <pv>noise</pv>
+      </script>
+    </scripts>
+    <pv_name>some_pv</pv_name>
+  </widget>
+  <widget type="action_button" version="1.0.0">
+    <name>Rect 0</name>
+    <macros>
+      <some_macro>some value</some_macro>
+    </macros>
+    <x>10</x>
+    <y>10</y>
+    <width>80</width>
+    <height>19</height>
+    <visible>false</visible>
+    <text>Button Label</text>
+    <actions>
+      <action type="open_display">
+        <file>some_other_display.opi</file>
+        <target>replace</target>
+        <description></description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="fudge_width.py">
+        <pv>noise</pv>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="embedded" version="1.0.0">
+    <name>Rect 0</name>
+    <macros>
+      <some_macro>some value</some_macro>
+    </macros>
+    <x>10</x>
+    <y>10</y>
+    <width>80</width>
+    <height>19</height>
+    <visible>false</visible>
+    <file>path/to/some/display.opi</file>
+    <actions>
+      <action type="open_display">
+        <file>some_other_display.opi</file>
+        <target>replace</target>
+        <description></description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="fudge_width.py">
+        <pv>noise</pv>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="group" version="1.0.0">
+    <name>Group 0</name>
+    <macros>
+      <some_macro>some value</some_macro>
+    </macros>
+    <x>10</x>
+    <y>10</y>
+    <width>80</width>
+    <height>19</height>
+    <visible>false</visible>
+    <background_color>
+      <color red="100" green="100" blue="100">
+      </color>
+    </background_color>
+    <actions>
+      <action type="open_display">
+        <file>some_other_display.opi</file>
+        <target>replace</target>
+        <description></description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="fudge_width.py">
+        <pv>noise</pv>
+      </script>
+    </scripts>
+    <widget type="label" version="1.0.0">
+      <name>Child widget 1</name>
+    </widget>
+    <widget type="label" version="1.0.0">
+      <name>Child widget 2</name>
+    </widget>
+  </widget>
+</display>

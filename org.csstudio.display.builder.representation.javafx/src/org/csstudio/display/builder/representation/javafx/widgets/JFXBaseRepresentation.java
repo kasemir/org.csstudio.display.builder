@@ -50,10 +50,11 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWid
         if (jfx_node != null)
         {
             parent.getChildren().add(jfx_node);
-            jfx_node.setOnMouseClicked((e) ->
+            jfx_node.setOnMouseClicked((event) ->
             {
+                // TODO Pass event.isControlDown()
                 toolkit.fireClick(model_widget);
-                e.consume();
+                event.consume();
             });
         }
         registerListeners();

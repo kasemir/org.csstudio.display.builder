@@ -108,7 +108,7 @@ public class IntegerWidgetProperty extends MacroizedWidgetProperty<Integer>
     @Override
     public void writeToXML(final XMLStreamWriter writer) throws Exception
     {
-        writer.writeCharacters(value.toString());
+        writer.writeCharacters(specification);
     }
 
     @Override

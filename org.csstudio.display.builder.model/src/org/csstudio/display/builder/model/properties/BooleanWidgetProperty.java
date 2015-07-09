@@ -65,7 +65,7 @@ public class BooleanWidgetProperty extends MacroizedWidgetProperty<Boolean>
     @Override
     public void writeToXML(final XMLStreamWriter writer) throws Exception
     {
-        writer.writeCharacters(Boolean.toString(value));
+        writer.writeCharacters(specification);
     }
 
     @Override
