@@ -7,9 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+
+import static org.csstudio.display.builder.model.FileMatcher.hasSameTextContent;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Optional;
@@ -27,13 +31,14 @@ public class AllWidgetsAllPropertiesUnitTest
 {
     private static final String EXAMPLE_FILE = "../org.csstudio.display.builder.runtime.test/examples/all_widgets.opi";
 
-    /** Check common widget properties
+    /** Check example file
      *  @throws Exception on error
      */
     @Test
     public void testDemoFile() throws Exception
     {
-        final ModelReader reader = new ModelReader(new FileInputStream(EXAMPLE_FILE));
+        final File original = new File(EXAMPLE_FILE);
+        final ModelReader reader = new ModelReader(new FileInputStream(original));
         final DisplayModel model = reader.readModel();
 
         // Assert that demo file includes all widgets, all properties
@@ -41,13 +46,16 @@ public class AllWidgetsAllPropertiesUnitTest
             checkWidgetType(model, widget_type);
 
         // Write back out
-        final ModelWriter writer = new ModelWriter(new FileOutputStream(EXAMPLE_FILE + "2"));
+        final File copy = new File("/tmp/test.opi");
+        final ModelWriter writer = new ModelWriter(new FileOutputStream(copy));
         writer.writeModel(model);
         writer.close();
 
-        // TODO Compare with original
+        // Compare with original
+        assertThat(copy, hasSameTextContent(original));
     }
 
+    // Check if model contains widget type
     private void checkWidgetType(final DisplayModel model, final WidgetDescriptor widget_type)
     {
         final Optional<Widget> widget = model.getChildren()
@@ -58,6 +66,7 @@ public class AllWidgetsAllPropertiesUnitTest
         checkProperties(widget.get());
     }
 
+    // Check if widget has non-default value for each property
     private void checkProperties(final Widget widget)
     {
         System.out.println("Widget type " + widget.getType());
