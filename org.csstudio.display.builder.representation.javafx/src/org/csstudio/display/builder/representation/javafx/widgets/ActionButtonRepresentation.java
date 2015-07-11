@@ -83,6 +83,10 @@ public class ActionButtonRepresentation extends JFXBaseRepresentation<ButtonBase
             base = button;
         }
 
+        // Model has width/height, but JFX widget has min, pref, max size.
+        // updateChanges() will set the 'pref' size, so make min use that as well.
+        base.setMinSize(ButtonBase.USE_PREF_SIZE, ButtonBase.USE_PREF_SIZE);
+
         // Monitor keys that modify the OpenDisplayActionInfo.Target
         base.setOnMousePressed((MouseEvent event) ->
         {
