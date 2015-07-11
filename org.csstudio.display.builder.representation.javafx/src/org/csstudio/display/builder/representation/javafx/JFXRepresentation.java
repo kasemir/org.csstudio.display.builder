@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
+import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ActionButtonRepresentation;
@@ -28,6 +29,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.LEDRepresentat
 import org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ProgressBarRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.RectangleRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepresentation;
 
 import javafx.application.Platform;
@@ -63,6 +65,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
         register(LEDWidget.class, LEDRepresentation.class);
         register(ProgressBarWidget.class, ProgressBarRepresentation.class);
         register(RectangleWidget.class, RectangleRepresentation.class);
+        register(TextEntryWidget.class, TextEntryRepresentation.class);
         register(TextUpdateWidget.class, TextUpdateRepresentation.class);
     }
 
@@ -78,6 +81,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
         stage.setTitle(model.widgetName().getValue());
         stage.setWidth(model.positionWidth().getValue());
         stage.setHeight(model.positionHeight().getValue());
+        stage.setX(model.positionX().getValue());
+        stage.setY(model.positionY().getValue());
 
         final Group parent = new Group();
         final Scene scene = new Scene(parent,
@@ -102,7 +107,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
             if (close_request_handler.test(model) == false)
                 event.consume();
         }
-        catch (Exception ex)
+        catch (final Exception ex)
         {
             Logger.getLogger(getClass().getName())
                   .log(Level.WARNING, "Close request handler failed", ex);
