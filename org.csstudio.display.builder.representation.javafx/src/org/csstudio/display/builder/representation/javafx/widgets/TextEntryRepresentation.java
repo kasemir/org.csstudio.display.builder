@@ -49,7 +49,11 @@ public class TextEntryRepresentation extends JFXBaseRepresentation<TextField, Te
         text.focusedProperty().addListener((final ObservableValue<? extends Boolean> observable,
                                             final Boolean old_value, final Boolean focus) ->
         {
+            // Gain focus -> active. Loose focus -> restore
             active = focus;
+            // This will restore the JFX control to the current value
+            // regardless if user 'entered' a new value, then looses
+            // focus, or just looses focus.
             if (! focus)
                 restore();
         });
@@ -84,19 +88,40 @@ public class TextEntryRepresentation extends JFXBaseRepresentation<TextField, Te
         return text;
     }
 
+    /** Restore representation to last known value,
+     *  replacing what user might have entered
+     */
     private void restore()
     {
         jfx_node.setText(value_text);
-        // Request a refresh with 'value_text'
-        dirty_content.mark();
-        toolkit.scheduleUpdate(this);
     }
 
+    /** Submit value entered by user */
     private void submit()
     {
-        // TODO Submit entered text
         final String text = jfx_node.getText();
-        System.out.println("Submit '" + text + "'");
+        toolkit.fireWrite(model_widget, text);
+        // Wrote value. Expected is either
+        // a) PV receives that value, PV updates to
+        //    submitted value or maybe a 'clamped' value
+        // --> We'll receive contentChanged() and display PV's latest.
+        // b) PV doesn't receive the value and never sends
+        //    an update. JFX control is stuck with the 'text'
+        //    the user entered, not reflecting the actual PV
+        // --> Request an update to the last known 'value_text'.
+        //
+        // This could result in a little flicker:
+        // User enters "new_value".
+        // We send that, but restore "old_value" to handle case b)
+        // PV finally sends "new_value", and we show that.
+        //
+        // In practice, this rarely happens because we only schedule an update.
+        // By the time it executes, we already have case a.
+        // If it does turn into a problem, could introduce toolkit.scheduleDelayedUpdate()
+        // so that case b) only restores the old 'value_text' after some delay,
+        // increasing the chance of a) to happen.
+        dirty_content.mark();
+        toolkit.scheduleUpdate(this);
     }
 
     @Override

@@ -26,5 +26,14 @@ public interface ToolkitListener
      */
     default public void handleAction(Widget widget, ActionInfo action) {};
 
+    /** User clicked (selected) a widget
+     *  @param widget Widget that was clicked
+     */
     default public void handleClick(Widget widget) {};
+
+    /** User provided a new value that should be written to PV
+     *  @param widget Widget that provided the value; Widget's (primary) PV should be written
+     *  @param value The value
+     */
+    default public void handleWrite(Widget widget, Object value) {};
 }

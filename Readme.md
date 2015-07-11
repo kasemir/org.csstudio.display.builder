@@ -72,9 +72,11 @@ Resolves embedded displays relative to parent.
 New widgets do not necessarily need to register their own runtime.
 The base `WidgetRuntime` handles the following:
 
- * If widget has "pv_name" and "value" properties, a PV is created for
+ * If widget has "pv_name" and "value" properties, a primary PV is created for
    the "pv_name". The "value" is updated with the current VType.
    Representation then needs to reflect the current "value".
+   
+ * Wudget can 'write' to the primary PV.
     
  * Each script in the "scripts" property is parsed, its PVs are created,
    and the script is triggered when any of its input PVs change.
@@ -82,7 +84,7 @@ The base `WidgetRuntime` handles the following:
 
 Major TODOs:
 
- * Add 'control'. For now only 'monitor'.
+ * ??
  
 ** Editor **
 

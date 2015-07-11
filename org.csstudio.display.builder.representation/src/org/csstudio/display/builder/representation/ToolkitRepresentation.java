@@ -152,7 +152,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *  @param command Command to execute
      */
     @Override
-    abstract public void execute(Runnable command);
+    abstract public void execute(final Runnable command);
 
     /** Execute callable in toolkit's UI thread.
      *  @param <T> Type to return
@@ -185,25 +185,51 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     public void fireAction(final Widget widget, final ActionInfo action)
     {
-        try
-        {
-            for (final ToolkitListener listener : listeners)
+        for (final ToolkitListener listener : listeners)
+            try
+            {
                 listener.handleAction(widget, action);
-        }
-        catch (final Throwable ex)
-        {
-            Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Action failure when invoking " + action + " for " + widget, ex);
-        }
+            }
+            catch (final Throwable ex)
+            {
+                Logger.getLogger(getClass().getName())
+                      .log(Level.WARNING, "Action failure when invoking " + action + " for " + widget, ex);
+            }
     }
 
     /** Notify listeners that a widget has been clicked
      *  @param widget Widget
      */
-    public void fireClick(Widget widget)
+    public void fireClick(final Widget widget)
     {
         for (final ToolkitListener listener : listeners)
+        try
+        {
             listener.handleClick(widget);
+        }
+        catch (final Throwable ex)
+        {
+            Logger.getLogger(getClass().getName())
+                  .log(Level.WARNING, "Click failure for " + widget, ex);
+        }
+    }
+
+    /** Notify listeners that a widget requests writing a value
+     *  @param widget Widget
+     *  @param value Value
+     */
+    public void fireWrite(final Widget widget, final Object value)
+    {
+        for (final ToolkitListener listener : listeners)
+        try
+        {
+            listener.handleWrite(widget, value);
+        }
+        catch (final Throwable ex)
+        {
+            Logger.getLogger(getClass().getName())
+                  .log(Level.WARNING, "Failure when writing " + value + " for " + widget, ex);
+        }
     }
 
     /** Remove all the toolkit items of the model

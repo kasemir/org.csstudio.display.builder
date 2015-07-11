@@ -48,7 +48,7 @@ public class WidgetRuntime<MW extends Widget>
     private PrimaryPVListener primary_pv_listener;
 
     /** Handlers for widget's behaviorScripts property */
-    private List<RuntimeScriptHandler> script_handlers = new CopyOnWriteArrayList<>();
+    private final List<RuntimeScriptHandler> script_handlers = new CopyOnWriteArrayList<>();
 
     /** PVListener that updates 'value' property with received VType */
     private class PrimaryPVListener implements PVListener
@@ -107,17 +107,36 @@ public class WidgetRuntime<MW extends Widget>
     /** Start Scripts */
     private void startScripts()
     {
-        for (ScriptInfo script_info : widget.getPropertyValue(behaviorScripts))
+        for (final ScriptInfo script_info : widget.getPropertyValue(behaviorScripts))
         {
             try
             {
                 script_handlers.add(new RuntimeScriptHandler(widget, script_info));
             }
-            catch (Exception ex)
+            catch (final Exception ex)
             {
                 logger.log(Level.WARNING,
                     "Widget " + widget.getName() + " script " + script_info.getFile() + " failed to initialize", ex);
             }
+        }
+    }
+
+    /** Write a value to the primary PV
+     *  @param value
+     */
+    public void writePrimaryPV(final Object value)
+    {
+        try
+        {
+            final PV pv = primary_pv.orElse(null);
+            if (pv == null)
+                throw new Exception("No PV");
+            primary_pv.get().write(value);
+        }
+        catch (final Exception ex)
+        {
+            logger.log(Level.WARNING,
+                "Widget " + widget.getName() + " write error for value " + value, ex);
         }
     }
 
@@ -132,7 +151,7 @@ public class WidgetRuntime<MW extends Widget>
             PVPool.releasePV(pv);
         }
 
-        for (RuntimeScriptHandler handler : script_handlers)
+        for (final RuntimeScriptHandler handler : script_handlers)
             handler.shutdown();
     }
 }

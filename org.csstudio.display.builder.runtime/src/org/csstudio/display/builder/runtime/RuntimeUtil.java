@@ -44,6 +44,16 @@ public class RuntimeUtil
         {
             ActionUtil.handleAction(widget, action);
         }
+
+        @Override
+        public void handleWrite(final Widget widget, final Object value)
+        {
+            final WidgetRuntime<Widget> runtime = getRuntime(widget);
+            if (runtime == null)
+                logger.log(Level.WARNING, "Widget " + widget + " has no runtime for writing " + value);
+            else
+                runtime.writePrimaryPV(value);
+        }
     };
 
     /** Connect runtime listener to toolkit
