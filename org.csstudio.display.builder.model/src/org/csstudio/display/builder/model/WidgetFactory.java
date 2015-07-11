@@ -23,6 +23,7 @@ import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
+import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 
 /** Factory that creates widgets based on type
@@ -59,6 +60,7 @@ public class WidgetFactory
         addWidgetType(LEDWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ProgressBarWidget.WIDGET_DESCRIPTOR);
         addWidgetType(RectangleWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(TextEntryWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextUpdateWidget.WIDGET_DESCRIPTOR);
     }
 

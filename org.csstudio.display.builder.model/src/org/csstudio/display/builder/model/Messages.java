@@ -33,6 +33,8 @@ public class Messages extends NLS
     public static String ProgressBar_Name;
     public static String RectangleWidget_Description;
     public static String RectangleWidget_Name;
+    public static String TextEntryWidget_Name;
+    public static String TextEntryWidget_Description;
     public static String TextUpdateWidget_Description;
     public static String TextUpdateWidget_Name;
     public static String WidgetProperties_Actions;
