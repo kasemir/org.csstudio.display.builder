@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Display</name>
-  <width>1400</width>
-  <height>1000</height>
+  <width>600</width>
+  <height>500</height>
   <macros>
     <INSET>10</INSET>
     <TEXT>Hello from main display</TEXT>
@@ -44,7 +44,7 @@
       <x>10</x>
       <y>350</y>
       <width>100</width>
-      <height>20</height>
+      <height>25</height>
       <text>Other</text>
       <macros>
         <CONTAINER>Button</CONTAINER>
@@ -58,6 +58,14 @@
           </macros>
         </action>
       </actions>
+    </widget>
+
+    <widget type="textentry" version="1.0.0">
+      <x>10</x>
+      <y>375</y>
+      <width>100</width>
+      <height>25</height>
+      <pv_name>ramp</pv_name>
     </widget>
 
   </widget>
