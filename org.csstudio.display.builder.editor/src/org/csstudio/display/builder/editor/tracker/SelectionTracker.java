@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.editor.tracker;
 
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -62,6 +63,15 @@ public class SelectionTracker extends Group
     /** Original widget position at start of a move/resize */
     private List<Rectangle2D> orig_position = Collections.emptyList();
 
+    /** Break update loops JFX change -> model change -> JFX change -> ... */
+    private boolean updating = false;
+
+    /** Update tracker to match changed widget properties */
+    private final PropertyChangeListener property_listener =
+        (final PropertyChangeEvent evt) ->
+    {
+        updateTrackerFromWidgets();
+    };
 
     /** Construct a tracker.
      *
@@ -335,9 +345,6 @@ public class SelectionTracker extends Group
         updateWidgetsFromTracker();
     }
 
-    /** Break update loops JFX change -> model change -> JFX change -> ... */
-    private boolean updating = false;
-
     /** Updates widgets to current tracker size */
     private void updateWidgetsFromTracker()
     {
@@ -367,7 +374,7 @@ public class SelectionTracker extends Group
         }
     }
 
-    private void updateTrackerFromWidgets(final PropertyChangeEvent event)
+    private void updateTrackerFromWidgets()
     {
         if (updating)
             return;
@@ -424,7 +431,7 @@ public class SelectionTracker extends Group
 
         setVisible(true);
 
-        updateTrackerFromWidgets(null);
+        updateTrackerFromWidgets();
 
         startDrag(null);
 
@@ -438,10 +445,10 @@ public class SelectionTracker extends Group
     {
         for (final Widget widget : widgets)
         {
-            widget.positionX().addPropertyListener(this::updateTrackerFromWidgets);
-            widget.positionY().addPropertyListener(this::updateTrackerFromWidgets);
-            widget.positionWidth().addPropertyListener(this::updateTrackerFromWidgets);
-            widget.positionHeight().addPropertyListener(this::updateTrackerFromWidgets);
+            widget.positionX().addPropertyListener(property_listener);
+            widget.positionY().addPropertyListener(property_listener);
+            widget.positionWidth().addPropertyListener(property_listener);
+            widget.positionHeight().addPropertyListener(property_listener);
         }
     }
 
@@ -449,10 +456,10 @@ public class SelectionTracker extends Group
     {
         for (final Widget widget : widgets)
         {
-            widget.positionX().removePropertyListener(this::updateTrackerFromWidgets);
-            widget.positionY().removePropertyListener(this::updateTrackerFromWidgets);
-            widget.positionWidth().removePropertyListener(this::updateTrackerFromWidgets);
-            widget.positionHeight().removePropertyListener(this::updateTrackerFromWidgets);
+            widget.positionX().removePropertyListener(property_listener);
+            widget.positionY().removePropertyListener(property_listener);
+            widget.positionWidth().removePropertyListener(property_listener);
+            widget.positionHeight().removePropertyListener(property_listener);
         }
     }
 }
