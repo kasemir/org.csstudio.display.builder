@@ -15,6 +15,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.editor.GeometryTools;
+import org.csstudio.display.builder.editor.undo.UndoableActionManager;
+import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
 import org.csstudio.display.builder.model.Widget;
 
 import javafx.geometry.Point2D;
@@ -34,6 +36,8 @@ import javafx.scene.shape.Rectangle;
 public class SelectionTracker extends Group
 {
     private static final int handle_size = 15;
+
+    private final UndoableActionManager undo;
 
     private final TrackerGridConstraint grid_constraint = new TrackerGridConstraint(10);
     private final TrackerSnapConstraint snap_constraint = new TrackerSnapConstraint(this);
@@ -58,15 +62,19 @@ public class SelectionTracker extends Group
     /** Original widget position at start of a move/resize */
     private List<Rectangle2D> orig_position = Collections.emptyList();
 
+
     /** Construct a tracker.
      *
      *  <p>It remains invisible until it is asked to track widgets
+     *
+     *  @param undo 'Undo' manager
      */
-    public SelectionTracker()
+    public SelectionTracker(final UndoableActionManager undo)
     {
         setVisible(false);
         setAutoSizeChildren(false);
 
+        this.undo = undo;
         tracker = new Rectangle();
         tracker.getStyleClass().add("tracker");
 
@@ -222,6 +230,17 @@ public class SelectionTracker extends Group
         tracker.requestFocus();
         if (event != null)
             event.consume();
+
+        // Submit move that was just completed to undo
+        final int N = Math.min(widgets.size(), orig_position.size());
+        for (int i=0; i<N; ++i)
+        {
+            final Widget widget = widgets.get(i);
+            final Rectangle2D orig = orig_position.get(i);
+            undo.add(new UpdateWidgetLocationAction(widget,
+                           (int) orig.getMinX(),  (int) orig.getMinY(),
+                           (int) orig.getWidth(), (int) orig.getHeight()));
+        }
     }
 
     /** Allow move/resize with cursor keys.

@@ -21,6 +21,7 @@ import org.csstudio.display.builder.editor.actions.EnableGridAction;
 import org.csstudio.display.builder.editor.actions.EnableSnapAction;
 import org.csstudio.display.builder.editor.properties.PropertyPanel;
 import org.csstudio.display.builder.editor.tracker.SelectionTracker;
+import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelReader;
@@ -38,6 +39,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Separator;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.ToolBar;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -50,19 +53,22 @@ public class EditorGUI
     private final Executor executor = ForkJoinPool.commonPool();
     private final ToolkitRepresentation<Group, Node> toolkit;
 
+    private final UndoableActionManager undo = new UndoableActionManager();
+
+    private final BorderPane toolbar_center_status = new BorderPane();
     private final Group model_parent = new Group();
     private final Group edit_tools = new Group();
     // editor: model's representation in background, edit_tools on top
     private final ScrollPane editor = new ScrollPane(new Pane(model_parent, edit_tools));
 
-    private final SelectionTracker selection_tracker = new SelectionTracker();
-    private final PropertyPanel property_panel = new PropertyPanel();
+    private final SelectionTracker selection_tracker = new SelectionTracker(undo);
+    private final PropertyPanel property_panel = new PropertyPanel(undo);
 
     private volatile DisplayModel model;
 
+
     public EditorGUI(final Stage stage)
     {
-        // Create all elements here so they can be 'final'
         toolkit = new JFXRepresentation(stage);
         createElements(stage);
         hookListeners();
@@ -90,7 +96,6 @@ public class EditorGUI
 
         final Label status = new Label("Status");
 
-        final BorderPane toolbar_center_status = new BorderPane();
         toolbar_center_status.setTop(toolbar);
         toolbar_center_status.setCenter(center);
         toolbar_center_status.setBottom(status);
@@ -127,6 +132,15 @@ public class EditorGUI
         {
             logger.log(Level.FINE, "Clicked in 'editor' De-select all widgets");
             setSelectedWidgets(Collections.emptyList());
+        });
+
+        toolbar_center_status.setOnKeyPressed((KeyEvent event) ->
+        {
+            if (event.isControlDown())
+                if (event.getCode() == KeyCode.Z)
+                    undo.undoLast();
+                else if (event.getCode() == KeyCode.Y)
+                    undo.redoLast();
         });
     }
 

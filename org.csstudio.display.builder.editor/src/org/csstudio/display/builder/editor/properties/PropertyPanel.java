@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -29,8 +30,17 @@ import javafx.scene.layout.VBox;
 @SuppressWarnings("nls")
 public class PropertyPanel
 {
+    // TODO Use 'undo' for all property changes
+    private final UndoableActionManager undo;
     private final List<WidgetPropertyBinding<?>> bindings = new ArrayList<>();
     private GridPane grid;
+
+    /** @param undo 'Undo' manager
+     */
+    public PropertyPanel(final UndoableActionManager undo)
+    {
+        this.undo = undo;
+    }
 
     // TODO Monitor properties for change
     // TODO Allow entering values, then update property
