@@ -108,7 +108,7 @@ public class ContainerWidget extends BaseWidget
         firePropertyChange(children, child, null);
     }
 
-    public WidgetProperty<int[]> insets()
+    public WidgetProperty<int[]> runtimeInsets()
     {
         return insets;
     }

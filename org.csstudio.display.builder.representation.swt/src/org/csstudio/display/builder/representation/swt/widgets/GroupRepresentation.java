@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
-
 import java.beans.PropertyChangeEvent;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -66,7 +64,7 @@ public class GroupRepresentation extends SWTBaseRepresentation<Group, GroupWidge
         super.updateChanges();
         if (dirty_border.checkAndClear())
         {
-            control.setText(model_widget.getPropertyValue(widgetName));
+            control.setText(model_widget.widgetName().getValue());
         }
     }
 }

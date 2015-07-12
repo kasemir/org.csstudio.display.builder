@@ -90,7 +90,7 @@ public class GroupWidget extends ContainerWidget
     public Macros getEffectiveMacros()
     {
         final Macros base = super.getEffectiveMacros();
-        final Macros my_macros = getPropertyValue(widgetMacros);
+        final Macros my_macros = widgetMacros().getValue();
         return Macros.merge(base, my_macros);
     }
 }

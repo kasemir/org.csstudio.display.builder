@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorActions;
-
 import java.beans.PropertyChangeEvent;
 import java.util.List;
 import java.util.Optional;
@@ -57,7 +55,7 @@ public class ActionButtonRepresentation extends JFXBaseRepresentation<ButtonBase
     @Override
     public ButtonBase createJFXNode() throws Exception
     {
-        final List<ActionInfo> actions = model_widget.getPropertyValue(behaviorActions);
+        final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
         final ButtonBase base;
         // Create either single-action button or menu for selecting one out of N actions
         if (actions.size() == 1)

@@ -12,7 +12,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
@@ -64,9 +63,9 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     public Composite openNewWindow(final DisplayModel model, final Predicate<DisplayModel> close_request_handler)
     {
         final Shell shell = new Shell(display);
-        shell.setText(model.getPropertyValue(CommonWidgetProperties.widgetName));
-        shell.setSize(model.getPropertyValue(CommonWidgetProperties.positionWidth),
-                      model.getPropertyValue(CommonWidgetProperties.positionHeight));
+        shell.setText(model.widgetName().getValue());
+        shell.setSize(model.positionWidth().getValue(),
+                      model.positionHeight().getValue());
         shell.open();
 
         shell.addListener(SWT.CLOSE, new Listener()
@@ -78,7 +77,7 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
                 {
                     event.doit = close_request_handler.test(model);
                 }
-                catch (Exception ex)
+                catch (final Exception ex)
                 {
                     Logger.getLogger(getClass().getName())
                           .log(Level.WARNING, "Close request handler failed", ex);
@@ -98,7 +97,7 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     public Composite disposeRepresentation(final DisplayModel model)
     {
         final Composite parent = model.getUserData(DisplayModel.USER_DATA_TOOLKIT_PARENT);
-        for (Control child : parent.getChildren())
+        for (final Control child : parent.getChildren())
             child.dispose();
         return parent;
     }

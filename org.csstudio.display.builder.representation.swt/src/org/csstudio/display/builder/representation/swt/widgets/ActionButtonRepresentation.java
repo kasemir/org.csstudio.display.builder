@@ -7,9 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorActions;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
-
 import java.beans.PropertyChangeEvent;
 import java.util.List;
 
@@ -43,7 +40,7 @@ public class ActionButtonRepresentation extends SWTBaseRepresentation<Button, Ac
     @Override
     protected Button createSWTControl(final Composite parent) throws Exception
     {
-        final List<ActionInfo> actions = model_widget.getPropertyValue(behaviorActions);
+        final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
         final Button button = new Button(parent, SWT.PUSH);
 
         // Use basic button for single action
@@ -117,6 +114,6 @@ public class ActionButtonRepresentation extends SWTBaseRepresentation<Button, Ac
     {
         super.updateChanges();
         if (dirty_representation.checkAndClear())
-            control.setText(model_widget.getPropertyValue(displayText));
+            control.setText(model_widget.displayText().getValue());
     }
 }

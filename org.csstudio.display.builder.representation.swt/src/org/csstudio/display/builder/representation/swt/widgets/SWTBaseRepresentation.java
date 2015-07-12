@@ -7,11 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
-
 import java.beans.PropertyChangeEvent;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -110,9 +105,9 @@ abstract public class SWTBaseRepresentation<W extends Control, MW extends Widget
     public void updateChanges()
     {
         if (dirty_position.checkAndClear())
-            control.setBounds(model_widget.getPropertyValue(positionX).intValue(),
-                              model_widget.getPropertyValue(positionY).intValue(),
-                              model_widget.getPropertyValue(positionWidth).intValue(),
-                              model_widget.getPropertyValue(positionHeight).intValue());
+            control.setBounds(model_widget.positionX().getValue(),
+                              model_widget.positionY().getValue(),
+                              model_widget.positionWidth().getValue(),
+                              model_widget.positionHeight().getValue());
     }
 }

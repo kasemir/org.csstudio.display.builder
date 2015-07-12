@@ -125,7 +125,7 @@ public class EmbeddedDisplayWidget extends BaseWidget
     public Macros getEffectiveMacros()
     {
         final Macros base = super.getEffectiveMacros();
-        final Macros my_macros = getPropertyValue(widgetMacros);
+        final Macros my_macros = widgetMacros().getValue();
         return base == null ? my_macros : Macros.merge(base, my_macros);
     }
 }

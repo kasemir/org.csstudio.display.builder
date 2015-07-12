@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
-
 import java.beans.PropertyChangeEvent;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -56,6 +54,6 @@ public class LabelRepresentation extends SWTBaseRepresentation<Label, LabelWidge
     {
         super.updateChanges();
         if (dirty_content.checkAndClear())
-            control.setText(model_widget.getPropertyValue(displayText));
+            control.setText(model_widget.displayText().getValue());
     }
 }

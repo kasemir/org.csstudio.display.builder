@@ -8,7 +8,6 @@
 package org.csstudio.display.builder.runtime;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorScripts;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.List;
@@ -107,7 +106,7 @@ public class WidgetRuntime<MW extends Widget>
     /** Start Scripts */
     private void startScripts()
     {
-        for (final ScriptInfo script_info : widget.getPropertyValue(behaviorScripts))
+        for (final ScriptInfo script_info : widget.behaviorScripts().getValue())
         {
             try
             {

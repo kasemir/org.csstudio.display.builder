@@ -7,9 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFile;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,10 +58,10 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
             // Load model for displayFile, allowing lookup relative to this widget's model
             final DisplayModel model = widget.getDisplayModel();
             final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-            final String display_file = widget.getPropertyValue(displayFile);
+            final String display_file = widget.displayFile().getValue();
             content_model = RuntimeUtil.loadModel(parent_display, display_file);
             // Adjust model name to reflect source file
-            content_model.setPropertyValue(widgetName, "EmbeddedDisplay " + display_file);
+            content_model.widgetName().setValue("EmbeddedDisplay " + display_file);
 
             // Attach toolkit to embedded model
             final ToolkitRepresentation<Object, ?> toolkit = RuntimeUtil.getToolkit(model);

@@ -133,7 +133,7 @@ public class DisplayModel extends ContainerWidget
     @Override
     public Macros getEffectiveMacros()
     {
-        final Macros my_macros = getPropertyValue(widgetMacros);
+        final Macros my_macros = widgetMacros().getValue();
         final Widget embedder = getUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET);
         if (embedder != null)
             return Macros.merge(embedder.getEffectiveMacros(), my_macros);

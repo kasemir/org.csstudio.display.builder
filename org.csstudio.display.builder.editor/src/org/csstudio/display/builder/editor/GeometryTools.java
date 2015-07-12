@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeInsets;
-
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.Widget;
 
@@ -40,7 +38,7 @@ public class GeometryTools
 
             if (widget instanceof ContainerWidget)
             {
-                final int[] insets = widget.getPropertyValue(runtimeInsets);
+                final int[] insets = ((ContainerWidget)widget).runtimeInsets().getValue();
                 dx += insets[0];
                 dy += insets[1];
             }
