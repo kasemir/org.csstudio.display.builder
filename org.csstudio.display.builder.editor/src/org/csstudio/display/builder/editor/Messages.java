@@ -18,6 +18,7 @@ public class Messages extends NLS
 
     // Keep in alphabetical order, synchronized with messages.properties
     public static String Grid;
+    public static String SetPropertyFmt;
     public static String Snap;
     public static String UpdateWidgetLocation;
 

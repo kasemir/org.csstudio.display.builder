@@ -100,8 +100,11 @@ public class PropertyPanel
             }
             else if (property instanceof MacroizedWidgetProperty)
             {
+                // TODO Plain JFX property binding updates after every key press,
+                //      which is bad for 'undo'.
+                //      Need to update property (undoable) on focus loss and ENTER key.
                 final MacroizedWidgetPropertyBinding binding =
-                        new MacroizedWidgetPropertyBinding(value.textProperty(),
+                        new MacroizedWidgetPropertyBinding(undo, value.textProperty(),
                                                            (MacroizedWidgetProperty<?>)property);
                 bindings.add(binding);
                 binding.bind();

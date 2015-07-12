@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
+import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetProperty;
+import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 
 import javafx.beans.property.StringProperty;
@@ -16,9 +18,14 @@ import javafx.beans.property.StringProperty;
  */
 public class MacroizedWidgetPropertyBinding extends WidgetPropertyBinding<MacroizedWidgetProperty<?>>
 {
-    public MacroizedWidgetPropertyBinding(final StringProperty jfx_property, final MacroizedWidgetProperty<?> widget_property)
+    private final UndoableActionManager undo;
+
+    public MacroizedWidgetPropertyBinding(final UndoableActionManager undo,
+                                          final StringProperty jfx_property,
+                                          final MacroizedWidgetProperty<?> widget_property)
     {
         super(jfx_property, widget_property);
+        this.undo = undo;
     }
 
     @Override
@@ -28,8 +35,8 @@ public class MacroizedWidgetPropertyBinding extends WidgetPropertyBinding<Macroi
     }
 
     @Override
-    void setWidgetText(String text)
+    void setWidgetText(final String text)
     {
-        widget_property.setSpecification(text);
+        undo.execute(new SetMacroizedWidgetProperty(widget_property, text));
     }
 }
