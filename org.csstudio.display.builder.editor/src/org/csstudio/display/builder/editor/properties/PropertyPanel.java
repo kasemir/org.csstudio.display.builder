@@ -32,7 +32,7 @@ public class PropertyPanel
 {
     // TODO Use 'undo' for all property changes
     private final UndoableActionManager undo;
-    private final List<WidgetPropertyBinding<?>> bindings = new ArrayList<>();
+    private final List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
     private GridPane grid;
 
     /** @param undo 'Undo' manager
@@ -100,11 +100,8 @@ public class PropertyPanel
             }
             else if (property instanceof MacroizedWidgetProperty)
             {
-                // TODO Plain JFX property binding updates after every key press,
-                //      which is bad for 'undo'.
-                //      Need to update property (undoable) on focus loss and ENTER key.
                 final MacroizedWidgetPropertyBinding binding =
-                        new MacroizedWidgetPropertyBinding(undo, value.textProperty(),
+                        new MacroizedWidgetPropertyBinding(undo, value,
                                                            (MacroizedWidgetProperty<?>)property);
                 bindings.add(binding);
                 binding.bind();

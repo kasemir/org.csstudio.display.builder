@@ -67,17 +67,17 @@ public class TextEntryRepresentation extends JFXBaseRepresentation<TextField, Te
                 // Ignore modifier keys
                 break;
             case ESCAPE:
-                // Leave active state, reverting to original value
+                // Revert original value, leave active state
                 if (active)
                 {
-                    active = false;
                     restore();
+                    active = false;
                 }
                 break;
             case ENTER:
-                // Leave active state, submit value
-                active = false;
+                // Submit value, leave active state
                 submit();
+                active = false;
                 break;
             default:
                 // Any other key results in active state
