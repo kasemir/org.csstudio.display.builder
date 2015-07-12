@@ -100,11 +100,6 @@ public class MacroizedWidgetPropertyBinding
         super(undo, field, widget_property);
     }
 
-    void setWidgetText(final String text)
-    {
-        undo.execute(new SetMacroizedWidgetProperty(widget_property, text));
-    }
-
     @Override
     public void bind()
     {

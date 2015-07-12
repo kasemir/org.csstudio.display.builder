@@ -92,7 +92,7 @@ public class EditorGUI
 
         final SplitPane center = new SplitPane();
         center.getItems().addAll(editor, palette.create(), property_panel.create());
-        center.setDividerPositions(0.6, 0.78);
+        center.setDividerPositions(0.56, 0.74);
 
         final Label status = new Label("Status");
 

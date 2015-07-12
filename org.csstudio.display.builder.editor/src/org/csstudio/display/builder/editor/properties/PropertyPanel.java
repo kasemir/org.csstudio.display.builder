@@ -16,8 +16,11 @@ import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -92,24 +95,41 @@ public class PropertyPanel
             }
 
             final Label label = new Label(property.getDescription());
-            final TextField value = new TextField();
+            final Control value;
             if (property.isReadonly())
             {
-                value.setText(property.getValue().toString());
-                value.setEditable(false);
+                final TextField text = new TextField();
+                text.setText(property.getValue().toString());
+                text.setEditable(false);
+                value = text;
+            }
+            else if (property instanceof BooleanWidgetProperty)
+            {
+                final ComboBox<String> check = new ComboBox<>();
+                check.setEditable(true);
+                check.getItems().addAll("true", "false");
+                final BooleanWidgetPropertyBinding binding =
+                        new BooleanWidgetPropertyBinding(undo, check, (BooleanWidgetProperty)property);
+                bindings.add(binding);
+                binding.bind();
+                value = check;
             }
             else if (property instanceof MacroizedWidgetProperty)
             {
+                final TextField text = new TextField();
                 final MacroizedWidgetPropertyBinding binding =
-                        new MacroizedWidgetPropertyBinding(undo, value,
+                        new MacroizedWidgetPropertyBinding(undo, text,
                                                            (MacroizedWidgetProperty<?>)property);
                 bindings.add(binding);
                 binding.bind();
+                value = text;
             }
             else
             {
                 // TODO
-                value.setText(String.valueOf(property.getValue()));
+                final TextField text = new TextField();
+                text.setText(String.valueOf(property.getValue()));
+                value = text;
             }
 
             label.getStyleClass().add("property_name");
