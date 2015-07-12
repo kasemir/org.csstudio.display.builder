@@ -16,24 +16,22 @@ import java.util.Objects;
  *
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls") // TODO Externalize category descriptions
+@SuppressWarnings("nls")
 public enum WidgetCategory
 {
     /** Fundamental graphics: Rectangle, Circle, Label, ... */
-    GRAPHIC("Graphics"),
+    GRAPHIC(Messages.WidgetCategory_Graphics),
     /** Widgets that monitor a PV: Text Update, Meter, LED, ... */
-    MONITOR("Monitors"),
+    MONITOR(Messages.WidgetCategory_Monitors),
     /** Widgets that control a PV: Text Entry, Button, Slider, ... */
-    CONTROL("Controls"),
+    CONTROL(Messages.WidgetCategory_Controls),
     /** Basically monitors, but more complex */
-    PLOT("Plots"),
+    PLOT(Messages.WidgetCategory_Plots),
     /** Widgets that structure the display: Group, Embedded Display */
-    STRUCTURE("Structure"),
-
-    // TODO Add more widget categories
-
+    STRUCTURE(Messages.WidgetCategory_Structure),
+    // More categories?
     /** Widgets that do not fit the other categories */
-    MISC("Miscellaneous");
+    MISC(Messages.WidgetCategory_Miscellaneous);
 
     final private String description;
 

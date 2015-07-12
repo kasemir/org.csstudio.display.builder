@@ -37,6 +37,12 @@ public class Messages extends NLS
     public static String TextEntryWidget_Description;
     public static String TextUpdateWidget_Description;
     public static String TextUpdateWidget_Name;
+    public static String WidgetCategory_Controls;
+    public static String WidgetCategory_Graphics;
+    public static String WidgetCategory_Miscellaneous;
+    public static String WidgetCategory_Monitors;
+    public static String WidgetCategory_Plots;
+    public static String WidgetCategory_Structure;
     public static String WidgetProperties_Actions;
     public static String WidgetProperties_BackgroundColor;
     public static String WidgetProperties_File;
