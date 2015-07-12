@@ -62,6 +62,8 @@ public class WidgetFactory
         addWidgetType(RectangleWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextEntryWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextUpdateWidget.WIDGET_DESCRIPTOR);
+
+        // TODO Add equivalent of org.csstudio.opibuilder.widgets.MenuButton
     }
 
     /** @return Singleton instance */
