@@ -20,6 +20,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Region;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -30,8 +31,10 @@ public class TextEntryRepresentation extends JFXBaseRepresentation<TextField, Te
     /** Is user actively editing the content, so updates should be suppressed? */
     private volatile boolean active = false;
 
+    private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
     private volatile String value_text = "<?>";
+
 
     public TextEntryRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
                                    final TextEntryWidget model_widget)
@@ -44,6 +47,7 @@ public class TextEntryRepresentation extends JFXBaseRepresentation<TextField, Te
     public TextField createJFXNode() throws Exception
     {
         final TextField text = new TextField();
+        text.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
         // Determine 'active' state (gain focus, entered first character)
         text.focusedProperty().addListener((final ObservableValue<? extends Boolean> observable,
@@ -128,7 +132,15 @@ public class TextEntryRepresentation extends JFXBaseRepresentation<TextField, Te
     protected void registerListeners()
     {
         super.registerListeners();
+        model_widget.positionWidth().addPropertyListener(this::sizeChanged);
+        model_widget.positionHeight().addPropertyListener(this::sizeChanged);
         model_widget.runtimeValue().addPropertyListener(this::contentChanged);
+    }
+
+    private void sizeChanged(final PropertyChangeEvent event)
+    {
+        dirty_size.mark();
+        toolkit.scheduleUpdate(this);
     }
 
     private void contentChanged(final PropertyChangeEvent event)
@@ -143,6 +155,9 @@ public class TextEntryRepresentation extends JFXBaseRepresentation<TextField, Te
     public void updateChanges()
     {
         super.updateChanges();
+        if (dirty_size.checkAndClear())
+            jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
+                                 model_widget.positionHeight().getValue());
         if (active)
             return;
         if (dirty_content.checkAndClear())

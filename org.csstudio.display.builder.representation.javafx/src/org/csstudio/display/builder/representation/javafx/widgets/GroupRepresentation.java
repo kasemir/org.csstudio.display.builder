@@ -7,11 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeInsets;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
 
 import java.beans.PropertyChangeEvent;
 
@@ -113,11 +109,11 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
         super.updateChanges();
         if (dirty_border.checkAndClear())
         {
-            final Color background = JFXUtil.convert(model_widget.getPropertyValue(displayBackgroundColor));
+            final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
             label.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
-            label.setText(model_widget.getPropertyValue(widgetName));
-            border.setWidth(model_widget.getPropertyValue(positionWidth).intValue() - 2*inset);
-            border.setHeight(model_widget.getPropertyValue(positionHeight).intValue() - 2*inset);
+            label.setText(model_widget.widgetName().getValue());
+            border.setWidth(model_widget.positionWidth().getValue() - 2*inset);
+            border.setHeight(model_widget.positionHeight().getValue() - 2*inset);
         }
     }
 }

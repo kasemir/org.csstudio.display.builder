@@ -7,9 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-
 import java.beans.PropertyChangeEvent;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -92,8 +89,8 @@ public class EmbeddedDisplayRepresentation extends JFXBaseRepresentation<Group, 
         super.updateChanges();
         if (dirty_border.checkAndClear())
         {
-            border.setWidth(model_widget.getPropertyValue(positionWidth).intValue());
-            border.setHeight(model_widget.getPropertyValue(positionHeight).intValue());
+            border.setWidth(model_widget.positionWidth().getValue());
+            border.setHeight(model_widget.positionHeight().getValue());
         }
     }
 }

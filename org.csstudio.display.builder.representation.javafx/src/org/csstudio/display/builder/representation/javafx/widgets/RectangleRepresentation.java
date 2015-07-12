@@ -7,11 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
-
 import java.beans.PropertyChangeEvent;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -41,10 +36,10 @@ public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, Re
     public Rectangle createJFXNode() throws Exception
     {
         final Rectangle rect = new Rectangle(
-	  		 model_widget.getPropertyValue(positionX).doubleValue(),
-	         model_widget.getPropertyValue(positionY).doubleValue(),
-	         model_widget.getPropertyValue(positionWidth).intValue(),
-	         model_widget.getPropertyValue(positionHeight).intValue());
+	  		 model_widget.positionX().getValue(),
+	         model_widget.positionY().getValue(),
+	         model_widget.positionWidth().getValue(),
+	         model_widget.positionHeight().getValue());
         rect.setFill(Color.TRANSPARENT);
         rect.setStroke(Color.MAGENTA);
         rect.setStrokeWidth(1);
@@ -72,8 +67,8 @@ public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, Re
         super.updateChanges();
         if (dirty_size.checkAndClear())
         {
-            jfx_node.setWidth(model_widget.getPropertyValue(positionWidth).doubleValue());
-            jfx_node.setHeight(model_widget.getPropertyValue(positionHeight).doubleValue());
+            jfx_node.setWidth(model_widget.positionWidth().getValue());
+            jfx_node.setHeight(model_widget.positionHeight().getValue());
         }
     }
 }

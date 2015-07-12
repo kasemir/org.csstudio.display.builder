@@ -8,9 +8,6 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorActions;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
 
 import java.beans.PropertyChangeEvent;
 import java.util.List;
@@ -139,9 +136,9 @@ public class ActionButtonRepresentation extends JFXBaseRepresentation<ButtonBase
         super.updateChanges();
         if (dirty_representation.checkAndClear())
         {
-            jfx_node.setText(model_widget.getPropertyValue(displayText));
-            jfx_node.setPrefSize(model_widget.getPropertyValue(positionWidth).doubleValue(),
-                                 model_widget.getPropertyValue(positionHeight).doubleValue());
+            jfx_node.setText(model_widget.displayText().getValue());
+            jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
+                                 model_widget.positionHeight().getValue());
         }
     }
 }

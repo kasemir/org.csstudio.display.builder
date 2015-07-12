@@ -7,9 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-
 import java.beans.PropertyChangeEvent;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -106,9 +103,8 @@ public class ProgressBarRepresentation extends JFXBaseRepresentation<ProgressBar
     {
         super.updateChanges();
         if (dirty_position.checkAndClear())
-            jfx_node.setPrefSize(
-                model_widget.getPropertyValue(positionWidth).doubleValue(),
-                model_widget.getPropertyValue(positionHeight).doubleValue());
+            jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
+                                 model_widget.positionHeight().getValue());
         if (dirty_content.checkAndClear())
             jfx_node.setProgress(percentage );
     }

@@ -7,10 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionVisible;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
-
 import java.beans.PropertyChangeEvent;
 
 import org.csstudio.display.builder.model.BaseWidget;
@@ -114,9 +110,9 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWid
     {
         if (dirty_position.checkAndClear())
         {
-            jfx_node.relocate(model_widget.getPropertyValue(positionX).doubleValue(),
-                              model_widget.getPropertyValue(positionY).doubleValue());
-            jfx_node.setVisible(model_widget.getPropertyValue(positionVisible));
+            jfx_node.relocate(model_widget.positionX().getValue(),
+                              model_widget.positionY().getValue());
+            jfx_node.setVisible(model_widget.positionVisible().getValue());
         }
     }
 }
