@@ -56,13 +56,13 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
         // <script path="..">
         //   <pv trigger="true">pv_name</pv>
         // </script>
-        for (ScriptInfo info : value)
+        for (final ScriptInfo info : value)
         {
             writer.writeStartElement(XMLTags.SCRIPT);
             writer.writeAttribute(XMLTags.FILE, info.getFile());
-            for (ScriptPV pv : info.getPVs())
+            for (final ScriptPV pv : info.getPVs())
             {
-                writer.writeStartElement(XMLTags.PV);
+                writer.writeStartElement(XMLTags.PV_NAME);
                 if (! pv.isTrigger())
                     writer.writeAttribute(XMLTags.TRIGGER, Boolean.FALSE.toString());
                 writer.writeCharacters(pv.getName());
@@ -86,7 +86,7 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
             script_xml = XMLUtil.getChildElements(property_xml, "path");
 
         final List<ScriptInfo> scripts = new ArrayList<>();
-        for (Element xml : script_xml)
+        for (final Element xml : script_xml)
         {
             String file = xml.getAttribute(XMLTags.FILE);
             if (file.isEmpty())
@@ -100,7 +100,13 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
     private List<ScriptPV> readPVs(final Element xml)
     {
         final List<ScriptPV> pvs = new ArrayList<>();
-        for (Element pv_xml : XMLUtil.getChildElements(xml, XMLTags.PV))
+        // Legacy used just 'pv'
+        final Iterable<Element> pvs_xml;
+        if (XMLUtil.getChildElement(xml, XMLTags.PV_NAME) != null)
+            pvs_xml = XMLUtil.getChildElements(xml, XMLTags.PV_NAME);
+        else
+            pvs_xml = XMLUtil.getChildElements(xml, "pv");
+        for (final Element pv_xml : pvs_xml)
         {   // Unless either the new or old attribute is _present_ and set to false,
             // default to triggering on this PV
             final boolean trigger =

@@ -68,7 +68,7 @@ public class OpenDisplayActionInfo extends ActionInfo
     @Override
     public String toString()
     {
-        String info = "OpenDisplayAction '" + getDescription() + "', " + file + " [" + target + "]";
+        final String info = "OpenDisplayActionInfo '" + getDescription() + "', " + file + " [" + target + "]";
         final String macro_info = macros.toString();
         if (macro_info.isEmpty())
             return info;

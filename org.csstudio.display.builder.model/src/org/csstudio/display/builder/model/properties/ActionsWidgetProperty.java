@@ -32,6 +32,7 @@ import org.w3c.dom.Element;
 public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
 {
     private static final String OPEN_DISPLAY = "open_display";
+    private static final String WRITE_PV = "write_pv";
 
     /** Constructor
      *  @param descriptor Property descriptor
@@ -64,7 +65,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
         //   <target>replace</target>
         //   <description>some/display.opi</description>
         // </action>
-        for (ActionInfo info : value)
+        for (final ActionInfo info : value)
         {
             writer.writeStartElement(XMLTags.ACTION);
             if (info instanceof OpenDisplayActionInfo)
@@ -84,6 +85,17 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 writer.writeCharacters(action.getTarget().name().toLowerCase());
                 writer.writeEndElement();
             }
+            else if (info instanceof WritePVActionInfo)
+            {
+                final WritePVActionInfo action = (WritePVActionInfo) info;
+                writer.writeAttribute(XMLTags.TYPE, WRITE_PV);
+                writer.writeStartElement(XMLTags.PV_NAME);
+                writer.writeCharacters(action.getPV());
+                writer.writeEndElement();
+                writer.writeStartElement(XMLTags.VALUE);
+                writer.writeCharacters(action.getValue());
+                writer.writeEndElement();
+            }
             else
                 throw new Exception("Cannot write action of type " + info.getClass().getName());
             writer.writeStartElement(XMLTags.DESCRIPTION);
@@ -96,8 +108,8 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
     @Override
     public void readFromXML(final Element property_xml) throws Exception
     {
-        final List<ActionInfo> scripts = new ArrayList<>();
-        for (Element action_xml : XMLUtil.getChildElements(property_xml, XMLTags.ACTION))
+        final List<ActionInfo> actions = new ArrayList<>();
+        for (final Element action_xml : XMLUtil.getChildElements(property_xml, XMLTags.ACTION))
         {
             final String type = action_xml.getAttribute(XMLTags.TYPE);
             final String description = XMLUtil.getChildString(action_xml, XMLTags.DESCRIPTION).orElse("");
@@ -130,12 +142,30 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 else
                     macros = new Macros();
 
-                scripts.add(new OpenDisplayActionInfo(description, file, macros, target));
+                actions.add(new OpenDisplayActionInfo(description, file, macros, target));
+            }
+            else if (WRITE_PV.equalsIgnoreCase(type)) // legacy used uppercase type name
+            {
+                // Compare legacy XML:
+                // <action type="WRITE_PV">
+                //     <pv_name>$(M).TWR</pv_name>
+                //     <value>1</value>
+                //     <timeout>10</timeout>
+                //     <confirm_message/>
+                //     <description>-</description>
+                // </action>
+                final String pv_name = XMLUtil.getChildString(action_xml, XMLTags.PV_NAME).orElse("");
+                final String value = XMLUtil.getChildString(action_xml, XMLTags.VALUE).orElse("");
+                if (pv_name.isEmpty()  ||  value.isEmpty())
+                    Logger.getLogger(getClass().getName())
+                          .log(Level.WARNING, "Ignoring <action type='" + WRITE_PV + "' with empty <pv> and/or <value>");
+                else
+                    actions.add(new WritePVActionInfo(description, pv_name, value));
             }
             else
                 Logger.getLogger(getClass().getName())
-                    .log(Level.WARNING, "Ignoring action of unknown type '" + type + "'");
+                      .log(Level.WARNING, "Ignoring action of unknown type '" + type + "'");
         }
-        setValue(scripts);
+        setValue(actions);
     }
 }

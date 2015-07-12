@@ -20,7 +20,7 @@
     </actions>
     <scripts>
       <script file="some_script.py">
-        <pv trigger="false">some_pv</pv>
+        <pv_name trigger="false">some_pv</pv_name>
       </script>
     </scripts>
   </widget>
@@ -40,7 +40,7 @@
     </actions>
     <scripts>
       <script file="fudge_width.py">
-        <pv>noise</pv>
+        <pv_name>noise</pv_name>
       </script>
     </scripts>
   </widget>
@@ -68,7 +68,7 @@
     </actions>
     <scripts>
       <script file="fudge_width.py">
-        <pv>noise</pv>
+        <pv_name>noise</pv_name>
       </script>
     </scripts>
     <pv_name>some_pv</pv_name>
@@ -89,7 +89,7 @@
     </actions>
     <scripts>
       <script file="fudge_width.py">
-        <pv>noise</pv>
+        <pv_name>noise</pv_name>
       </script>
     </scripts>
     <pv_name>some_pv</pv_name>
@@ -110,7 +110,7 @@
     </actions>
     <scripts>
       <script file="fudge_width.py">
-        <pv>noise</pv>
+        <pv_name>noise</pv_name>
       </script>
     </scripts>
     <pv_name>some_pv</pv_name>
@@ -132,12 +132,38 @@
         <target>replace</target>
         <description></description>
       </action>
+      <action type="write_pv">
+        <pv_name>some_pv</pv_name>
+        <value>42</value>
+        <description></description>
+      </action>
     </actions>
     <scripts>
       <script file="fudge_width.py">
-        <pv>noise</pv>
+        <pv_name>noise</pv_name>
       </script>
     </scripts>
+  </widget>
+  <widget type="textentry" version="1.0.0">
+    <name>Text Entry 1</name>
+    <x>10</x>
+    <y>10</y>
+    <width>80</width>
+    <height>19</height>
+    <visible>false</visible>
+    <actions>
+      <action type="open_display">
+        <file>some_other_display.opi</file>
+        <target>replace</target>
+        <description></description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="fudge_width.py">
+        <pv_name>noise</pv_name>
+      </script>
+    </scripts>
+    <pv_name>SomePV</pv_name>
   </widget>
   <widget type="embedded" version="1.0.0">
     <name>Rect 0</name>
@@ -159,7 +185,7 @@
     </actions>
     <scripts>
       <script file="fudge_width.py">
-        <pv>noise</pv>
+        <pv_name>noise</pv_name>
       </script>
     </scripts>
   </widget>
@@ -186,7 +212,7 @@
     </actions>
     <scripts>
       <script file="fudge_width.py">
-        <pv>noise</pv>
+        <pv_name>noise</pv_name>
       </script>
     </scripts>
     <widget type="label" version="1.0.0">
