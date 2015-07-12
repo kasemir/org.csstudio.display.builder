@@ -68,6 +68,20 @@
       <pv_name>ramp</pv_name>
     </widget>
 
+    <widget type="action_button" version="1.0.0">
+      <x>150</x>
+      <y>375</y>
+      <width>100</width>
+      <height>25</height>
+      <text>Reset</text>
+      <actions>
+        <action type="write_pv">
+          <pv_name>ramp</pv_name>
+          <value>0</value>
+        </action>
+      </actions>
+    </widget>
+
   </widget>
   
 </display>

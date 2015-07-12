@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
+import org.csstudio.display.builder.model.properties.WritePVActionInfo;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 
 /** Action Helper
@@ -35,10 +36,11 @@ public class ActionUtil
      */
     public static void handleAction(final Widget source_widget, final ActionInfo action)
     {
+        // Move off the UI Thread
         if (action instanceof OpenDisplayActionInfo)
-        {   // Move off the UI Thread
             RuntimeUtil.getExecutor().execute(() -> openDisplay(source_widget, (OpenDisplayActionInfo) action));
-        }
+        else if (action instanceof WritePVActionInfo)
+            RuntimeUtil.getExecutor().execute(() -> writePV(source_widget, (WritePVActionInfo) action));
         else
             logger.log(Level.WARNING, "Cannot handle unknown " + action);
     }
@@ -49,10 +51,10 @@ public class ActionUtil
      *  this will open a new display or replace
      *  an existing display
      *
-     * @param source_widget Widget from which the action is invoked.
-     *                      Used to resolve the potentially relative path of the
-     *                      display specified in the action.
-     * @param action        Information on which display to open and how.
+     *  @param source_widget Widget from which the action is invoked.
+     *                       Used to resolve the potentially relative path of the
+     *                       display specified in the action.
+     *  @param action        Information on which display to open and how.
      */
     private static void openDisplay(final Widget source_widget,
                                     final OpenDisplayActionInfo action)
@@ -115,6 +117,11 @@ public class ActionUtil
         }
     }
 
+    /** Passed to newly opened windows to handle runtime shutdown
+     *  when window is closed
+     *  @param model Model for which runtime needs to be closed.
+     *  @return <code>true</code> if window can be closed
+     */
     private static boolean handleClose(final DisplayModel model)
     {
         final ToolkitRepresentation<Object, Object> toolkit = RuntimeUtil.getToolkit(model);
@@ -122,5 +129,22 @@ public class ActionUtil
         RuntimeUtil.stopRuntime(model);
         toolkit.disposeRepresentation(model);
         return true;
+    }
+
+    /** Write a PV.
+     *  @param source_widget Widget from which the action is invoked.
+     *  @param action        Information on which display to open and how.
+     */
+    private static void writePV(final Widget source_widget, final WritePVActionInfo action)
+    {
+        final WidgetRuntime<Widget> runtime = RuntimeUtil.getRuntime(source_widget);
+        try
+        {
+            runtime.writePV(action.getPV(), action.getValue());
+        }
+        catch (final Exception ex)
+        {
+            logger.log(Level.WARNING, action + " failed", ex);
+        }
     }
 }

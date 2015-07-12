@@ -18,7 +18,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.macros.MacroHandler;
+import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
+import org.csstudio.display.builder.model.properties.WritePVActionInfo;
 import org.csstudio.display.builder.runtime.script.RuntimeScriptHandler;
 import org.csstudio.vtype.pv.PV;
 import org.csstudio.vtype.pv.PVListener;
@@ -45,6 +48,11 @@ public class WidgetRuntime<MW extends Widget>
 
     /** Listener for <code>primary_pv</code> */
     private PrimaryPVListener primary_pv_listener;
+
+    /** PVs used by actions */
+    // This is empty for most widgets, or contains very few PVs,
+    // so using List with linear lookup by name and not a HashMap
+    private final List<PV> pvs = new CopyOnWriteArrayList<>();
 
     /** Handlers for widget's behaviorScripts property */
     private final List<RuntimeScriptHandler> script_handlers = new CopyOnWriteArrayList<>();
@@ -99,6 +107,17 @@ public class WidgetRuntime<MW extends Widget>
             }
         }
 
+        // Prepare action-related PVs
+        for (final ActionInfo action : widget.behaviorActions().getValue())
+        {
+            if (action instanceof WritePVActionInfo)
+            {
+                final String pv_name = ((WritePVActionInfo) action).getPV();
+                final String expanded = MacroHandler.replace(widget.getEffectiveMacros(), pv_name);
+                pvs.add(PVPool.getPV(expanded));
+            }
+        }
+
         // Start scripts in pool because Jython setup is expensive
         ForkJoinPool.commonPool().execute(this::startScripts);
     }
@@ -139,9 +158,36 @@ public class WidgetRuntime<MW extends Widget>
         }
     }
 
+    /** Write a value to a PV
+     *  @param pv_name Name of PV to write, may contain macros
+     *  @param value Value to write
+     *  @throws Exception on error
+     */
+    public void writePV(final String pv_name, final Object value) throws Exception
+    {
+        final String expanded = MacroHandler.replace(widget.getEffectiveMacros(), pv_name);
+        for (final PV pv : pvs)
+            if (pv.getName().equals(expanded))
+            {
+                try
+                {
+                    pv.write(value);
+                }
+                catch (final Exception ex)
+                {
+                    throw new Exception("Failed to write " + value + " to PV " + expanded, ex);
+                }
+                return;
+            }
+        throw new Exception("Unknown PV '" + pv_name + "' (expanded: '" + expanded + "')");
+    }
+
     /** Stop: Disconnect PVs, ... */
     public void stop()
     {
+        for (final PV pv : pvs)
+            PVPool.releasePV(pv);
+
         final PV pv = primary_pv.orElse(null);
         primary_pv = Optional.empty();
         if (pv != null)

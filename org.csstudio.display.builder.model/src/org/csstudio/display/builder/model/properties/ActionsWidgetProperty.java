@@ -158,7 +158,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 final String value = XMLUtil.getChildString(action_xml, XMLTags.VALUE).orElse("");
                 if (pv_name.isEmpty()  ||  value.isEmpty())
                     Logger.getLogger(getClass().getName())
-                          .log(Level.WARNING, "Ignoring <action type='" + WRITE_PV + "' with empty <pv> and/or <value>");
+                          .log(Level.WARNING, "Ignoring <action type='" + WRITE_PV + "'> with empty <pv_name> and/or <value>");
                 else
                     actions.add(new WritePVActionInfo(description, pv_name, value));
             }
