@@ -19,7 +19,7 @@
       </action>
     </actions>
     <scripts>
-      <script file="some_other_display.opi">
+      <script file="some_script.py">
         <pv trigger="false">some_pv</pv>
       </script>
     </scripts>
