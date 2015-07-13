@@ -19,11 +19,13 @@ import org.csstudio.display.builder.editor.GeometryTools;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.representation.ToolkitRepresentation;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
@@ -37,6 +39,8 @@ import javafx.scene.shape.Rectangle;
 public class SelectionTracker extends Group
 {
     private static final int handle_size = 15;
+
+    private final ToolkitRepresentation<Group, Node> toolkit;
 
     private final UndoableActionManager undo;
 
@@ -54,8 +58,8 @@ public class SelectionTracker extends Group
     /** Widgets to track */
     private List<Widget> widgets = Collections.emptyList();
 
-    /** Mouse position at start of drag */
-    private double start_x, start_y;
+    /** Mouse position at start of drag. -1 used to indicate 'not active' */
+    private double start_x = -1, start_y = -1;
 
     /** Tracker position at start of drag */
     private double orig_x, orig_y, orig_width, orig_height;
@@ -76,11 +80,12 @@ public class SelectionTracker extends Group
     /** Construct a tracker.
      *
      *  <p>It remains invisible until it is asked to track widgets
-     *
+     *  @param toolkit Toolkit
      *  @param undo 'Undo' manager
      */
-    public SelectionTracker(final UndoableActionManager undo)
+    public SelectionTracker(final ToolkitRepresentation<Group, Node> toolkit, final UndoableActionManager undo)
     {
+        this.toolkit = toolkit;
         setVisible(false);
         setAutoSizeChildren(false);
 
@@ -111,6 +116,8 @@ public class SelectionTracker extends Group
         tracker.addEventHandler(MouseEvent.MOUSE_RELEASED, this::endMouseDrag);
         tracker.setOnMouseDragged((MouseEvent event) ->
         {
+            if (start_x < 0)
+                return;
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
             final Point2D point = constrain(orig_x + dx, orig_y + dy);
             updateTracker(point.getX(), point.getY(), orig_width, orig_height);
@@ -120,6 +127,8 @@ public class SelectionTracker extends Group
         handle_top_left.setCursor(Cursor.NW_RESIZE);
         handle_top_left.setOnMouseDragged((MouseEvent event) ->
         {
+            if (start_x < 0)
+                return;
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
             final Point2D tl = constrain(orig_x + dx, orig_y + dy);
             updateTracker(tl.getX(), tl.getY(),
@@ -129,6 +138,8 @@ public class SelectionTracker extends Group
         handle_top.setCursor(Cursor.N_RESIZE);
         handle_top.setOnMouseDragged((MouseEvent event) ->
         {
+            if (start_x < 0)
+                return;
             final double dy = event.getY() - start_y;
             final Point2D t = constrain(orig_x, orig_y + dy);
             updateTracker(t.getX(), t.getY(),
@@ -138,6 +149,8 @@ public class SelectionTracker extends Group
         handle_top_right.setCursor(Cursor.NE_RESIZE);
         handle_top_right.setOnMouseDragged((MouseEvent event) ->
         {
+            if (start_x < 0)
+                return;
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
             final Point2D tr = constrain(orig_x + orig_width + dx, orig_y + dy);
             updateTracker(orig_x, tr.getY(),
@@ -146,6 +159,8 @@ public class SelectionTracker extends Group
         handle_right.setCursor(Cursor.W_RESIZE);
         handle_right.setOnMouseDragged((MouseEvent event) ->
         {
+            if (start_x < 0)
+                return;
             final double dx = event.getX() - start_x;
             final Point2D r = constrain(orig_x + orig_width + dx, orig_y);
             updateTracker(orig_x, orig_y, r.getX() - orig_x, orig_height);
@@ -153,6 +168,8 @@ public class SelectionTracker extends Group
         handle_bottom_right.setCursor(Cursor.SE_RESIZE);
         handle_bottom_right.setOnMouseDragged((MouseEvent event) ->
         {
+            if (start_x < 0)
+                return;
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
             final Point2D br = constrain(orig_x + orig_width + dx, orig_y + orig_height + dy);
             updateTracker(orig_x, orig_y, br.getX() - orig_x, br.getY() - orig_y);
@@ -160,6 +177,8 @@ public class SelectionTracker extends Group
         handle_bottom.setCursor(Cursor.S_RESIZE);
         handle_bottom.setOnMouseDragged((MouseEvent event) ->
         {
+            if (start_x < 0)
+                return;
             final double dy = event.getY() - start_y;
             final Point2D b = constrain(orig_x, orig_y + orig_height + dy);
             updateTracker(orig_x, orig_y, orig_width, b.getY() - orig_y);
@@ -167,6 +186,8 @@ public class SelectionTracker extends Group
         handle_bottom_left.setCursor(Cursor.SW_RESIZE);
         handle_bottom_left.setOnMouseDragged((MouseEvent event) ->
         {
+            if (start_x < 0)
+                return;
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
             final Point2D bl = constrain(orig_x + dx, orig_y + orig_height + dy);
             updateTracker(bl.getX(), orig_y,
@@ -176,6 +197,8 @@ public class SelectionTracker extends Group
         handle_left.setCursor(Cursor.W_RESIZE);
         handle_left.setOnMouseDragged((MouseEvent event) ->
         {
+            if (start_x < 0)
+                return;
             final double dx = event.getX() - start_x;
             final Point2D l = constrain(orig_x + dx, orig_y);
             updateTracker(l.getX(), orig_y, orig_width - (l.getX() - orig_x), orig_height);
@@ -213,21 +236,21 @@ public class SelectionTracker extends Group
         // Take snapshot of current positions
         if (event == null)
         {
-            start_x = 0;
-            start_y = 0;
+            start_x = -1;
+            start_y = -1;
         }
         else
         {
+            event.consume();
             if (event.isControlDown())
             {
-                // TODO Remove debug printouts
-                System.out.println("Tracker ignores Ctrl-pressed");
+                start_x = -1;
+                start_y = -1;
+                passEventToWidgets(event);
                 return;
             }
-            System.out.println("Tracker mouse pressed");
             start_x = event.getX();
             start_y = event.getY();
-            event.consume();
         }
         orig_x = tracker.getX();
         orig_y = tracker.getY();
@@ -241,12 +264,32 @@ public class SelectionTracker extends Group
         tracker.requestFocus();
     }
 
+    /** Tracker is in front of the widgets that it handles,
+     *  so it receives all mouse clicks.
+     *  When 'Control' key is down, that event should be passed
+     *  down to the widgets under the tracker, but JFX blocks them.
+     *  This method locates all widgets that contain the mouse coord.
+     *  and fires a 'click' on them.
+     *  @param event Mouse event that needs to be passed down
+     */
+    private void passEventToWidgets(final MouseEvent event)
+    {
+        for (Widget widget : widgets)
+            if (GeometryTools.getDisplayBounds(widget).contains(event.getX(), event.getY()))
+            {
+                System.out.println("Tracker passes click through to " + widget);
+                toolkit.fireClick(widget, event.isControlDown());
+            }
+    }
+
     private void endMouseDrag(final MouseEvent event)
     {
         // Get focus to allow use of arrow keys
         tracker.requestFocus();
         if (event != null)
             event.consume();
+        if (start_x < 0)
+            return;
         // Submit move that was just completed to undo
         final int N = Math.min(widgets.size(), orig_position.size());
         for (int i=0; i<N; ++i)

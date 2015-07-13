@@ -61,7 +61,7 @@ public class EditorGUI
     // editor: model's representation in background, edit_tools on top
     private final ScrollPane editor = new ScrollPane(new Pane(model_parent, edit_tools));
 
-    private final SelectionTracker selection_tracker = new SelectionTracker(undo);
+    private SelectionTracker selection_tracker;
     private final PropertyPanel property_panel = new PropertyPanel(undo);
 
     private volatile DisplayModel model;
@@ -76,6 +76,8 @@ public class EditorGUI
 
     private void createElements(final Stage stage)
     {
+        selection_tracker = new SelectionTracker(toolkit, undo);
+
         // BorderPane with
         //    toolbar
         //    center = editor | palette | property_panel
