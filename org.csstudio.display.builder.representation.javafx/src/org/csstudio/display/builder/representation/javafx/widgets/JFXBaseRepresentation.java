@@ -52,6 +52,10 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWid
             // Initial click on widget is reported and widget is selected in editor.
             // Follow-up clicks appear to be captured by tracker,
             // even though it doesn't consume() the Ctrl-click
+            //
+            // See http://stackoverflow.com/questions/24607969/mouse-events-get-ignored-on-the-underlying-layer
+            // tracker.setMouseTransparent(true) would pass mouse clicks back down to the node below,
+            // but then the tracker ignores all mouse clicks...
             jfx_node.addEventHandler(MouseEvent.MOUSE_PRESSED, (event) ->
 //            jfx_node.setOnMousePressed((event) ->
             {
