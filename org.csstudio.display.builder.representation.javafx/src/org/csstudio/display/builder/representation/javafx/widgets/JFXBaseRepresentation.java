@@ -16,6 +16,7 @@ import org.csstudio.display.builder.representation.WidgetRepresentation;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.input.MouseEvent;
 
 /** Base class for all JavaFX widget representations
  *  @param <JFX> JFX Widget
@@ -46,10 +47,16 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWid
         if (jfx_node != null)
         {
             parent.getChildren().add(jfx_node);
-            jfx_node.setOnMouseClicked((event) ->
+
+            // TODO Fix Ctrl-click to de-select
+            // Initial click on widget is reported and widget is selected in editor.
+            // Follow-up clicks appear to be captured by tracker,
+            // even though it doesn't consume() the Ctrl-click
+            jfx_node.addEventHandler(MouseEvent.MOUSE_PRESSED, (event) ->
+//            jfx_node.setOnMousePressed((event) ->
             {
-                // TODO Pass event.isControlDown()
-                toolkit.fireClick(model_widget);
+                System.out.println("Mouse pressed in " + model_widget);
+                toolkit.fireClick(model_widget, event.isControlDown());
                 event.consume();
             });
         }

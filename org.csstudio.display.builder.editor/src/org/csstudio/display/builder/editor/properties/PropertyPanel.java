@@ -72,6 +72,8 @@ public class PropertyPanel
         clear();
 
         // TODO Get common properties
+        // Then display actual property of first (or last?) widget.
+        // On change, update _all_ widgets.
         if (widgets.size() != 1)
             return;
         final Set<WidgetProperty<?>> properties = widgets.get(0).getProperties();
@@ -126,7 +128,7 @@ public class PropertyPanel
             }
             else
             {
-                // TODO
+                // TODO Provide editor for other property types
                 final TextField text = new TextField();
                 text.setText(String.valueOf(property.getValue()));
                 value = text;

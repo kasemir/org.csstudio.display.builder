@@ -23,9 +23,19 @@
     <widget type="label" version="1.0.0">
       <name>Hello</name>
       <y>4</y>
-      <width>15</width>
+      <width>100</width>
       <height>15</height>
       <text>$(TEXT)</text>
+      <visible>$(SHOW)</visible>
+    </widget>
+
+    <widget type="label" version="1.0.0">
+      <name>Hello2</name>
+      <x>200</x>
+      <y>4</y>
+      <width>100</width>
+      <height>15</height>
+      <text>Some text</text>
       <visible>$(SHOW)</visible>
     </widget>
 

@@ -28,8 +28,9 @@ public interface ToolkitListener
 
     /** User clicked (selected) a widget
      *  @param widget Widget that was clicked
+     *  @param with_control Is 'control' key held?
      */
-    default public void handleClick(Widget widget) {};
+    default public void handleClick(Widget widget, boolean with_control) {};
 
     /** User provided a new value that should be written to PV
      *  @param widget Widget that provided the value; Widget's (primary) PV should be written

@@ -107,8 +107,8 @@ public class SelectionTracker extends Group
     private void hookEvents()
     {
         tracker.setCursor(Cursor.MOVE);
-        tracker.setOnMousePressed(this::startDrag);
-        tracker.setOnMouseReleased(this::endMouseDrag);
+        tracker.addEventHandler(MouseEvent.MOUSE_PRESSED, this::startDrag);
+        tracker.addEventHandler(MouseEvent.MOUSE_RELEASED, this::endMouseDrag);
         tracker.setOnMouseDragged((MouseEvent event) ->
         {
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
@@ -218,6 +218,13 @@ public class SelectionTracker extends Group
         }
         else
         {
+            if (event.isControlDown())
+            {
+                // TODO Remove debug printouts
+                System.out.println("Tracker ignores Ctrl-pressed");
+                return;
+            }
+            System.out.println("Tracker mouse pressed");
             start_x = event.getX();
             start_y = event.getY();
             event.consume();
@@ -240,7 +247,6 @@ public class SelectionTracker extends Group
         tracker.requestFocus();
         if (event != null)
             event.consume();
-
         // Submit move that was just completed to undo
         final int N = Math.min(widgets.size(), orig_position.size());
         for (int i=0; i<N; ++i)

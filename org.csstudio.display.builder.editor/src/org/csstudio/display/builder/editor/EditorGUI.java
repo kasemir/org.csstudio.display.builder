@@ -8,9 +8,9 @@
 package org.csstudio.display.builder.editor;
 
 import java.io.FileInputStream;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
@@ -65,7 +65,7 @@ public class EditorGUI
     private final PropertyPanel property_panel = new PropertyPanel(undo);
 
     private volatile DisplayModel model;
-
+    private final List<Widget> selected_widgets = new CopyOnWriteArrayList<>();
 
     public EditorGUI(final Stage stage)
     {
@@ -120,18 +120,30 @@ public class EditorGUI
         toolkit.addListener(new ToolkitListener()
         {
             @Override
-            public void handleClick(final Widget widget)
+            public void handleClick(final Widget widget, final boolean with_control)
             {
-                // TODO Toggle selection (add to existing) when Ctrl is held
                 logger.log(Level.FINE, "Selected {0}",  widget);
-                setSelectedWidgets(Arrays.asList(widget));
+
+                if (with_control)
+                {
+                    // Toggle selection of widget when Ctrl is held
+                    if (! selected_widgets.remove(widget))
+                        selected_widgets.add(widget);
+                }
+                else
+                {
+                    selected_widgets.clear();
+                    selected_widgets.add(widget);
+                }
+                updateSelectedWidgets();
             }
         });
 
         editor.setOnMousePressed((MouseEvent event) ->
         {
             logger.log(Level.FINE, "Clicked in 'editor' De-select all widgets");
-            setSelectedWidgets(Collections.emptyList());
+            selected_widgets.clear();
+            updateSelectedWidgets();
         });
 
         toolbar_center_status.setOnKeyPressed((KeyEvent event) ->
@@ -144,11 +156,12 @@ public class EditorGUI
         });
     }
 
-    /** @param selected_widgets Selected widgets */
-    private void setSelectedWidgets(final List<Widget> selected_widgets)
+    /** Update tracker and property panel with selected widgets */
+    private void updateSelectedWidgets()
     {
-        selection_tracker.setSelectedWidgets(selected_widgets);
-        property_panel.setSelectedWidgets(selected_widgets);
+        final List<Widget> copy = new ArrayList<>(selected_widgets);
+        selection_tracker.setSelectedWidgets(copy);
+        property_panel.setSelectedWidgets(copy);
     }
 
     public void loadModel(final String filename)

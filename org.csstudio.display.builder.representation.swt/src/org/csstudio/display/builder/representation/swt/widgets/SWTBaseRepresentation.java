@@ -13,6 +13,7 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Composite;
@@ -49,7 +50,7 @@ abstract public class SWTBaseRepresentation<W extends Control, MW extends Widget
             @Override
             public void mouseDown(final MouseEvent e)
             {
-                toolkit.fireClick(model_widget);
+                toolkit.fireClick(model_widget, (e.stateMask & SWT.CONTROL) != 0);
             }
         });
 

@@ -199,13 +199,14 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
 
     /** Notify listeners that a widget has been clicked
      *  @param widget Widget
+     *  @param with_control Is 'control' key held?
      */
-    public void fireClick(final Widget widget)
+    public void fireClick(final Widget widget, final boolean with_control)
     {
         for (final ToolkitListener listener : listeners)
         try
         {
-            listener.handleClick(widget);
+            listener.handleClick(widget, with_control);
         }
         catch (final Throwable ex)
         {
