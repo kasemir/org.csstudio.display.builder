@@ -30,6 +30,7 @@ import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -59,9 +60,11 @@ public class EditorGUI
     private final Group model_parent = new Group();
     private final Group edit_tools = new Group();
     // editor: model's representation in background, edit_tools on top
-    private final ScrollPane editor = new ScrollPane(new Pane(model_parent, edit_tools));
+    private final Pane editor_pane = new Pane(model_parent, edit_tools);
+    private final ScrollPane editor = new ScrollPane(editor_pane);
 
     private SelectionTracker selection_tracker;
+
     private final PropertyPanel property_panel = new PropertyPanel(undo);
 
     private volatile DisplayModel model;
@@ -93,6 +96,10 @@ public class EditorGUI
         final Palette palette = new Palette();
 
         final SplitPane center = new SplitPane();
+        // Cause inside of 'editor' to fill it
+        editor.setFitToWidth(true);
+        editor.setFitToHeight(true);
+        // editor_pane.getStyleClass().add("debug");
         center.getItems().addAll(editor, palette.create(), property_panel.create());
         center.setDividerPositions(0.56, 0.74);
 
@@ -141,12 +148,16 @@ public class EditorGUI
             }
         });
 
-        editor.setOnMousePressed((MouseEvent event) ->
+        editor.addEventHandler(MouseEvent.MOUSE_PRESSED, event ->
         {
+            if (event.isControlDown())
+                return;
             logger.log(Level.FINE, "Clicked in 'editor' De-select all widgets");
             selected_widgets.clear();
             updateSelectedWidgets();
         });
+
+        new Rubberband(editor_pane, this::selectWidgetsInRegion);
 
         toolbar_center_status.setOnKeyPressed((KeyEvent event) ->
         {
@@ -156,14 +167,6 @@ public class EditorGUI
                 else if (event.getCode() == KeyCode.Y)
                     undo.redoLast();
         });
-    }
-
-    /** Update tracker and property panel with selected widgets */
-    private void updateSelectedWidgets()
-    {
-        final List<Widget> copy = new ArrayList<>(selected_widgets);
-        selection_tracker.setSelectedWidgets(copy);
-        property_panel.setSelectedWidgets(copy);
     }
 
     public void loadModel(final String filename)
@@ -197,6 +200,23 @@ public class EditorGUI
         {
             ex.printStackTrace();
         }
+    }
+
+    private void selectWidgetsInRegion(final Rectangle2D region)
+    {
+        final List<Widget> found = GeometryTools.findWidgets(model, region);
+        logger.log(Level.FINE, "Selected widgets in {0}: {1}",  new Object[] { region, found });
+        selected_widgets.clear();
+        selected_widgets.addAll(found);
+        updateSelectedWidgets();
+    }
+
+    /** Update tracker and property panel with selected widgets */
+    private void updateSelectedWidgets()
+    {
+        final List<Widget> copy = new ArrayList<>(selected_widgets);
+        selection_tracker.setSelectedWidgets(copy);
+        property_panel.setSelectedWidgets(copy);
     }
 
     public boolean handleClose()

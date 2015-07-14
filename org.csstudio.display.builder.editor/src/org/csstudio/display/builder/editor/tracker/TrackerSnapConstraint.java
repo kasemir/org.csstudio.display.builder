@@ -33,7 +33,7 @@ public class TrackerSnapConstraint extends TrackerConstraint
      *
      *  When too small, creating of threads defeats the parallel gain.
      *
-     *  TODO Preference setting for PARALLEL_THRESHOLD
+     *  TODO Preference setting for PARALLEL_THRESHOLD or find optimum value
      */
     public static final int PARALLEL_THRESHOLD = 50;
 
