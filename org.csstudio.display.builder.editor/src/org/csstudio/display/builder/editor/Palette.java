@@ -35,7 +35,6 @@ import javafx.scene.layout.VBox;
 @SuppressWarnings("nls")
 public class Palette
 {
-    // TODO Allow 'dragging' new widgets into the editor
     public Node create()
     {
         final VBox palette = new VBox();
@@ -45,6 +44,20 @@ public class Palette
         header.getStyleClass().add("header");
         palette.getChildren().add(header);
 
+        final Map<WidgetCategory, Pane> palette_groups = createWidgetCategoryPanes(palette);
+        createWidgetEntries(palette_groups);
+
+        final ScrollPane palette_scroll = new ScrollPane(palette);
+        palette_scroll.setHbarPolicy(ScrollBarPolicy.NEVER);
+        return palette_scroll;
+    }
+
+    /** Create a TilePane for each WidgetCategory
+     *  @param parent Parent Pane
+     *  @return Map of panes for each category
+     */
+    private Map<WidgetCategory, Pane> createWidgetCategoryPanes(final Pane parent)
+    {
         final Map<WidgetCategory, Pane> palette_groups = new HashMap<>();
         for (final WidgetCategory category : WidgetCategory.values())
         {
@@ -55,27 +68,36 @@ public class Palette
             palette_groups.put(category, palette_group);
             final TitledPane pane = new TitledPane(category.getDescription(), palette_group);
             pane.getStyleClass().add("palette_category");
-            palette.getChildren().add(pane);
+            parent.getChildren().add(pane);
         }
+        return palette_groups;
+    }
+
+    /** Create entry for each widget type
+      * @param palette_groups Map with parent panes for each widget category
+     */
+    private void createWidgetEntries(final Map<WidgetCategory, Pane> palette_groups)
+    {
         for (final WidgetDescriptor desc : WidgetFactory.getInstance().getWidgetDescriptions())
         {
             final Button button = new Button(desc.getName());
+            Image image;
             try
             {
-                button.setGraphic(new ImageView(new Image(desc.getIconStream())));
+                image = new Image(desc.getIconStream());
+                button.setGraphic(new ImageView(image));
             }
             catch (final Exception ex)
             {
                 Logger.getLogger(getClass().getName())
                       .log(Level.WARNING, "Icon failed for " + desc, ex);
+                image = null;
             }
             button.setPrefWidth(150);
             button.setAlignment(Pos.BASELINE_LEFT);
             palette_groups.get(desc.getCategory()).getChildren().add(button);
-        }
 
-        final ScrollPane palette_scroll = new ScrollPane(palette);
-        palette_scroll.setHbarPolicy(ScrollBarPolicy.NEVER);
-        return palette_scroll;
+            WidgetTransfer.addDragSupport(button, desc, image);
+        }
     }
 }
