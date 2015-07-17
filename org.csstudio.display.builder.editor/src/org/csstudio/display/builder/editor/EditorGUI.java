@@ -159,7 +159,7 @@ public class EditorGUI
 
         new Rubberband(editor_pane, this::selectWidgetsInRegion);
 
-        WidgetTransfer.addDropSupport(editor_pane, this::handleDroppedWidget);
+        WidgetTransfer.addDropSupport(editor_pane, this::handleDroppedModel);
 
         toolbar_center_status.setOnKeyPressed((KeyEvent event) ->
         {
@@ -221,11 +221,14 @@ public class EditorGUI
         property_panel.setSelectedWidgets(copy);
     }
 
-    /** @param widget Dropped Widget, to be added to model */
-    private void handleDroppedWidget(final Widget widget)
+    /** @param model Dropped model with widgets to be added to existing model */
+    private void handleDroppedModel(final DisplayModel dropped_model)
     {
-        System.out.println("New widget " + widget);
-        model.addChild(widget);
+        for (Widget widget : dropped_model.getChildren())
+        {
+            System.out.println("New widget " + widget);
+            model.addChild(widget);
+        }
         // TODO Representation needs to show the new model item,
         //      listening to the 'children' property change
     }

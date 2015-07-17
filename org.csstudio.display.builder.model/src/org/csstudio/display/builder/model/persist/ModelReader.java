@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.persist;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
@@ -68,6 +69,18 @@ public class ModelReader
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final Element root;
     private final Version version;
+
+    /** Parse display from XML
+     *  @param xml XML text
+     *  @return DisplayModel
+     *  @throws Exception on error
+     */
+    public static DisplayModel parseXML(final String xml) throws Exception
+    {
+        final ByteArrayInputStream stream = new ByteArrayInputStream(xml.getBytes());
+        final ModelReader reader = new ModelReader(stream);
+        return reader.readModel();
+    }
 
     /** Create reader.
      *  @param stream Input stream to read, will be closed

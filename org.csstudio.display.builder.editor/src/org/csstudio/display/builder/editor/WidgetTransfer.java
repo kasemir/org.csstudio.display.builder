@@ -7,14 +7,15 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetDescriptor;
-import org.csstudio.display.builder.model.WidgetFactory;
+import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.ModelWriter;
 
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -31,6 +32,10 @@ import javafx.scene.layout.Pane;
 @SuppressWarnings("nls")
 public class WidgetTransfer
 {
+    // TODO Turn every tracker move into a 'drag'.
+    //      Groups highlight on drag-over,
+    //      TransferMode.COPY is handled just like a drop from palette.
+
     // TODO Create custom data types
     //      for actual widget and for widget description (widget type)
     //      Maybe use new DataFormat("application/xml");
@@ -40,13 +45,26 @@ public class WidgetTransfer
      *  @param desc Description of widget type to drag
      *  @param image Image to represent the widget, or <code>null</code>
      */
-    public static void addDragSupport(final Node source,final WidgetDescriptor desc, final Image image)
+    public static void addDragSupport(final Node source,final WidgetDescriptor descriptor, final Image image)
     {
         source.setOnDragDetected((MouseEvent event) ->
         {
+            final DisplayModel model = new DisplayModel();
+            model.addChild(descriptor.createWidget());
+            final String xml;
+            try
+            {
+                xml = ModelWriter.getXML(model);
+            }
+            catch (Exception ex)
+            {
+                Logger.getLogger(WidgetTransfer.class.getName())
+                      .log(Level.WARNING, "Cannot drag-serialize", ex);
+                return;
+            }
             final Dragboard db = source.startDragAndDrop(TransferMode.COPY);
             final ClipboardContent content = new ClipboardContent();
-            content.putString(desc.getType());
+            content.putString(xml);
             db.setContent(content);
             if (image != null)
                 db.setDragView(image);
@@ -57,7 +75,7 @@ public class WidgetTransfer
         // Somehow the drag is still 'active' until one more mouse click.
     }
 
-    public static void addDropSupport(final Pane pane, final Consumer<Widget> handleDroppedWidget)
+    public static void addDropSupport(final Pane pane, final Consumer<DisplayModel> handleDroppedModel)
     {
         pane.setOnDragOver((DragEvent event) ->
         {
@@ -71,18 +89,22 @@ public class WidgetTransfer
             final Dragboard db = event.getDragboard();
             if (db.hasString())
             {
-                final String type = db.getString();
-                final Optional<WidgetDescriptor> descriptor = WidgetFactory.getInstance().getWidgetDescriptior(type);
-                if (descriptor.isPresent())
+                final String xml = db.getString();
+                try
                 {
-                    final Widget widget = descriptor.get().createWidget();
-                    widget.positionX().setValue((int)event.getX());
-                    widget.positionY().setValue((int)event.getY());
-                    handleDroppedWidget.accept(widget);
+                    final DisplayModel model = ModelReader.parseXML(xml);
+                    for (Widget widget : model.getChildren())
+                    {
+                        widget.positionX().setValue((int)event.getX());
+                        widget.positionY().setValue((int)event.getY());
+                    }
+                    handleDroppedModel.accept(model);
                 }
-                else
+                catch (Exception ex)
+                {
                     Logger.getLogger(WidgetTransfer.class.getName())
-                          .log(Level.WARNING, "'Dropped' unknown widget type ", type);
+                    .log(Level.WARNING, "Cannot parse dropped model", ex);
+                }
                 event.setDropCompleted(true);
             }
             else

@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.persist;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,7 +30,25 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 @SuppressWarnings("nls")
 public class ModelWriter implements Closeable
 {
-     private final XMLStreamWriter writer;
+    private final XMLStreamWriter writer;
+
+    /** Convert model into XML
+     *  @param model DisplayModel
+     *  @return XML for the model
+     *  @throws Exception on error
+     */
+    public static String getXML(final DisplayModel model) throws Exception
+    {
+        final ByteArrayOutputStream xml = new ByteArrayOutputStream();
+        try
+        (
+            final ModelWriter writer = new ModelWriter(xml);
+        )
+        {
+            writer.writeModel(model);
+        }
+        return xml.toString();
+    }
 
     /** Create writer.
      *
@@ -55,7 +74,6 @@ public class ModelWriter implements Closeable
      */
     public void writeModel(final DisplayModel model) throws Exception
     {
-
         // Write properties of display itself
         writeWidgetProperties(model);
 
