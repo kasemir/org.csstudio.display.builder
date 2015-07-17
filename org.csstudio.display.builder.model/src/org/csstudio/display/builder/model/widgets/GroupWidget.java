@@ -69,6 +69,10 @@ public class GroupWidget extends ContainerWidget
         super.defineProperties(properties);
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(background = displayBackgroundColor.createProperty(this, new WidgetColor(255, 255, 255)));
+
+        // Initial size
+        positionWidth().setValue(300);
+        positionHeight().setValue(200);
     }
 
     /** @return Widget 'macros' */

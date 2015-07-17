@@ -20,12 +20,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @SuppressWarnings("nls")
 public class ContainerWidget extends BaseWidget
 {
-    // 'children' is a property to allow notifications,
-    // but setting its value or creating additional property instances
-    // is not supported.
-    //
-    // All access must be via the ContainerWidget.add/removeChild() methods.
-    private static final WidgetPropertyDescriptor<List<Widget>> CHILD_PROPERTY_DESCRIPTOR =
+    /** 'children' is a property to allow notifications,
+     *  but setting its value or creating additional property instances
+     *  is not supported.
+     *
+     *  All access must be via the ContainerWidget.add/removeChild() methods.
+     */
+    public static final WidgetPropertyDescriptor<List<Widget>> CHILDREN_PROPERTY_DESCRIPTOR =
             new WidgetPropertyDescriptor<List<Widget>>(
                     WidgetPropertyCategory.RUNTIME, "children", "Child widgets")
     {
@@ -37,11 +38,11 @@ public class ContainerWidget extends BaseWidget
         }
     };
 
-    private static class ChildrenWidgetsProperty extends RuntimeWidgetProperty<List<Widget>>
+    private class ChildrenWidgetsProperty extends RuntimeWidgetProperty<List<Widget>>
     {
         public ChildrenWidgetsProperty(final Widget widget)
         {
-            super(CHILD_PROPERTY_DESCRIPTOR, widget, new CopyOnWriteArrayList<>());
+            super(CHILDREN_PROPERTY_DESCRIPTOR, widget, new CopyOnWriteArrayList<>());
         }
 
         @Override
@@ -58,7 +59,7 @@ public class ContainerWidget extends BaseWidget
     }
 
     /** Child Widgets */
-    protected final ChildrenWidgetsProperty children;
+    protected ChildrenWidgetsProperty children;
 
     private WidgetProperty<int[]> insets;
 
@@ -68,7 +69,6 @@ public class ContainerWidget extends BaseWidget
     public ContainerWidget(final String type)
     {
     	super(type);
-    	children = new ChildrenWidgetsProperty(this);
     }
 
     @Override
@@ -76,6 +76,7 @@ public class ContainerWidget extends BaseWidget
     {
         super.defineProperties(properties);
         properties.add(insets = runtimeInsets.createProperty(this, new int[] { 0, 0 }));
+        properties.add(children = new ChildrenWidgetsProperty(this));
     }
 
     /** @return Child widgets in Widget tree */

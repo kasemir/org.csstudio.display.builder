@@ -43,10 +43,10 @@ import org.csstudio.display.builder.representation.internal.UpdateThrottle;
 @SuppressWarnings("nls")
 abstract public class ToolkitRepresentation<TWP extends Object, TW> implements Executor
 {
+    protected final Logger logger = Logger.getLogger(getClass().getName());
+
     private final UpdateThrottle throttle = new UpdateThrottle(this);
 
-    // TODO Split into Factory with static map of representations,
-    //      and the per-instance ToolkitRepresentation
     /** Registered representations based on widget class */
     private final Map<Class<? extends Widget>,
                       Class<? extends WidgetRepresentation<TWP, TW, ? extends Widget>>> representations = new HashMap<>();
@@ -88,61 +88,74 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         // DisplayModel itself is _not_ represented,
         // but all its children, recursively
         for (final Widget child : model.getChildren())
+            representWidget(Objects.requireNonNull(parent, "Missing parent widget"), child);
+
+        // Add/remove representations as model widgets change
+        // TODO Also do that in GroupRepresentation, ideally with shared code
+        model.addPropertyListener(DisplayModel.CHILDREN_PROPERTY_DESCRIPTOR, event ->
         {
-            try
-            {
-                representWidget(Objects.requireNonNull(parent, "Missing parent widget"), child);
+            final Widget removed_widget = (Widget) event.getOldValue();
+            final Widget added_widget = (Widget) event.getNewValue();
+
+            // Move to toolkit thread.
+            // May already be on toolkit, for example in drag/drop,
+            // but updating the representation 'later' may help reduce blocking.
+            if (removed_widget != null)
+            {   // TODO Remove representation for removed widget
+                logger.log(Level.SEVERE, "Not implemented");
             }
-            catch (final Exception ex)
-            {
-                Logger.getLogger(getClass().getName()).log(Level.WARNING, "Model representation error", ex);
-            }
-        }
+            if (added_widget != null)
+                execute(() -> representWidget(parent, added_widget));
+        });
     }
 
-    /** Create a toolkit widget for a model widget
+    /** Create a toolkit widget for a model widget.
+     *
+     *  <p>Will log errors, but not raise exception.
+     *
      *  @param parent Toolkit parent (Group, Container, ..)
      *  @return Toolkit item that represents the widget
-     *  @throws Exception on error
      *  @see #disposeRepresentation()
      */
-    private void representWidget(final TWP parent, final Widget widget) throws Exception
+    private void representWidget(final TWP parent, final Widget widget)
     {
         final Class<? extends WidgetRepresentation<TWP, TW, ? extends Widget>> representation_class =
                 representations.get(widget.getClass());
         if (representation_class == null)
-        	throw new Exception("Lacking representation for " + widget.getClass());
+        {
+        	logger.log(Level.SEVERE, "Lacking representation for " + widget.getClass());
+        	return;
+        }
 
         // Note that constructors expect a generic ToolkitRepresentation (not JFXRepresentation),
         // but a specific widget like GroupWidget (not just Widget):
         // new ThatWidgetRepresentation(ToolkitRepresentation this, ActualWidget model_widget)
-        final WidgetRepresentation<TWP, TW, ? extends Widget> representation = representation_class
+        final WidgetRepresentation<TWP, TW, ? extends Widget> representation;
+        final TWP re_parent;
+        try
+        {
+            representation = representation_class
                   .getDeclaredConstructor(ToolkitRepresentation.class, widget.getClass())
                   .newInstance(this, widget);
-        final TWP re_parent = representation.init(parent);
-
+            re_parent = representation.init(parent);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.SEVERE, "Cannot represent " + widget, ex);
+            return;
+        }
         // Recurse into child widgets
         if (widget instanceof ContainerWidget)
             for (final Widget child : ((ContainerWidget) widget).getChildren())
-            {
-                try
-                {
-                    representWidget(re_parent, child);
-                }
-                catch (final Exception ex)
-                {
-                    Logger.getLogger(getClass().getName())
-                          .log(Level.WARNING, "Cannot represent " + child, ex);
-                }
-            }
+                representWidget(re_parent, child);
     }
 
     /** Called by toolkit representation to request an update.
-    *
-    *  <p>That representation's <code>updateChanges()</code> will be called
-    *
-    *  @param representation Toolkit representation that requests update
-    */
+     *
+     *  <p>That representation's <code>updateChanges()</code> will be called
+     *
+     *  @param representation Toolkit representation that requests update
+     */
     public void scheduleUpdate(final WidgetRepresentation<TWP, TW, ? extends Widget> representation)
     {
         throttle.scheduleUpdate(representation);
@@ -192,8 +205,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
             }
             catch (final Throwable ex)
             {
-                Logger.getLogger(getClass().getName())
-                      .log(Level.WARNING, "Action failure when invoking " + action + " for " + widget, ex);
+                logger.log(Level.WARNING, "Action failure when invoking " + action + " for " + widget, ex);
             }
     }
 
@@ -210,8 +222,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         }
         catch (final Throwable ex)
         {
-            Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Click failure for " + widget, ex);
+            logger.log(Level.WARNING, "Click failure for " + widget, ex);
         }
     }
 
@@ -228,8 +239,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         }
         catch (final Throwable ex)
         {
-            Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Failure when writing " + value + " for " + widget, ex);
+            logger.log(Level.WARNING, "Failure when writing " + value + " for " + widget, ex);
         }
     }
 

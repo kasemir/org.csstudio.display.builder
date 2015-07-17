@@ -97,6 +97,10 @@ public class LEDWidget extends BaseWidget
         properties.add(off_color);
         properties.add(on_color);
         properties.add(value);
+
+        // Initial size
+        positionWidth().setValue(20);
+        positionHeight().setValue(20);
     }
 
     /** @return Behavior 'pv_name' */

@@ -97,6 +97,10 @@ public class EmbeddedDisplayWidget extends BaseWidget
         super.defineProperties(properties);
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(file = displayFile.createProperty(this, ""));
+
+        // Initial size
+        positionWidth().setValue(300);
+        positionHeight().setValue(200);
     }
 
     /** @return Widget 'macros' */

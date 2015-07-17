@@ -225,12 +225,7 @@ public class EditorGUI
     private void handleDroppedModel(final DisplayModel dropped_model)
     {
         for (Widget widget : dropped_model.getChildren())
-        {
-            System.out.println("New widget " + widget);
             model.addChild(widget);
-        }
-        // TODO Representation needs to show the new model item,
-        //      listening to the 'children' property change
     }
 
     public boolean handleClose()

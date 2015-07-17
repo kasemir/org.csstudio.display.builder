@@ -9,7 +9,6 @@ package org.csstudio.display.builder.representation.swt;
 
 import java.util.function.Predicate;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.properties.WidgetColor;
@@ -79,8 +78,7 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
                 }
                 catch (final Exception ex)
                 {
-                    Logger.getLogger(getClass().getName())
-                          .log(Level.WARNING, "Close request handler failed", ex);
+                    logger.log(Level.WARNING, "Close request handler failed", ex);
                 }
             }
         });

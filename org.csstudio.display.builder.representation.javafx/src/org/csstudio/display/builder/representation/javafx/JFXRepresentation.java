@@ -9,7 +9,6 @@ package org.csstudio.display.builder.representation.javafx;
 
 import java.util.function.Predicate;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
@@ -57,7 +56,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
     {
         initial_stage = stage;
 
-        // TODO Load available widget representation from registry
+        // TODO Load available widget representations from registry
         register(ActionButtonWidget.class, ActionButtonRepresentation.class);
         register(EmbeddedDisplayWidget.class, EmbeddedDisplayRepresentation.class);
         register(GroupWidget.class, GroupRepresentation.class);
@@ -109,8 +108,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
         }
         catch (final Exception ex)
         {
-            Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Close request handler failed", ex);
+            logger.log(Level.WARNING, "Close request handler failed", ex);
         }
     }
 
