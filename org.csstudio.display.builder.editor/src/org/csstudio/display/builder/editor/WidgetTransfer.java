@@ -36,9 +36,9 @@ public class WidgetTransfer
     //      Groups highlight on drag-over,
     //      TransferMode.COPY is handled just like a drop from palette.
 
-    // TODO Create custom data types
-    //      for actual widget and for widget description (widget type)
-    //      Maybe use new DataFormat("application/xml");
+    // Could create custom data format, or use "application/xml".
+    // Transferring as DataFormat("text/plain"), however, allows exchange
+    // with basic text editor, which can be very convenient.
 
     /** Add support for 'dragging' a widget out of a node
      *  @param source Source {@link Node}
@@ -93,10 +93,12 @@ public class WidgetTransfer
                 try
                 {
                     final DisplayModel model = ModelReader.parseXML(xml);
+                    final int dx = (int)event.getX();
+                    final int dy = (int)event.getY();
                     for (Widget widget : model.getChildren())
                     {
-                        widget.positionX().setValue((int)event.getX());
-                        widget.positionY().setValue((int)event.getY());
+                        widget.positionX().setValue(widget.positionX().getValue() + dx);
+                        widget.positionY().setValue(widget.positionY().getValue() + dy);
                     }
                     handleDroppedModel.accept(model);
                 }
