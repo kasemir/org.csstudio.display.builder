@@ -225,8 +225,12 @@ public class EditorGUI
     /** @param model Dropped model with widgets to be added to existing model */
     private void handleDroppedModel(final DisplayModel dropped_model)
     {
-        for (Widget widget : dropped_model.getChildren())
+        final List<Widget> dropped = dropped_model.getChildren();
+        for (Widget widget : dropped)
             undo.execute(new AddWidgetAction(model, widget));
+        selected_widgets.clear();
+        selected_widgets.addAll(dropped);
+        updateSelectedWidgets();
     }
 
     public boolean handleClose()
