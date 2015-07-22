@@ -65,6 +65,14 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWid
      */
     abstract protected JFX createJFXNode() throws Exception;
 
+    /** {@inheritDoc} */
+    @Override
+    public void dispose()
+    {
+        final Group group = (Group) jfx_node.getParent();
+        group.getChildren().remove(jfx_node);
+    }
+
     /** Get parent that would be used for child-widgets.
      *
      *  <p>By default, the representation does not itself host

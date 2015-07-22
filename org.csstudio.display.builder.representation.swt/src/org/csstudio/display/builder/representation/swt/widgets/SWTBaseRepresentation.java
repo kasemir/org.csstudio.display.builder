@@ -67,6 +67,13 @@ abstract public class SWTBaseRepresentation<W extends Control, MW extends Widget
      */
     abstract protected W createSWTControl(final Composite parent) throws Exception;
 
+    /** {@inheritDoc} */
+    @Override
+    public void dispose()
+    {
+        control.dispose();
+    }
+
     /** Get parent that would be used for child-widgets.
      *
      *  <p>By default, the representation does not itself host

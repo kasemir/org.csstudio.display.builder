@@ -17,6 +17,7 @@ public class Messages extends NLS
     private static final String BUNDLE_NAME = "org.csstudio.display.builder.editor.messages"; //$NON-NLS-1$
 
     // Keep in alphabetical order, synchronized with messages.properties
+    public static String AddWidget;
     public static String Grid;
     public static String SetPropertyFmt;
     public static String Snap;

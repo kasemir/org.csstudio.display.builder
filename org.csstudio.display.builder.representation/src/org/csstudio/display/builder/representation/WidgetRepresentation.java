@@ -54,11 +54,21 @@ abstract public class WidgetRepresentation<TWP, TW, MW extends Widget>
 
     /** Update toolkit representation to match model.
      *
+     *  <p>Invoked by toolkit's update throttle after
+     *  <code>ToolkitRepresentation.scheduleUpdate()</code>
+     *  has requested an update.
+     *
      *  <p>Ideally based on listeners and 'dirty' markers to only update
      *  aspects of model that really changed.
      *
      *  <p>Override must call base class.
      */
     abstract public void updateChanges();
+
+    /** Remove toolkit items.
+     *
+     *  <p>Called when model widget has been removed.
+     */
+    abstract public void dispose();
 }
 

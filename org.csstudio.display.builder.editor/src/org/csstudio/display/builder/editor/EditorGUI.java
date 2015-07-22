@@ -21,6 +21,7 @@ import org.csstudio.display.builder.editor.actions.EnableGridAction;
 import org.csstudio.display.builder.editor.actions.EnableSnapAction;
 import org.csstudio.display.builder.editor.properties.PropertyPanel;
 import org.csstudio.display.builder.editor.tracker.SelectionTracker;
+import org.csstudio.display.builder.editor.undo.AddWidgetAction;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
@@ -225,7 +226,7 @@ public class EditorGUI
     private void handleDroppedModel(final DisplayModel dropped_model)
     {
         for (Widget widget : dropped_model.getChildren())
-            model.addChild(widget);
+            undo.execute(new AddWidgetAction(model, widget));
     }
 
     public boolean handleClose()

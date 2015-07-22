@@ -78,6 +78,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *  @param parent Toolkit parent (Pane, Container, ..)
      *  @param model Display model
      *  @throws Exception on error
+     *  @see #disposeRepresentation()
      */
     public void representModel(final TWP parent, final DisplayModel model) throws Exception
     {
@@ -101,9 +102,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
             // May already be on toolkit, for example in drag/drop,
             // but updating the representation 'later' may help reduce blocking.
             if (removed_widget != null)
-            {   // TODO Remove representation for removed widget
-                logger.log(Level.SEVERE, "Not implemented");
-            }
+                execute(() -> disposeWidget(removed_widget));
             if (added_widget != null)
                 execute(() -> representWidget(parent, added_widget));
         });
@@ -114,8 +113,9 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *  <p>Will log errors, but not raise exception.
      *
      *  @param parent Toolkit parent (Group, Container, ..)
+     *  @param widget Model widget to represent
      *  @return Toolkit item that represents the widget
-     *  @see #disposeRepresentation()
+     *  @see #disposeWidget(Object, Widget)
      */
     private void representWidget(final TWP parent, final Widget widget)
     {
@@ -148,6 +148,16 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         if (widget instanceof ContainerWidget)
             for (final Widget child : ((ContainerWidget) widget).getChildren())
                 representWidget(re_parent, child);
+    }
+
+    /** Remove toolkit widget for model widget
+     *  @param widget Model widget that should no longer be represented
+     */
+    private void disposeWidget(final Widget widget)
+    {
+        final WidgetRepresentation<TWP, TW, ? extends Widget> representation =
+            widget.getUserData(Widget.USER_DATA_REPRESENTATION);
+        representation.dispose();
     }
 
     /** Called by toolkit representation to request an update.
