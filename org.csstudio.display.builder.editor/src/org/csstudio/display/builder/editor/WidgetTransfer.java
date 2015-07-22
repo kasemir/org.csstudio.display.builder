@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,9 +33,7 @@ import javafx.scene.layout.Pane;
 @SuppressWarnings("nls")
 public class WidgetTransfer
 {
-    // TODO Turn every tracker move into a 'drag'.
-    //      Groups highlight on drag-over,
-    //      TransferMode.COPY is handled just like a drop from palette.
+    private static final Logger logger = Logger.getLogger(WidgetTransfer.class.getName());
 
     // Could create custom data format, or use "application/xml".
     // Transferring as DataFormat("text/plain"), however, allows exchange
@@ -49,6 +48,7 @@ public class WidgetTransfer
     {
         source.setOnDragDetected((MouseEvent event) ->
         {
+            logger.log(Level.FINE, "Starting drag for {0}", descriptor);
             final DisplayModel model = new DisplayModel();
             model.addChild(descriptor.createWidget());
             final String xml;
@@ -58,8 +58,7 @@ public class WidgetTransfer
             }
             catch (Exception ex)
             {
-                Logger.getLogger(WidgetTransfer.class.getName())
-                      .log(Level.WARNING, "Cannot drag-serialize", ex);
+                logger.log(Level.WARNING, "Cannot drag-serialize", ex);
                 return;
             }
             final Dragboard db = source.startDragAndDrop(TransferMode.COPY);
@@ -93,9 +92,20 @@ public class WidgetTransfer
                 try
                 {
                     final DisplayModel model = ModelReader.parseXML(xml);
-                    final int dx = (int)event.getX();
-                    final int dy = (int)event.getY();
-                    for (Widget widget : model.getChildren())
+                    final List<Widget> widgets = model.getChildren();
+                    logger.log(Level.FINE, "Dropped {0} widgets", widgets.size());
+
+                    // Find upper left corner of dropped widgets
+                    int min_x = Integer.MAX_VALUE, min_y = Integer.MAX_VALUE;
+                    for (Widget widget : widgets)
+                    {
+                        min_x = Math.min(widget.positionX().getValue(), min_x);
+                        min_y = Math.min(widget.positionY().getValue(), min_y);
+                    }
+                    // Move upper left corner to mouse location
+                    final int dx = (int)event.getX() - Math.max(0, min_x);
+                    final int dy = (int)event.getY() - Math.max(0, min_y);
+                    for (Widget widget : widgets)
                     {
                         widget.positionX().setValue(widget.positionX().getValue() + dx);
                         widget.positionY().setValue(widget.positionY().getValue() + dy);
@@ -104,8 +114,7 @@ public class WidgetTransfer
                 }
                 catch (Exception ex)
                 {
-                    Logger.getLogger(WidgetTransfer.class.getName())
-                    .log(Level.WARNING, "Cannot parse dropped model", ex);
+                    logger.log(Level.WARNING, "Cannot parse dropped model", ex);
                 }
                 event.setDropCompleted(true);
             }

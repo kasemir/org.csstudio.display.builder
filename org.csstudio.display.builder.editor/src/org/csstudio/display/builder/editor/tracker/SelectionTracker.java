@@ -18,7 +18,9 @@ import java.util.stream.Collectors;
 import org.csstudio.display.builder.editor.GeometryTools;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 
 import javafx.geometry.Point2D;
@@ -26,18 +28,34 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.shape.Rectangle;
 
 /** Rubber-band-type tracker.
  *
  *  <p>Allows moving and resizing several widgets.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
 public class SelectionTracker extends Group
 {
+    // Would be nice to treat every tracker move as a 'move-drag'.
+    // Ctrl-drag would naturally become a 'copy-drag'.
+    // But drag/drop feedback image is size-limited on GTK,
+    // resulting in very poor representation when 'moving' widgets.
+    //
+    // -> Only using drag/drop for a 'copy' drag.
+
+    // TODO Groups: Highlight groups on move-over,
+    //              move widgets in and out of groups
+
+    private final Logger logger = Logger.getLogger(getClass().getName());
+
     private static final int handle_size = 15;
 
     private final ToolkitRepresentation<Group, Node> toolkit;
@@ -123,6 +141,41 @@ public class SelectionTracker extends Group
             updateTracker(point.getX(), point.getY(), orig_width, orig_height);
         });
         tracker.setOnKeyPressed(this::handleKeyEvent);
+
+        tracker.setOnDragDetected(event ->
+        {
+            if (! event.isControlDown())
+                return;
+
+            logger.fine("Starting to drag the tracker");
+            final DisplayModel model = new DisplayModel();
+            for (Widget widget : widgets)
+                model.addChild(widget);
+            final String xml;
+            try
+            {
+                xml = ModelWriter.getXML(model);
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot drag-serialize", ex);
+                return;
+            }
+            final Dragboard db = tracker.startDragAndDrop(TransferMode.COPY);
+            final ClipboardContent content = new ClipboardContent();
+            content.putString(xml);
+            db.setContent(content);
+
+            // Would like to set tacker snapshot as drag image, but GTK error
+            // as soon as the snapshot width is >= 128 pixel:
+            // "GdkPixbuf-CRITICAL **: gdk_pixbuf_new_from_data: assertion `width > 0' failed"
+            //
+            //  final WritableImage snapshot = tracker.snapshot(null, null);
+            //  System.out.println(snapshot.getWidth() + " x " + snapshot.getHeight());
+            //  db.setDragView(snapshot);
+            event.consume();
+        });
+
 
         handle_top_left.setCursor(Cursor.NW_RESIZE);
         handle_top_left.setOnMouseDragged((MouseEvent event) ->
@@ -242,13 +295,6 @@ public class SelectionTracker extends Group
         else
         {
             event.consume();
-            if (event.isControlDown())
-            {
-                start_x = -1;
-                start_y = -1;
-                passEventToWidgets(event);
-                return;
-            }
             start_x = event.getX();
             start_y = event.getY();
         }
@@ -262,6 +308,8 @@ public class SelectionTracker extends Group
 
         // Get focus to allow use of arrow keys
         tracker.requestFocus();
+
+        logger.fine("Mouse pressed in tracker, starting a move");
     }
 
     /** Tracker is in front of the widgets that it handles,
@@ -277,7 +325,7 @@ public class SelectionTracker extends Group
         for (Widget widget : widgets)
             if (GeometryTools.getDisplayBounds(widget).contains(event.getX(), event.getY()))
             {
-                System.out.println("Tracker passes click through to " + widget);
+                logger.log(Level.FINE, "Tracker passes click through to {0}", widget);
                 toolkit.fireClick(widget, event.isControlDown());
             }
     }
@@ -286,20 +334,18 @@ public class SelectionTracker extends Group
     {
         // Get focus to allow use of arrow keys
         tracker.requestFocus();
-        if (event != null)
-            event.consume();
         if (start_x < 0)
             return;
-        // Submit move that was just completed to undo
-        final int N = Math.min(widgets.size(), orig_position.size());
-        for (int i=0; i<N; ++i)
+        if (event != null)
         {
-            final Widget widget = widgets.get(i);
-            final Rectangle2D orig = orig_position.get(i);
-            undo.add(new UpdateWidgetLocationAction(widget,
-                           (int) orig.getMinX(),  (int) orig.getMinY(),
-                           (int) orig.getWidth(), (int) orig.getHeight()));
+            event.consume();
+            if (event.isControlDown())
+            {
+                passEventToWidgets(event);
+                return;
+            }
         }
+        updateWidgetsFromTracker();
     }
 
     /** Allow move/resize with cursor keys.
@@ -318,31 +364,39 @@ public class SelectionTracker extends Group
                 updateTracker(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight()-1);
             else
                 updateTracker(tracker.getX(), tracker.getY()-1, tracker.getWidth(), tracker.getHeight());
-             event.consume();
             break;
         case DOWN:
             if (event.isShiftDown())
                 updateTracker(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight()+1);
             else
                 updateTracker(tracker.getX(), tracker.getY()+1, tracker.getWidth(), tracker.getHeight());
-            event.consume();
             break;
         case LEFT:
             if (event.isShiftDown())
                 updateTracker(tracker.getX(), tracker.getY(), tracker.getWidth()-1, tracker.getHeight());
             else
                 updateTracker(tracker.getX()-1, tracker.getY(), tracker.getWidth(), tracker.getHeight());
-            event.consume();
             break;
         case RIGHT:
             if (event.isShiftDown())
                 updateTracker(tracker.getX(), tracker.getY(), tracker.getWidth()+1, tracker.getHeight());
             else
                 updateTracker(tracker.getX()+1, tracker.getY(), tracker.getWidth(), tracker.getHeight());
-            event.consume();
             break;
         default:
+            return;
         }
+        updateWidgetsFromTracker();
+
+        // Reset tracker as if we started at this position.
+        // That way, a sequence of cursor key moves turns into individual undo-able actions.
+        orig_x = tracker.getX();
+        orig_y = tracker.getY();
+        orig_width = tracker.getWidth();
+        orig_height = tracker.getHeight();
+        orig_position = widgets.stream().map(GeometryTools::getBounds).collect(Collectors.toList());
+
+        event.consume();
     }
 
     /** Update tracker to provided location and size
@@ -390,8 +444,6 @@ public class SelectionTracker extends Group
         handle_left.setVisible(height > handle_size);
         handle_left.setX(x - handle_size);
         handle_left.setY(y + (height - handle_size)/2);
-
-        updateWidgetsFromTracker();
     }
 
     /** Updates widgets to current tracker size */
@@ -415,6 +467,9 @@ public class SelectionTracker extends Group
                 widget.positionY().setValue((int) (orig.getMinY() + dy));
                 widget.positionWidth().setValue((int) (orig.getWidth() + dw));
                 widget.positionHeight().setValue((int) (orig.getHeight() + dh));
+                undo.add(new UpdateWidgetLocationAction(widget,
+                               (int) orig.getMinX(),  (int) orig.getMinY(),
+                               (int) orig.getWidth(), (int) orig.getHeight()));
             }
         }
         finally
@@ -474,8 +529,7 @@ public class SelectionTracker extends Group
         }
         catch (final Exception ex)
         {
-            Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Cannot obtain widget model", ex);
+            logger.log(Level.WARNING, "Cannot obtain widget model", ex);
         }
 
         setVisible(true);
