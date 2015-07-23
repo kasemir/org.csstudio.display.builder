@@ -33,7 +33,7 @@ public class WidgetFactoryUnitTest
     {
         final WidgetFactory factory = WidgetFactory.getInstance();
 
-        if (factory.getWidgetDescriptior("custom").isPresent())
+        if (factory.getWidgetDescriptor("custom").isPresent())
             return;
 
         factory.addWidgetType(new WidgetDescriptor("base",

@@ -51,6 +51,9 @@ import javafx.stage.Stage;
 @SuppressWarnings("nls")
 public class EditorGUI
 {
+    // TODO 'Selection' holder that communicates currently selected widgets
+    //      between SelectionTracker, PropertyPanel, WidgetTree
+
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final Executor executor = ForkJoinPool.commonPool();
     private final ToolkitRepresentation<Group, Node> toolkit;
@@ -58,6 +61,9 @@ public class EditorGUI
     private final UndoableActionManager undo = new UndoableActionManager();
 
     private final BorderPane toolbar_center_status = new BorderPane();
+
+    private final WidgetTree tree = new WidgetTree(); // TODO pass undo, selection, ...
+
     private final Group model_parent = new Group();
     private final Group edit_tools = new Group();
     // editor: model's representation in background, edit_tools on top
@@ -84,7 +90,7 @@ public class EditorGUI
 
         // BorderPane with
         //    toolbar
-        //    center = editor | palette | property_panel
+        //    center = tree | editor | palette | property_panel
         //    status
         final ToolBar toolbar = new ToolBar(
                 new Button("Do"),
@@ -101,8 +107,8 @@ public class EditorGUI
         editor.setFitToWidth(true);
         editor.setFitToHeight(true);
         // editor_pane.getStyleClass().add("debug");
-        center.getItems().addAll(editor, palette.create(), property_panel.create());
-        center.setDividerPositions(0.56, 0.74);
+        center.getItems().addAll(tree.create(), editor, palette.create(), property_panel.create());
+        center.setDividerPositions(0.2, 0.56, 0.74);
 
         final Label status = new Label("Status");
 
@@ -112,7 +118,7 @@ public class EditorGUI
         BorderPane.setAlignment(center, Pos.TOP_LEFT);
 
         stage.setTitle("Editor");
-        stage.setWidth(1000);
+        stage.setWidth(1200);
         stage.setHeight(600);
         final Scene scene = new Scene(toolbar_center_status, 1000, 600);
         stage.setScene(scene);
@@ -183,6 +189,9 @@ public class EditorGUI
 
                 // Representation needs to be created in UI thread
                 toolkit.execute(() -> setModel(model));
+
+                // TODO selection.set(model, [ selected widgets ])
+                tree.setModel(model);
             }
             catch (final Exception ex)
             {

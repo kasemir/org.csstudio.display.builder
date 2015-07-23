@@ -109,7 +109,7 @@ public class WidgetFactory
      *  @param type Widget type ID
      *  @return WidgetDescriptor
      */
-    public Optional<WidgetDescriptor> getWidgetDescriptior(final String type)
+    public Optional<WidgetDescriptor> getWidgetDescriptor(final String type)
     {
         return Optional.ofNullable(descriptor_by_type.get(type));
     }
