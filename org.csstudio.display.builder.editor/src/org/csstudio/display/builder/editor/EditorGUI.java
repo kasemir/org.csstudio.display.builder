@@ -124,7 +124,7 @@ public class EditorGUI
         editor.setFitToHeight(true);
         // editor_pane.getStyleClass().add("debug");
         center.getItems().addAll(tree.create(), editor, palette.create(), property_panel.create());
-        center.setDividerPositions(0.2, 0.56, 0.74);
+        center.setDividerPositions(0.2, 0.63, 0.75);
 
         final Label status = new Label("Status");
 
@@ -136,7 +136,7 @@ public class EditorGUI
         stage.setTitle("Editor");
         stage.setWidth(1200);
         stage.setHeight(600);
-        final Scene scene = new Scene(toolbar_center_status, 1000, 600);
+        final Scene scene = new Scene(toolbar_center_status, 1200, 600);
         stage.setScene(scene);
 
         // Set style sheet

@@ -18,7 +18,6 @@ import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
-import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -152,14 +151,11 @@ public class SelectionTracker extends Group
             if (! event.isControlDown())
                 return;
 
-            logger.fine("Starting to drag the tracker");
-            final DisplayModel model = new DisplayModel();
-            for (Widget widget : widgets)
-                model.addChild(widget);
+            logger.log(Level.FINE, "Starting to drag {0}", widgets);
             final String xml;
             try
             {
-                xml = ModelWriter.getXML(model);
+                xml = ModelWriter.getXML(widgets);
             }
             catch (Exception ex)
             {

@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.util;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -49,12 +50,10 @@ public class WidgetTransfer
         source.setOnDragDetected((MouseEvent event) ->
         {
             logger.log(Level.FINE, "Starting drag for {0}", descriptor);
-            final DisplayModel model = new DisplayModel();
-            model.addChild(descriptor.createWidget());
             final String xml;
             try
             {
-                xml = ModelWriter.getXML(model);
+                xml = ModelWriter.getXML(Arrays.asList(descriptor.createWidget()));
             }
             catch (Exception ex)
             {

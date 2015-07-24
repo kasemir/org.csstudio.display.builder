@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
@@ -32,12 +33,12 @@ public class ModelWriter implements Closeable
 {
     private final XMLStreamWriter writer;
 
-    /** Convert model into XML
-     *  @param model DisplayModel
+    /** Convert widgets into XML
+     *  @param widgets Widgets
      *  @return XML for the model
      *  @throws Exception on error
      */
-    public static String getXML(final DisplayModel model) throws Exception
+    public static String getXML(final List<Widget> widgets) throws Exception
     {
         final ByteArrayOutputStream xml = new ByteArrayOutputStream();
         try
@@ -45,7 +46,7 @@ public class ModelWriter implements Closeable
             final ModelWriter writer = new ModelWriter(xml);
         )
         {
-            writer.writeModel(model);
+            writer.writeWidgets(widgets);
         }
         return xml.toString();
     }
@@ -78,12 +79,17 @@ public class ModelWriter implements Closeable
         writeWidgetProperties(model);
 
         // Write each widget of the display
-        writeChildWidgets(model);
+        writeWidgets(model.getChildren());
     }
 
-    private void writeChildWidgets(final ContainerWidget parent)  throws Exception
+    /** Write widgets and their children
+     *
+     *  @param widgets Widgets to write
+     *  @throws Exception on error
+     */
+    private void writeWidgets(final List<Widget> widgets) throws Exception
     {
-        for (final Widget widget : parent.getChildren())
+        for (Widget widget : widgets)
             writeWidget(widget);
     }
 
@@ -100,7 +106,7 @@ public class ModelWriter implements Closeable
         writeWidgetProperties(widget);
 
         if (widget instanceof ContainerWidget)
-            writeChildWidgets((ContainerWidget) widget);
+            writeWidgets(((ContainerWidget) widget).getChildren());
 
         writer.writeEndElement();
     }
