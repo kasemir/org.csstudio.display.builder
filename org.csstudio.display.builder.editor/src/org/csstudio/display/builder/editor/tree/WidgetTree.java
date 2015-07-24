@@ -8,10 +8,12 @@
 package org.csstudio.display.builder.editor.tree;
 
 import java.beans.PropertyChangeEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +24,9 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.MultipleSelectionModel;
@@ -42,6 +47,9 @@ import javafx.util.Callback;
 public class WidgetTree
 {
     private final Logger logger = Logger.getLogger(getClass().getName());
+
+    /** Is this class updating the selection of tree or model? */
+    private final AtomicBoolean active = new AtomicBoolean();
 
     private final WidgetSelectionHandler selection;
 
@@ -106,9 +114,36 @@ public class WidgetTree
         VBox.setVgrow(tree_view, Priority.ALWAYS);
         box.getChildren().addAll(header, tree_view);
 
-        selection.addListener(this::setSelectedWidgets);
+        hookListeners();
 
         return box;
+    }
+
+    /** Link selections in tree view and model */
+    private void hookListeners()
+    {
+        // Update selected widgets in model from selection in tree_view
+        final ObservableList<TreeItem<Widget>> tree_selection = tree_view.getSelectionModel().getSelectedItems();
+        InvalidationListener listener = (Observable observable) ->
+        {
+            if (! active.compareAndSet(false, true))
+                return;
+            try
+            {
+                final List<Widget> widgets = new ArrayList<>(tree_selection.size());
+                tree_selection.forEach(item -> widgets.add(item.getValue()));
+                logger.log(Level.FINE, "Selected in tree: {0}", widgets);
+                selection.setSelection(widgets);
+            }
+            finally
+            {
+                active.set(false);
+            }
+        };
+        tree_selection.addListener(listener);
+
+        // Update selection in tree_view from selected widgets in model
+        selection.addListener(this::setSelectedWidgets);
     }
 
     /** @param model Model to display as widget tree */
@@ -165,9 +200,18 @@ public class WidgetTree
      */
     public void setSelectedWidgets(final List<Widget> widgets)
     {
-        final MultipleSelectionModel<TreeItem<Widget>> selection = tree_view.getSelectionModel();
-        selection.clearSelection();
-        for (Widget widget : widgets)
-            selection.select(widget_items.get(widget));
+        if (! active.compareAndSet(false, true))
+            return;
+        try
+        {
+            final MultipleSelectionModel<TreeItem<Widget>> selection = tree_view.getSelectionModel();
+            selection.clearSelection();
+            for (Widget widget : widgets)
+                selection.select(widget_items.get(widget));
+        }
+        finally
+        {
+            active.set(false);
+        }
     }
 }
