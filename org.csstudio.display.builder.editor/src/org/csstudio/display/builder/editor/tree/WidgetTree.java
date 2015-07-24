@@ -8,7 +8,9 @@
 package org.csstudio.display.builder.editor.tree;
 
 import java.beans.PropertyChangeEvent;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,6 +24,7 @@ import org.csstudio.display.builder.model.Widget;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
@@ -46,37 +49,40 @@ public class WidgetTree
 
     private DisplayModel model;
 
-    final private Callback<TreeView<Widget>, TreeCell<Widget>> cell_factory =
-        new Callback<TreeView<Widget>, TreeCell<Widget>>()
+    /** Map model widgets to their tree items in <code>tree_view</code> */
+    // Used to select widgets in tree since API needs the TreeItems to select
+    // while we have the Widgets to select.
+    private Map<Widget, TreeItem<Widget>> widget_items;
+
+    /** Tree cell that displays {@link Widget} (name, icon, ..) */
+    private static class WidgetTreeCell extends TreeCell<Widget>
     {
         @Override
-        public TreeCell<Widget> call(final TreeView<Widget> param)
+        public void updateItem(final Widget widget, final boolean empty)
         {
-            return new TreeCell<Widget>()
+            super.updateItem(widget, empty);
+            if (empty || widget == null)
             {
-                @Override
-                public void updateItem(Widget widget, boolean empty)
-                {
-                    super.updateItem(widget, empty);
-                    if (empty || widget == null)
-                    {
-                        setText(null);
-                        setGraphic(null);
-                    }
-                    else
-                    {
-                         final String type = widget.getType();
-                         setText(type + " '" + widget.getName() + "'");
-                         final Image icon = WidgetIcons.getIcon(type);
-                         if (icon != null)
-                             setGraphic(new ImageView(icon));
-                    }
-                }
-            };
+                setText(null);
+                setGraphic(null);
+            }
+            else
+            {
+                 final String type = widget.getType();
+                 setText(type + " '" + widget.getName() + "'");
+                 final Image icon = WidgetIcons.getIcon(type);
+                 if (icon != null)
+                     setGraphic(new ImageView(icon));
+            }
         }
     };
 
+    /** Cell factory that displays {@link Widget} info in tree cell */
+    private final Callback<TreeView<Widget>, TreeCell<Widget>> cell_factory = (final TreeView<Widget> param) ->  new WidgetTreeCell();
 
+    /** Construct widget tree
+     *  @param selection Handler of selected widgets
+     */
     public WidgetTree(final WidgetSelectionHandler selection)
     {
         this.selection = selection;
@@ -105,6 +111,7 @@ public class WidgetTree
         return box;
     }
 
+    /** @param model Model to display as widget tree */
     public void setModel(final DisplayModel model)
     {
         this.model = model;
@@ -112,14 +119,19 @@ public class WidgetTree
         treeChanged(null);
     }
 
+    /** Invoked when tree (widgets in model) have changed
+     *  @param event Ignored
+     */
     private void treeChanged(final PropertyChangeEvent event)
     {
-        // Always move to non-UI thread, in case we're called on UI thread
+        // Might be called on UI thread, move off
         ForkJoinPool.commonPool().execute(() ->
         {   // Using FJPool as plain executor, not dividing tree generation into sub-tasks
             final TreeItem<Widget> root = new TreeItem<Widget>(model);
-            addWidgets(root, model);
+            final Map<Widget, TreeItem<Widget>> widget_items = new HashMap<>();
+            addWidgets(root, model, widget_items);
             root.setExpanded(true);
+            this.widget_items = widget_items;
 
             logger.log(Level.FINE, "Computed new tree on {0}, updating UI", Thread.currentThread().getName());
             Platform.runLater(() ->
@@ -133,23 +145,29 @@ public class WidgetTree
     /** Recursively create JavaFX {@link TreeItem}s for model widgets
      *  @param parent Parent tree item
      *  @param container Widgets to add
+     *  @param widget_items Map for storing TreeItem for each Widget
      */
-    private void addWidgets(final TreeItem<Widget> parent, final ContainerWidget container)
+    private void addWidgets(final TreeItem<Widget> parent, final ContainerWidget container, final Map<Widget, TreeItem<Widget>> widget_items)
     {
         for (Widget widget : container.getChildren())
         {
-            final String type = widget.getType();
             final TreeItem<Widget> item = new TreeItem<>(widget);
+            widget_items.put(widget, item);
             item.setExpanded(true);
             parent.getChildren().add(item);
             if (widget instanceof ContainerWidget)
-                addWidgets(item, (ContainerWidget) widget);
+                addWidgets(item, (ContainerWidget) widget, widget_items);
         }
     }
 
+    /** Called by selection handler when selected widgets have changed, or on new model
+     *  @param widgets Widgets to select in tree
+     */
     public void setSelectedWidgets(final List<Widget> widgets)
     {
-        // TODO Show selected widgets
-        System.out.println("To select in tree: " + widgets);
+        final MultipleSelectionModel<TreeItem<Widget>> selection = tree_view.getSelectionModel();
+        selection.clearSelection();
+        for (Widget widget : widgets)
+            selection.select(widget_items.get(widget));
     }
 }

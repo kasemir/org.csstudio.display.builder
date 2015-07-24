@@ -86,5 +86,5 @@
 /* WidgetTree: Currently selected widgets */
 .tree-cell:selected
 {
-    -fx-background-color: rgb(50, 50, 255);
+    -fx-background-color: rgb(180, 180, 255);
 }
