@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
@@ -33,21 +34,23 @@ import javafx.scene.layout.VBox;
 @SuppressWarnings("nls")
 public class PropertyPanel
 {
-    // TODO Use 'undo' for all property changes
+    private final WidgetSelectionHandler selection;
     private final UndoableActionManager undo;
     private final List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
     private GridPane grid;
 
-    /** @param undo 'Undo' manager
+    /** @param selection Selection handler
+     *  @param undo 'Undo' manager
      */
-    public PropertyPanel(final UndoableActionManager undo)
+    public PropertyPanel(final WidgetSelectionHandler selection, final UndoableActionManager undo)
     {
+        this.selection = selection;
         this.undo = undo;
     }
 
-    // TODO Monitor properties for change
-    // TODO Allow entering values, then update property
-    // TODO Editors based on property type
+    /** Create UI components
+     *  @return Root {@link Node}
+     */
     public Node create()
     {
         final VBox box = new VBox();
@@ -60,8 +63,10 @@ public class PropertyPanel
         grid = new GridPane();
         box.getChildren().add(grid);
 
-        final ScrollPane box_scroll = new ScrollPane(box);
-        return box_scroll;
+        // Track currently selected widgets
+        selection.addListener(this::setSelectedWidgets);
+
+        return new ScrollPane(box);
     }
 
     /** Populate GUI with properties of widgets

@@ -8,9 +8,8 @@
 package org.csstudio.display.builder.editor;
 
 import java.io.FileInputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
@@ -53,21 +52,27 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+/** All the editor components.
+ *  @author Kay Kasemir
+ */
 @SuppressWarnings("nls")
 public class EditorGUI
 {
-    // TODO 'Selection' holder that communicates currently selected widgets
-    //      between SelectionTracker, PropertyPanel, WidgetTree
-
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final Executor executor = ForkJoinPool.commonPool();
+
+    private volatile DisplayModel model;
+    private final WidgetSelectionHandler selection = new WidgetSelectionHandler();
+
     private final ToolkitRepresentation<Group, Node> toolkit;
 
     private final UndoableActionManager undo = new UndoableActionManager();
 
+    // TODO Eventually, in CSS, only keep 'toolbar', 'editor' and 'palette' in here.
+    //      PropertyPanel and WidgetTree become individual views.
     private final BorderPane toolbar_center_status = new BorderPane();
 
-    private final WidgetTree tree = new WidgetTree(); // TODO pass undo, selection, ...
+    private final WidgetTree tree = new WidgetTree(selection); // TODO pass undo
 
     private final Group model_parent = new Group();
     private final Group edit_tools = new Group();
@@ -77,10 +82,8 @@ public class EditorGUI
 
     private SelectionTracker selection_tracker;
 
-    private final PropertyPanel property_panel = new PropertyPanel(undo);
+    private final PropertyPanel property_panel = new PropertyPanel(selection, undo);
 
-    private volatile DisplayModel model;
-    private final List<Widget> selected_widgets = new CopyOnWriteArrayList<>();
 
     public EditorGUI(final Stage stage)
     {
@@ -91,7 +94,7 @@ public class EditorGUI
 
     private void createElements(final Stage stage)
     {
-        selection_tracker = new SelectionTracker(toolkit, undo);
+        selection_tracker = new SelectionTracker(toolkit, selection, undo);
 
         // BorderPane with
         //    toolbar
@@ -144,19 +147,11 @@ public class EditorGUI
             public void handleClick(final Widget widget, final boolean with_control)
             {
                 logger.log(Level.FINE, "Selected {0}",  widget);
-
+                // Toggle selection of widget when Ctrl is held
                 if (with_control)
-                {
-                    // Toggle selection of widget when Ctrl is held
-                    if (! selected_widgets.remove(widget))
-                        selected_widgets.add(widget);
-                }
+                    selection.toggleSelection(widget);
                 else
-                {
-                    selected_widgets.clear();
-                    selected_widgets.add(widget);
-                }
-                updateSelectedWidgets();
+                    selection.setSelection(Arrays.asList(widget));
             }
         });
 
@@ -165,8 +160,7 @@ public class EditorGUI
             if (event.isControlDown())
                 return;
             logger.log(Level.FINE, "Clicked in 'editor' De-select all widgets");
-            selected_widgets.clear();
-            updateSelectedWidgets();
+            selection.clear();
         });
 
         new Rubberband(editor_pane, this::selectWidgetsInRegion);
@@ -225,17 +219,7 @@ public class EditorGUI
     {
         final List<Widget> found = GeometryTools.findWidgets(model, region);
         logger.log(Level.FINE, "Selected widgets in {0}: {1}",  new Object[] { region, found });
-        selected_widgets.clear();
-        selected_widgets.addAll(found);
-        updateSelectedWidgets();
-    }
-
-    /** Update tracker and property panel with selected widgets */
-    private void updateSelectedWidgets()
-    {
-        final List<Widget> copy = new ArrayList<>(selected_widgets);
-        selection_tracker.setSelectedWidgets(copy);
-        property_panel.setSelectedWidgets(copy);
+        selection.setSelection(found);
     }
 
     /** @param model Dropped model with widgets to be added to existing model */
@@ -244,9 +228,7 @@ public class EditorGUI
         final List<Widget> dropped = dropped_model.getChildren();
         for (Widget widget : dropped)
             undo.execute(new AddWidgetAction(model, widget));
-        selected_widgets.clear();
-        selected_widgets.addAll(dropped);
-        updateSelectedWidgets();
+        selection.setSelection(dropped);
     }
 
     public boolean handleClose()

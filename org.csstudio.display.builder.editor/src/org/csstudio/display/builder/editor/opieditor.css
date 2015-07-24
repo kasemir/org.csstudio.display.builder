@@ -10,7 +10,7 @@
 .rubberband
 {
     -fx-stroke-width: 1;
-    -fx-fill: rgb(0,0,255,0.05);
+    -fx-fill: rgb(0, 0, 255, 0.05);
     -fx-stroke: blue;
     -fx-stroke-dash-array: 5.0, 5.0;
     -fx-effect: dropshadow(one-pass-box, black, 10, 0, 0, 0);
@@ -19,7 +19,7 @@
 .tracker
 {
     -fx-stroke-width: 1;
-    -fx-fill: rgb(0,0,255,0.05);
+    -fx-fill: rgb(0, 0, 255, 0.05);
     -fx-stroke: blue;
     -fx-stroke-dash-array: 5.0, 5.0;
     -fx-effect: dropshadow(one-pass-box, black, 10, 0, 0, 0);
@@ -28,7 +28,7 @@
 .tracker_handle
 {
     -fx-stroke-width: 1;
-    -fx-fill: rgb(0,0,255,0.2);
+    -fx-fill: rgb(0, 0, 255, 0.2);
     -fx-stroke: blue;
     -fx-arc-width: 10;
     -fx-arc-height: 10;
@@ -81,4 +81,10 @@
 .property_value
 {
     -fx-padding: 2 5 2 5;
+}
+
+/* WidgetTree: Currently selected widgets */
+.tree-cell:selected
+{
+    -fx-background-color: rgb(50, 50, 255);
 }

@@ -8,10 +8,12 @@
 package org.csstudio.display.builder.editor.tree;
 
 import java.beans.PropertyChangeEvent;
+import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.util.WidgetIcons;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -20,6 +22,7 @@ import org.csstudio.display.builder.model.Widget;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
@@ -35,10 +38,20 @@ public class WidgetTree
 {
     private final Logger logger = Logger.getLogger(getClass().getName());
 
+    private final WidgetSelectionHandler selection;
+
     private final TreeView<String> tree_view = new TreeView<>();
 
     private DisplayModel model;
 
+    public WidgetTree(final WidgetSelectionHandler selection)
+    {
+        this.selection = selection;
+    }
+
+    /** Create UI components
+     *  @return Root {@link Node}
+     */
     public Node create()
     {
         final VBox box = new VBox();
@@ -48,14 +61,16 @@ public class WidgetTree
         header.getStyleClass().add("header");
 
         tree_view.setShowRoot(false);
+        tree_view.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         VBox.setVgrow(tree_view, Priority.ALWAYS);
         box.getChildren().addAll(header, tree_view);
 
+        selection.addListener(this::setSelectedWidgets);
+
         return box;
     }
 
-    // TODO Replace with selection listener
     public void setModel(final DisplayModel model)
     {
         this.model = model;
@@ -73,7 +88,11 @@ public class WidgetTree
             root.setExpanded(true);
 
             logger.log(Level.FINE, "Computed new tree on {0}, updating UI", Thread.currentThread().getName());
-            Platform.runLater(() -> tree_view.setRoot(root));
+            Platform.runLater(() ->
+            {
+                tree_view.setRoot(root);
+                setSelectedWidgets(selection.getSelection());
+            });
         });
     }
 
@@ -95,5 +114,11 @@ public class WidgetTree
             if (widget instanceof ContainerWidget)
                 addWidgets(item, (ContainerWidget) widget);
         }
+    }
+
+    public void setSelectedWidgets(final List<Widget> widgets)
+    {
+        // TODO Show selected widgets
+        System.out.println("To select in tree: " + widgets);
     }
 }

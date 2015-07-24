@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.tracker;
 
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
@@ -59,7 +59,6 @@ public class SelectionTracker extends Group
     private static final int handle_size = 15;
 
     private final ToolkitRepresentation<Group, Node> toolkit;
-
     private final UndoableActionManager undo;
 
     private final TrackerGridConstraint grid_constraint = new TrackerGridConstraint(10);
@@ -88,20 +87,23 @@ public class SelectionTracker extends Group
     /** Break update loops JFX change -> model change -> JFX change -> ... */
     private boolean updating = false;
 
-    /** Update tracker to match changed widget properties */
-    private final PropertyChangeListener property_listener =
-        (final PropertyChangeEvent evt) ->
+    /** Update tracker to match changed widget position */
+    private final PropertyChangeListener position_listener = (event) ->
     {
         updateTrackerFromWidgets();
     };
+
 
     /** Construct a tracker.
      *
      *  <p>It remains invisible until it is asked to track widgets
      *  @param toolkit Toolkit
+     *  @param selection Selection handler
      *  @param undo 'Undo' manager
      */
-    public SelectionTracker(final ToolkitRepresentation<Group, Node> toolkit, final UndoableActionManager undo)
+    public SelectionTracker(final ToolkitRepresentation<Group, Node> toolkit,
+                            final WidgetSelectionHandler selection,
+                            final UndoableActionManager undo)
     {
         this.toolkit = toolkit;
         setVisible(false);
@@ -125,6 +127,9 @@ public class SelectionTracker extends Group
         getChildren().addAll(tracker, handle_top_left, handle_top, handle_top_right,
                              handle_right, handle_bottom_right,
                              handle_bottom, handle_bottom_left, handle_left);
+
+        // Track currently selected widgets
+        selection.addListener(this::setSelectedWidgets);
     }
 
     private void hookEvents()
@@ -548,10 +553,10 @@ public class SelectionTracker extends Group
     {
         for (final Widget widget : widgets)
         {
-            widget.positionX().addPropertyListener(property_listener);
-            widget.positionY().addPropertyListener(property_listener);
-            widget.positionWidth().addPropertyListener(property_listener);
-            widget.positionHeight().addPropertyListener(property_listener);
+            widget.positionX().addPropertyListener(position_listener);
+            widget.positionY().addPropertyListener(position_listener);
+            widget.positionWidth().addPropertyListener(position_listener);
+            widget.positionHeight().addPropertyListener(position_listener);
         }
     }
 
@@ -559,10 +564,10 @@ public class SelectionTracker extends Group
     {
         for (final Widget widget : widgets)
         {
-            widget.positionX().removePropertyListener(property_listener);
-            widget.positionY().removePropertyListener(property_listener);
-            widget.positionWidth().removePropertyListener(property_listener);
-            widget.positionHeight().removePropertyListener(property_listener);
+            widget.positionX().removePropertyListener(position_listener);
+            widget.positionY().removePropertyListener(position_listener);
+            widget.positionWidth().removePropertyListener(position_listener);
+            widget.positionHeight().removePropertyListener(position_listener);
         }
     }
 }
