@@ -23,12 +23,14 @@ import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 
 /** Tree view of widget hierarchy
  *  @author Kay Kasemir
@@ -40,9 +42,40 @@ public class WidgetTree
 
     private final WidgetSelectionHandler selection;
 
-    private final TreeView<String> tree_view = new TreeView<>();
+    private final TreeView<Widget> tree_view = new TreeView<>();
 
     private DisplayModel model;
+
+    final private Callback<TreeView<Widget>, TreeCell<Widget>> cell_factory =
+        new Callback<TreeView<Widget>, TreeCell<Widget>>()
+    {
+        @Override
+        public TreeCell<Widget> call(final TreeView<Widget> param)
+        {
+            return new TreeCell<Widget>()
+            {
+                @Override
+                public void updateItem(Widget widget, boolean empty)
+                {
+                    super.updateItem(widget, empty);
+                    if (empty || widget == null)
+                    {
+                        setText(null);
+                        setGraphic(null);
+                    }
+                    else
+                    {
+                         final String type = widget.getType();
+                         setText(type + " '" + widget.getName() + "'");
+                         final Image icon = WidgetIcons.getIcon(type);
+                         if (icon != null)
+                             setGraphic(new ImageView(icon));
+                    }
+                }
+            };
+        }
+    };
+
 
     public WidgetTree(final WidgetSelectionHandler selection)
     {
@@ -62,6 +95,7 @@ public class WidgetTree
 
         tree_view.setShowRoot(false);
         tree_view.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        tree_view.setCellFactory(cell_factory);
 
         VBox.setVgrow(tree_view, Priority.ALWAYS);
         box.getChildren().addAll(header, tree_view);
@@ -83,7 +117,7 @@ public class WidgetTree
         // Always move to non-UI thread, in case we're called on UI thread
         ForkJoinPool.commonPool().execute(() ->
         {   // Using FJPool as plain executor, not dividing tree generation into sub-tasks
-            final TreeItem<String> root = new TreeItem<String>(model.getName());
+            final TreeItem<Widget> root = new TreeItem<Widget>(model);
             addWidgets(root, model);
             root.setExpanded(true);
 
@@ -100,16 +134,13 @@ public class WidgetTree
      *  @param parent Parent tree item
      *  @param container Widgets to add
      */
-    private void addWidgets(final TreeItem<String> parent, final ContainerWidget container)
+    private void addWidgets(final TreeItem<Widget> parent, final ContainerWidget container)
     {
         for (Widget widget : container.getChildren())
         {
             final String type = widget.getType();
-            final TreeItem<String> item = new TreeItem<String>(type + " '" + widget.getName());
+            final TreeItem<Widget> item = new TreeItem<>(widget);
             item.setExpanded(true);
-            final Image icon = WidgetIcons.getIcon(type);
-            if (icon != null)
-                item.setGraphic(new ImageView(icon));
             parent.getChildren().add(item);
             if (widget instanceof ContainerWidget)
                 addWidgets(item, (ContainerWidget) widget);
