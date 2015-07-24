@@ -16,6 +16,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import org.csstudio.display.builder.model.persist.ModelReader;
@@ -42,8 +44,15 @@ public class AllWidgetsAllPropertiesUnitTest
         final DisplayModel model = reader.readModel();
 
         // Assert that demo file includes all widgets, all properties
+        // When running all unit tests, other tests add these types
+        // which are skipped
+        final List<String> skip = Arrays.asList("custom", "base");
         for (final WidgetDescriptor widget_type : WidgetFactory.getInstance().getWidgetDescriptions())
+        {
+            if (skip.contains(widget_type.getType()))
+                continue;
             checkWidgetType(model, widget_type);
+        }
 
         // Write back out
         final File copy = new File("/tmp/test.opi");

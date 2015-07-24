@@ -40,6 +40,7 @@
     </widget>
 
     <widget type="embedded" version="1.0.0">
+      <name>Embed 1</name>
       <x>10</x>
       <y>30</y>
       <width>400</width>
@@ -51,6 +52,7 @@
     </widget>
 
     <widget type="action_button" version="1.0.0">
+      <name>Action 1</name>
       <x>10</x>
       <y>350</y>
       <width>100</width>
@@ -71,6 +73,7 @@
     </widget>
 
     <widget type="textentry" version="1.0.0">
+      <name>Text 1</name>
       <x>10</x>
       <y>375</y>
       <width>100</width>
@@ -79,6 +82,7 @@
     </widget>
 
     <widget type="action_button" version="1.0.0">
+      <name>Action 2</name>
       <x>150</x>
       <y>375</y>
       <width>100</width>
