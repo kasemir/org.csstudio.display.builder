@@ -5,19 +5,19 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.editor;
+package org.csstudio.display.builder.editor.tree;
 
 import java.beans.PropertyChangeEvent;
-import java.util.Optional;
+import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.display.builder.editor.util.WidgetIcons;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.WidgetDescriptor;
-import org.csstudio.display.builder.model.WidgetFactory;
 
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
@@ -39,10 +39,6 @@ public class WidgetTree
 
     private DisplayModel model;
 
-    public WidgetTree()
-    {
-    }
-
     public Node create()
     {
         final VBox box = new VBox();
@@ -59,6 +55,7 @@ public class WidgetTree
         return box;
     }
 
+    // TODO Replace with selection listener
     public void setModel(final DisplayModel model)
     {
         this.model = model;
@@ -68,31 +65,32 @@ public class WidgetTree
 
     private void treeChanged(final PropertyChangeEvent event)
     {
-        final TreeItem<String> root = new TreeItem<String>(model.getName());
-        addWidgets(root, model);
-        root.setExpanded(true);
-        // TODO Tree does not show until manual expand/collapse.
-        // See this on using FXCollections.observableArrayList(treeItems)
-        // http://stackoverflow.com/questions/21911773/javafx-weird-behavior-of-treeview-on-removal-of-the-selected-item
-        tree_view.setRoot(root);
+        // Always move to non-UI thread, in case we're called on UI thread
+        ForkJoinPool.commonPool().execute(() ->
+        {   // Using FJPool as plain executor, not dividing tree generation into sub-tasks
+            final TreeItem<String> root = new TreeItem<String>(model.getName());
+            addWidgets(root, model);
+            root.setExpanded(true);
+
+            logger.log(Level.FINE, "Computed new tree on {0}, updating UI", Thread.currentThread().getName());
+            Platform.runLater(() -> tree_view.setRoot(root));
+        });
     }
 
+    /** Recursively create JavaFX {@link TreeItem}s for model widgets
+     *  @param parent Parent tree item
+     *  @param container Widgets to add
+     */
     private void addWidgets(final TreeItem<String> parent, final ContainerWidget container)
     {
         for (Widget widget : container.getChildren())
         {
-            final TreeItem<String> item = new TreeItem<String>(widget.getType() + " '" + widget.getName());
+            final String type = widget.getType();
+            final TreeItem<String> item = new TreeItem<String>(type + " '" + widget.getName());
             item.setExpanded(true);
-            final Optional<WidgetDescriptor> descriptor = WidgetFactory.getInstance().getWidgetDescriptor(widget.getType());
-            try
-            {
-                if (descriptor.isPresent())
-                    item.setGraphic(new ImageView(new Image(descriptor.get().getIconStream())));
-            }
-            catch (Exception ex)
-            {
-                logger.log(Level.WARNING, "Cannot obtain widget for " + widget, ex);
-            }
+            final Image icon = WidgetIcons.getIcon(type);
+            if (icon != null)
+                item.setGraphic(new ImageView(icon));
             parent.getChildren().add(item);
             if (widget instanceof ContainerWidget)
                 addWidgets(item, (ContainerWidget) widget);

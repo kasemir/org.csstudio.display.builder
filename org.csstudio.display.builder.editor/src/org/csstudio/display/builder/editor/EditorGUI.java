@@ -19,10 +19,15 @@ import java.util.logging.Logger;
 import org.csstudio.display.builder.editor.actions.ActionGUIHelper;
 import org.csstudio.display.builder.editor.actions.EnableGridAction;
 import org.csstudio.display.builder.editor.actions.EnableSnapAction;
+import org.csstudio.display.builder.editor.palette.Palette;
 import org.csstudio.display.builder.editor.properties.PropertyPanel;
 import org.csstudio.display.builder.editor.tracker.SelectionTracker;
+import org.csstudio.display.builder.editor.tree.WidgetTree;
 import org.csstudio.display.builder.editor.undo.AddWidgetAction;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
+import org.csstudio.display.builder.editor.util.GeometryTools;
+import org.csstudio.display.builder.editor.util.Rubberband;
+import org.csstudio.display.builder.editor.util.WidgetTransfer;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelReader;
@@ -203,6 +208,8 @@ public class EditorGUI
     private void setModel(final DisplayModel model)
     {
         this.model = model;
+
+
         // Create representation for model items
         try
         {

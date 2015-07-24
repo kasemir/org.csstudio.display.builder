@@ -5,13 +5,13 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.editor;
+package org.csstudio.display.builder.editor.palette;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
+import org.csstudio.display.builder.editor.util.WidgetIcons;
+import org.csstudio.display.builder.editor.util.WidgetTransfer;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
@@ -81,23 +81,14 @@ public class Palette
         for (final WidgetDescriptor desc : WidgetFactory.getInstance().getWidgetDescriptions())
         {
             final Button button = new Button(desc.getName());
-            Image image;
-            try
-            {
-                image = new Image(desc.getIconStream());
-                button.setGraphic(new ImageView(image));
-            }
-            catch (final Exception ex)
-            {
-                Logger.getLogger(getClass().getName())
-                      .log(Level.WARNING, "Icon failed for " + desc, ex);
-                image = null;
-            }
+            final Image icon = WidgetIcons.getIcon(desc.getType());
+            if (icon != null)
+                button.setGraphic(new ImageView(icon));
             button.setPrefWidth(150);
             button.setAlignment(Pos.BASELINE_LEFT);
             palette_groups.get(desc.getCategory()).getChildren().add(button);
 
-            WidgetTransfer.addDragSupport(button, desc, image);
+            WidgetTransfer.addDragSupport(button, desc, icon);
         }
     }
 }

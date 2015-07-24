@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
-import org.csstudio.display.builder.editor.GeometryTools;
+import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
