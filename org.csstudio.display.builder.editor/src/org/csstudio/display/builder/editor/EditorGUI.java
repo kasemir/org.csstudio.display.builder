@@ -53,6 +53,14 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 /** All the editor components.
+ *
+ *  <p>Layers from 'top' down in the 'editor_pane':
+ *  <pre>
+ *  +-- edit_tools   : SelectionTracker
+ *  +-- model_parent : Hosts representation of model widgets
+ *  + editor_pane    : Rubberband selection of widgets, drop target for new widgets
+ *  </pre>
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")

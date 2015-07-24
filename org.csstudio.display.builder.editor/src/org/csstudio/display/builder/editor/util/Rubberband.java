@@ -28,7 +28,7 @@ public class Rubberband
 
     /** Create rubber band handler
      *  @param pane Pane in which rubber band will react to mouse click/drag/release,
-     *              and where it displays the rubber band rectangle
+     *              and where it displays the rubber band rectangle as a child node
      *  @param rubberband_handler Handler that will be invoked with the selected region
      */
     public Rubberband(final Pane pane, final Consumer<Rectangle2D> rubberband_handler)

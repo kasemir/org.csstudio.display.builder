@@ -28,8 +28,18 @@ import javafx.scene.shape.Line;
 @SuppressWarnings("nls")
 public class TrackerSnapConstraint extends TrackerConstraint
 {
+    // Brute-force implementation that searches all widgets
+    // for the closest match.
+    //
+    // Idea by Tom Pelaia:
+    // Create lists of widgets sorted by coordinates.
+    // Probably need one for X0, Y0, X1, Y1.
+    // Then perform binary search in those lists for closest widget.
+    // When moving tracker, start next search at last index in list to further minimize
+    // the 'binary' search.
+
     /** If number of widgets to check exceeds this threshold,
-     *  the search is parallelized is into 2 sub-tasks.
+     *  the search is parallelized into 2 sub-tasks.
      *
      *  When too small, creating of threads defeats the parallel gain.
      *
