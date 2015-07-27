@@ -16,6 +16,11 @@
     -fx-effect: dropshadow(one-pass-box, black, 10, 0, 0, 0);
 }
 
+.group_highlight
+{
+    -fx-fill: rgb(255, 0, 0, 0.05);
+}
+
 .tracker
 {
     -fx-stroke-width: 1;

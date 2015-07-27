@@ -63,8 +63,10 @@ public class SelectionTracker extends Group
     private final TrackerGridConstraint grid_constraint = new TrackerGridConstraint(10);
     private final TrackerSnapConstraint snap_constraint = new TrackerSnapConstraint(this);
 
+    private final GroupHandler group_handler;
+
     /** Main rectangle of tracker */
-    private final Rectangle tracker;
+    private final Rectangle tracker = new Rectangle();
 
     /** Handles at corners and edges of tracker */
     private final Rectangle handle_top_left, handle_top, handle_top_right,
@@ -105,11 +107,13 @@ public class SelectionTracker extends Group
                             final UndoableActionManager undo)
     {
         this.toolkit = toolkit;
+        this.undo = undo;
+
         setVisible(false);
         setAutoSizeChildren(false);
 
-        this.undo = undo;
-        tracker = new Rectangle();
+        group_handler = new GroupHandler(this, selection);
+
         tracker.getStyleClass().add("tracker");
 
         handle_top_left = createHandle();
@@ -445,6 +449,8 @@ public class SelectionTracker extends Group
         handle_left.setVisible(height > handle_size);
         handle_left.setX(x - handle_size);
         handle_left.setY(y + (height - handle_size)/2);
+
+        group_handler.locateGroup(x, y, width, height);
     }
 
     /** Updates widgets to current tracker size */
@@ -455,6 +461,8 @@ public class SelectionTracker extends Group
         updating = true;
         try
         {
+            group_handler.hide();
+
             final double dx = tracker.getX() - orig_x;
             final double dy = tracker.getY() - orig_y;
             final double dw = tracker.getWidth() - orig_width;
