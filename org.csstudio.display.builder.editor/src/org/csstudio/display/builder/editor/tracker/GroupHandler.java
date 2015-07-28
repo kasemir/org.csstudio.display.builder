@@ -128,6 +128,7 @@ public class GroupHandler
     {
         this.selection = selection;
         group_highlight.getStyleClass().add("group_highlight");
+        group_highlight.setMouseTransparent(true);
         parent.getChildren().add(0, group_highlight);
     }
 
