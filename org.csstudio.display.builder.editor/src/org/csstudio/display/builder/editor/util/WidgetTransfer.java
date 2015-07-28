@@ -26,7 +26,6 @@ import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.Pane;
 
 /** Helper for widget drag/drop
  *  @author Kay Kasemir
@@ -73,16 +72,20 @@ public class WidgetTransfer
         // Somehow the drag is still 'active' until one more mouse click.
     }
 
-    public static void addDropSupport(final Pane pane, final Consumer<DisplayModel> handleDroppedModel)
+    /** Add support for dropping widgets
+     *  @param node Node that will receive the widgets
+     *  @param handleDroppedModel Callback for handling the dropped widgets
+     */
+    public static void addDropSupport(final Node node, final Consumer<DisplayModel> handleDroppedModel)
     {
-        pane.setOnDragOver((DragEvent event) ->
+        node.setOnDragOver((DragEvent event) ->
         {
             if (event.getDragboard().hasString())
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             event.consume();
         });
 
-        pane.setOnDragDropped((DragEvent event) ->
+        node.setOnDragDropped((DragEvent event) ->
         {
             final Dragboard db = event.getDragboard();
             if (db.hasString())

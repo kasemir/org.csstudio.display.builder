@@ -54,12 +54,29 @@ import javafx.stage.Stage;
 
 /** All the editor components.
  *
- *  <p>Layers from 'top' down in the 'editor_pane':
+ *  <p>Layers from 'top' down in the 'editor':
  *  <pre>
- *  +-- edit_tools   : SelectionTracker
- *  +-- model_parent : Hosts representation of model widgets
- *  + editor_pane    : Rubberband selection of widgets, drop target for new widgets
+ *      +-- edit_tools   : SelectionTracker
+ *      +-- model_parent : Hosts representation of model widgets
+ *  +-- editor_pane      : Automatically resizes to hold all widget representations.
+ *  |                      Shows 'rubberband'.
+ *  editor               : ScrollPane that shows the 'editor_pane'.
+ *                         Drop target for new widgets.
+ *                         Starts 'rubberband'.
  *  </pre>
+ *
+ *  <p>The editor_pane is initially empty.
+ *  As widget representations are added in the model_parent,
+ *  the editor_pane grows.
+ *  The scroll bars of the editor automatically enable
+ *  as the content of the editor_pane grows beyond the editor.
+ *
+ *  <p>The Rubberband hooks into editor mouse events to allow starting
+ *  a rubberband anywhere in the visible region. Connecting the Rubberband
+ *  to the editor_pane would limit selections to the region that bounds the
+ *  visible widgets, one could not rubberband starting from 'below' the bottommost widget.
+ *  The Rubberband, however, cannot add itself as a child to the editor, so
+ *  it uses the edit_tools for that.
  *
  *  @author Kay Kasemir
  */
@@ -119,10 +136,10 @@ public class EditorGUI
         final Palette palette = new Palette();
 
         final SplitPane center = new SplitPane();
-        // Cause inside of 'editor' to fill it
-        editor.setFitToWidth(true);
-        editor.setFitToHeight(true);
-        // editor_pane.getStyleClass().add("debug");
+//        editor.setHbarPolicy(ScrollBarPolicy.ALWAYS);
+//        editor.setVbarPolicy(ScrollBarPolicy.ALWAYS);
+//        editor_pane.getStyleClass().add("debug");
+
         center.getItems().addAll(tree.create(), editor, palette.create(), property_panel.create());
         center.setDividerPositions(0.2, 0.63, 0.75);
 
@@ -171,9 +188,9 @@ public class EditorGUI
             selection.clear();
         });
 
-        new Rubberband(editor_pane, this::selectWidgetsInRegion);
+        new Rubberband(editor, edit_tools, this::selectWidgetsInRegion);
 
-        WidgetTransfer.addDropSupport(editor_pane, this::handleDroppedModel);
+        WidgetTransfer.addDropSupport(editor, this::handleDroppedModel);
 
         toolbar_center_status.setOnKeyPressed((KeyEvent event) ->
         {
