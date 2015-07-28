@@ -82,25 +82,35 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     public void representModel(final TWP parent, final DisplayModel model) throws Exception
     {
+        Objects.requireNonNull(parent, "Missing toolkit parent item");
+
         // Attach toolkit and parent to model
         model.setUserData(DisplayModel.USER_DATA_TOOLKIT, this);
         model.setUserData(DisplayModel.USER_DATA_TOOLKIT_PARENT, parent);
 
         // DisplayModel itself is _not_ represented,
         // but all its children, recursively
-        for (final Widget child : model.getChildren())
-            representWidget(Objects.requireNonNull(parent, "Missing parent widget"), child);
+        representChildren(parent, model);
+    }
+
+    /** Create representation for each child of a ContainerWidget
+     *  @param parent    Toolkit parent (Pane, Container, ..)
+     *  @param container DisplayModel or GroupWidget
+     */
+    private void representChildren(final TWP parent, final ContainerWidget container)
+    {
+        for (Widget widget : container.getChildren())
+            representWidget(parent, widget);
 
         // Add/remove representations as model widgets change
-        // TODO Also do that in GroupRepresentation, ideally with shared code
-        model.addPropertyListener(DisplayModel.CHILDREN_PROPERTY_DESCRIPTOR, event ->
+        container.addPropertyListener(DisplayModel.CHILDREN_PROPERTY_DESCRIPTOR, event ->
         {
             final Widget removed_widget = (Widget) event.getOldValue();
-            final Widget added_widget = (Widget) event.getNewValue();
+            final Widget added_widget   = (Widget) event.getNewValue();
 
             // Move to toolkit thread.
             // May already be on toolkit, for example in drag/drop,
-            // but updating the representation 'later' may help reduce blocking.
+            // but updating the representation 'later' may reduce blocking.
             if (removed_widget != null)
                 execute(() -> disposeWidget(removed_widget));
             if (added_widget != null)
@@ -146,8 +156,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         }
         // Recurse into child widgets
         if (widget instanceof ContainerWidget)
-            for (final Widget child : ((ContainerWidget) widget).getChildren())
-                representWidget(re_parent, child);
+            representChildren(re_parent, (ContainerWidget) widget);
     }
 
     /** Remove toolkit widget for model widget
