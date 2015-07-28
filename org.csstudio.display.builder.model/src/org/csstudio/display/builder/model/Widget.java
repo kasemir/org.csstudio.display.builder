@@ -90,7 +90,7 @@ public class Widget
     public static final String USER_DATA_SCRIPT_SUPPORT = "_script_support";
 
     /** Parent widget */
-    private volatile Widget parent = null;
+    private volatile ContainerWidget parent = null;
 
     /** All properties, ordered by category, then sequence of definition */
     protected final Set<WidgetProperty<?>> properties;
@@ -199,7 +199,7 @@ public class Widget
     }
 
     /** @return Parent widget in Widget tree */
-    public Optional<Widget> getParent()
+    public Optional<ContainerWidget> getParent()
     {
         return Optional.ofNullable(parent);
     }
@@ -207,7 +207,7 @@ public class Widget
     /** Invoked by the parent widget
      *  @param parent Parent widget
      */
-    protected void setParent(final Widget parent)
+    protected void setParent(final ContainerWidget parent)
     {
         this.parent = parent;
     }
@@ -535,7 +535,7 @@ public class Widget
      */
     public Macros getEffectiveMacros()
     {
-        final Optional<Widget> the_parent = getParent();
+        final Optional<ContainerWidget> the_parent = getParent();
         if (! the_parent.isPresent())
             return null;
         return the_parent.get().getEffectiveMacros();

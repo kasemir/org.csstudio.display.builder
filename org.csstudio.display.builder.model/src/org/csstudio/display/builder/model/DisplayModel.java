@@ -65,7 +65,7 @@ public class DisplayModel extends ContainerWidget
     }
 
     @Override
-    protected void setParent(final Widget parent)
+    protected void setParent(final ContainerWidget parent)
     {
         throw new IllegalStateException("Display widget cannot have parent widget " + parent);
     }
