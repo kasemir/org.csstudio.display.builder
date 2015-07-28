@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.beans.PropertyChangeEvent;
+import java.util.Objects;
 
 import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -69,7 +70,9 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWid
     @Override
     public void dispose()
     {
+        Objects.requireNonNull(jfx_node);
         final Group group = (Group) jfx_node.getParent();
+        Objects.requireNonNull(group);
         group.getChildren().remove(jfx_node);
     }
 
