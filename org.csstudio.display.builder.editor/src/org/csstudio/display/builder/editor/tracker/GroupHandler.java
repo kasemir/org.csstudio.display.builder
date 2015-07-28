@@ -35,20 +35,25 @@ public class GroupHandler
 
     private final Rectangle group_highlight = new Rectangle();
 
+    private volatile GroupWidget active_group = null;
+
     /** Group that was found to contain a region */
     private static class GroupSearchResult
     {
         /** Group or null */
         GroupWidget group = null;
+
         /** Depth in display model hierarchy where group resides */
         int depth = 0;
 
+        /** Update if group is 'deeper' */
         void update(final GroupWidget group, final int depth)
         {
             if (group != null  &&  depth >= this.depth)
                 this.group = group;
         }
 
+        /** Update if other result has 'deeper' group */
         void update(final GroupSearchResult other)
         {
             update(other.group, other.depth);
@@ -60,22 +65,24 @@ public class GroupHandler
     {
         private static final long serialVersionUID = -5074784016726334794L;
         private final Rectangle2D bounds;
-        private final List<Widget> widgets;
+        private final List<Widget> widgets, ignore;
         private final int depth;
 
         /** Create search for a group
          *  @param bounds Region of screen
          *  @param model Display model
+         *  @param ignore Widgets to ignore in the search
          */
-        SurroundingGroupSearch(final Rectangle2D bounds, final DisplayModel model)
+        SurroundingGroupSearch(final Rectangle2D bounds, final DisplayModel model, List<Widget> ignore)
         {
-            this(bounds, model.getChildren(), 1);
+            this(bounds, model.getChildren(), ignore, 1);
         }
 
-        private SurroundingGroupSearch(final Rectangle2D bounds, final List<Widget> widgets, final int depth)
+        private SurroundingGroupSearch(final Rectangle2D bounds, final List<Widget> widgets, final List<Widget> ignore, final int depth)
         {
             this.bounds = bounds;
             this.widgets = widgets;
+            this.ignore = ignore;
             this.depth = depth;
         }
 
@@ -87,7 +94,7 @@ public class GroupHandler
             {
                 // System.out.println("Splitting the search");
                 final int split = N / 2;
-                final SurroundingGroupSearch sub = new SurroundingGroupSearch(bounds, widgets.subList(0, split), depth);
+                final SurroundingGroupSearch sub = new SurroundingGroupSearch(bounds, widgets.subList(0, split), ignore, depth);
                 sub.fork();
                 final GroupSearchResult result = findGroup(widgets.subList(split,  N));
                 result.update(sub.join());
@@ -103,6 +110,8 @@ public class GroupHandler
             final GroupSearchResult result = new GroupSearchResult();
             for (Widget widget : children)
             {
+                if (ignore.contains(widget))
+                    continue;
                 if (widget instanceof GroupWidget)
                 {
                     final GroupWidget found = checkGroup((GroupWidget) widget);
@@ -110,7 +119,7 @@ public class GroupHandler
                         result.update(found, depth);
                 }
                 if (widget instanceof ContainerWidget)
-                    result.update(new SurroundingGroupSearch(bounds, ((ContainerWidget)widget).getChildren(), depth + 1).compute());
+                    result.update(new SurroundingGroupSearch(bounds, ((ContainerWidget)widget).getChildren(), ignore, depth + 1).compute());
             }
             return result;
         }
@@ -135,23 +144,26 @@ public class GroupHandler
     /** Locate group for region of display.
      *
      *  <p>If there is a group that contains the region, it is highlighted.
+     *
      *  @param x
      *  @param y
      *  @param width
      *  @param height
+     *  @return Active group, may be <code>null</code>
+     *  @see #getActiveGroup()
      */
-    public void locateGroup(final double x, final double y, final double width, final double height)
+    public GroupWidget locateGroup(final double x, final double y, final double width, final double height)
     {
         final Rectangle2D bounds = new Rectangle2D(x, y, width, height);
 
         GroupWidget group = null;
         try
         {
-            final List<Widget> widgets = selection.getSelection();
-            if (widgets.size() > 0)
+            final List<Widget> selected_widgets = selection.getSelection();
+            if (selected_widgets.size() > 0)
             {
-                final DisplayModel model = widgets.get(0).getDisplayModel();
-                group = new SurroundingGroupSearch(bounds, model).compute().group;
+                final DisplayModel model = selected_widgets.get(0).getDisplayModel();
+                group = new SurroundingGroupSearch(bounds, model, selected_widgets).compute().group;
             }
         }
         catch (Exception ex)
@@ -170,6 +182,14 @@ public class GroupHandler
             group_highlight.setHeight(group_bounds.getHeight());
             group_highlight.setVisible(true);
         }
+        active_group = group;
+        return group;
+    }
+
+    /** @return Active group, may be <code>null</code> */
+    public GroupWidget getActiveGroup()
+    {
+        return active_group;
     }
 
     /** Hide the group highlight (in case it's visible) */

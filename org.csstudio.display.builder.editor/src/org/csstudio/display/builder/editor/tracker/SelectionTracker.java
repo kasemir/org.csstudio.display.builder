@@ -10,6 +10,7 @@ package org.csstudio.display.builder.editor.tracker;
 import java.beans.PropertyChangeListener;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -18,6 +19,7 @@ import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
+import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -49,9 +51,6 @@ public class SelectionTracker extends Group
     // resulting in very poor representation when 'moving' widgets.
     //
     // -> Only using drag/drop for a 'copy' drag.
-
-    // TODO Groups: Highlight groups on move-over,
-    //              move widgets in and out of groups
 
     private final Logger logger = Logger.getLogger(getClass().getName());
 
@@ -453,33 +452,64 @@ public class SelectionTracker extends Group
         group_handler.locateGroup(x, y, width, height);
     }
 
-    /** Updates widgets to current tracker size */
+    /** Updates widgets to current tracker location and size */
     private void updateWidgetsFromTracker()
     {
-        if (updating  ||  widgets == null  ||  orig_position == null)
+        if (updating  ||  widgets.isEmpty()  ||  orig_position.isEmpty())
             return;
         updating = true;
         try
         {
             group_handler.hide();
 
-            final double dx = tracker.getX() - orig_x;
-            final double dy = tracker.getY() - orig_y;
-            final double dw = tracker.getWidth() - orig_width;
+            // If there was only one widget, the tracker bounds represent
+            // the desired widget location and size.
+            // But tracker bounds can apply to one or more widgets, so need to
+            // determine the change in tracker bounds, apply those to each widget.
+            final double dx = tracker.getX()      - orig_x;
+            final double dy = tracker.getY()      - orig_y;
+            final double dw = tracker.getWidth()  - orig_width;
             final double dh = tracker.getHeight() - orig_height;
             final int N = Math.min(widgets.size(), orig_position.size());
             for (int i=0; i<N; ++i)
             {
                 final Widget widget = widgets.get(i);
                 final Rectangle2D orig = orig_position.get(i);
-                widget.positionX().setValue((int) (orig.getMinX() + dx));
-                widget.positionY().setValue((int) (orig.getMinY() + dy));
+
+                final ContainerWidget orig_parent = widget.getParent().get();
+                ContainerWidget parent = group_handler.getActiveGroup();
+                if (parent == null)
+                    parent = widget.getDisplayModel();
+
+                if (parent == orig_parent)
+                {   // Slightly faster since parent stays the same
+                    widget.positionX().setValue((int) (orig.getMinX() + dx));
+                    widget.positionY().setValue((int) (orig.getMinY() + dy));
+                }
+                else
+                {   // Update to new parent
+                    final Point2D old_offset = GeometryTools.getDisplayOffset(widget);
+                    orig_parent.removeChild(widget);
+                    parent.addChild(widget);
+                    final Point2D new_offset = GeometryTools.getDisplayOffset(widget);
+
+                    logger.log(Level.FINE, "{0} moves from {1} ({2}) to {3} ({4})",
+                               new Object[] { widget, orig_parent, old_offset, parent, new_offset});
+                    // Account for old and new display offset
+                    widget.positionX().setValue((int) (orig.getMinX() + dx + old_offset.getX() - new_offset.getX()));
+                    widget.positionY().setValue((int) (orig.getMinY() + dy + old_offset.getY() - new_offset.getY()));
+                }
                 widget.positionWidth().setValue((int) (orig.getWidth() + dw));
                 widget.positionHeight().setValue((int) (orig.getHeight() + dh));
-                undo.add(new UpdateWidgetLocationAction(widget,
-                               (int) orig.getMinX(),  (int) orig.getMinY(),
-                               (int) orig.getWidth(), (int) orig.getHeight()));
+
+                undo.add(new UpdateWidgetLocationAction(widget, orig_parent,
+                                                        (int) orig.getMinX(),  (int) orig.getMinY(),
+                                                        (int) orig.getWidth(), (int) orig.getHeight()));
             }
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.SEVERE, "Failed to move/resize widgets", ex);
         }
         finally
         {
@@ -525,7 +555,7 @@ public class SelectionTracker extends Group
     {
         unbindFromWidgets();
 
-        this.widgets = widgets;
+        this.widgets = Objects.requireNonNull(widgets);
         if (widgets.size() <= 0)
         {
             setVisible(false);

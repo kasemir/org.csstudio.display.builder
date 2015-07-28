@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.editor.undo;
 
 import org.csstudio.display.builder.editor.Messages;
+import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.Widget;
 
 /** Action to update widget location
@@ -16,19 +17,30 @@ import org.csstudio.display.builder.model.Widget;
 public class UpdateWidgetLocationAction extends UndoableAction
 {
     private final Widget widget;
+    private final ContainerWidget orig_parent, parent;
     private final int orig_x, orig_y, orig_width, orig_height;
     private final int x, y, width, height;
 
+    /** @param widget      Widget that already has desired parent, location, size
+     *  @param orig_parent Original parent (may be the same as now)
+     *  @param orig_x      Original location
+     *  @param orig_y      ..
+     *  @param orig_width  .. and size
+     *  @param orig_height
+     */
     public UpdateWidgetLocationAction(final Widget widget,
+                                      final ContainerWidget orig_parent,
                                       final int orig_x, final int orig_y,
                                       final int orig_width, final int orig_height)
     {
         super(Messages.UpdateWidgetLocation);
         this.widget = widget;
+        this.orig_parent = orig_parent;
         this.orig_x = orig_x;
         this.orig_y = orig_y;
         this.orig_width = orig_width;
         this.orig_height = orig_height;
+        parent = widget.getParent().get();
         x = widget.positionX().getValue();
         y = widget.positionY().getValue();
         width = widget.positionWidth().getValue();
@@ -38,6 +50,12 @@ public class UpdateWidgetLocationAction extends UndoableAction
     @Override
     public void run()
     {
+        final ContainerWidget current_parent = widget.getParent().get();
+        if (parent != current_parent)
+        {
+            current_parent.removeChild(widget);
+            parent.addChild(widget);
+        }
         widget.positionX().setValue(x);
         widget.positionY().setValue(y);
         widget.positionWidth().setValue(width);
@@ -47,6 +65,12 @@ public class UpdateWidgetLocationAction extends UndoableAction
     @Override
     public void undo()
     {
+        final ContainerWidget current_parent = widget.getParent().get();
+        if (orig_parent != current_parent)
+        {
+            current_parent.removeChild(widget);
+            orig_parent.addChild(widget);
+        }
         widget.positionX().setValue(orig_x);
         widget.positionY().setValue(orig_y);
         widget.positionWidth().setValue(orig_width);
