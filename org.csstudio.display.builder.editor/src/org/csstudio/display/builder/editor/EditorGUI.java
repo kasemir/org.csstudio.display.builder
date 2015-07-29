@@ -7,7 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -18,6 +20,7 @@ import java.util.logging.Logger;
 import org.csstudio.display.builder.editor.actions.ActionGUIHelper;
 import org.csstudio.display.builder.editor.actions.EnableGridAction;
 import org.csstudio.display.builder.editor.actions.EnableSnapAction;
+import org.csstudio.display.builder.editor.actions.SaveModelAction;
 import org.csstudio.display.builder.editor.palette.Palette;
 import org.csstudio.display.builder.editor.properties.PropertyPanel;
 import org.csstudio.display.builder.editor.tracker.SelectionTracker;
@@ -30,6 +33,7 @@ import org.csstudio.display.builder.editor.util.WidgetTransfer;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
@@ -126,7 +130,7 @@ public class EditorGUI
         //    center = tree | editor | palette | property_panel
         //    status
         final ToolBar toolbar = new ToolBar(
-                new Button("Do"),
+                ActionGUIHelper.createButton(new SaveModelAction(this::doSaveAs)),
                 new Separator(),
                 ActionGUIHelper.createToggleButton(new EnableGridAction(selection_tracker)),
                 ActionGUIHelper.createToggleButton(new EnableSnapAction(selection_tracker)),
@@ -136,10 +140,7 @@ public class EditorGUI
         final Palette palette = new Palette();
 
         final SplitPane center = new SplitPane();
-//        editor.setHbarPolicy(ScrollBarPolicy.ALWAYS);
-//        editor.setVbarPolicy(ScrollBarPolicy.ALWAYS);
-//        editor_pane.getStyleClass().add("debug");
-
+        // editor_pane.getStyleClass().add("debug");
         center.getItems().addAll(tree.create(), editor, palette.create(), property_panel.create());
         center.setDividerPositions(0.2, 0.63, 0.75);
 
@@ -220,6 +221,25 @@ public class EditorGUI
             catch (final Exception ex)
             {
                 logger.log(Level.SEVERE, "Cannot start", ex);
+            }
+        });
+    }
+
+    private void doSaveAs(final File file)
+    {
+        executor.execute(() ->
+        {
+            logger.log(Level.FINE, "Save as {0}", file);
+            try
+            (
+                final ModelWriter writer = new ModelWriter(new FileOutputStream(file));
+            )
+            {
+                writer.writeModel(model);
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.SEVERE, "Cannot save as " + file, ex);
             }
         });
     }

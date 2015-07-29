@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javafx.beans.value.ObservableValue;
+import javafx.scene.control.Button;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
@@ -26,6 +27,23 @@ import javafx.scene.image.ImageView;
 @SuppressWarnings("nls")
 public class ActionGUIHelper
 {
+    public static Button createButton(final ActionDescription action)
+    {
+        final Button button = new Button();
+        try
+        {
+            button.setGraphic(new ImageView(new Image(action.getIconStream())));
+        }
+        catch (final Exception ex)
+        {
+            Logger.getLogger(ActionGUIHelper.class.getName())
+                  .log(Level.WARNING, "Cannot load action icon", ex);
+        }
+        button.setTooltip(new Tooltip(action.getToolTip()));
+        button.setOnAction(event -> action.run(true));
+        return button;
+    }
+
     public static ToggleButton createToggleButton(final ActionDescription action)
     {
         final ToggleButton button = new ToggleButton();
