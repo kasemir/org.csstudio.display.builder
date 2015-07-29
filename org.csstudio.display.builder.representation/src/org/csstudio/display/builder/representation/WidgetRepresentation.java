@@ -40,7 +40,6 @@ abstract public class WidgetRepresentation<TWP, TW, MW extends Widget>
     {
         this.toolkit = toolkit;
         this.model_widget = model_widget;
-        model_widget.setUserData(Widget.USER_DATA_REPRESENTATION, this);
     }
 
     /** Initialize the toolkit item(s)

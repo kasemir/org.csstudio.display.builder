@@ -149,17 +149,19 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         	return;
         }
 
-        // Note that constructors expect a generic ToolkitRepresentation (not JFXRepresentation),
-        // but a specific widget like GroupWidget (not just Widget):
-        // new ThatWidgetRepresentation(ToolkitRepresentation this, ActualWidget model_widget)
+        // Constructors expect a _generic_ ToolkitRepresentation (not JFXRepresentation),
+        // but a _specific_ widget like GroupWidget (not just Widget):
+        //
+        //   new ThatWidgetRepresentation(ToolkitRepresentation this, ActualWidget model_widget)
         final WidgetRepresentation<TWP, TW, ? extends Widget> representation;
         final TWP re_parent;
         try
         {
-            representation = representation_class
-                  .getDeclaredConstructor(ToolkitRepresentation.class, widget.getClass())
-                  .newInstance(this, widget);
+            representation = representation_class.getDeclaredConstructor(ToolkitRepresentation.class,
+                                                                         widget.getClass())
+                                                 .newInstance(this, widget);
             re_parent = representation.init(parent);
+            widget.setUserData(Widget.USER_DATA_REPRESENTATION, representation);
         }
         catch (Exception ex)
         {
@@ -172,23 +174,43 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
             representChildren(re_parent, (ContainerWidget) widget);
     }
 
+    /** Remove all the toolkit items of the model
+     *  @param model Display model
+     *  @return Parent toolkit item (Group, Container, ..) that used to host the model items
+     */
+    final public TWP disposeRepresentation(final DisplayModel model)
+    {
+        final TWP parent = disposeChildren(model);
+        model.clearUserData(DisplayModel.USER_DATA_TOOLKIT);
+        return Objects.requireNonNull(parent);
+    }
+
+    /** Remove toolkit widgets for container
+     *  @param container Container which should no longer be represented, recursing into children
+     *  @return Parent toolkit item (Group, Container, ..) that used to host the container items
+     */
+    private TWP disposeChildren(final ContainerWidget container)
+    {
+        logger.log(Level.FINE, "No longer tracking changes to children of {0}", container);
+        container.removePropertyListener(DisplayModel.CHILDREN_PROPERTY_DESCRIPTOR, container_children_listener);
+
+        for (Widget widget : container.getChildren())
+        {   // First dispose child widgets, then the container
+            if (widget instanceof ContainerWidget)
+                disposeChildren((ContainerWidget) widget);
+            disposeWidget(widget);
+        }
+
+        return container.clearUserData(ContainerWidget.USER_DATA_TOOLKIT_PARENT);
+    }
+
     /** Remove toolkit widget for model widget
      *  @param widget Model widget that should no longer be represented
      */
     private void disposeWidget(final Widget widget)
     {
-        if (widget instanceof ContainerWidget)
-        {
-            final ContainerWidget container = (ContainerWidget) widget;
-            logger.log(Level.FINE, "No longer tracking changes to children of {0}", container);
-            container.removePropertyListener(DisplayModel.CHILDREN_PROPERTY_DESCRIPTOR, container_children_listener);
-            // First dispose child widgets, then the container
-            for (Widget child : container.getChildren())
-                disposeWidget(child);
-        }
-
         final WidgetRepresentation<TWP, TW, ? extends Widget> representation =
-            widget.getUserData(Widget.USER_DATA_REPRESENTATION);
+            widget.clearUserData(Widget.USER_DATA_REPRESENTATION);
         logger.log(Level.FINE, "Disposing {0} for {1}", new Object[] { representation, widget });
         representation.dispose();
     }
@@ -285,13 +307,6 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
             logger.log(Level.WARNING, "Failure when writing " + value + " for " + widget, ex);
         }
     }
-
-    /** Remove all the toolkit items of the model
-     *
-     *  @param model Display model
-     *  @return Parent toolkit item (Group, Container, ..) that used to host those items
-     */
-    abstract public TWP disposeRepresentation(final DisplayModel model);
 
     /** Orderly shutdown */
     public void shutdown()

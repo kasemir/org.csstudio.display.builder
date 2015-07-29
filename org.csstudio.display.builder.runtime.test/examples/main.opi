@@ -64,7 +64,7 @@
       <actions>
         <action type="open_display">
           <file>$(FILE)</file>
-          <target>window</target>
+          <target>replace</target>
           <macros>
             <CONTAINER>Action</CONTAINER>
           </macros>

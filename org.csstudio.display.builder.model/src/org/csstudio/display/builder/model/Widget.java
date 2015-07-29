@@ -578,6 +578,16 @@ public class Widget
         return (TYPE)data;
     }
 
+    /** Remove a user data entry
+     *  @param key Key for which to remove user data
+     *  @return User data associated with key that has been removed, or <code>null</code>
+     */
+    @SuppressWarnings("unchecked")
+    public <TYPE> TYPE clearUserData(final String key)
+    {
+        return (TYPE)user_data.remove(key);
+    }
+
     @Override
     public String toString()
     {

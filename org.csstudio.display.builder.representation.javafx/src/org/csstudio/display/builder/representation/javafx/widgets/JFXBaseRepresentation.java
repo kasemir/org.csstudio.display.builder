@@ -47,6 +47,7 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWid
         if (jfx_node != null)
         {
             parent.getChildren().add(jfx_node);
+            // Any visible item can be 'clicked' to allow editor to 'select' it
             jfx_node.setOnMousePressed((event) ->
             {
                 toolkit.fireClick(model_widget, event.isControlDown());

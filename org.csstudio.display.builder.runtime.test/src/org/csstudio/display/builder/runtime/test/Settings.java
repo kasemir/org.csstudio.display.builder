@@ -20,8 +20,8 @@ public class Settings
 //        "example.opi";
 //        "legacy.opi";
 //        "legacy_embed.opi";
-        "https://webopi.sns.gov/webopi/opi/Instruments.opi";
-//          "main.opi";
+//        "https://webopi.sns.gov/webopi/opi/Instruments.opi";
+          "main.opi";
 
     public static void setup() throws Exception
     {
