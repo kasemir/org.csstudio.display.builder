@@ -20,6 +20,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @SuppressWarnings("nls")
 public class ContainerWidget extends BaseWidget
 {
+    /** Reserved ContainerWidget user data key for storing toolkit parent item */
+    public static final String USER_DATA_TOOLKIT_PARENT = "_toolkit_parent";
+
     /** 'children' is a property to allow notifications,
      *  but setting its value or creating additional property instances
      *  is not supported.

@@ -7,10 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation;
 
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
@@ -54,6 +56,27 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     /** Listener list */
     private final List<ToolkitListener> listeners = new CopyOnWriteArrayList<>();
 
+    /** Add/remove representations for child elements as model changes */
+    private final PropertyChangeListener container_children_listener = event ->
+    {
+        final Widget removed_widget = (Widget) event.getOldValue();
+        final Widget added_widget   = (Widget) event.getNewValue();
+
+        // Move to toolkit thread.
+        // May already be on toolkit, for example in drag/drop,
+        // but updating the representation 'later' may reduce blocking.
+        if (removed_widget != null)
+            execute(() -> disposeWidget(removed_widget));
+        if (added_widget != null)
+        {
+            final Optional<ContainerWidget> parent = added_widget.getParent();
+            if (! parent.isPresent())
+                throw new IllegalStateException("Cannot locate parent widget for " + added_widget);
+            final TWP parent_item = parent.get().getUserData(ContainerWidget.USER_DATA_TOOLKIT_PARENT);
+            execute(() -> representWidget(parent_item, added_widget));
+        }
+    };
+
     /** Register the toolkit's representation of a model widget
      *  @param widget_class Class of a model's {@link Widget}
      *  @param representation_class Class of the {@link WidgetRepresentation} in the toolkit
@@ -84,9 +107,8 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     {
         Objects.requireNonNull(parent, "Missing toolkit parent item");
 
-        // Attach toolkit and parent to model
+        // Attach toolkit
         model.setUserData(DisplayModel.USER_DATA_TOOLKIT, this);
-        model.setUserData(DisplayModel.USER_DATA_TOOLKIT_PARENT, parent);
 
         // DisplayModel itself is _not_ represented,
         // but all its children, recursively
@@ -99,23 +121,13 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     private void representChildren(final TWP parent, final ContainerWidget container)
     {
+        container.setUserData(ContainerWidget.USER_DATA_TOOLKIT_PARENT, parent);
+
         for (Widget widget : container.getChildren())
             representWidget(parent, widget);
 
-        // Add/remove representations as model widgets change
-        container.addPropertyListener(DisplayModel.CHILDREN_PROPERTY_DESCRIPTOR, event ->
-        {
-            final Widget removed_widget = (Widget) event.getOldValue();
-            final Widget added_widget   = (Widget) event.getNewValue();
-
-            // Move to toolkit thread.
-            // May already be on toolkit, for example in drag/drop,
-            // but updating the representation 'later' may reduce blocking.
-            if (removed_widget != null)
-                execute(() -> disposeWidget(removed_widget));
-            if (added_widget != null)
-                execute(() -> representWidget(parent, added_widget));
-        });
+        logger.log(Level.FINE, "Tracking changes to children of {0}", container);
+        container.addPropertyListener(DisplayModel.CHILDREN_PROPERTY_DESCRIPTOR, container_children_listener);
     }
 
     /** Create a toolkit widget for a model widget.
@@ -154,6 +166,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
             logger.log(Level.SEVERE, "Cannot represent " + widget, ex);
             return;
         }
+        logger.log(Level.FINE, "Representing {0} as {1}", new Object[] { widget, representation });
         // Recurse into child widgets
         if (widget instanceof ContainerWidget)
             representChildren(re_parent, (ContainerWidget) widget);
@@ -164,8 +177,19 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     private void disposeWidget(final Widget widget)
     {
+        if (widget instanceof ContainerWidget)
+        {
+            final ContainerWidget container = (ContainerWidget) widget;
+            logger.log(Level.FINE, "No longer tracking changes to children of {0}", container);
+            container.removePropertyListener(DisplayModel.CHILDREN_PROPERTY_DESCRIPTOR, container_children_listener);
+            // First dispose child widgets, then the container
+            for (Widget child : container.getChildren())
+                disposeWidget(child);
+        }
+
         final WidgetRepresentation<TWP, TW, ? extends Widget> representation =
             widget.getUserData(Widget.USER_DATA_REPRESENTATION);
+        logger.log(Level.FINE, "Disposing {0} for {1}", new Object[] { representation, widget });
         representation.dispose();
     }
 

@@ -10,6 +10,7 @@ package org.csstudio.display.builder.representation.swt;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
@@ -94,7 +95,7 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     @Override
     public Composite disposeRepresentation(final DisplayModel model)
     {
-        final Composite parent = model.getUserData(DisplayModel.USER_DATA_TOOLKIT_PARENT);
+        final Composite parent = model.getUserData(ContainerWidget.USER_DATA_TOOLKIT_PARENT);
         for (final Control child : parent.getChildren())
             child.dispose();
         return parent;

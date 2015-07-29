@@ -33,9 +33,6 @@ public class DisplayModel extends ContainerWidget
      */
     public static final String USER_DATA_TOOLKIT = "_toolkit";
 
-    /** Reserved DisplayModel user data key for storing toolkit parent item */
-    public static final String USER_DATA_TOOLKIT_PARENT = "_toolkit_parent";
-
     /** Widget user data key for storing the embedding widget.
      *
      *  <p>For a {@link DisplayModel} that is held by an {@link EmbeddedDisplayWidget},

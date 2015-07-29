@@ -10,6 +10,7 @@ package org.csstudio.display.builder.representation.javafx;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
@@ -121,7 +122,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
     @Override
     public Group disposeRepresentation(final DisplayModel model)
     {
-        final Group parent = model.getUserData(DisplayModel.USER_DATA_TOOLKIT_PARENT);
+        final Group parent = model.getUserData(ContainerWidget.USER_DATA_TOOLKIT_PARENT);
         parent.getChildren().clear();
         return parent;
     }
