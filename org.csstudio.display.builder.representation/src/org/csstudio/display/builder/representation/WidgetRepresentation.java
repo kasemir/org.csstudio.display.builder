@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation;
 
+import java.util.logging.Logger;
+
 import org.csstudio.display.builder.model.Widget;
 
 /** Toolkit representation for a model widget
@@ -21,11 +23,13 @@ import org.csstudio.display.builder.model.Widget;
  */
 abstract public class WidgetRepresentation<TWP, TW, MW extends Widget>
 {
+    protected final Logger logger = Logger.getLogger(getClass().getName());
+
     /** Toolkit helper */
-    final protected ToolkitRepresentation<TWP, TW> toolkit;
+    protected final ToolkitRepresentation<TWP, TW> toolkit;
 
     /** Model widget that is represented in toolkit */
-    final protected MW model_widget;
+    protected final MW model_widget;
 
     /** Construct representation for a model widget
      *  @param toolkit Toolkit helper
