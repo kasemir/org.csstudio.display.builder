@@ -10,6 +10,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import java.beans.PropertyChangeEvent;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.properties.ActionInfo;
@@ -28,13 +29,14 @@ import javafx.scene.input.MouseEvent;
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class ActionButtonRepresentation extends JFXBaseRepresentation<ButtonBase, ActionButtonWidget>
 {
     // Uses a Button if there is only one action,
     // otherwise a MenuButton so that user can select the specific action.
     //
     // These two types were chosen because they share the same ButtonBase base class.
-    // ChoiceBox is not derived from onButtonBase, plus it has currently selected 'value',
+    // ChoiceBox is not derived from ButtonBase, plus it has currently selected 'value',
     // and with action buttons it wouldn't make sense to select one of the actions.
     //
     // Current implementation does not allow changing the actions at runtime.
@@ -82,29 +84,37 @@ public class ActionButtonRepresentation extends JFXBaseRepresentation<ButtonBase
         // updateChanges() will set the 'pref' size, so make min use that as well.
         base.setMinSize(ButtonBase.USE_PREF_SIZE, ButtonBase.USE_PREF_SIZE);
 
-        // Monitor keys that modify the OpenDisplayActionInfo.Target
-        base.setOnMousePressed((MouseEvent event) ->
-        {
-            if (event.isControlDown())
-                target_modifier = Optional.of(OpenDisplayActionInfo.Target.TAB);
-            else if (event.isShiftDown())
-                target_modifier = Optional.of(OpenDisplayActionInfo.Target.WINDOW);
-            else
-                target_modifier = Optional.empty();
-
-            // At least on Linux, a Control-click or Shift-click
-            // will not 'arm' the button, so the click is basically ignored.
-            // Force the 'arm', so user can Control-click or Shift-click to
-            // invoke the button
-            if (target_modifier.isPresent())
-                base.arm();
-        });
+        // Monitor keys that modify the OpenDisplayActionInfo.Target.
+        // Use filter to capture event that's otherwise already handled.
+        base.addEventFilter(MouseEvent.MOUSE_PRESSED, this::checkModifiers);
         return base;
+    }
+
+    /** @param event Mouse event to check for target modifier keys */
+    private void checkModifiers(final MouseEvent event)
+    {
+        if (event.isControlDown())
+            target_modifier = Optional.of(OpenDisplayActionInfo.Target.TAB);
+        else if (event.isShiftDown())
+            target_modifier = Optional.of(OpenDisplayActionInfo.Target.WINDOW);
+        else
+            target_modifier = Optional.empty();
+
+        // At least on Linux, a Control-click or Shift-click
+        // will not 'arm' the button, so the click is basically ignored.
+        // Force the 'arm', so user can Control-click or Shift-click to
+        // invoke the button
+        if (target_modifier.isPresent())
+        {
+            logger.log(Level.FINE, "{0} modifier: {1}", new Object[] { model_widget, target_modifier.get() });
+            jfx_node.arm();
+        }
     }
 
     /** @param action Action that the user invoked */
     private void handleAction(ActionInfo action)
     {
+        logger.log(Level.FINE, "{0} pressed", model_widget);
         if (action instanceof OpenDisplayActionInfo  &&  target_modifier.isPresent())
         {
             final OpenDisplayActionInfo orig = (OpenDisplayActionInfo) action;
