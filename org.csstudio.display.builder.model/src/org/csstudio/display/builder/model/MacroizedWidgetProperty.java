@@ -72,27 +72,8 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
     {
         final String old_spec = this.specification;
         this.specification = specification;
-
-        final Macros macros = widget.getEffectiveMacros();
-        if (macros == null)
-        {   // Cannot resolve macros, yet. Notify with changed specification
-            this.value = null;
-            widget.firePropertyChange(this, old_spec, specification);
-        }
-        else
-        {   // Resolve macros, notify on value change
-            final String expanded = MacroHandler.replace(macros, specification);
-            try
-            {
-                super.setValue(parseExpandedSpecification(expanded));
-            }
-            catch (final Exception ex)
-            {
-                Logger.getLogger(getClass().getName())
-                .log(Level.WARNING, widget + " property " + getName() + " cannot evaluate " + expanded, ex);
-                value = default_value;
-            }
-        }
+        this.value = null;
+        widget.firePropertyChange(this, old_spec, specification);
     }
 
     /** Macro-based properties implement this to parse
@@ -125,7 +106,7 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
             catch (final Exception ex)
             {
                 Logger.getLogger(getClass().getName())
-                .log(Level.WARNING, widget + " property " + getName() + " cannot evaluate " + expanded, ex);
+                      .log(Level.WARNING, widget + " property " + getName() + " cannot evaluate " + expanded, ex);
                 value = default_value;
             }
         }

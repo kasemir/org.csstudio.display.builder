@@ -12,13 +12,13 @@
 
   <widget type="group" version="1.0.0">
     <name>Group in Main Display</name>
+    <macros>
+      <SHOW>true</SHOW>
+    </macros>
     <x>$(INSET)</x>
     <y>$(INSET)</y>
     <width>500</width>
     <height>450</height>
-    <macros>
-      <SHOW>true</SHOW>
-    </macros>
     
     <widget type="label" version="1.0.0">
       <name>Hello</name>
