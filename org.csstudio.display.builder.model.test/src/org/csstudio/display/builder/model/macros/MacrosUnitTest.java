@@ -20,6 +20,21 @@ import org.junit.Test;
 @SuppressWarnings("nls")
 public class MacrosUnitTest
 {
+    /** Test check for unresolved macros
+     *  @throws Exception on error
+     */
+    @Test
+    public void testCheck() throws Exception
+    {
+        assertThat(MacroHandler.containsMacros("Plain Text"), equalTo(false));
+        assertThat(MacroHandler.containsMacros("${S}"), equalTo(true));
+        assertThat(MacroHandler.containsMacros("This is $(S)"), equalTo(true));
+        assertThat(MacroHandler.containsMacros("$(MACRO)"), equalTo(true));
+        assertThat(MacroHandler.containsMacros("$(${MACRO})"), equalTo(true));
+        assertThat(MacroHandler.containsMacros("Escaped \\$(S)"), equalTo(false));
+        assertThat(MacroHandler.containsMacros("Escaped \\$(S) Used $(S)"), equalTo(true));
+    }
+
     /** Test basic macro=value
      *  @throws Exception on error
      */
@@ -38,6 +53,9 @@ public class MacrosUnitTest
         assertThat(MacroHandler.replace(macros, "$(MACRO)"), equalTo("S"));
         assertThat(MacroHandler.replace(macros, "$(${MACRO})"), equalTo("BL7"));
         assertThat(MacroHandler.replace(macros, "$(TAB)$(NAME)$(TAB)"), equalTo("    Flint, Eugene    "));
+
+        assertThat(MacroHandler.replace(macros, "Escaped \\$(S)"), equalTo("Escaped \\$(S)"));
+        assertThat(MacroHandler.replace(macros, "Escaped \\$(S) Used $(S)"), equalTo("Escaped \\$(S) Used BL7"));
     }
 
     /** Test errors*/

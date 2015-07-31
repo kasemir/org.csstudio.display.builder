@@ -16,8 +16,24 @@ import java.util.regex.Pattern;
 @SuppressWarnings("nls")
 public class MacroHandler
 {
-    // Pattern for $(xxx) or ${xxx}
-    private static final Pattern spec = Pattern.compile("\\$\\((\\w+)\\)" + "|" + "\\$\\{(\\w+)\\}");
+    // Pattern for $(xxx) or ${xxx}, asserting that there is NO leading '\' to escape it
+    private static final Pattern spec = Pattern.compile("(?<!\\\\)\\$\\((\\w+)\\)" + "|" + "(?<!\\\\)\\$\\{(\\w+)\\}");
+
+    /** Check if input contains unresolved macros
+     *  @param input Text that may contain macros "$(NAME)" or "${NAME}",
+     *  @return <code>true</code> if there is at least one unresolved macro
+     */
+    public static boolean containsMacros(final String input)
+    {
+        // Short cut to full regular expression
+        if (input.indexOf('$') < 0)
+            return false;
+
+        // There is at least one '$'
+        // Check if it matches the spec
+        final Matcher matcher = spec.matcher(input);
+        return matcher.find();
+    }
 
     /** Replace macros in input
      *
