@@ -19,6 +19,7 @@ import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
+import org.csstudio.display.builder.editor.util.GroupHandler;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelWriter;
@@ -57,12 +58,12 @@ public class SelectionTracker extends Group
     private static final int handle_size = 15;
 
     private final ToolkitRepresentation<Group, Node> toolkit;
+    private final GroupHandler group_handler;
     private final UndoableActionManager undo;
 
     private final TrackerGridConstraint grid_constraint = new TrackerGridConstraint(10);
     private final TrackerSnapConstraint snap_constraint = new TrackerSnapConstraint(this);
 
-    private final GroupHandler group_handler;
 
     /** Main rectangle of tracker */
     private final Rectangle tracker = new Rectangle();
@@ -98,20 +99,21 @@ public class SelectionTracker extends Group
      *
      *  <p>It remains invisible until it is asked to track widgets
      *  @param toolkit Toolkit
+     *  @param group_handler Group handler
      *  @param selection Selection handler
      *  @param undo 'Undo' manager
      */
     public SelectionTracker(final ToolkitRepresentation<Group, Node> toolkit,
+                            final GroupHandler group_handler,
                             final WidgetSelectionHandler selection,
                             final UndoableActionManager undo)
     {
         this.toolkit = toolkit;
+        this.group_handler = group_handler;
         this.undo = undo;
 
         setVisible(false);
         setAutoSizeChildren(false);
-
-        group_handler = new GroupHandler(this, selection);
 
         tracker.getStyleClass().add("tracker");
 

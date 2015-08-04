@@ -1,4 +1,4 @@
-package org.csstudio.display.builder.editor.tracker;
+package org.csstudio.display.builder.editor.util;
 
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
@@ -6,7 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
-import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
@@ -133,6 +132,10 @@ public class GroupHandler
         }
     };
 
+    /** Construct group handler
+     *  @param parent Parent for rectangle that highlights active group
+     *  @param selection Current selection
+     */
     public GroupHandler(final Group parent, final WidgetSelectionHandler selection)
     {
         this.selection = selection;
@@ -144,6 +147,9 @@ public class GroupHandler
     /** Locate group for region of display.
      *
      *  <p>If there is a group that contains the region, it is highlighted.
+     *
+     *  <p>The widgets in the current selection themselves are ignored
+     *  in the search to prevent having a group that's moved locate itself.
      *
      *  @param x
      *  @param y

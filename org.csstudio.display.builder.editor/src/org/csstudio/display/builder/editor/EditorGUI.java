@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
@@ -28,6 +29,7 @@ import org.csstudio.display.builder.editor.tree.WidgetTree;
 import org.csstudio.display.builder.editor.undo.AddWidgetAction;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.editor.util.GeometryTools;
+import org.csstudio.display.builder.editor.util.GroupHandler;
 import org.csstudio.display.builder.editor.util.Rubberband;
 import org.csstudio.display.builder.editor.util.WidgetTransfer;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -90,7 +92,7 @@ public class EditorGUI
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final Executor executor = ForkJoinPool.commonPool();
 
-    private volatile DisplayModel model;
+    private volatile DisplayModel model = new DisplayModel();
     private final WidgetSelectionHandler selection = new WidgetSelectionHandler();
 
     private final ToolkitRepresentation<Group, Node> toolkit;
@@ -109,6 +111,7 @@ public class EditorGUI
     private final Pane editor_pane = new Pane(model_parent, edit_tools);
     private final ScrollPane editor = new ScrollPane(editor_pane);
 
+    private GroupHandler group_handler;
     private SelectionTracker selection_tracker;
 
     private final PropertyPanel property_panel = new PropertyPanel(selection, undo);
@@ -123,7 +126,8 @@ public class EditorGUI
 
     private void createElements(final Stage stage)
     {
-        selection_tracker = new SelectionTracker(toolkit, selection, undo);
+        group_handler = new GroupHandler(edit_tools, selection);
+        selection_tracker = new SelectionTracker(toolkit, group_handler, selection, undo);
 
         // BorderPane with
         //    toolbar
@@ -191,7 +195,7 @@ public class EditorGUI
 
         new Rubberband(editor, edit_tools, this::selectWidgetsInRegion);
 
-        WidgetTransfer.addDropSupport(editor, this::handleDroppedModel);
+        WidgetTransfer.addDropSupport(editor, group_handler, this::handleDroppedModel);
 
         toolbar_center_status.setOnKeyPressed((KeyEvent event) ->
         {
@@ -246,9 +250,7 @@ public class EditorGUI
 
     private void setModel(final DisplayModel model)
     {
-        this.model = model;
-
-
+        this.model = Objects.requireNonNull(model);
         // Create representation for model items
         try
         {
@@ -270,6 +272,7 @@ public class EditorGUI
     /** @param model Dropped model with widgets to be added to existing model */
     private void handleDroppedModel(final DisplayModel dropped_model)
     {
+        // TODO Check group_handler for selected target group
         final List<Widget> dropped = dropped_model.getChildren();
         for (Widget widget : dropped)
             undo.execute(new AddWidgetAction(model, widget));
