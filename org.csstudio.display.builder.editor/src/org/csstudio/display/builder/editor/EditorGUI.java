@@ -143,7 +143,7 @@ public class EditorGUI
                 new Separator(),
                 new Button("Something"));
 
-        final Palette palette = new Palette();
+        final Palette palette = new Palette(selection);
 
         final SplitPane center = new SplitPane();
         // editor_pane.getStyleClass().add("debug");

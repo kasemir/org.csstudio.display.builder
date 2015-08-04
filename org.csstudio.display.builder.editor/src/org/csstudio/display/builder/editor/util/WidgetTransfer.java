@@ -13,6 +13,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetDescriptor;
@@ -41,14 +42,16 @@ public class WidgetTransfer
 
     /** Add support for 'dragging' a widget out of a node
      *  @param source Source {@link Node}
+     *  @param selection
      *  @param desc Description of widget type to drag
      *  @param image Image to represent the widget, or <code>null</code>
      */
-    public static void addDragSupport(final Node source,final WidgetDescriptor descriptor, final Image image)
+    public static void addDragSupport(final Node source, final WidgetSelectionHandler selection, final WidgetDescriptor descriptor, final Image image)
     {
         source.setOnDragDetected((MouseEvent event) ->
         {
             logger.log(Level.FINE, "Starting drag for {0}", descriptor);
+            selection.clear();
             final String xml;
             try
             {

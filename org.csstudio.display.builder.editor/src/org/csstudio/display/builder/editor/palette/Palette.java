@@ -10,6 +10,7 @@ package org.csstudio.display.builder.editor.palette;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.util.WidgetIcons;
 import org.csstudio.display.builder.editor.util.WidgetTransfer;
 import org.csstudio.display.builder.model.WidgetCategory;
@@ -35,6 +36,17 @@ import javafx.scene.layout.VBox;
 @SuppressWarnings("nls")
 public class Palette
 {
+    private final WidgetSelectionHandler selection;
+
+    /** @param selection Selection handler */
+    public Palette(final WidgetSelectionHandler selection)
+    {
+        this.selection = selection;
+    }
+
+    /** Create UI elements
+     *  @return Top-level Node of the UI
+     */
     public Node create()
     {
         final VBox palette = new VBox();
@@ -88,7 +100,7 @@ public class Palette
             button.setAlignment(Pos.BASELINE_LEFT);
             palette_groups.get(desc.getCategory()).getChildren().add(button);
 
-            WidgetTransfer.addDragSupport(button, desc, icon);
+            WidgetTransfer.addDragSupport(button, selection, desc, icon);
         }
     }
 }
