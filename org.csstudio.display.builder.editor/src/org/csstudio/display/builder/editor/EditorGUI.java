@@ -218,11 +218,11 @@ public class EditorGUI
                 final ModelReader reader = new ModelReader(new FileInputStream(filename));
                 final DisplayModel model = reader.readModel();
 
+                tree.setModel(model);
+                group_handler.setModel(model);
+
                 // Representation needs to be created in UI thread
                 toolkit.execute(() -> setModel(model));
-
-                // TODO selection.set(model, [ selected widgets ])
-                tree.setModel(model);
             }
             catch (final Exception ex)
             {
@@ -252,6 +252,7 @@ public class EditorGUI
 
     private void setModel(final DisplayModel model)
     {
+        selection.clear();
         this.model = Objects.requireNonNull(model);
         // Create representation for model items
         try

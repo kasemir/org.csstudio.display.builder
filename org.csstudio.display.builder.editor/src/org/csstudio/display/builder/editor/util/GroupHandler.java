@@ -2,8 +2,6 @@ package org.csstudio.display.builder.editor.util;
 
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.model.ContainerWidget;
@@ -28,7 +26,7 @@ public class GroupHandler
 {
     public static final int PARALLEL_THRESHOLD = 10;
 
-    private final Logger logger = Logger.getLogger(getClass().getName());
+    private volatile DisplayModel model = null;
 
     private final WidgetSelectionHandler selection;
 
@@ -144,6 +142,12 @@ public class GroupHandler
         parent.getChildren().add(0, group_highlight);
     }
 
+    /** @param model Model in which to search for groups */
+    public void setModel(final DisplayModel model)
+    {
+        this.model = model;
+    }
+
     /** Locate group for region of display.
      *
      *  <p>If there is a group that contains the region, it is highlighted.
@@ -161,22 +165,8 @@ public class GroupHandler
     public GroupWidget locateGroup(final double x, final double y, final double width, final double height)
     {
         final Rectangle2D bounds = new Rectangle2D(x, y, width, height);
-
-        GroupWidget group = null;
-        try
-        {
-            final List<Widget> selected_widgets = selection.getSelection();
-            if (selected_widgets.size() > 0)
-            {
-                final DisplayModel model = selected_widgets.get(0).getDisplayModel();
-                group = new SurroundingGroupSearch(bounds, model, selected_widgets).compute().group;
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.log(Level.WARNING, "Error locating surrounding group", ex);
-        }
-
+        final List<Widget> selected_widgets = selection.getSelection();
+        final GroupWidget group = new SurroundingGroupSearch(bounds, model, selected_widgets).compute().group;
         if (group == null)
             group_highlight.setVisible(false);
         else
