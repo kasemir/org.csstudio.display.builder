@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.util.logging.LogManager;
 
@@ -36,8 +37,7 @@ public class EditorDemo extends Application
     public void start(final Stage stage)
     {
         editor = new EditorGUI(stage);
-        // Load model in background
-        editor.loadModel(display_file);
+        editor.loadModel(new File(display_file));
         stage.setOnCloseRequest((WindowEvent event) -> editor.handleClose());
     }
 }

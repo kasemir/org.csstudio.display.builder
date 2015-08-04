@@ -44,6 +44,11 @@ import javafx.util.Callback;
 /** Tree view of widget hierarchy
  *  @author Kay Kasemir
  */
+// TODO Handle changed model: Unsubscribe from previous model
+// TODO Fix bug:
+//      Group, subgroup, LED
+//      Use drag/drop to duplicate the subgroup-with-LED inside the group.
+//      Model is OK, but tree fails to represent the LED inside the new subgroup.
 @SuppressWarnings("nls")
 public class WidgetTree
 {

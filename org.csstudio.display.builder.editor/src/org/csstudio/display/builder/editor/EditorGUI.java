@@ -10,6 +10,7 @@ package org.csstudio.display.builder.editor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -21,6 +22,7 @@ import java.util.logging.Logger;
 import org.csstudio.display.builder.editor.actions.ActionGUIHelper;
 import org.csstudio.display.builder.editor.actions.EnableGridAction;
 import org.csstudio.display.builder.editor.actions.EnableSnapAction;
+import org.csstudio.display.builder.editor.actions.LoadModelAction;
 import org.csstudio.display.builder.editor.actions.SaveModelAction;
 import org.csstudio.display.builder.editor.palette.Palette;
 import org.csstudio.display.builder.editor.properties.PropertyPanel;
@@ -94,7 +96,8 @@ public class EditorGUI
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final Executor executor = ForkJoinPool.commonPool();
 
-    private volatile DisplayModel model = new DisplayModel();
+    private volatile File file = null;
+    private volatile DisplayModel model = null;
     private final WidgetSelectionHandler selection = new WidgetSelectionHandler();
 
     private final ToolkitRepresentation<Group, Node> toolkit;
@@ -136,7 +139,8 @@ public class EditorGUI
         //    center = tree | editor | palette | property_panel
         //    status
         final ToolBar toolbar = new ToolBar(
-                ActionGUIHelper.createButton(new SaveModelAction(this::doSaveAs)),
+                ActionGUIHelper.createButton(new LoadModelAction(this)),
+                ActionGUIHelper.createButton(new SaveModelAction(this)),
                 new Separator(),
                 ActionGUIHelper.createToggleButton(new EnableGridAction(selection_tracker)),
                 ActionGUIHelper.createToggleButton(new EnableSnapAction(selection_tracker)),
@@ -209,20 +213,23 @@ public class EditorGUI
         });
     }
 
-    public void loadModel(final String filename)
+    /** @return Currently edited file */
+    public File getFile()
+    {
+        return file;
+    }
+
+    /** Load model from file
+     *  @param file File that contains the model
+     */
+    public void loadModel(final File file)
     {
         executor.execute(() ->
         {
             try
             {
-                final ModelReader reader = new ModelReader(new FileInputStream(filename));
-                final DisplayModel model = reader.readModel();
-
-                tree.setModel(model);
-                group_handler.setModel(model);
-
-                // Representation needs to be created in UI thread
-                toolkit.execute(() -> setModel(model));
+                doLoad(new FileInputStream(file));
+                this.file = file;
             }
             catch (final Exception ex)
             {
@@ -231,7 +238,41 @@ public class EditorGUI
         });
     }
 
-    private void doSaveAs(final File file)
+    /** Load model from stream
+     *  @param stream Stream that contains the model
+     */
+    public void loadModel(final InputStream stream)
+    {
+        executor.execute(() ->
+        {
+            try
+            {
+                doLoad(stream);
+                this.file = null;
+            }
+            catch (final Exception ex)
+            {
+                logger.log(Level.SEVERE, "Cannot start", ex);
+            }
+        });
+    }
+
+    private void doLoad(final InputStream stream) throws Exception
+    {
+        final ModelReader reader = new ModelReader(stream);
+        final DisplayModel model = reader.readModel();
+
+        tree.setModel(model);
+        group_handler.setModel(model);
+
+        // Representation needs to be created in UI thread
+        toolkit.execute(() -> setModel(model));
+    }
+
+    /** Save model to file
+     *  @param file File into which to save the model
+     */
+    public void saveModelAs(final File file)
     {
         executor.execute(() ->
         {
@@ -242,6 +283,7 @@ public class EditorGUI
             )
             {
                 writer.writeModel(model);
+                this.file = file;
             }
             catch (Exception ex)
             {
@@ -253,6 +295,10 @@ public class EditorGUI
     private void setModel(final DisplayModel model)
     {
         selection.clear();
+
+        final DisplayModel old_model = this.model;
+        if (old_model != null)
+            toolkit.disposeRepresentation(old_model);
         this.model = Objects.requireNonNull(model);
         // Create representation for model items
         try

@@ -19,14 +19,12 @@ public class Messages extends NLS
     // Keep in alphabetical order, synchronized with messages.properties
     public static String AddWidget;
     public static String FileTypeAll;
-
     public static String FileTypeDisplays;
-
     public static String Grid;
+    public static String LoadDisplay;
+    public static String LoadDisplay_TT;
     public static String SaveDisplay;
-
     public static String SaveDisplay_TT;
-
     public static String SetPropertyFmt;
     public static String Snap;
     public static String UpdateWidgetLocation;

@@ -20,16 +20,16 @@ import javafx.stage.Window;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class SaveModelAction extends ActionDescription
+public class LoadModelAction extends ActionDescription
 {
     private final Window window;
     private final EditorGUI editor;
 
     /** @param save_handler Will be invoked with file name */
-    public SaveModelAction(final EditorGUI editor)
+    public LoadModelAction(final EditorGUI editor)
     {
-        super("platform:/plugin/org.csstudio.display.builder.editor/icons/save.png",
-              Messages.SaveDisplay_TT);
+        super("platform:/plugin/org.csstudio.display.builder.editor/icons/open.png",
+              Messages.LoadDisplay_TT);
         this.window = null;
         this.editor = editor;
     }
@@ -38,7 +38,7 @@ public class SaveModelAction extends ActionDescription
     public void run(final boolean selected)
     {
         final FileChooser dialog = new FileChooser();
-        dialog.setTitle(Messages.SaveDisplay);
+        dialog.setTitle(Messages.LoadDisplay);
 
         File file = editor.getFile();
         if (file != null)
@@ -48,7 +48,7 @@ public class SaveModelAction extends ActionDescription
         }
         dialog.getExtensionFilters().addAll(new ExtensionFilter(Messages.FileTypeDisplays, "*.opi"),
                                             new ExtensionFilter(Messages.FileTypeAll, "*.*"));
-        file = dialog.showSaveDialog(window);
+        file = dialog.showOpenDialog(window);
         if (file == null)
             return;
 
@@ -58,6 +58,6 @@ public class SaveModelAction extends ActionDescription
         if (sep < 0)
             file = new File(file.getPath() + ".opi");
 
-        editor.saveModelAs(file);
+        editor.loadModel(file);
     }
 }
