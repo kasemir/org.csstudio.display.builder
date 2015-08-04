@@ -28,7 +28,7 @@ public class GeometryTools
      *  <p>Widgets that are inside a {@link ContainerWidget}
      *  are positioned relative to the container.
      *
-     *  @param widget Model widget
+     *  @param widget Model widget, must already be in the model, i.e. have a parent
      *  @return {@link Point2D} Offset of the widget relative to the display model
      */
     public static Point2D getDisplayOffset(Widget widget)
@@ -47,6 +47,31 @@ public class GeometryTools
                 dx += insets[0];
                 dy += insets[1];
             }
+        }
+
+        return new Point2D(dx, dy);
+    }
+
+    /** Get offset of widgets inside a container from display root
+     *
+     *  <p>Widgets that are inside a {@link ContainerWidget}
+     *  are positioned relative to the container.
+     *
+     *  @param container Container, i.e. GroupWidget or DisplayModel root
+     *  @return {@link Point2D} Offset of the widgets inside that container
+     */
+    public static Point2D getContainerOffset(ContainerWidget container)
+    {
+        int dx = 0, dy = 0;
+
+        while (container != null)
+        {
+            final int[] insets = container.runtimeInsets().getValue();
+            dx += insets[0];
+            dy += insets[1];
+            dx += container.positionX().getValue();
+            dy += container.positionY().getValue();
+            container = container.getParent().orElse(null);
         }
 
         return new Point2D(dx, dy);

@@ -32,6 +32,7 @@ import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.GroupHandler;
 import org.csstudio.display.builder.editor.util.Rubberband;
 import org.csstudio.display.builder.editor.util.WidgetTransfer;
+import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelReader;
@@ -40,6 +41,7 @@ import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
@@ -272,10 +274,23 @@ public class EditorGUI
     /** @param model Dropped model with widgets to be added to existing model */
     private void handleDroppedModel(final DisplayModel dropped_model)
     {
-        // TODO Check group_handler for selected target group
+        // Dropped into a sub-group or the main display?
+        ContainerWidget container = group_handler.getActiveGroup();
+        if (container == null)
+            container = model;
+        // Correct all dropped widget locations relative to container
+        final Point2D offset = GeometryTools.getContainerOffset(container);
+        final int dx = (int)offset.getX();
+        final int dy = (int)offset.getY();
+
+        // Add dropped widgets
         final List<Widget> dropped = dropped_model.getChildren();
         for (Widget widget : dropped)
-            undo.execute(new AddWidgetAction(model, widget));
+        {
+            widget.positionX().setValue(widget.positionX().getValue() - dx);
+            widget.positionY().setValue(widget.positionY().getValue() - dy);
+            undo.execute(new AddWidgetAction(container, widget));
+        }
         selection.setSelection(dropped);
     }
 

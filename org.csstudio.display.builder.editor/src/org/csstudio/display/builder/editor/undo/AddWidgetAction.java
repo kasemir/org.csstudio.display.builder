@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.editor.undo;
 
 import org.csstudio.display.builder.editor.Messages;
-import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.Widget;
 
 /** Action to add widget
@@ -16,25 +16,25 @@ import org.csstudio.display.builder.model.Widget;
  */
 public class AddWidgetAction extends UndoableAction
 {
-    private final DisplayModel model;
+    private final ContainerWidget container;
     private final Widget widget;
 
-    public AddWidgetAction(final DisplayModel model, final Widget widget)
+    public AddWidgetAction(final ContainerWidget container, final Widget widget)
     {
         super(Messages.AddWidget);
-        this.model = model;
+        this.container = container;
         this.widget = widget;
     }
 
     @Override
     public void run()
     {
-        model.addChild(widget);
+        container.addChild(widget);
     }
 
     @Override
     public void undo()
     {
-        model.removeChild(widget);
+        container.removeChild(widget);
     }
 }
