@@ -44,11 +44,6 @@ import javafx.util.Callback;
 /** Tree view of widget hierarchy
  *  @author Kay Kasemir
  */
-// TODO Handle changed model: Unsubscribe from previous model
-// TODO Fix bug:
-//      Group, subgroup, LED
-//      Use drag/drop to duplicate the subgroup-with-LED inside the group.
-//      Model is OK, but tree fails to represent the LED inside the new subgroup.
 @SuppressWarnings("nls")
 public class WidgetTree
 {
@@ -61,6 +56,8 @@ public class WidgetTree
     private final WidgetSelectionHandler selection;
 
     private final TreeView<Widget> tree_view = new TreeView<>();
+
+    private DisplayModel model = null;
 
     /** Map model widgets to their tree items in <code>tree_view</code>
      *
@@ -79,9 +76,15 @@ public class WidgetTree
         Platform.runLater(() ->
         {
             if (removed_widget != null)
+            {
+                logger.log(Level.FINE, "Removed {0}", removed_widget);
                 removeWidget(removed_widget);
+            }
             if (added_widget != null)
+            {
+                logger.log(Level.FINE, "Added {0}", added_widget);
                 addWidget(added_widget);
+            }
         });
     };
 
@@ -126,6 +129,7 @@ public class WidgetTree
 
     /** Cell factory that displays {@link Widget} info in tree cell */
     private final Callback<TreeView<Widget>, TreeCell<Widget>> cell_factory = (final TreeView<Widget> param) ->  new WidgetTreeCell();
+
 
     /** Construct widget tree
      *  @param selection Handler of selected widgets
@@ -188,13 +192,22 @@ public class WidgetTree
     /** @param model Model to display as widget tree */
     public void setModel(final DisplayModel model)
     {
+        // Could recursively remove all old model tree elements,
+        // on UI thread, one by one.
+        // Faster: Unlink listeners and then replace the whole
+        // tree model which was created in background.
+        final DisplayModel old_model = this.model;
+        if (old_model != null)
+            removeWidgetListeners(old_model);
+        this.model = model;
+
         // Might be called on UI thread, move off
         ForkJoinPool.commonPool().execute(() ->
         {   // Using FJPool as plain executor, not dividing tree generation into sub-tasks
             final TreeItem<Widget> root = new TreeItem<Widget>(model);
             final Map<Widget, TreeItem<Widget>> widget_items = new HashMap<>();
             widget_items.put(model, root);
-            addWidgets(root, model, widget_items);
+            createTree(root, model, widget_items);
             root.setExpanded(true);
             this.widget_items = widget_items;
 
@@ -227,12 +240,12 @@ public class WidgetTree
         }
     }
 
-    /** Recursively create JavaFX {@link TreeItem}s for model widgets
+    /** Recursively create initial JavaFX {@link TreeItem}s for model widgets
      *  @param parent Parent tree item
      *  @param container Widgets to add
      *  @param widget_items Map for storing TreeItem for each Widget
      */
-    private void addWidgets(final TreeItem<Widget> parent, final ContainerWidget container, final Map<Widget, TreeItem<Widget>> widget_items)
+    private void createTree(final TreeItem<Widget> parent, final ContainerWidget container, final Map<Widget, TreeItem<Widget>> widget_items)
     {
         for (Widget widget : container.getChildren())
         {
@@ -244,11 +257,14 @@ public class WidgetTree
             widget.addPropertyListener(CommonWidgetProperties.widgetName, name_listener);
 
             if (widget instanceof ContainerWidget)
-                addWidgets(item, (ContainerWidget) widget, widget_items);
+                createTree(item, (ContainerWidget) widget, widget_items);
         }
         container.addPropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, children_listener);
     }
 
+    /** Add widget to existing model & tree
+     *  @param added_widget
+     */
     private void addWidget(final Widget added_widget)
     {
         final TreeItem<Widget> item_parent = widget_items.get(added_widget.getParent().get());
@@ -260,18 +276,46 @@ public class WidgetTree
         added_widget.addPropertyListener(CommonWidgetProperties.widgetName, name_listener);
 
         if (added_widget instanceof ContainerWidget)
-            added_widget.addPropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, children_listener);
+        {
+            final ContainerWidget container = (ContainerWidget) added_widget;
+            container.addPropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, children_listener);
+            for (Widget child : container.getChildren())
+                addWidget(child);
+        }
     }
 
+    /** Remove widget from existing model & tree
+     *  @param removed_widget
+     */
     private void removeWidget(final Widget removed_widget)
     {
         removed_widget.removePropertyListener(CommonWidgetProperties.widgetName, name_listener);
+        if (removed_widget instanceof ContainerWidget)
+        {
+            final ContainerWidget container = (ContainerWidget) removed_widget;
+            container.removePropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, children_listener);
+            for (Widget child : container.getChildren())
+                removeWidget(child);
+        }
 
         final TreeItem<Widget> item = widget_items.get(removed_widget);
         item.getParent().getChildren().remove(item);
         widget_items.remove(removed_widget);
 
-        if (removed_widget instanceof ContainerWidget)
-            removed_widget.removePropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, children_listener);
+    }
+
+    /** Recursively remove model widget listeners
+     *  @param container Widgets to unlink
+     */
+    private void removeWidgetListeners(final ContainerWidget container)
+    {
+        container.removePropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, children_listener);
+        container.removePropertyListener(CommonWidgetProperties.widgetName, name_listener);
+        for (Widget widget : container.getChildren())
+        {
+            widget.removePropertyListener(CommonWidgetProperties.widgetName, name_listener);
+            if (widget instanceof ContainerWidget)
+                removeWidgetListeners((ContainerWidget) widget);
+        }
     }
 }
