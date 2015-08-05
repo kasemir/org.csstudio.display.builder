@@ -261,12 +261,7 @@ public class EditorGUI
     {
         final ModelReader reader = new ModelReader(stream);
         final DisplayModel model = reader.readModel();
-
-        tree.setModel(model);
-        group_handler.setModel(model);
-
-        // Representation needs to be created in UI thread
-        toolkit.execute(() -> setModel(model));
+        setModel(model);
     }
 
     /** Save model to file
@@ -294,21 +289,27 @@ public class EditorGUI
 
     private void setModel(final DisplayModel model)
     {
-        selection.clear();
-
-        final DisplayModel old_model = this.model;
-        if (old_model != null)
-            toolkit.disposeRepresentation(old_model);
-        this.model = Objects.requireNonNull(model);
-        // Create representation for model items
-        try
+        // Representation needs to be created in UI thread
+        toolkit.execute(() ->
         {
-            toolkit.representModel(model_parent, model);
-        }
-        catch (final Exception ex)
-        {
-            ex.printStackTrace();
-        }
+            selection.clear();
+            tree.setModel(model);
+            group_handler.setModel(model);
+            final DisplayModel old_model = this.model;
+            if (old_model != null)
+                toolkit.disposeRepresentation(old_model);
+            this.model = Objects.requireNonNull(model);
+            
+            // Create representation for model items
+            try
+            {
+                toolkit.representModel(model_parent, model);
+            }
+            catch (final Exception ex)
+            {
+                logger.log(Level.SEVERE, "Error representing model", ex);
+            }
+        });
     }
 
     private void selectWidgetsInRegion(final Rectangle2D region)
