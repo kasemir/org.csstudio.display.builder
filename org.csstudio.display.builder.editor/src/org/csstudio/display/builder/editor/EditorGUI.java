@@ -299,7 +299,7 @@ public class EditorGUI
             if (old_model != null)
                 toolkit.disposeRepresentation(old_model);
             this.model = Objects.requireNonNull(model);
-            
+
             // Create representation for model items
             try
             {
@@ -332,14 +332,22 @@ public class EditorGUI
         final int dy = (int)offset.getY();
 
         // Add dropped widgets
-        final List<Widget> dropped = dropped_model.getChildren();
-        for (Widget widget : dropped)
+        try
         {
-            widget.positionX().setValue(widget.positionX().getValue() - dx);
-            widget.positionY().setValue(widget.positionY().getValue() - dy);
-            undo.execute(new AddWidgetAction(container, widget));
+            final List<Widget> dropped = dropped_model.getChildren();
+            for (Widget widget : dropped)
+            {
+                widget.positionX().setValue(widget.positionX().getValue() - dx);
+                widget.positionY().setValue(widget.positionY().getValue() - dy);
+                WidgetNaming.setDefaultName(container.getDisplayModel(), widget);
+                undo.execute(new AddWidgetAction(container, widget));
+            }
+            selection.setSelection(dropped);
         }
-        selection.setSelection(dropped);
+        catch (Exception ex)
+        {
+            logger.log(Level.SEVERE, "Cannot add widgets", ex);
+        }
     }
 
     public boolean handleClose()
