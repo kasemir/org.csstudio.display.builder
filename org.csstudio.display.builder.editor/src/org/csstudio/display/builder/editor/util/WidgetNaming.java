@@ -5,13 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.editor;
+package org.csstudio.display.builder.editor.util;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetFactory;
@@ -109,5 +110,12 @@ public class WidgetNaming
             max_used_instance.put(base, number);
         }
         widget.setPropertyValue(CommonWidgetProperties.widgetName, name);
+
+        if (widget instanceof ContainerWidget)
+        {
+            final ContainerWidget container = (ContainerWidget) widget;
+            for (Widget child : container.getChildren())
+                setDefaultName(model, child);
+        }
     }
 }

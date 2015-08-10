@@ -33,6 +33,7 @@ import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.GroupHandler;
 import org.csstudio.display.builder.editor.util.Rubberband;
+import org.csstudio.display.builder.editor.util.WidgetNaming;
 import org.csstudio.display.builder.editor.util.WidgetTransfer;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
