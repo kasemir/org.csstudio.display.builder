@@ -23,6 +23,7 @@ public class Messages extends NLS
     public static String Grid;
     public static String LoadDisplay;
     public static String LoadDisplay_TT;
+    public static String RemoveWidgets;
     public static String SaveDisplay;
     public static String SaveDisplay_TT;
     public static String SetPropertyFmt;
