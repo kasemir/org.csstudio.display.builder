@@ -88,6 +88,38 @@ public class ContainerWidget extends BaseWidget
         return Collections.unmodifiableList(children.getValue());
     }
 
+    /** Locate a child widget by name
+     *
+     *  <p>Recurses through all child widgets,
+     *  including groups and sub-groups.
+     *
+     *  @param name Name of widget
+     *  @return First widget with given name or <code>null</code>
+     */
+    public Widget getChildByName(final String name)
+    {
+        // Could back this with a Map<String, Widget>,
+        // but note that there can be duplicates:
+        // ContainerWidget.addChild(WidgetNamedFred);
+        // ContainerWidget.addChild(AnotherWidgetNamedFred);
+        // ContainerWidget.removeChild(AnotherWidgetNamedFred);
+        // -> Must still find the first WidgetNamedFred,
+        //    and thus need  Map<String, List<Widget>>
+        // Update that map in addChild() and removeChild()
+        for (final Widget child : children.getValue())
+        {
+            if (child.getName().equals(name))
+                return child;
+            if (child instanceof ContainerWidget)
+            {
+                final Widget maybe = ((ContainerWidget) child).getChildByName(name);
+                if (maybe != null)
+                    return maybe;
+            }
+        }
+        return null;
+    }
+
     /** @param child Widget to add as child in widget tree */
     public void addChild(final Widget child)
     {

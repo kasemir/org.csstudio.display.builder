@@ -67,35 +67,6 @@ public class DisplayModel extends ContainerWidget
         throw new IllegalStateException("Display widget cannot have parent widget " + parent);
     }
 
-    /** Locate a child widget by name
-     *
-     *  <p>Recurses through all widgets of the model,
-     *  including groups and sub-groups.
-     *
-     *  @param name Name of widget
-     *  @return First widget with given name or <code>null</code>
-     */
-    public Widget getChildByName(final String name)
-    {
-        return searchChildByName(this, name);
-    }
-
-    private static Widget searchChildByName(final ContainerWidget container, final String name)
-    {
-        for (final Widget child : container.getChildren())
-        {
-            if (child.getName().equals(name))
-                return child;
-            if (child instanceof ContainerWidget)
-            {
-                final Widget maybe = searchChildByName((ContainerWidget) child, name);
-                if (maybe != null)
-                    return maybe;
-            }
-        }
-        return null;
-    }
-
     /** Replace content, i.e. children and user data.
      *
      *  <p>A model is typically associated with a representation.
