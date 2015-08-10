@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,14 +23,53 @@ import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 @SuppressWarnings("nls")
 public class WidgetNaming
 {
+    /** Widget name "SomeName_123" */
     private static final Pattern pattern = Pattern.compile("(.*)_(\\d+)");
 
-    // TODO: Keep WidgetNaming instance in editor.
-    // Reset on each new model
-    // Keep map of index for each widget name
+    /** Maximum known instance number for widget base names */
+    // Cache of instance names allows starting with the highest used
+    // "TextUpdate_131" instead of testing "TextUpdate_1", TextUpdate_2", ..
+    // It also 'remembers' to some extend:
+    // After adding a "TextUpdate_2", then _deleting_ that widget, the next
+    // one added will be "TextUpdate_3", even though ".._2" is now unused
+    // -> Consider that a feature
+    private final Map<String, Integer> max_used_instance = new HashMap<>();
 
-    public static void setDefaultName(final DisplayModel model, final Widget widget)
+    /** Clear information about widget names */
+    public void clear()
     {
+        synchronized (max_used_instance)
+        {
+            max_used_instance.clear();
+        }
+    }
+
+    /** Set widget's name
+     *
+     *  <p>Widget that already has unique name remains unchanged.
+     *  Otherwise a "_123" instance index is added, using the next unused index.
+     *  Name defaults to the widget type.
+     *
+     *  @param model  Model that will contain the widget (but doesn't, yet)
+     *  @param widget Widget to name
+     */
+    public void setDefaultName(final DisplayModel model, final Widget widget)
+    {
+        // Check that widget is not already in the model, because otherwise
+        // a name lookup would find the widget itself and consider the name
+        // as already "in use".
+        DisplayModel widget_model;
+        try
+        {
+            widget_model = widget.getDisplayModel();
+        }
+        catch (Exception ex)
+        {   // OK to not be in any model
+            widget_model = null;
+        }
+        if (widget_model == model)
+            throw new IllegalStateException(widget + " already in model " + model);
+
         String name = widget.getName();
 
         // Default to human-readable widget type
@@ -37,6 +78,7 @@ public class WidgetNaming
 
         // Does the name match "SomeName_14"?
         final Matcher matcher = pattern.matcher(name);
+
         final String base;
         int number;
         if (matcher.matches())
@@ -50,12 +92,21 @@ public class WidgetNaming
             number = 0;
         }
 
-        // Locate next available "SomeName_14"
-        while (model.getChildByName(name) != null)
+        synchronized (max_used_instance)
         {
-            ++number;
-            name = base + "_" + number;
-            System.out.println("Checking " + name);
+            final Integer used = max_used_instance.get(base);
+            if (used != null)
+            {
+                number = used + 1;
+                name = base + "_" + number;
+            }
+            // Locate next available "SomeName_14"
+            while (model.getChildByName(name) != null)
+            {
+                ++number;
+                name = base + "_" + number;
+            }
+            max_used_instance.put(base, number);
         }
         widget.setPropertyValue(CommonWidgetProperties.widgetName, name);
     }

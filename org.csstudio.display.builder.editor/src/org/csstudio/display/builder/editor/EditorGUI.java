@@ -98,6 +98,7 @@ public class EditorGUI
 
     private volatile File file = null;
     private volatile DisplayModel model = null;
+    private final WidgetNaming widget_naming = new WidgetNaming();
     private final WidgetSelectionHandler selection = new WidgetSelectionHandler();
 
     private final ToolkitRepresentation<Group, Node> toolkit;
@@ -292,6 +293,7 @@ public class EditorGUI
         // Representation needs to be created in UI thread
         toolkit.execute(() ->
         {
+            widget_naming.clear();
             selection.clear();
             tree.setModel(model);
             group_handler.setModel(model);
@@ -339,7 +341,7 @@ public class EditorGUI
             {
                 widget.positionX().setValue(widget.positionX().getValue() - dx);
                 widget.positionY().setValue(widget.positionY().getValue() - dy);
-                WidgetNaming.setDefaultName(container.getDisplayModel(), widget);
+                widget_naming.setDefaultName(container.getDisplayModel(), widget);
                 undo.execute(new AddWidgetAction(container, widget));
             }
             selection.setSelection(dropped);
