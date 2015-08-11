@@ -49,6 +49,7 @@ import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -140,6 +141,9 @@ public class EditorGUI
         //    toolbar
         //    center = tree | editor | palette | property_panel
         //    status
+        final Button debug = new Button("Debug");
+        debug.setOnAction(event -> debug());
+
         final ToolBar toolbar = new ToolBar(
                 ActionGUIHelper.createButton(new LoadModelAction(this)),
                 ActionGUIHelper.createButton(new SaveModelAction(this)),
@@ -147,7 +151,7 @@ public class EditorGUI
                 ActionGUIHelper.createToggleButton(new EnableGridAction(selection_tracker)),
                 ActionGUIHelper.createToggleButton(new EnableSnapAction(selection_tracker)),
                 new Separator(),
-                new Button("Something"));
+                debug);
 
         final Palette palette = new Palette(selection);
 
@@ -351,6 +355,25 @@ public class EditorGUI
         {
             logger.log(Level.SEVERE, "Cannot add widgets", ex);
         }
+    }
+
+    /** Print debug info */
+    private void debug()
+    {
+        final int nodes = countNodes(model_parent);
+        System.out.println("Nodes: " + nodes);
+    }
+
+    private int countNodes(final Parent parent)
+    {
+        int count = 0;
+        for (Node node : parent.getChildrenUnmodifiable())
+        {
+            ++count;
+            if (node instanceof Parent)
+                count += countNodes((Parent) node);
+        }
+        return count;
     }
 
     public boolean handleClose()
