@@ -360,18 +360,27 @@ public class EditorGUI
     /** Print debug info */
     private void debug()
     {
-        final int nodes = countNodes(model_parent);
-        System.out.println("Nodes: " + nodes);
+        System.out.println("JavaFX Nodes for Model's Representation");
+        final int nodes = countAndDumpNodes(model_parent, 1);
+        System.out.println("Node Count: " + nodes);
     }
 
-    private int countNodes(final Parent parent)
+    /** Recursively dump nodes
+     *  @param parent {@link Parent}
+     *  @param level Indentation level
+     *  @return Number of nodes and sub-nodes
+     */
+    private int countAndDumpNodes(final Parent parent, final int level)
     {
         int count = 0;
         for (Node node : parent.getChildrenUnmodifiable())
         {
             ++count;
+            for (int i=0; i<level; ++i)
+                System.out.print("  ");
+            System.out.println(node.getClass().getSimpleName());
             if (node instanceof Parent)
-                count += countNodes((Parent) node);
+                count += countAndDumpNodes((Parent) node, level + 1);
         }
         return count;
     }
