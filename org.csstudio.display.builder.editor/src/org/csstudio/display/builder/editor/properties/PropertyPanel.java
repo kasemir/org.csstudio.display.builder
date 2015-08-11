@@ -18,10 +18,10 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
+import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 
 import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -102,13 +102,22 @@ public class PropertyPanel
             }
 
             final Label label = new Label(property.getDescription());
-            final Control value;
+            final Node field;
             if (property.isReadonly())
             {
                 final TextField text = new TextField();
-                text.setText(property.getValue().toString());
+                text.setText(String.valueOf(property.getValue()));
                 text.setEditable(false);
-                value = text;
+                field = text;
+            }
+            else if (property instanceof ColorWidgetProperty)
+            {
+                final ColorWidgetProperty color_prop = (ColorWidgetProperty) property;
+                final WidgetColorPropertyField color_field = new WidgetColorPropertyField();
+                final WidgetColorPropertyBinding binding = new WidgetColorPropertyBinding(undo, color_field, color_prop);
+                bindings.add(binding);
+                binding.bind();
+                field = color_field;
             }
             else if (property instanceof BooleanWidgetProperty)
             {
@@ -119,7 +128,7 @@ public class PropertyPanel
                         new BooleanWidgetPropertyBinding(undo, check, (BooleanWidgetProperty)property);
                 bindings.add(binding);
                 binding.bind();
-                value = check;
+                field = check;
             }
             else if (property instanceof MacroizedWidgetProperty)
             {
@@ -129,21 +138,23 @@ public class PropertyPanel
                                                            (MacroizedWidgetProperty<?>)property);
                 bindings.add(binding);
                 binding.bind();
-                value = text;
+                field = text;
             }
             else
             {
                 // TODO Provide editor for other property types
+                // Defaulting to same as read-only
                 final TextField text = new TextField();
                 text.setText(String.valueOf(property.getValue()));
-                value = text;
+                text.setEditable(false);
+                field = text;
             }
 
             label.getStyleClass().add("property_name");
-            value.getStyleClass().add("property_value");
+            field.getStyleClass().add("property_value");
 
             grid.add(label, 0, row);
-            grid.add(value, 1, row++);
+            grid.add(field, 1, row++);
         }
     }
 

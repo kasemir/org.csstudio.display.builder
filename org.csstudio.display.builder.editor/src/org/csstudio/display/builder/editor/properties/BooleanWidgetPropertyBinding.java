@@ -22,13 +22,13 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
-/** Bidirectional binding between a Widget and Java FX Property
+/** Bidirectional binding between a WidgetProperty and Java FX Node
  *  @author Kay Kasemir
  */
 public class BooleanWidgetPropertyBinding
        extends WidgetPropertyBinding<ComboBox<String>, BooleanWidgetProperty>
 {
-    // Would be nice to just listen to jfx_control.valueProperty(),
+    // Would be nice to just listen to jfx_node.valueProperty(),
     // but want to support 'escape' and loss of focus to revert,
     // and only complete text confirmed with Enter is submitted as an undoable action,
     // not each key stroke.
@@ -41,7 +41,7 @@ public class BooleanWidgetPropertyBinding
         updating = true;
         try
         {
-            jfx_control.setValue(widget_property.getSpecification());
+            jfx_node.setValue(widget_property.getSpecification());
         }
         finally
         {
@@ -85,10 +85,10 @@ public class BooleanWidgetPropertyBinding
     };
 
     public BooleanWidgetPropertyBinding(final UndoableActionManager undo,
-                                        final ComboBox<String> control,
+                                        final ComboBox<String> field,
                                         final BooleanWidgetProperty widget_property)
     {
-        super(undo, control, widget_property);
+        super(undo, field, widget_property);
     }
 
     @Override
@@ -96,24 +96,24 @@ public class BooleanWidgetPropertyBinding
     {
         restore();
         widget_property.addPropertyListener(model_listener);
-        jfx_control.focusedProperty().addListener(focus_handler);
-        jfx_control.addEventFilter(KeyEvent.KEY_PRESSED, key_filter);
-        jfx_control.setOnAction(combo_handler);
+        jfx_node.focusedProperty().addListener(focus_handler);
+        jfx_node.addEventFilter(KeyEvent.KEY_PRESSED, key_filter);
+        jfx_node.setOnAction(combo_handler);
     }
 
     @Override
     public void unbind()
     {
-        jfx_control.setOnAction(null);
-        jfx_control.removeEventFilter(KeyEvent.KEY_PRESSED, key_filter);
-        jfx_control.focusedProperty().removeListener(focus_handler);
+        jfx_node.setOnAction(null);
+        jfx_node.removeEventFilter(KeyEvent.KEY_PRESSED, key_filter);
+        jfx_node.focusedProperty().removeListener(focus_handler);
         widget_property.removePropertyListener(model_listener);
     }
 
     private void submit()
     {
         undo.execute(new SetMacroizedWidgetProperty(widget_property,
-                                                    jfx_control.getValue()));
+                                                    jfx_node.getValue()));
         updating = false;
     }
 
@@ -121,9 +121,9 @@ public class BooleanWidgetPropertyBinding
     {
         final String orig = widget_property.getSpecification();
         // 'value' is the internal value of the combo box
-        jfx_control.setValue(orig);
+        jfx_node.setValue(orig);
         // Also need to update the editor, which will otherwise
         // soon set the 'value'
-        jfx_control.getEditor().setText(orig);
+        jfx_node.getEditor().setText(orig);
     }
 }

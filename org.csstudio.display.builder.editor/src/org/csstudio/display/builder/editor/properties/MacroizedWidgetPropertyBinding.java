@@ -20,7 +20,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.KeyEvent;
 
-/** Bidirectional binding between a Widget and Java FX Property
+/** Bidirectional binding between a WidgetProperty and Java FX Node
  *  @author Kay Kasemir
  */
 public class MacroizedWidgetPropertyBinding
@@ -36,7 +36,7 @@ public class MacroizedWidgetPropertyBinding
             updating = true;
             try
             {
-                jfx_control.setText(widget_property.getSpecification());
+                jfx_node.setText(widget_property.getSpecification());
             }
             finally
             {
@@ -104,27 +104,27 @@ public class MacroizedWidgetPropertyBinding
     public void bind()
     {
         widget_property.addPropertyListener(model_listener);
-        jfx_control.setOnKeyPressed(key_press_handler);
-        jfx_control.focusedProperty().addListener(focus_handler);
+        jfx_node.setOnKeyPressed(key_press_handler);
+        jfx_node.focusedProperty().addListener(focus_handler);
         restore();
     }
 
     @Override
     public void unbind()
     {
-        jfx_control.focusedProperty().removeListener(focus_handler);
-        jfx_control.setOnKeyPressed(null);
+        jfx_node.focusedProperty().removeListener(focus_handler);
+        jfx_node.setOnKeyPressed(null);
         widget_property.removePropertyListener(model_listener);
     }
 
     private void submit()
     {
         undo.execute(new SetMacroizedWidgetProperty(widget_property,
-                                                    jfx_control.getText()));
+                                                    jfx_node.getText()));
     }
 
     private void restore()
     {
-        jfx_control.setText(widget_property.getSpecification());
+        jfx_node.setText(widget_property.getSpecification());
     }
 }

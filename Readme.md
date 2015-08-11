@@ -19,7 +19,7 @@ with the following improvements:
 Dependencies
 ------------
 
- * Java 8 SDK
+ * Java 8 SDK, must be 8u40 or later
  * In Eclipse Preferences, Java, Build Path, Classpath Variables: Set `JFXSWT` to `jre/lib/jfxswt.jar`
  * As Eclipse Target platform, use a CS-Studio target. For example use "Directory" of CSS product's `plugins/`
  * Demos use EPICS `softIoc` for `org.csstudio.display.builder.runtime.test/examples/demo.db`

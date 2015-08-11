@@ -53,13 +53,12 @@ import org.w3c.dom.Element;
  *    which can then read its own data.
  *  - As widget version changes, what if xyWidget no longer has "x"?
  *
- *  2) Each widget registers a factory.
- *  Factory receives XML reader.
- *  DefaultWidgetFactory behaves as above:
+ *  2) Each widget registers a WidgetConfigurator.
+ *  Default implementation behaves as above:
  *  For each property <x> in XML,
  *  use widget.getProperty("x").readFromXML(reader).
- *  .. but xyWidgetFactory could override, and handle legacy properties
- *  in a different way.
+ *  .. but widget can provide a custom WidgetConfigurator
+ *  and handle legacy properties in a different way.
  *
  *  @author Kay Kasemir
  */

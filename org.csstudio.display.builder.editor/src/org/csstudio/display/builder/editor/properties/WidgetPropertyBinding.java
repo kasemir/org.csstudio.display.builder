@@ -10,31 +10,31 @@ package org.csstudio.display.builder.editor.properties;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.model.WidgetProperty;
 
-import javafx.scene.control.Control;
+import javafx.scene.Node;
 
-/** Bidirectional binding between a Widget and Java FX Property
+/** Bidirectional binding between a WidgetProperty and Java FX Node
  *  @author Kay Kasemir
- *  @param <JFX> JFX Control used to configure the property
+ *  @param <JFX> JFX node used to configure the property
  *  @param <WP> Widget property to configure
  */
-abstract public class WidgetPropertyBinding<JFX extends Control, WP extends WidgetProperty<?>>
+abstract public class WidgetPropertyBinding<JFX extends Node, WP extends WidgetProperty<?>>
 {
     protected final UndoableActionManager undo;
-    protected final JFX jfx_control;
+    protected final JFX jfx_node;
     protected final WP widget_property;
 
     /** Break update loops JFX change -> model change -> JFX change -> ... */
     protected boolean updating = false;
 
-    /** @param control Java FX control to monitor and update
+    /** @param node Java FX node to monitor and update
      *  @param widget_property Widget property to monitor and update
      */
     public WidgetPropertyBinding(final UndoableActionManager undo,
-                                 final JFX control,
+                                 final JFX node,
                                  final WP widget_property)
     {
         this.undo = undo;
-        this.jfx_control = control;
+        this.jfx_node = node;
         this.widget_property = widget_property;
     }
 
