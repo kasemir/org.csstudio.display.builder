@@ -20,9 +20,10 @@ import java.util.logging.Logger;
 @SuppressWarnings("nls")
 public class UndoableActionManager
 {
-    final private SizeLimitedStack<UndoableAction> undoStack = new SizeLimitedStack<UndoableAction>(30);
-    final private SizeLimitedStack<UndoableAction> redoStack = new SizeLimitedStack<UndoableAction>(30);
-    final private List<UndoRedoListener> listeners = new CopyOnWriteArrayList<>();
+    private final Logger logger = Logger.getLogger(getClass().getName());
+    private final SizeLimitedStack<UndoableAction> undoStack = new SizeLimitedStack<UndoableAction>(30);
+    private final SizeLimitedStack<UndoableAction> redoStack = new SizeLimitedStack<UndoableAction>(30);
+    private final List<UndoRedoListener> listeners = new CopyOnWriteArrayList<>();
 
     /** @param listener Listener to add */
     public void addListener(final UndoRedoListener listener)
@@ -57,8 +58,7 @@ public class UndoableActionManager
         }
         catch (final Throwable ex)
         {
-            Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Action failed: " + action, ex);
+            logger.log(Level.WARNING, "Action failed: " + action, ex);
             return;
         }
         add(action);
@@ -80,12 +80,12 @@ public class UndoableActionManager
         final UndoableAction action = undoStack.pop();
         try
         {
+            logger.log(Level.FINE, "Undo {0}", action);
             action.undo();
         }
         catch (final Throwable ex)
         {
-            Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Undo failed: " + action, ex);
+            logger.log(Level.WARNING, "Undo failed: " + action, ex);
             return;
         }
         redoStack.push(action);
@@ -98,6 +98,7 @@ public class UndoableActionManager
         if (redoStack.isEmpty())
             return;
         final UndoableAction action = redoStack.pop();
+        logger.log(Level.FINE, "Redo {0}", action);
         action.run();
         undoStack.push(action);
         fireOperationsHistoryChanged();

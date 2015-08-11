@@ -23,7 +23,9 @@ import org.csstudio.display.builder.editor.actions.ActionGUIHelper;
 import org.csstudio.display.builder.editor.actions.EnableGridAction;
 import org.csstudio.display.builder.editor.actions.EnableSnapAction;
 import org.csstudio.display.builder.editor.actions.LoadModelAction;
+import org.csstudio.display.builder.editor.actions.RedoAction;
 import org.csstudio.display.builder.editor.actions.SaveModelAction;
+import org.csstudio.display.builder.editor.actions.UndoAction;
 import org.csstudio.display.builder.editor.palette.Palette;
 import org.csstudio.display.builder.editor.properties.PropertyPanel;
 import org.csstudio.display.builder.editor.tracker.SelectionTracker;
@@ -141,17 +143,7 @@ public class EditorGUI
         //    toolbar
         //    center = tree | editor | palette | property_panel
         //    status
-        final Button debug = new Button("Debug");
-        debug.setOnAction(event -> debug());
-
-        final ToolBar toolbar = new ToolBar(
-                ActionGUIHelper.createButton(new LoadModelAction(this)),
-                ActionGUIHelper.createButton(new SaveModelAction(this)),
-                new Separator(),
-                ActionGUIHelper.createToggleButton(new EnableGridAction(selection_tracker)),
-                ActionGUIHelper.createToggleButton(new EnableSnapAction(selection_tracker)),
-                new Separator(),
-                debug);
+        final ToolBar toolbar = createToolbar();
 
         final Palette palette = new Palette(selection);
 
@@ -179,6 +171,34 @@ public class EditorGUI
         stage.show();
 
         edit_tools.getChildren().addAll(selection_tracker);
+    }
+
+    private ToolBar createToolbar()
+    {
+        final Button debug = new Button("Debug");
+        debug.setOnAction(event -> debug());
+
+        final Button undo_button = ActionGUIHelper.createButton(new UndoAction(undo));
+        final Button redo_button = ActionGUIHelper.createButton(new RedoAction(undo));
+        undo_button.setDisable(true);
+        redo_button.setDisable(true);
+        undo.addListener((to_undo, to_redo) ->
+        {
+            undo_button.setDisable(to_undo == null);
+            redo_button.setDisable(to_redo == null);
+        });
+
+        return new ToolBar(
+                ActionGUIHelper.createButton(new LoadModelAction(this)),
+                ActionGUIHelper.createButton(new SaveModelAction(this)),
+                new Separator(),
+                ActionGUIHelper.createToggleButton(new EnableGridAction(selection_tracker)),
+                ActionGUIHelper.createToggleButton(new EnableSnapAction(selection_tracker)),
+                new Separator(),
+                undo_button,
+                redo_button,
+                new Separator(),
+                debug);
     }
 
     private void hookListeners()
