@@ -113,6 +113,9 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         // DisplayModel itself is _not_ represented,
         // but all its children, recursively
         representChildren(parent, model);
+        
+        logger.log(Level.FINE, "Tracking changes to children of {0}", model);
+        model.addPropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, container_children_listener);
     }
 
     /** Create representation for each child of a ContainerWidget
@@ -125,9 +128,6 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
 
         for (Widget widget : container.getChildren())
             representWidget(parent, widget);
-
-        logger.log(Level.FINE, "Tracking changes to children of {0}", container);
-        container.addPropertyListener(DisplayModel.CHILDREN_PROPERTY_DESCRIPTOR, container_children_listener);
     }
 
     /** Create a toolkit widget for a model widget.
@@ -171,7 +171,13 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         logger.log(Level.FINE, "Representing {0} as {1}", new Object[] { widget, representation });
         // Recurse into child widgets
         if (widget instanceof ContainerWidget)
-            representChildren(re_parent, (ContainerWidget) widget);
+        {
+            final ContainerWidget container = (ContainerWidget) widget;
+            representChildren(re_parent, container);
+            
+            logger.log(Level.FINE, "Tracking changes to children of {0}", container);
+            container.addPropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, container_children_listener);
+        }
     }
 
     /** Remove all the toolkit items of the model
@@ -182,6 +188,10 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     {
         final TWP parent = disposeChildren(model);
         model.clearUserData(DisplayModel.USER_DATA_TOOLKIT);
+        
+        logger.log(Level.FINE, "No longer tracking changes to children of {0}", model);
+        model.removePropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, container_children_listener);
+        
         return Objects.requireNonNull(parent);
     }
 
@@ -191,9 +201,6 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     private TWP disposeChildren(final ContainerWidget container)
     {
-        logger.log(Level.FINE, "No longer tracking changes to children of {0}", container);
-        container.removePropertyListener(DisplayModel.CHILDREN_PROPERTY_DESCRIPTOR, container_children_listener);
-
         for (Widget widget : container.getChildren())
         {   // First dispose child widgets, then the container
             if (widget instanceof ContainerWidget)
@@ -209,6 +216,12 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     private void disposeWidget(final Widget widget)
     {
+        if (widget instanceof ContainerWidget)
+        {
+            final ContainerWidget container = (ContainerWidget) widget;
+            logger.log(Level.FINE, "No longer tracking changes to children of {0}", container);
+            container.removePropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, container_children_listener);
+        }
         final WidgetRepresentation<TWP, TW, ? extends Widget> representation =
             widget.clearUserData(Widget.USER_DATA_REPRESENTATION);
         logger.log(Level.FINE, "Disposing {0} for {1}", new Object[] { representation, widget });
