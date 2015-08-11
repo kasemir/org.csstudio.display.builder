@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -94,7 +95,7 @@ public class WidgetTree
         final Widget widget = (Widget) event.getSource();
         logger.log(Level.FINE, "{0} changed name", widget);
 
-        final TreeItem<Widget> item = widget_items.get(widget);
+        final TreeItem<Widget> item = Objects.requireNonNull(widget_items.get(widget));
         // 'setValue' triggers a refresh of the item,
         // but only if value is different..
         Platform.runLater(() ->
@@ -210,6 +211,7 @@ public class WidgetTree
             createTree(root, model, widget_items);
             root.setExpanded(true);
             this.widget_items = widget_items;
+            addWidgetListeners(model);
 
             logger.log(Level.FINE, "Computed new tree on {0}, updating UI", Thread.currentThread().getName());
             Platform.runLater(() ->
@@ -254,12 +256,24 @@ public class WidgetTree
             item.setExpanded(true);
             parent.getChildren().add(item);
 
-            widget.addPropertyListener(CommonWidgetProperties.widgetName, name_listener);
-
             if (widget instanceof ContainerWidget)
                 createTree(item, (ContainerWidget) widget, widget_items);
         }
+    }
+
+    /** Recursively add model widget listeners
+     *  @param container Widgets to link
+     */
+    private void addWidgetListeners(final ContainerWidget container)
+    {
         container.addPropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, children_listener);
+        container.addPropertyListener(CommonWidgetProperties.widgetName, name_listener);
+        for (Widget widget : container.getChildren())
+        {
+            widget.addPropertyListener(CommonWidgetProperties.widgetName, name_listener);
+            if (widget instanceof ContainerWidget)
+                addWidgetListeners((ContainerWidget) widget);
+        }
     }
 
     /** Add widget to existing model & tree
