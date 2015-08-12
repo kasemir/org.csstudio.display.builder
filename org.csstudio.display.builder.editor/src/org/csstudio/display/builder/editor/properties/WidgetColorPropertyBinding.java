@@ -7,52 +7,34 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import org.csstudio.display.builder.editor.undo.SetWidgetColorAction;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
+import org.csstudio.display.builder.representation.javafx.WidgetColorDialog;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 
-/** Bidirectional binding between a WidgetColor and Java FX Property
+/** Bidirectional binding between a color property in model and Java FX Node in the property panel
  *  @author Kay Kasemir
  */
 public class WidgetColorPropertyBinding
        extends WidgetPropertyBinding<WidgetColorPropertyField, ColorWidgetProperty>
 {
-    private final PropertyChangeListener model_listener = new PropertyChangeListener()
+    /** Update property panel field as model changes */
+    private final PropertyChangeListener model_listener = event ->
     {
-        @Override
-        public void propertyChange(final PropertyChangeEvent evt)
-        {
-            if (updating)
-                return;
-            updating = true;
-            try
-            {
-                jfx_node.setColor(widget_property.getValue());
-            }
-            finally
-            {
-                updating = false;
-            }
-        }
+        jfx_node.setColor(widget_property.getValue());
     };
+
+    /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event ->
     {
-        Alert alert = new Alert(AlertType.INFORMATION,
-                                "Should open dialog for " + widget_property);
-        alert.setHeaderText("Not implemented");
-        alert.show();
-
-        // TODO Show color dialog:
-        // WidgetColor new_color = TBDDialog();
-        // if (new_color != null)
-        //     undo.execute(new SetColorWidgetProperty(widget_property,new_color));
+        final WidgetColorDialog dialog = new WidgetColorDialog(widget_property.getValue());
+        dialog.showAndWait().ifPresent(
+            new_color ->undo.execute(new SetWidgetColorAction(widget_property, new_color)));
     };
 
     public WidgetColorPropertyBinding(final UndoableActionManager undo,
@@ -76,5 +58,4 @@ public class WidgetColorPropertyBinding
         jfx_node.setOnAction(null);
         widget_property.removePropertyListener(model_listener);
     }
-
 }

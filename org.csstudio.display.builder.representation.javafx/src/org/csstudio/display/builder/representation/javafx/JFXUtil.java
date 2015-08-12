@@ -24,4 +24,15 @@ public class JFXUtil
     {
         return Color.rgb(color.getRed(), color.getGreen(), color.getBlue());
     }
+
+    /** Convert JFX color into model color
+     *  @param color {@link Color}
+     *  @return {@link WidgetColor}
+     */
+    public static WidgetColor convert(final Color color)
+    {
+        return new WidgetColor((int) (color.getRed() * 255),
+                               (int) (color.getGreen() * 255),
+                               (int) (color.getBlue() * 255));
+    }
 }

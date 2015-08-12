@@ -20,6 +20,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
 /** Property panel field for a {@link WidgetColor}
+ *
+ *  <p>Colored blob that shows the color,
+ *  button that shows the color's name.
  *  @author Kay Kasemir
  */
 public class WidgetColorPropertyField extends HBox

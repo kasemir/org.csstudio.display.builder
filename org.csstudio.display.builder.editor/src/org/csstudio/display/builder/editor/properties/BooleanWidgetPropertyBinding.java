@@ -10,7 +10,7 @@ package org.csstudio.display.builder.editor.properties;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetProperty;
+import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 
@@ -112,7 +112,7 @@ public class BooleanWidgetPropertyBinding
 
     private void submit()
     {
-        undo.execute(new SetMacroizedWidgetProperty(widget_property,
+        undo.execute(new SetMacroizedWidgetPropertyAction(widget_property,
                                                     jfx_node.getValue()));
         updating = false;
     }

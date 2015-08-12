@@ -12,7 +12,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 
 import javafx.scene.Node;
 
-/** Bidirectional binding between a WidgetProperty and Java FX Node
+/** Bidirectional binding between a WidgetProperty and Java FX Node in the property panel
  *  @author Kay Kasemir
  *  @param <JFX> JFX node used to configure the property
  *  @param <WP> Widget property to configure

@@ -14,13 +14,13 @@ import org.eclipse.osgi.util.NLS;
 /** Action to update widget property
  *  @author Kay Kasemir
  */
-public class SetMacroizedWidgetProperty extends UndoableAction
+public class SetMacroizedWidgetPropertyAction extends UndoableAction
 {
     private final MacroizedWidgetProperty<?> widget_property;
     private final String orig_text;
     private final String text;
 
-    public SetMacroizedWidgetProperty(final MacroizedWidgetProperty<?> widget_property,
+    public SetMacroizedWidgetPropertyAction(final MacroizedWidgetProperty<?> widget_property,
                                       final String text)
     {
         super(NLS.bind(Messages.SetPropertyFmt, widget_property.getDescription()));

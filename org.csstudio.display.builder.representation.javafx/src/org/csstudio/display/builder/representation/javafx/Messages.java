@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.editor;
+package org.csstudio.display.builder.representation.javafx;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -14,24 +14,16 @@ import org.eclipse.osgi.util.NLS;
  */
 public class Messages extends NLS
 {
-    private static final String BUNDLE_NAME = "org.csstudio.display.builder.editor.messages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.csstudio.display.builder.representation.javafx.messages"; //$NON-NLS-1$
 
     // Keep in alphabetical order, synchronized with messages.properties
-    public static String AddWidget;
-    public static String FileTypeAll;
-    public static String FileTypeDisplays;
-    public static String Grid;
-    public static String LoadDisplay;
-    public static String LoadDisplay_TT;
-    public static String Redo_TT;
-    public static String RemoveWidgets;
-    public static String SaveDisplay;
-    public static String SaveDisplay_TT;
-    public static String SetPropertyFmt;
-    public static String SetWidgetColor;
-    public static String Snap;
-    public static String Undo_TT;
-    public static String UpdateWidgetLocation;
+    public static String Blue;
+    public static String ColorDialog_Custom;
+    public static String ColorDialog_Info;
+    public static String ColorDialog_Predefined;
+    public static String ColorDialog_Title;
+    public static String Green;
+    public static String Red;
 
     static
     {
