@@ -7,48 +7,36 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
-/** Description of a color
+/** Description of a named color
  *  @author Kay Kasemir
  */
 // Implementation avoids AWT, SWT, JavaFX color
 @SuppressWarnings("nls")
-public class WidgetColor
+public class NamedWidgetColor extends WidgetColor
 {
-    protected final int red, green, blue;
+    private final String name;
 
-    /** Construct RGB color
+    /** Construct named color
+     *  @param name Name of the color
      *  @param red Red component, range {@code 0-255}
      *  @param green Green component, range {@code 0-255}
      *  @param blue Blue component, range {@code 0-255}
      */
-    public WidgetColor(final int red, final int green, final int blue)
+    public NamedWidgetColor(final String name, final int red, final int green, final int blue)
     {
-        this.red = red;
-        this.green = green;
-        this.blue = blue;
+        super(red, green, blue);
+        this.name = name;
     }
 
-    /** @return Red component, range {@code 0-255} */
-    public int getRed()
+    /** @return Name */
+    public String getName()
     {
-        return red;
-    }
-
-    /** @return Green component, range {@code 0-255} */
-    public int getGreen()
-    {
-        return green;
-    }
-
-    /** @return Blue component, range {@code 0-255} */
-    public int getBlue()
-    {
-        return blue;
+        return name;
     }
 
     @Override
     public String toString()
     {
-        return "RGB(" + red + "," + green + "," + blue + ")";
+        return "'" + name + "' " + super.toString();
     }
 }
