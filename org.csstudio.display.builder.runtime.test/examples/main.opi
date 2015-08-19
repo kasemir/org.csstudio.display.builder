@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Display</name>
+  <macros>
+    <FILE>main_embedded.opi</FILE>
+    <INSET>10</INSET>
+    <SHOW>false</SHOW>
+    <TEXT>Hello from main display</TEXT>
+  </macros>
   <width>600</width>
   <height>500</height>
-  <macros>
-    <INSET>10</INSET>
-    <TEXT>Hello from main display</TEXT>
-    <SHOW>false</SHOW>
-    <FILE>main_embedded.opi</FILE>
-  </macros>
-
   <widget type="group" version="1.0.0">
     <name>Group in Main Display</name>
     <macros>
@@ -19,16 +18,13 @@
     <y>$(INSET)</y>
     <width>500</width>
     <height>450</height>
-    
     <widget type="label" version="1.0.0">
       <name>Hello</name>
       <y>4</y>
       <width>100</width>
       <height>15</height>
       <text>$(TEXT)</text>
-      <visible>$(SHOW)</visible>
     </widget>
-
     <widget type="label" version="1.0.0">
       <name>Hello2</name>
       <x>200</x>
@@ -36,66 +32,64 @@
       <width>100</width>
       <height>15</height>
       <text>Some text</text>
-      <visible>$(SHOW)</visible>
     </widget>
-
     <widget type="embedded" version="1.0.0">
       <name>Embed 1</name>
+      <macros>
+        <CONTAINER>Embedded Display</CONTAINER>
+      </macros>
       <x>10</x>
       <y>30</y>
       <width>400</width>
       <height>300</height>
       <file>main_embedded.opi</file>
-      <macros>
-        <CONTAINER>Embedded Display</CONTAINER>
-      </macros>
     </widget>
-
     <widget type="action_button" version="1.0.0">
       <name>Action 1</name>
-      <x>10</x>
-      <y>350</y>
-      <width>100</width>
-      <height>25</height>
-      <text>Other</text>
       <macros>
         <CONTAINER>Button</CONTAINER>
       </macros>
+      <x>10</x>
+      <y>350</y>
+      <height>25</height>
+      <text>Other</text>
       <actions>
         <action type="open_display">
           <file>$(FILE)</file>
-          <target>replace</target>
           <macros>
             <CONTAINER>Action</CONTAINER>
           </macros>
+          <target>replace</target>
+          <description></description>
         </action>
       </actions>
     </widget>
-
     <widget type="textentry" version="1.0.0">
       <name>Text 1</name>
       <x>10</x>
       <y>375</y>
-      <width>100</width>
       <height>25</height>
       <pv_name>ramp</pv_name>
     </widget>
-
     <widget type="action_button" version="1.0.0">
       <name>Action 2</name>
       <x>150</x>
       <y>375</y>
-      <width>100</width>
       <height>25</height>
       <text>Reset</text>
       <actions>
         <action type="write_pv">
           <pv_name>ramp</pv_name>
           <value>0</value>
+          <description></description>
         </action>
       </actions>
     </widget>
-
+    <widget type="led" version="1.0.0">
+      <name>LED</name>
+      <x>316</x>
+      <y>375</y>
+      <width>20</width>
+    </widget>
   </widget>
-  
 </display>
