@@ -98,9 +98,12 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
             }
             else
                 throw new Exception("Cannot write action of type " + info.getClass().getName());
-            writer.writeStartElement(XMLTags.DESCRIPTION);
-            writer.writeCharacters(info.getDescription());
-            writer.writeEndElement();
+            if (info.getDescription().isEmpty())
+            {
+                writer.writeStartElement(XMLTags.DESCRIPTION);
+                writer.writeCharacters(info.getDescription());
+                writer.writeEndElement();
+            }
             writer.writeEndElement();
         }
     }
