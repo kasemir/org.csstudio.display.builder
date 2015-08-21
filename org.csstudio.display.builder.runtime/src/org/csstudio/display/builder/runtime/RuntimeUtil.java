@@ -9,7 +9,6 @@ package org.csstudio.display.builder.runtime;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,6 +17,7 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.util.NamedDaemonPool;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -36,6 +36,8 @@ import org.csstudio.display.builder.runtime.script.ScriptSupport;
 public class RuntimeUtil
 {
     private static final Logger logger = Logger.getLogger(RuntimeUtil.class.getName());
+
+    private static final Executor executor = NamedDaemonPool.createThreadPool("DisplayRuntime");
 
     private static final ToolkitListener toolkit_listener = new ToolkitListener()
     {
@@ -68,7 +70,7 @@ public class RuntimeUtil
      */
     public static Executor getExecutor()
     {
-        return ForkJoinPool.commonPool();
+        return executor;
     }
 
     /** Load model

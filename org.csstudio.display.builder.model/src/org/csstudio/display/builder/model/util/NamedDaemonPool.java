@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.util;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -23,6 +25,23 @@ public class NamedDaemonPool implements ThreadFactory
     private final String name;
 
     private final AtomicInteger instance = new AtomicInteger();
+
+    // Using one thread per CPU core should make best use of the CPU.
+    // Having just one such ExecutorService, however, may not be optimal:
+    // If the display 'runtime' uses all cores,
+    // there should still be headroom for the 'editor' to also use cores
+    // --> Create one thread pool for 'model', one for 'editor', one for 'runtime', ..
+
+    /** Create executor service that has as many threads as CPU cores.
+     *
+     *  @param name Name of the thread pool
+     *  @return ExecutorService
+     */
+    public static ExecutorService createThreadPool(final String name)
+    {
+        return Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),
+                                            new NamedDaemonPool(name));
+    }
 
     public NamedDaemonPool(final String name)
     {

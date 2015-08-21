@@ -13,11 +13,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.util.WidgetIcons;
 import org.csstudio.display.builder.model.ContainerWidget;
@@ -203,7 +203,7 @@ public class WidgetTree
         this.model = model;
 
         // Might be called on UI thread, move off
-        ForkJoinPool.commonPool().execute(() ->
+        EditorUtil.getExecutor().execute(() ->
         {   // Using FJPool as plain executor, not dividing tree generation into sub-tasks
             final TreeItem<Widget> root = new TreeItem<Widget>(model);
             final Map<Widget, TreeItem<Widget>> widget_items = new HashMap<>();

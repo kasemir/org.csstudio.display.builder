@@ -14,8 +14,6 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -98,7 +96,6 @@ import javafx.stage.Stage;
 public class EditorGUI
 {
     private final Logger logger = Logger.getLogger(getClass().getName());
-    private final Executor executor = ForkJoinPool.commonPool();
 
     private volatile File file = null;
     private volatile DisplayModel model = null;
@@ -250,7 +247,7 @@ public class EditorGUI
      */
     public void loadModel(final File file)
     {
-        executor.execute(() ->
+        EditorUtil.getExecutor().execute(() ->
         {
             try
             {
@@ -269,7 +266,7 @@ public class EditorGUI
      */
     public void loadModel(final InputStream stream)
     {
-        executor.execute(() ->
+        EditorUtil.getExecutor().execute(() ->
         {
             try
             {
@@ -295,7 +292,7 @@ public class EditorGUI
      */
     public void saveModelAs(final File file)
     {
-        executor.execute(() ->
+        EditorUtil.getExecutor().execute(() ->
         {
             logger.log(Level.FINE, "Save as {0}", file);
             try

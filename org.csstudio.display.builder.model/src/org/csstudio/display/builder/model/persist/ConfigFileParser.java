@@ -8,8 +8,6 @@
 package org.csstudio.display.builder.model.persist;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -19,26 +17,11 @@ import java.io.InputStreamReader;
 @SuppressWarnings("nls")
 abstract public class ConfigFileParser
 {
-    /** Read from file
-     *  @param file File to read
-     *  @throws Exception on error
-     */
-    public void read(final File file) throws Exception
-    {
-        try
-        (
-            final InputStream stream = new FileInputStream(file);
-        )
-        {
-            read(stream);
-        }
-    }
-
     /** Read from stream
      *  @param stream Stream to read
      *  @throws Exception on error
      */
-    public void read(final InputStream stream) throws Exception
+    protected void read(final InputStream stream) throws Exception
     {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         String line;

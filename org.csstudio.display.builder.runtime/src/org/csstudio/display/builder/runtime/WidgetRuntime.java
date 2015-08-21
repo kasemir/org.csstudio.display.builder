@@ -13,7 +13,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -119,7 +118,7 @@ public class WidgetRuntime<MW extends Widget>
         }
 
         // Start scripts in pool because Jython setup is expensive
-        ForkJoinPool.commonPool().execute(this::startScripts);
+        RuntimeUtil.getExecutor().execute(this::startScripts);
     }
 
     /** Start Scripts */

@@ -9,6 +9,7 @@ package org.csstudio.display.builder.runtime.script;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.concurrent.ThreadFactory;
 
 import org.csstudio.display.builder.model.util.NamedDaemonPool;
 
@@ -26,7 +27,7 @@ import org.csstudio.display.builder.model.util.NamedDaemonPool;
 public class ScriptSupport
 {
     /** Pool for script related executors */
-    static final NamedDaemonPool POOL = new NamedDaemonPool("ScriptSupport");
+    static final ThreadFactory POOL = new NamedDaemonPool("ScriptSupport");
 
     private final JythonScriptSupport jython;
     private final JavaScriptSupport javascript;

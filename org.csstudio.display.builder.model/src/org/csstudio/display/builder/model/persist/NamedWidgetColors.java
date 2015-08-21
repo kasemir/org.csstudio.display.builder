@@ -21,15 +21,9 @@ import org.csstudio.display.builder.model.properties.NamedWidgetColor;
 @SuppressWarnings("nls")
 public class NamedWidgetColors extends ConfigFileParser
 {
-    // TODO Handling of named colors
-    // Singleton instance that ModelReader or editor's WidgetColorDialog can use.
-    // Needs to load once on initial use,
-    // but a long delay for color file should not block model readers for too long.
-    // Better continue with the RGB values in file than block for a minute.
-    // Needs to allow re-load, for example to use different tile.
     private final Map<String, NamedWidgetColor> colors = new LinkedHashMap<>();
 
-    public NamedWidgetColors()
+    protected NamedWidgetColors()
     {
         defineDefaultColors();
     }
