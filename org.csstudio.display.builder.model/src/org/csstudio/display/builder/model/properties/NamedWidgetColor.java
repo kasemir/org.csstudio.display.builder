@@ -11,7 +11,6 @@ package org.csstudio.display.builder.model.properties;
  *  @author Kay Kasemir
  */
 // Implementation avoids AWT, SWT, JavaFX color
-@SuppressWarnings("nls")
 public class NamedWidgetColor extends WidgetColor
 {
     private final String name;
@@ -37,6 +36,6 @@ public class NamedWidgetColor extends WidgetColor
     @Override
     public String toString()
     {
-        return "'" + name + "' " + super.toString();
+        return name;
     }
 }

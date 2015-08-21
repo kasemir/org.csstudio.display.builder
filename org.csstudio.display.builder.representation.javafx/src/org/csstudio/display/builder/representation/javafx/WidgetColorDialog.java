@@ -7,20 +7,28 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Collection;
 
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.properties.NamedWidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 
@@ -32,8 +40,7 @@ public class WidgetColorDialog extends Dialog<WidgetColor>
 {
     private WidgetColor color;
 
-    // TODO: Change into ListView<WidgetColor> once there are named colors
-    private final ListView<String> color_names = new ListView<>();
+    private final ListView<NamedWidgetColor> color_names = new ListView<>();
 
     private final ColorPicker picker = new ColorPicker();
 
@@ -47,6 +54,30 @@ public class WidgetColorDialog extends Dialog<WidgetColor>
 
     /** Prevent circular updates */
     private boolean updating = false;
+
+    /** List cell for a NamedWidgetColor: Color 'blob' and color's name */
+    private static class NamedWidgetColorCell extends ListCell<NamedWidgetColor>
+    {
+        private final static int SIZE = 16;
+        private final Canvas blob = new Canvas(SIZE, SIZE);
+
+        public NamedWidgetColorCell()
+        {
+            setGraphic(blob);
+        }
+
+        @Override
+        protected void updateItem(final NamedWidgetColor color, final boolean empty)
+        {
+            super.updateItem(color, empty);
+            if (color == null)
+                return; // Content won't change from non-null to null, so no need to clear
+            setText(color.getName());
+            final GraphicsContext gc = blob.getGraphicsContext2D();
+            gc.setFill(JFXUtil.convert(color));
+            gc.fillRect(0, 0, SIZE, SIZE);
+        }
+    };
 
     /** Create dialog
      *  @param initial_color Initial {@link WidgetColor}
@@ -72,8 +103,15 @@ public class WidgetColorDialog extends Dialog<WidgetColor>
 
         content.add(new Label(Messages.ColorDialog_Predefined), 0, 0);
 
-        // TODO: Show named colors
-        color_names.getItems().addAll("Title #255,0,0", "Background #250,255,250", "OK #0,255,0");
+        // Represent NamedWidgetColor with custon ListCell
+        color_names.setCellFactory((view) -> new NamedWidgetColorCell());
+        // Get colors on background thread
+        ModelThreadPool.getExecutor().execute(() ->
+        {
+            final NamedWidgetColors colors = WidgetColorService.getColors();
+            final Collection<NamedWidgetColor> values = colors.getColors();
+            Platform.runLater(() -> color_names.getItems().addAll(values));
+        });
         content.add(color_names, 0, 1, 1, 5);
 
         content.add(new Label(Messages.ColorDialog_Custom), 1, 0, 3, 1);
@@ -107,14 +145,17 @@ public class WidgetColorDialog extends Dialog<WidgetColor>
         // User selects named color -> Update picker, sliders, texts
         color_names.getSelectionModel().selectedItemProperty().addListener((l, old, value) ->
         {
-            // TODO Handle names from color file
-            final Pattern pattern = Pattern.compile(".*#(\\d+),(\\d+),(\\d+)");
-            final Matcher matcher = pattern.matcher(value);
-            if (matcher.matches())
+            setColor(value);
+        });
+
+        // Double-click confirms/closes
+        color_names.setOnMouseClicked((event) ->
+        {
+            if (event.getButton() == MouseButton.PRIMARY  &&
+                event.getClickCount() >= 2)
             {
-                setColor(new WidgetColor(Integer.parseInt(matcher.group(1)),
-                                         Integer.parseInt(matcher.group(2)),
-                                         Integer.parseInt(matcher.group(3))));
+                final Button ok = (Button) getDialogPane().lookupButton(ButtonType.OK);
+                ok.fire();
             }
         });
 

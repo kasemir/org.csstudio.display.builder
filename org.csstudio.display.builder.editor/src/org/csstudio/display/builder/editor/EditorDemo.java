@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.logging.LogManager;
 
+import org.csstudio.display.builder.model.persist.WidgetColorService;
+
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -36,6 +38,9 @@ public class EditorDemo extends Application
     @Override
     public void start(final Stage stage)
     {
+        final File color_file = new File("../org.csstudio.display.builder.runtime.test/examples/color.def");
+        WidgetColorService.loadColors(color_file.getPath(), () -> new FileInputStream(color_file));
+
         editor = new EditorGUI(stage);
         editor.loadModel(new File(display_file));
         stage.setOnCloseRequest((WindowEvent event) -> editor.handleClose());

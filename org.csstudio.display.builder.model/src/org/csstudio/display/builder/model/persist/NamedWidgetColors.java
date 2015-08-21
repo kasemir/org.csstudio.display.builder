@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.persist;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -49,6 +51,14 @@ public class NamedWidgetColors extends ConfigFileParser
     public Optional<NamedWidgetColor> getColor(final String name)
     {
         return Optional.ofNullable(colors.get(name));
+    }
+
+    /** Get all named colors
+     *  @return Collection of all named colors
+     */
+    public Collection<NamedWidgetColor> getColors()
+    {
+        return Collections.unmodifiableCollection(colors.values());
     }
 
     @Override
