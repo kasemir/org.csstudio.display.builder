@@ -33,7 +33,11 @@ public class LabelRepresentation extends JFXBaseRepresentation<Label, LabelWidge
     @Override
     public Label createJFXNode() throws Exception
     {
-        return new Label();
+        final Label label = new Label();
+        // TODO Set font
+        //        final Font font = Font.font("Sans", FontWeight.BOLD, 18);
+        //        label.setFont(font);
+        return label;
     }
 
     @Override

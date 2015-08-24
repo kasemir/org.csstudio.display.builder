@@ -20,6 +20,10 @@ public class Messages extends NLS
     public static String ActionButtonWidget_Name;
     public static String EmbeddedDisplayWidget_Description;
     public static String EmbeddedDisplayWidget_Name;
+    public static String FontStyle_Bold;
+    public static String FontStyle_BoldItalic;
+    public static String FontStyle_Italic;
+    public static String FontStyle_Regular;
     public static String GroupWidget_Description;
     public static String GroupWidget_Name;
     public static String LabelWidget_Description;
