@@ -15,7 +15,7 @@ import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
-import org.csstudio.display.builder.runtime.ResourceUtil;
+import org.csstudio.display.builder.model.util.ResourceUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.vtype.pv.PV;
 import org.csstudio.vtype.pv.PVListener;

@@ -5,12 +5,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.runtime.test;
+package org.csstudio.display.builder;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import org.csstudio.display.builder.runtime.ResourceUtil;
+import org.csstudio.display.builder.model.util.ResourceUtil;
 import org.junit.Test;
 
 /** JUnit test of path handling

@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.util.ModelThreadPool;
+import org.csstudio.display.builder.model.util.ResourceUtil;
 
 /** Service that provides {@link NamedWidgetColors}
  *
@@ -28,6 +29,8 @@ import org.csstudio.display.builder.model.util.ModelThreadPool;
 @SuppressWarnings("nls")
 public class WidgetColorService
 {
+    private static final Logger logger = Logger.getLogger(WidgetColorService.class.getName());
+
     /** Time in seconds used to wait for a 'load' that's in progress
      *  before falling back to a default set of colors
      */
@@ -42,13 +45,39 @@ public class WidgetColorService
     /** Ask color service to load colors from a source.
      *
      *  <p>Service loads the colors in background thread.
+     *
+     *  @param color_resource Name of resource for named color
+     */
+    public static void loadColors(final String color_resource)
+    {
+        colors = ModelThreadPool.getExecutor().submit(() ->
+        {
+            final NamedWidgetColors colors = new NamedWidgetColors();
+            try
+            {
+                final InputStream stream = ResourceUtil.openInputStream(color_resource);
+                logger.log(Level.CONFIG, "Loading named colors from {0}",  color_resource);
+                colors.read(stream);
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot load colors from " + color_resource, ex);
+            }
+            // In case of error, result may only contain partial content of file
+            return colors;
+        });
+    }
+
+    /** Ask color service to load colors from a source.
+     *
+     *  <p>Service loads the colors in background thread.
      *  The 'source' is called in that background thread
      *  to provide the input stream.
      *  The source should thus perform any potentially slow operation
      *  (open file, connect to http://) when called, not beforehand.
      *
      *  @param name   Name that identifies the source (for error messages)
-     *  @param source Supplier of InputStream.
+     *  @param source Supplier of InputStream for named colors
      */
     public static void loadColors(final String name, final Callable<InputStream> source)
     {
@@ -57,12 +86,13 @@ public class WidgetColorService
             final NamedWidgetColors colors = new NamedWidgetColors();
             try
             {
-                colors.read(source.call());
+                final InputStream stream = source.call();
+                logger.log(Level.CONFIG, "Loading named colors from {0}",  name);
+                colors.read(stream);
             }
             catch (Exception ex)
             {
-                Logger.getLogger(WidgetColorService.class.getName())
-                      .log(Level.WARNING, "Cannot load colors from " + name, ex);
+                logger.log(Level.WARNING, "Cannot load colors from " + name, ex);
             }
             // In case of error, result may only contain partial content of file
             return colors;
@@ -91,13 +121,11 @@ public class WidgetColorService
         }
         catch (TimeoutException timeout)
         {
-            Logger.getLogger(WidgetColorService.class.getName())
-                  .log(Level.WARNING, "Using default colors because color file is still loading");
+            logger.log(Level.WARNING, "Using default colors because color file is still loading");
         }
         catch (Exception ex)
         {
-            Logger.getLogger(WidgetColorService.class.getName())
-                  .log(Level.WARNING, "Cannot obtain named colors", ex);
+            logger.log(Level.WARNING, "Cannot obtain named colors", ex);
         }
         return new NamedWidgetColors();
     }

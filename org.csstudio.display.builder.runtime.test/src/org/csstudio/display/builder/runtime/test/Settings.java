@@ -10,6 +10,8 @@ package org.csstudio.display.builder.runtime.test;
 import java.io.FileInputStream;
 import java.util.logging.LogManager;
 
+import org.csstudio.display.builder.model.persist.WidgetColorService;
+
 /** Demo settings
  *  @author Kay Kasemir
  */
@@ -30,5 +32,8 @@ public class Settings
         final String addr_list = "127.0.0.1 webopi.sns.gov:5066 160.91.228.17";
         System.setProperty("com.cosylab.epics.caj.CAJContext.addr_list", addr_list);
         System.setProperty("gov.aps.jca.jni.JNIContext.addr_list", addr_list);
+
+        final String color_url = "https://webopi.sns.gov/share/opi/color.def";
+        WidgetColorService.loadColors(color_url);
     }
 }
