@@ -14,9 +14,10 @@ import org.csstudio.display.builder.model.Messages;
  */
 public enum WidgetFontStyle
 {
+    // Ordinals match legacy style bits based on SWT.BOLD, SWT.ITALIC
     REGULAR(Messages.FontStyle_Regular),
-    ITALIC(Messages.FontStyle_Italic),
     BOLD(Messages.FontStyle_Bold),
+    ITALIC(Messages.FontStyle_Italic),
     BOLD_ITALIC(Messages.FontStyle_BoldItalic);
 
     private final String name;

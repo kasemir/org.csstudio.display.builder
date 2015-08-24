@@ -167,6 +167,18 @@ public class CommonWidgetProperties
         }
     };
 
+    /** Display 'font': Font for display */
+    public static final WidgetPropertyDescriptor<WidgetFont> displayFont =
+        new WidgetPropertyDescriptor<WidgetFont>(
+            WidgetPropertyCategory.DISPLAY, "font", Messages.WidgetProperties_Font)
+    {
+        @Override
+        public WidgetProperty<WidgetFont> createProperty(final Widget widget,
+                                                         final WidgetFont font)
+        {
+            return new FontWidgetProperty(this, widget, font);
+        }
+    };
 
     /** Display 'file': File to display */
     public static final WidgetPropertyDescriptor<String> displayFile =

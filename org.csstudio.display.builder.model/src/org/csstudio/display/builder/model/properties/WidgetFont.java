@@ -14,11 +14,19 @@ package org.csstudio.display.builder.model.properties;
 @SuppressWarnings("nls")
 public class WidgetFont
 {
+    private static final WidgetFont DEFAULT = new WidgetFont("System", WidgetFontStyle.REGULAR, 14);
+
     protected final String family;
     protected final WidgetFontStyle style;
     protected final int size;
     // TODO Use 'double' for font size?
     // SWT and JavaFX allow that..
+
+    /** @return Default font */
+    public static WidgetFont getDefault()
+    {
+        return DEFAULT;
+    }
 
     /** Construct font
      *

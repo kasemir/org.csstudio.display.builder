@@ -18,6 +18,7 @@ public interface XMLTags
     public static final String DESCRIPTION = "description";
     public static final String DISPLAY = "display";
     public static final String FILE = "file";
+    public static final String FONT = "font";
     public static final String MACROS = "macros";
     public static final String NAME = "name";
     public static final String PV_NAME = "pv_name";

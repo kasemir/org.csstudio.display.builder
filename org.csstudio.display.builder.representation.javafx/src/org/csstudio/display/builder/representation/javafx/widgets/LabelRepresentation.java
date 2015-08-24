@@ -12,6 +12,7 @@ import java.beans.PropertyChangeEvent;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -22,6 +23,7 @@ import javafx.scene.control.Label;
  */
 public class LabelRepresentation extends JFXBaseRepresentation<Label, LabelWidget>
 {
+    private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
 
     public LabelRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
@@ -33,18 +35,21 @@ public class LabelRepresentation extends JFXBaseRepresentation<Label, LabelWidge
     @Override
     public Label createJFXNode() throws Exception
     {
-        final Label label = new Label();
-        // TODO Set font
-        //        final Font font = Font.font("Sans", FontWeight.BOLD, 18);
-        //        label.setFont(font);
-        return label;
+        return new Label();
     }
 
     @Override
     protected void registerListeners()
     {
         super.registerListeners();
+        model_widget.displayFont().addPropertyListener(this::styleChanged);
         model_widget.displayText().addPropertyListener(this::contentChanged);
+    }
+
+    private void styleChanged(final PropertyChangeEvent event)
+    {
+        dirty_style.mark();
+        toolkit.scheduleUpdate(this);
     }
 
     private void contentChanged(final PropertyChangeEvent event)
@@ -57,6 +62,8 @@ public class LabelRepresentation extends JFXBaseRepresentation<Label, LabelWidge
     public void updateChanges()
     {
         super.updateChanges();
+        if (dirty_style.checkAndClear())
+            jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
         if (dirty_content.checkAndClear())
             jfx_node.setText(model_widget.displayText().getValue());
     }

@@ -16,6 +16,7 @@ public class Messages extends NLS
 {
     private static final String BUNDLE_NAME = "org.csstudio.display.builder.model.messages"; //$NON-NLS-1$
 
+
     public static String ActionButtonWidget_Description;
     public static String ActionButtonWidget_Name;
     public static String EmbeddedDisplayWidget_Description;
@@ -50,6 +51,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Actions;
     public static String WidgetProperties_BackgroundColor;
     public static String WidgetProperties_File;
+    public static String WidgetProperties_Font;
     public static String WidgetProperties_Height;
     public static String WidgetProperties_Insets;
     public static String WidgetProperties_Macros;

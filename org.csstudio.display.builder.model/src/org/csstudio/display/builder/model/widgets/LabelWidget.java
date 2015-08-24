@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
 
 import java.util.Arrays;
@@ -18,6 +19,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.properties.WidgetFont;
 
 /** Widget that displays a static text
  *  @author Kay Kasemir
@@ -41,6 +43,7 @@ public class LabelWidget extends BaseWidget
         };
 
     private WidgetProperty<String> text;
+    private WidgetProperty<WidgetFont> font;
 
     public LabelWidget()
     {
@@ -52,11 +55,18 @@ public class LabelWidget extends BaseWidget
     {
         super.defineProperties(properties);
         properties.add(text = displayText.createProperty(this, Messages.LabelWidget_Text));
+        properties.add(font = displayFont.createProperty(this, WidgetFont.getDefault()));
     }
 
     /** @return Display 'text' */
     public WidgetProperty<String> displayText()
     {
         return text;
+    }
+
+    /** @return Display 'font' */
+    public WidgetProperty<WidgetFont> displayFont()
+    {
+        return font;
     }
 }
