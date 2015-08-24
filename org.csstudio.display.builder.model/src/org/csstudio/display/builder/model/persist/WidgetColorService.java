@@ -96,6 +96,8 @@ public class WidgetColorService
         }
         catch (Exception ex)
         {
+            Logger.getLogger(WidgetColorService.class.getName())
+                  .log(Level.WARNING, "Cannot obtain named colors", ex);
         }
         return new NamedWidgetColors();
     }

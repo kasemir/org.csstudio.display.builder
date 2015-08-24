@@ -90,6 +90,14 @@
       <x>316</x>
       <y>375</y>
       <width>20</width>
+      <off_color>
+        <color name="Off" red="60" green="100" blue="60">
+        </color>
+      </off_color>
+      <on_color>
+        <color name="On" red="0" green="255" blue="0">
+        </color>
+      </on_color>
     </widget>
   </widget>
 </display>
