@@ -28,7 +28,7 @@ public class FontDemoJavaFX extends Application
     @Override
     public void start(final Stage stage)
     {
-        final Label label = new Label("Example Test XOXO pq__ 1234567890 (JFX)");
+        final Label label = new Label("'Example' Test \"XOXO\" pq__ 1234567890 (JFX)");
         final Font font = Font.font("Liberation Mono", 40.0);
         System.out.println(font);
         label.setFont(font);

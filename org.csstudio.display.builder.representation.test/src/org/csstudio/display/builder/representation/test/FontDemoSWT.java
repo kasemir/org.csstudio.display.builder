@@ -31,17 +31,19 @@ public class FontDemoSWT
         Label label = new Label(shell, SWT.NONE);
         final Font font = new Font(display, "Liberation Mono", 40, SWT.NORMAL);
         label.setFont(font);
-        label.setText("Example Test XOXO pq__ 1234567890 (SWT)");
+        label.setText("'Example' Test \"XOXO\" pq__ 1234567890 (SWT)");
 
         final GC gc = new GC(display);
         gc.setFont(font);
         System.out.println(font.getFontData()[0]);
 
         final FontMetrics metrics = gc.getFontMetrics();
-        System.out.println("Height : " + metrics.getHeight());
-        System.out.println("Ascent : " + metrics.getAscent());
-        System.out.println("Descent: " + metrics.getDescent());
-        System.out.println("leading: " + metrics.getLeading());
+        System.out.println("Height  : " + metrics.getHeight());
+        System.out.println("Ascent  : " + metrics.getAscent());
+        System.out.println("Descent : " + metrics.getDescent());
+        System.out.println("leading : " + metrics.getLeading());
+
+        System.out.println("Should use " + 40.0 * (40.0 / metrics.getAscent()) + "?");
 
         shell.pack();
         shell.open();
