@@ -23,6 +23,8 @@ Dependencies
  * In Eclipse Preferences, Java, Build Path, Classpath Variables: Set `JFXSWT` to `jre/lib/jfxswt.jar`
  * As Eclipse Target platform, use a CS-Studio target. For example use "Directory" of CSS product's `plugins/`
  * Demos use EPICS `softIoc` for `org.csstudio.display.builder.runtime.test/examples/demo.db`
+ * Install the "Liberation" fonts from https://fedorahosted.org/liberation-fonts.
+   Mac OS X: Double-click each *.ttf to preview, then click "Install Font".
  
 
 Development Status
@@ -30,7 +32,7 @@ Development Status
 
 ** Model **
 
-Many essentials: Widgets, widget categories, typed properties, property categories, change notifications, persistence.
+Many essentials: Widgets, widget categories, typed properties, property categories, change notifications, persistence, named colors.
 
 Basic Rectangle, Label, TextUpdate, LED, ProgressBar.
 
@@ -46,7 +48,7 @@ Each new widget is added as its own class derived from the base `Widget` and reg
 
 Major TODOs:
 
- * Properties for color names, font
+ * Named fonts
 
 ** Representation **
 
@@ -60,6 +62,7 @@ On change, it can prepare the UI update, which is then scheduled via `ToolkitRep
 to occur on the UI thread in a throttled manner.
 
 Major TODOs:
+ * Font handling.
 
  * A ton of widgets and their representation
  
@@ -76,7 +79,7 @@ The base `WidgetRuntime` handles the following:
    the "pv_name". The "value" is updated with the current VType.
    Representation then needs to reflect the current "value".
    
- * Wudget can 'write' to the primary PV.
+ * Widget can 'write' to the primary PV.
     
  * Each script in the "scripts" property is parsed, its PVs are created,
    and the script is triggered when any of its input PVs change.
@@ -88,11 +91,25 @@ Major TODOs:
  
 ** Editor **
 
-Demo to test if Model provides required information.
+GEF 3 is tied to SWT. GEF 4 lacks basics like palette & property panel.
+
+Features of demo editor:
+Editor, Palette, Property Panel, Widget Tree,
+move/resize via tracker, snap-to-grid, snap-to-other-widgets.
 
 Major TODOs:
 
- * Determine status of GEF 4.
+ * Rulers, Guides
+
+
+** Overall **
+
+Everything is in form of JUnit tests or 'main' type demos.
+
+Major TODOs:
+
+ * RCP plugins that demo this in Eclipse/CS-Studio, using SWT FXCanvas
+
 
 Performance: JavaFX vs. SWT
 ---------------------------
@@ -178,3 +195,22 @@ Properties that support macros are based on `MacroizedWidgetProperty`.
 They distinguish between the original value specification,
 which is a text that may contain macros like `"$(INSTANCE_NUMBER)"`,
 and the current value, which evaluates the current macro settings and may be an integer like `8`.
+
+
+Fonts
+-----
+
+Goal is some level of compatibility with existing *.opi displays that were created on Linux.
+
+New developments should use open source fonts that are available for all operating systems.
+For now planning to use "Liberation" fonts.
+
+org.csstudio.display.builder.representation.test.FontDemoJavaFX and FontDemoSWT use "Liberation Mono", size 40.
+
+ * Mac OS X:
+   Same size on screen for SWT and Java FX.
+   "E" matches the one in Applications/Font Book.app for size 40.
+   When adding "Liberation Mono", size 40 text to a screenshot in the Preview.app,
+   that also matches.
+
+ 
