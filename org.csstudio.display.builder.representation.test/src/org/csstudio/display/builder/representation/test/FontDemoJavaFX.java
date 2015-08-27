@@ -9,9 +9,9 @@ package org.csstudio.display.builder.representation.test;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /** Java FX Font Demo
@@ -28,15 +28,18 @@ public class FontDemoJavaFX extends Application
     @Override
     public void start(final Stage stage)
     {
-        final Label label = new Label("'Example' Test \"XOXO\" pq__ 1234567890 (JFX)");
+        final Text text = new Text("'Example' Test \"XOXO\" pq__ 1234567890 (JFX)");
         final Font font = Font.font("Liberation Mono", 40.0);
         System.out.println(font);
-        label.setFont(font);
+        text.setFont(font);
 
-        final Pane root = new Pane(label);
+        final BorderPane root = new BorderPane(text);
 
         final Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
+
+        System.out.println("Width : " + text.getLayoutBounds().getWidth());
+        System.out.println("Height: " + text.getLayoutBounds().getHeight());
     }
 }
