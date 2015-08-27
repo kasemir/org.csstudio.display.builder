@@ -10,6 +10,8 @@ package org.csstudio.display.builder.representation.javafx;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
+import org.csstudio.display.builder.model.persist.WidgetFontService;
 import org.csstudio.display.builder.model.properties.NamedWidgetFont;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.model.properties.WidgetFontStyle;
@@ -33,7 +35,6 @@ import javafx.scene.layout.Priority;
 /** Dialog for selecting a {@link WidgetFont}
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
 public class WidgetFontDialog extends Dialog<WidgetFont>
 {
     private final static Collection<Double> default_sizes = Arrays.asList(8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 32.0);
@@ -69,15 +70,11 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
         content.setVgap(10);
         content.setPadding(new Insets(10));
 
-
         // Get fonts on background thread
         ModelThreadPool.getExecutor().execute(() ->
         {
-//         TODO For fonts:   final NamedWidgetColors colors = WidgetColorService.getColors();
-            final Collection<NamedWidgetFont> values = Arrays.asList(
-                    new NamedWidgetFont("Default", "Liberation Sans", WidgetFontStyle.REGULAR, 12),
-                    new NamedWidgetFont("Title", "Liberation Sans", WidgetFontStyle.BOLD, 18)
-                    );
+            final NamedWidgetFonts fonts = WidgetFontService.getFonts();
+            final Collection<NamedWidgetFont> values = fonts.getFonts();
             Platform.runLater(() -> font_names.getItems().addAll(values));
         });
 

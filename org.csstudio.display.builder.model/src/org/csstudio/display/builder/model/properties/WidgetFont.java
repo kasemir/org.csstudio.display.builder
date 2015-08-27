@@ -14,7 +14,7 @@ package org.csstudio.display.builder.model.properties;
 @SuppressWarnings("nls")
 public class WidgetFont
 {
-    private static final WidgetFont DEFAULT = new WidgetFont("System", WidgetFontStyle.REGULAR, 14);
+    private static final WidgetFont DEFAULT = new WidgetFont("Liberation Sans", WidgetFontStyle.REGULAR, 14);
 
     protected final String family;
     protected final WidgetFontStyle style;
