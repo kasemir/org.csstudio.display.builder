@@ -42,12 +42,12 @@ public class JFXFontCalibration extends Application implements FontCalibration
         text.setFont(font);
 
         final Bounds measure = text.getLayoutBounds();
-        logger.log(Level.CONFIG,
+        logger.log(Level.FINE,
                    "Font calibration measure: " + measure.getWidth() + " x " + measure.getHeight());
-
-        return FontCalibration.PIXEL_WIDTH / measure.getWidth();
+        final double factor = FontCalibration.PIXEL_WIDTH / measure.getWidth();
+        logger.log(Level.CONFIG, "JFX font calibration factor: {0}", factor);
+        return factor;
     }
-
 
     public static void main(final String[] args)
     {
@@ -57,9 +57,9 @@ public class JFXFontCalibration extends Application implements FontCalibration
     @Override
     public void start(final Stage stage) throws Exception
     {
-        Logger.getLogger("").setLevel(Level.CONFIG);
+        Logger.getLogger("").setLevel(Level.FINE);
         for (Handler handler : Logger.getLogger("").getHandlers())
-            handler.setLevel(Level.CONFIG);
+            handler.setLevel(Level.FINE);
 
         final double factor = getCalibrationFactor();
 

@@ -31,9 +31,20 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class FontWidgetProperty extends WidgetProperty<WidgetFont>
 {
+    private static double legacy_size_calibration = 0.75;
+
     private static final String FAMILY = "family";
     private static final String STYLE = "style";
     private static final String SIZE = "size";
+
+    /** Set calibration factor for fonts loaded from legacy files
+     *  @param factor Factor by which legacy displays would need to be scaled to match current font sizes
+     */
+    public static void setLegacyFontSizeCalibration(final double factor)
+    {
+        legacy_size_calibration = factor;
+    }
+
 
     /** Constructor
      *  @param descriptor Property descriptor
@@ -65,7 +76,7 @@ public class FontWidgetProperty extends WidgetProperty<WidgetFont>
             writer.writeAttribute(XMLTags.NAME, ((NamedWidgetFont) value).getName());
         writer.writeAttribute(FAMILY, value.getFamily());
         writer.writeAttribute(STYLE, value.getStyle().name());
-        writer.writeAttribute(SIZE, Integer.toString(value.getSize()));
+        writer.writeAttribute(SIZE, Double.toString(value.getSize()));
         writer.writeEndElement();
     }
 
@@ -74,7 +85,7 @@ public class FontWidgetProperty extends WidgetProperty<WidgetFont>
     {
         final String name, family;
         final WidgetFontStyle style;
-        final int size;
+        final double size;
 
         Element font_el = XMLUtil.getChildElement(property_xml, XMLTags.FONT);
         if (font_el != null)
@@ -82,7 +93,7 @@ public class FontWidgetProperty extends WidgetProperty<WidgetFont>
             name = font_el.getAttribute(XMLTags.NAME);
             family = font_el.getAttribute(FAMILY);
             style = WidgetFontStyle.valueOf(font_el.getAttribute(STYLE));
-            size = Integer.parseInt(font_el.getAttribute(SIZE));
+            size = Double.parseDouble(font_el.getAttribute(SIZE));
         }
         else
         {   // Legacy *.opi used either
@@ -93,7 +104,7 @@ public class FontWidgetProperty extends WidgetProperty<WidgetFont>
                 name = XMLUtil.getString(font_el);
                 family = font_el.getAttribute("fontName");
                 style = WidgetFontStyle.values()[Integer.parseInt(font_el.getAttribute(STYLE))];
-                size = Integer.parseInt(font_el.getAttribute("height"));
+                size = Double.parseDouble(font_el.getAttribute("height")) / legacy_size_calibration;
             }
             else
             {   // or   <fontdata fontName="Sans" height="20" style="3" />
@@ -103,7 +114,7 @@ public class FontWidgetProperty extends WidgetProperty<WidgetFont>
                     name = "";
                     family = font_el.getAttribute("fontName");
                     style = WidgetFontStyle.values()[Integer.parseInt(font_el.getAttribute(STYLE))];
-                    size = Integer.parseInt(font_el.getAttribute("height"));
+                    size = Double.parseDouble(font_el.getAttribute("height")) / legacy_size_calibration;
                 }
                 else
                     throw new Exception("Cannot parse font");

@@ -7,6 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 
@@ -18,8 +21,25 @@ import javafx.scene.text.FontWeight;
 /** JavaFX Helper
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class JFXUtil
 {
+    private static double font_calibration = 1.0;
+
+    static
+    {
+        try
+        {
+            font_calibration = new JFXFontCalibration().getCalibrationFactor();
+        }
+        catch (Exception ex)
+        {
+            Logger.getLogger(JFXUtil.class.getName())
+                  .log(Level.SEVERE, "Cannot initialize Java FX", ex);
+            font_calibration = 1.0;
+        }
+    }
+
     /** Convert model color into JFX color
      *  @param color {@link WidgetColor}
      *  @return {@link Color}
@@ -46,16 +66,17 @@ public class JFXUtil
      */
     public static Font convert(final WidgetFont font)
     {
+        final double calibrated = font.getSize() * font_calibration;
         switch (font.getStyle())
         {
         case BOLD:
-            return Font.font(font.getFamily(), FontWeight.BOLD, font.getSize());
+            return Font.font(font.getFamily(), FontWeight.BOLD, calibrated);
         case ITALIC:
-            return Font.font(font.getFamily(), FontPosture.ITALIC, font.getSize());
+            return Font.font(font.getFamily(), FontPosture.ITALIC, calibrated);
         case BOLD_ITALIC:
-            return Font.font(font.getFamily(), FontWeight.BOLD, FontPosture.ITALIC, font.getSize());
+            return Font.font(font.getFamily(), FontWeight.BOLD, FontPosture.ITALIC, calibrated);
         default:
-            return Font.font(font.getFamily(), font.getSize());
+            return Font.font(font.getFamily(), calibrated);
         }
     }
 }

@@ -21,7 +21,7 @@ public class NamedWidgetFont extends WidgetFont
      *  @param style  Font style: Bold, italic?
      *  @param size   Size (height)
      */
-    public NamedWidgetFont(final String name, final String family, final WidgetFontStyle style, final int size)
+    public NamedWidgetFont(final String name, final String family, final WidgetFontStyle style, final double size)
     {
         super(family, style, size);
         this.name = name;

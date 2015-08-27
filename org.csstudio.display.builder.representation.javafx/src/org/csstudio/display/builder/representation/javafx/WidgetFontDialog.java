@@ -36,7 +36,7 @@ import javafx.scene.layout.Priority;
 @SuppressWarnings("nls")
 public class WidgetFontDialog extends Dialog<WidgetFont>
 {
-    private final static Collection<Integer> default_sizes = Arrays.asList(8, 10, 12, 14, 18, 24, 32);
+    private final static Collection<Double> default_sizes = Arrays.asList(8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 32.0);
 
     private WidgetFont font;
 
@@ -44,7 +44,7 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
     private final ListView<String> families = new ListView<>();
     private final ListView<WidgetFontStyle> styles = new ListView<>();
     private final TextField size = new TextField();
-    private final ListView<Integer> sizes = new ListView<>();
+    private final ListView<Double> sizes = new ListView<>();
     private final TextField example = new TextField();
 
     /** Prevent circular updates */
@@ -195,8 +195,8 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
         {
             families.getSelectionModel().select(font.getFamily());
             styles.getSelectionModel().select(font.getStyle());
-            size.setText(Integer.toString(font.getSize()));
-            sizes.getSelectionModel().select(Integer.valueOf(font.getSize()));
+            size.setText(Double.toString(font.getSize()));
+            sizes.getSelectionModel().select(Double.valueOf(font.getSize()));
             example.setFont(JFXUtil.convert(font));
         }
         finally

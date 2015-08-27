@@ -227,10 +227,11 @@ Goal for the display builder is some level of compatibility with existing *.opi 
 that were created on Linux, and high levels of similarity across operating systems for
 newly created displays.
 
-Going forward, JavaFX is thus used which (at least so far) has scaling factor of 1.0.
+Going forward, JavaFX is thus used which (at least so far) has scaling factor of 1.0
+but self-configures the calibration factor on startup.
 To support existing displays, each site needs to once determine the legacy scaling factor
 by executing `SWTFontCalibation` on the production computer,
-then configure this in the `ModelReader` so that it will use it when loading existing *.opi files.
+then configure this via `FontWidgetProperty.setLegacyFontSizeCalibration()`.
 
 Java 8u60 may apply DPI scaling to all coordinates, which is OK
 because then fonts, rectangles, ... are all scaled consistently for high resolution screens.

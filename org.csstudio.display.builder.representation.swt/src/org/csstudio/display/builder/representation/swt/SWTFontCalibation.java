@@ -20,10 +20,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-/** SWT Font Demo
- *
- *  Call with font size. Defaults to '40 points'.
- *  Argument "auto" will attempt to match the JFX example.
+/** SWT Font Calibration
  *
  *  @author Kay Kasemir
  */

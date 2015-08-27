@@ -18,9 +18,7 @@ public class WidgetFont
 
     protected final String family;
     protected final WidgetFontStyle style;
-    protected final int size;
-    // TODO Use 'double' for font size?
-    // SWT and JavaFX allow that..
+    protected final double size;
 
     /** @return Default font */
     public static WidgetFont getDefault()
@@ -34,7 +32,7 @@ public class WidgetFont
      *  @param style  Font style: Bold, italic?
      *  @param size   Size (height)
      */
-    public WidgetFont(final String family, final WidgetFontStyle style, final int size)
+    public WidgetFont(final String family, final WidgetFontStyle style, final double size)
     {
         this.family = family;
         this.style = style;
@@ -54,7 +52,7 @@ public class WidgetFont
     }
 
     /** @return Size (height) */
-    public int getSize()
+    public double getSize()
     {
         return size;
     }
