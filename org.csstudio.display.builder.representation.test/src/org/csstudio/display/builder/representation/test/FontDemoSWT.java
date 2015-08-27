@@ -33,20 +33,20 @@ public class FontDemoSWT
         final Display display = new Display();
 
         // Determine size of text
-        Font font = new Font(display, "Liberation Mono", 100, SWT.NORMAL);
+        Font font = new Font(display, "Liberation Mono", 40, SWT.NORMAL);
         GC gc = new GC(display);
         gc.setFont(font);
         final Point measure = gc.stringExtent(TEXT);
         gc.dispose();
 
-        System.out.println("'100 point' text uses " + measure.x + " x " + measure.y + " pixels");
+        System.out.println("'40 point' text uses " + measure.x + " x " + measure.y + " pixels");
 
         final int font_size;
         if (args.length == 1)
         {
             if ("auto".equalsIgnoreCase(args[0]))
             {   // JFX example is 1032.16 pixels wide
-                font_size = 1032 * 100 / measure.x;
+                font_size = Math.round(1032.16f * 40 / measure.x);
                 System.out.println("Using font size " + font_size + " pt to get same width as JFX example");
                 System.out.println("Font scaling factor: " + font_size/40.0);
             }
