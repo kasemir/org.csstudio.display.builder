@@ -92,6 +92,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
         super.registerListeners();
         model_widget.displayBackgroundColor().addPropertyListener(this::borderChanged);
         model_widget.widgetName().addPropertyListener(this::borderChanged);
+        model_widget.displayFont().addPropertyListener(this::borderChanged);
         model_widget.positionWidth().addPropertyListener(this::borderChanged);
         model_widget.positionHeight().addPropertyListener(this::borderChanged);
 
@@ -111,6 +112,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
         {
             final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
             label.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
+            label.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
             label.setText(model_widget.widgetName().getValue());
             border.setWidth(model_widget.positionWidth().getValue() - 2*inset);
             border.setHeight(model_widget.positionHeight().getValue() - 2*inset);

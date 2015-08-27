@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
 
 import java.util.Arrays;
@@ -21,6 +22,7 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.properties.WidgetFont;
 
 /** A Group Widget contains child widgets.
  *
@@ -57,6 +59,7 @@ public class GroupWidget extends ContainerWidget
 
     private WidgetProperty<Macros> macros;
     private WidgetProperty<WidgetColor> background;
+    private WidgetProperty<WidgetFont> font;
 
     public GroupWidget()
     {
@@ -69,6 +72,7 @@ public class GroupWidget extends ContainerWidget
         super.defineProperties(properties);
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(background = displayBackgroundColor.createProperty(this, new WidgetColor(255, 255, 255)));
+        properties.add(font = displayFont.createProperty(this, WidgetFont.getDefault()));
 
         // Initial size
         positionWidth().setValue(300);
@@ -96,5 +100,11 @@ public class GroupWidget extends ContainerWidget
         final Macros base = super.getEffectiveMacros();
         final Macros my_macros = widgetMacros().getValue();
         return Macros.merge(base, my_macros);
+    }
+
+    /** @return Display 'font' */
+    public WidgetProperty<WidgetFont> displayFont()
+    {
+        return font;
     }
 }
