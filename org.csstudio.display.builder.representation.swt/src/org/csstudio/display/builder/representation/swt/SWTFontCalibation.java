@@ -5,8 +5,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.representation.test;
+package org.csstudio.display.builder.representation.swt;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.csstudio.display.builder.representation.FontCalibration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
@@ -24,51 +28,47 @@ import org.eclipse.swt.widgets.Shell;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class FontDemoSWT
+public class SWTFontCalibation implements FontCalibration
 {
-    private static final String TEXT = "'Example' Test \"XOXO\" pq__ 1234567890 (SWT)";
+    private final Logger logger = Logger.getLogger(getClass().getName());
+
+    @Override
+    public double getCalibrationFactor() throws Exception
+    {
+        final Display display = Display.getCurrent();
+
+        final Font font = new Font(display, FontCalibration.FONT, FontCalibration.SIZE, SWT.NORMAL);
+        final String name = font.getFontData()[0].getName();
+        if (! name.startsWith(FontCalibration.FONT))
+            throw new Exception("Requested " + FontCalibration.FONT + " but got " + name);
+
+        final GC gc = new GC(display);
+        gc.setFont(font);
+        final Point measure = gc.stringExtent(TEXT);
+        gc.dispose();
+
+        logger.log(Level.CONFIG,
+                "Font calibration measure: " + measure.x + " x " + measure.y);
+
+        return FontCalibration.PIXEL_WIDTH / measure.x;
+    }
 
     public static void main(final String[] args) throws Exception
     {
         final Display display = new Display();
 
-        // Determine size of text
-        Font font = new Font(display, "Liberation Mono", 40, SWT.NORMAL);
-        GC gc = new GC(display);
-        gc.setFont(font);
-        final Point measure = gc.stringExtent(TEXT);
-        gc.dispose();
+        final double factor = new SWTFontCalibation().getCalibrationFactor();
 
-        System.out.println("'40 point' text uses " + measure.x + " x " + measure.y + " pixels");
-
-        final int font_size;
-        if (args.length == 1)
-        {
-            if ("auto".equalsIgnoreCase(args[0]))
-            {   // JFX example is 1032.16 pixels wide
-                font_size = Math.round(1032.16f * 40 / measure.x);
-                System.out.println("Using font size " + font_size + " pt to get same width as JFX example");
-                System.out.println("Font scaling factor: " + font_size/40.0);
-            }
-            else
-            {
-                font_size = Integer.parseInt(args[0]);
-                System.out.println("Using font size " + font_size + " pt");
-            }
-        }
-        else
-        {
-            font_size = 40;
-            System.out.println("Using font size " + font_size + " pt");
-        }
+        final int font_size = (int) (FontCalibration.SIZE * factor + 0.5);
 
         final Shell shell = new Shell(display);
         shell.setLayout(new RowLayout());
+        shell.setText("SWT: Calibration factor " + factor);
 
         Label label = new Label(shell, SWT.NONE);
-        font = new Font(display, "Liberation Mono", font_size, SWT.NORMAL);
+        final Font font = new Font(display, FontCalibration.FONT, font_size, SWT.NORMAL);
         label.setFont(font);
-        label.setText(TEXT);
+        label.setText(FontCalibration.TEXT);
 
         shell.pack();
         shell.open();

@@ -63,6 +63,7 @@ to occur on the UI thread in a throttled manner.
 
 Major TODOs:
  * Font handling.
+ * Overall zoom factor (should be easy with JFX), auto-size.
 
  * A ton of widgets and their representation
  
@@ -202,51 +203,36 @@ Fonts
 
 Available fonts differ between installations of Windows, Linux, Mac OS X.
 New developments should install open source fonts that are available for all operating systems,
-for example the "Liberation" fonts, but even then legacy CS-Studio displays rendered
-differently across operating systems.
-Using named fonts were and will be a good idea.
+for example the "Liberation" fonts.
+
+Even when the same true-type-fonts were available, the legacy CS-Studio displays rendered
+fonts differently across operating systems because it failed to distinguish between
+pixels on the screen and font size points.
+Font sizes are specified in "points", a unit equal to 1/72 of an inch when printed on paper.
+While operator displays use "pixels" for widget locations, sizes, line width etc.,
+font specifications like "height 12" were in points.
+For SWT as used in the legacy  CS-Studio displays, the on-screen size of fonts depends
+on the resolution and size of the display.
+For existing *.opi files, the desired font sizes are therefore unknown unless one can measure
+them on the OS and hardware where the display was originally executed. 
+
+Using JavaFX, fonts so far appear to be mapped 1 pixel per 1 "point" on Linux, Windows and Mac OS X.
+To verify, execute `org.csstudio.display.builder.representation.javafx.JFXFontCalibration`.
+
+For SWT, Mac OS X also results in a 1-to-1 mapping, while Windows and Linux scale the font "points"
+to screen pixels depending on the display.
+To determine this scaling factor, execute `org.csstudio.display.builder.representation.swt.SWTFontCalibation`.
 
 Goal for the display builder is some level of compatibility with existing *.opi displays
 that were created on Linux, and high levels of similarity across operating systems for
 newly created displays.
 
-Technical Problem:
+Going forward, JavaFX is thus used which (at least so far) has scaling factor of 1.0.
+To support existing displays, each site needs to once determine the legacy scaling factor
+by executing `SWTFontCalibation` on the production computer,
+then configure this in the `ModelReader` so that it will use it when loading existing *.opi files.
 
-Font sizes are specified in "points". A point corresponds to 1/72 of an inch when printed.
-The on-screen size depends on the display's DPI settings.
-
-While operator displays use "pixels" for widget locations, sizes, line width etc.,
-existing font specifications like "height 10" were in points.
-The pixel height depends on screen settings, which explains the variations seen with legacy CS-Studio displays.
-
-As an example, org.csstudio.display.builder.representation.test.FontDemoJavaFX and FontDemoSWT use "Liberation Mono", size 40.
-
-Mac OS X:
- * Same size on screen for SWT and Java FX.
- * SWT matches Applications/Font Book.app
- * When adding "Liberation Mono", size 40 text to a screenshot in the Preview.app, that also matches.
- * SWT example prints Height: 45, Ascent: 33, Descent: 12
-
-Linux (Redhat ELWS 6.7):
- * JavaFX example matches the Mac OS X screenshot
- * SWT example appears larger and prints Height: 62, Ascent: 45, Descent: 17
- * SWT example matches the sizes in GNOME Character Map
-
-Windows (7):
- * JavaFX example matches the Mac OS X screenshot
- * SWT example appears larger
- * SWT example matches the sizes in WordPad
- 
-JavaFX examples match across operating systems. Unclear if this is pure luck.
-
-On Mac OS X, SWT happens to match.
-On Linux and Windows, the SWT examples differ from JavaFX.
-SWT on Windows also differs from SWT on Linux.
-
-When reading existing *.opi files, it is impossible to determine how large a font of "height X"
-used to be on the screen where it was created.
-
-==> Each site needs to determine the correction factor for reading font height from existing displays.
-==> Hopefully JavaFX font height will remain constant across operating systems and not also
-    change with screen resolution. Java 8u60 may apply DPI scaling to all coordinates, which is OK
-    because then fonts, rectangles, ... are all scaled consistently for high resolution screens.
+Java 8u60 may apply DPI scaling to all coordinates, which is OK
+because then fonts, rectangles, ... are all scaled consistently for high resolution screens.
+Alternatively, high resolution displays may require using a default zoom factor of for example 2.0
+for the global zoom.
