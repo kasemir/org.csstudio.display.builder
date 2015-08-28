@@ -47,7 +47,6 @@ All read existing *.opi files.
 Each new widget is added as its own class derived from the base `Widget` and registered in `WidgetFactory`.
 
 Major TODOs:
-
  * Add many more widgets and their properties
 
 ** Representation **
@@ -87,6 +86,7 @@ The base `WidgetRuntime` handles the following:
 Major TODOs:
 
  * Check details of script support: One instance per display? One for each action?
+ * Alarm-sensitive behavior
  
 ** Editor **
 
@@ -97,7 +97,7 @@ Editor, Palette, Property Panel, Widget Tree,
 move/resize via tracker, snap-to-grid, snap-to-other-widgets.
 
 Major TODOs:
-
+ * Property editor for Actions, macros, scripts, ...
  * Rulers, Guides
 
 

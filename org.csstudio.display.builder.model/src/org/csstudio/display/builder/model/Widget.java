@@ -32,6 +32,8 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.csstudio.display.builder.model.macros.MacroOrPropertyProvider;
+import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
@@ -539,6 +541,12 @@ public class Widget
         if (! the_parent.isPresent())
             return null;
         return the_parent.get().getEffectiveMacros();
+    }
+
+    /** @return Macro provider for effective macros, falling back to properties */
+    public MacroValueProvider getMacrosOrProperties()
+    {
+        return new MacroOrPropertyProvider(getEffectiveMacros(), property_map);
     }
 
     /** Set user data

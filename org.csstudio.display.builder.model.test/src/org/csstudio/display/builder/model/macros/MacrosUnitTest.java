@@ -41,7 +41,7 @@ public class MacrosUnitTest
     @Test
     public void testMacros() throws Exception
     {
-        final Macros macros = MacroParser.parseDefinition("S=BL7, NAME=\"Flint, Eugene\", TAB = \"    \", MACRO=S");
+        final MacroValueProvider macros = MacroParser.parseDefinition("S=BL7, NAME=\"Flint, Eugene\", TAB = \"    \", MACRO=S");
         System.out.println(macros);
         assertThat(macros.getValue("S"),    equalTo("BL7"));
         assertThat(macros.getValue("NAME"), equalTo("Flint, Eugene"));
@@ -89,7 +89,7 @@ public class MacrosUnitTest
     @Test
     public void testSpecials() throws Exception
     {
-        Macros macros = MacroParser.parseDefinition("");
+        MacroValueProvider macros = MacroParser.parseDefinition("");
         System.out.println(macros);
         assertThat(macros.toString(), equalTo("[]"));
 

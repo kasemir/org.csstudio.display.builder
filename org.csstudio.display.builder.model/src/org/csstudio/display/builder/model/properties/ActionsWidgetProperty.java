@@ -16,12 +16,14 @@ import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
+import org.eclipse.osgi.util.NLS;
 import org.w3c.dom.Element;
 
 /** Widget property that describes actions.
@@ -170,5 +172,16 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                       .log(Level.WARNING, "Ignoring action of unknown type '" + type + "'");
         }
         setValue(actions);
+    }
+
+    @Override
+    public String toString()
+    {
+        final List<ActionInfo> actions = value;
+        if (actions.isEmpty())
+            return Messages.Actions_Zero;
+        if (actions.size() == 1)
+            return actions.get(0).getDescription();
+        return NLS.bind(Messages.Actions_N_Fmt, actions.size());
     }
 }

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class Macros
+public class Macros implements MacroValueProvider
 {
     private final Map<String, String> macros = new HashMap<>();
 
@@ -67,10 +67,8 @@ public class Macros
         return names;
     }
 
-    /** Get value for macro
-     *  @param name Name of the macro
-     *  @return Value of the macro or <code>null</code> if not defined
-     */
+    /** {@inheritDoc} */
+    @Override
     public String getValue(final String name)
     {
         return macros.get(name);

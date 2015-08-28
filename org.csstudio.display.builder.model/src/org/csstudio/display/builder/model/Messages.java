@@ -16,9 +16,10 @@ public class Messages extends NLS
 {
     private static final String BUNDLE_NAME = "org.csstudio.display.builder.model.messages"; //$NON-NLS-1$
 
-
     public static String ActionButtonWidget_Description;
     public static String ActionButtonWidget_Name;
+    public static String Actions_Zero;
+    public static String Actions_N_Fmt;
     public static String EmbeddedDisplayWidget_Description;
     public static String EmbeddedDisplayWidget_Name;
     public static String FontStyle_Bold;

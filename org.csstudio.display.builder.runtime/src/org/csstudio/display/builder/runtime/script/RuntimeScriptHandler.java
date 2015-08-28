@@ -12,7 +12,7 @@ import java.util.List;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.MacroHandler;
-import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.model.util.ResourceUtil;
@@ -47,7 +47,7 @@ public class RuntimeScriptHandler implements PVListener
         this.widget = widget;
         this.infos = script_info.getPVs();
 
-        final Macros macros = widget.getEffectiveMacros();
+        final MacroValueProvider macros = widget.getEffectiveMacros();
 
         // Compile script
         final String script_name = MacroHandler.replace(macros, script_info.getFile());

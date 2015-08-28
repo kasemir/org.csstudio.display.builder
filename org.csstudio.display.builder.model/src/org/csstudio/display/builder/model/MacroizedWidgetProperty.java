@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.macros.MacroHandler;
-import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
 
 /** Base for Property that supports macros.
@@ -97,7 +97,7 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
     {
         if (value == null)
         {
-            final Macros macros = widget.getEffectiveMacros();
+            final MacroValueProvider macros = widget.getMacrosOrProperties();
             final String expanded = MacroHandler.replace(macros, specification);
             try
             {

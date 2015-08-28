@@ -37,24 +37,27 @@ public class MacroHandler
 
     /** Replace macros in input
      *
-     *  @param macros {@link Macros} to use
+     *  @param macros {@link MacroValueProvider} to use
      *  @param input Text that may contain macros "$(NAME)" or "${NAME}",
      *               also allowing nested "${{INNER}}"
      *  @return Text where all macros have been resolved
      */
-    public static String replace(final Macros macros, final String input)
+    public static String replace(final MacroValueProvider macros, final String input)
     {
         return replace(macros, input, 0);
     }
 
+    // TODO Catch/handle recursion:
+    // Macros: S=$(S)
+
     /** Replace macros in input
      *
-     *  @param macros {@link Macros} to use
+     *  @param macros {@link MacroValueProvider} to use
      *  @param input Text that may contain macros "$(NAME)" or "${NAME}",
      *               also allowing nested "${{INNER}}"
      *  @return Text where all macros have been resolved
      */
-    private static String replace(final Macros macros, final String input, final int from)
+    private static String replace(final MacroValueProvider macros, final String input, final int from)
     {
         // Short cut if there is nothing to replace
         if (input.indexOf('$',  from) < 0)
