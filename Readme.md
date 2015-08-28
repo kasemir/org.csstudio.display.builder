@@ -48,7 +48,7 @@ Each new widget is added as its own class derived from the base `Widget` and reg
 
 Major TODOs:
 
- * Named fonts
+ * Add many more widgets and their properties
 
 ** Representation **
 
@@ -62,9 +62,7 @@ On change, it can prepare the UI update, which is then scheduled via `ToolkitRep
 to occur on the UI thread in a throttled manner.
 
 Major TODOs:
- * Font handling.
  * Overall zoom factor (should be easy with JFX), auto-size.
-
  * A ton of widgets and their representation
  
 ** Runtime **
@@ -88,7 +86,7 @@ The base `WidgetRuntime` handles the following:
 
 Major TODOs:
 
- * ??
+ * Check details of script support: One instance per display? One for each action?
  
 ** Editor **
 
@@ -141,7 +139,7 @@ SWT version uses 13% CPU, "10..16 ms" in UI updates.
 Both appear fluid.
 
 
-__-> SWT tends to be slower than JavaFX, really bad on some Linux__
+__-> JavaFX tends to be faster than SWT, especially on some Linux__
 
 
 `RepresentationDemoJavaFX` vs. `RepresentationDemoJavaFXinSWT`
@@ -187,7 +185,9 @@ If the macro does not expand to a valid specification, for example if the macro 
 instead of '8', the default value for that property will be used, and a warning is logged.
 
 Previous XML format could not distinguish between a valid macro name `"include_parent_macros"`
-and the corresponding replacement behavior.
+and the corresponding replacement behavior. For now, macros are always inherited from the "parent",
+specifically in the order shown above.
+Option to _not_ include them may be superflous.
 
 Compared to `org.csstudio.apputil.macros.MacroUtil`, `org.csstudio.display.builder.model.macros.MacroHandler` simply recurses instead of maintaining its own stack/lockstack/parsedMacros.
 Need to check for infinite loop.

@@ -65,7 +65,7 @@ public class MacrosWidgetProperty extends WidgetProperty<Macros>
      */
     static void writeMacros(final XMLStreamWriter writer, final Macros value) throws Exception
     {
-        // TODO Write if parent macros are inherited
+        // TODO Write if parent macros are inherited (or forget about that concept, they're always inherited)
         for (String name : value.getNames())
         {
             writer.writeStartElement(name);
@@ -86,15 +86,16 @@ public class MacrosWidgetProperty extends WidgetProperty<Macros>
         {
             final String name = element.getTagName();
             final String value = XMLUtil.getString(element);
-            if (name.equals("include_parent_macros"))
-            {
-                // TODO Handle it
-                // Legacy used 'include_parent_macros'
-                // in a way that actually conflicts with a macro of that name.
-                // Too late now..
-            }
-            else
-                macros.add(name, value);
+            // TODO if (name.equals("include_parent_macros"))
+            // Legacy used 'include_parent_macros'
+            // in a way that actually conflicts with a macro of that name.
+            //
+            // Why is the 'include_parent_macros' needed at all?
+            // Can't macros behave like shell variables:
+            // You inherit all, and can redefine.
+            // What's the harm in that?
+            // Is there any reason to _NOT_ inherit parent macros?
+            macros.add(name, value);
         }
         return macros;
     }
