@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.util.logging.LogManager;
 
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.persist.WidgetFontService;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -40,6 +41,9 @@ public class EditorDemo extends Application
     {
         final File color_file = new File("../org.csstudio.display.builder.runtime.test/examples/color.def");
         WidgetColorService.loadColors(color_file.getPath(), () -> new FileInputStream(color_file));
+
+        final File font_file = new File("../org.csstudio.display.builder.runtime.test/examples/font.def");
+        WidgetFontService.loadFonts(font_file.getPath(), () -> new FileInputStream(font_file));
 
         editor = new EditorGUI(stage);
         editor.loadModel(new File(display_file));

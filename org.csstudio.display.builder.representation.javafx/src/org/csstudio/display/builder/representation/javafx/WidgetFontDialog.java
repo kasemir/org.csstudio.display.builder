@@ -40,7 +40,8 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
 {
     // Sizes are of type double, but comparison of double to set selected element
     // can suffer rounding errors, so use strings
-    private final static Collection<String> default_sizes = Arrays.asList("8.0", "10.0", "12.0", "14.0", "18.0", "24.0", "32.0");
+    private final static Collection<String> default_sizes =
+        Arrays.asList("8.0", "10.0", "12.0", "14.0", "16.0", "18.0", "22.0", "24.0", "32.0");
 
     private WidgetFont font;
 

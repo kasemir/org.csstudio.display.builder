@@ -1,0 +1,20 @@
+//Default Title Font. It will used in case the OS specified font macro was not defined.
+Example Title = Arial-bold-18
+
+//Title Font for Linux GTK 
+Example Title(linux_gtk) = Sans-bold-18
+
+//Title Font for MacOS
+Example Title(macosx) = Lucida Grande-bold-18
+
+Example Text = SystemDefault-regular-10
+
+Example LinkText = SystemDefault-italic-10
+
+Default      = Liberation Sans-regular-14
+Default Bold = Liberation Sans-bold-14
+Header 1     = Liberation Sans-bold-22
+Header 2     = Liberation Sans-bold-18
+Header 3     = Liberation Sans-bold-16
+Comment      = Liberation Sans-italic-14
+Fine Print   = Liberation Sans-regular-12

@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringTokenizer;
 
 import org.csstudio.display.builder.model.properties.NamedWidgetFont;
 import org.csstudio.display.builder.model.properties.WidgetFont;
@@ -68,18 +69,39 @@ public class NamedWidgetFonts extends ConfigFileParser
     @Override
     protected void parse(final String name, final String value) throws Exception
     {
-        // TODO Parse font from config file
-//        final StringTokenizer tokenizer = new StringTokenizer(value, ",");
-//        try
-//        {
-//            final int red = Integer.parseInt(tokenizer.nextToken().trim());
-//            final int green = Integer.parseInt(tokenizer.nextToken().trim());
-//            final int blue = Integer.parseInt(tokenizer.nextToken().trim());
-//            define(new NamedWidgetColor(name, red, green, blue));
-//        }
-//        catch (Throwable ex)
-//        {
-//            throw new Exception("Cannot parse color '" + name + "' from '" + value + "'", ex);
-//        }
+        // TODO Check if name is 'qualified' by OS
+
+        final StringTokenizer tokenizer = new StringTokenizer(value, "-");
+        try
+        {
+            String family = tokenizer.nextToken().trim();
+            final WidgetFontStyle style = parseStyle(tokenizer.nextToken().trim());
+            final double size = Double.parseDouble(tokenizer.nextToken().trim());
+
+            if (family.equalsIgnoreCase("SystemDefault"))
+                family = WidgetFont.getDefault().getFamily();
+
+            final NamedWidgetFont font = new NamedWidgetFont(name, family, style, size);
+            define(font);
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("Cannot parse font '" + name + "' from '" + value + "'", ex);
+        }
+    }
+
+    private WidgetFontStyle parseStyle(final String style_text)
+    {
+        switch (style_text.toLowerCase())
+        {
+        case "bold":
+            return WidgetFontStyle.BOLD;
+        case "italic":
+            return WidgetFontStyle.ITALIC;
+        case "bold italic":
+            return WidgetFontStyle.BOLD_ITALIC;
+        default:
+            return WidgetFontStyle.REGULAR;
+        }
     }
 }
