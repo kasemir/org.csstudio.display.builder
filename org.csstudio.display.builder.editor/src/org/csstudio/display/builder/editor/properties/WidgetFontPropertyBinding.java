@@ -21,7 +21,7 @@ import javafx.scene.control.Button;
 /** Bidirectional binding between a color property in model and Java FX Node in the property panel
  *  @author Kay Kasemir
  */
-public class WidgetFontPropertyBinding // TODO Use 'Button' instead of WidgetFontPropertyField
+public class WidgetFontPropertyBinding
        extends WidgetPropertyBinding<Button, FontWidgetProperty>
 {
     /** Update property panel field as model changes */

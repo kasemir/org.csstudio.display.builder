@@ -7,11 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import java.util.Optional;
+
 import javax.xml.stream.XMLStreamWriter;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.WidgetFontService;
 import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.w3c.dom.Element;
@@ -126,14 +129,13 @@ public class FontWidgetProperty extends WidgetProperty<WidgetFont>
             font = new WidgetFont(family, style, size);
         else
         {
-// TODO       final Optional<NamedWidgetFont> known_font = WidgetFontService.getFonts().getFont(name);
-//            if (known_font.isPresent())
-//                // Known named font
-//                font = known_font.get();
-//            else
-//                // Unknown named font: Use name with info values from file, lacking own definition of that font
-//                font = new NamedWidgetFont(name, red, green, blue);
-            font = new NamedWidgetFont(name, family, style, size);
+            final Optional<NamedWidgetFont> known_font = WidgetFontService.getFonts().getFont(name);
+            if (known_font.isPresent())
+                // Known named font
+                font = known_font.get();
+            else
+                // Unknown named font: Use name with info values from file, lacking own definition of that font
+                font = new NamedWidgetFont(name, family, style, size);
         }
         setValue(font);
     }
