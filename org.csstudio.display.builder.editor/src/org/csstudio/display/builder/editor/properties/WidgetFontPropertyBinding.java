@@ -9,37 +9,38 @@ package org.csstudio.display.builder.editor.properties;
 
 import java.beans.PropertyChangeListener;
 
-import org.csstudio.display.builder.editor.undo.SetWidgetColorAction;
+import org.csstudio.display.builder.editor.undo.SetWidgetFontAction;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
-import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
-import org.csstudio.display.builder.representation.javafx.WidgetColorDialog;
+import org.csstudio.display.builder.model.properties.FontWidgetProperty;
+import org.csstudio.display.builder.representation.javafx.WidgetFontDialog;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Button;
 
 /** Bidirectional binding between a color property in model and Java FX Node in the property panel
  *  @author Kay Kasemir
  */
-public class WidgetColorPropertyBinding
-       extends WidgetPropertyBinding<WidgetColorPropertyField, ColorWidgetProperty>
+public class WidgetFontPropertyBinding // TODO Use 'Button' instead of WidgetFontPropertyField
+       extends WidgetPropertyBinding<Button, FontWidgetProperty>
 {
     /** Update property panel field as model changes */
     private final PropertyChangeListener model_listener = event ->
     {
-        jfx_node.setColor(widget_property.getValue());
+        jfx_node.setText(widget_property.getValue().toString());
     };
 
     /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event ->
     {
-        final WidgetColorDialog dialog = new WidgetColorDialog(widget_property.getValue());
+        final WidgetFontDialog dialog = new WidgetFontDialog(widget_property.getValue());
         dialog.showAndWait().ifPresent(
-            new_color -> undo.execute(new SetWidgetColorAction(widget_property, new_color)));
+            new_font ->  undo.execute(new SetWidgetFontAction(widget_property, new_font)) );
     };
 
-    public WidgetColorPropertyBinding(final UndoableActionManager undo,
-                                      final WidgetColorPropertyField field,
-                                      final ColorWidgetProperty widget_property)
+    public WidgetFontPropertyBinding(final UndoableActionManager undo,
+                                     final Button field,
+                                     final FontWidgetProperty widget_property)
     {
         super(undo, field, widget_property);
     }
@@ -49,7 +50,7 @@ public class WidgetColorPropertyBinding
     {
         widget_property.addPropertyListener(model_listener);
         jfx_node.setOnAction(action_handler);
-        jfx_node.setColor(widget_property.getValue());
+        jfx_node.setText(widget_property.getValue().toString());
     }
 
     @Override

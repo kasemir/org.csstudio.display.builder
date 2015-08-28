@@ -19,8 +19,10 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
+import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -118,6 +120,15 @@ public class PropertyPanel
                 bindings.add(binding);
                 binding.bind();
                 field = color_field;
+            }
+            else if (property instanceof FontWidgetProperty)
+            {
+                final FontWidgetProperty font_prop = (FontWidgetProperty) property;
+                final Button font_field = new Button();
+                final WidgetFontPropertyBinding binding = new WidgetFontPropertyBinding(undo, font_field, font_prop);
+                bindings.add(binding);
+                binding.bind();
+                field = font_field;
             }
             else if (property instanceof BooleanWidgetProperty)
             {

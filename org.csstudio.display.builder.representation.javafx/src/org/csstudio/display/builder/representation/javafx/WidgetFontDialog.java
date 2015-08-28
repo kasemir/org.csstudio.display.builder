@@ -35,9 +35,12 @@ import javafx.scene.layout.Priority;
 /** Dialog for selecting a {@link WidgetFont}
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class WidgetFontDialog extends Dialog<WidgetFont>
 {
-    private final static Collection<Double> default_sizes = Arrays.asList(8.0, 10.0, 12.0, 14.0, 18.0, 24.0, 32.0);
+    // Sizes are of type double, but comparison of double to set selected element
+    // can suffer rounding errors, so use strings
+    private final static Collection<String> default_sizes = Arrays.asList("8.0", "10.0", "12.0", "14.0", "18.0", "24.0", "32.0");
 
     private WidgetFont font;
 
@@ -45,7 +48,7 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
     private final ListView<String> families = new ListView<>();
     private final ListView<WidgetFontStyle> styles = new ListView<>();
     private final TextField size = new TextField();
-    private final ListView<Double> sizes = new ListView<>();
+    private final ListView<String> sizes = new ListView<>();
     private final TextField example = new TextField();
 
     /** Prevent circular updates */
@@ -138,10 +141,10 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
             {
                 final String family = families.getSelectionModel().getSelectedItem();
                 final WidgetFontStyle font_style = styles.getSelectionModel().getSelectedItem();
-                int font_size;
+                double font_size;
                 try
                 {
-                    font_size = Integer.parseInt(size.getText());
+                    font_size = Double.parseDouble(size.getText());
                 }
                 catch (NumberFormatException ex)
                 {
@@ -158,11 +161,14 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
         };
         families.getSelectionModel().selectedItemProperty().addListener(update_font);
         styles.getSelectionModel().selectedItemProperty().addListener(update_font);
-        size.textProperty().addListener(update_font);
+        size.setOnAction(event -> update_font.invalidated(null));
         sizes.getSelectionModel().selectedItemProperty().addListener((l, old, value) ->
         {
             if (value != null)
-                size.setText(value.toString());
+            {
+                size.setText(value);
+                update_font.invalidated(null);
+            }
         });
 
         setResizable(true);
@@ -193,7 +199,10 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
             families.getSelectionModel().select(font.getFamily());
             styles.getSelectionModel().select(font.getStyle());
             size.setText(Double.toString(font.getSize()));
-            sizes.getSelectionModel().select(Double.valueOf(font.getSize()));
+
+            String current_size = String.format("%.1f", font.getSize());
+            sizes.getSelectionModel().select(current_size);
+
             example.setFont(JFXUtil.convert(font));
         }
         finally

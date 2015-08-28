@@ -39,8 +39,8 @@ public class NamedWidgetFonts extends ConfigFileParser
         define(new NamedWidgetFont("Header 1", base.getFamily(), WidgetFontStyle.BOLD, base.getSize() + 8));
         define(new NamedWidgetFont("Header 2", base.getFamily(), WidgetFontStyle.BOLD, base.getSize() + 4));
         define(new NamedWidgetFont("Header 3", base.getFamily(), WidgetFontStyle.BOLD, base.getSize() + 2));
-        define(new NamedWidgetFont("Fine Print", base.getFamily(), WidgetFontStyle.REGULAR, base.getSize() - 2));
         define(new NamedWidgetFont("Comment", base.getFamily(), WidgetFontStyle.ITALIC, base.getSize()));
+        define(new NamedWidgetFont("Fine Print", base.getFamily(), WidgetFontStyle.REGULAR, base.getSize() - 2));
     }
 
     private void define(final NamedWidgetFont font)

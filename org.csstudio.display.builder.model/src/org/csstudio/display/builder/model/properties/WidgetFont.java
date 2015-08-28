@@ -60,6 +60,6 @@ public class WidgetFont
     @Override
     public String toString()
     {
-        return "Font('" + family + "' ," + style + "," + size + ")";
+        return "'" + family + "', " + style + ", " + size + ")";
     }
 }
