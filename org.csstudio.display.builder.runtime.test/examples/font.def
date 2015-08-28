@@ -1,20 +1,42 @@
-//Default Title Font. It will used in case the OS specified font macro was not defined.
-Example Title = Arial-bold-18
+// Named font definitions
+//
+// Entries in this file are read in sequence.
+// A later entry in the file can override
+// an earlier entry in the file.
+//
+// In a production setup, this file may be constructed
+// by concatenating a generic file with a more specific file,
+// and the specific entries would then override generic entries
+// of the same name.
 
-//Title Font for Linux GTK 
-Example Title(linux_gtk) = Sans-bold-18
+// Format:
+//
+// Named Font = Family - Style - Size
+//
+// Family: Font family name "Liberation Sans", "Liberation Mono", "Liberation Serif"
+// Style : "regular", "bold", "italic", "bold italic"
+// Size  : Font height in pixels
+//
+// Leading/trailing spaces around each element are OK, but if the font family
+// is "Liberation Sans", it has to be typed with just that one space between
+// "Liberation" and "Sans"
 
-//Title Font for MacOS
-Example Title(macosx) = Lucida Grande-bold-18
+// These fonts are actually predefined as follows, and file could re-define them
+//Default      = Liberation Sans - regular - 14
+//Default Bold = Liberation Sans - bold    - 14
+//Header 1     = Liberation Sans - bold    - 22
+//Header 2     = Liberation Sans - bold    - 18
+//Header 3     = Liberation Sans - bold    - 16
+//Comment      = Liberation Sans - italic  - 14
+//Fine Print   = Liberation Sans - regular - 12
 
-Example Text = SystemDefault-regular-10
 
-Example LinkText = SystemDefault-italic-10
+// Example for a named font
+Oddball = Comic Sans MS-regular-40
 
-Default      = Liberation Sans-regular-14
-Default Bold = Liberation Sans-bold-14
-Header 1     = Liberation Sans-bold-22
-Header 2     = Liberation Sans-bold-18
-Header 3     = Liberation Sans-bold-16
-Comment      = Liberation Sans-italic-14
-Fine Print   = Liberation Sans-regular-12
+// On Linux resp. MacOS, these will be used instead,
+// replacnig the definition shown above.
+// Operating system selectors are: "windows", "linux", "macosx"
+Oddball(linux) = PakTypeNaqsh-regular-40
+Oddball(macosx) = Herculanum-regular-40
+

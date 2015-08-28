@@ -67,9 +67,25 @@ public class NamedWidgetFonts extends ConfigFileParser
     }
 
     @Override
-    protected void parse(final String name, final String value) throws Exception
+    protected void parse(String name, final String value) throws Exception
     {
-        // TODO Check if name is 'qualified' by OS
+        final String os = getOSName();
+        String selector = "";
+
+        // Check if name is qualified by OS selector
+        final int sep = name.indexOf('(');
+        if (sep > 0)
+        {
+            final int end = name.indexOf(')', sep+1);
+            if (end < 0)
+                throw new Exception("Cannot locate end of OS selector in '" + name + "'");
+            selector = name.substring(sep+1, end);
+            name = name.substring(0, sep);
+
+            // Ignore entries that do not match this OS
+            if (! selector.startsWith(os))
+                return;
+        }
 
         final StringTokenizer tokenizer = new StringTokenizer(value, "-");
         try
@@ -90,6 +106,9 @@ public class NamedWidgetFonts extends ConfigFileParser
         }
     }
 
+    /** @param style_text "bold", "italic", "bold italic" as used since legacy opibuilder
+     *  @return {@link WidgetFontStyle}
+     */
     private WidgetFontStyle parseStyle(final String style_text)
     {
         switch (style_text.toLowerCase())
@@ -103,5 +122,14 @@ public class NamedWidgetFonts extends ConfigFileParser
         default:
             return WidgetFontStyle.REGULAR;
         }
+    }
+
+    /** @return "linux", "macosx" or "windows" */
+    private String getOSName()
+    {
+        return System.getProperty("os.name")
+                     .toLowerCase()
+                     .replaceAll(" ", "") // Remove spaces
+                     .replaceAll("win.*", "windows"); // "Windows 7" -> "windows"
     }
 }
