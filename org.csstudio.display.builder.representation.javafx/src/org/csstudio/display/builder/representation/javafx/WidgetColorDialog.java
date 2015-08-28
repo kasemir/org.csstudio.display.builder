@@ -110,7 +110,16 @@ public class WidgetColorDialog extends Dialog<WidgetColor>
         {
             final NamedWidgetColors colors = WidgetColorService.getColors();
             final Collection<NamedWidgetColor> values = colors.getColors();
-            Platform.runLater(() -> color_names.getItems().addAll(values));
+            Platform.runLater(() ->
+            {
+                color_names.getItems().addAll(values);
+
+                if (initial_color instanceof NamedWidgetColor)
+                {
+                    color_names.getSelectionModel().select((NamedWidgetColor) initial_color);
+                    color_names.scrollTo(color_names.getSelectionModel().getSelectedIndex());
+                }
+            });
         });
         content.add(color_names, 0, 1, 1, 5);
 
