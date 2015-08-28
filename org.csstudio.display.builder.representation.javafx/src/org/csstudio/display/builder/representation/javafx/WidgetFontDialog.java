@@ -79,7 +79,15 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
         {
             final NamedWidgetFonts fonts = WidgetFontService.getFonts();
             final Collection<NamedWidgetFont> values = fonts.getFonts();
-            Platform.runLater(() -> font_names.getItems().addAll(values));
+            Platform.runLater(() ->
+            {
+                font_names.getItems().addAll(values);
+                if (initial_font instanceof NamedWidgetFont)
+                {
+                    font_names.getSelectionModel().select((NamedWidgetFont) initial_font);
+                    font_names.scrollTo(font_names.getSelectionModel().getSelectedIndex());
+                }
+            });
         });
 
         families.getItems().addAll(Toolkit.getToolkit().getFontLoader().getFamilies());
@@ -198,6 +206,7 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
         try
         {
             families.getSelectionModel().select(font.getFamily());
+            families.scrollTo(families.getSelectionModel().getSelectedIndex());
             styles.getSelectionModel().select(font.getStyle());
             size.setText(Double.toString(font.getSize()));
 
