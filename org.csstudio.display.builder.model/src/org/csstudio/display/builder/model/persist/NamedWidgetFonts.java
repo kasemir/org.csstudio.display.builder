@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.StringTokenizer;
 
 import org.csstudio.display.builder.model.properties.NamedWidgetFont;
-import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.model.properties.WidgetFontStyle;
 
 /** Provider of {@link NamedWidgetFont}
@@ -25,6 +24,14 @@ import org.csstudio.display.builder.model.properties.WidgetFontStyle;
 @SuppressWarnings("nls")
 public class NamedWidgetFonts extends ConfigFileParser
 {
+    public static final NamedWidgetFont DEFAULT = new NamedWidgetFont("Default", "Liberation Sans", WidgetFontStyle.REGULAR, 14);
+    public static final NamedWidgetFont DEFAULT_BOLD = new NamedWidgetFont("Default Bold", DEFAULT.getFamily(), WidgetFontStyle.BOLD, DEFAULT.getSize());
+    public static final NamedWidgetFont HEADER1 = new NamedWidgetFont("Header 1", DEFAULT.getFamily(), WidgetFontStyle.BOLD, DEFAULT.getSize() + 8);
+    public static final NamedWidgetFont HEADER2 = new NamedWidgetFont("Header 2", DEFAULT.getFamily(), WidgetFontStyle.BOLD, DEFAULT.getSize() + 4);
+    public static final NamedWidgetFont HEADER3 = new NamedWidgetFont("Header 3", DEFAULT.getFamily(), WidgetFontStyle.BOLD, DEFAULT.getSize() + 2);
+    public static final NamedWidgetFont COMMENT = new NamedWidgetFont("Comment", DEFAULT.getFamily(), WidgetFontStyle.ITALIC, DEFAULT.getSize());
+    public static final NamedWidgetFont FINE_PRINT = new NamedWidgetFont("Fine Print", DEFAULT.getFamily(), WidgetFontStyle.REGULAR, DEFAULT.getSize() - 2);
+
     private final Map<String, NamedWidgetFont> fonts = new LinkedHashMap<>();
 
     protected NamedWidgetFonts()
@@ -34,14 +41,13 @@ public class NamedWidgetFonts extends ConfigFileParser
 
     private void defineDefaultFonts()
     {
-        final WidgetFont base = WidgetFont.getDefault();
-        define(new NamedWidgetFont("Default", base.getFamily(), WidgetFontStyle.REGULAR, base.getSize()));
-        define(new NamedWidgetFont("Default Bold", base.getFamily(), WidgetFontStyle.BOLD, base.getSize()));
-        define(new NamedWidgetFont("Header 1", base.getFamily(), WidgetFontStyle.BOLD, base.getSize() + 8));
-        define(new NamedWidgetFont("Header 2", base.getFamily(), WidgetFontStyle.BOLD, base.getSize() + 4));
-        define(new NamedWidgetFont("Header 3", base.getFamily(), WidgetFontStyle.BOLD, base.getSize() + 2));
-        define(new NamedWidgetFont("Comment", base.getFamily(), WidgetFontStyle.ITALIC, base.getSize()));
-        define(new NamedWidgetFont("Fine Print", base.getFamily(), WidgetFontStyle.REGULAR, base.getSize() - 2));
+        define(DEFAULT);
+        define(DEFAULT_BOLD);
+        define(HEADER1);
+        define(HEADER2);
+        define(HEADER3);
+        define(COMMENT);
+        define(FINE_PRINT);
     }
 
     private void define(final NamedWidgetFont font)
@@ -95,7 +101,7 @@ public class NamedWidgetFonts extends ConfigFileParser
             final double size = Double.parseDouble(tokenizer.nextToken().trim());
 
             if (family.equalsIgnoreCase("SystemDefault"))
-                family = WidgetFont.getDefault().getFamily();
+                family = DEFAULT.getFamily();
 
             final NamedWidgetFont font = new NamedWidgetFont(name, family, style, size);
             define(font);

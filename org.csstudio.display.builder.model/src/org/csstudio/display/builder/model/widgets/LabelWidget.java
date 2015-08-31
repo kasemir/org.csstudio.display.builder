@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 
 /** Widget that displays a static text
@@ -55,7 +56,7 @@ public class LabelWidget extends BaseWidget
     {
         super.defineProperties(properties);
         properties.add(text = displayText.createProperty(this, Messages.LabelWidget_Text));
-        properties.add(font = displayFont.createProperty(this, WidgetFont.getDefault()));
+        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
     }
 
     /** @return Display 'text' */

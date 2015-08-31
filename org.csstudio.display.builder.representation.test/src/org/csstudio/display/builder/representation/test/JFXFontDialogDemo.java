@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.test;
 
-import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.representation.javafx.WidgetFontDialog;
 
 import javafx.application.Application;
@@ -26,7 +26,7 @@ public class JFXFontDialogDemo  extends Application
     @Override
     public void start(final Stage stage)
     {
-        final WidgetFontDialog dialog = new WidgetFontDialog(WidgetFont.getDefault());
+        final WidgetFontDialog dialog = new WidgetFontDialog(NamedWidgetFonts.DEFAULT);
         System.out.println(dialog.showAndWait());
     }
 }

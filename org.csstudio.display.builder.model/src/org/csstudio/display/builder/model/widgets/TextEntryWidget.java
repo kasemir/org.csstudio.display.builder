@@ -22,6 +22,7 @@ import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.epics.vtype.VType;
@@ -63,7 +64,7 @@ public class TextEntryWidget extends BaseWidget
         super.defineProperties(properties);
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(background = displayBackgroundColor.createProperty(this, NamedWidgetColors.WRITE_BACKGROUND));
-        properties.add(font = displayFont.createProperty(this, WidgetFont.getDefault()));
+        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(value = runtimeValue.createProperty(this, null));
     }
 

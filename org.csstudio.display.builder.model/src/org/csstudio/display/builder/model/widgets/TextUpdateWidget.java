@@ -23,6 +23,7 @@ import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.epics.vtype.VType;
@@ -66,7 +67,7 @@ public class TextUpdateWidget extends BaseWidget
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(foreground = displayForegroundColor.createProperty(this, NamedWidgetColors.TEXT));
         properties.add(background = displayBackgroundColor.createProperty(this, NamedWidgetColors.READ_BACKGROUND));
-        properties.add(font = displayFont.createProperty(this, WidgetFont.getDefault()));
+        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(value = runtimeValue.createProperty(this, null));
     }
 
