@@ -141,7 +141,20 @@ public class CommonWidgetProperties
         }
     };
 
-    /** Display 'background_color': Background color */
+    /** Display 'foreground_color' */
+    public static final WidgetPropertyDescriptor<WidgetColor> displayForegroundColor =
+        new WidgetPropertyDescriptor<WidgetColor>(
+            WidgetPropertyCategory.DISPLAY, "foreground_color", Messages.WidgetProperties_ForegroundColor)
+    {
+        @Override
+        public WidgetProperty<WidgetColor> createProperty(final Widget widget,
+                                                          final WidgetColor color)
+        {
+            return new ColorWidgetProperty(this, widget, color);
+        }
+    };
+
+    /** Display 'background_color' */
     public static final WidgetPropertyDescriptor<WidgetColor> displayBackgroundColor =
         new WidgetPropertyDescriptor<WidgetColor>(
             WidgetPropertyCategory.DISPLAY, "background_color", Messages.WidgetProperties_BackgroundColor)

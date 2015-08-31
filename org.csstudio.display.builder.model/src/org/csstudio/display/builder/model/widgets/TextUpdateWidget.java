@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.Arrays;
@@ -48,6 +49,7 @@ public class TextUpdateWidget extends BaseWidget
         };
 
     private WidgetProperty<String> pv_name;
+    private WidgetProperty<WidgetColor> foreground;
     private WidgetProperty<WidgetColor> background;
     private WidgetProperty<WidgetFont> font;
     private WidgetProperty<VType> value;
@@ -62,6 +64,7 @@ public class TextUpdateWidget extends BaseWidget
     {
         super.defineProperties(properties);
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
+        properties.add(foreground = displayForegroundColor.createProperty(this, NamedWidgetColors.TEXT));
         properties.add(background = displayBackgroundColor.createProperty(this, NamedWidgetColors.READ_BACKGROUND));
         properties.add(font = displayFont.createProperty(this, WidgetFont.getDefault()));
         properties.add(value = runtimeValue.createProperty(this, null));
@@ -71,6 +74,12 @@ public class TextUpdateWidget extends BaseWidget
     public WidgetProperty<String> behaviorPVName()
     {
         return pv_name;
+    }
+
+    /** @return Display 'foreground_color' */
+    public WidgetProperty<WidgetColor> displayForegroundColor()
+    {
+        return foreground;
     }
 
     /** @return Display 'background_color' */

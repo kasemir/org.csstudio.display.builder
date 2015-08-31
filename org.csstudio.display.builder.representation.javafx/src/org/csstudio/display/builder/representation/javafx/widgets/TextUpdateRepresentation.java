@@ -54,6 +54,7 @@ public class TextUpdateRepresentation extends JFXBaseRepresentation<Label, TextU
         super.registerListeners();
         model_widget.positionWidth().addPropertyListener(this::styleChanged);
         model_widget.positionHeight().addPropertyListener(this::styleChanged);
+        model_widget.displayForegroundColor().addPropertyListener(this::styleChanged);
         model_widget.displayBackgroundColor().addPropertyListener(this::styleChanged);
         model_widget.displayFont().addPropertyListener(this::styleChanged);
         model_widget.runtimeValue().addPropertyListener(this::contentChanged);
@@ -80,8 +81,11 @@ public class TextUpdateRepresentation extends JFXBaseRepresentation<Label, TextU
         {
             jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
                                  model_widget.positionHeight().getValue());
-            final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
-            jfx_node.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
+
+            Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
+            jfx_node.setTextFill(color);
+            color = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
+            jfx_node.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
             jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
         }
         if (dirty_content.checkAndClear())

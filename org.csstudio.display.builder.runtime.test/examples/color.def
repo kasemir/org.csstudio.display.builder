@@ -10,12 +10,16 @@
 # INVALID = 255, 0, 255
 # DISCONNECTED = 255, 0, 255
 
+# Text=0,0,0
+
 # Display background
 # Background = 255, 255, 255
 
 # .. for widgets that read/write a value
 # Read_Background = 240, 240, 240
 # Write_Background = 128, 255, 255
+
+
 
 # Use alarm colors only when you mean to indicate an alarm.
 # Avoid using 'Red' which might suggest an alarm
@@ -26,11 +30,10 @@ STOP = 255,0,0
 
 # Attention looks similar to a MINOR alarm.
 # It is meant to draw attention
-Attention = 255,160,0
+# Attention = 255,160,0
 
 Header_Background=77,77,77
 Header_ForeGround=255,255,255
-Text=0,0,0
 
 # The colors for On/Off, Open/Close etc,.
 # "On" does not necessarily mean 'device is turned on', but

@@ -29,6 +29,7 @@ public class NamedWidgetColors extends ConfigFileParser
     public static final NamedWidgetColor ALARM_INVALID = new NamedWidgetColor("INVALID", 255, 0, 255);
     public static final NamedWidgetColor ALARM_DISCONNECTED = new NamedWidgetColor("DISCONNECTED", 255, 0, 255);
 
+    public static final NamedWidgetColor TEXT = new NamedWidgetColor("Text", 0, 0, 0);
     public static final NamedWidgetColor BACKGROUND = new NamedWidgetColor("Background", 255, 255, 255);
     public static final NamedWidgetColor READ_BACKGROUND = new NamedWidgetColor("Read_Background", 240, 240, 240);
     public static final NamedWidgetColor WRITE_BACKGROUND = new NamedWidgetColor("Write_Background", 128, 255, 255);
@@ -48,6 +49,7 @@ public class NamedWidgetColors extends ConfigFileParser
         define(ALARM_MAJOR);
         define(ALARM_INVALID);
         define(ALARM_DISCONNECTED);
+        define(TEXT);
         define(BACKGROUND);
         define(READ_BACKGROUND);
         define(WRITE_BACKGROUND);
