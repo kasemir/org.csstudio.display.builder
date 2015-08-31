@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
-
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,7 +59,7 @@ public class ActionUtil
     {
         try
         {
-            // Path to resolve, after expanding macros
+            // Path to resolve, after expanding macros of source widget and action
             final Macros macros = Macros.merge(source_widget.getEffectiveMacros(), action.getMacros());
             logger.log(Level.FINER, "{0}, effective macros {1}", new Object[] { action, macros });
             final String expanded_path = MacroHandler.replace(macros, action.getFile());
@@ -74,8 +72,9 @@ public class ActionUtil
             final DisplayModel new_model = RuntimeUtil.loadModel(parent_file, expanded_path);
 
             // Model is standalone; source_widget (Action button, ..) is _not_ the parent,
-            // but it does provide initial macros.
-            new_model.setPropertyValue(widgetMacros, macros);
+            // but it does add macros to those already defined in the display file.
+            final Macros combined_macros = Macros.merge(macros, new_model.widgetMacros().getValue());
+            new_model.widgetMacros().setValue(combined_macros);
 
             // On UI thread...
             final DisplayModel top_model = RuntimeUtil.getTopDisplayModel(source_widget);

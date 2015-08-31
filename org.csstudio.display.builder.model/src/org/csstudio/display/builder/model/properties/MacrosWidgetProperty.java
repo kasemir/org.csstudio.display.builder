@@ -86,15 +86,12 @@ public class MacrosWidgetProperty extends WidgetProperty<Macros>
         {
             final String name = element.getTagName();
             final String value = XMLUtil.getString(element);
-            // TODO if (name.equals("include_parent_macros"))
             // Legacy used 'include_parent_macros'
             // in a way that actually conflicts with a macro of that name.
-            //
-            // Why is the 'include_parent_macros' needed at all?
-            // Can't macros behave like shell variables:
-            // You inherit all, and can redefine.
-            // What's the harm in that?
-            // Is there any reason to _NOT_ inherit parent macros?
+            // This implementation _always_ inherits parent macros,
+            // so that setting is obsolete.
+            if (name.equals("include_parent_macros"))
+                continue;
             macros.add(name, value);
         }
         return macros;

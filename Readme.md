@@ -173,7 +173,7 @@ Macros
 
 Similar to BOY, macros can be in the format `$(macro_name)` as well as `${macro_name}`.
 
-Macros are provided in the following order:
+In contrast to EDM and BOY, macros are simply defined and possibly re-defined in the following order:
 
   1. TODO Preferences
   2. OpenDisplayAction
@@ -181,15 +181,19 @@ Macros are provided in the following order:
   4. DisplayModel
   5. GroupWidget
 
-While BOY limits macros to string-based properties, more properties support macros.
+While BOY limits macros to string-based properties, more properties now support macros.
 For example, the numeric 'x' position can be specified as $(POS).
 If the macro does not expand to a valid specification, for example if the macro POS has the value 'eight'
 instead of '8', the default value for that property will be used, and a warning is logged.
 
-Previous XML format could not distinguish between a valid macro name `"include_parent_macros"`
-and the corresponding replacement behavior. For now, macros are always inherited from the "parent",
-specifically in the order shown above.
-Option to _not_ include them may be superflous.
+BOY resp. EDM had options to _not_ inherit parent macros as well as to _not_ replace
+the values of existing macros. The new implementation will always inherit all parent macros
+and replace them in the order just described.
+This simplifies the behavior of macros, since discussions with the implementor of EDM found
+no good reason to duplicate the more complicated previous behavior.
+As a technical detail, the BOY *.opi XML format treated `"include_parent_macros"`,
+the option to inherit parent macros, just like the name of an ordinary macro.
+This macro name is now ignored. 
 
 Compared to `org.csstudio.apputil.macros.MacroUtil`, `org.csstudio.display.builder.model.macros.MacroHandler` simply recurses instead of maintaining its own stack/lockstack/parsedMacros.
 Need to check for infinite loop.
