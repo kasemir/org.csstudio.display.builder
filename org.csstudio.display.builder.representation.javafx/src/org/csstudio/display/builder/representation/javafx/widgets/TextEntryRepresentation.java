@@ -13,14 +13,20 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.epics.vtype.VType;
 
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -32,6 +38,7 @@ public class TextEntryRepresentation extends JFXBaseRepresentation<TextField, Te
     private volatile boolean active = false;
 
     private final DirtyFlag dirty_size = new DirtyFlag();
+    private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
     private volatile String value_text = "<?>";
 
@@ -134,12 +141,20 @@ public class TextEntryRepresentation extends JFXBaseRepresentation<TextField, Te
         super.registerListeners();
         model_widget.positionWidth().addPropertyListener(this::sizeChanged);
         model_widget.positionHeight().addPropertyListener(this::sizeChanged);
+        model_widget.displayBackgroundColor().addPropertyListener(this::styleChanged);
+        model_widget.displayFont().addPropertyListener(this::styleChanged);
         model_widget.runtimeValue().addPropertyListener(this::contentChanged);
     }
 
     private void sizeChanged(final PropertyChangeEvent event)
     {
         dirty_size.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+    private void styleChanged(final PropertyChangeEvent event)
+    {
+        dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -158,6 +173,12 @@ public class TextEntryRepresentation extends JFXBaseRepresentation<TextField, Te
         if (dirty_size.checkAndClear())
             jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
                                  model_widget.positionHeight().getValue());
+        if (dirty_style.checkAndClear())
+        {
+            final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
+            jfx_node.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
+            jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+        }
         if (active)
             return;
         if (dirty_content.checkAndClear())

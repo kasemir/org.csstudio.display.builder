@@ -23,6 +23,17 @@ import org.csstudio.display.builder.model.properties.NamedWidgetColor;
 @SuppressWarnings("nls")
 public class NamedWidgetColors extends ConfigFileParser
 {
+    public static final NamedWidgetColor ALARM_OK = new NamedWidgetColor("OK", 0, 255, 0);
+    public static final NamedWidgetColor ALARM_MINOR = new NamedWidgetColor("MINOR", 255, 128, 0);
+    public static final NamedWidgetColor ALARM_MAJOR = new NamedWidgetColor("MAJOR", 255, 0, 0);
+    public static final NamedWidgetColor ALARM_INVALID = new NamedWidgetColor("INVALID", 255, 0, 255);
+    public static final NamedWidgetColor ALARM_DISCONNECTED = new NamedWidgetColor("DISCONNECTED", 255, 0, 255);
+
+    public static final NamedWidgetColor BACKGROUND = new NamedWidgetColor("Background", 255, 255, 255);
+    public static final NamedWidgetColor READ_BACKGROUND = new NamedWidgetColor("Read_Background", 240, 240, 240);
+    public static final NamedWidgetColor WRITE_BACKGROUND = new NamedWidgetColor("Write_Background", 128, 255, 255);
+
+
     private final Map<String, NamedWidgetColor> colors = new LinkedHashMap<>();
 
     protected NamedWidgetColors()
@@ -32,11 +43,14 @@ public class NamedWidgetColors extends ConfigFileParser
 
     private void defineDefaultColors()
     {
-        define(new NamedWidgetColor("OK", 0, 255, 0));
-        define(new NamedWidgetColor("MINOR", 255, 128, 0));
-        define(new NamedWidgetColor("MAJOR", 255, 0, 0));
-        define(new NamedWidgetColor("INVALID", 255, 0, 255));
-        define(new NamedWidgetColor("DISCONNECTED", 255, 0, 255));
+        define(ALARM_OK);
+        define(ALARM_MINOR);
+        define(ALARM_MAJOR);
+        define(ALARM_INVALID);
+        define(ALARM_DISCONNECTED);
+        define(BACKGROUND);
+        define(READ_BACKGROUND);
+        define(WRITE_BACKGROUND);
     }
 
     private void define(final NamedWidgetColor color)

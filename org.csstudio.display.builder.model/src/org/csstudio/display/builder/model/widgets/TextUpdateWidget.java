@@ -8,6 +8,8 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.Arrays;
@@ -19,6 +21,9 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.epics.vtype.VType;
 
 /** Widget that displays a changing text
@@ -43,6 +48,8 @@ public class TextUpdateWidget extends BaseWidget
         };
 
     private WidgetProperty<String> pv_name;
+    private WidgetProperty<WidgetColor> background;
+    private WidgetProperty<WidgetFont> font;
     private WidgetProperty<VType> value;
 
     public TextUpdateWidget()
@@ -55,6 +62,8 @@ public class TextUpdateWidget extends BaseWidget
     {
         super.defineProperties(properties);
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
+        properties.add(background = displayBackgroundColor.createProperty(this, NamedWidgetColors.READ_BACKGROUND));
+        properties.add(font = displayFont.createProperty(this, WidgetFont.getDefault()));
         properties.add(value = runtimeValue.createProperty(this, null));
     }
 
@@ -62,6 +71,18 @@ public class TextUpdateWidget extends BaseWidget
     public WidgetProperty<String> behaviorPVName()
     {
         return pv_name;
+    }
+
+    /** @return Display 'background_color' */
+    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    {
+        return background;
+    }
+
+    /** @return Display 'font' */
+    public WidgetProperty<WidgetFont> displayFont()
+    {
+        return font;
     }
 
     /** @return Runtime 'value' */

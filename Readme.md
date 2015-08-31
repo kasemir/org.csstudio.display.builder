@@ -63,6 +63,7 @@ to occur on the UI thread in a throttled manner.
 Major TODOs:
  * Overall zoom factor (should be easy with JFX), auto-size.
  * A ton of widgets and their representation
+ * How to draw custom widgets in background? Draw JFX Canvas in background,then 'swap' with active canvas? Use AWT to draw image in background?
  
 ** Runtime **
 
@@ -99,6 +100,7 @@ move/resize via tracker, snap-to-grid, snap-to-other-widgets.
 Major TODOs:
  * Property editor for Actions, macros, scripts, ...
  * Rulers, Guides
+ * Editor for points of polyline, polygon
 
 
 ** Overall **
