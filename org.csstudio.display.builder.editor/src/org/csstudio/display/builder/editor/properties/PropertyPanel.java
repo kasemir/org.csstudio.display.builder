@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
+import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -129,6 +130,15 @@ public class PropertyPanel
                 bindings.add(binding);
                 binding.bind();
                 field = font_field;
+            }
+            else if (property instanceof MacrosWidgetProperty)
+            {
+                final MacrosWidgetProperty macros_prop = (MacrosWidgetProperty) property;
+                final Button macros_field = new Button();
+                final MacrosPropertyBinding binding = new MacrosPropertyBinding(undo, macros_field, macros_prop);
+                bindings.add(binding);
+                binding.bind();
+                field = macros_field;
             }
             else if (property instanceof BooleanWidgetProperty)
             {

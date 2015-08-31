@@ -30,6 +30,7 @@ public class Messages extends NLS
     public static String SetPropertyFmt;
     public static String SetWidgetColor;
     public static String SetWidgetFont;
+    public static String SetWidgetMacros;
     public static String Snap;
     public static String Undo_TT;
     public static String UpdateWidgetLocation;
