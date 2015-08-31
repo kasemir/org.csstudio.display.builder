@@ -19,6 +19,7 @@ import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -102,6 +103,7 @@ public class MacrosDialog extends Dialog<Macros>
 
         table.setEditable(true);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        table.setPlaceholder(new Label(Messages.MacrosDialog_Empty));
 
         content.add(table, 0, 0, 1, 2);
         GridPane.setHgrow(table, Priority.ALWAYS);
