@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.properties;
 
 import java.util.Objects;
 
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.macros.Macros;
 
 /** Information about an action that opens a display
@@ -21,13 +22,26 @@ public class OpenDisplayActionInfo extends ActionInfo
     public static enum Target
     {
         /** Replace current display */
-        REPLACE,
+        REPLACE(Messages.Target_Replace),
 
         /** Open a new tab in existing window */
-        TAB,
+        TAB(Messages.Target_Tab),
 
         /** Open a new window */
-        WINDOW;
+        WINDOW(Messages.Target_Window);
+
+        private final String name;
+
+        private Target(final String name)
+        {
+            this.name = name;
+        }
+
+        @Override
+        public String toString()
+        {
+            return name;
+        }
     }
 
     private final String file;

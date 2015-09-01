@@ -7,37 +7,39 @@
  ******************************************************************************/
 package org.csstudio.display.builder.editor.undo;
 
-import org.csstudio.display.builder.editor.Messages;
-import org.csstudio.display.builder.model.macros.Macros;
-import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
+import java.util.List;
 
-/** Action to update widget macros
+import org.csstudio.display.builder.editor.Messages;
+import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
+
+/** Action to update widget actions
  *  @author Kay Kasemir
  */
-public class SetWidgetMacrosAction extends UndoableAction
+public class SetWidgetActionsAction extends UndoableAction
 {
-    private final MacrosWidgetProperty property;
-    private final Macros orig_macros;
-    private final Macros macros;
+    private final ActionsWidgetProperty property;
+    private final List<ActionInfo> orig_actions;
+    private final List<ActionInfo> actions;
 
-    public SetWidgetMacrosAction(final MacrosWidgetProperty property,
-                                 final Macros macros)
+    public SetWidgetActionsAction(final ActionsWidgetProperty property,
+                                 final List<ActionInfo> actions)
     {
-        super(Messages.SetWidgetMacros);
+        super(Messages.SetWidgetActions);
         this.property = property;
-        this.orig_macros = property.getValue();
-        this.macros = macros;
+        this.orig_actions = property.getValue();
+        this.actions = actions;
     }
 
     @Override
     public void run()
     {
-        property.setValue(macros);
+        property.setValue(actions);
     }
 
     @Override
     public void undo()
     {
-        property.setValue(orig_macros);
+        property.setValue(orig_actions);
     }
 }

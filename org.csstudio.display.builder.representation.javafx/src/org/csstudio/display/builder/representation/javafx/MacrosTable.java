@@ -7,19 +7,21 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
-import org.csstudio.display.builder.model.macros.Macros;
-import org.csstudio.display.builder.model.util.ModelThreadPool;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.csstudio.display.builder.model.macros.Macros;
+
+import javafx.beans.InvalidationListener;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
-import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
@@ -62,6 +64,8 @@ public class MacrosTable
     /** Data that is linked to the table */
     private final ObservableList<MacroItem> data = FXCollections.observableArrayList();
 
+    private List<InvalidationListener> listeners = new CopyOnWriteArrayList<>();
+
 
     /** Create dialog
      *  @param initial_macros Initial {@link Macros}
@@ -74,11 +78,10 @@ public class MacrosTable
         // | table |  [Remove]
         // | table |
         // | table |
-
-        // content.setGridLinesVisible(true); // For debugging
         content.setHgap(10);
         content.setVgap(10);
-        content.setPadding(new Insets(10));
+//        content.setBackground(new Background(new BackgroundFill(Color.PALEGREEN, CornerRadii.EMPTY, Insets.EMPTY)));
+//        content.setGridLinesVisible(true); // For debugging
 
         // Create table with editable columns
         final TableColumn<MacroItem, String> name_col = new TableColumn<>(Messages.MacrosDialog_NameCol);
@@ -121,14 +124,14 @@ public class MacrosTable
             fixup(row);
         });
 
-        final TableView<MacroItem> table = new TableView<>();
+        final TableView<MacroItem> table = new TableView<>(data);
         table.getColumns().add(name_col);
         table.getColumns().add(value_col);
         table.setEditable(true);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.setTooltip(new Tooltip(Messages.MacrosTable_ToolTip));
 
-        content.add(table, 0, 0, 1, 2);
+        content.add(table, 0, 0, 1, 3);
         GridPane.setHgrow(table, Priority.ALWAYS);
         GridPane.setVgrow(table, Priority.ALWAYS);
 
@@ -144,7 +147,6 @@ public class MacrosTable
         final Button remove = new Button(Messages.MacrosDialog_Remove);
         remove.setMaxWidth(Double.MAX_VALUE);
         content.add(remove, 1, 1);
-        GridPane.setValignment(remove, VPos.TOP);
         remove.setOnAction(event ->
         {
             final int sel = table.getSelectionModel().getSelectedIndex();
@@ -155,16 +157,14 @@ public class MacrosTable
             }
         });
 
-        // Populate table data off UI thread
-        ModelThreadPool.getExecutor().execute(() ->
-        {
-            for (String name : initial_macros.getNames())
-                data.add(new MacroItem(name, initial_macros.getValue(name)));
-            // Add empty final row
-            data.add(new MacroItem("", ""));
-            table.setItems(data);
-        });
+        // Without this filler in the bottom right corner,
+        // the table's Vgrow setting stops taking effect after a certain hight
+        // of the content pane?!
+        final Label filler = new Label();
+        content.add(filler, 1, 2);
+        GridPane.setVgrow(filler, Priority.ALWAYS);
 
+        setMacros(initial_macros);
     }
 
     /** Fix table: Delete empty rows in middle, but keep one empty final row
@@ -188,12 +188,33 @@ public class MacrosTable
             (data.get(len-1).getName().trim().length() > 0  &&
              data.get(len-1).getValue().trim().length() > 0) )
             data.add(new MacroItem("", ""));
+
+        for (InvalidationListener listener : listeners)
+            listener.invalidated(data);
     }
 
     /** @return Top-level UI node of this Java FX composite */
     public Node getNode()
     {
         return content;
+    }
+
+    /** @param listener Listener that will be invoked whenever anything
+     *                  in the macros is edited.
+     */
+    public void addListener(final InvalidationListener listener)
+    {
+        listeners .add(listener);
+    }
+
+    /** @param macros {@link Macros} to show in table */
+    public void setMacros(final Macros macros)
+    {
+        data.clear();
+        for (String name : macros.getNames())
+            data.add(new MacroItem(name, macros.getValue(name)));
+        // Add empty final row
+        data.add(new MacroItem("", ""));
     }
 
     /** @return {@link Macros} for data in table */

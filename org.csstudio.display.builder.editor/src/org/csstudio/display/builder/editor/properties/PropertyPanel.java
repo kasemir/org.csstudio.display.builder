@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
@@ -139,6 +140,15 @@ public class PropertyPanel
                 bindings.add(binding);
                 binding.bind();
                 field = macros_field;
+            }
+            else if (property instanceof ActionsWidgetProperty)
+            {
+                final ActionsWidgetProperty actions_prop = (ActionsWidgetProperty) property;
+                final Button actions_field = new Button();
+                final ActionsPropertyBinding binding = new ActionsPropertyBinding(undo, actions_field, actions_prop);
+                bindings.add(binding);
+                binding.bind();
+                field = actions_field;
             }
             else if (property instanceof BooleanWidgetProperty)
             {
