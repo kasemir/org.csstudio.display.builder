@@ -98,7 +98,7 @@ Editor, Palette, Property Panel, Widget Tree,
 move/resize via tracker, snap-to-grid, snap-to-other-widgets.
 
 Major TODOs:
- * Property editor for Actions, scripts, ...
+ * Property editor for scripts, ...
  * Rulers, Guides
  * Editor for points of polyline, polygon
 
