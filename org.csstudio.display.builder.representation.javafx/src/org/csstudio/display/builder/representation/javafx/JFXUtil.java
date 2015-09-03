@@ -12,7 +12,10 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.csstudio.display.builder.model.util.Icons;
 
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -78,5 +81,28 @@ public class JFXUtil
         default:
             return Font.font(font.getFamily(), calibrated);
         }
+    }
+
+    /** @param image_path Path to an image, may use "plugin://.."
+     *  @return ImageView
+     */
+    public static ImageView getImageView(final String image_path)
+    {
+        try
+        {
+            return new ImageView(new Image(Icons.getStream(image_path)));
+        }
+        catch (Exception ex)
+        {
+            Logger.getLogger(JFXUtil.class.getName())
+                  .log(Level.WARNING, "Cannot load " + image_path, ex);
+        }
+        return null;
+    }
+
+    /** Name of icon in this plugin */
+    public static ImageView getIcon(final String name)
+    {
+        return getImageView("platform:/plugin/org.csstudio.display.builder.representation.javafx/icons/" + name);
     }
 }

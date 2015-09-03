@@ -17,6 +17,15 @@ public class Messages extends NLS
     private static final String BUNDLE_NAME = "org.csstudio.display.builder.representation.javafx.messages"; //$NON-NLS-1$
 
     // Keep in alphabetical order, synchronized with messages.properties
+    public static String ActionsDialog_Actions;
+    public static String ActionsDialog_Description;
+    public static String ActionsDialog_Detail;
+    public static String ActionsDialog_Info;
+    public static String ActionsDialog_Path;
+    public static String ActionsDialog_PVName;
+    public static String ActionsDialog_Title;
+    public static String ActionsDialog_Value;
+    public static String Add;
     public static String Blue;
     public static String ColorDialog_Custom;
     public static String ColorDialog_Info;
@@ -31,16 +40,17 @@ public class Messages extends NLS
     public static String FontDialog_Style;
     public static String FontDialog_Title;
     public static String Green;
-    public static String Add;
     public static String MacrosDialog_Info;
     public static String MacrosDialog_NameCol;
-    public static String Remove;
     public static String MacrosDialog_Title;
     public static String MacrosDialog_ValueCol;
     public static String MacrosTable_NameHint;
     public static String MacrosTable_ToolTip;
     public static String MacrosTable_ValueHint;
+    public static String MoveDown;
+    public static String MoveUp;
     public static String Red;
+    public static String Remove;
 
     static
     {

@@ -28,5 +28,4 @@ public class Icons
         final String resolved = path.replace("platform:/plugin/", "../");
         return new FileInputStream(resolved);
     }
-
 }

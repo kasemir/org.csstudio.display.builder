@@ -28,8 +28,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
@@ -46,10 +45,9 @@ import javafx.scene.layout.VBox;
 /** Dialog for editing {@link ActionInfo} list
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class ActionsDialog extends Dialog<List<ActionInfo>>
 {
-    // TODO Order actions?
-    // TODO Externalize strings
     /** Actions edited by the dialog */
     private final ObservableList<ActionInfo> actions = FXCollections.observableArrayList();
 
@@ -106,8 +104,8 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
     {
         actions.addAll(initial_actions);
 
-        setTitle("Actions");
-        setHeaderText("Configure actions which open displays, write PVs etc.");
+        setTitle(Messages.ActionsDialog_Title);
+        setHeaderText(Messages.ActionsDialog_Info);
 
         // Actions:           Action Detail:
         // | List |  [Add]    |  Pane       |
@@ -122,14 +120,12 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         layout.setVgap(10);
         layout.setPadding(new Insets(10));
 
-        layout.add(new Label("Actions:"), 0, 0);
+        layout.add(new Label(Messages.ActionsDialog_Actions), 0, 0);
 
         action_list.setCellFactory(view -> new ActionInfoCell());
         layout.add(action_list, 0, 1);
 
-        // TODO Change 'add' into drop-down of available action types
-        final MenuBar add = new MenuBar();
-        final Menu add_items = new Menu(Messages.Add);
+        final MenuButton add = new MenuButton(Messages.Add, JFXUtil.getIcon("add.png"));
         for (ActionType type : ActionType.values())
         {
             final ImageView icon = new ImageView(new Image(type.getIconStream()));
@@ -140,12 +136,11 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
                 actions.add(new_action);
                 action_list.getSelectionModel().select(new_action);
             });
-            add_items.getItems().add(item);
+            add.getItems().add(item);
         }
-        add.getMenus().add(add_items);
         add.setMaxWidth(Double.MAX_VALUE);
 
-        final Button remove = new Button(Messages.Remove);
+        final Button remove = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
         remove.setMaxWidth(Double.MAX_VALUE);
         remove.setOnAction(event ->
         {
@@ -153,11 +148,54 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
                 actions.remove(selected_action_index);
         });
 
-        final VBox buttons = new VBox(10, add, remove);
+        final Button up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
+        up.setMaxWidth(Double.MAX_VALUE);
+        up.setOnAction(event ->
+        {
+            if (selected_action_index > 0  &&  selected_action_index < actions.size())
+            {
+                updating = true;
+                try
+                {
+                    final ActionInfo item = actions.remove(selected_action_index);
+                    -- selected_action_index;
+                    actions.add(selected_action_index, item);
+                    action_list.getSelectionModel().select(item);
+                }
+                finally
+                {
+                    updating = false;
+                }
+            }
+        });
+
+        final Button down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
+        down.setMaxWidth(Double.MAX_VALUE);
+        down.setOnAction(event ->
+        {
+            if (selected_action_index >= 0  &&  selected_action_index < actions.size() - 1)
+            {
+                updating = true;
+                try
+                {
+                    final ActionInfo item = actions.remove(selected_action_index);
+                    ++ selected_action_index;
+                    actions.add(selected_action_index, item);
+                    action_list.getSelectionModel().select(item);
+                }
+                finally
+                {
+                    updating = false;
+                }
+            }
+        });
+
+
+        final VBox buttons = new VBox(10, add, remove, up, down);
         layout.add(buttons, 1, 1);
 
 
-        layout.add(new Label("Action Detail:"), 2, 0);
+        layout.add(new Label(Messages.ActionsDialog_Detail), 2, 0);
 
         final GridPane open_display_details = createOpenDisplayDetails();
         final GridPane write_pv_details = createWritePVDetails();
@@ -176,6 +214,8 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         // Show and initialize *_details sub-pane for selected action
         action_list.getSelectionModel().selectedItemProperty().addListener((l, old, action) ->
         {
+            if (updating)
+                return;
             final int selection = action_list.getSelectionModel().getSelectedIndex();
             if (selection < 0)
             {   // Selection was lost because user clicked on some other UI element.
@@ -224,13 +264,13 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         open_display_details.setHgap(10);
         open_display_details.setVgap(10);
 
-        open_display_details.add(new Label("Description:"), 0, 0);
+        open_display_details.add(new Label(Messages.ActionsDialog_Description), 0, 0);
         open_display_description = new TextField();
         open_display_description.textProperty().addListener(update);
         open_display_details.add(open_display_description, 1, 0);
         GridPane.setHgrow(open_display_description, Priority.ALWAYS);
 
-        open_display_details.add(new Label("Display Path:"), 0, 1);
+        open_display_details.add(new Label(Messages.ActionsDialog_Path), 0, 1);
         open_display_path = new TextField();
         open_display_path.textProperty().addListener(update);
         open_display_details.add(open_display_path, 1, 1);
@@ -305,18 +345,18 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         write_pv_details.setHgap(10);
         write_pv_details.setVgap(10);
 
-        write_pv_details.add(new Label("Description:"), 0, 0);
+        write_pv_details.add(new Label(Messages.ActionsDialog_Description), 0, 0);
         write_pv_description = new TextField();
         write_pv_description.textProperty().addListener(update);
         write_pv_details.add(write_pv_description, 1, 0);
         GridPane.setHgrow(write_pv_description, Priority.ALWAYS);
 
-        write_pv_details.add(new Label("PV Name:"), 0, 1);
+        write_pv_details.add(new Label(Messages.ActionsDialog_PVName), 0, 1);
         write_pv_name = new TextField();
         write_pv_name.textProperty().addListener(update);
         write_pv_details.add(write_pv_name, 1, 1);
 
-        write_pv_details.add(new Label("Value:"), 0, 2);
+        write_pv_details.add(new Label(Messages.ActionsDialog_Value), 0, 2);
         write_pv_value = new TextField();
         write_pv_value.textProperty().addListener(update);
         write_pv_details.add(write_pv_value, 1, 2);
