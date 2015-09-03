@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.properties.ActionInfo.ActionType;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo.Target;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
@@ -27,6 +28,9 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
@@ -46,7 +50,6 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
 {
     // TODO Order actions?
     // TODO Externalize strings
-
     /** Actions edited by the dialog */
     private final ObservableList<ActionInfo> actions = FXCollections.observableArrayList();
 
@@ -84,12 +87,8 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
                 }
                 else
                 {
-                    final String desc = action.getDescription();
-                    if (desc.isEmpty())
-                        setText(action.toString());
-                    else
-                        setText(desc);
-                    setGraphic(new ImageView(new Image(action.getIconStream())));
+                    setText(action.toString());
+                    setGraphic(new ImageView(new Image(action.getType().getIconStream())));
                 }
             }
             catch (Exception ex)
@@ -118,7 +117,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         // Inside Action Detail pane, only one the *_details sub-pane
         // suitable for the selected action is visible.
         final GridPane layout = new GridPane();
-        layout.setGridLinesVisible(true); // For debugging
+        // layout.setGridLinesVisible(true); // For debugging
         layout.setHgap(10);
         layout.setVgap(10);
         layout.setPadding(new Insets(10));
@@ -129,13 +128,30 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         layout.add(action_list, 0, 1);
 
         // TODO Change 'add' into drop-down of available action types
-        final Button add = new Button(Messages.Add);
+        final MenuBar add = new MenuBar();
+        final Menu add_items = new Menu(Messages.Add);
+        for (ActionType type : ActionType.values())
+        {
+            final ImageView icon = new ImageView(new Image(type.getIconStream()));
+            final MenuItem item = new MenuItem(type.toString(), icon);
+            item.setOnAction(event ->
+            {
+                final ActionInfo new_action = ActionInfo.createAction(type);
+                actions.add(new_action);
+                action_list.getSelectionModel().select(new_action);
+            });
+            add_items.getItems().add(item);
+        }
+        add.getMenus().add(add_items);
         add.setMaxWidth(Double.MAX_VALUE);
-        // TODO implement add
 
         final Button remove = new Button(Messages.Remove);
         remove.setMaxWidth(Double.MAX_VALUE);
-        // TODO implement remove
+        remove.setOnAction(event ->
+        {
+            if (selected_action_index >= 0  &&  selected_action_index < actions.size())
+                actions.remove(selected_action_index);
+        });
 
         final VBox buttons = new VBox(10, add, remove);
         layout.add(buttons, 1, 1);
@@ -181,9 +197,6 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
                 showWritePVAction((WritePVActionInfo) action);
             }
         });
-
-
-        // TODO "Delete" Button, leaving selected_action_index = -1
 
         setResultConverter(button ->
         {
@@ -317,9 +330,9 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         updating = true;
         try
         {
-            write_pv_description.setText(action.getDescription().trim());
-            write_pv_name.setText(action.getPV().trim());
-            write_pv_value.setText(action.getValue().trim());
+            write_pv_description.setText(action.getDescription());
+            write_pv_name.setText(action.getPV());
+            write_pv_value.setText(action.getValue());
         }
         finally
         {
@@ -330,8 +343,8 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
     /** @return {@link WritePVActionInfo} from sub pane */
     private WritePVActionInfo getWritePVAction()
     {
-        return new WritePVActionInfo(write_pv_description.getText().trim(),
-                                     write_pv_name.getText().trim(),
-                                     write_pv_value.getText().trim());
+        return new WritePVActionInfo(write_pv_description.getText(),
+                                     write_pv_name.getText(),
+                                     write_pv_value.getText());
     }
 }

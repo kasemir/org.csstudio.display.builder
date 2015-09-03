@@ -55,10 +55,16 @@ public class OpenDisplayActionInfo extends ActionInfo
      */
     public OpenDisplayActionInfo(final String description, final String file, final Macros macros, final Target target)
     {
-        super(description, "platform:/plugin/org.csstudio.display.builder.model/icons/open_display.png");
+        super(description);
         this.file = Objects.requireNonNull(file);
         this.macros = macros;
         this.target = target;
+    }
+
+    @Override
+    public ActionType getType()
+    {
+        return ActionType.OPEN_DISPLAY;
     }
 
     /** @return Path to file (may also be URL, and contain macros) to the display */
@@ -82,10 +88,9 @@ public class OpenDisplayActionInfo extends ActionInfo
     @Override
     public String toString()
     {
-        final String info = "OpenDisplayActionInfo '" + getDescription() + "', " + file + " [" + target + "]";
-        final String macro_info = macros.toString();
-        if (macro_info.isEmpty())
-            return info;
-        return info + ", macros " + macro_info;
+        if (getDescription().isEmpty())
+            return "Open " + file;
+        else
+            return getDescription();
     }
 }

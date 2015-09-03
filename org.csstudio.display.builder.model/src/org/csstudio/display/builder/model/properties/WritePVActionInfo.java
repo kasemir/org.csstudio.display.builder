@@ -23,9 +23,15 @@ public class WritePVActionInfo extends ActionInfo
      */
     public WritePVActionInfo(final String description, final String pv, final String value)
     {
-        super(description, "platform:/plugin/org.csstudio.display.builder.model/icons/write_pv.png");
+        super(description);
         this.pv = pv;
         this.value = value;
+    }
+
+    @Override
+    public ActionType getType()
+    {
+        return ActionType.WRITE_PV;
     }
 
     /** @return PV name */
@@ -43,6 +49,9 @@ public class WritePVActionInfo extends ActionInfo
     @Override
     public String toString()
     {
-        return "WritePVActionInfo '" + getDescription() + "', " + pv + " = " + value;
+        if (getDescription().isEmpty())
+            return "Write " + pv + " = " + value;
+        else
+            return getDescription();
     }
 }
