@@ -31,10 +31,10 @@ public class Messages extends NLS
     public static String FontDialog_Style;
     public static String FontDialog_Title;
     public static String Green;
-    public static String MacrosDialog_Add;
+    public static String Add;
     public static String MacrosDialog_Info;
     public static String MacrosDialog_NameCol;
-    public static String MacrosDialog_Remove;
+    public static String Remove;
     public static String MacrosDialog_Title;
     public static String MacrosDialog_ValueCol;
     public static String MacrosTable_NameHint;

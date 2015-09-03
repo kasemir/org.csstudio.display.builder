@@ -115,7 +115,8 @@ public abstract class WidgetDescriptor
      */
     public InputStream getIconStream() throws Exception
     {
-        return Icons.getStream(icon);    }
+        return Icons.getStream(icon);
+    }
 
     /** @return Description of the widget */
     public String getDescription()

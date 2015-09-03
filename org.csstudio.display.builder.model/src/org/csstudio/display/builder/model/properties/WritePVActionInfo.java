@@ -23,7 +23,7 @@ public class WritePVActionInfo extends ActionInfo
      */
     public WritePVActionInfo(final String description, final String pv, final String value)
     {
-        super(description);
+        super(description, "platform:/plugin/org.csstudio.display.builder.model/icons/write_pv.png");
         this.pv = pv;
         this.value = value;
     }

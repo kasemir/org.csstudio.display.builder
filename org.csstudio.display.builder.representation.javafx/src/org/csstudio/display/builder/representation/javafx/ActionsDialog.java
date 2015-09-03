@@ -8,6 +8,8 @@
 package org.csstudio.display.builder.representation.javafx;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
@@ -19,6 +21,7 @@ import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -28,24 +31,27 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
 /** Dialog for editing {@link ActionInfo} list
  *  @author Kay Kasemir
  */
 public class ActionsDialog extends Dialog<List<ActionInfo>>
 {
-    // TODO Entry in action_list is de-selected when editing detail
-    // TODO Entering description with spaces hampered by trim()
-    // TODO Add actions, remove actions
     // TODO Order actions?
     // TODO Externalize strings
 
     /** Actions edited by the dialog */
     private final ObservableList<ActionInfo> actions = FXCollections.observableArrayList();
+
+    /** Currently selected item in <code>actions</code> */
+    private int selected_action_index = -1;
 
     /** Table of actions */
     private final ListView<ActionInfo> action_list = new ListView<>(actions);
@@ -61,6 +67,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
     /** Prevent circular updates */
     private boolean updating = false;
 
+
     /** ListView cell for ActionInfo, shows title if possible */
     private static class ActionInfoCell extends ListCell<ActionInfo>
     {
@@ -68,15 +75,27 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         protected void updateItem(final ActionInfo action, final boolean empty)
         {
             super.updateItem(action, empty);
-            if (action == null)
-                setText("");
-            else
+            try
             {
-                final String desc = action.getDescription();
-                if (desc.isEmpty())
-                    setText(action.toString());
+                if (action == null)
+                {
+                    setText("");
+                    setGraphic(null);
+                }
                 else
-                    setText(desc);
+                {
+                    final String desc = action.getDescription();
+                    if (desc.isEmpty())
+                        setText(action.toString());
+                    else
+                        setText(desc);
+                    setGraphic(new ImageView(new Image(action.getIconStream())));
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.getLogger(ActionsDialog.class.getName())
+                      .log(Level.WARNING, "Error displaying " + action, ex);
             }
         }
     };
@@ -91,15 +110,15 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         setTitle("Actions");
         setHeaderText("Configure actions which open displays, write PVs etc.");
 
-        // Actions:   Action Detail:
-        // | List |   |  Pane       |
-        // | List |   |  Pane       |
-        // | List |   |  Pane       |
+        // Actions:           Action Detail:
+        // | List |  [Add]    |  Pane       |
+        // | List |  [Remove] |  Pane       |
+        // | List |           |  Pane       |
         //
         // Inside Action Detail pane, only one the *_details sub-pane
         // suitable for the selected action is visible.
         final GridPane layout = new GridPane();
-        // layout.setGridLinesVisible(true); // For debugging
+        layout.setGridLinesVisible(true); // For debugging
         layout.setHgap(10);
         layout.setVgap(10);
         layout.setPadding(new Insets(10));
@@ -109,7 +128,20 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         action_list.setCellFactory(view -> new ActionInfoCell());
         layout.add(action_list, 0, 1);
 
-        layout.add(new Label("Action Detail:"), 1, 0);
+        // TODO Change 'add' into drop-down of available action types
+        final Button add = new Button(Messages.Add);
+        add.setMaxWidth(Double.MAX_VALUE);
+        // TODO implement add
+
+        final Button remove = new Button(Messages.Remove);
+        remove.setMaxWidth(Double.MAX_VALUE);
+        // TODO implement remove
+
+        final VBox buttons = new VBox(10, add, remove);
+        layout.add(buttons, 1, 1);
+
+
+        layout.add(new Label("Action Detail:"), 2, 0);
 
         final GridPane open_display_details = createOpenDisplayDetails();
         final GridPane write_pv_details = createWritePVDetails();
@@ -117,7 +149,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         write_pv_details.setVisible(false);
 
         final StackPane details = new StackPane(open_display_details, write_pv_details);
-        layout.add(details, 1, 1);
+        layout.add(details, 2, 1);
         GridPane.setHgrow(details, Priority.ALWAYS);
         GridPane.setVgrow(details, Priority.ALWAYS);
 
@@ -128,6 +160,14 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         // Show and initialize *_details sub-pane for selected action
         action_list.getSelectionModel().selectedItemProperty().addListener((l, old, action) ->
         {
+            final int selection = action_list.getSelectionModel().getSelectedIndex();
+            if (selection < 0)
+            {   // Selection was lost because user clicked on some other UI element.
+                // If previously selected index is otherwise still valid, keep it
+                if (selected_action_index >= 0  &&  selected_action_index < actions.size())
+                    return;
+            }
+            selected_action_index = selection;
             if (action instanceof OpenDisplayActionInfo)
             {
                 write_pv_details.setVisible(false);
@@ -142,12 +182,19 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
             }
         });
 
+
+        // TODO "Delete" Button, leaving selected_action_index = -1
+
         setResultConverter(button ->
         {
             if (button == ButtonType.OK)
                 return actions;
             return null;
         });
+
+        // Select first action, if there is one
+        if (actions.size() > 0)
+            action_list.getSelectionModel().select(0);
     }
 
     /** @return Sub-pane for OpenDisplay action */
@@ -155,10 +202,9 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
     {
         final InvalidationListener update = whatever ->
         {
-            if (updating)
+            if (updating  ||  selected_action_index < 0)
                 return;
-            final int index = action_list.getSelectionModel().getSelectedIndex();
-            actions.set(index, getOpenDisplayAction());
+            actions.set(selected_action_index, getOpenDisplayAction());
         };
 
         final GridPane open_display_details = new GridPane();
@@ -237,10 +283,9 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
     {
         final InvalidationListener update = whatever ->
         {
-            if (updating)
+            if (updating  ||  selected_action_index < 0)
                 return;
-            final int index = action_list.getSelectionModel().getSelectedIndex();
-            actions.set(index, getWritePVAction());
+            actions.set(selected_action_index, getWritePVAction());
         };
 
         final GridPane write_pv_details = new GridPane();

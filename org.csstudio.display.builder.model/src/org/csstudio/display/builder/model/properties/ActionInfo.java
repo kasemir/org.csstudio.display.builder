@@ -7,7 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import java.io.InputStream;
 import java.util.Objects;
+
+import org.csstudio.display.builder.model.util.Icons;
 
 /** Information about an action
  *
@@ -17,17 +20,29 @@ import java.util.Objects;
 public class ActionInfo
 {
     private final String description;
+    private final String icon_path;
 
-    /** @param description Action description */
-    public ActionInfo(final String description)
+    /** @param description Action description
+     *  @param icon_path Path to icon
+     */
+    public ActionInfo(final String description, final String icon_path)
     {
         this.description = Objects.requireNonNull(description);
+        this.icon_path = icon_path;
     }
 
     /** @return Action description */
     public String getDescription()
     {
         return description;
+    }
+
+    /** @return Stream for icon's content
+     *  @throws Exception on error
+     */
+    public InputStream getIconStream() throws Exception
+    {
+        return Icons.getStream(icon_path);
     }
 
     @Override

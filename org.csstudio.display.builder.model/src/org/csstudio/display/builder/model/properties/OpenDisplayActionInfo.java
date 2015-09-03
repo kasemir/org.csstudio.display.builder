@@ -55,7 +55,7 @@ public class OpenDisplayActionInfo extends ActionInfo
      */
     public OpenDisplayActionInfo(final String description, final String file, final Macros macros, final Target target)
     {
-        super(description);
+        super(description, "platform:/plugin/org.csstudio.display.builder.model/icons/open_display.png");
         this.file = Objects.requireNonNull(file);
         this.macros = macros;
         this.target = target;

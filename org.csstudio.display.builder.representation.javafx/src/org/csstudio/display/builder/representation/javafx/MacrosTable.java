@@ -136,7 +136,7 @@ public class MacrosTable
         GridPane.setVgrow(table, Priority.ALWAYS);
 
         // Buttons
-        final Button add = new Button(Messages.MacrosDialog_Add);
+        final Button add = new Button(Messages.Add);
         add.setMaxWidth(Double.MAX_VALUE);
         content.add(add, 1, 0);
         add.setOnAction(event ->
@@ -144,7 +144,7 @@ public class MacrosTable
             data.add(new MacroItem("", ""));
         });
 
-        final Button remove = new Button(Messages.MacrosDialog_Remove);
+        final Button remove = new Button(Messages.Remove);
         remove.setMaxWidth(Double.MAX_VALUE);
         content.add(remove, 1, 1);
         remove.setOnAction(event ->
