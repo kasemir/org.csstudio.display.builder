@@ -21,6 +21,8 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.properties.ColorMap;
+import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.DoubleWidgetProperty;
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
 import org.epics.vtype.VType;
@@ -95,12 +97,25 @@ public class ImageWidget extends BaseWidget
         }
     };
 
+    private static final WidgetPropertyDescriptor<ColorMap> dataColormap =
+        new WidgetPropertyDescriptor<ColorMap>(
+            WidgetPropertyCategory.BEHAVIOR, "color_map", Messages.WidgetProperties_ColorMap)
+    {
+        @Override
+        public WidgetProperty<ColorMap> createProperty(final Widget widget,
+                                                       final ColorMap map)
+        {
+            return new ColorMapWidgetProperty(this, widget, map);
+        }
+    };
+
 
     private WidgetProperty<String> pv_name;
     private WidgetProperty<Integer> data_width;
     private WidgetProperty<Integer> data_height;
     private WidgetProperty<Double> data_minimum;
     private WidgetProperty<Double> data_maximum;
+    private WidgetProperty<ColorMap> data_colormap;
 
     private WidgetProperty<VType> value;
 
@@ -118,6 +133,7 @@ public class ImageWidget extends BaseWidget
         properties.add(data_height = dataHeight.createProperty(this, 100));
         properties.add(data_minimum = dataMinimum.createProperty(this, 0.0));
         properties.add(data_maximum = dataMaximum.createProperty(this, 255.0));
+        properties.add(data_colormap = dataColormap.createProperty(this, ColorMap.Predefined.JET.get()));
         properties.add(value = runtimeValue.createProperty(this, null));
     }
 
@@ -149,6 +165,12 @@ public class ImageWidget extends BaseWidget
     public WidgetProperty<Double> behaviorDataMaximum()
     {
         return data_maximum;
+    }
+
+    /** @return Behavior 'color_map' */
+    public WidgetProperty<ColorMap> behaviorDataColormap()
+    {
+        return data_colormap;
     }
 
     /** @return Runtime 'value' */

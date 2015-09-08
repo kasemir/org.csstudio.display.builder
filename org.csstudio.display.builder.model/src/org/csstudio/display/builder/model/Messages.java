@@ -56,6 +56,7 @@ public class Messages extends NLS
     public static String WidgetCategory_Structure;
     public static String WidgetProperties_Actions;
     public static String WidgetProperties_BackgroundColor;
+    public static String WidgetProperties_ColorMap;
     public static String WidgetProperties_DataHeight;
     public static String WidgetProperties_DataMaximum;
     public static String WidgetProperties_DataMinimum;

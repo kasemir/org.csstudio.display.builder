@@ -11,8 +11,10 @@ import java.beans.PropertyChangeEvent;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.widgets.ImageWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.epics.util.array.IteratorNumber;
 import org.epics.util.array.ListNumber;
 import org.epics.vtype.VNumberArray;
@@ -38,7 +40,6 @@ public class ImageRepresentation extends JFXBaseRepresentation<Node, ImageWidget
     private Canvas canvas;
     private volatile WritableImage image = null;
 
-    // TODO Color map
     // TODO Axes, axis info for cursor
     // TODO Zoom in and back out
 
@@ -77,30 +78,46 @@ public class ImageRepresentation extends JFXBaseRepresentation<Node, ImageWidget
 
     private void contentChanged(final PropertyChangeEvent event)
     {
+        image = drawImage();
+        dirty_content.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+    /** Draw image for current data
+     *  @return {@link WritableImage}
+     */
+    private WritableImage drawImage()
+    {
+        // Determine sizes
         final int data_width = model_widget.behaviorDataWidth().getValue();
         final int data_height = model_widget.behaviorDataHeight().getValue();
         double min = model_widget.behaviorDataMinimum().getValue();
         double max = model_widget.behaviorDataMaximum().getValue();
+        final ColorMap color_map = model_widget.behaviorDataColormap().getValue();
 
-        final VType value = model_widget.runtimeValue().getValue();
-
+        // Create image that'll be written with data
         final WritableImage image = new WritableImage(data_width, data_height);
         final PixelWriter writer = image.getPixelWriter();
 
-        if (value instanceof VNumberArray)
+        // Check data
+        final VType value = model_widget.runtimeValue().getValue();
+        if (! (value instanceof VNumberArray))
+        {
+            logger.log(Level.WARNING, "Cannot draw image from {0}", value);
+        }
+        else
         {
             final ListNumber numbers = ((VNumberArray) value).getData();
             if (numbers.size() < data_width * data_height)
             {
                 logger.log(Level.SEVERE,
-                           "Image {0} x {1} received only {2} data samples",
+                           "Image sized {0} x {1} received only {2} data samples",
                            new Object[] { data_width, data_height, numbers.size() });
-                return;
+                return image;
             }
 
             IteratorNumber iter = numbers.iterator();
-            // TODO If autoscale..
-            if (true)
+            if (true) // TODO If autoscale..
             {
                 min = Double.MAX_VALUE;
                 max = Double.NEGATIVE_INFINITY;
@@ -114,28 +131,23 @@ public class ImageRepresentation extends JFXBaseRepresentation<Node, ImageWidget
                 }
                 iter = numbers.iterator();
             }
+            // Draw each pixel
             for (int y=0; y<data_height; ++y)
+            {
                 for (int x=0; x<data_width; ++x)
                 {
-                    double sample = iter.nextDouble();
-                    sample = (sample - min) / (max - min);
-                    if (sample < 0.0)
-                        sample = 0;
-                    if (sample > 1.0)
-                        sample = 1.0;
-                    final Color c = Color.hsb(sample*360.0, 1.0, 1.0);
-                    // final Color c = Color.gray(Math.min(1.0,  sample / 20.0));
+                    final double sample = iter.nextDouble();
+                    double scaled = (sample - min) / (max - min);
+                    if (scaled < 0.0)
+                        scaled = 0;
+                    if (scaled > 1.0)
+                        scaled = 1.0;
+                    final Color c = JFXUtil.convert(color_map.getColor(scaled));
                     writer.setColor(x, y, c);
                 }
+            }
         }
-        else
-        {
-            logger.log(Level.WARNING, "Cannot draw image from {0}", value);
-        }
-
-        this.image = image;
-        dirty_content.mark();
-        toolkit.scheduleUpdate(this);
+        return image;
     }
 
     @Override
