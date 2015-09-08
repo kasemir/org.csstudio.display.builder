@@ -12,67 +12,67 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /** Draws canvas on UI thread.
- *  
+ *
  *  <p>Not practical for CPU-intensive drawing operations.
- * 
+ *
  *  @author Kay Kasemir
  */
 public class Canvas0 extends Application
 {
-	private final Canvas canvas = DemoHelper.createCanvas();
-	private final Text updates = new Text("0");
-	final Semaphore done = new Semaphore(0);
-	private long counter = 0;
-	
-	public static void main(final String[] args)
-	{
-		launch(args);
-	}
+    private final Canvas canvas = DemoHelper.createCanvas();
+    private final Text updates = new Text("0");
+    final Semaphore done = new Semaphore(0);
+    private long counter = 0;
 
-	@Override
-	public void start(final Stage stage)
-	{
-		final Label label1 = new Label("Canvas:");
-		final Label label2 = new Label("Updates:");
-		
-		final VBox root = new VBox(label1, canvas, label2, updates);
-		 
-		final Scene scene = new Scene(root, 800, 700);
-		stage.setScene(scene);
-		stage.setTitle("Drawing Canvas on UI Thread");
-    	 
-		stage.show();
-		
-		final Thread thread = new Thread(this::thread_main);
-		thread.setName("Redraw");
-		thread.setDaemon(true);
-		thread.start();
-	}
+    public static void main(final String[] args)
+    {
+        launch(args);
+    }
 
-	
-	private void thread_main()
-	{
-		try
-		{
-			while (true)
-			{
-				Platform.runLater(this::update);
-				// Wait for UI thread to perform updates
-				done.acquire();
-				Thread.sleep(100);
-			}
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-		}		
-	}
+    @Override
+    public void start(final Stage stage)
+    {
+        final Label label1 = new Label("Canvas:");
+        final Label label2 = new Label("Updates:");
 
-	private void update()
-	{
-		DemoHelper.refresh(canvas);
-		++counter;
-		updates.setText(Long.toString(counter));
-		done.release();
-	}
+        final VBox root = new VBox(label1, canvas, label2, updates);
+
+        final Scene scene = new Scene(root, 800, 700);
+        stage.setScene(scene);
+        stage.setTitle("Drawing Canvas on UI Thread");
+
+        stage.show();
+
+        final Thread thread = new Thread(this::thread_main);
+        thread.setName("Redraw");
+        thread.setDaemon(true);
+        thread.start();
+    }
+
+
+    private void thread_main()
+    {
+        try
+        {
+            while (true)
+            {
+                Platform.runLater(this::update);
+                // Wait for UI thread to perform updates
+                done.acquire();
+                Thread.sleep(100);
+            }
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+
+    private void update()
+    {
+        DemoHelper.refresh(canvas);
+        ++counter;
+        updates.setText(Long.toString(counter));
+        done.release();
+    }
 }

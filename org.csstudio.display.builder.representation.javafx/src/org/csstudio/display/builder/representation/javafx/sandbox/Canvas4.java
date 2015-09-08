@@ -1,48 +1,30 @@
 package org.csstudio.display.builder.representation.javafx.sandbox;
 
+import java.awt.image.BufferedImage;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
+import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-/** Uses 2 canvas widgets,
- *  updating one in background, then swapping them.
- *
- *  <p>On Mac OS X,
- *  with 10000 circles, drawing takes ~2ms, the canvas swap takes ~0ms.
- *  With 50000 circles, drawing takes ~10ms, the canvas swap takes ~0ms.
- *  --> As intended, drawing is performed in the background thread,
- *  and displaing the updated canvas is then pretty snappy.
- *  In addition, drawing is pretty fast to begin with.
+/** Draw AWT image in background, then display in Canvas.
  *
  *  <p>On Linux,
- *  with 1000 circles, drawing takes ~0ms, the canvas swap takes ~11ms.
- *  With 10000 circles, drawing takes ~2ms, the canvas swap takes ~250ms.
- *  with 20000 circles, drawing takes ~5ms, the canvas swap takes ~512ms.
- *  -->
- *  The actual drawing of the canvas takes place when it's added to
- *  the scene graph. The "background" drawing doesn't help.
- *  Matches the comment "Rendering a canvas on a background thread is very slow when updateing the scene graph"
- *  from https://community.oracle.com/thread/3755802
+ *  with 10000 circles, drawing takes ~36ms, the canvas update takes ~2ms.
  *
  *  @author Kay Kasemir
  */
-public class Canvas2 extends Application
+public class Canvas4 extends Application
 {
-    final private Canvas[] canvas = new Canvas[]
-    {
-        DemoHelper.createCanvas(),
-        DemoHelper.createCanvas()
-    };
-    private final StackPane canvas_stack = new StackPane(canvas[0]);
+    final private Canvas canvas = DemoHelper.createCanvas();
     private final AtomicLong counter = new AtomicLong();
     private final Text updates = new Text("0");
 
@@ -59,11 +41,11 @@ public class Canvas2 extends Application
     {
         final Label label1 = new Label("Canvas:");
         final Label label2 = new Label("Updates:");
-        final VBox root = new VBox(label1, canvas_stack, label2, updates);
+        final VBox root = new VBox(label1, canvas, label2, updates);
 
         final Scene scene = new Scene(root, 800, 700);
         stage.setScene(scene);
-        stage.setTitle("Swapping two Canvases");
+        stage.setTitle("Drawing AWT Image");
 
         stage.show();
 
@@ -79,13 +61,12 @@ public class Canvas2 extends Application
         int to_refresh = 1;
         try
         {
+            final BufferedImage buf = new BufferedImage((int)canvas.getWidth(), (int)canvas.getHeight(), BufferedImage.TYPE_INT_RGB);
             while (true)
             {
-                final Canvas prepared = canvas[to_refresh];
-
-                // Prepare canvas off-screen
+                // Prepare AWT image
                 long start = System.currentTimeMillis();
-                DemoHelper.refresh(prepared);
+                DemoHelper.refresh(buf);
                 long ms = System.currentTimeMillis() - start;
                 if (draw_ms < 0)
                     draw_ms = ms;
@@ -94,11 +75,12 @@ public class Canvas2 extends Application
 
                 counter.incrementAndGet();
 
-                // Swap on UI thread
+                // Draw into Caqnvas on UI thread
                 start = System.currentTimeMillis();
                 Platform.runLater(() ->
                 {
-                    canvas_stack.getChildren().setAll(prepared);
+                    final Image image = SwingFXUtils.toFXImage(buf, null);
+                    canvas.getGraphicsContext2D().drawImage(image, 0, 0);
                     updates.setText(Long.toString(counter.get()));
                     done.release();
                 });
