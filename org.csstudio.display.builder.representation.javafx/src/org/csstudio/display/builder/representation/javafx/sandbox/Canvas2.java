@@ -15,12 +15,18 @@ import javafx.stage.Stage;
 
 /** Uses 2 canvas widgets,
  *  updating one in background, then swapping them.
- *
+ * 
+ *  <p>On Mac OS X,
+ *  with 10000 circles, drawing takes ~2ms, the canvas swap takes ~0ms.
+ *  With 50000 circles, drawing takes ~10ms, the canvas swap takes ~0ms.
+ *  --> As intended, drawing is performed in the background thread,
+ *  and displaing the updated canvas is then pretty snappy.
+ *  In addition, drawing is pretty fast to begin with.
+ *  
  *  <p>On Linux,
  *  with 1000 circles, drawing takes ~0ms, the canvas swap takes ~11ms.
  *  With 10000 circles, drawing takes ~2ms, the canvas swap takes ~250ms.
  *  with 20000 circles, drawing takes ~5ms, the canvas swap takes ~512ms.
- *
  *  -->
  *  The actual drawing of the canvas takes place when it's added to
  *  the scene graph. The "background" drawing doesn't help.
