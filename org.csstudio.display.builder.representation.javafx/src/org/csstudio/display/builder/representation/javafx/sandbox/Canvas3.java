@@ -18,9 +18,10 @@ import javafx.stage.Stage;
 
 /** Uses background-prepared image
  *
- *  <p>Linux: Drawing ~ 90ms, Update ~0ms
+ *  <p>Linux: Drawing ~ 90ms, Update ~0ms.
+ *  Mac OS X: Drawing ~ 70ms, Update ~0ms.
  *  --> Really drawing in background, with fast UI update.
- *
+ *  
  *  @author Kay Kasemir
  */
 public class Canvas3 extends Application
