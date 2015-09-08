@@ -16,13 +16,6 @@ import javafx.stage.Stage;
 /** Uses 2 canvas widgets,
  *  updating one in background, then swapping them.
  *
- *  <p>On Mac OS X,
- *  with 10000 circles, drawing takes ~2ms, the canvas swap takes ~0ms.
- *  With 50000 circles, drawing takes ~10ms, the canvas swap takes ~0ms.
- *  --> As intended, drawing is performed in the background thread,
- *  and displaing the updated canvas is then pretty snappy.
- *  In addition, drawing is pretty fast to begin with.
- *
  *  <p>On Linux,
  *  with 1000 circles, drawing takes ~0ms, the canvas swap takes ~11ms.
  *  With 10000 circles, drawing takes ~2ms, the canvas swap takes ~250ms.
@@ -32,6 +25,14 @@ import javafx.stage.Stage;
  *  the scene graph. The "background" drawing doesn't help.
  *  Matches the comment "Rendering a canvas on a background thread is very slow when updateing the scene graph"
  *  from https://community.oracle.com/thread/3755802
+ *
+ *  <p>On Mac OS X,
+ *  with 10000 circles, drawing takes ~2ms, the canvas swap takes ~0ms.
+ *  With 50000 circles, drawing takes ~10ms, the canvas swap takes ~0ms.
+ *  --> Faster.
+ *  Time to draw increases with number of elements, so seems to perform
+ *  the drawing off the UI thread, with constant time for canvas swap.
+ *  Faster than AWT drawing (Canvas4 example).
  *
  *  @author Kay Kasemir
  */

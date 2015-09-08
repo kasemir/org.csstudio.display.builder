@@ -10,7 +10,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -19,6 +19,12 @@ import javafx.stage.Stage;
  *
  *  <p>On Linux,
  *  with 10000 circles, drawing takes ~36ms, the canvas update takes ~2ms.
+ *
+ *  <p>On Mac OS X,
+ *  with 10000 circles, drawing takes ~30ms, the canvas update takes ~1ms.
+ *  With 50000 circles, drawing takes ~150ms, the canvas update takes ~1ms.
+ *  
+ *  --> AWT drawing off the UI thread, with fast update of Canvas.
  *
  *  @author Kay Kasemir
  */
@@ -62,6 +68,7 @@ public class Canvas4 extends Application
         try
         {
             final BufferedImage buf = new BufferedImage((int)canvas.getWidth(), (int)canvas.getHeight(), BufferedImage.TYPE_INT_RGB);
+            final WritableImage image = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
             while (true)
             {
                 // Prepare AWT image
@@ -75,11 +82,11 @@ public class Canvas4 extends Application
 
                 counter.incrementAndGet();
 
-                // Draw into Caqnvas on UI thread
+                // Draw into Canvas on UI thread
                 start = System.currentTimeMillis();
                 Platform.runLater(() ->
                 {
-                    final Image image = SwingFXUtils.toFXImage(buf, null);
+                	SwingFXUtils.toFXImage(buf, image);
                     canvas.getGraphicsContext2D().drawImage(image, 0, 0);
                     updates.setText(Long.toString(counter.get()));
                     done.release();
