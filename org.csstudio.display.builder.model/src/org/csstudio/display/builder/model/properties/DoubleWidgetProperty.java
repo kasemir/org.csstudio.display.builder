@@ -15,27 +15,27 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.w3c.dom.Element;
 
-/** Widget property with Integer value.
+/** Widget property with Double value.
  *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class IntegerWidgetProperty extends MacroizedWidgetProperty<Integer>
+public class DoubleWidgetProperty extends MacroizedWidgetProperty<Double>
 {
-    final private Integer min, max;
+    final private Double min, max;
 
     /** Constructor
      *  @param descriptor Property descriptor
      *  @param widget Widget that holds the property and handles listeners
      *  @param default_value Default and initial value
      */
-    public IntegerWidgetProperty(
-            final WidgetPropertyDescriptor<Integer> descriptor,
+    public DoubleWidgetProperty(
+            final WidgetPropertyDescriptor<Double> descriptor,
             final Widget widget,
-            final Integer default_value)
+            final Double default_value)
     {
         this(descriptor, widget, default_value,
-             Integer.MIN_VALUE, Integer.MAX_VALUE);
+             Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
     }
 
     /** Constructor
@@ -45,11 +45,11 @@ public class IntegerWidgetProperty extends MacroizedWidgetProperty<Integer>
      *  @param min Minimum value
      *  @param max Maximum value
      */
-    public IntegerWidgetProperty(
-            final WidgetPropertyDescriptor<Integer> descriptor,
+    public DoubleWidgetProperty(
+            final WidgetPropertyDescriptor<Double> descriptor,
             final Widget widget,
-            final Integer default_value,
-            final Integer min, final Integer max)
+            final Double default_value,
+            final Double min, final Double max)
     {
         super(descriptor, widget, default_value);
         this.min = min;
@@ -59,28 +59,21 @@ public class IntegerWidgetProperty extends MacroizedWidgetProperty<Integer>
     }
 
     @Override
-    protected Integer parseExpandedSpecification(final String text) throws Exception
+    protected Double parseExpandedSpecification(final String text) throws Exception
     {
         try
-        {   // Should be integer..
-            return Integer.valueOf(text);
+        {
+            return Double.valueOf(text);
         }
-        catch (final NumberFormatException ex)
-        {   // .. but also allow "1e9", strictly a double, then truncate
-            try
-            {
-                return Double.valueOf(text).intValue();
-            }
-            catch (final NumberFormatException ex2)
-            {
-                throw new Exception("Integer property '" + getName() +
-                                    "' has invalid value " + text);
-            }
+        catch (final NumberFormatException ex2)
+        {
+            throw new Exception("Double property '" + getName() +
+                                "' has invalid value " + text);
         }
     }
 
     @Override
-    protected Integer restrictValue(final Integer requested_value)
+    protected Double restrictValue(final Double requested_value)
     {
         if (requested_value.compareTo(min) < 0)
             return min;
@@ -92,15 +85,13 @@ public class IntegerWidgetProperty extends MacroizedWidgetProperty<Integer>
     @Override
     public void setValueFromObject(final Object value) throws Exception
     {
-        if (value instanceof Integer)
-            setValue((Integer)value);
-        else if (value instanceof Number)
-            setValue( ((Number)value).intValue());
+        if (value instanceof Number)
+            setValue( ((Number)value).doubleValue());
         else if (value instanceof String)
             setValue(parseExpandedSpecification((String)value));
         else
             throw new IllegalArgumentException("Property '" + getName() +
-                "' requires int, but received " + value.getClass().getName());
+                "' requires double, but received " + value.getClass().getName());
     }
 
     @Override

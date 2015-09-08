@@ -28,6 +28,8 @@ public class Messages extends NLS
     public static String FontStyle_Regular;
     public static String GroupWidget_Description;
     public static String GroupWidget_Name;
+    public static String ImageWidget_Name;
+    public static String ImageWidget_Description;
     public static String LabelWidget_Description;
     public static String LabelWidget_Name;
     public static String LabelWidget_Text;
@@ -54,6 +56,10 @@ public class Messages extends NLS
     public static String WidgetCategory_Structure;
     public static String WidgetProperties_Actions;
     public static String WidgetProperties_BackgroundColor;
+    public static String WidgetProperties_DataHeight;
+    public static String WidgetProperties_DataMaximum;
+    public static String WidgetProperties_DataMinimum;
+    public static String WidgetProperties_DataWidth;
     public static String WidgetProperties_File;
     public static String WidgetProperties_Font;
     public static String WidgetProperties_ForegroundColor;
@@ -76,7 +82,6 @@ public class Messages extends NLS
     public static String WidgetPropertyCategory_Position;
     public static String WidgetPropertyCategory_Runtime;
     public static String WidgetPropertyCategory_Widget;
-
 
     static
     {

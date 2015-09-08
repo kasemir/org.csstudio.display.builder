@@ -23,6 +23,7 @@ public class Settings
 //        "legacy.opi";
 //        "legacy_embed.opi";
         "https://webopi.sns.gov/webopi/opi/Instruments.opi";
+//          "image.opi";
 //          "main.opi";
 
     public static void setup() throws Exception
@@ -32,6 +33,10 @@ public class Settings
         final String addr_list = "127.0.0.1 webopi.sns.gov:5066 160.91.228.17";
         System.setProperty("com.cosylab.epics.caj.CAJContext.addr_list", addr_list);
         System.setProperty("gov.aps.jca.jni.JNIContext.addr_list", addr_list);
+
+        final String max_array_bytes = Long.toString(500000L * 4);
+        System.setProperty("com.cosylab.epics.caj.CAJContext.max_array_bytes", max_array_bytes);
+        System.setProperty("gov.aps.jca.jni.JNIContext.max_array_bytes", max_array_bytes);
 
         final String color_url = "https://webopi.sns.gov/share/opi/color.def";
         WidgetColorService.loadColors(color_url);
