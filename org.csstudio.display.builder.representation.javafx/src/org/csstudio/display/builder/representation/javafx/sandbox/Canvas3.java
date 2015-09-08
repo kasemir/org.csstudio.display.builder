@@ -17,7 +17,10 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /** Uses background-prepared image
- *  
+ *
+ *  <p>Linux: Drawing ~ 90ms, Update ~0ms
+ *  --> Really drawing in background, with fast UI update.
+ *
  *  @author Kay Kasemir
  */
 public class Canvas3 extends Application
@@ -27,7 +30,7 @@ public class Canvas3 extends Application
 	private final Canvas canvas =  DemoHelper.createCanvas();
 	// Need 2 images: One that is currently shown,
 	// one that is updated with next content.
-	// When drawing into the one shown in the cavas,
+	// When drawing into the one shown in the canvas,
 	// canvas showed some of the 'new' and some of the 'old'
 	// image content.
 	// Reason could be that gc.drawImage() merely schedules the image
@@ -42,7 +45,10 @@ public class Canvas3 extends Application
 	};
 	private final AtomicLong counter = new AtomicLong();
 	private final Text updates = new Text("0");
-	
+
+	private volatile long draw_ms = -1;
+	private volatile long update_ms = -1;
+
 	public static void main(final String[] args)
 	{
 		launch(args);
@@ -52,21 +58,21 @@ public class Canvas3 extends Application
 	public void start(final Stage stage)
 	{
 		final Label label1 = new Label("Canvas:");
-		final Label label2 = new Label("Updates:");		
+		final Label label2 = new Label("Updates:");
 		final VBox root = new VBox(label1, canvas, label2, updates);
-		 
+
 		final Scene scene = new Scene(root, 800, 700);
 		stage.setScene(scene);
 		stage.setTitle("Background-drawn Image");
-    	 
+
 		stage.show();
-		
+
 		final Thread thread = new Thread(this::thread_main);
 		thread.setName("Redraw");
 		thread.setDaemon(true);
 		thread.start();
 	}
-	
+
 	private void thread_main()
 	{
 		final Semaphore done = new Semaphore(0);
@@ -77,8 +83,9 @@ public class Canvas3 extends Application
 			while (true)
 			{
 				// Draw image off-screen
-				final WritableImage active = image[to_update];
-				// PixelWrite is very limited, but might be just what's needed
+	             long start = System.currentTimeMillis();
+	             final WritableImage active = image[to_update];
+				// PixelWriter is very limited, but might be just what's needed
 				// for a display.builder "IntensityGraph".
 				final PixelWriter writer = active.getPixelWriter();
 				final double phase = System.currentTimeMillis() / 2000.0;
@@ -97,9 +104,15 @@ public class Canvas3 extends Application
 						writer.setColor(x, y, c );
 					}
 				}
+				long ms = System.currentTimeMillis() - start;
+                if (draw_ms < 0)
+                    draw_ms = ms;
+                else
+                    draw_ms = (draw_ms * 9 + ms) / 10;
 				counter.incrementAndGet();
-				
+
 				// Show image in canvas on UI thread
+                start = System.currentTimeMillis();
 				Platform.runLater(() ->
 				{
 					final GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -107,17 +120,28 @@ public class Canvas3 extends Application
 					updates.setText(Long.toString(counter.get()));
 					done.release();
 				});
-				
+
 				// Wait for UI thread
 				done.acquire();
-				
+				ms = System.currentTimeMillis() - start;
+                if (update_ms < 0)
+                    update_ms = ms;
+                else
+                    update_ms = (update_ms * 9 + ms) / 10;
+
 				to_update = 1 - to_update;
 				Thread.sleep(20);
+
+                if ((counter.get() % 50) == 0)
+                {
+                    System.out.println("Drawing: " + draw_ms + " ms");
+                    System.out.println("Update : " + update_ms + " ms");
+                }
 			}
 		}
 		catch (Exception ex)
 		{
 			ex.printStackTrace();
-		}		
+		}
 	}
 }
