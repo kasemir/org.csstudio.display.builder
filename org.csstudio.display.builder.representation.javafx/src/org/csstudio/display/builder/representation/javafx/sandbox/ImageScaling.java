@@ -22,6 +22,10 @@ import javafx.stage.Stage;
  *  On Linux, image has wrap-around type artifacts
  *  on the top and left border.
  *
+ *  <p>Replacing the Canvas with an ImageView
+ *  and calling setFitWidth(800), view.setFitHeight(600)
+ *  experiences the same problem.
+ *
  *  @author Kay Kasemir
  */
 public class ImageScaling extends Application
