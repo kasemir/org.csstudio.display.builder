@@ -22,9 +22,10 @@ public class VTypeUtil
 {
     /** Format a value as text.
      *
-     *  <p>Formats the value,
-     *  adds
+     *  TODO Add equivalent of org.csstudio.simplepv.FormatEnum
+     *
      *  @param value VType
+     *  @param with_units Add units?
      *  @return Text for value (without timestamp, alarm, ..)
      */
     public static String getValueString(final VType value, final boolean with_units)
@@ -54,7 +55,9 @@ public class VTypeUtil
 
     /** Obtain numeric value
      *  @param value VType
-     *  @return Number for value. 0 if nothing else can be decoded.
+     *  @return Number for value.
+     *          <code>Double.NaN</code> in case the value type
+     *          does not decode into a number.
      */
     public static Number getValueNumber(final VType value)
     {
@@ -66,6 +69,6 @@ public class VTypeUtil
         if (value instanceof VEnum)
             return ((VEnum)value).getIndex();
         // TODO Handle VNumberArray, VEnumArray?
-        return Integer.valueOf(0);
+        return Double.valueOf(Double.NaN);
     }
 }

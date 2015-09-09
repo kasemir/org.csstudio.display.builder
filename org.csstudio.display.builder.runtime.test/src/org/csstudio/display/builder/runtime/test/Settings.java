@@ -23,8 +23,9 @@ public class Settings
 //        "legacy.opi";
 //        "legacy_embed.opi";
         "https://webopi.sns.gov/webopi/opi/Instruments.opi";
-//          "image.opi";
-//          "main.opi";
+//        "image.opi";
+//          "embedded_script.opi";
+//        "main.opi";
 
     public static void setup() throws Exception
     {
