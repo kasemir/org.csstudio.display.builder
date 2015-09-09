@@ -37,6 +37,17 @@ public class ImageRepresentation extends JFXBaseRepresentation<Node, ImageWidget
     private final DirtyFlag dirty_position = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
 
+    // TODO Linux aliasing problem
+    // Background thread draws data into image.
+    // Image size matches the data size.
+    // When UI thread draws image into canvas,
+    // image is scaled to match canvas size.
+    // On Mac OS X, that works fine.
+    // On Linux, some size combinations result in
+    // wrap-around type artifacts at the image borders.
+    //
+    // Wait for Java update to fix this?
+    // Prepare image at same size as canvas?
     private Canvas canvas;
     private volatile WritableImage image = null;
 
