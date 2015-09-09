@@ -7,7 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
 
 import java.util.Arrays;
@@ -19,7 +21,9 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 
 /** Widget that displays a static text
@@ -44,6 +48,8 @@ public class LabelWidget extends BaseWidget
         };
 
     private WidgetProperty<String> text;
+    private WidgetProperty<WidgetColor> foreground;
+    private WidgetProperty<WidgetColor> background;
     private WidgetProperty<WidgetFont> font;
 
     public LabelWidget()
@@ -56,6 +62,8 @@ public class LabelWidget extends BaseWidget
     {
         super.defineProperties(properties);
         properties.add(text = displayText.createProperty(this, Messages.LabelWidget_Text));
+        properties.add(foreground = displayForegroundColor.createProperty(this, NamedWidgetColors.TEXT));
+        properties.add(background = displayBackgroundColor.createProperty(this, NamedWidgetColors.BACKGROUND));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
     }
 
@@ -63,6 +71,18 @@ public class LabelWidget extends BaseWidget
     public WidgetProperty<String> displayText()
     {
         return text;
+    }
+
+    /** @return Display 'foreground_color' */
+    public WidgetProperty<WidgetColor> displayForegroundColor()
+    {
+        return foreground;
+    }
+
+    /** @return Display 'background_color' */
+    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    {
+        return background;
     }
 
     /** @return Display 'font' */

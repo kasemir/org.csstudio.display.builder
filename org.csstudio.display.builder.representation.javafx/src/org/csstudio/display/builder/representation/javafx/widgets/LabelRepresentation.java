@@ -14,9 +14,14 @@ import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -42,6 +47,8 @@ public class LabelRepresentation extends JFXBaseRepresentation<Label, LabelWidge
     protected void registerListeners()
     {
         super.registerListeners();
+        model_widget.displayForegroundColor().addPropertyListener(this::styleChanged);
+        model_widget.displayBackgroundColor().addPropertyListener(this::styleChanged);
         model_widget.displayFont().addPropertyListener(this::styleChanged);
         model_widget.displayText().addPropertyListener(this::contentChanged);
     }
@@ -63,7 +70,13 @@ public class LabelRepresentation extends JFXBaseRepresentation<Label, LabelWidge
     {
         super.updateChanges();
         if (dirty_style.checkAndClear())
+        {
+            Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
+            jfx_node.setTextFill(color);
+            color = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
+            jfx_node.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
             jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+        }
         if (dirty_content.checkAndClear())
             jfx_node.setText(model_widget.displayText().getValue());
     }
