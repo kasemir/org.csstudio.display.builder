@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.sandbox;
 
 import java.awt.image.BufferedImage;
@@ -23,11 +30,12 @@ import javafx.stage.Stage;
  *  <p>On Mac OS X,
  *  with 10000 circles, drawing takes ~30ms, the canvas update takes ~1ms.
  *  With 50000 circles, drawing takes ~150ms, the canvas update takes ~1ms.
- *  
+ *
  *  --> AWT drawing off the UI thread, with fast update of Canvas.
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class Canvas4 extends Application
 {
     final private Canvas canvas = DemoHelper.createCanvas();

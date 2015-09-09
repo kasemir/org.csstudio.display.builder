@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.sandbox;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -18,6 +25,7 @@ import javafx.stage.Stage;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class Canvas1 extends Application
 {
     private final Canvas canvas = DemoHelper.createCanvas();
