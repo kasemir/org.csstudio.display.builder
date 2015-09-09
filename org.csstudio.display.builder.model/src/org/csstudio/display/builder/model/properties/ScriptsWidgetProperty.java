@@ -60,6 +60,13 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
         {
             writer.writeStartElement(XMLTags.SCRIPT);
             writer.writeAttribute(XMLTags.FILE, info.getFile());
+            final String text = info.getText();
+            if (text != null)
+            {
+                writer.writeStartElement(XMLTags.TEXT);
+                writer.writeCData(text);
+                writer.writeEndElement();
+            }
             for (final ScriptPV pv : info.getPVs())
             {
                 writer.writeStartElement(XMLTags.PV_NAME);
@@ -77,12 +84,13 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
     {
         // Also handles legacy XML
         // <path pathString="test.py" checkConnect="true" sfe="false" seoe="false">
+        //    <scriptText><![CDATA[  print "Hi!" ]]></scriptText>
         //    <pv trig="true">input1</pv>
         // </path>
         Iterable<Element> script_xml;
         if (XMLUtil.getChildElement(property_xml, XMLTags.SCRIPT) != null)
             script_xml = XMLUtil.getChildElements(property_xml, XMLTags.SCRIPT);
-        else
+        else // Fall back to legacy tag
             script_xml = XMLUtil.getChildElements(property_xml, "path");
 
         final List<ScriptInfo> scripts = new ArrayList<>();
@@ -91,8 +99,17 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
             String file = xml.getAttribute(XMLTags.FILE);
             if (file.isEmpty())
                 file = xml.getAttribute("pathString");
+
+            // Script content embedded in XML?
+            Element text_xml = XMLUtil.getChildElement(xml, XMLTags.TEXT);
+            if (text_xml == null)  // Fall back to legacy tag
+                text_xml = XMLUtil.getChildElement(xml, "scriptText");
+            final String text = text_xml != null
+                ? text_xml.getFirstChild().getNodeValue()
+                : null;
+
             final List<ScriptPV> pvs = readPVs(xml);
-            scripts.add(new ScriptInfo(file, pvs));
+            scripts.add(new ScriptInfo(file, text, pvs));
         }
         setValue(scripts);
     }

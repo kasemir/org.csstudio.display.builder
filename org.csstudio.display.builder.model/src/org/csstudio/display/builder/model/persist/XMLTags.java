@@ -24,6 +24,7 @@ public interface XMLTags
     public static final String PV_NAME = "pv_name";
     public static final String SCRIPT = "script";
     public static final String TARGET = "target";
+    public static final String TEXT = "text";
     public static final String TRIGGER = "trigger";
     public static final String TYPE = "type";
     public static final String VALUE = "value";

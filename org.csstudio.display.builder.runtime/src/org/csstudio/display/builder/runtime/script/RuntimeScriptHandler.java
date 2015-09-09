@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.script;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.List;
 
 import org.csstudio.display.builder.model.DisplayModel;
@@ -53,10 +55,19 @@ public class RuntimeScriptHandler implements PVListener
         final String script_name = MacroHandler.replace(macros, script_info.getFile());
         final ScriptSupport scripting = RuntimeUtil.getScriptSupport(widget);
 
-        final DisplayModel model = widget.getDisplayModel();
-        final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-        final String resolved = ResourceUtil.resolveDisplay(parent_display, script_name);
-        script = scripting.compile(script_name, ResourceUtil.openInputStream(resolved));
+        final InputStream stream;
+        if (script_info.getText() == null)
+        {   // Load external script
+            final DisplayModel model = widget.getDisplayModel();
+            final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+            final String resolved = ResourceUtil.resolveDisplay(parent_display, script_name);
+            stream = ResourceUtil.openInputStream(resolved);
+        }
+        else
+        {   // Use script text that was embedded in display
+            stream = new ByteArrayInputStream(script_info.getText().getBytes());
+        }
+        script = scripting.compile(script_name, stream);
 
         // Create PVs
         pvs = new PV[infos.size()];

@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.concurrent.ThreadFactory;
 
+import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.util.NamedDaemonPool;
 
 /** Script (Jython, Javascript) Support
@@ -58,7 +59,7 @@ public class ScriptSupport
      */
     public Script compile(final String name, final InputStream stream) throws Exception
     {
-        if (name.endsWith(".py"))
+        if (name.endsWith(".py")  ||  ScriptInfo.EMBEDDED_PYTHON.equals(name))
             return jython.compile(name, stream);
         else if (name.endsWith(".js"))
             return javascript.compile(name, stream);
