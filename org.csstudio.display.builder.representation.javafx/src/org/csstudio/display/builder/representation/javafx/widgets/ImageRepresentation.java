@@ -7,26 +7,27 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.properties.ColorMap;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ImageWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
-import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.epics.util.array.IteratorNumber;
 import org.epics.util.array.ListNumber;
 import org.epics.vtype.VNumberArray;
 import org.epics.vtype.VType;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
-import javafx.scene.paint.Color;
+import javafx.scene.image.Image;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -37,19 +38,18 @@ public class ImageRepresentation extends JFXBaseRepresentation<Node, ImageWidget
     private final DirtyFlag dirty_position = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
 
-    // TODO Linux aliasing problem
-    // Background thread draws data into image.
-    // Image size matches the data size.
-    // When UI thread draws image into canvas,
-    // image is scaled to match canvas size.
-    // On Mac OS X, that works fine.
-    // On Linux, some size combinations result in
-    // wrap-around type artifacts at the image borders.
-    //
-    // Wait for Java update to fix this?
-    // Prepare image at same size as canvas?
+    /** Most recent image, prepared in background */
+    // Would like to use JFX WritableImage,
+    // but rendering problem on Linux (sandbox.ImageScaling),
+    // and no way to disable the color interpolation that 'smears'
+    // the scaled image.
+    // (http://bugs.java.com/bugdatabase/view_bug.do?bug_id=8091877).
+    // So image is prepared in AWT and then converted to JFX
+    private volatile Image image;
+
+    /** Canvas that displays the image. */
+    // Use ImageView + setFitWidth(width), setFitHeight(height)?
     private Canvas canvas;
-    private volatile WritableImage image = null;
 
     // TODO Axes, axis info for cursor
     // TODO Zoom in and back out
@@ -89,15 +89,32 @@ public class ImageRepresentation extends JFXBaseRepresentation<Node, ImageWidget
 
     private void contentChanged(final PropertyChangeEvent event)
     {
-        image = drawImage();
+        image = getImage();
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    /** Draw image for current data
-     *  @return {@link WritableImage}
-     */
-    private WritableImage drawImage()
+    /** @return JFX Image, scaled to match canvas */
+    private Image getImage()
+    {
+        final BufferedImage unscaled = drawData();
+
+        final int w = model_widget.positionWidth().getValue();
+        final int h = model_widget.positionHeight().getValue();
+        final BufferedImage scaled = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        final Graphics2D gc = scaled.createGraphics();
+        // SWT and JFX image scaling will by default interpolate.
+        // For detector displays, it's best to NOT interpolate and instead show the plain pixels.
+        // gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        gc.drawImage(unscaled, 0, 0, w, h, null);
+        gc.dispose();
+
+        // Convert to JFX
+        return SwingFXUtils.toFXImage(scaled, null);
+    }
+
+    /** @return {@link BufferedImage}, sized to match data */
+    private BufferedImage drawData()
     {
         // Determine sizes
         final int data_width = model_widget.behaviorDataWidth().getValue();
@@ -107,8 +124,7 @@ public class ImageRepresentation extends JFXBaseRepresentation<Node, ImageWidget
         final ColorMap color_map = model_widget.behaviorDataColormap().getValue();
 
         // Create image that'll be written with data
-        final WritableImage image = new WritableImage(data_width, data_height);
-        final PixelWriter writer = image.getPixelWriter();
+        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_RGB);
 
         // Check data
         final VType value = model_widget.runtimeValue().getValue();
@@ -143,6 +159,7 @@ public class ImageRepresentation extends JFXBaseRepresentation<Node, ImageWidget
                 iter = numbers.iterator();
             }
             // Draw each pixel
+            Graphics2D gc = image.createGraphics();
             for (int y=0; y<data_height; ++y)
             {
                 for (int x=0; x<data_width; ++x)
@@ -153,10 +170,12 @@ public class ImageRepresentation extends JFXBaseRepresentation<Node, ImageWidget
                         scaled = 0;
                     if (scaled > 1.0)
                         scaled = 1.0;
-                    final Color c = JFXUtil.convert(color_map.getColor(scaled));
-                    writer.setColor(x, y, c);
+                    final WidgetColor color = color_map.getColor(scaled);
+                    gc.setColor(new java.awt.Color(color.getRed(), color.getGreen(), color.getBlue()));
+                    gc.fillRect(x, y, 1, 1);
                 }
             }
+            gc.dispose();
         }
         return image;
     }
@@ -174,7 +193,7 @@ public class ImageRepresentation extends JFXBaseRepresentation<Node, ImageWidget
         }
         if (dirty_content.checkAndClear())
         {
-            final WritableImage copy = image;
+            final Image copy = image;
             if (copy != null)
             {
                 final GraphicsContext gc = canvas.getGraphicsContext2D();
