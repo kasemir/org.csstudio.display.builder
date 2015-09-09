@@ -91,13 +91,14 @@ public class PropertyPanel
         WidgetPropertyCategory category = null;
         for (final WidgetProperty<?> property : properties)
         {
+            // Skip runtime properties
+            if (property.getCategory() == WidgetPropertyCategory.RUNTIME)
+                continue;
+
+            // Start new category?
             if (property.getCategory() != category)
             {
                 category = property.getCategory();
-
-                // Skip runtime properties
-                if (category == WidgetPropertyCategory.RUNTIME)
-                    continue;
 
                 final Label header = new Label(category.getDescription());
                 header.getStyleClass().add("property_category");
