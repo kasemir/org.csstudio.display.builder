@@ -167,6 +167,19 @@ public class CommonWidgetProperties
         }
     };
 
+    /** Display 'transparent' */
+    public static final WidgetPropertyDescriptor<Boolean> displayTransparent =
+        new WidgetPropertyDescriptor<Boolean>(
+            WidgetPropertyCategory.DISPLAY, "transparent", Messages.WidgetProperties_Transparent)
+    {
+        @Override
+        public WidgetProperty<Boolean> createProperty(final Widget widget,
+                                                      final Boolean transparent)
+        {
+            return new BooleanWidgetProperty(this, widget, transparent);
+        }
+    };
+
     /** Display 'text': Text to display */
     public static final WidgetPropertyDescriptor<String> displayText =
         new WidgetPropertyDescriptor<String>(

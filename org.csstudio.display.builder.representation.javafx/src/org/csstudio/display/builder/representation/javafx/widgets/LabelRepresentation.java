@@ -21,6 +21,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 
 /** Creates JavaFX item for model widget
@@ -47,8 +48,11 @@ public class LabelRepresentation extends JFXBaseRepresentation<Label, LabelWidge
     protected void registerListeners()
     {
         super.registerListeners();
+        model_widget.positionWidth().addPropertyListener(this::styleChanged);
+        model_widget.positionHeight().addPropertyListener(this::styleChanged);
         model_widget.displayForegroundColor().addPropertyListener(this::styleChanged);
         model_widget.displayBackgroundColor().addPropertyListener(this::styleChanged);
+        model_widget.displayTransparent().addPropertyListener(this::styleChanged);
         model_widget.displayFont().addPropertyListener(this::styleChanged);
         model_widget.displayText().addPropertyListener(this::contentChanged);
     }
@@ -73,8 +77,20 @@ public class LabelRepresentation extends JFXBaseRepresentation<Label, LabelWidge
         {
             Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
             jfx_node.setTextFill(color);
-            color = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
-            jfx_node.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
+
+            if (model_widget.displayTransparent().getValue())
+            {   // No fill, auto-size
+                jfx_node.setPrefSize(Region.USE_COMPUTED_SIZE, Region.USE_COMPUTED_SIZE);
+                jfx_node.setBackground(null);
+            }
+            else
+            {   // Fill correctly sized background
+                jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
+                                     model_widget.positionHeight().getValue());
+                color = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
+                jfx_node.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
+            }
+
             jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
         }
         if (dirty_content.checkAndClear())

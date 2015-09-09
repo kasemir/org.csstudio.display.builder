@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayTransparent;
 
 import java.util.Arrays;
 import java.util.List;
@@ -50,6 +51,7 @@ public class LabelWidget extends BaseWidget
     private WidgetProperty<String> text;
     private WidgetProperty<WidgetColor> foreground;
     private WidgetProperty<WidgetColor> background;
+    private WidgetProperty<Boolean> transparent;
     private WidgetProperty<WidgetFont> font;
 
     public LabelWidget()
@@ -64,6 +66,7 @@ public class LabelWidget extends BaseWidget
         properties.add(text = displayText.createProperty(this, Messages.LabelWidget_Text));
         properties.add(foreground = displayForegroundColor.createProperty(this, NamedWidgetColors.TEXT));
         properties.add(background = displayBackgroundColor.createProperty(this, NamedWidgetColors.BACKGROUND));
+        properties.add(transparent = displayTransparent.createProperty(this, true));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
     }
 
@@ -83,6 +86,12 @@ public class LabelWidget extends BaseWidget
     public WidgetProperty<WidgetColor> displayBackgroundColor()
     {
         return background;
+    }
+
+    /** @return Display 'transparent' */
+    public WidgetProperty<Boolean> displayTransparent()
+    {
+        return transparent;
     }
 
     /** @return Display 'font' */

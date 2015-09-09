@@ -71,6 +71,7 @@ public class Messages extends NLS
     public static String WidgetProperties_PVName;
     public static String WidgetProperties_Scripts;
     public static String WidgetProperties_Text;
+    public static String WidgetProperties_Transparent;
     public static String WidgetProperties_Type;
     public static String WidgetProperties_Value;
     public static String WidgetProperties_Visible;
