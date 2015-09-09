@@ -9,9 +9,11 @@ package org.csstudio.display.builder.editor.properties;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 
 import javafx.beans.value.ChangeListener;
@@ -90,9 +92,10 @@ public class BooleanWidgetPropertyBinding
 
     public BooleanWidgetPropertyBinding(final UndoableActionManager undo,
                                         final ComboBox<String> field,
-                                        final BooleanWidgetProperty widget_property)
+                                        final BooleanWidgetProperty widget_property,
+                                        final List<Widget> other)
     {
-        super(undo, field, widget_property);
+        super(undo, field, widget_property, other);
     }
 
     @Override
@@ -116,8 +119,13 @@ public class BooleanWidgetPropertyBinding
 
     private void submit()
     {
-        undo.execute(new SetMacroizedWidgetPropertyAction(widget_property,
-                                                    jfx_node.getValue()));
+        final String value = jfx_node.getValue();
+        undo.execute(new SetMacroizedWidgetPropertyAction(widget_property, value));
+        for (Widget w : other)
+        {
+            final BooleanWidgetProperty other_prop = (BooleanWidgetProperty) w.getProperty(widget_property.getName());
+            undo.execute(new SetMacroizedWidgetPropertyAction(other_prop, value));
+        }
         updating = false;
     }
 

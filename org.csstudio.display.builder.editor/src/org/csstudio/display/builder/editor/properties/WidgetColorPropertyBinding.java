@@ -8,10 +8,14 @@
 package org.csstudio.display.builder.editor.properties;
 
 import java.beans.PropertyChangeListener;
+import java.util.List;
+import java.util.Optional;
 
 import org.csstudio.display.builder.editor.undo.SetWidgetColorAction;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.representation.javafx.WidgetColorDialog;
 
 import javafx.event.ActionEvent;
@@ -33,15 +37,24 @@ public class WidgetColorPropertyBinding
     private EventHandler<ActionEvent> action_handler = event ->
     {
         final WidgetColorDialog dialog = new WidgetColorDialog(widget_property.getValue());
-        dialog.showAndWait().ifPresent(
-            new_color -> undo.execute(new SetWidgetColorAction(widget_property, new_color)));
+        final Optional<WidgetColor> result = dialog.showAndWait();
+        if (result.isPresent())
+        {
+            undo.execute(new SetWidgetColorAction(widget_property, result.get()));
+            for (Widget w : other)
+            {
+                final ColorWidgetProperty other_prop = (ColorWidgetProperty) w.getProperty(widget_property.getName());
+                undo.execute(new SetWidgetColorAction(other_prop, result.get()));
+            }
+        }
     };
 
     public WidgetColorPropertyBinding(final UndoableActionManager undo,
                                       final WidgetColorPropertyField field,
-                                      final ColorWidgetProperty widget_property)
+                                      final ColorWidgetProperty widget_property,
+                                      final List<Widget> other)
     {
-        super(undo, field, widget_property);
+        super(undo, field, widget_property, other);
     }
 
     @Override

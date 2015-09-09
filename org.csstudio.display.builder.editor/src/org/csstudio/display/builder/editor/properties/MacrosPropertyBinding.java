@@ -8,9 +8,13 @@
 package org.csstudio.display.builder.editor.properties;
 
 import java.beans.PropertyChangeListener;
+import java.util.List;
+import java.util.Optional;
 
 import org.csstudio.display.builder.editor.undo.SetWidgetMacrosAction;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
+import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.MacrosDialog;
 
@@ -34,15 +38,24 @@ public class MacrosPropertyBinding
     private EventHandler<ActionEvent> action_handler = event ->
     {
         final MacrosDialog dialog = new MacrosDialog(widget_property.getValue());
-        dialog.showAndWait().ifPresent(
-            new_macros ->  undo.execute(new SetWidgetMacrosAction(widget_property, new_macros)) );
+        final Optional<Macros> result = dialog.showAndWait();
+        if (result.isPresent())
+        {
+            undo.execute(new SetWidgetMacrosAction(widget_property, result.get()));
+            for (Widget w : other)
+            {
+                final MacrosWidgetProperty other_prop = (MacrosWidgetProperty) w.getProperty(widget_property.getName());
+                undo.execute(new SetWidgetMacrosAction(other_prop, result.get()));
+            }
+        }
     };
 
     public MacrosPropertyBinding(final UndoableActionManager undo,
                                  final Button field,
-                                 final MacrosWidgetProperty widget_property)
+                                 final MacrosWidgetProperty widget_property,
+                                 final List<Widget> other)
     {
-        super(undo, field, widget_property);
+        super(undo, field, widget_property, other);
     }
 
     @Override

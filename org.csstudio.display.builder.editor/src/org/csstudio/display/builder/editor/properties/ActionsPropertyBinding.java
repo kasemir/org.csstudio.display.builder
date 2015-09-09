@@ -8,9 +8,13 @@
 package org.csstudio.display.builder.editor.properties;
 
 import java.beans.PropertyChangeListener;
+import java.util.List;
+import java.util.Optional;
 
 import org.csstudio.display.builder.editor.undo.SetWidgetActionsAction;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
+import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.ActionsDialog;
 
@@ -34,15 +38,24 @@ public class ActionsPropertyBinding
     private EventHandler<ActionEvent> action_handler = event ->
     {
         final ActionsDialog dialog = new ActionsDialog(widget_property.getValue());
-        dialog.showAndWait().ifPresent(
-            new_actions ->  undo.execute(new SetWidgetActionsAction(widget_property, new_actions)) );
+        final Optional<List<ActionInfo>> result = dialog.showAndWait();
+        if (result.isPresent())
+        {
+            undo.execute(new SetWidgetActionsAction(widget_property, result.get()));
+            for (Widget w : other)
+            {
+                final ActionsWidgetProperty other_prop = (ActionsWidgetProperty) w.getProperty(widget_property.getName());
+                undo.execute(new SetWidgetActionsAction(other_prop, result.get()));
+            }
+        }
     };
 
     public ActionsPropertyBinding(final UndoableActionManager undo,
                                   final Button field,
-                                  final ActionsWidgetProperty widget_property)
+                                  final ActionsWidgetProperty widget_property,
+                                  final List<Widget> other)
     {
-        super(undo, field, widget_property);
+        super(undo, field, widget_property, other);
     }
 
     @Override

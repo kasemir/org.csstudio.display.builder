@@ -7,7 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
+import java.util.List;
+
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 
 import javafx.scene.Node;
@@ -22,20 +25,24 @@ abstract public class WidgetPropertyBinding<JFX extends Node, WP extends WidgetP
     protected final UndoableActionManager undo;
     protected final JFX jfx_node;
     protected final WP widget_property;
+    protected final List<Widget> other;
 
     /** Break update loops JFX change -> model change -> JFX change -> ... */
     protected boolean updating = false;
 
     /** @param node Java FX node to monitor and update
      *  @param widget_property Widget property to monitor and update
+     *  @param other Other widgets where same property should be updated
      */
     public WidgetPropertyBinding(final UndoableActionManager undo,
                                  final JFX node,
-                                 final WP widget_property)
+                                 final WP widget_property,
+                                 final List<Widget> other)
     {
         this.undo = undo;
         this.jfx_node = node;
         this.widget_property = widget_property;
+        this.other = other;
     }
 
     /** Establish the binding */

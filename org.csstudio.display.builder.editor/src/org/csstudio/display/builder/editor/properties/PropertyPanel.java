@@ -8,6 +8,8 @@
 package org.csstudio.display.builder.editor.properties;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -80,12 +82,28 @@ public class PropertyPanel
     {
         clear();
 
-        // TODO Get common properties
-        // Then display actual property of first (or last?) widget.
-        // On change, update _all_ widgets.
-        if (widgets.size() != 1)
+        if (widgets.size() < 1)
             return;
-        final Set<WidgetProperty<?>> properties = widgets.get(0).getProperties();
+
+        // Determine common properties.
+        // Start with first selected widget
+        final List<Widget> other = new ArrayList<>(widgets);
+        final Widget primary = other.remove(0);
+        final Set<WidgetProperty<?>> properties = new LinkedHashSet<>(primary.getProperties());
+        // Keep properties shared by other widgets
+        final Iterator<WidgetProperty<?>> iter = properties.iterator();
+        while (iter.hasNext())
+        {
+            WidgetProperty<?> prop = iter.next();
+            for (Widget w : other)
+            {
+                if (! w.hasProperty(prop.getName()))
+                {
+                    iter.remove();
+                    break;
+                }
+            }
+        }
 
         int row = 0;
         WidgetPropertyCategory category = null;
@@ -119,7 +137,7 @@ public class PropertyPanel
             {
                 final ColorWidgetProperty color_prop = (ColorWidgetProperty) property;
                 final WidgetColorPropertyField color_field = new WidgetColorPropertyField();
-                final WidgetColorPropertyBinding binding = new WidgetColorPropertyBinding(undo, color_field, color_prop);
+                final WidgetColorPropertyBinding binding = new WidgetColorPropertyBinding(undo, color_field, color_prop, other);
                 bindings.add(binding);
                 binding.bind();
                 field = color_field;
@@ -129,7 +147,7 @@ public class PropertyPanel
                 final FontWidgetProperty font_prop = (FontWidgetProperty) property;
                 final Button font_field = new Button();
                 font_field.setMaxWidth(Double.MAX_VALUE);
-                final WidgetFontPropertyBinding binding = new WidgetFontPropertyBinding(undo, font_field, font_prop);
+                final WidgetFontPropertyBinding binding = new WidgetFontPropertyBinding(undo, font_field, font_prop, other);
                 bindings.add(binding);
                 binding.bind();
                 field = font_field;
@@ -139,7 +157,7 @@ public class PropertyPanel
                 final MacrosWidgetProperty macros_prop = (MacrosWidgetProperty) property;
                 final Button macros_field = new Button();
                 macros_field.setMaxWidth(Double.MAX_VALUE);
-                final MacrosPropertyBinding binding = new MacrosPropertyBinding(undo, macros_field, macros_prop);
+                final MacrosPropertyBinding binding = new MacrosPropertyBinding(undo, macros_field, macros_prop, other);
                 bindings.add(binding);
                 binding.bind();
                 field = macros_field;
@@ -149,7 +167,7 @@ public class PropertyPanel
                 final ActionsWidgetProperty actions_prop = (ActionsWidgetProperty) property;
                 final Button actions_field = new Button();
                 actions_field.setMaxWidth(Double.MAX_VALUE);
-                final ActionsPropertyBinding binding = new ActionsPropertyBinding(undo, actions_field, actions_prop);
+                final ActionsPropertyBinding binding = new ActionsPropertyBinding(undo, actions_field, actions_prop, other);
                 bindings.add(binding);
                 binding.bind();
                 field = actions_field;
@@ -160,7 +178,7 @@ public class PropertyPanel
                 check.setEditable(true);
                 check.getItems().addAll("true", "false");
                 final BooleanWidgetPropertyBinding binding =
-                        new BooleanWidgetPropertyBinding(undo, check, (BooleanWidgetProperty)property);
+                        new BooleanWidgetPropertyBinding(undo, check, (BooleanWidgetProperty)property, other);
                 bindings.add(binding);
                 binding.bind();
                 field = check;
@@ -170,7 +188,7 @@ public class PropertyPanel
                 final TextField text = new TextField();
                 final MacroizedWidgetPropertyBinding binding =
                         new MacroizedWidgetPropertyBinding(undo, text,
-                                                           (MacroizedWidgetProperty<?>)property);
+                                                           (MacroizedWidgetProperty<?>)property, other);
                 bindings.add(binding);
                 binding.bind();
                 field = text;

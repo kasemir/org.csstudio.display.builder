@@ -8,10 +8,14 @@
 package org.csstudio.display.builder.editor.properties;
 
 import java.beans.PropertyChangeListener;
+import java.util.List;
+import java.util.Optional;
 
 import org.csstudio.display.builder.editor.undo.SetWidgetFontAction;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
+import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.representation.javafx.WidgetFontDialog;
 
 import javafx.event.ActionEvent;
@@ -34,15 +38,24 @@ public class WidgetFontPropertyBinding
     private EventHandler<ActionEvent> action_handler = event ->
     {
         final WidgetFontDialog dialog = new WidgetFontDialog(widget_property.getValue());
-        dialog.showAndWait().ifPresent(
-            new_font ->  undo.execute(new SetWidgetFontAction(widget_property, new_font)) );
+        final Optional<WidgetFont> result = dialog.showAndWait();
+        if (result.isPresent())
+        {
+            undo.execute(new SetWidgetFontAction(widget_property, result.get()));
+            for (Widget w : other)
+            {
+                final FontWidgetProperty other_prop = (FontWidgetProperty) w.getProperty(widget_property.getName());
+                undo.execute(new SetWidgetFontAction(other_prop, result.get()));
+            }
+        }
     };
 
     public WidgetFontPropertyBinding(final UndoableActionManager undo,
                                      final Button field,
-                                     final FontWidgetProperty widget_property)
+                                     final FontWidgetProperty widget_property,
+                                     final List<Widget> other)
     {
-        super(undo, field, widget_property);
+        super(undo, field, widget_property, other);
     }
 
     @Override

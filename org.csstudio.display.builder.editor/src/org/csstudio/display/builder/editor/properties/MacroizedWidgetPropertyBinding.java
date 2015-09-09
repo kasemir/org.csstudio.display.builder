@@ -9,10 +9,12 @@ package org.csstudio.display.builder.editor.properties;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
+import org.csstudio.display.builder.model.Widget;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -95,9 +97,10 @@ public class MacroizedWidgetPropertyBinding
 
     public MacroizedWidgetPropertyBinding(final UndoableActionManager undo,
                                           final TextInputControl field,
-                                          final MacroizedWidgetProperty<?> widget_property)
+                                          final MacroizedWidgetProperty<?> widget_property,
+                                          final List<Widget> other)
     {
-        super(undo, field, widget_property);
+        super(undo, field, widget_property, other);
     }
 
     @Override
@@ -119,8 +122,13 @@ public class MacroizedWidgetPropertyBinding
 
     private void submit()
     {
-        undo.execute(new SetMacroizedWidgetPropertyAction(widget_property,
-                                                    jfx_node.getText()));
+        undo.execute(new SetMacroizedWidgetPropertyAction(widget_property, jfx_node.getText()));
+        for (Widget w : other)
+        {
+            final MacroizedWidgetProperty<?>  other_prop = (MacroizedWidgetProperty<?>) w.getProperty(widget_property.getName());
+            undo.execute(new SetMacroizedWidgetPropertyAction(other_prop, jfx_node.getText()));
+        }
+
     }
 
     private void restore()
