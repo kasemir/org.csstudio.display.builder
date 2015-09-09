@@ -68,6 +68,7 @@ public class LEDRepresentation extends JFXBaseRepresentation<Ellipse, LEDWidget>
     {
         // NOT calling  super.registerListeners()
         // because Ellipse uses center instead of top-left X/Y
+        model_widget.positionVisible().addPropertyListener(this::positionChanged);
         model_widget.positionX().addPropertyListener(this::positionChanged);
         model_widget.positionY().addPropertyListener(this::positionChanged);
         model_widget.positionWidth().addPropertyListener(this::positionChanged);
@@ -116,6 +117,7 @@ public class LEDRepresentation extends JFXBaseRepresentation<Ellipse, LEDWidget>
             jfx_node.setCenterY(y + h/2);
             jfx_node.setRadiusX(w/2);
             jfx_node.setRadiusY(h/2);
+            jfx_node.setVisible(model_widget.positionVisible().getValue());
         }
         if (dirty_content.checkAndClear())
             jfx_node.setFill(
