@@ -127,6 +127,7 @@ public class PropertyPanel
             {
                 final FontWidgetProperty font_prop = (FontWidgetProperty) property;
                 final Button font_field = new Button();
+                font_field.setMaxWidth(Double.MAX_VALUE);
                 final WidgetFontPropertyBinding binding = new WidgetFontPropertyBinding(undo, font_field, font_prop);
                 bindings.add(binding);
                 binding.bind();
@@ -136,6 +137,7 @@ public class PropertyPanel
             {
                 final MacrosWidgetProperty macros_prop = (MacrosWidgetProperty) property;
                 final Button macros_field = new Button();
+                macros_field.setMaxWidth(Double.MAX_VALUE);
                 final MacrosPropertyBinding binding = new MacrosPropertyBinding(undo, macros_field, macros_prop);
                 bindings.add(binding);
                 binding.bind();
@@ -145,6 +147,7 @@ public class PropertyPanel
             {
                 final ActionsWidgetProperty actions_prop = (ActionsWidgetProperty) property;
                 final Button actions_field = new Button();
+                actions_field.setMaxWidth(Double.MAX_VALUE);
                 final ActionsPropertyBinding binding = new ActionsPropertyBinding(undo, actions_field, actions_prop);
                 bindings.add(binding);
                 binding.bind();

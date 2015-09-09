@@ -28,6 +28,10 @@ import javafx.scene.input.KeyEvent;
 public class BooleanWidgetPropertyBinding
        extends WidgetPropertyBinding<ComboBox<String>, BooleanWidgetProperty>
 {
+    // Checkbox would be more natural for most boolean properties,
+    // but also need to support macros.
+    // ComboBox allows selecting true/false, but can also enter "$(SomeMacro)".
+
     // Would be nice to just listen to jfx_node.valueProperty(),
     // but want to support 'escape' and loss of focus to revert,
     // and only complete text confirmed with Enter is submitted as an undoable action,
