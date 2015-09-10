@@ -12,9 +12,9 @@ import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
-import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.undo.UndoableActionManager;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

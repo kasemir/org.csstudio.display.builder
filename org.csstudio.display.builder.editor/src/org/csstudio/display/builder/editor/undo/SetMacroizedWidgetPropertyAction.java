@@ -9,6 +9,7 @@ package org.csstudio.display.builder.editor.undo;
 
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
+import org.csstudio.display.builder.model.undo.UndoableAction;
 import org.eclipse.osgi.util.NLS;
 
 /** Action to update widget property

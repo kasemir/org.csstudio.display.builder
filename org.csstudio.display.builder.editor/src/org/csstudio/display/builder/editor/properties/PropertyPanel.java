@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
-import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -24,6 +23,7 @@ import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
+import org.csstudio.display.builder.model.undo.UndoableActionManager;
 
 import javafx.scene.Node;
 import javafx.scene.control.Button;

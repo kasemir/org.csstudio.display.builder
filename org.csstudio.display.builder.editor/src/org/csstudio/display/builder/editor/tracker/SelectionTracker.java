@@ -17,13 +17,13 @@ import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
-import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.GroupHandler;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.undo.UndoableActionManager;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 
 import javafx.geometry.Point2D;

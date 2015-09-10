@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.csstudio.display.builder.editor.undo.SetWidgetActionsAction;
-import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
+import org.csstudio.display.builder.model.undo.UndoableActionManager;
 import org.csstudio.display.builder.representation.javafx.ActionsDialog;
 
 import javafx.event.ActionEvent;

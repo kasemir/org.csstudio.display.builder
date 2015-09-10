@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.editor.actions;
 
 import org.csstudio.display.builder.editor.Messages;
-import org.csstudio.display.builder.editor.undo.UndoableActionManager;
+import org.csstudio.display.builder.model.undo.UndoableActionManager;
 
 /** Action to perform 'Undo'
  *  @author Kay Kasemir
@@ -21,7 +21,7 @@ public class UndoAction extends ActionDescription
     /** @param undo {@link UndoableActionManager} */
     public UndoAction(final UndoableActionManager undo)
     {
-        super("platform:/plugin/org.csstudio.display.builder.editor/icons/undo.png",
+        super("platform:/plugin/org.csstudio.display.builder.util/icons/undo.png",
               Messages.Undo_TT);
         this.undo = undo;
     }

@@ -10,6 +10,7 @@ package org.csstudio.display.builder.editor.undo;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.csstudio.display.builder.model.undo.UndoableAction;
 
 /** Action to update widget font
  *  @author Kay Kasemir

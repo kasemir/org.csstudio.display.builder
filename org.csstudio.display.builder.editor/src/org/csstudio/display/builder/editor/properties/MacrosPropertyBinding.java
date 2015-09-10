@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.csstudio.display.builder.editor.undo.SetWidgetMacrosAction;
-import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
+import org.csstudio.display.builder.model.undo.UndoableActionManager;
 import org.csstudio.display.builder.representation.javafx.MacrosDialog;
 
 import javafx.event.ActionEvent;

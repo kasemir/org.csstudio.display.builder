@@ -10,6 +10,7 @@ package org.csstudio.display.builder.editor.undo;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.undo.UndoableAction;
 
 /** Action to update widget color
  *  @author Kay Kasemir

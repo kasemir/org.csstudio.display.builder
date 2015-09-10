@@ -9,9 +9,9 @@ package org.csstudio.display.builder.editor.properties;
 
 import java.util.List;
 
-import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.undo.UndoableActionManager;
 
 import javafx.scene.Node;
 

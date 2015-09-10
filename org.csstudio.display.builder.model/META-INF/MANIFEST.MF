@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Display Builder
-Bundle-Description: Better Opi Builder Model
+Bundle-Name: Display Builder Model
+Bundle-Description: Opi Builder Model
 Bundle-SymbolicName: org.csstudio.display.builder.model
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,

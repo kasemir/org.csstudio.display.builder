@@ -12,6 +12,7 @@ import java.util.List;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
+import org.csstudio.display.builder.model.undo.UndoableAction;
 
 /** Action to update widget actions
  *  @author Kay Kasemir

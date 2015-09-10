@@ -12,6 +12,7 @@ import java.util.List;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.undo.UndoableAction;
 
 /** Action to remove widget
  *  @author Kay Kasemir

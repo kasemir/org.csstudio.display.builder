@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.csstudio.display.builder.editor.undo.SetWidgetFontAction;
-import org.csstudio.display.builder.editor.undo.UndoableActionManager;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.csstudio.display.builder.model.undo.UndoableActionManager;
 import org.csstudio.display.builder.representation.javafx.WidgetFontDialog;
 
 import javafx.event.ActionEvent;
