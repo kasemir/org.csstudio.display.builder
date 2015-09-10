@@ -58,15 +58,16 @@ public class Messages extends NLS
     public static String WidgetProperties_BackgroundColor;
     public static String WidgetProperties_ColorMap;
     public static String WidgetProperties_DataHeight;
-    public static String WidgetProperties_DataMaximum;
-    public static String WidgetProperties_DataMinimum;
     public static String WidgetProperties_DataWidth;
     public static String WidgetProperties_File;
     public static String WidgetProperties_Font;
     public static String WidgetProperties_ForegroundColor;
     public static String WidgetProperties_Height;
     public static String WidgetProperties_Insets;
+    public static String WidgetProperties_LimitsFromPV;
     public static String WidgetProperties_Macros;
+    public static String WidgetProperties_Maximum;
+    public static String WidgetProperties_Minimum;
     public static String WidgetProperties_Name;
     public static String WidgetProperties_PVName;
     public static String WidgetProperties_Scripts;

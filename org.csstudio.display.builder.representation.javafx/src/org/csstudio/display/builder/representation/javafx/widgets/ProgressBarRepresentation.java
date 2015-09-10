@@ -56,6 +56,9 @@ public class ProgressBarRepresentation extends JFXBaseRepresentation<ProgressBar
         super.registerListeners();
         model_widget.positionWidth().addPropertyListener(this::positionChanged);
         model_widget.positionHeight().addPropertyListener(this::positionChanged);
+        model_widget.behaviorLimitsFromPV().addPropertyListener(this::contentChanged);
+        model_widget.behaviorMinimum().addPropertyListener(this::contentChanged);
+        model_widget.behaviorMaximum().addPropertyListener(this::contentChanged);
         model_widget.runtimeValue().addPropertyListener(this::contentChanged);
     }
 
@@ -67,15 +70,20 @@ public class ProgressBarRepresentation extends JFXBaseRepresentation<ProgressBar
 
     private void contentChanged(final PropertyChangeEvent event)
     {
-        final VType vtype = (VType)event.getNewValue();
+        final VType vtype = model_widget.runtimeValue().getValue();
 
-        // Try display range from PV
-        double min_val = 0.0, max_val = 0.0;
-        final Display display_info = ValueUtil.displayOf(vtype);
-        if (display_info != null)
+        final boolean limits_from_pv = model_widget.behaviorLimitsFromPV().getValue();
+        double min_val = model_widget.behaviorMinimum().getValue();
+        double max_val = model_widget.behaviorMaximum().getValue();
+        if (limits_from_pv)
         {
-            min_val = display_info.getLowerDisplayLimit();
-            max_val = display_info.getUpperDisplayLimit();
+            // Try display range from PV
+            final Display display_info = ValueUtil.displayOf(vtype);
+            if (display_info != null)
+            {
+                min_val = display_info.getLowerDisplayLimit();
+                max_val = display_info.getUpperDisplayLimit();
+            }
         }
         // Fall back to 0..100 range
         if (min_val >= max_val)

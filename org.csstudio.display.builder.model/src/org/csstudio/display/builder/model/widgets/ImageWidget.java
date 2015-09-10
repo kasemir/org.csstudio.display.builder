@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMaximum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMinimum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
@@ -23,7 +25,6 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
-import org.csstudio.display.builder.model.properties.DoubleWidgetProperty;
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
 import org.epics.vtype.VType;
 
@@ -47,7 +48,6 @@ public class ImageWidget extends BaseWidget
                 return new ImageWidget();
             }
         };
-
 
     private static final WidgetPropertyDescriptor<Integer> dataWidth =
         new WidgetPropertyDescriptor<Integer>(
@@ -73,30 +73,6 @@ public class ImageWidget extends BaseWidget
         }
     };
 
-    private static final WidgetPropertyDescriptor<Double> dataMinimum =
-        new WidgetPropertyDescriptor<Double>(
-            WidgetPropertyCategory.BEHAVIOR, "minimum", Messages.WidgetProperties_DataMinimum)
-    {
-        @Override
-        public WidgetProperty<Double> createProperty(final Widget widget,
-                                                     final Double min)
-        {
-            return new DoubleWidgetProperty(this, widget, min);
-        }
-    };
-
-    private static final WidgetPropertyDescriptor<Double> dataMaximum =
-        new WidgetPropertyDescriptor<Double>(
-            WidgetPropertyCategory.BEHAVIOR, "maximum", Messages.WidgetProperties_DataMaximum)
-    {
-        @Override
-        public WidgetProperty<Double> createProperty(final Widget widget,
-                                                      final Double max)
-        {
-            return new DoubleWidgetProperty(this, widget, max);
-        }
-    };
-
     private static final WidgetPropertyDescriptor<ColorMap> dataColormap =
         new WidgetPropertyDescriptor<ColorMap>(
             WidgetPropertyCategory.BEHAVIOR, "color_map", Messages.WidgetProperties_ColorMap)
@@ -108,7 +84,6 @@ public class ImageWidget extends BaseWidget
             return new ColorMapWidgetProperty(this, widget, map);
         }
     };
-
 
     private WidgetProperty<String> pv_name;
     private WidgetProperty<Integer> data_width;
@@ -131,8 +106,8 @@ public class ImageWidget extends BaseWidget
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(data_width = dataWidth.createProperty(this, 100));
         properties.add(data_height = dataHeight.createProperty(this, 100));
-        properties.add(data_minimum = dataMinimum.createProperty(this, 0.0));
-        properties.add(data_maximum = dataMaximum.createProperty(this, 255.0));
+        properties.add(data_minimum = behaviorMinimum.createProperty(this, 0.0));
+        properties.add(data_maximum = behaviorMaximum.createProperty(this, 255.0));
         properties.add(data_colormap = dataColormap.createProperty(this, ColorMap.Predefined.JET.get()));
         properties.add(value = runtimeValue.createProperty(this, null));
     }

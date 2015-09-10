@@ -259,6 +259,45 @@ public class CommonWidgetProperties
         }
     };
 
+    /** Behavior 'limits_from_pv': Use limits from PV's meta data? */
+    public static final WidgetPropertyDescriptor<Boolean> behaviorLimitsFromPV =
+            new WidgetPropertyDescriptor<Boolean>(
+                WidgetPropertyCategory.BEHAVIOR, "limits_from_pv", Messages.WidgetProperties_LimitsFromPV)
+        {
+            @Override
+            public WidgetProperty<Boolean> createProperty(final Widget widget,
+                                                          final Boolean limits_from_pv)
+            {
+                return new BooleanWidgetProperty(this, widget, limits_from_pv);
+            }
+        };
+
+    /** Behavior 'minimum': Minimum display range */
+    public static final WidgetPropertyDescriptor<Double> behaviorMinimum =
+            new WidgetPropertyDescriptor<Double>(
+                WidgetPropertyCategory.BEHAVIOR, "minimum", Messages.WidgetProperties_Minimum)
+        {
+            @Override
+            public WidgetProperty<Double> createProperty(final Widget widget,
+                                                         final Double min)
+            {
+                return new DoubleWidgetProperty(this, widget, min);
+            }
+        };
+
+    /** Behavior 'maximum': Maximum display range */
+    public static final WidgetPropertyDescriptor<Double> behaviorMaximum =
+        new WidgetPropertyDescriptor<Double>(
+            WidgetPropertyCategory.BEHAVIOR, "maximum", Messages.WidgetProperties_Maximum)
+    {
+        @Override
+        public WidgetProperty<Double> createProperty(final Widget widget,
+                                                      final Double max)
+        {
+            return new DoubleWidgetProperty(this, widget, max);
+        }
+    };
+
     /** Runtime 'value': Typically read from primary PV */
     public static final WidgetPropertyDescriptor<VType> runtimeValue =
         new WidgetPropertyDescriptor<VType>(

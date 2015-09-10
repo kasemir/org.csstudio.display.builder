@@ -7,6 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorLimitsFromPV;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMaximum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMinimum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
@@ -43,6 +46,9 @@ public class ProgressBarWidget extends BaseWidget
         };
 
     private WidgetProperty<String> pv_name;
+    private WidgetProperty<Boolean> limits_from_pv;
+    private WidgetProperty<Double> minimum;
+    private WidgetProperty<Double> maximum;
     private WidgetProperty<VType> value;
 
     public ProgressBarWidget()
@@ -55,6 +61,9 @@ public class ProgressBarWidget extends BaseWidget
     {
         super.defineProperties(properties);
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
+        properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, true));
+        properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
+        properties.add(maximum = behaviorMaximum.createProperty(this, 100.0));
         properties.add(value = runtimeValue.createProperty(this, null));
     }
 
@@ -62,6 +71,24 @@ public class ProgressBarWidget extends BaseWidget
     public WidgetProperty<String> behaviorPVName()
     {
         return pv_name;
+    }
+
+    /** @return Behavior 'limits_from_pv' */
+    public WidgetProperty<Boolean> behaviorLimitsFromPV()
+    {
+        return limits_from_pv;
+    }
+
+    /** @return Behavior 'minimum' */
+    public WidgetProperty<Double> behaviorMinimum()
+    {
+        return minimum;
+    }
+
+    /** @return Behavior 'maximum' */
+    public WidgetProperty<Double> behaviorMaximum()
+    {
+        return maximum;
     }
 
     /** @return Runtime 'value' */
