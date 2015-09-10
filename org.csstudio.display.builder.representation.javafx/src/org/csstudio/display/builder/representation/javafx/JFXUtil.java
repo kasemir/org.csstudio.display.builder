@@ -52,6 +52,15 @@ public class JFXUtil
         return Color.rgb(color.getRed(), color.getGreen(), color.getBlue());
     }
 
+    /** Convert model color into web-type RGB text
+     *  @param color {@link WidgetColor}
+     *  @return RGB text of the form "#FF8080"
+     */
+    public static String webRGB(final WidgetColor color)
+    {
+        return String.format("#%02X%02X%02X",  color.getRed(), color.getGreen(), color.getBlue());
+    }
+
     /** Convert JFX color into model color
      *  @param color {@link Color}
      *  @return {@link WidgetColor}

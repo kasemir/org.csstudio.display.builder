@@ -13,6 +13,7 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.epics.vtype.Display;
 import org.epics.vtype.VType;
 import org.epics.vtype.ValueUtil;
@@ -24,10 +25,11 @@ import javafx.scene.control.ProgressBar;
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class ProgressBarRepresentation extends JFXBaseRepresentation<ProgressBar, ProgressBarWidget>
 {
-    private final DirtyFlag dirty_position = new DirtyFlag();
-    private final DirtyFlag dirty_content = new DirtyFlag();
+    private final DirtyFlag dirty_look = new DirtyFlag();
+    private final DirtyFlag dirty_value = new DirtyFlag();
     private volatile double percentage = 0.0;
 
     public ProgressBarRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
@@ -40,13 +42,6 @@ public class ProgressBarRepresentation extends JFXBaseRepresentation<ProgressBar
     public ProgressBar createJFXNode() throws Exception
     {
         final ProgressBar bar = new ProgressBar();
-
-        // Color is set via default, built-in CSS.
-        // To change, could disable and then define background,
-        // but result looks pretty plane
-        // bar.getStyleClass().clear();
-        // bar.setBackground(new Background(new BackgroundFill(Color.RED, CornerRadii.EMPTY, Insets.EMPTY)));
-
         return bar;
     }
 
@@ -54,21 +49,22 @@ public class ProgressBarRepresentation extends JFXBaseRepresentation<ProgressBar
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addPropertyListener(this::positionChanged);
-        model_widget.positionHeight().addPropertyListener(this::positionChanged);
-        model_widget.behaviorLimitsFromPV().addPropertyListener(this::contentChanged);
-        model_widget.behaviorMinimum().addPropertyListener(this::contentChanged);
-        model_widget.behaviorMaximum().addPropertyListener(this::contentChanged);
-        model_widget.runtimeValue().addPropertyListener(this::contentChanged);
+        model_widget.displayFillColor().addPropertyListener(this::lookChanged);
+        model_widget.positionWidth().addPropertyListener(this::lookChanged);
+        model_widget.positionHeight().addPropertyListener(this::lookChanged);
+        model_widget.behaviorLimitsFromPV().addPropertyListener(this::valueChanged);
+        model_widget.behaviorMinimum().addPropertyListener(this::valueChanged);
+        model_widget.behaviorMaximum().addPropertyListener(this::valueChanged);
+        model_widget.runtimeValue().addPropertyListener(this::valueChanged);
     }
 
-    private void positionChanged(final PropertyChangeEvent event)
+    private void lookChanged(final PropertyChangeEvent event)
     {
-        dirty_position.mark();
+        dirty_look.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    private void contentChanged(final PropertyChangeEvent event)
+    private void valueChanged(final PropertyChangeEvent event)
     {
         final VType vtype = model_widget.runtimeValue().getValue();
 
@@ -102,7 +98,7 @@ public class ProgressBarRepresentation extends JFXBaseRepresentation<ProgressBar
             this.percentage = 1.0;
         else
             this.percentage = percentage;
-        dirty_content.mark();
+        dirty_value.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -110,10 +106,17 @@ public class ProgressBarRepresentation extends JFXBaseRepresentation<ProgressBar
     public void updateChanges()
     {
         super.updateChanges();
-        if (dirty_position.checkAndClear())
+        if (dirty_look.checkAndClear())
+        {
             jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
                                  model_widget.positionHeight().getValue());
-        if (dirty_content.checkAndClear())
-            jfx_node.setProgress(percentage );
+            // Could clear style and use setBackground(),
+            // but result is very plain.
+            // Tweaking the color used by CSS keeps overall style.
+            // See also http://stackoverflow.com/questions/13467259/javafx-how-to-change-progressbar-color-dynamically
+            jfx_node.setStyle("-fx-accent: " + JFXUtil.webRGB(model_widget.displayFillColor().getValue()));
+        }
+        if (dirty_value.checkAndClear())
+            jfx_node.setProgress(percentage);
     }
 }

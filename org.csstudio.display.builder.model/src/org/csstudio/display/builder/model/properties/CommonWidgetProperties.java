@@ -167,6 +167,20 @@ public class CommonWidgetProperties
         }
     };
 
+    /** Display 'fill_color' */
+    public static final WidgetPropertyDescriptor<WidgetColor> displayFillColor = new WidgetPropertyDescriptor<WidgetColor>(
+            WidgetPropertyCategory.DISPLAY, "fill_color", Messages.WidgetProperties_FillColor)
+    {
+        @Override
+        public WidgetProperty<WidgetColor> createProperty(final Widget widget,
+                                                          final WidgetColor default_color)
+        {
+            return new ColorWidgetProperty(this, widget, default_color);
+        }
+    };
+
+
+
     /** Display 'transparent' */
     public static final WidgetPropertyDescriptor<Boolean> displayTransparent =
         new WidgetPropertyDescriptor<Boolean>(

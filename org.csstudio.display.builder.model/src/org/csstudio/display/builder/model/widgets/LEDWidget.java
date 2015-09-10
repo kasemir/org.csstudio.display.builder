@@ -89,14 +89,10 @@ public class LEDWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        pv_name = behaviorPVName.createProperty(this, "");
-        off_color = displayOffColor.createProperty(this, new WidgetColor(60, 100, 60));
-        on_color = displayOnColor.createProperty(this, new WidgetColor(60, 255, 60));
-        value = runtimeValue.createProperty(this, null);
-        properties.add(pv_name);
-        properties.add(off_color);
-        properties.add(on_color);
-        properties.add(value);
+        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
+        properties.add(off_color = displayOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
+        properties.add(on_color = displayOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
+        properties.add(value = runtimeValue.createProperty(this, null));
 
         // Initial size
         positionWidth().setValue(20);

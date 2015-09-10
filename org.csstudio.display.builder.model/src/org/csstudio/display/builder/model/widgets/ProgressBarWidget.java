@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMinimum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFillColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.Arrays;
@@ -22,6 +23,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.epics.vtype.VType;
 
 /** Widget that displays a progress bar
@@ -49,6 +51,7 @@ public class ProgressBarWidget extends BaseWidget
     private WidgetProperty<Boolean> limits_from_pv;
     private WidgetProperty<Double> minimum;
     private WidgetProperty<Double> maximum;
+    private WidgetProperty<WidgetColor> fill_color;
     private WidgetProperty<VType> value;
 
     public ProgressBarWidget()
@@ -60,11 +63,18 @@ public class ProgressBarWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
+        properties.add(fill_color = displayFillColor.createProperty(this, new WidgetColor(60, 255, 60)));
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, true));
         properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
         properties.add(maximum = behaviorMaximum.createProperty(this, 100.0));
         properties.add(value = runtimeValue.createProperty(this, null));
+    }
+
+    /** @return Display 'fill_color' */
+    public WidgetProperty<WidgetColor> displayFillColor()
+    {
+        return fill_color;
     }
 
     /** @return Behavior 'pv_name' */
