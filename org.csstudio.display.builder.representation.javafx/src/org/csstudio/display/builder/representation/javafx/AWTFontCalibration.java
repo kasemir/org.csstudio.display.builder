@@ -7,14 +7,15 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
-import java.awt.BorderLayout;
+import java.awt.Canvas;
+import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Frame;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.TextField;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -33,6 +34,7 @@ public class AWTFontCalibration implements Runnable, FontCalibration
 {
     private final Logger logger = Logger.getLogger(getClass().getName());
     final Font font = new Font(FontCalibration.FONT, Font.PLAIN, FontCalibration.SIZE);
+	private int text_width, text_height;
 
     @Override
     public double getCalibrationFactor()
@@ -40,13 +42,15 @@ public class AWTFontCalibration implements Runnable, FontCalibration
         final BufferedImage buf = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
         final Graphics2D gc = buf.createGraphics();
         gc.setFont(font);
-        final Rectangle2D measure = gc.getFontMetrics().getStringBounds(FontCalibration.TEXT, gc);
+        final FontMetrics metrics = gc.getFontMetrics();
+        text_width = metrics.stringWidth(FontCalibration.TEXT);
+        text_height = metrics.getHeight();
         gc.dispose();
 
         logger.log(Level.FINE,
-                   "Font calibration measure: " + measure.getWidth() + " x " + measure.getHeight());
-        final double factor = FontCalibration.PIXEL_WIDTH / measure.getWidth();
-        logger.log(Level.CONFIG, "JFX font calibration factor: {0}", factor);
+                   "Font calibration measure: " + text_width + " x " + text_height);
+        final double factor = FontCalibration.PIXEL_WIDTH / text_width;
+        logger.log(Level.CONFIG, "AWT font calibration factor: {0}", factor);
         return factor;
     }
 
@@ -60,11 +64,41 @@ public class AWTFontCalibration implements Runnable, FontCalibration
         final double factor = getCalibrationFactor();
 
         final Frame frame = new Frame("Java AWT: Calibration factor " + factor);
-        frame.setLayout(new BorderLayout());
-        final TextField text = new TextField(FontCalibration.TEXT);
-        text.setFont(font);
-        text.setEditable(false);
-        frame.add(text, BorderLayout.CENTER);
+        frame.setSize(text_width, text_height);
+        
+        // Would like to use TextField or Label, but:
+        // "Peered AWT components, such as Label and TextField,
+        //  can only use logical fonts." (Javadoc for 'Font')
+        // Sure enough at least on Windows the font family is
+        // ignored, only the style and size are honored
+        // by Label.setFont() or TextField.setFont()
+        // --> Use canvas and draw the text with font.
+        final Canvas text = new Canvas()
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void paint(final Graphics gc)
+			{
+				super.paint(gc);
+				gc.setFont(font);
+				final FontMetrics metrics = gc.getFontMetrics();
+				
+				// drawString x/y is 'baseline' of text
+				final int y = metrics.getLeading() + metrics.getAscent();
+				gc.drawString(FontCalibration.TEXT, 0, y);
+				
+				// Show baseline and 'leading'
+				gc.setColor(Color.RED);
+				gc.drawLine(0, y, text_width, y);
+				gc.setColor(Color.GREEN);
+				gc.drawLine(0, metrics.getLeading(), text_width, metrics.getLeading());
+			}
+		};
+        text.setSize(text_width, text_height);
+        
+        frame.add(text);
+        
         frame.addWindowListener(new WindowAdapter()
         {
             @Override
