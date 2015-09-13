@@ -12,9 +12,9 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.display.builder.Icons;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo.Target;
-import org.csstudio.display.builder.model.util.Icons;
 
 /** Information about an action
  *

@@ -23,7 +23,7 @@ import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
-import org.csstudio.display.builder.model.undo.UndoableActionManager;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
 import javafx.scene.Node;
 import javafx.scene.control.Button;

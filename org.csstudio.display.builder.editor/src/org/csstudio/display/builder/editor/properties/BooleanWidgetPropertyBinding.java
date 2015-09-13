@@ -14,7 +14,7 @@ import java.util.List;
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
-import org.csstudio.display.builder.model.undo.UndoableActionManager;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;

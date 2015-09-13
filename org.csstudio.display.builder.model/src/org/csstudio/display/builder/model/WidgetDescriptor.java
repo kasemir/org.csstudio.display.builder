@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
-import org.csstudio.display.builder.model.util.Icons;
+import org.csstudio.display.builder.Icons;
 
 /** Description of a widget.
  *

@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.editor.actions;
 
 import org.csstudio.display.builder.editor.Messages;
-import org.csstudio.display.builder.model.undo.UndoableActionManager;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
 /** Action to perform 'Redo'
  *  @author Kay Kasemir

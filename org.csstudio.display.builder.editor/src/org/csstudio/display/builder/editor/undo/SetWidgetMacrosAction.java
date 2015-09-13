@@ -10,7 +10,7 @@ package org.csstudio.display.builder.editor.undo;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
-import org.csstudio.display.builder.model.undo.UndoableAction;
+import org.csstudio.display.builder.util.undo.UndoableAction;
 
 /** Action to update widget macros
  *  @author Kay Kasemir

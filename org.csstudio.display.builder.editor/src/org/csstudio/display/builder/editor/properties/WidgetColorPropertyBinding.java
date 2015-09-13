@@ -15,8 +15,8 @@ import org.csstudio.display.builder.editor.undo.SetWidgetColorAction;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.csstudio.display.builder.model.undo.UndoableActionManager;
 import org.csstudio.display.builder.representation.javafx.WidgetColorDialog;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

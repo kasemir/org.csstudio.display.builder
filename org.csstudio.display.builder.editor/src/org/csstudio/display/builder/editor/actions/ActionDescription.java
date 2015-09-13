@@ -9,7 +9,7 @@ package org.csstudio.display.builder.editor.actions;
 
 import java.io.InputStream;
 
-import org.csstudio.display.builder.model.util.Icons;
+import org.csstudio.display.builder.util.Icons;
 
 /** Description of an action
  *

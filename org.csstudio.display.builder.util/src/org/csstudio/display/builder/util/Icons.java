@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.model.util;
+package org.csstudio.display.builder.util;
 
 import java.io.FileInputStream;
 import java.io.InputStream;

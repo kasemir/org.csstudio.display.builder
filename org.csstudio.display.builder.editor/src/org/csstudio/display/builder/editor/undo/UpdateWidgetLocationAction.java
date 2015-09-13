@@ -10,7 +10,7 @@ package org.csstudio.display.builder.editor.undo;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.undo.UndoableAction;
+import org.csstudio.display.builder.util.undo.UndoableAction;
 
 /** Action to update widget location
  *  @author Kay Kasemir

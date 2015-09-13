@@ -23,8 +23,8 @@ import org.csstudio.display.builder.editor.util.GroupHandler;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelWriter;
-import org.csstudio.display.builder.model.undo.UndoableActionManager;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;

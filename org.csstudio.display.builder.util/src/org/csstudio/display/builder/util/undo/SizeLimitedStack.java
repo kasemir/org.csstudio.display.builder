@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package org.csstudio.display.builder.model.undo;
+package org.csstudio.display.builder.util.undo;
 
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
