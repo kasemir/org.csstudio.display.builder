@@ -10,9 +10,9 @@ package org.csstudio.display.builder.representation.javafx;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.csstudio.display.builder.Icons;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.csstudio.display.builder.util.Icons;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
