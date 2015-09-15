@@ -86,6 +86,8 @@ public class Messages extends NLS
     public static String WidgetPropertyCategory_Position;
     public static String WidgetPropertyCategory_Runtime;
     public static String WidgetPropertyCategory_Widget;
+    public static String XYPlotWidget_Description;
+    public static String XYPlotWidget_Name;
 
     static
     {

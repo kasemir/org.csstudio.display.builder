@@ -26,6 +26,7 @@ import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
+import org.csstudio.display.builder.model.widgets.XYPlotWidget;
 
 /** Factory that creates widgets based on type
  *
@@ -64,6 +65,7 @@ public class WidgetFactory
         addWidgetType(RectangleWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextEntryWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextUpdateWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(XYPlotWidget.WIDGET_DESCRIPTOR);
 
         // TODO Add equivalent of org.csstudio.opibuilder.widgets.MenuButton
     }

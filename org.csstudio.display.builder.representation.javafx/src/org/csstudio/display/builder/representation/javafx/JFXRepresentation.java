@@ -21,6 +21,7 @@ import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
+import org.csstudio.display.builder.model.widgets.XYPlotWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ActionButtonRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.EmbeddedDisplayRepresentation;
@@ -32,6 +33,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.ProgressBarRep
 import org.csstudio.display.builder.representation.javafx.widgets.RectangleRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.XYPlotRepresentation;
 
 import javafx.application.Platform;
 import javafx.scene.Group;
@@ -69,6 +71,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
         register(RectangleWidget.class, RectangleRepresentation.class);
         register(TextEntryWidget.class, TextEntryRepresentation.class);
         register(TextUpdateWidget.class, TextUpdateRepresentation.class);
+        register(XYPlotWidget.class, XYPlotRepresentation.class);
     }
 
     @Override
