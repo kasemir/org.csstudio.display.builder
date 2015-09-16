@@ -1,0 +1,204 @@
+<?xml version="1.0"?>
+
+<!-- Ant file for building from the command line
+
+     Required environment variables:
+     
+     JAVA_HOME must point to a 1.8 JDK,
+     ANT_HOME must point to for example ant 1.9.4, which includes junit support,
+     PATH must include $ANT_HOME/bin:$JAVA_HOME/bin,
+     CSS must point to a CS-Studio UI binary that has plugins/ sub-folder.
+
+     Kay Kasemir
+  -->
+<project name="beam_count" default="all">
+    <!-- Map all environment variables XYZ to ${env.XYZ} -->
+    <property environment="env"/>
+
+	<!-- Build directory -->
+    <property name="build" value="build" />
+
+	<!-- Class path for building and executing --> 
+    <path id="the_classpath">
+        <fileset dir="${env.CSS}/plugins">
+            <include name="org.junit*/junit.jar" />
+       		<include name="org.hamcrest.core_*.jar" />
+            <include name="org.eclipse.osgi_*.jar" />
+            <include name="org.eclipse.core.runtime_*.jar" />
+            <include name="org.eclipse.equinox.common_*.jar" />
+            <include name="org.epics.util_*.jar" />
+            <include name="org.epics.vtype_*.jar" />
+            <include name="org.eclipse.swt*.jar" />
+            <include name="org.csstudio.vtype.pv_*.jar" />
+            <include name="org.csstudio.platform.libs.epics_*.jar" />
+        </fileset>
+    	<dirset dir="${env.CSS}/plugins">
+	    	<include name="org.python.jython*"/>
+    	</dirset>
+        <fileset dir="${env.JAVA_HOME}/jre/lib">
+            <include name="jfxswt.jar" />
+            <include name="ext/jfxrt.jar" />
+            <include name="ext/nashorn.jar" />
+            <include name="rt.jar" />
+        </fileset>
+    </path>
+
+	
+    <!-- Remove all that might have been built previously -->
+    <target name="clean">
+        <delete dir="${build}" />
+    </target>
+
+
+	<!-- Create build directory structure -->
+    <target name="prepare">
+        <mkdir dir="${build}" />
+        <mkdir dir="${build}/bin" />
+        <mkdir dir="${build}/tests" />
+    </target>
+
+
+    <!-- Compile Java sources (bulk, not generated from JSP) -->
+    <target name="compile" depends="prepare">
+    	<pathconvert property="TheClasspath" refid="the_classpath"/>
+    	<echo>Build Classpath: ${TheClasspath}</echo>
+
+    	<echo>=== Util</echo>
+	    <javac srcdir="../org.csstudio.display.builder.util/src" destdir="${build}/bin"
+               deprecation="on" debug="on">
+	        <classpath><path refid="the_classpath"/></classpath>
+	    </javac>
+    	
+        <echo>=== Model</echo>
+	    <javac srcdir="../org.csstudio.display.builder.model/src" destdir="${build}/bin"
+               deprecation="on" debug="on">
+	        <classpath><path refid="the_classpath"/></classpath>
+	    </javac>
+    	<copy todir="${build}/bin">
+    	    <fileset dir="../org.csstudio.display.builder.model/src"
+    	             includes="**/*.properties" />
+    	</copy>
+	    <javac srcdir="../org.csstudio.display.builder.model.test/src" destdir="${build}/bin"
+               deprecation="on" debug="on">
+	        <classpath><path refid="the_classpath"/></classpath>
+	    </javac>
+    	<copy todir="${build}/bin">
+    	    <fileset dir="../org.csstudio.display.builder.model.test/src"
+    	             includes="**/*.xml" />
+    	</copy>
+
+        <echo>=== Representation</echo>
+	    <javac srcdir="../org.csstudio.javafx.rtplot/src" destdir="${build}/bin"
+               deprecation="on" debug="on">
+	        <classpath><path refid="the_classpath"/></classpath>
+	    </javac>
+    	<copy todir="${build}/bin">
+    	    <fileset dir="../org.csstudio.javafx.rtplot/src"
+    	             includes="**/*.properties" />
+    	</copy>
+    	<javac srcdir="../org.csstudio.javafx.rtplot.test/src" destdir="${build}/bin"
+               deprecation="on" debug="on">
+	        <classpath><path refid="the_classpath"/></classpath>
+	    </javac>
+	    <javac srcdir="../org.csstudio.display.builder.representation/src" destdir="${build}/bin"
+               deprecation="on" debug="on">
+	        <classpath><path refid="the_classpath"/></classpath>
+	    </javac>
+	    <javac srcdir="../org.csstudio.display.builder.representation.javafx/src" destdir="${build}/bin"
+               deprecation="on" debug="on">
+	        <classpath><path refid="the_classpath"/></classpath>
+	    </javac>
+    	<copy todir="${build}/bin">
+    	    <fileset dir="../org.csstudio.display.builder.representation.javafx/src"
+    	             includes="**/*.properties **/*.css" />
+    	</copy>
+    	<javac srcdir="../org.csstudio.display.builder.representation.swt/src" destdir="${build}/bin"
+               deprecation="on" debug="on">
+	        <classpath><path refid="the_classpath"/></classpath>
+	    </javac>
+	    <javac srcdir="../org.csstudio.display.builder.representation.test/src" destdir="${build}/bin"
+               deprecation="on" debug="on">
+	        <classpath><path refid="the_classpath"/></classpath>
+	    </javac>
+
+        <echo>=== Runtime</echo>
+	    <javac srcdir="../org.csstudio.display.builder.runtime/src" destdir="${build}/bin"
+               deprecation="on" debug="on">
+	        <classpath><path refid="the_classpath"/></classpath>
+	    </javac>
+	    <javac srcdir="../org.csstudio.display.builder.runtime.test/src" destdir="${build}/bin"
+               deprecation="on" debug="on">
+	        <classpath><path refid="the_classpath"/></classpath>
+	    </javac>
+
+        <echo>=== Editor</echo>
+	    <javac srcdir="../org.csstudio.display.builder.editor/src" destdir="${build}/bin"
+               deprecation="on" debug="on">
+	        <classpath><path refid="the_classpath"/></classpath>
+	    </javac>
+    	<copy todir="${build}/bin">
+    	    <fileset dir="../org.csstudio.display.builder.editor/src"
+    	             includes="**/*.properties **/*.css" />
+    	</copy>
+    </target>
+	
+
+    <!-- Execute Unit Tests
+         timeout: millisecs
+      -->
+    <target name="test" depends="compile">
+        <junit printsummary="on"
+               fork="on"
+        	   timeout="120000"
+               failureproperty="testfailed">
+            <classpath>
+                <pathelement path="${build}/bin"/>
+                <path refid="the_classpath"/>
+            </classpath>
+   			<sysproperty key="python.import.site" value ="false"/>
+            <!-- 'xml' for Hudson or Eclipse JUnit viewer,
+                 'plain' for reading the files as a human
+              -->
+            <formatter type="xml"/>
+            <batchtest todir="${build}/tests">
+                <fileset dir="../org.csstudio.display.builder.model.test/src">
+                    <include name="**/*Test.java" />
+                </fileset>
+                <fileset dir="../org.csstudio.display.builder.runtime.test/src">
+                    <include name="**/*Test.java" />
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+	<target name="runtime" depends="compile">
+    	<pathconvert property="TheClasspath" refid="the_classpath"/>
+    	<echo>Runtime Classpath: ${TheClasspath}</echo>
+		
+		<java classname="org.csstudio.display.builder.runtime.test.RuntimeDemoJavaFX">
+	        <classpath>
+	        	<pathelement location="${build}/bin"/>
+	        	<path refid="the_classpath"/>
+	        </classpath>
+			<sysproperty key="python.import.site" value ="false"/>
+		</java>
+	</target>
+
+	<target name="edit" depends="compile">
+    	<pathconvert property="TheClasspath" refid="the_classpath"/>
+    	<echo>Edit Classpath: ${TheClasspath}</echo>
+		
+		<java classname="org.csstudio.display.builder.editor.EditorDemo">
+	        <classpath>
+	        	<pathelement location="${build}/bin"/>
+	        	<path refid="the_classpath"/>
+	        </classpath>
+		</java>
+	</target>
+
+	
+    <!-- Run the whole chain -->
+    <target name="all" depends="clean,test">
+        <echo>=== Complete rebuild done</echo>
+    </target>
+</project>

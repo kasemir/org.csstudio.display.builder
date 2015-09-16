@@ -41,12 +41,12 @@ public class ColorUnitTest
         assertThat(color, not(nullValue()));
         assertThat(color.getRed(), equalTo(255));
 
-        color = colors.getColor("Attention").orElse(null);
+        color = colors.getColor("STOP").orElse(null);
         assertThat(color, nullValue());
 
         colors.read(new FileInputStream("../org.csstudio.display.builder.runtime.test/examples/color.def"));
 
-        color = colors.getColor("Attention").orElse(null);
+        color = colors.getColor("STOP").orElse(null);
         System.out.println(color);
         assertThat(color, not(nullValue()));
    }
@@ -54,15 +54,15 @@ public class ColorUnitTest
     /** Test fetching named colors from service
      *  @throws Exception on error
      */
-    @Test
+    @Test(timeout=30000)
     public void testColorService() throws Exception
     {
         System.out.println("On " + Thread.currentThread().getName());
         final Logger logger = Logger.getLogger(getClass().getName());
 
-        // Default colors do now include 'Attention'
+        // Default colors do now include 'STOP'
         NamedWidgetColors colors = WidgetColorService.getColors();
-        NamedWidgetColor color = colors.getColor("Attention").orElse(null);
+        NamedWidgetColor color = colors.getColor("STOP").orElse(null);
         assertThat(color, nullValue());
 
         // Load colors, using a source with artificial delay
@@ -82,8 +82,8 @@ public class ColorUnitTest
         System.out.println("Loading the slow color file took " + seconds + " seconds");
 
         // Should get default names, because slow_color_source is not ready, yet
-        color = colors.getColor("Attention").orElse(null);
-        System.out.println("'Attention' should be null: " + color);
+        color = colors.getColor("STOP").orElse(null);
+        System.out.println("'STOP' should be null: " + color);
         assertThat(color, nullValue());
 
         // The file is still loading, and eventually we should get it
@@ -93,7 +93,7 @@ public class ColorUnitTest
         seconds = (System.currentTimeMillis() - start) / 1000.0;
         System.out.println("Fetching colors after the file got loaded took " + seconds + " seconds");
 
-        color = colors.getColor("Attention").orElse(null);
+        color = colors.getColor("STOP").orElse(null);
         System.out.println(color);
         assertThat(color, not(nullValue()));
     }

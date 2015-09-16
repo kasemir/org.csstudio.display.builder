@@ -26,7 +26,7 @@ public class JythonScriptTest
     @Test
     public void testJythonScript() throws Exception
     {
-        final DisplayModel display = RuntimeUtil.loadModel("examples/dummy.opi", "script_test.opi");
+        final DisplayModel display = RuntimeUtil.loadModel("../org.csstudio.display.builder.runtime.test/examples/dummy.opi", "script_test.opi");
 
         final Widget widget = display.getChildren().parallelStream().filter(w -> w.getName().equals("Label 100")).findFirst().get();
 
@@ -34,7 +34,7 @@ public class JythonScriptTest
 
         // Set widget variable in script
         final ScriptSupport scripting = new ScriptSupport();
-        final Script script = scripting.compile("examples/updateText.py");
+        final Script script = scripting.compile("../org.csstudio.display.builder.runtime.test/examples/updateText.py");
 
         for (int run=0; run<10; ++run)
         {

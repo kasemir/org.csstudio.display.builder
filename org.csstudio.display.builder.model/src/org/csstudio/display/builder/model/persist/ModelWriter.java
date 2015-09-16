@@ -31,6 +31,14 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 @SuppressWarnings("nls")
 public class ModelWriter implements Closeable
 {
+    /** Internal flag for unit tests.
+     *  Default values are usually not written,
+     *  but for tests they can be included in the XML output.
+     *
+     *  <b>Not API.</b>
+     */
+    public static boolean skip_defaults = true;
+
     private final XMLStreamWriter writer;
 
     /** Convert widgets into XML
@@ -133,7 +141,7 @@ public class ModelWriter implements Closeable
         if (property.isReadonly())
             return;
         // Skip writing default values for certain properties
-        if (property.isDefaultValue())
+        if (skip_defaults && property.isDefaultValue())
             return;
         writer.writeStartElement(property.getName());
         property.writeToXML(writer);

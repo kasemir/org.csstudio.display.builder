@@ -22,7 +22,6 @@ import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.ScreenTransform;
 
 import javafx.scene.canvas.GraphicsContext;
-import sun.misc.GC;
 
 /** Base class for X and Y axes.
  *  <p>
@@ -164,7 +163,7 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
      *                X/Y location is actual location.
      *                For horizontal axis, x, y and width are set, and height is tentative.
      *                For vertical axis, x, y and height are set, and width is tentative.
-     *  @param gc {@link GC} that can be used to determine font measurements
+     *  @param gc GC that can be used to determine font measurements
      *  @return For horizontal axis, desired height in pixels.
      *          For vertical axis, desired width in pixels.
      */

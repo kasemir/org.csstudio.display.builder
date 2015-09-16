@@ -29,7 +29,7 @@ public class Settings
 
     public static void setup() throws Exception
     {
-        LogManager.getLogManager().readConfiguration(new FileInputStream("examples/logging.properties"));
+        LogManager.getLogManager().readConfiguration(new FileInputStream("../org.csstudio.display.builder.runtime.test/examples/logging.properties"));
 
         final String addr_list = "127.0.0.1 webopi.sns.gov:5066 160.91.228.17";
         System.setProperty("com.cosylab.epics.caj.CAJContext.addr_list", addr_list);
