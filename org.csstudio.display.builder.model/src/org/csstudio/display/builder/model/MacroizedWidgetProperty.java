@@ -126,4 +126,15 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
         specification = String.valueOf(value);
         super.setValue(value);
     }
+
+    /** @return Debug representation */
+    @Override
+    public String toString()
+    {
+        final T safe_copy = value;
+        if (safe_copy == null)
+            return "'" + getName() + "' = " + specification;
+        else
+            return "'" + getName() + "' = " + value;
+    }
 }

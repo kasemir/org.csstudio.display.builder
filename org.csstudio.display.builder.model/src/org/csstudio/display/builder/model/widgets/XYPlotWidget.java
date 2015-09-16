@@ -48,6 +48,10 @@ public class XYPlotWidget extends BaseWidget
     // <trace_0_y_pv>
     // <trace_0_trace_color>
 
+    // ArrayWidgetProperty(
+    //    StructureWidgetProperty( WidgetProperty<String> x_pv, y_pv,
+    //                             ColorWidgetProperty    color
+
     private WidgetProperty<String> pv_name;
     private WidgetProperty<VType> value;
 

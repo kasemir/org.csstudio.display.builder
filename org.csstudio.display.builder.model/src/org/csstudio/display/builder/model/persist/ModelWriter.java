@@ -117,25 +117,24 @@ public class ModelWriter implements Closeable
     private void writeWidgetProperties(final Widget widget) throws Exception
     {
         for (final WidgetProperty<?> property : widget.getProperties())
-        {
-            // Skip runtime properties
-            if (property.getCategory() == WidgetPropertyCategory.RUNTIME)
-                continue;
-            // Skip read-only properties
-            if (property.isReadonly())
-                continue;
-            // Skip writing default values for certain properties
-            if (property.isDefaultValue())
-                continue;
-            writeProperty(property);
-        }
+            writeProperty(writer, property);
     }
 
-    /** @param property Single property to write
+    /** @param writer
+     *  @param property Single property to write
      *  @throws Exception on error
      */
-    private void writeProperty(final WidgetProperty<?> property) throws Exception
+    public static void writeProperty(XMLStreamWriter writer, final WidgetProperty<?> property) throws Exception
     {
+        // Skip runtime properties
+        if (property.getCategory() == WidgetPropertyCategory.RUNTIME)
+            return;
+        // Skip read-only properties
+        if (property.isReadonly())
+            return;
+        // Skip writing default values for certain properties
+        if (property.isDefaultValue())
+            return;
         writer.writeStartElement(property.getName());
         property.writeToXML(writer);
         writer.writeEndElement();

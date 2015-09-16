@@ -96,6 +96,15 @@ public class WidgetFactory
         descriptor_by_type.put(descriptor.getType(), descriptor);
         for (final String alternate : descriptor.getAlternateTypes())
         {
+            // TODO Think about allowing multiple alternate types.
+            // Example:
+            // Legacy org.csstudio.opibuilder.widgets.xyGraph could be
+            // a) XYPlot if it has array PVs for X & Y
+            // b) Strip chart if it has scalar Y PVs and no X
+            //
+            // When ModelReader calls createWidget(..),
+            // that mechanism needs to figure out which of the alternates applies
+            // by looking at the XML DOM.
             if (descriptor_by_type.containsKey(alternate))
                 throw new Error(alternate + " already defined by " +
                                 descriptor_by_type.get(alternate));
