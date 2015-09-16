@@ -312,28 +312,35 @@ public class CommonWidgetProperties
         }
     };
 
-    /** Runtime 'value': Typically read from primary PV */
-    public static final WidgetPropertyDescriptor<VType> runtimeValue =
-        new WidgetPropertyDescriptor<VType>(
-            WidgetPropertyCategory.RUNTIME, "value", Messages.WidgetProperties_Value)
+    /** Constructor for value property
+     *  @param name Internal name of the property
+     *  @param description Human-readable description
+     */
+    public static final WidgetPropertyDescriptor<VType> newRuntimeValue(final String name, final String description)
     {
-        @Override
-        public WidgetProperty<VType> createProperty(final Widget widget,
-                                                    final VType value)
+        return new WidgetPropertyDescriptor<VType>(WidgetPropertyCategory.RUNTIME, name, description)
         {
-            return new RuntimeWidgetProperty<VType>(this, widget, value)
+            @Override
+            public WidgetProperty<VType> createProperty(final Widget widget,
+                                                        final VType value)
             {
-                @Override
-                public void setValueFromObject(final Object value) throws Exception
+                return new RuntimeWidgetProperty<VType>(this, widget, value)
                 {
-                    if (value instanceof VType)
-                        setValue((VType) value);
-                    else
-                        throw new Exception("Need VType, got " + value);
-                }
-            };
-        }
-    };
+                    @Override
+                    public void setValueFromObject(final Object value) throws Exception
+                    {
+                        if (value instanceof VType)
+                            setValue((VType) value);
+                        else
+                            throw new Exception("Need VType, got " + value);
+                    }
+                };
+            }
+        };
+    }
+
+    /** Runtime 'value': Typically read from primary PV */
+    public static final WidgetPropertyDescriptor<VType> runtimeValue = newRuntimeValue("value", Messages.WidgetProperties_Value);
 
     /** Runtime 'insets': Container widget representations may set these. */
     public static final WidgetPropertyDescriptor<int[]> runtimeInsets =

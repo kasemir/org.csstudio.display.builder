@@ -132,7 +132,7 @@ public class ActionUtil
 
     /** Write a PV.
      *  @param source_widget Widget from which the action is invoked.
-     *  @param action        Information on which display to open and how.
+     *  @param action        What to write to which PV.
      */
     private static void writePV(final Widget source_widget, final WritePVActionInfo action)
     {

@@ -13,8 +13,10 @@ import java.util.Map;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.XYPlotWidget;
 import org.csstudio.display.builder.runtime.internal.DisplayRuntime;
 import org.csstudio.display.builder.runtime.internal.EmbeddedDisplayRuntime;
+import org.csstudio.display.builder.runtime.internal.XYPlotWidgetRuntime;
 
 /** Factory for runtimes
  *
@@ -31,8 +33,9 @@ public class WidgetRuntimeFactory
     {
         // TODO Locate runtimes in registry
         register(DisplayModel.class, DisplayRuntime.class);
-
         register(EmbeddedDisplayWidget.class, EmbeddedDisplayRuntime.class);
+        register(XYPlotWidget.class, XYPlotWidgetRuntime.class);
+
     }
 
     protected void register(final Class<? extends Widget> widget_class,

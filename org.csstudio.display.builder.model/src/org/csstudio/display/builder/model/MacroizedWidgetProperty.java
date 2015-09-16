@@ -99,6 +99,11 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
         {
             final MacroValueProvider macros = widget.getMacrosOrProperties();
             final String expanded = MacroHandler.replace(macros, specification);
+
+            // TODO Do not allow this...
+            if (MacroHandler.containsMacros(expanded))
+                System.out.println(getWidget().getName() + "/" + getName() + " is not fully resolved: " + expanded);
+
             try
             {
                 super.setValue(parseExpandedSpecification(expanded));

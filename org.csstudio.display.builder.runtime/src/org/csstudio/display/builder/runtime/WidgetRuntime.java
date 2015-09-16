@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
@@ -37,7 +38,7 @@ import org.epics.vtype.VType;
 @SuppressWarnings("nls")
 public class WidgetRuntime<MW extends Widget>
 {
-    final private static Logger logger = Logger.getLogger(WidgetRuntime.class.getName());
+    final protected static Logger logger = Logger.getLogger(WidgetRuntime.class.getName());
 
     /** The widget handled by this runtime */
     protected final MW widget;
@@ -46,7 +47,7 @@ public class WidgetRuntime<MW extends Widget>
     private volatile Optional<PV> primary_pv = Optional.empty();
 
     /** Listener for <code>primary_pv</code> */
-    private PrimaryPVListener primary_pv_listener;
+    private PVListener primary_pv_listener;
 
     /** PVs used by actions */
     // This is empty for most widgets, or contains very few PVs,
@@ -57,12 +58,19 @@ public class WidgetRuntime<MW extends Widget>
     private final List<RuntimeScriptHandler> script_handlers = new CopyOnWriteArrayList<>();
 
     /** PVListener that updates 'value' property with received VType */
-    private class PrimaryPVListener implements PVListener
+    protected static class PropertyUpdater implements PVListener
     {
+        private final WidgetProperty<VType> property;
+
+        public PropertyUpdater(final WidgetProperty<VType> property)
+        {
+            this.property = property;
+        }
+
         @Override
         public void valueChanged(final PV pv, final VType value)
         {
-            widget.setPropertyValue(runtimeValue, value);
+            property.setValue(value);
         }
 
         @Override
@@ -74,7 +82,7 @@ public class WidgetRuntime<MW extends Widget>
         @Override
         public void disconnected(final PV pv)
         {
-            widget.setPropertyValue(runtimeValue, null);
+            property.setValue(null);
         }
     };
 
@@ -100,7 +108,7 @@ public class WidgetRuntime<MW extends Widget>
             {
                 logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, pv_name });
                 final PV pv = PVPool.getPV(pv_name);
-                primary_pv_listener = new PrimaryPVListener();
+                primary_pv_listener = new PropertyUpdater(widget.getProperty(runtimeValue));
                 pv.addListener(primary_pv_listener);
                 primary_pv = Optional.of(pv);
             }
