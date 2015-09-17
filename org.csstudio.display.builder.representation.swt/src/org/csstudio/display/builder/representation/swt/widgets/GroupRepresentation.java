@@ -7,9 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt.widgets;
 
-import java.beans.PropertyChangeEvent;
-
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.eclipse.swt.SWT;
@@ -47,12 +46,12 @@ public class GroupRepresentation extends SWTBaseRepresentation<Group, GroupWidge
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.widgetName().addPropertyListener(this::borderChanged);
-        model_widget.positionWidth().addPropertyListener(this::borderChanged);
-        model_widget.positionHeight().addPropertyListener(this::borderChanged);
+        model_widget.widgetName().addUntypedPropertyListener(this::borderChanged);
+        model_widget.positionWidth().addUntypedPropertyListener(this::borderChanged);
+        model_widget.positionHeight().addUntypedPropertyListener(this::borderChanged);
     }
 
-    private void borderChanged(final PropertyChangeEvent event)
+    private void borderChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_border.mark();
         toolkit.scheduleUpdate(this);

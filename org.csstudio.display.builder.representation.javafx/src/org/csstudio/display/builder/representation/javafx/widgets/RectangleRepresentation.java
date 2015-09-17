@@ -7,9 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import java.beans.PropertyChangeEvent;
-
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 
@@ -51,11 +50,11 @@ public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, Re
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addPropertyListener(this::contentChanged);
-        model_widget.positionHeight().addPropertyListener(this::contentChanged);
+        model_widget.positionWidth().addUntypedPropertyListener(this::contentChanged);
+        model_widget.positionHeight().addUntypedPropertyListener(this::contentChanged);
     }
 
-    private void contentChanged(final PropertyChangeEvent event)
+    private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_size.mark();
         toolkit.scheduleUpdate(this);

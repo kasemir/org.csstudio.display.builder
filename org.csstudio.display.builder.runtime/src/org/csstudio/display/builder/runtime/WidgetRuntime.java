@@ -62,6 +62,7 @@ public class WidgetRuntime<MW extends Widget>
     {
         private final WidgetProperty<VType> property;
 
+        /** @param property Widget property to update with values received from PV */
         public PropertyUpdater(final WidgetProperty<VType> property)
         {
             this.property = property;

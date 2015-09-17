@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeInsets;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -27,7 +28,10 @@ public class ContainerWidget extends BaseWidget
      *  but setting its value or creating additional property instances
      *  is not supported.
      *
-     *  All access must be via the ContainerWidget.add/removeChild() methods.
+     *  <p>All access must be via the ContainerWidget.add/removeChild() methods.
+     *
+     *  <p>Notifications are sent with a list of elements added or removed,
+     *  <u>not</u> the complete old resp. new value.
      */
     public static final WidgetPropertyDescriptor<List<Widget>> CHILDREN_PROPERTY_DESCRIPTOR =
             new WidgetPropertyDescriptor<List<Widget>>(
@@ -132,7 +136,7 @@ public class ContainerWidget extends BaseWidget
             list.add(child);
         }
         child.setParent(this);
-        firePropertyChange(children, null, child);
+        children.firePropertyChange(null, Arrays.asList(child));
     }
 
     /** @param child Widget to remove as child from widget tree */
@@ -141,11 +145,17 @@ public class ContainerWidget extends BaseWidget
         final List<Widget> list = children.getValue();
         list.remove(child);
         child.setParent(null);
-        firePropertyChange(children, child, null);
+        children.firePropertyChange(Arrays.asList(child), null);
     }
 
     public WidgetProperty<int[]> runtimeInsets()
     {
         return insets;
+    }
+
+    /** @see #CHILDREN_PROPERTY_DESCRIPTOR */
+    public WidgetProperty<List<Widget>> runtimeChildren()
+    {
+        return children;
     }
 }

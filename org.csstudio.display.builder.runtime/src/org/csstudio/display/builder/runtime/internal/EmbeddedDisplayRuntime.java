@@ -48,7 +48,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         // Registering for changes after the initial load
         // prevents double-loading based on the change triggered in
         // the initial load
-        widget.displayFile().addPropertyListener(event -> loadContent());
+        widget.displayFile().addPropertyListener((p, o, n) -> loadContent());
     }
 
     private void loadContent()

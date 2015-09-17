@@ -7,12 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
-import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.Optional;
 
 import org.csstudio.display.builder.editor.undo.SetWidgetColorAction;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.representation.javafx.WidgetColorDialog;
@@ -28,7 +28,7 @@ public class WidgetColorPropertyBinding
        extends WidgetPropertyBinding<WidgetColorPropertyField, ColorWidgetProperty>
 {
     /** Update property panel field as model changes */
-    private final PropertyChangeListener model_listener = event ->
+    private final WidgetPropertyListener<WidgetColor> model_listener = (p, o, n) ->
     {
         jfx_node.setColor(widget_property.getValue());
     };

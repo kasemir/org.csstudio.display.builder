@@ -7,10 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt.widgets;
 
-import java.beans.PropertyChangeEvent;
 import java.util.List;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
@@ -100,10 +100,10 @@ public class ActionButtonRepresentation extends SWTBaseRepresentation<Button, Ac
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.displayText().addPropertyListener(this::representationChanged);
+        model_widget.displayText().addUntypedPropertyListener(this::representationChanged);
     }
 
-    private void representationChanged(final PropertyChangeEvent event)
+    private void representationChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_representation.mark();
         toolkit.scheduleUpdate(this);

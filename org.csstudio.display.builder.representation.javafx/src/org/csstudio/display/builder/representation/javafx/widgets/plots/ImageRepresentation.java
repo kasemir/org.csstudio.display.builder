@@ -5,18 +5,19 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.representation.javafx.widgets;
+package org.csstudio.display.builder.representation.javafx.widgets.plots;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ImageWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.epics.util.array.IteratorNumber;
 import org.epics.util.array.ListNumber;
 import org.epics.vtype.VNumberArray;
@@ -73,21 +74,21 @@ public class ImageRepresentation extends JFXBaseRepresentation<Node, ImageWidget
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addPropertyListener(this::positionChanged);
-        model_widget.positionHeight().addPropertyListener(this::positionChanged);
-        model_widget.behaviorDataWidth().addPropertyListener(this::contentChanged);
-        model_widget.behaviorDataHeight().addPropertyListener(this::contentChanged);
-        model_widget.runtimeValue().addPropertyListener(this::contentChanged);
+        model_widget.positionWidth().addUntypedPropertyListener(this::positionChanged);
+        model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
+        model_widget.behaviorDataWidth().addUntypedPropertyListener(this::contentChanged);
+        model_widget.behaviorDataHeight().addUntypedPropertyListener(this::contentChanged);
+        model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
     }
 
-    private void positionChanged(final PropertyChangeEvent event)
+    private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_position.mark();
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    private void contentChanged(final PropertyChangeEvent event)
+    private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         image = getImage();
         dirty_content.mark();

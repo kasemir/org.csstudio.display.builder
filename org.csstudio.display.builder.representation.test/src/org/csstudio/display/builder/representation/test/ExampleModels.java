@@ -63,7 +63,8 @@ public class ExampleModels
             rect.setPropertyValue(CommonWidgetProperties.positionWidth, 80);
             rect.setPropertyValue(CommonWidgetProperties.positionHeight, 19);
             rect.setPropertyValue(CommonWidgetProperties.behaviorScripts,
-                    Arrays.asList(new ScriptInfo("fudge_width.py", new ScriptPV("noise"))));
+                    Arrays.asList(new ScriptInfo("../org.csstudio.display.builder.runtime.test/examples/fudge_width.py",
+                                                 new ScriptPV("noise"))));
             group.addChild(rect);
 
             final TextUpdateWidget text = new TextUpdateWidget();

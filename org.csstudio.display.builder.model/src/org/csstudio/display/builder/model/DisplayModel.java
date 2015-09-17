@@ -92,7 +92,7 @@ public class DisplayModel extends ContainerWidget
         widgetMacros().setValue(other_model.widgetMacros().getValue());
         user_data.clear();
         user_data.putAll(other_model.user_data);
-        firePropertyChange(null, null, null);
+        // TODO Issue some notification? firePropertyChange(null, null, null);
     }
 
     /** Display model provides macros for all its widgets.

@@ -5,20 +5,26 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.representation.javafx.widgets;
+package org.csstudio.display.builder.representation.javafx.widgets.plots;
 
-import java.beans.PropertyChangeEvent;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
+import org.csstudio.javafx.rtplot.PointType;
 import org.csstudio.javafx.rtplot.RTValuePlot;
+import org.csstudio.javafx.rtplot.Trace;
+import org.csstudio.javafx.rtplot.TraceType;
+import org.epics.vtype.VNumberArray;
 import org.epics.vtype.VType;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -27,10 +33,11 @@ import javafx.scene.layout.Pane;
 public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidget>
 {
     private final DirtyFlag dirty_position = new DirtyFlag();
-    private final DirtyFlag dirty_value = new DirtyFlag();
 
     /** Canvas that displays the image. */
     private RTValuePlot plot;
+    private Trace<Double> trace0;
+    private XYVTypeDataProvider data0;
 
     public XYPlotRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
                                 final XYPlotWidget model_widget)
@@ -43,6 +50,11 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
     {
         plot = new RTValuePlot();
         plot.showToolbar(false);
+        plot.showCrosshair(true);
+        // TODO plot.getXAxis().setAutoscale(true);
+        plot.getYAxes().get(0).setAutoscale(true);
+        data0 = new XYVTypeDataProvider();
+        trace0 = plot.addTrace("Data", "Units", data0, Color.BLUE, TraceType.SINGLE_LINE_DIRECT, 3, PointType.NONE, 5, 0);
         return plot;
     }
 
@@ -50,32 +62,40 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addPropertyListener(this::positionChanged);
-        model_widget.positionHeight().addPropertyListener(this::positionChanged);
+        model_widget.positionWidth().addUntypedPropertyListener(this::positionChanged);
+        model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
 
         // TODO 'getElement(3)' is too fragile as structure is extended. Lookup by element name?
-        // TODO Widget only aware of 'trace', not trace's 'x_value'
-//        model_widget.behaviorTrace().getElement(3).addPropertyListener(this::valueChanged);
-//        model_widget.behaviorTrace().getElement(4).addPropertyListener(this::valueChanged);
+        model_widget.behaviorTrace().getElement(3).addUntypedPropertyListener(this::valueChanged);
+        model_widget.behaviorTrace().getElement(4).addUntypedPropertyListener(this::valueChanged);
     }
 
-    private void positionChanged(final PropertyChangeEvent event)
+    private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_position.mark();
-        dirty_value.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    private void valueChanged(final PropertyChangeEvent event)
+    private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        WidgetProperty<VType> x = model_widget.behaviorTrace().getElement(3);
-        WidgetProperty<VType> y = model_widget.behaviorTrace().getElement(4);
+        try
+        {
+            WidgetProperty<VType> x = model_widget.behaviorTrace().getElement(3);
+            WidgetProperty<VType> y = model_widget.behaviorTrace().getElement(4);
 
-        System.out.println("XYPlot: x = " + x);
-        System.out.println("XYPlot: y = " + y);
+            VType x_value = x.getValue();
+            VType y_value = y.getValue();
+            if (x_value instanceof VNumberArray  &&  y_value instanceof VNumberArray)
+            {
+                data0.setData( ((VNumberArray)x_value).getData(), ((VNumberArray)y_value).getData());
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "XYGraph data error", ex);
+        }
 
-        dirty_value.mark();
-        toolkit.scheduleUpdate(this);
+        plot.requestUpdate();
     }
 
     @Override
@@ -89,8 +109,6 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
             plot.setPrefWidth(w);
             plot.setPrefHeight(h);
         }
-        if (dirty_value.checkAndClear())
-        {
-        }
+        plot.requestUpdate();
     }
 }

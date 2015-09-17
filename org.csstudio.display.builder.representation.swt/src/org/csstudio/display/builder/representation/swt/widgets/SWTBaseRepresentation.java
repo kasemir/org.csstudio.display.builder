@@ -7,10 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt.widgets;
 
-import java.beans.PropertyChangeEvent;
-
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 import org.eclipse.swt.SWT;
@@ -96,13 +95,13 @@ abstract public class SWTBaseRepresentation<W extends Control, MW extends Widget
      */
     protected void registerListeners()
     {
-        model_widget.positionX().addPropertyListener(this::positionChanged);
-        model_widget.positionY().addPropertyListener(this::positionChanged);
-        model_widget.positionWidth().addPropertyListener(this::positionChanged);
-        model_widget.positionHeight().addPropertyListener(this::positionChanged);
+        model_widget.positionX().addUntypedPropertyListener(this::positionChanged);
+        model_widget.positionY().addUntypedPropertyListener(this::positionChanged);
+        model_widget.positionWidth().addUntypedPropertyListener(this::positionChanged);
+        model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
     }
 
-    private void positionChanged(final PropertyChangeEvent event)
+    private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_position.mark();
         toolkit.scheduleUpdate(this);

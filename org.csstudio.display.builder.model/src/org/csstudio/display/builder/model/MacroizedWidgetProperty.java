@@ -70,10 +70,9 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
      */
     public void setSpecification(final String specification)
     {
-        final String old_spec = this.specification;
         this.specification = specification;
         this.value = null;
-        widget.firePropertyChange(this, old_spec, specification);
+        firePropertyChange(this, null, null);
     }
 
     /** Macro-based properties implement this to parse
@@ -102,7 +101,7 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
 
             // TODO Do not allow this...
             if (MacroHandler.containsMacros(expanded))
-                System.out.println(getWidget().getName() + "/" + getName() + " is not fully resolved: " + expanded);
+                System.out.println(widget + "/" + getName() + " is not fully resolved: " + expanded);
 
             try
             {

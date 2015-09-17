@@ -7,11 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import java.beans.PropertyChangeEvent;
 import java.util.Objects;
 
 import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 
@@ -99,9 +99,9 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWid
      */
     protected void registerListeners()
     {
-        model_widget.positionVisible().addPropertyListener(this::positionChanged);
-        model_widget.positionX().addPropertyListener(this::positionChanged);
-        model_widget.positionY().addPropertyListener(this::positionChanged);
+        model_widget.positionVisible().addUntypedPropertyListener(this::positionChanged);
+        model_widget.positionX().addUntypedPropertyListener(this::positionChanged);
+        model_widget.positionY().addUntypedPropertyListener(this::positionChanged);
         // Would like to also listen to positionWidth & height,
         // then call jfx_node.resizeRelocate(x, y, width, height),
         // but resizeRelocate tends to ignore the width & height on
@@ -109,7 +109,7 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWid
         // setWith() & setHeight() in specific representation.
     }
 
-    private void positionChanged(final PropertyChangeEvent event)
+    private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_position.mark();
         toolkit.scheduleUpdate(this);

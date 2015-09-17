@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.tree;
 
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +22,7 @@ import org.csstudio.display.builder.editor.util.WidgetIcons;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -68,20 +67,20 @@ public class WidgetTree
     private Map<Widget, TreeItem<Widget>> widget_items;
 
     /** Listener to changes in ContainerWidget's children */
-    private final PropertyChangeListener children_listener = event ->
+    private final WidgetPropertyListener<List<Widget>> children_listener = (p, removed, added) ->
     {
-        final Widget removed_widget = (Widget) event.getOldValue();
-        final Widget added_widget   = (Widget) event.getNewValue();
         // Update must be on UI thread.
         // Even if already on UI thread, decouple.
         Platform.runLater(() ->
         {
-            if (removed_widget != null)
-            {
-                logger.log(Level.FINE, "Removed {0}", removed_widget);
-                removeWidget(removed_widget);
-            }
-            if (added_widget != null)
+            if (removed != null)
+                for (Widget removed_widget : removed)
+                {
+                    logger.log(Level.FINE, "Removed {0}", removed_widget);
+                    removeWidget(removed_widget);
+                }
+            if (added != null)
+                for (Widget added_widget : added)
             {
                 logger.log(Level.FINE, "Added {0}", added_widget);
                 addWidget(added_widget);
@@ -90,9 +89,9 @@ public class WidgetTree
     };
 
     /** Listener to changes in ContainerWidget's children */
-    private final PropertyChangeListener name_listener = event ->
+    private final WidgetPropertyListener<String> name_listener = (property, old, new_name) ->
     {
-        final Widget widget = (Widget) event.getSource();
+        final Widget widget = property.getWidget();
         logger.log(Level.FINE, "{0} changed name", widget);
 
         final TreeItem<Widget> item = Objects.requireNonNull(widget_items.get(widget));
@@ -266,11 +265,11 @@ public class WidgetTree
      */
     private void addWidgetListeners(final ContainerWidget container)
     {
-        container.addPropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, children_listener);
-        container.addPropertyListener(CommonWidgetProperties.widgetName, name_listener);
+        container.runtimeChildren().addPropertyListener(children_listener);
+        container.widgetName().addPropertyListener(name_listener);
         for (Widget widget : container.getChildren())
         {
-            widget.addPropertyListener(CommonWidgetProperties.widgetName, name_listener);
+            widget.widgetName().addPropertyListener(name_listener);
             if (widget instanceof ContainerWidget)
                 addWidgetListeners((ContainerWidget) widget);
         }
@@ -287,12 +286,12 @@ public class WidgetTree
         item.setExpanded(true);
         item_parent.getChildren().add(item);
 
-        added_widget.addPropertyListener(CommonWidgetProperties.widgetName, name_listener);
+        added_widget.widgetName().addPropertyListener(name_listener);
 
         if (added_widget instanceof ContainerWidget)
         {
             final ContainerWidget container = (ContainerWidget) added_widget;
-            container.addPropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, children_listener);
+            container.runtimeChildren().addPropertyListener(children_listener);
             for (Widget child : container.getChildren())
                 addWidget(child);
         }
@@ -303,11 +302,11 @@ public class WidgetTree
      */
     private void removeWidget(final Widget removed_widget)
     {
-        removed_widget.removePropertyListener(CommonWidgetProperties.widgetName, name_listener);
+        removed_widget.widgetName().removePropertyListener(name_listener);
         if (removed_widget instanceof ContainerWidget)
         {
             final ContainerWidget container = (ContainerWidget) removed_widget;
-            container.removePropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, children_listener);
+            container.runtimeChildren().removePropertyListener(children_listener);
             for (Widget child : container.getChildren())
                 removeWidget(child);
         }
@@ -323,11 +322,11 @@ public class WidgetTree
      */
     private void removeWidgetListeners(final ContainerWidget container)
     {
-        container.removePropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, children_listener);
-        container.removePropertyListener(CommonWidgetProperties.widgetName, name_listener);
+        container.runtimeChildren().removePropertyListener(children_listener);
+        container.widgetName().removePropertyListener(name_listener);
         for (Widget widget : container.getChildren())
         {
-            widget.removePropertyListener(CommonWidgetProperties.widgetName, name_listener);
+            widget.widgetName().removePropertyListener(name_listener);
             if (widget instanceof ContainerWidget)
                 removeWidgetListeners((ContainerWidget) widget);
         }

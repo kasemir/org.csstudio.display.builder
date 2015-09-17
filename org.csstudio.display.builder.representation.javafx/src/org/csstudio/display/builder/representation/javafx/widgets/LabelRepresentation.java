@@ -7,9 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import java.beans.PropertyChangeEvent;
-
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -48,22 +47,22 @@ public class LabelRepresentation extends JFXBaseRepresentation<Label, LabelWidge
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addPropertyListener(this::styleChanged);
-        model_widget.positionHeight().addPropertyListener(this::styleChanged);
-        model_widget.displayForegroundColor().addPropertyListener(this::styleChanged);
-        model_widget.displayBackgroundColor().addPropertyListener(this::styleChanged);
-        model_widget.displayTransparent().addPropertyListener(this::styleChanged);
-        model_widget.displayFont().addPropertyListener(this::styleChanged);
-        model_widget.displayText().addPropertyListener(this::contentChanged);
+        model_widget.positionWidth().addUntypedPropertyListener(this::styleChanged);
+        model_widget.positionHeight().addUntypedPropertyListener(this::styleChanged);
+        model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.displayTransparent().addUntypedPropertyListener(this::styleChanged);
+        model_widget.displayFont().addUntypedPropertyListener(this::styleChanged);
+        model_widget.displayText().addUntypedPropertyListener(this::contentChanged);
     }
 
-    private void styleChanged(final PropertyChangeEvent event)
+    private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    private void contentChanged(final PropertyChangeEvent event)
+    private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_content.mark();
         toolkit.scheduleUpdate(this);

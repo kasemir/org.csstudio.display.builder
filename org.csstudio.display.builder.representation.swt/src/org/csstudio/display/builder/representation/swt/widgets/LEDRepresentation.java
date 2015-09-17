@@ -7,9 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt.widgets;
 
-import java.beans.PropertyChangeEvent;
-
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -82,9 +81,9 @@ public class LEDRepresentation extends SWTBaseRepresentation<Canvas, LEDWidget>
         model_widget.runtimeValue().addPropertyListener(this::contentChanged);
     }
 
-    private void contentChanged(final PropertyChangeEvent event)
+    private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
-        int value_index = VTypeUtil.getValueNumber((VType)event.getNewValue()).intValue();
+        int value_index = VTypeUtil.getValueNumber(new_value).intValue();
         if (value_index < 0)
             value_index = 0;
         if (value_index >= colors.length)

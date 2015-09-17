@@ -7,9 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import java.beans.PropertyChangeEvent;
-
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -68,32 +67,32 @@ public class LEDRepresentation extends JFXBaseRepresentation<Ellipse, LEDWidget>
     {
         // NOT calling  super.registerListeners()
         // because Ellipse uses center instead of top-left X/Y
-        model_widget.positionVisible().addPropertyListener(this::positionChanged);
-        model_widget.positionX().addPropertyListener(this::positionChanged);
-        model_widget.positionY().addPropertyListener(this::positionChanged);
-        model_widget.positionWidth().addPropertyListener(this::positionChanged);
-        model_widget.positionHeight().addPropertyListener(this::positionChanged);
-        model_widget.offColor().addPropertyListener(this::configChanged);
-        model_widget.onColor().addPropertyListener(this::configChanged);
+        model_widget.positionVisible().addUntypedPropertyListener(this::positionChanged);
+        model_widget.positionX().addUntypedPropertyListener(this::positionChanged);
+        model_widget.positionY().addUntypedPropertyListener(this::positionChanged);
+        model_widget.positionWidth().addUntypedPropertyListener(this::positionChanged);
+        model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
+        model_widget.offColor().addUntypedPropertyListener(this::configChanged);
+        model_widget.onColor().addUntypedPropertyListener(this::configChanged);
         model_widget.runtimeValue().addPropertyListener(this::contentChanged);
     }
 
-    private void positionChanged(final PropertyChangeEvent event)
+    private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_position.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    private void configChanged(final PropertyChangeEvent event)
+    private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         createColors();
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    private void contentChanged(final PropertyChangeEvent event)
+    private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
-        int value_index = VTypeUtil.getValueNumber((VType)event.getNewValue()).intValue();
+        int value_index = VTypeUtil.getValueNumber(new_value).intValue();
         if (value_index < 0)
             value_index = 0;
         if (value_index >= colors.length)

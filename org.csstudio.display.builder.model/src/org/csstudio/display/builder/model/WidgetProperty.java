@@ -7,11 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
-import java.beans.PropertyChangeListener;
 import java.util.Objects;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.properties.PropertyChangeHandler;
 import org.w3c.dom.Element;
 
 /** Base class for all widget properties.
@@ -25,7 +25,7 @@ import org.w3c.dom.Element;
  *  @param <T> Type of the property's value
  */
 @SuppressWarnings("nls")
-public abstract class WidgetProperty<T extends Object>
+public abstract class WidgetProperty<T extends Object> extends PropertyChangeHandler<T>
 {
     /** 'Parent', widget that holds this property */
     protected final Widget widget;
@@ -57,22 +57,6 @@ public abstract class WidgetProperty<T extends Object>
         this.descriptor = Objects.requireNonNull(descriptor);
         this.default_value = default_value;
         this.value = this.default_value;
-    }
-
-    /** Subscribe to property changes
-     *  @param listener Listener to invoke
-     */
-    public void addPropertyListener(final PropertyChangeListener listener)
-    {
-        getWidget().addPropertyListener(descriptor, listener);
-    }
-
-    /** Unsubscribe from property changes
-     *  @param listener Listener to remove
-     */
-    public void removePropertyListener(final PropertyChangeListener listener)
-    {
-        getWidget().removePropertyListener(descriptor, listener);
     }
 
     /** @return Widget that has this property */
@@ -154,7 +138,7 @@ public abstract class WidgetProperty<T extends Object>
         Objects.requireNonNull(value);
         final T new_value = restrictValue(value);
         this.value = Objects.requireNonNull(new_value);
-        widget.firePropertyChange(this, old_value, new_value);
+        firePropertyChange(this, old_value, new_value);
     }
 
     /** Set value from Object.
@@ -182,6 +166,24 @@ public abstract class WidgetProperty<T extends Object>
      *  @throws Exception on error
      */
     abstract public void readFromXML(final Element property_xml) throws Exception;
+
+    /** Notify listeners of property change.
+     *
+     *  <p>New value usually matches <code>property.getValue()</code>,
+     *  but in multi-threaded context value might already have changed
+     *  _again_ by the time this executes.
+     *
+     *  <p>Suppresses notifications where old_value equals new_value,
+     *  unless the values are null, treating that as a "notify anyway"
+     *  case.
+     *
+     *  @param old_value Original value
+     *  @param new_value New value
+     */
+    protected void firePropertyChange(final T old_value, final T new_value)
+    {
+        firePropertyChange(this, old_value, new_value);
+    }
 
     /** @return Debug representation */
     @Override

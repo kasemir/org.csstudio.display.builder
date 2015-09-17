@@ -26,14 +26,14 @@ import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ActionButtonRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.EmbeddedDisplayRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.GroupRepresentation;
-import org.csstudio.display.builder.representation.javafx.widgets.ImageRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LEDRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ProgressBarRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.RectangleRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepresentation;
-import org.csstudio.display.builder.representation.javafx.widgets.XYPlotRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation;
 
 import javafx.application.Platform;
 import javafx.scene.Group;

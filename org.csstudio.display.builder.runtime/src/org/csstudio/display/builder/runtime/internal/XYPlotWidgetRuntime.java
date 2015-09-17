@@ -1,8 +1,7 @@
 package org.csstudio.display.builder.runtime.internal;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -16,7 +15,17 @@ import org.epics.vtype.VType;
 @SuppressWarnings("nls")
 public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
 {
-    private final Map<PV, PVListener> pv_listeners = new HashMap<>();
+    private static class Subscription
+    {
+        final PV pv;
+        final PVListener listener;
+        Subscription(final PV pv, final PVListener listener)
+        {
+            this.pv = pv;
+            this.listener = listener;
+        }
+    }
+    private final List<Subscription> subscriptions = new ArrayList<>();
 
     public XYPlotWidgetRuntime(final XYPlotWidget widget)
     {
@@ -45,18 +54,9 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
             return;
         logger.log(Level.FINER,  "Connecting {0} to {1}", new Object[] { widget, pv_name });
         final PV pv = PVPool.getPV(pv_name);
-        final PVListener listener = new PropertyUpdater(value)
-        {
-            // TODO Remove debug printout
-            @Override
-            public void valueChanged(PV pv, VType value)
-            {
-                System.out.println("Got value for " + pv);
-                super.valueChanged(pv, value);
-            }
-        };
+        final PVListener listener = new PropertyUpdater(value);
         pv.addListener(listener);
-        pv_listeners.put(pv, listener);
+        subscriptions.add(new Subscription(pv, listener));
     }
 
     @Override
@@ -64,10 +64,10 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
     {
         super.stop();
 
-        for (Entry<PV, PVListener> entry : pv_listeners.entrySet())
+        for (Subscription sub : subscriptions)
         {
-            entry.getKey().removeListener(entry.getValue());
-            PVPool.releasePV(entry.getKey());
+            sub.pv.removeListener(sub.listener);
+            PVPool.releasePV(sub.pv);
         }
     }
 }

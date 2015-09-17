@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation;
 
-import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +24,7 @@ import java.util.logging.Logger;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.representation.internal.UpdateThrottle;
 
@@ -57,24 +57,23 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     private final List<ToolkitListener> listeners = new CopyOnWriteArrayList<>();
 
     /** Add/remove representations for child elements as model changes */
-    private final PropertyChangeListener container_children_listener = event ->
+    private final WidgetPropertyListener<List<Widget>> container_children_listener = (children, removed, added) ->
     {
-        final Widget removed_widget = (Widget) event.getOldValue();
-        final Widget added_widget   = (Widget) event.getNewValue();
-
         // Move to toolkit thread.
         // May already be on toolkit, for example in drag/drop,
         // but updating the representation 'later' may reduce blocking.
-        if (removed_widget != null)
-            execute(() -> disposeWidget(removed_widget));
-        if (added_widget != null)
-        {
-            final Optional<ContainerWidget> parent = added_widget.getParent();
-            if (! parent.isPresent())
-                throw new IllegalStateException("Cannot locate parent widget for " + added_widget);
-            final TWP parent_item = parent.get().getUserData(ContainerWidget.USER_DATA_TOOLKIT_PARENT);
-            execute(() -> representWidget(parent_item, added_widget));
-        }
+        if (removed != null)
+            for (Widget removed_widget : removed)
+                execute(() -> disposeWidget(removed_widget));
+        if (added != null)
+            for (Widget added_widget : added)
+            {
+                final Optional<ContainerWidget> parent = added_widget.getParent();
+                if (! parent.isPresent())
+                    throw new IllegalStateException("Cannot locate parent widget for " + added_widget);
+                final TWP parent_item = parent.get().getUserData(ContainerWidget.USER_DATA_TOOLKIT_PARENT);
+                execute(() -> representWidget(parent_item, added_widget));
+            }
     };
 
     /** Register the toolkit's representation of a model widget
@@ -113,9 +112,9 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         // DisplayModel itself is _not_ represented,
         // but all its children, recursively
         representChildren(parent, model);
-        
+
         logger.log(Level.FINE, "Tracking changes to children of {0}", model);
-        model.addPropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, container_children_listener);
+        model.runtimeChildren().addPropertyListener(container_children_listener);
     }
 
     /** Create representation for each child of a ContainerWidget
@@ -174,9 +173,9 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         {
             final ContainerWidget container = (ContainerWidget) widget;
             representChildren(re_parent, container);
-            
+
             logger.log(Level.FINE, "Tracking changes to children of {0}", container);
-            container.addPropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, container_children_listener);
+            container.runtimeChildren().addPropertyListener(container_children_listener);
         }
     }
 
@@ -188,10 +187,10 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     {
         final TWP parent = disposeChildren(model);
         model.clearUserData(DisplayModel.USER_DATA_TOOLKIT);
-        
+
         logger.log(Level.FINE, "No longer tracking changes to children of {0}", model);
-        model.removePropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, container_children_listener);
-        
+        model.runtimeChildren().removePropertyListener(container_children_listener);
+
         return Objects.requireNonNull(parent);
     }
 
@@ -220,7 +219,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         {
             final ContainerWidget container = (ContainerWidget) widget;
             logger.log(Level.FINE, "No longer tracking changes to children of {0}", container);
-            container.removePropertyListener(ContainerWidget.CHILDREN_PROPERTY_DESCRIPTOR, container_children_listener);
+            container.runtimeChildren().removePropertyListener(container_children_listener);
         }
         final WidgetRepresentation<TWP, TW, ? extends Widget> representation =
             widget.clearUserData(Widget.USER_DATA_REPRESENTATION);

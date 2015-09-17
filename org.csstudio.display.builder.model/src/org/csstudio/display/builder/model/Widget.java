@@ -16,8 +16,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,7 +23,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -125,15 +122,6 @@ public class Widget
     private WidgetProperty<Integer> height;
     private WidgetProperty<List<ActionInfo>> actions;
     private WidgetProperty<List<ScriptInfo>> scripts;
-
-    // Design decision:
-    //
-    // Using plain PropertyChangeSupport, which reports changes as Object newValue.
-    // The javafx.bean.* listener support would be typed.
-    // Does that add an unwanted dependency to a specific UI library?
-
-    /** Support listeners to selected or all properties of this widget */
-    private final PropertyChangeSupport listener_support = new PropertyChangeSupport(this);
 
     /** Map of user data */
     protected final Map<String, Object> user_data = new HashMap<>(4); // Reserve room for "representation", "runtime"
@@ -306,74 +294,6 @@ public class Widget
         return new WidgetConfigurator(persisted_version);
     }
 
-    /** Subscribe to property changes for a specific property.
-     *  @param property Name of the property
-     *  @param listener Listener to invoke
-     */
-    public void addPropertyListener(final WidgetPropertyDescriptor<?> property,
-                                    final PropertyChangeListener listener)
-    {
-        addPropertyListener(property.getName(), listener);
-    }
-
-    /** Subscribe to property changes for a specific property.
-     *  @param property_name Name of the property
-     *  @param listener Listener to invoke
-     */
-    public void addPropertyListener(final String property_name,
-                                    final PropertyChangeListener listener)
-    {
-        if (! property_map.containsKey(property_name))
-            throw new IllegalArgumentException(
-                "You may wait a long time for notifications because the " + getType() +
-                " widget has no '" + property_name + "' property");
-        listener_support.addPropertyChangeListener(
-                Objects.requireNonNull(property_name),
-                Objects.requireNonNull(listener));
-    }
-
-    /** Subscribe to changes in any property
-     *  @param listener Listener to invoke
-     */
-    public void addPropertyListener(final PropertyChangeListener listener)
-    {
-        listener_support.addPropertyChangeListener(Objects.requireNonNull(listener));
-    }
-
-    /** Unsubscribe from property changes for a specific property.
-     *  @param property Property description
-     *  @param listener Listener to remove
-     */
-    public void removePropertyListener(final WidgetPropertyDescriptor<?> property,
-                                       final PropertyChangeListener listener)
-    {
-        removePropertyListener(property.getName(), listener);
-    }
-
-    /** Unsubscribe from property changes for a specific property.
-     *  @param property_name Name of the property
-     *  @param listener Listener to remove
-     */
-    public void removePropertyListener(final String property_name,
-                                       final PropertyChangeListener listener)
-    {
-        if (! property_map.containsKey(property_name))
-            throw new IllegalArgumentException(
-                "Cannot unsubscribe because the " + getType() +
-                " widget has no '" + property_name + "' property");
-        listener_support.removePropertyChangeListener(
-                Objects.requireNonNull(property_name),
-                Objects.requireNonNull(listener));
-    }
-
-    /** Unsubscribe from changes in any property
-     *  @param listener Listener to remove
-     */
-    public void removePropertyListener(final PropertyChangeListener listener)
-    {
-        listener_support.removePropertyChangeListener(Objects.requireNonNull(listener));
-    }
-
     /** Get all properties of the widget.
      *
      *  <p>Properties are ordered by category and sequence of definition.
@@ -501,27 +421,6 @@ public class Widget
                                  final Object value) throws Exception
     {
         getProperty(name).setValueFromObject(value);
-    }
-
-    /** Notify listeners of property change.
-     *
-     *  <p>Only to be called by WidgetProperty.
-     *
-     *  <p>New value usually matches <code>property.getValue()</code>,
-     *  but in multi-threaded context value might already have changed
-     *  _again_ by the time this executes.
-     *
-     *  @param property Property that changed, or <code>null</code> for "widget"
-     *  @param old_value Original value
-     *  @param new_value New value
-     */
-    void firePropertyChange(final WidgetProperty<?> property,
-            final Object old_value, final Object new_value)
-    {
-        if (property != null)
-            listener_support.firePropertyChange(property.getName(), old_value, new_value);
-        else
-            listener_support.firePropertyChange("widget", old_value, new_value);
     }
 
     /** Determine effective macros.

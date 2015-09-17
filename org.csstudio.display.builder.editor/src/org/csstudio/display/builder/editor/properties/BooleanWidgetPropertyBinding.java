@@ -7,12 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
@@ -40,7 +39,7 @@ public class BooleanWidgetPropertyBinding
     // not each key stroke.
 
     /** Update control if model changes */
-    private final PropertyChangeListener model_listener = (final PropertyChangeEvent evt) ->
+    private final WidgetPropertyListener<Boolean> model_listener = (p, o, n) ->
     {
         if (updating)
             return;

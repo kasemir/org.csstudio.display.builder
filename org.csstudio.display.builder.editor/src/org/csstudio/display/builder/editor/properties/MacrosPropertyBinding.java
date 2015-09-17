@@ -7,12 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
-import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.Optional;
 
 import org.csstudio.display.builder.editor.undo.SetWidgetMacrosAction;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.MacrosDialog;
@@ -29,7 +29,7 @@ public class MacrosPropertyBinding
        extends WidgetPropertyBinding<Button, MacrosWidgetProperty>
 {
     /** Update property panel field as model changes */
-    private final PropertyChangeListener model_listener = event ->
+    private final WidgetPropertyListener<Macros> model_listener = (p, o, n) ->
     {
         jfx_node.setText(widget_property.getValue().toString());
     };

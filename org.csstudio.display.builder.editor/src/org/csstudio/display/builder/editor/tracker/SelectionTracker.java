@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.tracker;
 
-import java.beans.PropertyChangeListener;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -22,6 +21,7 @@ import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.GroupHandler;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
@@ -91,7 +91,7 @@ public class SelectionTracker extends Group
     private boolean updating = false;
 
     /** Update tracker to match changed widget position */
-    private final PropertyChangeListener position_listener = (event) ->
+    private final WidgetPropertyListener<Integer> position_listener = (p, o, n) ->
     {
         updateTrackerFromWidgets();
     };

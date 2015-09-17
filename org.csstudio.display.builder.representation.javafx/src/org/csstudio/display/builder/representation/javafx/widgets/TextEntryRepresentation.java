@@ -7,9 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import java.beans.PropertyChangeEvent;
-
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -139,28 +138,28 @@ public class TextEntryRepresentation extends JFXBaseRepresentation<TextField, Te
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addPropertyListener(this::sizeChanged);
-        model_widget.positionHeight().addPropertyListener(this::sizeChanged);
-        model_widget.displayBackgroundColor().addPropertyListener(this::styleChanged);
-        model_widget.displayFont().addPropertyListener(this::styleChanged);
+        model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.positionHeight().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.displayFont().addUntypedPropertyListener(this::styleChanged);
         model_widget.runtimeValue().addPropertyListener(this::contentChanged);
     }
 
-    private void sizeChanged(final PropertyChangeEvent event)
+    private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_size.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    private void styleChanged(final PropertyChangeEvent event)
+    private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    private void contentChanged(final PropertyChangeEvent event)
+    private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
-        value_text = VTypeUtil.getValueString((VType)event.getNewValue(), true);
+        value_text = VTypeUtil.getValueString(new_value, true);
         dirty_content.mark();
         if (! active)
             toolkit.scheduleUpdate(this);

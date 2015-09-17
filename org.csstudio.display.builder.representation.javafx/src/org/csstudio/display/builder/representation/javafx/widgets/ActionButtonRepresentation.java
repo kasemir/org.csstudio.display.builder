@@ -7,12 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import java.beans.PropertyChangeEvent;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
@@ -127,12 +127,12 @@ public class ActionButtonRepresentation extends JFXBaseRepresentation<ButtonBase
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addPropertyListener(this::representationChanged);
-        model_widget.positionHeight().addPropertyListener(this::representationChanged);
-        model_widget.displayText().addPropertyListener(this::representationChanged);
+        model_widget.positionWidth().addUntypedPropertyListener(this::representationChanged);
+        model_widget.positionHeight().addUntypedPropertyListener(this::representationChanged);
+        model_widget.displayText().addUntypedPropertyListener(this::representationChanged);
     }
 
-    private void representationChanged(final PropertyChangeEvent event)
+    private void representationChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_representation.mark();
         toolkit.scheduleUpdate(this);

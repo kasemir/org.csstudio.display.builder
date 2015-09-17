@@ -7,12 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.List;
 
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
@@ -28,22 +27,18 @@ import javafx.scene.input.KeyEvent;
 public class MacroizedWidgetPropertyBinding
        extends WidgetPropertyBinding<TextInputControl, MacroizedWidgetProperty<?>>
 {
-    private final PropertyChangeListener model_listener = new PropertyChangeListener()
+    private final UntypedWidgetPropertyListener model_listener = (p, o, n) ->
     {
-        @Override
-        public void propertyChange(final PropertyChangeEvent evt)
+        if (updating)
+            return;
+        updating = true;
+        try
         {
-            if (updating)
-                return;
-            updating = true;
-            try
-            {
-                jfx_node.setText(widget_property.getSpecification());
-            }
-            finally
-            {
-                updating = false;
-            }
+            jfx_node.setText(widget_property.getSpecification());
+        }
+        finally
+        {
+            updating = false;
         }
     };
 
@@ -106,7 +101,7 @@ public class MacroizedWidgetPropertyBinding
     @Override
     public void bind()
     {
-        widget_property.addPropertyListener(model_listener);
+        widget_property.addUntypedPropertyListener(model_listener);
         jfx_node.setOnKeyPressed(key_press_handler);
         jfx_node.focusedProperty().addListener(focus_handler);
         restore();

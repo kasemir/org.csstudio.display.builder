@@ -7,9 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import java.beans.PropertyChangeEvent;
-
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -49,22 +48,22 @@ public class ProgressBarRepresentation extends JFXBaseRepresentation<ProgressBar
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.displayFillColor().addPropertyListener(this::lookChanged);
-        model_widget.positionWidth().addPropertyListener(this::lookChanged);
-        model_widget.positionHeight().addPropertyListener(this::lookChanged);
-        model_widget.behaviorLimitsFromPV().addPropertyListener(this::valueChanged);
-        model_widget.behaviorMinimum().addPropertyListener(this::valueChanged);
-        model_widget.behaviorMaximum().addPropertyListener(this::valueChanged);
-        model_widget.runtimeValue().addPropertyListener(this::valueChanged);
+        model_widget.displayFillColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.positionWidth().addUntypedPropertyListener(this::lookChanged);
+        model_widget.positionHeight().addUntypedPropertyListener(this::lookChanged);
+        model_widget.behaviorLimitsFromPV().addUntypedPropertyListener(this::valueChanged);
+        model_widget.behaviorMinimum().addUntypedPropertyListener(this::valueChanged);
+        model_widget.behaviorMaximum().addUntypedPropertyListener(this::valueChanged);
+        model_widget.runtimeValue().addUntypedPropertyListener(this::valueChanged);
     }
 
-    private void lookChanged(final PropertyChangeEvent event)
+    private void lookChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_look.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    private void valueChanged(final PropertyChangeEvent event)
+    private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         final VType vtype = model_widget.runtimeValue().getValue();
 

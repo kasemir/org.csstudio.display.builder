@@ -7,12 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
-import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.Optional;
 
 import org.csstudio.display.builder.editor.undo.SetWidgetActionsAction;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.ActionsDialog;
@@ -29,7 +29,7 @@ public class ActionsPropertyBinding
        extends WidgetPropertyBinding<Button, ActionsWidgetProperty>
 {
     /** Update property panel field as model changes */
-    private final PropertyChangeListener model_listener = event ->
+    private final WidgetPropertyListener<List<ActionInfo>> model_listener = (p, o, n) ->
     {
         jfx_node.setText(widget_property.getValue().toString());
     };

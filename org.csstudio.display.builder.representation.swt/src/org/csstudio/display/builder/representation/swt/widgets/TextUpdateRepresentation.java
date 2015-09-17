@@ -7,9 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt.widgets;
 
-import java.beans.PropertyChangeEvent;
-
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -47,9 +46,9 @@ public class TextUpdateRepresentation extends SWTBaseRepresentation<Label, TextU
         model_widget.runtimeValue().addPropertyListener(this::contentChanged);
     }
 
-    private void contentChanged(final PropertyChangeEvent event)
+    private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
-        value_text = VTypeUtil.getValueString((VType)event.getNewValue(), true);
+        value_text = VTypeUtil.getValueString(new_value, true);
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
     }

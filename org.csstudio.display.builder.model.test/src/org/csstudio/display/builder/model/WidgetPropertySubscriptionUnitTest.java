@@ -11,10 +11,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
@@ -31,18 +28,18 @@ public class WidgetPropertySubscriptionUnitTest
     {
         final AtomicInteger updates = new AtomicInteger(0);
         final Widget widget = new Widget("generic");
-        final PropertyChangeListener listener = (final PropertyChangeEvent event) ->
+        final WidgetPropertyListener<Integer> listener = (property, old_value, new_value) ->
         {
             updates.incrementAndGet();
-            System.out.println(event);
+            System.out.println(property.getName() + " changed to " + new_value);
         };
-        widget.addPropertyListener(positionX.getName(), listener);
+        widget.positionX().addPropertyListener(listener);
 
         // Noting, yet
         assertThat(updates.get(), equalTo(0));
 
         // Change once
-        widget.getProperty(positionX).setValue(21);
+        widget.positionX().setValue(21);
         assertThat(updates.get(), equalTo(1));
 
         // Change again
@@ -60,65 +57,32 @@ public class WidgetPropertySubscriptionUnitTest
     {
         final Widget widget = new Widget("generic");
 
-        final AtomicInteger updates = new AtomicInteger(0);
-        final PropertyChangeListener listener = (final PropertyChangeEvent event) ->
-        {
-            updates.incrementAndGet();
-            System.out.println(event);
-        };
-
         final AtomicInteger x_updates = new AtomicInteger(0);
-        final PropertyChangeListener x_listener = (final PropertyChangeEvent event) ->
+        final AtomicInteger y_updates = new AtomicInteger(0);
+
+        widget.positionX().addPropertyListener((p, o, n) ->
         {
             x_updates.incrementAndGet();
-            System.out.println(event);
-        };
-
-        final AtomicInteger y_updates = new AtomicInteger(0);
-        final PropertyChangeListener y_listener = (final PropertyChangeEvent event) ->
+            System.out.println(p.getName() + " = " + n);
+        });
+        widget.positionY().addUntypedPropertyListener((p, o, n) ->
         {
             y_updates.incrementAndGet();
-            System.out.println(event);
-        };
-
-        widget.addPropertyListener(listener);
-        widget.addPropertyListener(positionX.getName(), x_listener);
-        widget.addPropertyListener(positionY.getName(), y_listener);
+            System.out.println(p.getName() + " = " + n);
+        });
 
         // Noting, yet
-        assertThat(updates.get(), equalTo(0));
         assertThat(x_updates.get(), equalTo(0));
         assertThat(y_updates.get(), equalTo(0));
 
         // Change one
         widget.getProperty(positionX).setValue(21);
-        assertThat(updates.get(), equalTo(1));
         assertThat(x_updates.get(), equalTo(1));
         assertThat(y_updates.get(), equalTo(0));
 
         // Change other
         widget.getProperty(positionY).setValue(21);
-        assertThat(updates.get(), equalTo(2));
         assertThat(x_updates.get(), equalTo(1));
         assertThat(y_updates.get(), equalTo(1));
-    }
-
-
-    /** Check subscription updates */
-    @Test
-    public void testInvalidSubscription()
-    {
-        final Widget widget = new Widget("generic");
-        final PropertyChangeListener listener = (p) -> {};
-
-        try
-        {
-            widget.addPropertyListener("bogus", listener);
-            fail("Didn't detect subscription to non-existing property");
-        }
-        catch (final IllegalArgumentException ex)
-        {
-            System.out.println("Detected: " + ex.getMessage());
-        }
     }
 }

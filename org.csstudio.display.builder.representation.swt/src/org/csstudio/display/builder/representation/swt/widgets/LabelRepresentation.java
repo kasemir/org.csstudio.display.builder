@@ -7,9 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt.widgets;
 
-import java.beans.PropertyChangeEvent;
-
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.eclipse.swt.SWT;
@@ -40,10 +39,10 @@ public class LabelRepresentation extends SWTBaseRepresentation<Label, LabelWidge
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.displayText().addPropertyListener(this::contentChanged);
+        model_widget.displayText().addUntypedPropertyListener(this::contentChanged);
     }
 
-    private void contentChanged(final PropertyChangeEvent event)
+    private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
