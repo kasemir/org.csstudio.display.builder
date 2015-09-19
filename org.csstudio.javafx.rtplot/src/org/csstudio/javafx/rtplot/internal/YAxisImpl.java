@@ -59,9 +59,6 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
     final private IntList label_x = new IntList(2), label_y = new IntList(2);
     private int label_y_separation;
 
-    /** Auto-scale the axis range? */
-    private volatile boolean autoscale = false;
-
     /** Show on right side? */
     private volatile boolean is_right = false;
 
@@ -123,22 +120,6 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         label_provider.useTraceNames(use_trace_names);
         requestLayout();
         requestRefresh();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void setAutoscale(boolean do_autoscale)
-    {
-        autoscale = do_autoscale;
-        requestLayout();
-        requestRefresh();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean isAutoscale()
-    {
-        return autoscale;
     }
 
     /** {@inheritDoc} */

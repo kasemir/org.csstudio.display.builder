@@ -55,6 +55,15 @@ public interface Axis<T extends Comparable<T>>
     /** @param visible Should axis be visible? */
     public void setVisible(final boolean visible);
 
+    /** Configure the Axis to auto-scale or not.
+     *  <p>
+     *  Initial default is <code>false</code>, i.e. no auto-scale.
+     */
+    public void setAutoscale(boolean do_autoscale);
+
+    /** @return <code>true</code> if the axis is auto-scaling. */
+    public boolean isAutoscale();
+    
     /** Get the screen coordinates of the given value.
      *  <p>
      *  Values are mapped from value to screen coordinates via

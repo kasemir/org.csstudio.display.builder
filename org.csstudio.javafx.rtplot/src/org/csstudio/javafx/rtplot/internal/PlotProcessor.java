@@ -49,6 +49,8 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
         this.plot = plot;
     }
 
+    // TODO Determine DataRange, including position range
+    
     /** Submit background job to determine value range
      *  @param data {@link PlotDataProvider} with values
      *  @return {@link Future} to {@link ValueRange}
@@ -352,6 +354,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
     /** Perform autoscale for all axes that are marked as such */
     public void autoscale()
     {
+    	// TODO Use DataRange, then support x_axis.isAutoScale()
         // Determine range of each axes' traces in parallel
         final List<YAxisImpl<XTYPE>> y_axes = new ArrayList<>();
         final List<Future<ValueRange>> ranges = new ArrayList<Future<ValueRange>>();
