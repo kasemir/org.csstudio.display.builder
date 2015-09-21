@@ -36,6 +36,8 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
 
     /** Canvas that displays the image. */
     private RTValuePlot plot;
+
+    // TODO Support 0..N traces, not 1
     private Trace<Double> trace0;
     private XYVTypeDataProvider data0;
 
@@ -51,10 +53,13 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
         plot = new RTValuePlot();
         plot.showToolbar(false);
         plot.showCrosshair(true);
+
+        // TODO Create data & trace as PVs first connect
         // TODO plot.getXAxis().setAutoscale(true);
+        plot.getXAxis().setValueRange(0.0, 4.0);
         plot.getYAxes().get(0).setAutoscale(true);
         data0 = new XYVTypeDataProvider();
-        trace0 = plot.addTrace("Data", "Units", data0, Color.BLUE, TraceType.SINGLE_LINE_DIRECT, 3, PointType.NONE, 5, 0);
+        trace0 = plot.addTrace("Data", "Units", data0, Color.BLUE, TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5, 0);
         return plot;
     }
 
