@@ -68,10 +68,8 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
         super.registerListeners();
         model_widget.positionWidth().addUntypedPropertyListener(this::positionChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
-
-        // TODO 'getElement(3)' is too fragile as structure is extended. Lookup by element name?
-        model_widget.behaviorTrace().getElement(3).addUntypedPropertyListener(this::valueChanged);
-        model_widget.behaviorTrace().getElement(4).addUntypedPropertyListener(this::valueChanged);
+        model_widget.behaviorTrace().xValue().addUntypedPropertyListener(this::valueChanged);
+        model_widget.behaviorTrace().yValue().addUntypedPropertyListener(this::valueChanged);
     }
 
     private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -84,11 +82,10 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
     {
         try
         {
-            WidgetProperty<VType> x = model_widget.behaviorTrace().getElement(3);
-            WidgetProperty<VType> y = model_widget.behaviorTrace().getElement(4);
-
-            VType x_value = x.getValue();
-            VType y_value = y.getValue();
+            final WidgetProperty<VType> x = model_widget.behaviorTrace().xValue();
+            final WidgetProperty<VType> y = model_widget.behaviorTrace().yValue();
+            final VType x_value = x.getValue();
+            final VType y_value = y.getValue();
             if (x_value instanceof VNumberArray  &&  y_value instanceof VNumberArray)
             {
                 data0.setData( ((VNumberArray)x_value).getData(), ((VNumberArray)y_value).getData());

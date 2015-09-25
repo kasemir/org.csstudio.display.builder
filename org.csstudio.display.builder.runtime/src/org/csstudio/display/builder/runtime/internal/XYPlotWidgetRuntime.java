@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
 import java.util.ArrayList;
@@ -12,6 +19,10 @@ import org.csstudio.vtype.pv.PVListener;
 import org.csstudio.vtype.pv.PVPool;
 import org.epics.vtype.VType;
 
+/** Runtime for the XYPlotWidget
+ *
+ *  @author Kay Kasemir
+ */
 @SuppressWarnings("nls")
 public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
 {
@@ -37,13 +48,12 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
     {
         super.start();
 
-        // TODO 'getElement(3)' is too fragile as structure is extended. Lookup by element name?
-        WidgetProperty<String> name = widget.behaviorTrace().getElement(0);
-        WidgetProperty<VType> value = widget.behaviorTrace().getElement(3);
+        WidgetProperty<String> name = widget.behaviorTrace().traceX();
+        WidgetProperty<VType> value = widget.behaviorTrace().xValue();
         bind(name, value);
 
-        name = widget.behaviorTrace().getElement(1);
-        value = widget.behaviorTrace().getElement(4);
+        name = widget.behaviorTrace().traceY();
+        value = widget.behaviorTrace().yValue();
         bind(name, value);
     }
 

@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -135,6 +136,11 @@ public class StructuredWidgetPropertyUnitTest
     public void testElementAccess() throws Exception
     {
         final PlotWidget widget = new PlotWidget();
+
+        final WidgetProperty<String> name1 = widget.behaviorTrace().getElement(0);
+        final WidgetProperty<String> name2 = widget.behaviorTrace().getElement("pv_name");
+        assertThat(name1, sameInstance(name2));
+
         WidgetProperty<WidgetColor> color_prop = widget.behaviorTrace().getElement(1);
         WidgetColor color = color_prop.getValue();
         System.out.println(color);

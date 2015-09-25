@@ -88,6 +88,21 @@ public class StructuredWidgetProperty extends WidgetProperty<List<WidgetProperty
         return (WidgetProperty<TYPE>) value.get(index);
     }
 
+    /** Access element as known type
+     *
+     *  @param element_name Element name
+     *  @return Widget property cast to receiving type
+     *  @throws IllegalArgumentException if element name is not found in structure
+     */
+    @SuppressWarnings("unchecked")
+    public <TYPE> WidgetProperty<TYPE> getElement(final String element_name)
+    {
+        for (WidgetProperty<?> element : value)
+            if (element.getName().equals(element_name))
+                return (WidgetProperty<TYPE>) element;
+        throw new IllegalArgumentException("Structure has no element named " + element_name);
+    }
+
     @Override
     public void setValue(final List<WidgetProperty<?>> value)
     {

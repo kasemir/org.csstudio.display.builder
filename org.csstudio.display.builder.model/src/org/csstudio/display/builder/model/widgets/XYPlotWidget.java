@@ -36,10 +36,9 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class XYPlotWidget extends BaseWidget
 {
-    /** Trace 'X' PV */
+    // Elements of the 'trace' structure
     private static final WidgetPropertyDescriptor<String> traceX =
-        new WidgetPropertyDescriptor<String>(
-            WidgetPropertyCategory.BEHAVIOR, "x_pv", "X PV")
+        new WidgetPropertyDescriptor<String>(WidgetPropertyCategory.BEHAVIOR, "x_pv", "X PV")
     {
         @Override
         public WidgetProperty<String> createProperty(final Widget widget, final String pv_name)
@@ -48,10 +47,8 @@ public class XYPlotWidget extends BaseWidget
         }
     };
 
-    /** Trace 'Y' PV */
     private static final WidgetPropertyDescriptor<String> traceY =
-        new WidgetPropertyDescriptor<String>(
-            WidgetPropertyCategory.BEHAVIOR, "y_pv", "Y PV")
+        new WidgetPropertyDescriptor<String>(WidgetPropertyCategory.BEHAVIOR, "y_pv", "Y PV")
     {
         @Override
         public WidgetProperty<String> createProperty(final Widget widget, final String pv_name)
@@ -60,10 +57,8 @@ public class XYPlotWidget extends BaseWidget
         }
     };
 
-    /** Trace color */
     private static final WidgetPropertyDescriptor<WidgetColor> traceColor =
-        new WidgetPropertyDescriptor<WidgetColor>(
-            WidgetPropertyCategory.DISPLAY, "color", "Color")
+        new WidgetPropertyDescriptor<WidgetColor>(WidgetPropertyCategory.DISPLAY, "color", "Color")
     {
         @Override
         public WidgetProperty<WidgetColor> createProperty(final Widget widget, final WidgetColor color)
@@ -73,11 +68,31 @@ public class XYPlotWidget extends BaseWidget
     };
 
     private static final WidgetPropertyDescriptor<VType> traceXValue = CommonWidgetProperties.newRuntimeValue("x_value", "X Value");
-    private static final WidgetPropertyDescriptor<VType> traceYValue = CommonWidgetProperties.newRuntimeValue("x_value", "X Value");
+    private static final WidgetPropertyDescriptor<VType> traceYValue = CommonWidgetProperties.newRuntimeValue("y_value", "Y Value");
 
-    /** Trace */
+    /** 'Trace' structure */
     private final static StructuredWidgetProperty.Descriptor behaviorTrace =
             new Descriptor(WidgetPropertyCategory.BEHAVIOR, "trace", "Trace");
+
+    public static class TraceWidgetProperty extends StructuredWidgetProperty
+    {
+        public TraceWidgetProperty(final Widget widget)
+        {
+            super(behaviorTrace, widget,
+                  Arrays.asList(traceX.createProperty(widget, ""),
+                                traceY.createProperty(widget, ""),
+                                traceColor.createProperty(widget, new WidgetColor(0, 0, 255)),
+                                traceXValue.createProperty(widget, null),
+                                traceYValue.createProperty(widget, null)  ));
+        }
+        public WidgetProperty<String> traceX()          { return getElement(0); }
+        public WidgetProperty<String> traceY()          { return getElement(1); }
+        public WidgetProperty<WidgetColor> traceColor() { return getElement(2); }
+        public WidgetProperty<VType> xValue()           { return getElement(3); }
+        public WidgetProperty<VType> yValue()           { return getElement(4); }
+    };
+
+
 
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR
@@ -114,18 +129,18 @@ public class XYPlotWidget extends BaseWidget
 
             XMLUtil.getChildString(xml, "trace_0_x_pv").ifPresent(pv ->
             {
-                final WidgetProperty<String> property = plot.trace.getElement(0);
+                final WidgetProperty<String> property = plot.trace.traceX();
                ((StringWidgetProperty)property).setSpecification(pv.replace("$(pv_name)", pv_macro));
             });
             XMLUtil.getChildString(xml, "trace_0_y_pv").ifPresent(pv ->
             {
-                final WidgetProperty<String> property = plot.trace.getElement(1);
+                final WidgetProperty<String> property = plot.trace.traceY();
                ((StringWidgetProperty)property).setSpecification(pv.replace("$(pv_name)", pv_macro));
             });
 
             Element element = XMLUtil.getChildElement(xml, "trace_0_trace_color");
             if (element != null)
-                plot.trace.getElement(2).readFromXML(element);
+                plot.trace.traceColor().readFromXML(element);
         }
     };
 
@@ -137,7 +152,7 @@ public class XYPlotWidget extends BaseWidget
 
     // TODO: ArrayWidgetProperty of StructureWidgetProperty
 
-    private StructuredWidgetProperty trace;
+    private TraceWidgetProperty trace;
 
     public XYPlotWidget()
     {
@@ -154,17 +169,11 @@ public class XYPlotWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(trace = behaviorTrace.createProperty(this,
-            Arrays.asList(traceX.createProperty(this, ""),
-                          traceY.createProperty(this, ""),
-                          traceColor.createProperty(this, new WidgetColor(0, 0, 255)),
-                          traceXValue.createProperty(this, null),
-                          traceYValue.createProperty(this, null)
-                          )));
+        properties.add(trace = new TraceWidgetProperty(this));
     }
 
     /** @return Behavior 'trace' */
-    public StructuredWidgetProperty behaviorTrace()
+    public TraceWidgetProperty behaviorTrace()
     {
         return trace;
     }
