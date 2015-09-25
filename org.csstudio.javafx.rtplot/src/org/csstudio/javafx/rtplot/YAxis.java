@@ -34,15 +34,6 @@ public interface YAxis<XTYPE extends Comparable<XTYPE>> extends Axis<Double>
      */
     public void useTraceNames(boolean use_trace_names);
 
-    /** Configure the Y-Axis to auto0scale or not.
-     *  <p>
-     *  Initial default is <code>false</code>, i.e. no auto-scale.
-     */
-    public void setAutoscale(boolean do_autoscale);
-
-    /** @return <code>true</code> if the axis is auto-scaling. */
-    public boolean isAutoscale();
-
     /** Configure the Y-Axis to use a log. scale or not.
      *  <p>
      *  Initial default is <code>false</code>, i.e. linear scale.

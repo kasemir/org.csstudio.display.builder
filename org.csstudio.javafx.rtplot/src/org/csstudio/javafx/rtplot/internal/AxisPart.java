@@ -50,6 +50,9 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
     /** Is this a horizontal axis? Otherwise: Vertical. */
     final private boolean horizontal;
 
+    /** Auto-scale the axis range? */
+    private volatile boolean autoscale = false;
+
     /** Transformation from value into screen coordinates. */
     protected volatile ScreenTransform<T> transform;
 
@@ -261,6 +264,22 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
             setScreenRange(x, x + width-1);
         else
             setScreenRange(y + height-1, y);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void setAutoscale(boolean do_autoscale)
+    {
+        autoscale = do_autoscale;
+        requestLayout();
+        requestRefresh();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isAutoscale()
+    {
+        return autoscale;
     }
 
     /** Update the screen coordinate range of the axis. */

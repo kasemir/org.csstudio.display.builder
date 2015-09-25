@@ -49,6 +49,58 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
         this.plot = plot;
     }
 
+    /** Submit background job for determining the position range
+     *  @param yaxes YAxes that have traces
+     *  @return Position range or <code>null</code>
+     */
+    private Future<AxisRange<XTYPE>> determinePositionRange(final List<YAxisImpl<XTYPE>> yaxes)
+    {
+        return thread_pool.submit(new Callable<AxisRange<XTYPE>>()
+        {
+            @Override
+            public AxisRange<XTYPE> call() throws Exception
+            {
+                XTYPE start = null, end = null;
+                for (YAxisImpl<XTYPE> yaxis : yaxes)
+                {
+                    for (Trace<XTYPE> trace : yaxis.getTraces())
+                    {
+                        final PlotDataProvider<XTYPE> data = trace.getData();
+                        data.getLock().lock();
+                        try
+                        {
+                            final int N = data.size();
+                            if (N <= 0)
+                                continue;
+                            // Only checks the first and last position,
+                            // assuming all samples are ordered as common
+                            // for a time axis or position axis
+                            XTYPE pos = data.get(0).getPosition();
+                            if (start == null  ||  start.compareTo(pos) > 0)
+                                start = pos;
+                            if (end == null  ||  end.compareTo(pos) < 0)
+                                end = pos;
+                            pos = data.get(N-1).getPosition();
+                            if (start.compareTo(pos) > 0)
+                                start = pos;
+                            if (end.compareTo(pos) < 0)
+                                end = pos;
+                        }
+                        finally
+                        {
+                            data.getLock().unlock();
+                        }
+                    }
+                }
+                if (start == null  ||  end == null)
+                    return null;
+                return new AxisRange<>(start, end);
+            }
+        });
+    }
+
+
+
     /** Submit background job to determine value range
      *  @param data {@link PlotDataProvider} with values
      *  @return {@link Future} to {@link ValueRange}
@@ -353,14 +405,20 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
     public void autoscale()
     {
         // Determine range of each axes' traces in parallel
+        final List<YAxisImpl<XTYPE>> all_y_axes = plot.getYAxes();
         final List<YAxisImpl<XTYPE>> y_axes = new ArrayList<>();
         final List<Future<ValueRange>> ranges = new ArrayList<Future<ValueRange>>();
-        for (YAxisImpl<XTYPE> axis : plot.getYAxes())
+        for (YAxisImpl<XTYPE> axis : all_y_axes)
             if (axis.isAutoscale())
             {
                 y_axes.add(axis);
                 ranges.add(determineValueRange(axis));
             }
+        // If X axis is auto-scale, schedule fetching its range
+        final Future<AxisRange<XTYPE>> pos_range = plot.getXAxis().isAutoscale()
+            ? determinePositionRange(all_y_axes)
+            : null;
+
         final int N = y_axes.size();
         for (int i=0; i<N; ++i)
         {
@@ -405,6 +463,21 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
             {
                 Activator.getLogger().log(Level.WARNING, "Axis autorange error for " + axis, ex);
             }
+        }
+
+        if (pos_range == null)
+            return;
+        try
+        {
+            final AxisRange<XTYPE> range = pos_range.get();
+            if (range == null)
+                return;
+            plot.getXAxis().setValueRange(range.getLow(), range.getHigh());
+            plot.fireXAxisChange();
+        }
+        catch (Exception ex)
+        {
+            Activator.getLogger().log(Level.WARNING, "Axis autorange error for " + plot.getXAxis(), ex);
         }
     }
 }
