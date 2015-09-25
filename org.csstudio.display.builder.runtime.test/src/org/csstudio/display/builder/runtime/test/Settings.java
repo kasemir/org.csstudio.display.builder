@@ -35,7 +35,7 @@ public class Settings
         System.setProperty("com.cosylab.epics.caj.CAJContext.addr_list", addr_list);
         System.setProperty("gov.aps.jca.jni.JNIContext.addr_list", addr_list);
 
-        final String max_array_bytes = Long.toString(500000L * 4);
+        final String max_array_bytes = Long.toString(1000000L * 8);
         System.setProperty("com.cosylab.epics.caj.CAJContext.max_array_bytes", max_array_bytes);
         System.setProperty("gov.aps.jca.jni.JNIContext.max_array_bytes", max_array_bytes);
 
