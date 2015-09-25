@@ -32,8 +32,123 @@ public class CommonWidgetProperties
     // All properties are described by
     // Category and property name
 
-    /** Widget 'type': "label", "rectangle", "textupdate", ..
+    /** Constructor for string property
+     *  @param category Widget property category
+     *  @param name Internal name of the property
+     *  @param description Human-readable description
      */
+    public static final WidgetPropertyDescriptor<String> newStringPropertyDescriptor(final WidgetPropertyCategory category,
+                                                                                     final String name, final String description)
+    {
+        return new WidgetPropertyDescriptor<String>(category, name, description)
+        {
+            @Override
+            public WidgetProperty<String> createProperty(final Widget widget, final String value)
+            {
+                return new StringWidgetProperty(this, widget, value);
+            }
+        };
+    }
+
+    /** Constructor for Integer property
+     *  @param category Widget property category
+     *  @param name Internal name of the property
+     *  @param description Human-readable description
+     */
+    public static final WidgetPropertyDescriptor<Integer> newIntegerPropertyDescriptor(final WidgetPropertyCategory category,
+                                                                                       final String name, final String description)
+    {
+        return new WidgetPropertyDescriptor<Integer>(category, name, description)
+        {
+            @Override
+            public WidgetProperty<Integer> createProperty(final Widget widget, final Integer value)
+            {
+                return new IntegerWidgetProperty(this, widget, value);
+            }
+        };
+    }
+
+    /** Constructor for Double property
+     *  @param category Widget property category
+     *  @param name Internal name of the property
+     *  @param description Human-readable description
+     */
+    public static final WidgetPropertyDescriptor<Double> newDoublePropertyDescriptor(final WidgetPropertyCategory category,
+                                                                                     final String name, final String description)
+    {
+        return new WidgetPropertyDescriptor<Double>(category, name, description)
+        {
+            @Override
+            public WidgetProperty<Double> createProperty(final Widget widget, final Double value)
+            {
+                return new DoubleWidgetProperty(this, widget, value);
+            }
+        };
+    }
+
+    /** Constructor for Boolean property
+     *  @param category Widget property category
+     *  @param name Internal name of the property
+     *  @param description Human-readable description
+     */
+    public static final WidgetPropertyDescriptor<Boolean> newBooleanPropertyDescriptor(final WidgetPropertyCategory category,
+                                                                                       final String name, final String description)
+    {
+        return new WidgetPropertyDescriptor<Boolean>(category, name, description)
+        {
+            @Override
+            public WidgetProperty<Boolean> createProperty(final Widget widget, final Boolean value)
+            {
+                return new BooleanWidgetProperty(this, widget, value);
+            }
+        };
+    }
+
+    /** Constructor for Color property
+     *  @param category Widget property category
+     *  @param name Internal name of the property
+     *  @param description Human-readable description
+     */
+    public static final WidgetPropertyDescriptor<WidgetColor> newColorPropertyDescriptor(final WidgetPropertyCategory category,
+                                                                                         final String name, final String description)
+    {
+        return new WidgetPropertyDescriptor<WidgetColor>(category, name, description)
+        {
+            @Override
+            public WidgetProperty<WidgetColor> createProperty(final Widget widget, final WidgetColor value)
+            {
+                return new ColorWidgetProperty(this, widget, value);
+            }
+        };
+    }
+
+    /** Constructor for value property
+     *  @param name Internal name of the property
+     *  @param description Human-readable description
+     */
+    public static final WidgetPropertyDescriptor<VType> newRuntimeValue(final String name, final String description)
+    {
+        return new WidgetPropertyDescriptor<VType>(WidgetPropertyCategory.RUNTIME, name, description)
+        {
+            @Override
+            public WidgetProperty<VType> createProperty(final Widget widget, final VType value)
+            {
+                return new RuntimeWidgetProperty<VType>(this, widget, value)
+                {
+                    @Override
+                    public void setValueFromObject(final Object value) throws Exception
+                    {
+                        if (value instanceof VType)
+                            setValue((VType) value);
+                        else
+                            throw new Exception("Need VType, got " + value);
+                    }
+                };
+            }
+        };
+    }
+
+    /** Widget 'type': "label", "rectangle", "textupdate", .. */
     public static final WidgetPropertyDescriptor<String> widgetType = new WidgetPropertyDescriptor<String>(
             WidgetPropertyCategory.WIDGET, "type", Messages.WidgetProperties_Type, true)
     {
@@ -52,16 +167,7 @@ public class CommonWidgetProperties
      *  but lookup by name is then unpredictable.
      */
     public static final WidgetPropertyDescriptor<String> widgetName =
-        new WidgetPropertyDescriptor<String>(
-            WidgetPropertyCategory.WIDGET, "name", Messages.WidgetProperties_Name)
-    {
-        @Override
-        public WidgetProperty<String> createProperty(final Widget widget,
-                                                     final String name)
-        {
-            return new StringWidgetProperty(this, widget, name);
-        }
-    };
+            newStringPropertyDescriptor(WidgetPropertyCategory.WIDGET, "name", Messages.WidgetProperties_Name);
 
     /** Widget 'macros' */
     public static final WidgetPropertyDescriptor<Macros> widgetMacros =
@@ -78,134 +184,43 @@ public class CommonWidgetProperties
 
     /** Position 'x' */
     public static final WidgetPropertyDescriptor<Integer> positionX =
-        new WidgetPropertyDescriptor<Integer>(
-            WidgetPropertyCategory.POSITION, "x", Messages.WidgetProperties_X)
-    {
-        @Override
-        public WidgetProperty<Integer> createProperty(final Widget widget,
-                                                      final Integer x)
-        {
-            return new IntegerWidgetProperty(this, widget, x);
-        }
-    };
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "x", Messages.WidgetProperties_X);
 
     /** Position 'y' */
     public static final WidgetPropertyDescriptor<Integer> positionY =
-        new WidgetPropertyDescriptor<Integer>(
-            WidgetPropertyCategory.POSITION, "y", Messages.WidgetProperties_Y)
-    {
-        @Override
-        public WidgetProperty<Integer> createProperty(final Widget widget,
-                                                      final Integer y)
-        {
-            return new IntegerWidgetProperty(this, widget, y);
-        }
-    };
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "y", Messages.WidgetProperties_Y);
 
     /** Position 'width' */
     public static final WidgetPropertyDescriptor<Integer> positionWidth =
-        new WidgetPropertyDescriptor<Integer>(
-            WidgetPropertyCategory.POSITION, "width", Messages.WidgetProperties_Width)
-    {
-        @Override
-        public WidgetProperty<Integer> createProperty(final Widget widget,
-                                                      final Integer width)
-        {
-            return new IntegerWidgetProperty(this, widget, width);
-        }
-    };
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "width", Messages.WidgetProperties_Width);
 
     /** Position 'height' */
     public static final WidgetPropertyDescriptor<Integer> positionHeight =
-        new WidgetPropertyDescriptor<Integer>(
-            WidgetPropertyCategory.POSITION, "height", Messages.WidgetProperties_Height)
-    {
-        @Override
-        public WidgetProperty<Integer> createProperty(final Widget widget,
-                                                      final Integer height)
-        {
-            return new IntegerWidgetProperty(this, widget, height);
-        }
-    };
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "height", Messages.WidgetProperties_Height);
 
     /** Position 'visible': Is position visible? */
     public static final WidgetPropertyDescriptor<Boolean> positionVisible =
-        new WidgetPropertyDescriptor<Boolean>(
-            WidgetPropertyCategory.POSITION, "visible", Messages.WidgetProperties_Visible)
-    {
-        @Override
-        public WidgetProperty<Boolean> createProperty(final Widget widget,
-                                                      final Boolean visible)
-        {
-            return new BooleanWidgetProperty(this, widget, visible);
-        }
-    };
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.POSITION, "visible", Messages.WidgetProperties_Visible);
 
     /** Display 'foreground_color' */
     public static final WidgetPropertyDescriptor<WidgetColor> displayForegroundColor =
-        new WidgetPropertyDescriptor<WidgetColor>(
-            WidgetPropertyCategory.DISPLAY, "foreground_color", Messages.WidgetProperties_ForegroundColor)
-    {
-        @Override
-        public WidgetProperty<WidgetColor> createProperty(final Widget widget,
-                                                          final WidgetColor color)
-        {
-            return new ColorWidgetProperty(this, widget, color);
-        }
-    };
+        newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "foreground_color", Messages.WidgetProperties_ForegroundColor);
 
     /** Display 'background_color' */
     public static final WidgetPropertyDescriptor<WidgetColor> displayBackgroundColor =
-        new WidgetPropertyDescriptor<WidgetColor>(
-            WidgetPropertyCategory.DISPLAY, "background_color", Messages.WidgetProperties_BackgroundColor)
-    {
-        @Override
-        public WidgetProperty<WidgetColor> createProperty(final Widget widget,
-                                                          final WidgetColor color)
-        {
-            return new ColorWidgetProperty(this, widget, color);
-        }
-    };
+        newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "background_color", Messages.WidgetProperties_BackgroundColor);
 
     /** Display 'fill_color' */
-    public static final WidgetPropertyDescriptor<WidgetColor> displayFillColor = new WidgetPropertyDescriptor<WidgetColor>(
-            WidgetPropertyCategory.DISPLAY, "fill_color", Messages.WidgetProperties_FillColor)
-    {
-        @Override
-        public WidgetProperty<WidgetColor> createProperty(final Widget widget,
-                                                          final WidgetColor default_color)
-        {
-            return new ColorWidgetProperty(this, widget, default_color);
-        }
-    };
-
-
+    public static final WidgetPropertyDescriptor<WidgetColor> displayFillColor =
+        newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "fill_color", Messages.WidgetProperties_FillColor);
 
     /** Display 'transparent' */
     public static final WidgetPropertyDescriptor<Boolean> displayTransparent =
-        new WidgetPropertyDescriptor<Boolean>(
-            WidgetPropertyCategory.DISPLAY, "transparent", Messages.WidgetProperties_Transparent)
-    {
-        @Override
-        public WidgetProperty<Boolean> createProperty(final Widget widget,
-                                                      final Boolean transparent)
-        {
-            return new BooleanWidgetProperty(this, widget, transparent);
-        }
-    };
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "transparent", Messages.WidgetProperties_Transparent);
 
     /** Display 'text': Text to display */
     public static final WidgetPropertyDescriptor<String> displayText =
-        new WidgetPropertyDescriptor<String>(
-            WidgetPropertyCategory.DISPLAY, "text", Messages.WidgetProperties_Text)
-    {
-        @Override
-        public WidgetProperty<String> createProperty(final Widget widget,
-                                                     final String text)
-        {
-            return new StringWidgetProperty(this, widget, text);
-        }
-    };
+        newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "text", Messages.WidgetProperties_Text);
 
     /** Display 'font': Font for display */
     public static final WidgetPropertyDescriptor<WidgetFont> displayFont =
@@ -222,30 +237,12 @@ public class CommonWidgetProperties
 
     /** Display 'file': File to display */
     public static final WidgetPropertyDescriptor<String> displayFile =
-        new WidgetPropertyDescriptor<String>(
-            WidgetPropertyCategory.DISPLAY, "file", Messages.WidgetProperties_File)
-    {
-        @Override
-        public WidgetProperty<String> createProperty(final Widget widget,
-                                                     final String text)
-        {
-            return new StringWidgetProperty(this, widget, text);
-        }
-    };
+        newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "file", Messages.WidgetProperties_File);
 
 
     /** Behavior 'pv_name':Primary PV Name */
     public static final WidgetPropertyDescriptor<String> behaviorPVName =
-        new WidgetPropertyDescriptor<String>(
-            WidgetPropertyCategory.BEHAVIOR, "pv_name", Messages.WidgetProperties_PVName)
-    {
-        @Override
-        public WidgetProperty<String> createProperty(final Widget widget,
-                                                     final String pv_name)
-        {
-            return new StringWidgetProperty(this, widget, pv_name);
-        }
-    };
+        newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "pv_name", Messages.WidgetProperties_PVName);
 
     /** Behavior 'actions': Actions that user can invoke */
     public static final WidgetPropertyDescriptor<List<ActionInfo>> behaviorActions =
@@ -275,69 +272,15 @@ public class CommonWidgetProperties
 
     /** Behavior 'limits_from_pv': Use limits from PV's meta data? */
     public static final WidgetPropertyDescriptor<Boolean> behaviorLimitsFromPV =
-            new WidgetPropertyDescriptor<Boolean>(
-                WidgetPropertyCategory.BEHAVIOR, "limits_from_pv", Messages.WidgetProperties_LimitsFromPV)
-        {
-            @Override
-            public WidgetProperty<Boolean> createProperty(final Widget widget,
-                                                          final Boolean limits_from_pv)
-            {
-                return new BooleanWidgetProperty(this, widget, limits_from_pv);
-            }
-        };
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "limits_from_pv", Messages.WidgetProperties_LimitsFromPV);
 
     /** Behavior 'minimum': Minimum display range */
     public static final WidgetPropertyDescriptor<Double> behaviorMinimum =
-            new WidgetPropertyDescriptor<Double>(
-                WidgetPropertyCategory.BEHAVIOR, "minimum", Messages.WidgetProperties_Minimum)
-        {
-            @Override
-            public WidgetProperty<Double> createProperty(final Widget widget,
-                                                         final Double min)
-            {
-                return new DoubleWidgetProperty(this, widget, min);
-            }
-        };
+        newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "minimum", Messages.WidgetProperties_Minimum);
 
     /** Behavior 'maximum': Maximum display range */
     public static final WidgetPropertyDescriptor<Double> behaviorMaximum =
-        new WidgetPropertyDescriptor<Double>(
-            WidgetPropertyCategory.BEHAVIOR, "maximum", Messages.WidgetProperties_Maximum)
-    {
-        @Override
-        public WidgetProperty<Double> createProperty(final Widget widget,
-                                                      final Double max)
-        {
-            return new DoubleWidgetProperty(this, widget, max);
-        }
-    };
-
-    /** Constructor for value property
-     *  @param name Internal name of the property
-     *  @param description Human-readable description
-     */
-    public static final WidgetPropertyDescriptor<VType> newRuntimeValue(final String name, final String description)
-    {
-        return new WidgetPropertyDescriptor<VType>(WidgetPropertyCategory.RUNTIME, name, description)
-        {
-            @Override
-            public WidgetProperty<VType> createProperty(final Widget widget,
-                                                        final VType value)
-            {
-                return new RuntimeWidgetProperty<VType>(this, widget, value)
-                {
-                    @Override
-                    public void setValueFromObject(final Object value) throws Exception
-                    {
-                        if (value instanceof VType)
-                            setValue((VType) value);
-                        else
-                            throw new Exception("Need VType, got " + value);
-                    }
-                };
-            }
-        };
-    }
+            newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "maximum", Messages.WidgetProperties_Maximum);
 
     /** Runtime 'value': Typically read from primary PV */
     public static final WidgetPropertyDescriptor<VType> runtimeValue = newRuntimeValue("value", Messages.WidgetProperties_Value);

@@ -22,7 +22,6 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.XMLUtil;
-import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
@@ -36,44 +35,46 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class XYPlotWidget extends BaseWidget
 {
+    // TODO Need 'x_axis' as well as 'y_axis' (later more than one)
+    // X: <axis_0_auto_scale> <axis_0_minimum> <axis_0_maximum> <axis_0_axis_title>
+    // Y: <axis_1_auto_scale> <axis_1_minimum> <axis_1_maximum> <axis_1_axis_title>
+
+    // Elements of the 'axis' structure
+    private static final WidgetPropertyDescriptor<Boolean> autoscale =
+        CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "autoscale", "Auto-scale");
+
+    private final static StructuredWidgetProperty.Descriptor behaviorAxis =
+            new Descriptor(WidgetPropertyCategory.BEHAVIOR, "axis", "Axis");
+
+    /** 'axis' structure */
+    public static class AxisWidgetProperty extends StructuredWidgetProperty
+    {
+        public AxisWidgetProperty(final Widget widget)
+        {
+            super(behaviorAxis, widget,
+                  Arrays.asList(autoscale.createProperty(widget, false),
+                                CommonWidgetProperties.behaviorMinimum.createProperty(widget, 0.0),
+                                CommonWidgetProperties.behaviorMaximum.createProperty(widget, 100.0)));
+        }
+        public WidgetProperty<Boolean> autoscale()   { return getElement(0); }
+        public WidgetProperty<Double> minimum()      { return getElement(1); }
+        public WidgetProperty<Double> maximum()      { return getElement(2); }
+    };
+
     // Elements of the 'trace' structure
     private static final WidgetPropertyDescriptor<String> traceX =
-        new WidgetPropertyDescriptor<String>(WidgetPropertyCategory.BEHAVIOR, "x_pv", "X PV")
-    {
-        @Override
-        public WidgetProperty<String> createProperty(final Widget widget, final String pv_name)
-        {
-            return new StringWidgetProperty(this, widget, pv_name);
-        }
-    };
-
+        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "x_pv", "X PV");
     private static final WidgetPropertyDescriptor<String> traceY =
-        new WidgetPropertyDescriptor<String>(WidgetPropertyCategory.BEHAVIOR, "y_pv", "Y PV")
-    {
-        @Override
-        public WidgetProperty<String> createProperty(final Widget widget, final String pv_name)
-        {
-            return new StringWidgetProperty(this, widget, pv_name);
-        }
-    };
-
+        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "y_pv", "Y PV");
     private static final WidgetPropertyDescriptor<WidgetColor> traceColor =
-        new WidgetPropertyDescriptor<WidgetColor>(WidgetPropertyCategory.DISPLAY, "color", "Color")
-    {
-        @Override
-        public WidgetProperty<WidgetColor> createProperty(final Widget widget, final WidgetColor color)
-        {
-            return new ColorWidgetProperty(this, widget, color);
-        }
-    };
-
+        CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "color", "Color");
     private static final WidgetPropertyDescriptor<VType> traceXValue = CommonWidgetProperties.newRuntimeValue("x_value", "X Value");
     private static final WidgetPropertyDescriptor<VType> traceYValue = CommonWidgetProperties.newRuntimeValue("y_value", "Y Value");
 
-    /** 'Trace' structure */
     private final static StructuredWidgetProperty.Descriptor behaviorTrace =
             new Descriptor(WidgetPropertyCategory.BEHAVIOR, "trace", "Trace");
 
+    /** 'trace' structure */
     public static class TraceWidgetProperty extends StructuredWidgetProperty
     {
         public TraceWidgetProperty(final Widget widget)
@@ -152,6 +153,7 @@ public class XYPlotWidget extends BaseWidget
 
     // TODO: ArrayWidgetProperty of StructureWidgetProperty
 
+    private AxisWidgetProperty x_axis;
     private TraceWidgetProperty trace;
 
     public XYPlotWidget()
@@ -169,7 +171,14 @@ public class XYPlotWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
+        properties.add(x_axis = new AxisWidgetProperty(this));
         properties.add(trace = new TraceWidgetProperty(this));
+    }
+
+    /** @return Behavior 'x_axis' */
+    public AxisWidgetProperty behaviorXAxis()
+    {
+        return x_axis;
     }
 
     /** @return Behavior 'trace' */
