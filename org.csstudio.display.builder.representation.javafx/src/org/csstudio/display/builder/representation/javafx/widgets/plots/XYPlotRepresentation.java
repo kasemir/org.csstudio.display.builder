@@ -51,7 +51,7 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
         plot = new RTValuePlot();
         plot.showToolbar(false);
         plot.showCrosshair(true);
-        // TODO plot.getXAxis().setAutoscale(true);
+        plot.getXAxis().setAutoscale(true);
         plot.getYAxes().get(0).setAutoscale(true);
         data0 = new XYVTypeDataProvider();
         trace0 = plot.addTrace("Data", "Units", data0, Color.BLUE, TraceType.SINGLE_LINE_DIRECT, 3, PointType.NONE, 5, 0);
