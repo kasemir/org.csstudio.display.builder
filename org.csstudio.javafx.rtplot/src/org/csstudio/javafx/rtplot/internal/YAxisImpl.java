@@ -294,18 +294,19 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
 
         final double low_value = range.getLow();
         final double high_value = range.getHigh();
+        final boolean normal = low_value <= high_value;
         final int minor_ticks = ticks.getMinorTicks();
         double tick = ticks.getStart();
         double prev = ticks.getPrevious(tick);
         for (/**/;
-             tick <= high_value  &&  Double.isFinite(tick);
+             (normal ? tick <= high_value : tick >= high_value)  &&  Double.isFinite(tick);
              tick = ticks.getNext(tick))
         {
             // Minor ticks?
             for (int i=1; i<minor_ticks; ++i)
             {
                 final double minor = prev + ((tick - prev)*i)/minor_ticks;
-                if (minor < low_value)
+                if (normal ? minor < low_value : minor > low_value)
                     continue;
                 final int y = getScreenCoord(minor);
                 gc.drawLine(minor_x, y, line_x, y);
@@ -334,7 +335,7 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
             for (int i=1; i<minor_ticks; ++i)
             {
                 final double minor = prev + ((tick - prev)*i)/minor_ticks;
-                if (minor > high_value)
+                if (normal ? minor > high_value : minor < high_value)
                     break;
                 final int y = getScreenCoord(minor);
                 gc.drawLine(minor_x, y, line_x, y);

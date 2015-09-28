@@ -55,10 +55,7 @@ public class LinearTicks implements Ticks<Double>
     {
         if (! (Double.isFinite(low)  &&  Double.isFinite(high)))
             return false;
-        final double span = high - low;
-        // For now we require low < high.
-        if (span <= 0.0)
-            return false;
+        final double span = Math.abs(high - low);
         // Avoid degraded axes like
         // 1000.00000000000001 .. 1000.00000000000002
         // where low + (high - low) == low,
@@ -82,6 +79,7 @@ public class LinearTicks implements Ticks<Double>
             low = high - 1;
             high += 1;
         }
+        final boolean normal = low < high;
         final double range = Math.abs(high-low);
 
         final long order_of_magnitude = Math.round(Log10.log10(range));
@@ -114,11 +112,17 @@ public class LinearTicks implements Ticks<Double>
 
         // Round up to the precision used to display values
         distance = selectNiceStep(min_distance);
-        if (distance <= 0.0)
+        if (distance == 0.0)
             throw new Error("Broken tickmark computation");
 
         // Start at 'low' adjusted to a multiple of the tick distance
-        start = Math.ceil(low / distance) * distance;
+        if (normal)
+        	start = Math.ceil(low / distance) * distance;
+        else
+        {
+        	distance = -distance;
+        	start = Math.floor(low / distance) * distance;
+        }
     }
 
     /** @param number A number
@@ -213,7 +217,7 @@ public class LinearTicks implements Ticks<Double>
     @Override
     public Double getPrevious(final Double tick)
     {
-        if (distance <= 0.0)
+        if (distance == 0.0)
             throw new Error("Broken tickmark computation");
         return tick - distance;
     }
@@ -222,7 +226,7 @@ public class LinearTicks implements Ticks<Double>
     @Override
     public Double getNext(final Double tick)
     {
-        if (distance <= 0.0)
+        if (distance == 0.0)
             throw new Error("Broken tickmark computation");
         return tick + distance;
     }
@@ -244,7 +248,7 @@ public class LinearTicks implements Ticks<Double>
             return "Inf";
         // Patch numbers that are "very close to zero"
         // to avoid "-0.00" or "0.0e-22"
-        if (Math.abs(num) < distance/1000)
+        if (Math.abs(num) < Math.abs(distance/1000))
             return num_fmt.format(0.0);
         return num_fmt.format(num);
     }
@@ -259,7 +263,7 @@ public class LinearTicks implements Ticks<Double>
             return "Inf";
         // Patch numbers that are "very close to zero"
         // to avoid "-0.00" or "0.0e-22"
-        if (Math.abs(num) < distance/1000)
+        if (Math.abs(num) < Math.abs(distance/1000))
             return detailed_num_fmt.format(0.0);
         return detailed_num_fmt.format(num);
     }
