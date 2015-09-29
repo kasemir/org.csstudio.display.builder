@@ -40,6 +40,9 @@ public class XYPlotWidget extends BaseWidget
     // Y: <axis_1_auto_scale> <axis_1_minimum> <axis_1_maximum> <axis_1_axis_title>
 
     // Elements of the 'axis' structure
+    private static final WidgetPropertyDescriptor<String> title =
+        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "title", "Title");
+
     private static final WidgetPropertyDescriptor<Boolean> autoscale =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "autoscale", "Auto-scale");
 
@@ -52,13 +55,15 @@ public class XYPlotWidget extends BaseWidget
         public AxisWidgetProperty(final Widget widget)
         {
             super(behaviorAxis, widget,
-                  Arrays.asList(autoscale.createProperty(widget, false),
+                  Arrays.asList(title.createProperty(widget, "x"),
+                                autoscale.createProperty(widget, false),
                                 CommonWidgetProperties.behaviorMinimum.createProperty(widget, 0.0),
                                 CommonWidgetProperties.behaviorMaximum.createProperty(widget, 100.0)));
         }
-        public WidgetProperty<Boolean> autoscale()   { return getElement(0); }
-        public WidgetProperty<Double> minimum()      { return getElement(1); }
-        public WidgetProperty<Double> maximum()      { return getElement(2); }
+        public WidgetProperty<String> title()        { return getElement(0); }
+        public WidgetProperty<Boolean> autoscale()   { return getElement(1); }
+        public WidgetProperty<Double> minimum()      { return getElement(2); }
+        public WidgetProperty<Double> maximum()      { return getElement(3); }
     };
 
     // Elements of the 'trace' structure
@@ -127,16 +132,20 @@ public class XYPlotWidget extends BaseWidget
 
             // Legacy widget had a "pv_name" property that was basically used as a macro
             final String pv_macro = XMLUtil.getChildString(xml, "pv_name").orElse("");
-
+            XMLUtil.getChildString(xml, "axis_0_axis_title").ifPresent(title ->
+            {
+                final WidgetProperty<String> property = plot.x_axis.title();
+                ((StringWidgetProperty)property).setSpecification(title.replace("$(pv_name)", pv_macro));
+            });
             XMLUtil.getChildString(xml, "trace_0_x_pv").ifPresent(pv ->
             {
                 final WidgetProperty<String> property = plot.trace.traceX();
-               ((StringWidgetProperty)property).setSpecification(pv.replace("$(pv_name)", pv_macro));
+                ((StringWidgetProperty)property).setSpecification(pv.replace("$(pv_name)", pv_macro));
             });
             XMLUtil.getChildString(xml, "trace_0_y_pv").ifPresent(pv ->
             {
                 final WidgetProperty<String> property = plot.trace.traceY();
-               ((StringWidgetProperty)property).setSpecification(pv.replace("$(pv_name)", pv_macro));
+                ((StringWidgetProperty)property).setSpecification(pv.replace("$(pv_name)", pv_macro));
             });
 
             Element element = XMLUtil.getChildElement(xml, "trace_0_trace_color");

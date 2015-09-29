@@ -33,6 +33,7 @@ import javafx.scene.paint.Color;
 public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidget>
 {
     private final DirtyFlag dirty_position = new DirtyFlag();
+    private final DirtyFlag dirty_config = new DirtyFlag();
 
     /** Canvas that displays the image. */
     private RTValuePlot plot;
@@ -66,10 +67,17 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
     protected void registerListeners()
     {
         super.registerListeners();
+        model_widget.behaviorXAxis().title().addUntypedPropertyListener(this::configChanged);
         model_widget.positionWidth().addUntypedPropertyListener(this::positionChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
         model_widget.behaviorTrace().xValue().addUntypedPropertyListener(this::valueChanged);
         model_widget.behaviorTrace().yValue().addUntypedPropertyListener(this::valueChanged);
+    }
+
+    private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        dirty_config.mark();
+        toolkit.scheduleUpdate(this);
     }
 
     private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -103,6 +111,10 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
     public void updateChanges()
     {
         super.updateChanges();
+        if (dirty_config.checkAndClear())
+        {
+            plot.getXAxis().setName(model_widget.behaviorXAxis().title().getValue());
+        }
         if (dirty_position.checkAndClear())
         {
             final int w = model_widget.positionWidth().getValue();
