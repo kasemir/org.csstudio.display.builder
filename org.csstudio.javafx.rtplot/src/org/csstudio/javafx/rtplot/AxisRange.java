@@ -50,7 +50,10 @@ public class AxisRange<XTYPE extends Comparable<XTYPE>>
      */
     public boolean contains(final XTYPE value)
     {
-        return low.compareTo(value) <= 0  &&  value.compareTo(high) <= 0;
+        final boolean normal = low.compareTo(high) < 0;
+        if (normal)
+            return low.compareTo(value) <= 0  &&  value.compareTo(high) <= 0;
+        return high.compareTo(value) <= 0  &&  value.compareTo(low) <= 0;
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
