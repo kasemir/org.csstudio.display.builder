@@ -222,61 +222,66 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 // Does axis handle itself in another way?
                 if (axis.isAutoscale())
                    continue;
+                
+                // Fetch range of values on this axis
+                final ValueRange axis_range;
+                try
+                {
+                    axis_range = ranges.get(i).get();
+                }
+                catch (Exception ex)
+                {
+                    Activator.getLogger().log(Level.WARNING, "Axis stagger error", ex);
+                    continue;
+                }
 
-               // Fetch range of values on this axis
-               final ValueRange axis_range;
-               try
-               {
-                   axis_range = ranges.get(i).get();
-               }
-               catch (Exception ex)
-               {
-                   Activator.getLogger().log(Level.WARNING, "Axis stagger error", ex);
-                   continue;
-               }
+                // Skip axis which for some reason cannot determine its range
+                double low = axis_range.getLow();
+                double high = axis_range.getHigh();
+                if (low > high)
+                    continue;
+                if (low == high)
+                {   // Center trace with constant value (empty range)
+                    final double half = Math.abs(low/2);
+                    low -= half;
+                    high += half;
+                }
+                if (axis.isLogarithmic())
+                {   // Transition into log space
+                    low = Log10.log10(low);
+                    high = Log10.log10(high);
+                }
+                double span = high - low;
+                // Make some extra space
+                low -= GAP*span;
+                high += GAP*span;
+                span = high-low;
 
-               // Skip axis which for some reason cannot determine its range
-               double low = axis_range.getLow();
-               double high = axis_range.getHigh();
-               if (low > high)
-                   continue;
-               if (low == high)
-               {   // Center trace with constant value (empty range)
-                   final double half = Math.abs(low/2);
-                   low -= half;
-                   high += half;
-               }
-               if (axis.isLogarithmic())
-               {   // Transition into log space
-                   low = Log10.log10(low);
-                   high = Log10.log10(high);
-               }
-               double span = high - low;
-               // Make some extra space
-               low -= GAP*span;
-               high += GAP*span;
-               span = high-low;
+                // With N axes, assign 1/Nth of the vertical plot space to this axis
+                // by shifting the span down according to the axis index,
+                // using a total of N*range.
+                low -= (N-i-1)*span;
+                high += i*span;
 
-               // With N axes, assign 1/Nth of the vertical plot space to this axis
-               // by shifting the span down according to the axis index,
-               // using a total of N*range.
-               low -= (N-i-1)*span;
-               high += i*span;
+                final ValueRange rounded = roundValueRange(low, high);
+                low = rounded.getLow();
+                high = rounded.getHigh();
 
-               final ValueRange rounded = roundValueRange(low, high);
-               low = rounded.getLow();
-               high = rounded.getHigh();
+                if (axis.isLogarithmic())
+                {   // Revert from log space
+                    low = Log10.pow10(low);
+                    high = Log10.pow10(high);
+                }
 
-               if (axis.isLogarithmic())
-               {   // Revert from log space
-                   low = Log10.pow10(low);
-                   high = Log10.pow10(high);
-               }
-
-               // Sanity check for empty traces
-               if (low < high  &&
-                   !Double.isInfinite(low) && !Double.isInfinite(high))
-                   new_ranges.set(i, new AxisRange<Double>(low, high));
+                // Sanity check for empty traces
+                if (low < high  &&
+                    !Double.isInfinite(low) && !Double.isInfinite(high))
+                {
+                	final AxisRange<Double> orig = original_ranges.get(i);
+                	final boolean normal = orig.getLow() < orig.getHigh();
+                	new_ranges.set(i, normal ? new AxisRange<Double>(low, high)
+                			                 : new AxisRange<Double>(high, low));                		
+                }
             }
 
             // 'Stagger' tends to be on-demand,
@@ -369,9 +374,9 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
             if (location != null)
                 plot.getUndoableActionManager().execute(
                     new AddAnnotationAction<XTYPE>(plot,
-                    		                       new AnnotationImpl<XTYPE>(trace, location, value,
-                    		                    		                     new Point2D(20, -20),
-                    		                    		                     text)));
+                                                   new AnnotationImpl<XTYPE>(trace, location, value,
+                                                                             new Point2D(20, -20),
+                                                                             text)));
         });
     }
 
@@ -455,9 +460,15 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 }
                 // Autoscale happens 'all the time'.
                 // Do not use undo, but notify listeners.
-                if (low < high)
-                    if (axis.setValueRange(low, high))
+                if (low != high)
+                {
+                	final AxisRange<Double> orig = axis.getValueRange();
+                	final boolean normal = orig.getLow() < orig.getHigh();
+                	final boolean changed = normal ? axis.setValueRange(low, high)
+        										   : axis.setValueRange(high, low);
+        			if (changed)
                         plot.fireYAxisChange(axis);
+                }
             }
             catch (Exception ex)
             {
