@@ -105,25 +105,37 @@ public class ArrayWidgetPropertyUnitTest
         }
 
         // Add/remove elements via ArrayProperty API
-        final AtomicInteger changes = new AtomicInteger();
+        final AtomicInteger list_changes = new AtomicInteger();
+        final AtomicInteger prop_changes = new AtomicInteger();
         widget.behaviorItems().addPropertyListener((prop, removed, added) ->
         {
-            changes.incrementAndGet();
+            list_changes.incrementAndGet();
             if (removed != null)
                 System.out.println("Removed " + removed);
             if (added != null)
                 System.out.println("Added " + added);
         });
+        widget.behaviorItems().getElement(0).addPropertyListener((prop, old, current) ->
+        {
+            prop_changes.incrementAndGet();
+            System.out.println(prop.getName() + " changes from " + old + " to " + current);
+        });
 
         WidgetProperty<String> removed = widget.behaviorItems().removeElement();
-        assertThat(widget.behaviorItems().getValue().size(), equalTo(2));
+        assertThat(widget.behaviorItems().size(), equalTo(2));
         assertThat(removed.getValue(), equalTo("Three"));
-        assertThat(changes.get(), equalTo(1));
+        assertThat(list_changes.get(), equalTo(1));
 
         widget.behaviorItems().addElement(removed);
-        assertThat(widget.behaviorItems().getValue().size(), equalTo(3));
-        assertThat(widget.behaviorItems().getValue().get(2).getValue(), equalTo("Three"));
-        assertThat(changes.get(), equalTo(2));
+        assertThat(widget.behaviorItems().size(), equalTo(3));
+        assertThat(widget.behaviorItems().getElement(2).getValue(), equalTo("Three"));
+        assertThat(list_changes.get(), equalTo(2));
+
+        // Notification on changed element vs. changed list of elements
+        assertThat(prop_changes.get(), equalTo(0));
+        widget.behaviorItems().getElement(0).setValue("ONE!");
+        assertThat(prop_changes.get(), equalTo(1));
+        assertThat(list_changes.get(), equalTo(2));
     }
 
     @Test
@@ -138,8 +150,8 @@ public class ArrayWidgetPropertyUnitTest
         assertThat(xml, containsString("<items>"));
         assertThat(xml, containsString("<item>Another"));
 
+        // Read from XML
         WidgetFactory.getInstance().addWidgetType(DemoWidget.WIDGET_DESCRIPTOR);
-        // TODO Read from XML
         final List<Widget> read_back = ModelReader.parseXML(xml).getChildren();
         final String xml2 = ModelWriter.getXML(read_back);
         System.out.println(xml2);
