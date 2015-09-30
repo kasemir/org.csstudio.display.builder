@@ -48,15 +48,19 @@ public class XYPlotWidget extends BaseWidget
     private static final WidgetPropertyDescriptor<Boolean> autoscale =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "autoscale", "Auto-scale");
 
-    private final static StructuredWidgetProperty.Descriptor behaviorAxis =
-            new Descriptor(WidgetPropertyCategory.BEHAVIOR, "axis", "Axis");
+    private final static StructuredWidgetProperty.Descriptor behaviorXAxis =
+            new Descriptor(WidgetPropertyCategory.BEHAVIOR, "x_axis", "X Axis");
+
+    private final static StructuredWidgetProperty.Descriptor behaviorYAxis =
+            new Descriptor(WidgetPropertyCategory.BEHAVIOR, "y_axis", "Y Axis");
 
     /** Structure for 'axis' element */
     public static class AxisWidgetProperty extends StructuredWidgetProperty
     {
-        public AxisWidgetProperty(final Widget widget, final String title_text)
+        public AxisWidgetProperty(final StructuredWidgetProperty.Descriptor axis_descriptor,
+                                  final Widget widget, final String title_text)
         {
-            super(behaviorAxis, widget,
+            super(axis_descriptor, widget,
                   Arrays.asList(title.createProperty(widget, title_text),
                                 autoscale.createProperty(widget, false),
                                 CommonWidgetProperties.behaviorMinimum.createProperty(widget, 0.0),
@@ -72,7 +76,7 @@ public class XYPlotWidget extends BaseWidget
     private static final ArrayWidgetProperty.Descriptor<AxisWidgetProperty> behaviorYAxes =
         new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.BEHAVIOR, "y_axes", "Y Axes",
                                              (widget, index) ->
-                                             new AxisWidgetProperty(widget, index > 0 ? "Y " + index : "Y"));
+                                             new AxisWidgetProperty(behaviorYAxis, widget, index > 0 ? "Y " + index : "Y"));
 
     // Elements of the 'trace' structure
     private static final WidgetPropertyDescriptor<String> traceX =
@@ -140,6 +144,8 @@ public class XYPlotWidget extends BaseWidget
 
             // Legacy widget had a "pv_name" property that was basically used as a macro
             final String pv_macro = XMLUtil.getChildString(xml, "pv_name").orElse("");
+
+            // "axis_0" was the X axis
             XMLUtil.getChildString(xml, "axis_0_axis_title").ifPresent(title ->
             {
                 final WidgetProperty<String> property = plot.x_axis.title();
@@ -170,35 +176,34 @@ public class XYPlotWidget extends BaseWidget
             if (element != null)
                 plot.trace.traceColor().readFromXML(element);
 
-            // For axes 1 to .., check if they're a "y_axis" and if so configure the y_axes element
-            // <axis_1_axis_title>, axis_0_minimum, axis_0_maximum
-            for (int legacy_y=1; /**/; ++legacy_y)
+            // "axis_1" was the Y axis, and higher axis could be either X or Y
+            for (int y_count=0, legacy_y=1; /**/; ++legacy_y)
             {
-                // Check if it is a "y_axis" (default: true).
+                // Check for "y_axis" (default: true).
                 // If _not_, this is an additional X axis which we ignore
                 if (! Boolean.parseBoolean(XMLUtil.getChildString(xml, "axis_" + legacy_y + "_y_axis").orElse("true")))
                         continue;
 
-                // TODO Count actual Y axes, because legacy_y includes skipped X axes
-
+                // Count actual Y axes, because legacy_y includes skipped X axes
+                ++y_count;
                 final Optional<String> title = XMLUtil.getChildString(xml, "axis_" + legacy_y + "_axis_title");
                 if (! title.isPresent())
                 {   // Remove this and higher Y axes
-                    while (plot.y_axes.size() >= legacy_y)
+                    while (plot.y_axes.size() >= y_count)
                         plot.y_axes.removeElement();
                     // Done reading legacy Y axes
                     break;
                 }
 
                 final AxisWidgetProperty y_axis;
-                if (plot.y_axes.size() < legacy_y)
+                if (plot.y_axes.size() < y_count)
                 {
-                    y_axis = new AxisWidgetProperty(widget, title.get());
+                    y_axis = new AxisWidgetProperty(behaviorYAxis, widget, title.get());
                     plot.y_axes.addElement(y_axis);
                 }
                 else
                 {
-                    y_axis = plot.y_axes.getElement(legacy_y-1);
+                    y_axis = plot.y_axes.getElement(y_count-1);
                     final WidgetProperty<String> property = y_axis.title();
                     ((StringWidgetProperty)property).setSpecification(title.get().replace("$(pv_name)", pv_macro));
                 }
@@ -236,8 +241,8 @@ public class XYPlotWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(x_axis = new AxisWidgetProperty(this, "X"));
-        properties.add(y_axes = behaviorYAxes.createProperty(this, Arrays.asList(new AxisWidgetProperty(this, "Y"))));
+        properties.add(x_axis = new AxisWidgetProperty(behaviorXAxis, this, "X"));
+        properties.add(y_axes = behaviorYAxes.createProperty(this, Arrays.asList(new AxisWidgetProperty(behaviorYAxis, this, "Y"))));
         properties.add(trace = new TraceWidgetProperty(this));
     }
 

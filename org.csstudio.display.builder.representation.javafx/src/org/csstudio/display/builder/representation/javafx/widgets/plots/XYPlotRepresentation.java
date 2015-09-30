@@ -7,17 +7,20 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets.plots;
 
+import java.util.List;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget;
+import org.csstudio.display.builder.model.widgets.XYPlotWidget.AxisWidgetProperty;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.javafx.rtplot.PointType;
 import org.csstudio.javafx.rtplot.RTValuePlot;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.TraceType;
+import org.csstudio.javafx.rtplot.YAxis;
 import org.epics.vtype.VNumberArray;
 import org.epics.vtype.VType;
 
@@ -113,15 +116,7 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
     {
         super.updateChanges();
         if (dirty_config.checkAndClear())
-        {
-            plot.getXAxis().setName(model_widget.behaviorXAxis().title().getValue());
-            plot.getXAxis().setValueRange(model_widget.behaviorXAxis().minimum().getValue(),
-                                          model_widget.behaviorXAxis().maximum().getValue());
-            plot.getXAxis().setAutoscale(model_widget.behaviorXAxis().autoscale().getValue());
-
-            // TODO Create Y Axes to match model_widget's Y Axes
-            plot.getYAxes().get(0).setAutoscale(true);
-        }
+            updateAxes();
         if (dirty_position.checkAndClear())
         {
             final int w = model_widget.positionWidth().getValue();
@@ -130,5 +125,33 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
             plot.setPrefHeight(h);
         }
         plot.requestUpdate();
+    }
+
+    private void updateAxes()
+    {
+        // Update X Axis
+        plot.getXAxis().setName(model_widget.behaviorXAxis().title().getValue());
+        plot.getXAxis().setValueRange(model_widget.behaviorXAxis().minimum().getValue(),
+                                      model_widget.behaviorXAxis().maximum().getValue());
+        plot.getXAxis().setAutoscale(model_widget.behaviorXAxis().autoscale().getValue());
+
+        // Update Y Axes
+        final List<AxisWidgetProperty> model_y = model_widget.behaviorYAxes().getValue();
+        for (int i=0;  i<model_y.size();  ++i)
+        {
+            final AxisWidgetProperty model_axis = model_y.get(i);
+            final YAxis<Double> plot_axis;
+            if (i <= plot.getYAxes().size())
+            {
+                plot_axis = plot.getYAxes().get(i);
+                plot_axis.setName(model_axis.title().getValue());
+            }
+            else
+                plot_axis = plot.addYAxis(model_axis.title().getValue());
+
+            plot_axis.setValueRange(model_axis.minimum().getValue(),
+                                    model_axis.maximum().getValue());
+            plot_axis.setAutoscale(model_axis.autoscale().getValue());
+        }
     }
 }
