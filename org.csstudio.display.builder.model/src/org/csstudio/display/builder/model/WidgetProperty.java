@@ -31,7 +31,7 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
     protected final Widget widget;
 
     /** Property descriptor */
-    private final WidgetPropertyDescriptor<T> descriptor;
+    protected final WidgetPropertyDescriptor<T> descriptor;
 
     /** Default value
      *

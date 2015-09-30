@@ -14,8 +14,10 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty.Descriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.junit.Test;
@@ -31,8 +33,9 @@ public class ArrayWidgetPropertyUnitTest
             CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "item", "Item");
 
     /** Array property */
-    private static final  ArrayWidgetProperty.Descriptor<String> behaviorItems =
-            new Descriptor<>(WidgetPropertyCategory.BEHAVIOR, "items", "Items");
+    private static final ArrayWidgetProperty.Descriptor<String> behaviorItems =
+            new Descriptor<>(WidgetPropertyCategory.BEHAVIOR, "items", "Items",
+                             (widget, index) -> behaviorItem.createProperty(widget, "Item " + index));
 
     /** Widget that has a array property */
     private static class DemoWidget extends Widget
@@ -101,7 +104,26 @@ public class ArrayWidgetPropertyUnitTest
             // pass
         }
 
-        // TODO Add/remove elements via ArrayProperty API
+        // Add/remove elements via ArrayProperty API
+        final AtomicInteger changes = new AtomicInteger();
+        widget.behaviorItems().addPropertyListener((prop, removed, added) ->
+        {
+            changes.incrementAndGet();
+            if (removed != null)
+                System.out.println("Removed " + removed);
+            if (added != null)
+                System.out.println("Added " + added);
+        });
+
+        WidgetProperty<String> removed = widget.behaviorItems().removeElement();
+        assertThat(widget.behaviorItems().getValue().size(), equalTo(2));
+        assertThat(removed.getValue(), equalTo("Three"));
+        assertThat(changes.get(), equalTo(1));
+
+        widget.behaviorItems().addElement(removed);
+        assertThat(widget.behaviorItems().getValue().size(), equalTo(3));
+        assertThat(widget.behaviorItems().getValue().get(2).getValue(), equalTo("Three"));
+        assertThat(changes.get(), equalTo(2));
     }
 
     @Test
@@ -111,12 +133,16 @@ public class ArrayWidgetPropertyUnitTest
         // Set value to non-default
         widget.behaviorItems().getValue().get(1).setValue("Another (2)");
         // Persist to XML
-        String xml = ModelWriter.getXML(Arrays.asList(widget));
+        final String xml = ModelWriter.getXML(Arrays.asList(widget));
         System.out.println(xml);
         assertThat(xml, containsString("<items>"));
         assertThat(xml, containsString("<item>Another"));
 
         WidgetFactory.getInstance().addWidgetType(DemoWidget.WIDGET_DESCRIPTOR);
         // TODO Read from XML
+        final List<Widget> read_back = ModelReader.parseXML(xml).getChildren();
+        final String xml2 = ModelWriter.getXML(read_back);
+        System.out.println(xml2);
+        assertThat(xml2, equalTo(xml));
     }
 }
