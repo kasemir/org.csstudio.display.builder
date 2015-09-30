@@ -30,10 +30,10 @@ import org.w3c.dom.Node;
  *  <code>removeElement</code> API.
  *
  *  @author Kay Kasemir
- *  @param <E> Type of each item's property
+ *  @param <WPE> WidgetProperty used for each array element
  */
 @SuppressWarnings("nls")
-public class ArrayWidgetProperty<E> extends WidgetProperty<List<WidgetProperty<E>>>
+public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetProperty<List<WPE>>
 {
     /** Factory that creates a new array element.
      *
@@ -44,39 +44,39 @@ public class ArrayWidgetProperty<E> extends WidgetProperty<List<WidgetProperty<E
      *  or based that value on the array index.
      */
     @FunctionalInterface
-    public static interface ElementFactory<E>
+    public static interface ElementFactory<WPE>
     {
         /** Create a new array element
          *  @param widget Widget that contains the property
          *  @param index Index of the new array element
          *  @return Array element
          */
-        WidgetProperty<E> newElement(Widget widget, int index);
+        WPE newElement(Widget widget, int index);
     }
 
     /** Descriptor of an array property */
-    public static class Descriptor<E> extends WidgetPropertyDescriptor<List<WidgetProperty<E>>>
+    public static class Descriptor<WPE extends WidgetProperty<?>> extends WidgetPropertyDescriptor<List<WPE>>
     {
-        final private ElementFactory<E> factory;
+        final private ElementFactory<WPE> factory;
 
         public Descriptor(final WidgetPropertyCategory category,
                           final String name, final String description,
-                          final ElementFactory<E> factory)
+                          final ElementFactory<WPE> factory)
         {
             super(category, name, description);
             this.factory = factory;
         }
 
         @Override
-        public ArrayWidgetProperty<E> createProperty(
-                final Widget widget, final List<WidgetProperty<E>> elements)
+        public ArrayWidgetProperty<WPE> createProperty(
+                final Widget widget, final List<WPE> elements)
         {
-            return new ArrayWidgetProperty<E>(this, widget, elements);
+            return new ArrayWidgetProperty<WPE>(this, widget, elements);
         }
     };
 
-    protected ArrayWidgetProperty(final Descriptor<E> descriptor,
-            final Widget widget, final List<WidgetProperty<E>> elements)
+    protected ArrayWidgetProperty(final Descriptor<WPE> descriptor,
+            final Widget widget, final List<WPE> elements)
     {
         // Default's elements can be changed, they each track their own 'default',
         // but overall default_value List<> is not modifiable
@@ -87,18 +87,18 @@ public class ArrayWidgetProperty<E> extends WidgetProperty<List<WidgetProperty<E
     @Override
     public boolean isDefaultValue()
     {
-        for (WidgetProperty<E> element : value)
+        for (WPE element : value)
             if (! element.isDefaultValue())
                 return false;
         return true;
     }
 
-    /** @return Current List<>, not modifiable.
+    /** @return List<> of current array elements. List is not modifiable (elements, however, are).
      *  @see #addElement(WidgetProperty)
      *  @see #removeElement()
      */
     @Override
-    public List<WidgetProperty<E>> getValue()
+    public List<WPE> getValue()
     {
         return Collections.unmodifiableList(value);
     }
@@ -113,7 +113,7 @@ public class ArrayWidgetProperty<E> extends WidgetProperty<List<WidgetProperty<E
      *  @param index Element index, 0 .. (<code>getValue().size()</code>-1)
      *  @return Element of array
      */
-    public  WidgetProperty<E> getElement(final int index)
+    public  WPE getElement(final int index)
     {
         return value.get(index);
     }
@@ -122,15 +122,15 @@ public class ArrayWidgetProperty<E> extends WidgetProperty<List<WidgetProperty<E
      *  @return Removed element
      *  @throws IndexOutOfBoundsException if list is empty
      */
-    public WidgetProperty<E> removeElement()
+    public WPE removeElement()
     {
-        final WidgetProperty<E> removed = value.remove(value.size()-1);
+        final WPE removed = value.remove(value.size()-1);
         firePropertyChange(Arrays.asList(removed), null);
         return removed;
     }
 
     /** @param element Element to add to end of list */
-    public void addElement(final WidgetProperty<E> element)
+    public void addElement(final WPE element)
     {
         value.add(element);
         firePropertyChange(null, Arrays.asList(element));
@@ -145,7 +145,7 @@ public class ArrayWidgetProperty<E> extends WidgetProperty<List<WidgetProperty<E
     @Override
     public void writeToXML(final XMLStreamWriter writer) throws Exception
     {
-        for (WidgetProperty<E> element : value)
+        for (WPE element : value)
         {
             writer.writeStartElement(element.getName());
             element.writeToXML(writer);
@@ -159,15 +159,15 @@ public class ArrayWidgetProperty<E> extends WidgetProperty<List<WidgetProperty<E
         // Loop over XML child elements.
         // The element names are unknown at this time, only once we create an element
         // could we get its name...
-        final List<WidgetProperty<E>> elements = new ArrayList<>();
+        final List<WPE> elements = new ArrayList<>();
         Node child = property_xml.getFirstChild();
         while (child != null)
         {
             if (child.getNodeType() == Node.ELEMENT_NODE)
             {
                 final Element child_xml = (Element) child;
-                final WidgetProperty<E> element =
-                    ((Descriptor<E>)descriptor).factory.newElement(widget, elements.size());
+                final WPE element =
+                    ((Descriptor<WPE>)descriptor).factory.newElement(widget, elements.size());
                 try
                 {
                     element.readFromXML(child_xml);
@@ -189,7 +189,7 @@ public class ArrayWidgetProperty<E> extends WidgetProperty<List<WidgetProperty<E
     {
         final StringBuilder buf = new StringBuilder("'" + getName() + "' = [ ");
         boolean first = true;
-        for (WidgetProperty<E> element : value)
+        for (WPE element : value)
         {
             if (first)
                 first = false;

@@ -33,7 +33,7 @@ public class ArrayWidgetPropertyUnitTest
             CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "item", "Item");
 
     /** Array property */
-    private static final ArrayWidgetProperty.Descriptor<String> behaviorItems =
+    private static final ArrayWidgetProperty.Descriptor<WidgetProperty<String>> behaviorItems =
             new Descriptor<>(WidgetPropertyCategory.BEHAVIOR, "items", "Items",
                              (widget, index) -> behaviorItem.createProperty(widget, "Item " + index));
 
@@ -50,7 +50,7 @@ public class ArrayWidgetPropertyUnitTest
                 }
             };
 
-        private ArrayWidgetProperty<String> items;
+        private ArrayWidgetProperty<WidgetProperty<String>> items;
 
         public DemoWidget()
         {
@@ -67,7 +67,7 @@ public class ArrayWidgetPropertyUnitTest
                     behaviorItem.createProperty(this, "Three"))));
         }
 
-        public ArrayWidgetProperty<String> behaviorItems()
+        public ArrayWidgetProperty<WidgetProperty<String>> behaviorItems()
         {
             return items;
         }

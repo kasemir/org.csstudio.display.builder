@@ -9,7 +9,9 @@ package org.csstudio.display.builder.model.widgets;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
+import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
@@ -49,13 +51,13 @@ public class XYPlotWidget extends BaseWidget
     private final static StructuredWidgetProperty.Descriptor behaviorAxis =
             new Descriptor(WidgetPropertyCategory.BEHAVIOR, "axis", "Axis");
 
-    /** 'axis' structure */
+    /** Structure for 'axis' element */
     public static class AxisWidgetProperty extends StructuredWidgetProperty
     {
-        public AxisWidgetProperty(final Widget widget)
+        public AxisWidgetProperty(final Widget widget, final String title_text)
         {
             super(behaviorAxis, widget,
-                  Arrays.asList(title.createProperty(widget, "x"),
+                  Arrays.asList(title.createProperty(widget, title_text),
                                 autoscale.createProperty(widget, false),
                                 CommonWidgetProperties.behaviorMinimum.createProperty(widget, 0.0),
                                 CommonWidgetProperties.behaviorMaximum.createProperty(widget, 100.0)));
@@ -65,6 +67,12 @@ public class XYPlotWidget extends BaseWidget
         public WidgetProperty<Double> minimum()      { return getElement(2); }
         public WidgetProperty<Double> maximum()      { return getElement(3); }
     };
+
+    /** 'axes' array */
+    private static final ArrayWidgetProperty.Descriptor<AxisWidgetProperty> behaviorYAxes =
+        new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.BEHAVIOR, "y_axes", "Y Axes",
+                                             (widget, index) ->
+                                             new AxisWidgetProperty(widget, index > 0 ? "Y " + index : "Y"));
 
     // Elements of the 'trace' structure
     private static final WidgetPropertyDescriptor<String> traceX =
@@ -137,12 +145,14 @@ public class XYPlotWidget extends BaseWidget
                 final WidgetProperty<String> property = plot.x_axis.title();
                 ((StringWidgetProperty)property).setSpecification(title.replace("$(pv_name)", pv_macro));
             });
-
             XMLUtil.getChildString(xml, "axis_0_minimum").ifPresent(txt ->
                 plot.x_axis.minimum().setValue(Double.parseDouble(txt))
             );
             XMLUtil.getChildString(xml, "axis_0_maximum").ifPresent(txt ->
                 plot.x_axis.maximum().setValue(Double.parseDouble(txt))
+            );
+            XMLUtil.getChildString(xml, "axis_0_auto_scale").ifPresent(txt ->
+                plot.x_axis.autoscale().setValue(Boolean.parseBoolean(txt))
             );
 
             XMLUtil.getChildString(xml, "trace_0_x_pv").ifPresent(pv ->
@@ -159,18 +169,56 @@ public class XYPlotWidget extends BaseWidget
             Element element = XMLUtil.getChildElement(xml, "trace_0_trace_color");
             if (element != null)
                 plot.trace.traceColor().readFromXML(element);
+
+            // For axes 1 to .., check if they're a "y_axis" and if so configure the y_axes element
+            // <axis_1_axis_title>, axis_0_minimum, axis_0_maximum
+            for (int legacy_y=1; /**/; ++legacy_y)
+            {
+                // Check if it is a "y_axis" (default: true).
+                // If _not_, this is an additional X axis which we ignore
+                if (! Boolean.parseBoolean(XMLUtil.getChildString(xml, "axis_" + legacy_y + "_y_axis").orElse("true")))
+                        continue;
+
+                // TODO Count actual Y axes, because legacy_y includes skipped X axes
+
+                final Optional<String> title = XMLUtil.getChildString(xml, "axis_" + legacy_y + "_axis_title");
+                if (! title.isPresent())
+                {   // Remove this and higher Y axes
+                    while (plot.y_axes.size() >= legacy_y)
+                        plot.y_axes.removeElement();
+                    // Done reading legacy Y axes
+                    break;
+                }
+
+                final AxisWidgetProperty y_axis;
+                if (plot.y_axes.size() < legacy_y)
+                {
+                    y_axis = new AxisWidgetProperty(widget, title.get());
+                    plot.y_axes.addElement(y_axis);
+                }
+                else
+                {
+                    y_axis = plot.y_axes.getElement(legacy_y-1);
+                    final WidgetProperty<String> property = y_axis.title();
+                    ((StringWidgetProperty)property).setSpecification(title.get().replace("$(pv_name)", pv_macro));
+                }
+
+                XMLUtil.getChildString(xml, "axis_" + legacy_y + "_minimum").ifPresent(txt ->
+                    y_axis.minimum().setValue(Double.parseDouble(txt))
+                );
+                XMLUtil.getChildString(xml, "axis_" + legacy_y + "_maximum").ifPresent(txt ->
+                    y_axis.maximum().setValue(Double.parseDouble(txt))
+                );
+                XMLUtil.getChildString(xml, "axis_" + legacy_y + "_auto_scale").ifPresent(txt ->
+                    y_axis.autoscale().setValue(Boolean.parseBoolean(txt))
+                );
+            }
         }
     };
 
-    // TODO: Support minimum of legacy properties:
-    // <axis_0_axis_title>
-    // <trace_0_x_pv>
-    // <trace_0_y_pv>
-    // <trace_0_trace_color>
-
-    // TODO: ArrayWidgetProperty of StructureWidgetProperty
 
     private AxisWidgetProperty x_axis;
+    private ArrayWidgetProperty<AxisWidgetProperty> y_axes;
     private TraceWidgetProperty trace;
 
     public XYPlotWidget()
@@ -188,7 +236,8 @@ public class XYPlotWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(x_axis = new AxisWidgetProperty(this));
+        properties.add(x_axis = new AxisWidgetProperty(this, "X"));
+        properties.add(y_axes = behaviorYAxes.createProperty(this, Arrays.asList(new AxisWidgetProperty(this, "Y"))));
         properties.add(trace = new TraceWidgetProperty(this));
     }
 
@@ -196,6 +245,12 @@ public class XYPlotWidget extends BaseWidget
     public AxisWidgetProperty behaviorXAxis()
     {
         return x_axis;
+    }
+
+    /** @return Behavior 'y_axes' */
+    public ArrayWidgetProperty<AxisWidgetProperty> behaviorYAxes()
+    {
+        return y_axes;
     }
 
     /** @return Behavior 'trace' */
