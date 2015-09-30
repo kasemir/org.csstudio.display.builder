@@ -55,8 +55,12 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
         plot.showToolbar(false);
         plot.showCrosshair(true);
 
+        // TODO Set axis as it changes
+        plot.getXAxis().setValueRange(model_widget.behaviorXAxis().minimum().getValue(),
+                                      model_widget.behaviorXAxis().maximum().getValue());
+        plot.getXAxis().setAutoscale(model_widget.behaviorXAxis().autoscale().getValue());
+
         // TODO Create data & trace as PVs first connect
-        plot.getXAxis().setAutoscale(true);
         plot.getYAxes().get(0).setAutoscale(true);
         data0 = new XYVTypeDataProvider();
         trace0 = plot.addTrace("Data", "Units", data0, Color.BLUE, TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5, 0);

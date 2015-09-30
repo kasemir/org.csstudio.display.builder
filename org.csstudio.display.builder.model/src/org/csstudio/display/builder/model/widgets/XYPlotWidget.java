@@ -137,6 +137,14 @@ public class XYPlotWidget extends BaseWidget
                 final WidgetProperty<String> property = plot.x_axis.title();
                 ((StringWidgetProperty)property).setSpecification(title.replace("$(pv_name)", pv_macro));
             });
+
+            XMLUtil.getChildString(xml, "axis_0_minimum").ifPresent(txt ->
+                plot.x_axis.minimum().setValue(Double.parseDouble(txt))
+            );
+            XMLUtil.getChildString(xml, "axis_0_maximum").ifPresent(txt ->
+                plot.x_axis.maximum().setValue(Double.parseDouble(txt))
+            );
+
             XMLUtil.getChildString(xml, "trace_0_x_pv").ifPresent(pv ->
             {
                 final WidgetProperty<String> property = plot.trace.traceX();
