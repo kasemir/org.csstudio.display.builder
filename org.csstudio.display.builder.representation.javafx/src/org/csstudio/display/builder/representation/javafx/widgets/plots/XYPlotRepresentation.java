@@ -55,13 +55,7 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
         plot.showToolbar(false);
         plot.showCrosshair(true);
 
-        // TODO Set axis as it changes
-        plot.getXAxis().setValueRange(model_widget.behaviorXAxis().minimum().getValue(),
-                                      model_widget.behaviorXAxis().maximum().getValue());
-        plot.getXAxis().setAutoscale(model_widget.behaviorXAxis().autoscale().getValue());
-
-        // TODO Create data & trace as PVs first connect
-        plot.getYAxes().get(0).setAutoscale(true);
+        // TODO Create data & trace as value changes for the first time and thus sends units
         data0 = new XYVTypeDataProvider();
         trace0 = plot.addTrace("Data", "Units", data0, Color.BLUE, TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5, 0);
         return plot;
@@ -72,6 +66,9 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
     {
         super.registerListeners();
         model_widget.behaviorXAxis().title().addUntypedPropertyListener(this::configChanged);
+        model_widget.behaviorXAxis().minimum().addUntypedPropertyListener(this::configChanged);
+        model_widget.behaviorXAxis().maximum().addUntypedPropertyListener(this::configChanged);
+        model_widget.behaviorXAxis().autoscale().addUntypedPropertyListener(this::configChanged);
         model_widget.positionWidth().addUntypedPropertyListener(this::positionChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
         model_widget.behaviorTrace().xValue().addUntypedPropertyListener(this::valueChanged);
@@ -118,6 +115,12 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
         if (dirty_config.checkAndClear())
         {
             plot.getXAxis().setName(model_widget.behaviorXAxis().title().getValue());
+            plot.getXAxis().setValueRange(model_widget.behaviorXAxis().minimum().getValue(),
+                                          model_widget.behaviorXAxis().maximum().getValue());
+            plot.getXAxis().setAutoscale(model_widget.behaviorXAxis().autoscale().getValue());
+
+            // TODO Create Y Axes to match model_widget's Y Axes
+            plot.getYAxes().get(0).setAutoscale(true);
         }
         if (dirty_position.checkAndClear())
         {
