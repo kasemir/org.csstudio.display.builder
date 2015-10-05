@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.representation.javafx.widgets.plots;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -42,8 +43,8 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
     private RTValuePlot plot;
 
     // TODO Support 0..N traces, not 1
-    private Trace<Double> trace0;
-    private XYVTypeDataProvider data0;
+    private AtomicReference<Trace<Double>> trace0 = new AtomicReference<>();
+    final private XYVTypeDataProvider data0 = new XYVTypeDataProvider();
 
     public XYPlotRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
                                 final XYPlotWidget model_widget)
@@ -57,10 +58,6 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
         plot = new RTValuePlot();
         plot.showToolbar(false);
         plot.showCrosshair(true);
-
-        // TODO Create data & trace as value changes for the first time and thus sends units
-        data0 = new XYVTypeDataProvider();
-        trace0 = plot.addTrace("Data", "Units", data0, Color.BLUE, TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5, 0);
         return plot;
     }
 
@@ -100,15 +97,25 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
             final VType y_value = y.getValue();
             if (x_value instanceof VNumberArray  &&  y_value instanceof VNumberArray)
             {
+                // Create trace as value changes for the first time and thus sends units
+                if (trace0.get() == null)
+                {
+                    Trace<Double> old_trace = trace0.getAndSet(plot.addTrace(model_widget.behaviorTrace().traceY().getValue(),
+                                                               ((VNumberArray)y_value).getUnits(),
+                                                               data0, Color.BLUE, TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5, 0));
+                    // Can race result in two value updates trying to add the same trace?
+                    // --> Remove the previous one
+                    if (old_trace != null)
+                        plot.removeTrace(old_trace);
+                }
                 data0.setData( ((VNumberArray)x_value).getData(), ((VNumberArray)y_value).getData());
+                plot.requestUpdate();
             }
         }
         catch (Exception ex)
         {
             logger.log(Level.WARNING, "XYGraph data error", ex);
         }
-
-        plot.requestUpdate();
     }
 
     @Override
