@@ -65,6 +65,7 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
     protected void registerListeners()
     {
         super.registerListeners();
+        model_widget.behaviorLegend().addUntypedPropertyListener(this::configChanged);
         model_widget.behaviorXAxis().title().addUntypedPropertyListener(this::configChanged);
         model_widget.behaviorXAxis().minimum().addUntypedPropertyListener(this::configChanged);
         model_widget.behaviorXAxis().maximum().addUntypedPropertyListener(this::configChanged);
@@ -123,7 +124,7 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
     {
         super.updateChanges();
         if (dirty_config.checkAndClear())
-            updateAxes();
+            updateConfig();
         if (dirty_position.checkAndClear())
         {
             final int w = model_widget.positionWidth().getValue();
@@ -134,8 +135,10 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
         plot.requestUpdate();
     }
 
-    private void updateAxes()
+    private void updateConfig()
     {
+        plot.showLegend(model_widget.behaviorLegend().getValue());
+
         // Update X Axis
         plot.getXAxis().setName(model_widget.behaviorXAxis().title().getValue());
         plot.getXAxis().setValueRange(model_widget.behaviorXAxis().minimum().getValue(),

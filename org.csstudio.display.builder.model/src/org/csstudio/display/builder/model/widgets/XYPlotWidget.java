@@ -37,6 +37,9 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class XYPlotWidget extends BaseWidget
 {
+    private static final WidgetPropertyDescriptor<Boolean> behaviorLegend =
+        CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "show_legend", "Show Legend");
+
     // Elements of the 'axis' structure
     private static final WidgetPropertyDescriptor<String> title =
         CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "title", "Title");
@@ -217,6 +220,7 @@ public class XYPlotWidget extends BaseWidget
         }
     };
 
+    private WidgetProperty<Boolean> show_legend;
     private AxisWidgetProperty x_axis;
     private ArrayWidgetProperty<AxisWidgetProperty> y_axes;
     private TraceWidgetProperty trace;
@@ -236,9 +240,16 @@ public class XYPlotWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
+        properties.add(show_legend = behaviorLegend.createProperty(this, true));
         properties.add(x_axis = new AxisWidgetProperty(behaviorXAxis, this, "X"));
         properties.add(y_axes = behaviorYAxes.createProperty(this, Arrays.asList(new AxisWidgetProperty(behaviorYAxis, this, "Y"))));
         properties.add(trace = new TraceWidgetProperty(this));
+    }
+
+    /** @return Behavior 'show_legend' */
+    public WidgetProperty<Boolean> behaviorLegend()
+    {
+        return show_legend;
     }
 
     /** @return Behavior 'x_axis' */
