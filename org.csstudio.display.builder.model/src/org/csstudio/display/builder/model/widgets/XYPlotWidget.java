@@ -37,10 +37,6 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class XYPlotWidget extends BaseWidget
 {
-    // TODO Need 'x_axis' as well as 'y_axis' (later more than one)
-    // X: <axis_0_auto_scale> <axis_0_minimum> <axis_0_maximum> <axis_0_axis_title>
-    // Y: <axis_1_auto_scale> <axis_1_minimum> <axis_1_maximum> <axis_1_axis_title>
-
     // Elements of the 'axis' structure
     private static final WidgetPropertyDescriptor<String> title =
         CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "title", "Title");
@@ -220,7 +216,6 @@ public class XYPlotWidget extends BaseWidget
             }
         }
     };
-
 
     private AxisWidgetProperty x_axis;
     private ArrayWidgetProperty<AxisWidgetProperty> y_axes;
