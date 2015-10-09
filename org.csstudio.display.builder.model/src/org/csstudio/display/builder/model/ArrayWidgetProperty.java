@@ -41,7 +41,7 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
      *  with default value, this factory is used to create that element.
      *
      *  <p>Implementation may always create an element with the same value,
-     *  or based that value on the array index.
+     *  or base that value on the array index.
      */
     @FunctionalInterface
     public static interface ElementFactory<WPE>

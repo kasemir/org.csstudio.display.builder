@@ -244,6 +244,8 @@ public class XYPlotWidget extends BaseWidget
         properties.add(x_axis = new AxisWidgetProperty(behaviorXAxis, this, "X"));
         properties.add(y_axes = behaviorYAxes.createProperty(this, Arrays.asList(new AxisWidgetProperty(behaviorYAxis, this, "Y"))));
         properties.add(trace = new TraceWidgetProperty(this));
+
+        System.out.println("Created y_axes" + y_axes);
     }
 
     /** @return Behavior 'show_legend' */

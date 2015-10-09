@@ -78,6 +78,22 @@
     -fx-background-radius: 2;
 }
 
+.structure_property_name
+{
+    -fx-font-weight: bold;
+    -fx-background-color: ivory;
+    -fx-padding: 2 5 2 5;
+    -fx-background-radius: 2;
+}
+
+.array_property_name
+{
+    -fx-font-weight: bold;
+    -fx-background-color: lemonchiffon;
+    -fx-padding: 2 5 2 5;
+    -fx-background-radius: 2;
+}
+
 .property_name
 {
     -fx-padding: 2 5 2 5;

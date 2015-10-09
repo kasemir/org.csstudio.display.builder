@@ -8,13 +8,14 @@
 package org.csstudio.display.builder.editor.properties;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
+import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
+import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
@@ -34,7 +35,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
-/** Property GUI
+/** Property UI
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -75,7 +76,7 @@ public class PropertyPanel
         return new ScrollPane(box);
     }
 
-    /** Populate GUI with properties of widgets
+    /** Populate UI with properties of widgets
      *  @param widgets Widgets to configure
      */
     public void setSelectedWidgets(final List<Widget> widgets)
@@ -85,27 +86,12 @@ public class PropertyPanel
         if (widgets.size() < 1)
             return;
 
-        // Determine common properties.
-        // Start with first selected widget
+        // Determine common properties
         final List<Widget> other = new ArrayList<>(widgets);
         final Widget primary = other.remove(0);
-        final Set<WidgetProperty<?>> properties = new LinkedHashSet<>(primary.getProperties());
-        // Keep properties shared by other widgets
-        final Iterator<WidgetProperty<?>> iter = properties.iterator();
-        while (iter.hasNext())
-        {
-            WidgetProperty<?> prop = iter.next();
-            for (Widget w : other)
-            {
-                if (! w.hasProperty(prop.getName()))
-                {
-                    iter.remove();
-                    break;
-                }
-            }
-        }
+        final Set<WidgetProperty<?>> properties = commonProperties(primary, other);
 
-        int row = 0;
+        // Add UI items for each property
         WidgetPropertyCategory category = null;
         for (final WidgetProperty<?> property : properties)
         {
@@ -121,97 +107,168 @@ public class PropertyPanel
                 final Label header = new Label(category.getDescription());
                 header.getStyleClass().add("property_category");
                 header.setMaxWidth(Double.MAX_VALUE);
-                grid.add(header, 0, row++, 2, 1);
+                grid.add(header, 0, getNextGridRow(), 2, 1);
             }
 
-            final Label label = new Label(property.getDescription());
-            final Node field;
-            if (property.isReadonly())
-            {
-                final TextField text = new TextField();
-                text.setText(String.valueOf(property.getValue()));
-                text.setEditable(false);
-                field = text;
-            }
-            else if (property instanceof ColorWidgetProperty)
-            {
-                final ColorWidgetProperty color_prop = (ColorWidgetProperty) property;
-                final WidgetColorPropertyField color_field = new WidgetColorPropertyField();
-                final WidgetColorPropertyBinding binding = new WidgetColorPropertyBinding(undo, color_field, color_prop, other);
-                bindings.add(binding);
-                binding.bind();
-                field = color_field;
-            }
-            else if (property instanceof FontWidgetProperty)
-            {
-                final FontWidgetProperty font_prop = (FontWidgetProperty) property;
-                final Button font_field = new Button();
-                font_field.setMaxWidth(Double.MAX_VALUE);
-                final WidgetFontPropertyBinding binding = new WidgetFontPropertyBinding(undo, font_field, font_prop, other);
-                bindings.add(binding);
-                binding.bind();
-                field = font_field;
-            }
-            else if (property instanceof MacrosWidgetProperty)
-            {
-                final MacrosWidgetProperty macros_prop = (MacrosWidgetProperty) property;
-                final Button macros_field = new Button();
-                macros_field.setMaxWidth(Double.MAX_VALUE);
-                final MacrosPropertyBinding binding = new MacrosPropertyBinding(undo, macros_field, macros_prop, other);
-                bindings.add(binding);
-                binding.bind();
-                field = macros_field;
-            }
-            else if (property instanceof ActionsWidgetProperty)
-            {
-                final ActionsWidgetProperty actions_prop = (ActionsWidgetProperty) property;
-                final Button actions_field = new Button();
-                actions_field.setMaxWidth(Double.MAX_VALUE);
-                final ActionsPropertyBinding binding = new ActionsPropertyBinding(undo, actions_field, actions_prop, other);
-                bindings.add(binding);
-                binding.bind();
-                field = actions_field;
-            }
-            else if (property instanceof BooleanWidgetProperty)
-            {
-                final ComboBox<String> check = new ComboBox<>();
-                check.setEditable(true);
-                check.getItems().addAll("true", "false");
-                final BooleanWidgetPropertyBinding binding =
-                        new BooleanWidgetPropertyBinding(undo, check, (BooleanWidgetProperty)property, other);
-                bindings.add(binding);
-                binding.bind();
-                field = check;
-            }
-            else if (property instanceof MacroizedWidgetProperty)
-            {
-                final TextField text = new TextField();
-                final MacroizedWidgetPropertyBinding binding =
-                        new MacroizedWidgetPropertyBinding(undo, text,
-                                                           (MacroizedWidgetProperty<?>)property, other);
-                bindings.add(binding);
-                binding.bind();
-                field = text;
-            }
-            else
-            {
-                // TODO Provide editor for other property types
-                // Defaulting to same as read-only
-                final TextField text = new TextField();
-                text.setText(String.valueOf(property.getValue()));
-                text.setEditable(false);
-                field = text;
-            }
-
-            label.getStyleClass().add("property_name");
-            field.getStyleClass().add("property_value");
-
-            grid.add(label, 0, row);
-            grid.add(field, 1, row++);
+            createPropertyUI(property, other);
         }
     }
 
-    /** Clear the property GUI */
+    /** Determine common properties
+     *  @param primary Primary widget, the one selected first
+     *  @param other Zero or more 'other' widgets
+     *  @return Common properties
+     */
+    private Set<WidgetProperty<?>> commonProperties(final Widget primary, final List<Widget> other)
+    {
+        if (other.contains(primary))
+            throw new IllegalArgumentException("Primary widget " + primary + " included in 'other'");
+
+        // Start with properties of primary widget
+        final Set<WidgetProperty<?>> common = new LinkedHashSet<>(primary.getProperties());
+        // Keep properties shared by other widgets
+        for (Widget w : other)
+            common.removeIf(prop  ->  ! w.hasProperty(prop.getName()));
+        return common;
+    }
+
+    /** @return Next row in grid layout, i.e. row that is not populated */
+    private int getNextGridRow()
+    {
+        // Goal was to avoid a separate 'row' counter.
+        // Depends on nodes being added by rows,
+        // so last node reflects index of last populated row.
+        final List<Node> nodes = grid.getChildren();
+        final int n = nodes.size();
+        if (n <= 0)
+            return 0;
+        final Integer row = GridPane.getRowIndex(nodes.get(n-1));
+        return row == null ? 0 : row.intValue() + 1;
+    }
+
+    /** Add UI items for displaying or editing propery
+     *  @param property Property (on primary widget)
+     *  @param other Zero or more additional widgets that have same type of property
+     */
+    private void createPropertyUI(final WidgetProperty<?> property, final List<Widget> other)
+    {
+        // Skip runtime properties
+        if (property.getCategory() == WidgetPropertyCategory.RUNTIME)
+            return;
+
+        final Label label = new Label(property.getDescription());
+        final Node field;
+        if (property.isReadonly())
+        {
+            final TextField text = new TextField();
+            text.setText(String.valueOf(property.getValue()));
+            text.setEditable(false);
+            field = text;
+        }
+        else if (property instanceof ColorWidgetProperty)
+        {
+            final ColorWidgetProperty color_prop = (ColorWidgetProperty) property;
+            final WidgetColorPropertyField color_field = new WidgetColorPropertyField();
+            final WidgetColorPropertyBinding binding = new WidgetColorPropertyBinding(undo, color_field, color_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = color_field;
+        }
+        else if (property instanceof FontWidgetProperty)
+        {
+            final FontWidgetProperty font_prop = (FontWidgetProperty) property;
+            final Button font_field = new Button();
+            font_field.setMaxWidth(Double.MAX_VALUE);
+            final WidgetFontPropertyBinding binding = new WidgetFontPropertyBinding(undo, font_field, font_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = font_field;
+        }
+        else if (property instanceof MacrosWidgetProperty)
+        {
+            final MacrosWidgetProperty macros_prop = (MacrosWidgetProperty) property;
+            final Button macros_field = new Button();
+            macros_field.setMaxWidth(Double.MAX_VALUE);
+            final MacrosPropertyBinding binding = new MacrosPropertyBinding(undo, macros_field, macros_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = macros_field;
+        }
+        else if (property instanceof ActionsWidgetProperty)
+        {
+            final ActionsWidgetProperty actions_prop = (ActionsWidgetProperty) property;
+            final Button actions_field = new Button();
+            actions_field.setMaxWidth(Double.MAX_VALUE);
+            final ActionsPropertyBinding binding = new ActionsPropertyBinding(undo, actions_field, actions_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = actions_field;
+        }
+        else if (property instanceof BooleanWidgetProperty)
+        {
+            final ComboBox<String> check = new ComboBox<>();
+            check.setEditable(true);
+            check.getItems().addAll("true", "false");
+            final BooleanWidgetPropertyBinding binding =
+                    new BooleanWidgetPropertyBinding(undo, check, (BooleanWidgetProperty)property, other);
+            bindings.add(binding);
+            binding.bind();
+            field = check;
+        }
+        else if (property instanceof MacroizedWidgetProperty)
+        {
+            final TextField text = new TextField();
+            final MacroizedWidgetPropertyBinding binding =
+                    new MacroizedWidgetPropertyBinding(undo, text,
+                                                       (MacroizedWidgetProperty<?>)property, other);
+            bindings.add(binding);
+            binding.bind();
+            field = text;
+        }
+        else if (property instanceof StructuredWidgetProperty)
+        {
+            final StructuredWidgetProperty struct = (StructuredWidgetProperty) property;
+            final Label header = new Label(struct.getDescription());
+            header.getStyleClass().add("structure_property_name");
+            header.setMaxWidth(Double.MAX_VALUE);
+            grid.add(header, 0, getNextGridRow(), 2, 1);
+            for (WidgetProperty<?> elem : struct.getValue())
+                createPropertyUI(elem, other);
+            return;
+        }
+        else if (property instanceof ArrayWidgetProperty)
+        {
+            @SuppressWarnings("unchecked")
+            final ArrayWidgetProperty<WidgetProperty<?>> array = (ArrayWidgetProperty<WidgetProperty<?>>) property;
+            final Label header = new Label(array.getDescription());
+            header.getStyleClass().add("array_property_name");
+            header.setMaxWidth(Double.MAX_VALUE);
+            grid.add(header, 0, getNextGridRow(), 2, 1);
+
+            // TODO Add UI for changing array size
+            for (WidgetProperty<?> elem : array.getValue())
+                createPropertyUI(elem, other);
+            return;
+        }
+        else
+        {
+            // TODO Provide editor for other property types
+            // Defaulting to same as read-only
+            final TextField text = new TextField();
+            text.setText(String.valueOf(property.getValue()));
+            text.setEditable(false);
+            field = text;
+        }
+
+        label.getStyleClass().add("property_name");
+        field.getStyleClass().add("property_value");
+
+        final int row = getNextGridRow();
+        grid.add(label, 0, row);
+        grid.add(field, 1, row);
+    }
+
+    /** Clear the property UI */
     private void clear()
     {
         bindings.forEach(WidgetPropertyBinding::unbind);
