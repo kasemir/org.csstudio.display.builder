@@ -89,6 +89,9 @@ public class EmbeddedDisplayWidget extends BaseWidget
     public EmbeddedDisplayWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
+        // Start out larger than most other widgets
+        positionWidth().setValue(400);
+        positionHeight().setValue(300);
     }
 
     @Override
