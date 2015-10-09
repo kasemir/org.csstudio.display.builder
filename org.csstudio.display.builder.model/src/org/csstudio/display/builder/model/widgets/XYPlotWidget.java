@@ -141,24 +141,21 @@ public class XYPlotWidget extends BaseWidget
             final XYPlotWidget plot = (XYPlotWidget) widget;
             configureAllPropertiesFromMatchingXML(widget, xml);
 
-            // Legacy widget had a "pv_name" property that was basically used as a macro
+            // Legacy widget had a "pv_name" property that was basically used as a macro within the widget
             final String pv_macro = XMLUtil.getChildString(xml, "pv_name").orElse("");
 
-            // "axis_0" was the X axis
+            // "axis_0_*" was the X axis config
             XMLUtil.getChildString(xml, "axis_0_axis_title").ifPresent(title ->
             {
                 final WidgetProperty<String> property = plot.x_axis.title();
                 ((StringWidgetProperty)property).setSpecification(title.replace("$(pv_name)", pv_macro));
             });
             XMLUtil.getChildString(xml, "axis_0_minimum").ifPresent(txt ->
-                plot.x_axis.minimum().setValue(Double.parseDouble(txt))
-            );
+                plot.x_axis.minimum().setValue(Double.parseDouble(txt)) );
             XMLUtil.getChildString(xml, "axis_0_maximum").ifPresent(txt ->
-                plot.x_axis.maximum().setValue(Double.parseDouble(txt))
-            );
+                plot.x_axis.maximum().setValue(Double.parseDouble(txt)) );
             XMLUtil.getChildString(xml, "axis_0_auto_scale").ifPresent(txt ->
-                plot.x_axis.autoscale().setValue(Boolean.parseBoolean(txt))
-            );
+                plot.x_axis.autoscale().setValue(Boolean.parseBoolean(txt)) );
 
             XMLUtil.getChildString(xml, "trace_0_x_pv").ifPresent(pv ->
             {
@@ -171,28 +168,25 @@ public class XYPlotWidget extends BaseWidget
                 ((StringWidgetProperty)property).setSpecification(pv.replace("$(pv_name)", pv_macro));
             });
 
-            Element element = XMLUtil.getChildElement(xml, "trace_0_trace_color");
+            final Element element = XMLUtil.getChildElement(xml, "trace_0_trace_color");
             if (element != null)
                 plot.trace.traceColor().readFromXML(element);
 
-            // "axis_1" was the Y axis, and higher axis could be either X or Y
-            for (int y_count=0, legacy_y=1; /**/; ++legacy_y)
+            // "axis_1_*" was the Y axis, and higher axes could be either X or Y
+            int y_count = 0; // Number of y axes found in legacy config
+            for (int legacy_axis=1; /**/; ++legacy_axis)
             {
-                // Check for "y_axis" (default: true).
+                // Check for "axis_*_y_axis" (default: true).
                 // If _not_, this is an additional X axis which we ignore
-                if (! Boolean.parseBoolean(XMLUtil.getChildString(xml, "axis_" + legacy_y + "_y_axis").orElse("true")))
+                if (! Boolean.parseBoolean(XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_y_axis").orElse("true")))
                         continue;
 
-                // Count actual Y axes, because legacy_y includes skipped X axes
-                ++y_count;
-                final Optional<String> title = XMLUtil.getChildString(xml, "axis_" + legacy_y + "_axis_title");
+                // Done reading legacy Y axes?
+                final Optional<String> title = XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_axis_title");
                 if (! title.isPresent())
-                {   // Remove this and higher Y axes
-                    while (plot.y_axes.size() >= y_count)
-                        plot.y_axes.removeElement();
-                    // Done reading legacy Y axes
                     break;
-                }
+                // Count actual Y axes, because legacy_axis includes skipped X axes
+                ++y_count;
 
                 final AxisWidgetProperty y_axis;
                 if (plot.y_axes.size() < y_count)
@@ -207,15 +201,12 @@ public class XYPlotWidget extends BaseWidget
                     ((StringWidgetProperty)property).setSpecification(title.get().replace("$(pv_name)", pv_macro));
                 }
 
-                XMLUtil.getChildString(xml, "axis_" + legacy_y + "_minimum").ifPresent(txt ->
-                    y_axis.minimum().setValue(Double.parseDouble(txt))
-                );
-                XMLUtil.getChildString(xml, "axis_" + legacy_y + "_maximum").ifPresent(txt ->
-                    y_axis.maximum().setValue(Double.parseDouble(txt))
-                );
-                XMLUtil.getChildString(xml, "axis_" + legacy_y + "_auto_scale").ifPresent(txt ->
-                    y_axis.autoscale().setValue(Boolean.parseBoolean(txt))
-                );
+                XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_minimum").ifPresent(txt ->
+                    y_axis.minimum().setValue(Double.parseDouble(txt)) );
+                XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_maximum").ifPresent(txt ->
+                    y_axis.maximum().setValue(Double.parseDouble(txt)) );
+                XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_auto_scale").ifPresent(txt ->
+                    y_axis.autoscale().setValue(Boolean.parseBoolean(txt)) );
             }
         }
     };
@@ -228,6 +219,9 @@ public class XYPlotWidget extends BaseWidget
     public XYPlotWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
+        // Start out larger than most other widgets
+        positionWidth().setValue(400);
+        positionHeight().setValue(300);
     }
 
     @Override
@@ -244,8 +238,6 @@ public class XYPlotWidget extends BaseWidget
         properties.add(x_axis = new AxisWidgetProperty(behaviorXAxis, this, "X"));
         properties.add(y_axes = behaviorYAxes.createProperty(this, Arrays.asList(new AxisWidgetProperty(behaviorYAxis, this, "Y"))));
         properties.add(trace = new TraceWidgetProperty(this));
-
-        System.out.println("Created y_axes" + y_axes);
     }
 
     /** @return Behavior 'show_legend' */
