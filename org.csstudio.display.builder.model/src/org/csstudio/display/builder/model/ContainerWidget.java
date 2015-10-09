@@ -72,10 +72,12 @@ public class ContainerWidget extends BaseWidget
 
     /** Widget constructor.
      *  @param type Widget type
+     *  @param default_width Default width
+     *  @param default_height .. and height
      */
-    public ContainerWidget(final String type)
+    public ContainerWidget(final String type, final int default_width, final int default_height)
     {
-    	super(type);
+    	super(type, default_width, default_height);
     }
 
     @Override

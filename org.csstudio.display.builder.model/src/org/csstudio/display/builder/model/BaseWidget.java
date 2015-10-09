@@ -20,7 +20,12 @@ public class BaseWidget extends Widget
 
     public BaseWidget(final String type)
     {
-        super(type);
+        this(type, 100, 20);
+    }
+
+    public BaseWidget(final String type, final int default_width, final int default_height)
+    {
+        super(type, default_width, default_height);
     }
 
     /** Called on construction to define widget's properties.

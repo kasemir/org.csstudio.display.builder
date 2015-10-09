@@ -45,7 +45,7 @@ public class DisplayModel extends ContainerWidget
     /** Create display model */
     public DisplayModel()
     {
-        super("display");
+        super("display", 800, 600);
     }
 
     @Override

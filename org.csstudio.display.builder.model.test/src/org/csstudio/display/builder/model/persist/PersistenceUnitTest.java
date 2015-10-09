@@ -218,6 +218,5 @@ public class PersistenceUnitTest
         assertThat(readback.getPropertyValue(CommonWidgetProperties.positionHeight), equalTo(800));
         assertThat(readback.getChildren().size(), equalTo(1));
         assertThat(readback.getChildren().get(0).getPropertyValue(CommonWidgetProperties.positionX), equalTo(42));
-
     }
 }
