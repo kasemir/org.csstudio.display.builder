@@ -136,6 +136,17 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
         firePropertyChange(null, Arrays.asList(element));
     }
 
+    /** Add new element to end of list
+     *  @return Element that was created at end of list
+     */
+    public WPE addElement()
+    {
+        final WPE element =
+                ((Descriptor<WPE>)descriptor).factory.newElement(widget, value.size());
+        addElement(element);
+        return element;
+    }
+
     @Override
     public void setValueFromObject(final Object value) throws Exception
     {

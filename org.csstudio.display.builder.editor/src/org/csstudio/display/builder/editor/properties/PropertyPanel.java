@@ -41,6 +41,10 @@ import javafx.scene.layout.VBox;
 @SuppressWarnings("nls")
 public class PropertyPanel
 {
+    // TODO Extract 'PropertyPanelSection' with grid and bindings
+    // so that elements of Array can have their own section,
+    // which can clear & re-populate as array size changes
+
     private final WidgetSelectionHandler selection;
     private final UndoableActionManager undo;
     private final List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
@@ -107,10 +111,10 @@ public class PropertyPanel
                 final Label header = new Label(category.getDescription());
                 header.getStyleClass().add("property_category");
                 header.setMaxWidth(Double.MAX_VALUE);
-                grid.add(header, 0, getNextGridRow(), 2, 1);
+                grid.add(header, 0, getNextGridRow(grid), 2, 1);
             }
 
-            createPropertyUI(property, other);
+            createPropertyUI(grid, property, other);
         }
     }
 
@@ -132,8 +136,10 @@ public class PropertyPanel
         return common;
     }
 
-    /** @return Next row in grid layout, i.e. row that is not populated */
-    private int getNextGridRow()
+    /** @param grid GridPane
+     *  @return Next row in grid layout, i.e. row that is not populated
+     */
+    private int getNextGridRow(final GridPane grid)
     {
         // Goal was to avoid a separate 'row' counter.
         // Depends on nodes being added by rows,
@@ -147,10 +153,11 @@ public class PropertyPanel
     }
 
     /** Add UI items for displaying or editing propery
+     *  @param grid GridPane
      *  @param property Property (on primary widget)
      *  @param other Zero or more additional widgets that have same type of property
      */
-    private void createPropertyUI(final WidgetProperty<?> property, final List<Widget> other)
+    private void createPropertyUI(final GridPane grid, final WidgetProperty<?> property, final List<Widget> other)
     {
         // Skip runtime properties
         if (property.getCategory() == WidgetPropertyCategory.RUNTIME)
@@ -231,28 +238,43 @@ public class PropertyPanel
             final Label header = new Label(struct.getDescription());
             header.getStyleClass().add("structure_property_name");
             header.setMaxWidth(Double.MAX_VALUE);
-            grid.add(header, 0, getNextGridRow(), 2, 1);
+            grid.add(header, 0, getNextGridRow(grid), 2, 1);
             for (WidgetProperty<?> elem : struct.getValue())
-                createPropertyUI(elem, other);
+                createPropertyUI(grid, elem, other);
             return;
         }
         else if (property instanceof ArrayWidgetProperty)
         {
             @SuppressWarnings("unchecked")
             final ArrayWidgetProperty<WidgetProperty<?>> array = (ArrayWidgetProperty<WidgetProperty<?>>) property;
+
+            // Header for the array property
             final Label header = new Label(array.getDescription());
             header.getStyleClass().add("array_property_name");
             header.setMaxWidth(Double.MAX_VALUE);
-            grid.add(header, 0, getNextGridRow(), 2, 1);
+            int row = getNextGridRow(grid);
+            grid.add(header, 0, row++, 2, 1);
 
-            // TODO Add UI for changing array size
-            for (WidgetProperty<?> elem : array.getValue())
-                createPropertyUI(elem, other);
+            // UI for changing array size
+            grid.add(new Label("Axis Count"), 0, row);
+            final TextField count = new TextField();
+            grid.add(count, 1, row);
+
+            final GridPane array_grid = new GridPane();
+
+            final ArraySizePropertyBinding count_binding = new ArraySizePropertyBinding(undo, count, array, other);
+            bindings.add(count_binding);
+            count_binding.bind();
+
+            createArrayElementUI(array_grid, array, other);
+
+            grid.add(array_grid, 0, row+1, 2, 1);
+
             return;
         }
         else
         {
-            // TODO Provide editor for other property types
+            // TODO Provide editor for other property types: Script.
             // Defaulting to same as read-only
             final TextField text = new TextField();
             text.setText(String.valueOf(property.getValue()));
@@ -263,9 +285,18 @@ public class PropertyPanel
         label.getStyleClass().add("property_name");
         field.getStyleClass().add("property_value");
 
-        final int row = getNextGridRow();
+        final int row = getNextGridRow(grid);
         grid.add(label, 0, row);
         grid.add(field, 1, row);
+    }
+
+    private void createArrayElementUI(final GridPane array_grid,
+            final ArrayWidgetProperty<WidgetProperty<?>> array, final List<Widget> other)
+    {
+        // TODO 'bindings' of the array elements need to be separate so they can unbind/rebind as array size changes
+        array_grid.getChildren().clear();
+        for (WidgetProperty<?> elem : array.getValue())
+            createPropertyUI(array_grid, elem, other);
     }
 
     /** Clear the property UI */
