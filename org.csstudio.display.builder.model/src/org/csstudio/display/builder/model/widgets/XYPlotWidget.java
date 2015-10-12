@@ -113,7 +113,7 @@ public class XYPlotWidget extends BaseWidget
 
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR
-        = new WidgetDescriptor("xyplot", WidgetCategory.MONITOR,
+        = new WidgetDescriptor("xyplot", WidgetCategory.PLOT,
                 Messages.XYPlotWidget_Name,
                 "platform:/plugin/org.csstudio.display.builder.model/icons/xyplot.png",
                 Messages.XYPlotWidget_Description,
