@@ -10,6 +10,8 @@ package org.csstudio.display.builder.model.properties;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamWriter;
 
@@ -53,7 +55,7 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
     @Override
     public void writeToXML(final XMLStreamWriter writer) throws Exception
     {
-        // <script path="..">
+        // <script file="..">
         //   <pv trigger="true">pv_name</pv>
         // </script>
         for (final ScriptInfo info : value)
@@ -99,6 +101,9 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
             String file = xml.getAttribute(XMLTags.FILE);
             if (file.isEmpty())
                 file = xml.getAttribute("pathString");
+            if (file.isEmpty())
+                Logger.getLogger(getClass().getName())
+                      .log(Level.WARNING, "Missing script 'file'");
 
             // Script content embedded in XML?
             Element text_xml = XMLUtil.getChildElement(xml, XMLTags.TEXT);
