@@ -22,10 +22,11 @@ public class Settings
 //        "example.opi";
 //        "legacy.opi";
 //        "legacy_embed.opi";
-        "https://webopi.sns.gov/webopi/opi/Instruments.opi";
+//        "https://webopi.sns.gov/webopi/opi/Instruments.opi";
 //        "image.opi";
 //          "embedded_script.opi";
 //        "main.opi";
+          "demo.opi";
 
     public static void setup() throws Exception
     {

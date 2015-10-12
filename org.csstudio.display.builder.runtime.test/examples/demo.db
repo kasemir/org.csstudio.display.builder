@@ -5,9 +5,37 @@ record(calc, "ramp")
     field(CALC, "A<100?A+1:0")
 }
 
+record(compress, "waveform_y")
+{
+    field(INP,  "ramp CP")
+    field(ALG,  "Circular Buffer")
+    field(NSAM, "500")
+}
+
 record(calc, "noise")
 {
     field(SCAN, ".1 second")
     field(CALC, "RNDM")
 }
+
+record(calc, "fill_x")
+{
+    field(SCAN, ".1 second")
+    field(INPA, "fill_x")
+    field(CALC, "A<500?A+1:A")
+}
+
+record(compress, "waveform_x")
+{
+    field(INP,  "fill_x CP")
+    field(ALG,  "Circular Buffer")
+    field(NSAM, "500")
+}
+
+record(calc, "on_off")
+{
+    field(INPA, "ramp CP")
+    field(CALC, "A > 50")
+}
+
 
