@@ -22,6 +22,7 @@ Dependencies
  * Java 8 SDK, must be 8u40 or later
  * In Eclipse Preferences, Java, Build Path, Classpath Variables: Set `JFXSWT` to `jre/lib/jfxswt.jar`
  * As Eclipse Target platform, use a CS-Studio target. For example use "Directory" of CSS product's `plugins/`
+ * In product start config, set VM option "-Dpython.import.site=false"
  * Demos use EPICS `softIoc` for `org.csstudio.display.builder.runtime.test/examples/demo.db`
  * Install the "Liberation" fonts from https://fedorahosted.org/liberation-fonts.
    Mac OS X: Double-click each *.ttf to preview, then click "Install Font".
