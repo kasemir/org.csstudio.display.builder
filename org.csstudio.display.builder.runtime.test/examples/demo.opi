@@ -77,7 +77,7 @@
     <widget type="progressbar" version="1.0.0">
       <name>Progress Bar</name>
       <x>141</x>
-      <y>42</y>
+      <y>54</y>
       <width>247</width>
       <height>27</height>
       <pv_name>ramp</pv_name>
@@ -104,7 +104,7 @@
       <x>342</x>
       <y>7</y>
       <width>81</width>
-      <height>26</height>
+      <height>37</height>
       <text>Clear</text>
       <actions>
         <action type="write_pv">
@@ -117,7 +117,7 @@
     <widget type="rectangle" version="1.0.0">
       <name>Rectangle</name>
       <x>3</x>
-      <y>42</y>
+      <y>54</y>
       <scripts>
         <script file="fudge_width.py">
           <pv_name>ramp</pv_name>

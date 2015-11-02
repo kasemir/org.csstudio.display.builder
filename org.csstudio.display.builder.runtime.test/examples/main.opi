@@ -14,14 +14,13 @@
     <macros>
       <SHOW>true</SHOW>
     </macros>
-    <x>$(INSET)</x>
-    <y>$(INSET)</y>
+    <x>10</x>
+    <y>10</y>
     <width>500</width>
-    <height>450</height>
+    <height>502</height>
     <widget type="label" version="1.0.0">
       <name>Hello</name>
       <y>4</y>
-      <width>100</width>
       <height>15</height>
       <text>$(TEXT)</text>
     </widget>
@@ -29,7 +28,6 @@
       <name>Hello2</name>
       <x>200</x>
       <y>4</y>
-      <width>100</width>
       <height>15</height>
       <text>Some text</text>
     </widget>
@@ -40,8 +38,6 @@
       </macros>
       <x>10</x>
       <y>30</y>
-      <width>400</width>
-      <height>300</height>
       <file>main_embedded.opi</file>
     </widget>
     <widget type="action_button" version="1.0.0">
@@ -51,7 +47,7 @@
       </macros>
       <x>10</x>
       <y>350</y>
-      <height>25</height>
+      <height>45</height>
       <text>Other</text>
       <actions>
         <action type="open_display">
@@ -67,15 +63,16 @@
     <widget type="textentry" version="1.0.0">
       <name>Text 1</name>
       <x>10</x>
-      <y>375</y>
-      <height>25</height>
+      <y>422</y>
+      <width>136</width>
+      <height>26</height>
       <pv_name>ramp</pv_name>
     </widget>
     <widget type="action_button" version="1.0.0">
       <name>Action 2</name>
-      <x>150</x>
-      <y>375</y>
-      <height>25</height>
+      <x>146</x>
+      <y>350</y>
+      <height>45</height>
       <text>Reset</text>
       <actions>
         <action type="write_pv">
@@ -87,9 +84,10 @@
     </widget>
     <widget type="led" version="1.0.0">
       <name>LED</name>
-      <x>316</x>
-      <y>375</y>
-      <width>20</width>
+      <x>312</x>
+      <y>369</y>
+      <width>24</width>
+      <height>26</height>
       <off_color>
         <color name="Off" red="60" green="100" blue="60">
         </color>
