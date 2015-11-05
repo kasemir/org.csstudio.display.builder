@@ -10,7 +10,6 @@ package org.csstudio.display.builder.editor.properties;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
@@ -38,13 +37,16 @@ import javafx.scene.layout.Priority;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class PropertyPanelSection
+public class PropertyPanelSection extends GridPane
 {
     private final List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
-    private final List<Node> nodes = new ArrayList<>();
 
-    public void fill(final GridPane grid,
-					 final UndoableActionManager undo,
+    public PropertyPanelSection()
+    {
+
+    }
+
+    public void fill(final UndoableActionManager undo,
 		    		 final Collection<WidgetProperty<?>> properties,
 		    		 final List<Widget> other,
 		    		 final boolean show_categories)
@@ -66,23 +68,20 @@ public class PropertyPanelSection
                 final Label header = new Label(category.getDescription());
                 header.getStyleClass().add("property_category");
                 header.setMaxWidth(Double.MAX_VALUE);
-                grid.add(header, 0, getNextGridRow(grid), 2, 1);
-                nodes.add(header);
+                add(header, 0, getNextGridRow(), 2, 1);
             }
 
-            createPropertyUI(grid, undo, property, other);
+            createPropertyUI(undo, property, other);
         }
     }
 
-    /** @param grid GridPane
-     *  @return Next row in grid layout, i.e. row that is not populated
-     */
-    private int getNextGridRow(final GridPane grid)
+    /** @return Next row in grid layout, i.e. row that is not populated */
+    private int getNextGridRow()
     {
         // Goal was to avoid a separate 'row' counter.
         // Depends on nodes being added by rows,
         // so last node reflects index of last populated row.
-        final List<Node> nodes = grid.getChildren();
+        final List<Node> nodes = getChildren();
         final int n = nodes.size();
         if (n <= 0)
             return 0;
@@ -91,11 +90,10 @@ public class PropertyPanelSection
     }
 
     /** Add UI items for displaying or editing property
-     *  @param grid 
      *  @param property Property (on primary widget)
      *  @param other Zero or more additional widgets that have same type of property
      */
-    private void createPropertyUI(final GridPane grid, final UndoableActionManager undo,
+    private void createPropertyUI(final UndoableActionManager undo,
     							  final WidgetProperty<?> property,
     							  final List<Widget> other)
     {
@@ -179,10 +177,9 @@ public class PropertyPanelSection
             final Label header = new Label(struct.getDescription());
             header.getStyleClass().add("structure_property_name");
             header.setMaxWidth(Double.MAX_VALUE);
-            grid.add(header, 0, getNextGridRow(grid), 2, 1);
-            nodes.add(header);
+            add(header, 0, getNextGridRow(), 2, 1);
             for (WidgetProperty<?> elem : struct.getValue())
-                createPropertyUI(grid, undo, elem, other);
+                createPropertyUI(undo, elem, other);
             return;
         }
         else if (property instanceof ArrayWidgetProperty)
@@ -195,7 +192,7 @@ public class PropertyPanelSection
             // because otherwise grid items that follow the array
             // elements would need to move to new grid rows
             // as array is resized.
-            
+
             label.setMaxWidth(Double.MAX_VALUE);
             // TODO UI for changing array size
             final Button add = new Button("+");
@@ -204,21 +201,20 @@ public class PropertyPanelSection
             HBox.setHgrow(label, Priority.ALWAYS);
             header.getStyleClass().add("array_property_name");
 
-            int row = getNextGridRow(grid);
-            grid.add(header, 0, row++, 2, 1);
-            nodes.add(header);
+            int row = getNextGridRow();
+            add(header, 0, row++, 2, 1);
 
             // TODO Update array section, remove it, ..
             PropertyPanelSection array_section = new  PropertyPanelSection();
-            array_section.fill(grid, undo, array.getValue(), other, false);
-            
+            array_section.fill(undo, array.getValue(), other, false);
+
 //            final ArraySizePropertyBinding count_binding = new ArraySizePropertyBinding(undo, count, array, other);
 //            bindings.add(count_binding);
 //            count_binding.bind();
-//
-//            createArrayElementUI(array_grid, array, other);
-//
-//            grid.add(array_grid, 0, row+1, 2, 1);
+
+            array_section.getStyleClass().add("debug");
+
+            add(array_section, 0, row+1, 2, 1);
 
             return;
         }
@@ -235,28 +231,16 @@ public class PropertyPanelSection
         label.getStyleClass().add("property_name");
         field.getStyleClass().add("property_value");
 
-        final int row = getNextGridRow(grid);
-        grid.add(label, 0, row);
-        grid.add(field, 1, row);
-        nodes.add(label);
-        nodes.add(field);
+        final int row = getNextGridRow();
+        add(label, 0, row);
+        add(field, 1, row);
     }
 
-//    private void createArrayElementUI(final GridPane array_grid,
-//            final ArrayWidgetProperty<WidgetProperty<?>> array, final List<Widget> other)
-//    {
-//        // TODO 'bindings' of the array elements need to be separate so they can unbind/rebind as array size changes
-//        array_grid.getChildren().clear();
-//        for (WidgetProperty<?> elem : array.getValue())
-//            createPropertyUI(array_grid, elem, other);
-//    }
-
-    
     /** Clear the property UI */
-    public void clear(final GridPane grid)
+    public void clear()
     {
         bindings.forEach(WidgetPropertyBinding::unbind);
         bindings.clear();
-		grid.getChildren().removeAll(nodes);
+		getChildren().clear();
     }
 }

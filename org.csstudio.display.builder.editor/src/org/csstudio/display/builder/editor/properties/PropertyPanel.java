@@ -17,23 +17,19 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
 /** Property UI
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class PropertyPanel
+public class PropertyPanel extends ScrollPane
 {
     private final UndoableActionManager undo;
-    private final GridPane grid = new GridPane();
-    private final ScrollPane top_node;
     private final PropertyPanelSection section = new PropertyPanelSection();
-    
+
     /** @param selection Selection handler
      *  @param undo 'Undo' manager
      */
@@ -45,19 +41,11 @@ public class PropertyPanel
         header.setMaxWidth(Double.MAX_VALUE);
         header.getStyleClass().add("header");
 
-        final VBox box = new VBox(header, grid);
-        top_node = new ScrollPane(box);
+        final VBox box = new VBox(header, section);
+        setContent(box);
 
         // Track currently selected widgets
         selection.addListener(this::setSelectedWidgets);
-    }
-
-    /** Create UI components
-     *  @return Root {@link Node}
-     */
-    public Node getNode()
-    {
-        return top_node;
     }
 
     /** Populate UI with properties of widgets
@@ -65,7 +53,7 @@ public class PropertyPanel
      */
     private void setSelectedWidgets(final List<Widget> widgets)
     {
-    	section.clear(grid);
+    	section.clear();
 
         if (widgets.size() < 1)
             return;
@@ -74,7 +62,7 @@ public class PropertyPanel
         final List<Widget> other = new ArrayList<>(widgets);
         final Widget primary = other.remove(0);
         final Set<WidgetProperty<?>> properties = commonProperties(primary, other);
-        section.fill(grid, undo, properties, other, true);
+        section.fill(undo, properties, other, true);
     }
 
     /** Determine common properties
