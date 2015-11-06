@@ -13,9 +13,9 @@ import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
-import org.epics.vtype.Display;
-import org.epics.vtype.VType;
-import org.epics.vtype.ValueUtil;
+import org.diirt.vtype.Display;
+import org.diirt.vtype.VType;
+import org.diirt.vtype.ValueUtil;
 
 import javafx.scene.Group;
 import javafx.scene.Node;

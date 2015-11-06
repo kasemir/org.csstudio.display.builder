@@ -23,7 +23,7 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.epics.vtype.VType;
+import org.diirt.vtype.VType;
 
 /** Widget that displays an LED which reflects the enumerated state of a PV
  *  @author Kay Kasemir

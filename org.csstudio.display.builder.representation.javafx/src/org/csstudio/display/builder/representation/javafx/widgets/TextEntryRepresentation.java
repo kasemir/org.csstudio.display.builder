@@ -13,7 +13,7 @@ import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
-import org.epics.vtype.VType;
+import org.diirt.vtype.VType;
 
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;

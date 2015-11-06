@@ -18,10 +18,10 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ImageWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
-import org.epics.util.array.IteratorNumber;
-import org.epics.util.array.ListNumber;
-import org.epics.vtype.VNumberArray;
-import org.epics.vtype.VType;
+import org.diirt.util.array.IteratorNumber;
+import org.diirt.util.array.ListNumber;
+import org.diirt.vtype.VNumberArray;
+import org.diirt.vtype.VType;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Group;

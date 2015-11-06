@@ -22,8 +22,8 @@ import org.csstudio.javafx.rtplot.RTValuePlot;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.TraceType;
 import org.csstudio.javafx.rtplot.YAxis;
-import org.epics.vtype.VNumberArray;
-import org.epics.vtype.VType;
+import org.diirt.vtype.VNumberArray;
+import org.diirt.vtype.VType;
 
 import javafx.scene.Group;
 import javafx.scene.Node;

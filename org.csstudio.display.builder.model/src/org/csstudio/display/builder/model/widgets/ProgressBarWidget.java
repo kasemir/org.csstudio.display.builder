@@ -24,7 +24,7 @@ import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.epics.vtype.VType;
+import org.diirt.vtype.VType;
 
 /** Widget that displays a progress bar
  *  @author Kay Kasemir

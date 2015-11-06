@@ -9,10 +9,10 @@ package org.csstudio.display.builder.model.util;
 
 import java.text.NumberFormat;
 
-import org.epics.vtype.VEnum;
-import org.epics.vtype.VNumber;
-import org.epics.vtype.VString;
-import org.epics.vtype.VType;
+import org.diirt.vtype.VEnum;
+import org.diirt.vtype.VNumber;
+import org.diirt.vtype.VString;
+import org.diirt.vtype.VType;
 
 /** Utility for displaying VType data.
  *  @author Kay Kasemir

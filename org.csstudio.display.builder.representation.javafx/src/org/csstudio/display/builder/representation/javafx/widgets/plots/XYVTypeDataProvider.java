@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.data.PlotDataProvider;
 import org.csstudio.javafx.rtplot.data.SimpleDataItem;
-import org.epics.util.array.ListNumber;
+import org.diirt.util.array.ListNumber;
 
 /** Data provider for RTPlot
  *  @author Kay Kasemir

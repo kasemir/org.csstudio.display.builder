@@ -26,7 +26,7 @@ import org.csstudio.display.builder.runtime.script.RuntimeScriptHandler;
 import org.csstudio.vtype.pv.PV;
 import org.csstudio.vtype.pv.PVListener;
 import org.csstudio.vtype.pv.PVPool;
-import org.epics.vtype.VType;
+import org.diirt.vtype.VType;
 
 /** Runtime for a Widget.
  *

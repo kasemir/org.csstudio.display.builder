@@ -25,7 +25,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
-import org.epics.vtype.VType;
+import org.diirt.vtype.VType;
 
 /** Widget that displays a changing text
  *  @author Kay Kasemir

@@ -26,7 +26,7 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
-import org.epics.vtype.VType;
+import org.diirt.vtype.VType;
 
 /** Widget that displays an image
  *  @author Kay Kasemir

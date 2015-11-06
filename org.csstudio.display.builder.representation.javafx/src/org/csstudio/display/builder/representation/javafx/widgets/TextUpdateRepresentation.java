@@ -13,7 +13,7 @@ import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
-import org.epics.vtype.VType;
+import org.diirt.vtype.VType;
 
 import javafx.geometry.Insets;
 import javafx.scene.Group;

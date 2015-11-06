@@ -16,7 +16,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
-import org.epics.vtype.VType;
+import org.diirt.vtype.VType;
 
 /** Common widget properties.
  *

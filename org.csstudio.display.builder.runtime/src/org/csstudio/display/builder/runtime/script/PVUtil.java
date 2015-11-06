@@ -11,7 +11,7 @@ import java.util.Objects;
 
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.vtype.pv.PV;
-import org.epics.vtype.VType;
+import org.diirt.vtype.VType;
 
 /** Utility for handling PVs and their values in scripts
  *

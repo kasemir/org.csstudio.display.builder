@@ -22,7 +22,7 @@ import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.vtype.pv.PV;
 import org.csstudio.vtype.pv.PVListener;
 import org.csstudio.vtype.pv.PVPool;
-import org.epics.vtype.VType;
+import org.diirt.vtype.VType;
 
 /** Handler for one script of a widget.
  *
