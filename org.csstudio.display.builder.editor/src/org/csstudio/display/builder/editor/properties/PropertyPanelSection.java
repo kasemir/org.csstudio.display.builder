@@ -28,6 +28,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -51,6 +52,7 @@ public class PropertyPanelSection extends GridPane
 		    		 final List<Widget> other,
 		    		 final boolean show_categories)
     {
+        clear();
         // Add UI items for each property
         WidgetPropertyCategory category = null;
         for (final WidgetProperty<?> property : properties)
@@ -172,7 +174,6 @@ public class PropertyPanelSection extends GridPane
         }
         else if (property instanceof StructuredWidgetProperty)
         {
-        	// TODO recurse into another PropertyPanelSection?
             final StructuredWidgetProperty struct = (StructuredWidgetProperty) property;
             final Label header = new Label(struct.getDescription());
             header.getStyleClass().add("structure_property_name");
@@ -187,34 +188,23 @@ public class PropertyPanelSection extends GridPane
             @SuppressWarnings("unchecked")
             final ArrayWidgetProperty<WidgetProperty<?>> array = (ArrayWidgetProperty<WidgetProperty<?>>) property;
 
-            // TODO Create new 'grid' node for the array elements
-            // Array elements cannot be in the original grid
-            // because otherwise grid items that follow the array
-            // elements would need to move to new grid rows
-            // as array is resized.
-
+            // UI for changing array size
             label.setMaxWidth(Double.MAX_VALUE);
-            // TODO UI for changing array size
-            final Button add = new Button("+");
-            final Button remove = new Button("-");
-            final HBox header = new HBox(label, add, remove);
+            final Spinner<Integer> spinner = new Spinner<>(1, 100, 0);
+            final HBox header = new HBox(label, spinner);
             HBox.setHgrow(label, Priority.ALWAYS);
             header.getStyleClass().add("array_property_name");
 
+            // Sub-panel for array elements
+            final PropertyPanelSection array_section = new PropertyPanelSection();
+            array_section.getStyleClass().add("debug");
+            final ArraySizePropertyBinding count_binding = new ArraySizePropertyBinding(array_section, undo, spinner, array, other);
+            bindings.add(count_binding);
+            count_binding.bind();
+
             int row = getNextGridRow();
             add(header, 0, row++, 2, 1);
-
-            // TODO Update array section, remove it, ..
-            PropertyPanelSection array_section = new  PropertyPanelSection();
-            array_section.fill(undo, array.getValue(), other, false);
-
-//            final ArraySizePropertyBinding count_binding = new ArraySizePropertyBinding(undo, count, array, other);
-//            bindings.add(count_binding);
-//            count_binding.bind();
-
-            array_section.getStyleClass().add("debug");
-
-            add(array_section, 0, row+1, 2, 1);
+            add(array_section, 0, row, 2, 1);
 
             return;
         }
