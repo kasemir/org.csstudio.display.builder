@@ -35,19 +35,19 @@ import org.diirt.vtype.VType;
 public class TextUpdateWidget extends BaseWidget
 {
     /** Widget descriptor */
-    public static final WidgetDescriptor WIDGET_DESCRIPTOR
-        = new WidgetDescriptor("textupdate", WidgetCategory.MONITOR,
-                Messages.TextUpdateWidget_Name,
-                "platform:/plugin/org.csstudio.display.builder.model/icons/textupdate.png",
-                Messages.TextUpdateWidget_Description,
-                Arrays.asList("org.csstudio.opibuilder.widgets.TextUpdate"))
+    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+        new WidgetDescriptor("textupdate", WidgetCategory.MONITOR,
+            Messages.TextUpdateWidget_Name,
+            "platform:/plugin/org.csstudio.display.builder.model/icons/textupdate.png",
+            Messages.TextUpdateWidget_Description,
+            Arrays.asList("org.csstudio.opibuilder.widgets.TextUpdate"))
+    {
+        @Override
+        public Widget createWidget()
         {
-            @Override
-            public Widget createWidget()
-            {
-                return new TextUpdateWidget();
-            }
-        };
+            return new TextUpdateWidget();
+        }
+    };
 
     private WidgetProperty<String> pv_name;
     private WidgetProperty<WidgetColor> foreground;

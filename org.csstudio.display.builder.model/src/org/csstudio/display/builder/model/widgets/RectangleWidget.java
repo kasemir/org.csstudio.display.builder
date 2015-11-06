@@ -24,19 +24,19 @@ import org.csstudio.display.builder.model.WidgetProperty;
 public class RectangleWidget extends BaseWidget
 {
     /** Widget descriptor */
-    public static final WidgetDescriptor WIDGET_DESCRIPTOR
-        = new WidgetDescriptor("rectangle", WidgetCategory.GRAPHIC,
-                Messages.RectangleWidget_Name,
-                "platform:/plugin/org.csstudio.display.builder.model/icons/rectangle.png",
-                Messages.RectangleWidget_Description,
-                Arrays.asList("org.csstudio.opibuilder.widgets.Rectangle"))
+    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+        new WidgetDescriptor("rectangle", WidgetCategory.GRAPHIC,
+            Messages.RectangleWidget_Name,
+            "platform:/plugin/org.csstudio.display.builder.model/icons/rectangle.png",
+            Messages.RectangleWidget_Description,
+            Arrays.asList("org.csstudio.opibuilder.widgets.Rectangle"))
+    {
+        @Override
+        public Widget createWidget()
         {
-            @Override
-            public Widget createWidget()
-            {
-                return new RectangleWidget();
-            }
-        };
+            return new RectangleWidget();
+        }
+    };
 
     public RectangleWidget()
     {

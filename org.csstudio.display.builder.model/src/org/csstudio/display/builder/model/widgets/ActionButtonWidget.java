@@ -28,19 +28,19 @@ import org.csstudio.display.builder.model.macros.Macros;
 public class ActionButtonWidget extends BaseWidget
 {
     /** Widget descriptor */
-    public static final WidgetDescriptor WIDGET_DESCRIPTOR
-        = new WidgetDescriptor("action_button", WidgetCategory.CONTROL,
-                Messages.ActionButtonWidget_Name,
-                "platform:/plugin/org.csstudio.display.builder.model/icons/action_button.png",
-                Messages.ActionButtonWidget_Description,
-                Arrays.asList("org.csstudio.opibuilder.widgets.ActionButton"))
+    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+        new WidgetDescriptor("action_button", WidgetCategory.CONTROL,
+            Messages.ActionButtonWidget_Name,
+            "platform:/plugin/org.csstudio.display.builder.model/icons/action_button.png",
+            Messages.ActionButtonWidget_Description,
+            Arrays.asList("org.csstudio.opibuilder.widgets.ActionButton"))
+    {
+        @Override
+        public Widget createWidget()
         {
-            @Override
-            public Widget createWidget()
-            {
-                return new ActionButtonWidget();
-            }
-        };
+            return new ActionButtonWidget();
+        }
+    };
 
     private WidgetProperty<Macros> macros;
     private WidgetProperty<String> text;

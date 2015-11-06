@@ -45,19 +45,19 @@ public class EmbeddedDisplayWidget extends BaseWidget
 
 
     /** Widget descriptor */
-    public static final WidgetDescriptor WIDGET_DESCRIPTOR
-        = new WidgetDescriptor("embedded", WidgetCategory.STRUCTURE,
-                Messages.EmbeddedDisplayWidget_Name,
-                "platform:/plugin/org.csstudio.display.builder.model/icons/embedded.png",
-                Messages.EmbeddedDisplayWidget_Description,
-                Arrays.asList("org.csstudio.opibuilder.widgets.linkingContainer"))
+    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+        new WidgetDescriptor("embedded", WidgetCategory.STRUCTURE,
+            Messages.EmbeddedDisplayWidget_Name,
+            "platform:/plugin/org.csstudio.display.builder.model/icons/embedded.png",
+            Messages.EmbeddedDisplayWidget_Description,
+            Arrays.asList("org.csstudio.opibuilder.widgets.linkingContainer"))
+    {
+        @Override
+        public Widget createWidget()
         {
-            @Override
-            public Widget createWidget()
-            {
-                return new EmbeddedDisplayWidget();
-            }
-        };
+            return new EmbeddedDisplayWidget();
+        }
+    };
 
     /** Custom configurator to read legacy *.opi files */
     private static class EmbeddedDisplayWidgetConfigurator extends WidgetConfigurator

@@ -45,19 +45,19 @@ import org.csstudio.display.builder.model.properties.WidgetFont;
 public class GroupWidget extends ContainerWidget
 {
     /** Widget descriptor */
-    public static final WidgetDescriptor WIDGET_DESCRIPTOR
-        = new WidgetDescriptor("group", WidgetCategory.STRUCTURE,
-                Messages.GroupWidget_Name,
-                "platform:/plugin/org.csstudio.display.builder.model/icons/group.png",
-                Messages.GroupWidget_Description,
-                Arrays.asList("org.csstudio.opibuilder.widgets.groupingContainer"))
+    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+        new WidgetDescriptor("group", WidgetCategory.STRUCTURE,
+            Messages.GroupWidget_Name,
+            "platform:/plugin/org.csstudio.display.builder.model/icons/group.png",
+            Messages.GroupWidget_Description,
+            Arrays.asList("org.csstudio.opibuilder.widgets.groupingContainer"))
+    {
+        @Override
+        public Widget createWidget()
         {
-            @Override
-            public Widget createWidget()
-            {
-                return new GroupWidget();
-            }
-        };
+            return new GroupWidget();
+        }
+    };
 
     private WidgetProperty<Macros> macros;
     private WidgetProperty<WidgetColor> background;

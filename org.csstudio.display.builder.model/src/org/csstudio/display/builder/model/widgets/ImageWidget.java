@@ -35,19 +35,19 @@ import org.diirt.vtype.VType;
 public class ImageWidget extends BaseWidget
 {
     /** Widget descriptor */
-    public static final WidgetDescriptor WIDGET_DESCRIPTOR
-        = new WidgetDescriptor("image", WidgetCategory.MONITOR,
-                Messages.ImageWidget_Name,
-                "platform:/plugin/org.csstudio.display.builder.model/icons/image.png",
-                Messages.ImageWidget_Description,
-                Arrays.asList("org.csstudio.opibuilder.widgets.intensityGraph"))
+    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+        new WidgetDescriptor("image", WidgetCategory.MONITOR,
+            Messages.ImageWidget_Name,
+            "platform:/plugin/org.csstudio.display.builder.model/icons/image.png",
+            Messages.ImageWidget_Description,
+            Arrays.asList("org.csstudio.opibuilder.widgets.intensityGraph"))
+    {
+        @Override
+        public Widget createWidget()
         {
-            @Override
-            public Widget createWidget()
-            {
-                return new ImageWidget();
-            }
-        };
+            return new ImageWidget();
+        }
+    };
 
     private static final WidgetPropertyDescriptor<Integer> dataWidth =
         new WidgetPropertyDescriptor<Integer>(

@@ -61,8 +61,8 @@ public class ActionUtil
         {
             // Path to resolve, after expanding macros of source widget and action
             final Macros macros = Macros.merge(source_widget.getEffectiveMacros(), action.getMacros());
-            logger.log(Level.FINER, "{0}, effective macros {1}", new Object[] { action, macros });
             final String expanded_path = MacroHandler.replace(macros, action.getFile());
+            logger.log(Level.FINER, "{0}, effective macros {1} ({2})", new Object[] { action, macros, expanded_path });
 
             // Resolve new display file relative to the source widget model (not 'top'!)
             final DisplayModel widget_model = source_widget.getDisplayModel();

@@ -34,19 +34,19 @@ import org.diirt.vtype.VType;
 public class TextEntryWidget extends BaseWidget
 {
     /** Widget descriptor */
-    public static final WidgetDescriptor WIDGET_DESCRIPTOR
-        = new WidgetDescriptor("textentry", WidgetCategory.CONTROL,
-                Messages.TextEntryWidget_Name,
-                "platform:/plugin/org.csstudio.display.builder.model/icons/textentry.png",
-                Messages.TextEntryWidget_Description,
-                Arrays.asList("org.csstudio.opibuilder.widgets.TextInput"))
+    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+        new WidgetDescriptor("textentry", WidgetCategory.CONTROL,
+            Messages.TextEntryWidget_Name,
+            "platform:/plugin/org.csstudio.display.builder.model/icons/textentry.png",
+            Messages.TextEntryWidget_Description,
+            Arrays.asList("org.csstudio.opibuilder.widgets.TextInput"))
+    {
+        @Override
+        public Widget createWidget()
         {
-            @Override
-            public Widget createWidget()
-            {
-                return new TextEntryWidget();
-            }
-        };
+            return new TextEntryWidget();
+        }
+    };
 
     private WidgetProperty<String> pv_name;
     private WidgetProperty<WidgetColor> background;

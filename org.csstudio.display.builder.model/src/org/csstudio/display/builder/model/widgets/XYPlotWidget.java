@@ -112,19 +112,19 @@ public class XYPlotWidget extends BaseWidget
 
 
     /** Widget descriptor */
-    public static final WidgetDescriptor WIDGET_DESCRIPTOR
-        = new WidgetDescriptor("xyplot", WidgetCategory.PLOT,
-                Messages.XYPlotWidget_Name,
-                "platform:/plugin/org.csstudio.display.builder.model/icons/xyplot.png",
-                Messages.XYPlotWidget_Description,
-                Arrays.asList("org.csstudio.opibuilder.widgets.xyGraph"))
+    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+        new WidgetDescriptor("xyplot", WidgetCategory.PLOT,
+            Messages.XYPlotWidget_Name,
+            "platform:/plugin/org.csstudio.display.builder.model/icons/xyplot.png",
+            Messages.XYPlotWidget_Description,
+            Arrays.asList("org.csstudio.opibuilder.widgets.xyGraph"))
+    {
+        @Override
+        public Widget createWidget()
         {
-            @Override
-            public Widget createWidget()
-            {
-                return new XYPlotWidget();
-            }
-        };
+            return new XYPlotWidget();
+        }
+    };
 
     /** Configurator that handles legacy properties */
     private static class Configurator extends WidgetConfigurator

@@ -34,19 +34,19 @@ import org.csstudio.display.builder.model.properties.WidgetFont;
 public class LabelWidget extends BaseWidget
 {
     /** Widget descriptor */
-    public static final WidgetDescriptor WIDGET_DESCRIPTOR
-        = new WidgetDescriptor("label", WidgetCategory.GRAPHIC,
-                Messages.LabelWidget_Name,
-                "platform:/plugin/org.csstudio.display.builder.model/icons/label.png",
-                Messages.LabelWidget_Description,
-                Arrays.asList("org.csstudio.opibuilder.widgets.Label"))
+    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+        new WidgetDescriptor("label", WidgetCategory.GRAPHIC,
+            Messages.LabelWidget_Name,
+            "platform:/plugin/org.csstudio.display.builder.model/icons/label.png",
+            Messages.LabelWidget_Description,
+            Arrays.asList("org.csstudio.opibuilder.widgets.Label"))
+    {
+        @Override
+        public Widget createWidget()
         {
-            @Override
-            public Widget createWidget()
-            {
-                return new LabelWidget();
-            }
-        };
+            return new LabelWidget();
+        }
+    };
 
     private WidgetProperty<String> text;
     private WidgetProperty<WidgetColor> foreground;

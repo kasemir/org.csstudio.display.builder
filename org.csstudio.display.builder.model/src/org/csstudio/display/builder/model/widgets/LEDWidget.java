@@ -32,19 +32,19 @@ import org.diirt.vtype.VType;
 public class LEDWidget extends BaseWidget
 {
     /** Widget descriptor */
-    public static final WidgetDescriptor WIDGET_DESCRIPTOR
-        = new WidgetDescriptor("led", WidgetCategory.MONITOR,
-                Messages.LEDWidget_Name,
-                "platform:/plugin/org.csstudio.display.builder.model/icons/led.png",
-                Messages.LEDWidget_Description,
-                Arrays.asList("org.csstudio.opibuilder.widgets.LED"))
+    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+        new WidgetDescriptor("led", WidgetCategory.MONITOR,
+            Messages.LEDWidget_Name,
+            "platform:/plugin/org.csstudio.display.builder.model/icons/led.png",
+            Messages.LEDWidget_Description,
+            Arrays.asList("org.csstudio.opibuilder.widgets.LED"))
+    {
+        @Override
+        public Widget createWidget()
         {
-            @Override
-            public Widget createWidget()
-            {
-                return new LEDWidget();
-            }
-        };
+            return new LEDWidget();
+        }
+    };
 
     /** Property for the 'off' color */
     public static final WidgetPropertyDescriptor<WidgetColor> displayOffColor = new WidgetPropertyDescriptor<WidgetColor>(

@@ -33,19 +33,19 @@ import org.diirt.vtype.VType;
 public class ProgressBarWidget extends BaseWidget
 {
     /** Widget descriptor */
-    public static final WidgetDescriptor WIDGET_DESCRIPTOR
-        = new WidgetDescriptor("progressbar", WidgetCategory.MONITOR,
-                Messages.ProgressBar_Name,
-                "platform:/plugin/org.csstudio.display.builder.model/icons/progressbar.png",
-                Messages.ProgressBar_Description,
-                Arrays.asList("org.csstudio.opibuilder.widgets.progressbar"))
+    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+        new WidgetDescriptor("progressbar", WidgetCategory.MONITOR,
+            Messages.ProgressBar_Name,
+            "platform:/plugin/org.csstudio.display.builder.model/icons/progressbar.png",
+            Messages.ProgressBar_Description,
+            Arrays.asList("org.csstudio.opibuilder.widgets.progressbar"))
+    {
+        @Override
+        public Widget createWidget()
         {
-            @Override
-            public Widget createWidget()
-            {
-                return new ProgressBarWidget();
-            }
-        };
+            return new ProgressBarWidget();
+        }
+    };
 
     private WidgetProperty<String> pv_name;
     private WidgetProperty<Boolean> limits_from_pv;
