@@ -94,6 +94,12 @@
     -fx-background-radius: 2;
 }
 
+.array_property_elements
+{
+    -fx-background-color: lightgoldenrodyellow;
+    -fx-padding: 0 0 0 10;
+}
+
 .property_name
 {
     -fx-padding: 2 5 2 5;

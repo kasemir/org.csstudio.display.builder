@@ -104,6 +104,9 @@ public class PropertyPanelSection extends GridPane
             return;
 
         final Label label = new Label(property.getDescription());
+        label.setMaxWidth(Double.MAX_VALUE);
+        GridPane.setHgrow(label, Priority.ALWAYS);
+
         final Node field;
         if (property.isReadonly())
         {
@@ -189,7 +192,6 @@ public class PropertyPanelSection extends GridPane
             final ArrayWidgetProperty<WidgetProperty<?>> array = (ArrayWidgetProperty<WidgetProperty<?>>) property;
 
             // UI for changing array size
-            label.setMaxWidth(Double.MAX_VALUE);
             final Spinner<Integer> spinner = new Spinner<>(1, 100, 0);
             final HBox header = new HBox(label, spinner);
             HBox.setHgrow(label, Priority.ALWAYS);
@@ -197,7 +199,7 @@ public class PropertyPanelSection extends GridPane
 
             // Sub-panel for array elements
             final PropertyPanelSection array_section = new PropertyPanelSection();
-            array_section.getStyleClass().add("debug");
+            array_section.getStyleClass().add("array_property_elements");
             final ArraySizePropertyBinding count_binding = new ArraySizePropertyBinding(array_section, undo, spinner, array, other);
             bindings.add(count_binding);
             count_binding.bind();
@@ -205,7 +207,7 @@ public class PropertyPanelSection extends GridPane
             int row = getNextGridRow();
             add(header, 0, row++, 2, 1);
             add(array_section, 0, row, 2, 1);
-
+            GridPane.setHgrow(array_section, Priority.ALWAYS);
             return;
         }
         else
