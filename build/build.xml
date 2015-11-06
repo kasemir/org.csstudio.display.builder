@@ -26,8 +26,8 @@
             <include name="org.eclipse.osgi_*.jar" />
             <include name="org.eclipse.core.runtime_*.jar" />
             <include name="org.eclipse.equinox.common_*.jar" />
-            <include name="org.epics.util_*.jar" />
-            <include name="org.epics.vtype_*.jar" />
+            <include name="org.diirt.util_*.jar" />
+            <include name="org.diirt.vtype_*.jar" />
             <include name="org.eclipse.swt*.jar" />
             <include name="org.csstudio.vtype.pv_*.jar" />
             <include name="org.csstudio.platform.libs.epics_*.jar" />
