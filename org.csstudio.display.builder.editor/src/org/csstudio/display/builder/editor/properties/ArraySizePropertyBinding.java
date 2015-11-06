@@ -9,9 +9,12 @@ package org.csstudio.display.builder.editor.properties;
 
 import java.util.List;
 
+import org.csstudio.display.builder.editor.undo.AddArrayElementAction;
+import org.csstudio.display.builder.editor.undo.RemoveArrayElementAction;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
 import javafx.beans.value.ChangeListener;
@@ -19,7 +22,7 @@ import javafx.scene.control.Spinner;
 
 /** Bidirectional binding between an ArrayWidgetProperty and Java FX Spinner for number of array elements
  *
- *  <p>In comparison to most {@link WidgetPropertyBinding} this binding
+ *  <p>In comparison to most {@link WidgetPropertyBinding}s this binding
  *  will not only control a property (the number of array elements)
  *  but also update a sub-panel of the property panel to show the current
  *  list of array elements.
@@ -30,24 +33,42 @@ public class ArraySizePropertyBinding extends WidgetPropertyBinding<Spinner<Inte
 {
     private PropertyPanelSection panel_section;
 
-    private final ChangeListener<? super Integer> listener = (prop, old, value) ->
+    /** Add/remove elements from array property in response to property UI */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private final ChangeListener<? super Integer> ui_listener = (prop, old, value) ->
     {
-        // TODO Support undo for property as well as 'other'
         final int desired = jfx_node.getValue();
 
-        // Grow/shrink array
+        // Grow/shrink array via undo-able actions
         while (widget_property.size() < desired)
-            widget_property.addElement();
+        {
+            undo.add(new AddArrayElementAction<>(widget_property, widget_property.addElement()));
+            for (Widget w : other)
+            {
+                final ArrayWidgetProperty other_prop = (ArrayWidgetProperty) w.getProperty(widget_property.getName());
+                undo.add(new AddArrayElementAction<>(other_prop, other_prop.addElement()));
+            }
+        }
         while (widget_property.size() > desired)
-            widget_property.removeElement();
+        {
+            undo.execute(new RemoveArrayElementAction<>(widget_property));
+            for (Widget w : other)
+            {
+                final ArrayWidgetProperty other_prop = (ArrayWidgetProperty) w.getProperty(widget_property.getName());
+                undo.add(new RemoveArrayElementAction<>(other_prop));
+            }
+        }
+    };
 
-        // Update property panel section
+    /** Update property sub-panel as array elements are added/removed */
+    private WidgetPropertyListener<List<WidgetProperty<?>>> prop_listener = (prop, removed, added) ->
+    {
         panel_section.fill(undo, widget_property.getValue(), other, false);
     };
 
     /** @param panel_section Panel section for array elements
      *  @param undo Undo support
-     *  @param node JFX node for array element cound
+     *  @param node JFX node for array element count
      *  @param widget_property {@link ArrayWidgetProperty}
      *  @param other Widgets that also have this array property
      */
@@ -64,8 +85,10 @@ public class ArraySizePropertyBinding extends WidgetPropertyBinding<Spinner<Inte
     @Override
     public void bind()
     {
-        jfx_node.valueProperty().addListener(listener);
+        jfx_node.valueProperty().addListener(ui_listener);
         jfx_node.getValueFactory().setValue(widget_property.size());
+
+        widget_property.addPropertyListener(prop_listener);
 
         panel_section.fill(undo, widget_property.getValue(), other, false);
     }
@@ -73,6 +96,7 @@ public class ArraySizePropertyBinding extends WidgetPropertyBinding<Spinner<Inte
     @Override
     public void unbind()
     {
-        jfx_node.valueProperty().removeListener(listener);
+        widget_property.removePropertyListener(prop_listener);
+        jfx_node.valueProperty().removeListener(ui_listener);
     }
 }
