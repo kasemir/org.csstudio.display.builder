@@ -204,7 +204,7 @@ public class MacrosTable
      */
     public void addListener(final InvalidationListener listener)
     {
-        listeners .add(listener);
+        listeners.add(listener);
     }
 
     /** @param macros {@link Macros} to show in table */

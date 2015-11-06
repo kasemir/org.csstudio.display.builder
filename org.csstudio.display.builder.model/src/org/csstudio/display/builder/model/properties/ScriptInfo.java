@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.properties;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,7 +39,7 @@ public class ScriptInfo
     {
         this.file = Objects.requireNonNull(file);
         this.text = text;
-        this.pvs = Objects.requireNonNull(pvs);
+        this.pvs = Collections.unmodifiableList(Objects.requireNonNull(pvs));
     }
 
     public ScriptInfo(final String path, final ScriptPV... pvs)

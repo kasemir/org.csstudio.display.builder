@@ -7,17 +7,21 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.test;
 
-import org.csstudio.display.builder.model.macros.Macros;
-import org.csstudio.display.builder.representation.javafx.MacrosDialog;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.csstudio.display.builder.model.properties.ScriptInfo;
+import org.csstudio.display.builder.model.properties.ScriptPV;
+import org.csstudio.display.builder.representation.javafx.ScriptsDialog;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-/** Demo of {@link MacrosDialog}
+/** Demo of {@link ScriptsDialog}
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class JFXMacrosDialogDemo extends Application
+public class JFXScriptsDialogDemo extends Application
 {
     public static void main(final String[] args)
     {
@@ -27,10 +31,11 @@ public class JFXMacrosDialogDemo extends Application
     @Override
     public void start(final Stage stage)
     {
-        final Macros macros = new Macros();
-        macros.add("S", "Test");
-        macros.add("N", "17");
-        final MacrosDialog dialog = new MacrosDialog(macros);
+        final List<ScriptInfo> scripts = new ArrayList<>();
+        scripts.add(new ScriptInfo("/tmp/demo1.py", new ScriptPV("pv1")));
+        scripts.add(new ScriptInfo("/tmp/demo2.py", new ScriptPV("pv1"), new ScriptPV("pv2", false)));
+
+        final ScriptsDialog dialog = new ScriptsDialog(scripts);
         System.out.println(dialog.showAndWait());
     }
 }

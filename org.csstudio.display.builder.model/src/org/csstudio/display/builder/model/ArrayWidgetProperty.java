@@ -23,7 +23,7 @@ import org.w3c.dom.Node;
  *
  *  <p>Individual elements are properties which can be modified as usual,
  *  unless they are themselves read-only.
- *  The overall list as return by <code>getValue</code> is read-only,
+ *  The overall list as returned by <code>getValue</code> is read-only,
  *  because direct modification of the underlying list would not allow
  *  this property to send change events.
  *  To add/remove elements, this property has dedicated <code>addElement</code>,

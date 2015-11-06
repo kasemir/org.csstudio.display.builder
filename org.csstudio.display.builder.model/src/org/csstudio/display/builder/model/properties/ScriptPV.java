@@ -53,6 +53,4 @@ public class ScriptPV
         else
             return "PV '" + name + "' (no trigger)";
     }
-
-
 }
