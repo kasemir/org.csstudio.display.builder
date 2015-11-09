@@ -88,6 +88,10 @@
     	</copy>
 
         <echo>=== Representation</echo>
+	    <javac srcdir="../org.csstudio.javafx/src" destdir="${build}/bin"
+               deprecation="on" debug="on">
+	        <classpath><path refid="the_classpath"/></classpath>
+	    </javac>
 	    <javac srcdir="../org.csstudio.javafx.rtplot/src" destdir="${build}/bin"
                deprecation="on" debug="on">
 	        <classpath><path refid="the_classpath"/></classpath>
