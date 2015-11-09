@@ -5,8 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package org.csstudio.javafx.rtplot.util;
+package org.csstudio.javafx;
 
+import javafx.geometry.Bounds;
+import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.TextArea;
@@ -33,4 +35,22 @@ public class MultiLineInputDialog extends Dialog<String>
             return button == ButtonType.OK ? text.getText() : null;
         });
     }
+
+    /** @param parent Parent node, dialog will be positioned relative to it
+     *  @param initial_text Initial text
+     */
+    public MultiLineInputDialog(final Node parent, final String initial_text)
+    {
+        this(initial_text);
+        initOwner(parent.getScene().getWindow());
+        final Bounds bounds = parent.localToScreen(parent.getBoundsInLocal());
+        setX(bounds.getMinX());
+        setY(bounds.getMinY());
+    }
+
+    // TODO Catch/consume 'escape'
+    // If ESC key is pressed while editing the text,
+    // the dialog closes, not returning a value.
+    // Fine.
+    // But the ESC passes on to whoever called the dialog..
 }

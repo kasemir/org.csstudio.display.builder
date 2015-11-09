@@ -22,6 +22,7 @@ import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
+import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
 import javafx.scene.Node;
@@ -154,6 +155,16 @@ public class PropertyPanelSection extends GridPane
             binding.bind();
             field = actions_field;
         }
+        else if (property instanceof ScriptsWidgetProperty)
+        {
+            final ScriptsWidgetProperty scripts_prop = (ScriptsWidgetProperty) property;
+            final Button scripts_field = new Button();
+            scripts_field.setMaxWidth(Double.MAX_VALUE);
+            final ScriptsPropertyBinding binding = new ScriptsPropertyBinding(undo, scripts_field, scripts_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = scripts_field;
+        }
         else if (property instanceof BooleanWidgetProperty)
         {
             final ComboBox<String> check = new ComboBox<>();
@@ -212,7 +223,7 @@ public class PropertyPanelSection extends GridPane
         }
         else
         {
-            // TODO Provide editor for other property types: Script.
+            // TODO Provide editor for other property types
             // Defaulting to same as read-only
             final TextField text = new TextField();
             text.setText(String.valueOf(property.getValue()));

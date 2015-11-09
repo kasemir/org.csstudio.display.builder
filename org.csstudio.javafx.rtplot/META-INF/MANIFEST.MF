@@ -7,6 +7,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.osgi,
  org.diirt.util,
  org.diirt.vtype,
+ org.csstudio.javafx;bundle-version="1.0.0",
  org.csstudio.display.builder.representation;bundle-version="1.0.0",
  org.csstudio.display.builder.util;bundle-version="1.0.0"
 Export-Package: org.csstudio.javafx.rtplot,

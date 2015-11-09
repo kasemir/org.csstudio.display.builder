@@ -7,16 +7,21 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
+import org.csstudio.javafx.MultiLineInputDialog;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -26,6 +31,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
@@ -35,6 +41,9 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Window;
 import javafx.util.Callback;
 
 /** Dialog for editing {@link ScriptInfo}s
@@ -46,7 +55,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     private static class PVItem
     {
         public String name; // TODO Use JFX property to simplify binding to table column?
-        
+
         public BooleanProperty trigger = new SimpleBooleanProperty(true);
 
         public PVItem(final String name, final boolean trigger)
@@ -69,17 +78,18 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     /** Modifiable ScriptInfo */
     private static class ScriptItem
     {
-        public String file, text;
+        public StringProperty file = new SimpleStringProperty();
+        public String text;
         public List<PVItem> pvs;
 
         public ScriptItem()
         {
-            this("", "", new ArrayList<>());
+            this("", null, new ArrayList<>());
         }
 
         public ScriptItem(final String file, final String text, final List<PVItem> pvs)
         {
-            this.file = file;
+            this.file.set(file);
             this.text = text;
             this.pvs = pvs;
         }
@@ -95,9 +105,69 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         {
             final List<ScriptPV> spvs = new ArrayList<>();
             pvs.forEach(pv -> spvs.add(pv.toScriptPV()));
-            return new ScriptInfo(file, text, spvs);
+            return new ScriptInfo(file.get(), text, spvs);
         }
     };
+
+    /** Table cell with buttons to select file or edit the "embedded" script */
+    private static class ScriptButtonCell extends TableCell<ScriptItem, Boolean>
+    {
+        private final Button btn_file = new Button("File");
+        private final Button btn_embed = new Button("Embedded");
+        private final HBox buttons = new HBox(btn_file, btn_embed);
+
+        public ScriptButtonCell(TableColumn<ScriptItem, Boolean> col)
+        {
+            col.getTableView().getScene().getWindow();
+            Window window = null;
+
+            btn_file.setOnAction(event ->
+            {
+                final TableView<ScriptItem> table = col.getTableView();
+                final ScriptItem item = table.getItems().get(getTableRow().getIndex());
+
+                final FileChooser dlg = new FileChooser();
+                dlg.setTitle("Select Script");
+                if (item.file.get().length() > 0)
+                {
+                    File file = new File(item.file.get());
+                    dlg.setInitialDirectory(file.getParentFile());
+                    dlg.setInitialFileName(file.getName());
+                }
+                dlg.getExtensionFilters().addAll(new ExtensionFilter("Script", "*.py"),
+                                                 new ExtensionFilter("All", "*.*"));
+                final File result = dlg.showOpenDialog(window);
+                if (result != null)
+                {
+                    item.file.set(result.getPath());
+                    item.text = null;
+                }
+            });
+            btn_embed.setOnAction(event ->
+            {
+                final TableView<ScriptItem> table = col.getTableView();
+                final ScriptItem item = table.getItems().get(getTableRow().getIndex());
+                if (item.text == null  ||  item.text.trim().isEmpty())
+                    item.text = "# Embedded python script\n\n";
+
+                final MultiLineInputDialog dlg = new MultiLineInputDialog(table, item.text);
+                final Optional<String> result = dlg.showAndWait();
+                if (result.isPresent())
+                {
+                    item.file.set(ScriptInfo.EMBEDDED_PYTHON);
+                    item.text = result.get();
+                }
+            });
+        }
+
+        @Override
+        protected void updateItem(final Boolean item, final boolean empty)
+        {
+            setGraphic(empty ? null : buttons);
+        }
+    };
+
+
 
     /** Data that is linked to the scripts_table */
     private final ObservableList<ScriptItem> script_items = FXCollections.observableArrayList();
@@ -109,7 +179,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     /** Table for PVs of currently selected script */
     private TableView<PVItem> pvs_table;
 
-    
+
     /** @param scripts Scripts to show/edit in the dialog */
     public ScriptsDialog(final List<ScriptInfo> scripts)
     {
@@ -128,7 +198,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             if (button != ButtonType.OK)
                 return null;
             return script_items.stream()
-					           .filter(item -> ! item.file.isEmpty())
+					           .filter(item -> ! item.file.get().isEmpty())
 					           .map(ScriptItem::getScriptInfo)
 					           .collect(Collectors.toList());
         });
@@ -158,8 +228,13 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         		selected.pvs = new ArrayList<>(change.getList());
         };
         pv_items.addListener(ll);
-        
-        return new HBox(10, scripts, pvs);
+
+        final HBox box = new HBox(10, scripts, pvs);
+        HBox.setHgrow(scripts, Priority.ALWAYS);
+        HBox.setHgrow(pvs, Priority.ALWAYS);
+
+        // box.setStyle("-fx-background-color: rgb(255, 100, 0, 0.2);"); // For debugging
+        return box;
     }
 
     /** @return Node for UI elements that edit the scripts */
@@ -170,37 +245,45 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         content.setVgap(10);
         // content.setGridLinesVisible(true); // For debugging
 
-        // Create table with editable column
+        // Create table with editable script file column
         final TableColumn<ScriptItem, String> name_col = new TableColumn<>("Scripts");
         name_col.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ScriptItem, String>, ObservableValue<String>>()
         {
             @Override
             public ObservableValue<String> call(final CellDataFeatures<ScriptItem, String> param)
             {
-                final String name = param.getValue().file;
-                if (name.isEmpty())
+                final StringProperty file = param.getValue().file;
+                if (file.get().isEmpty())
                     return new ReadOnlyStringWrapper("<enter name>");
-                return new ReadOnlyStringWrapper(name);
+                return file;
             }
         });
         name_col.setCellFactory(TextFieldTableCell.<ScriptItem>forTableColumn());
         name_col.setOnEditCommit(event ->
         {
             final int row = event.getTablePosition().getRow();
-            script_items.get(row).file = event.getNewValue();
+            script_items.get(row).file.set(event.getNewValue());
             fixupScripts(row);
         });
 
         // TODO Table column to select file or set to ScriptInfo.EMBEDDED_PYTHON
+        final TableColumn<ScriptItem, Boolean> embed_col = new TableColumn<>();
+        Callback<TableColumn<ScriptItem, Boolean>, TableCell<ScriptItem, Boolean>> embed_cell_factory = col ->
+        {
+            return new ScriptButtonCell(col);
+        };
+        embed_col.setCellFactory(embed_cell_factory);
 
         scripts_table = new TableView<>(script_items);
         scripts_table.getColumns().add(name_col);
+        scripts_table.getColumns().add(embed_col);
         scripts_table.setEditable(true);
         scripts_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         scripts_table.setTooltip(new Tooltip("Edit scripts. Add new script in last row"));
 
         content.add(scripts_table, 0, 0, 1, 3);
         GridPane.setHgrow(scripts_table, Priority.ALWAYS);
+        // TODO This has no effect, table does not grow vertically
         GridPane.setVgrow(scripts_table, Priority.ALWAYS);
 
         // Buttons
@@ -237,13 +320,13 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         if (changed_row < script_items.size())
         {
             final ScriptItem item = script_items.get(changed_row);
-            if (item.file.trim().isEmpty())
+            if (item.file.get().trim().isEmpty())
                 script_items.remove(changed_row);
         }
         // Assert one empty row at bottom
         final int len  = script_items.size();
         if (len <= 0  ||
-            script_items.get(len-1).file.trim().length() > 0)
+            script_items.get(len-1).file.get().trim().length() > 0)
             script_items.add(new ScriptItem());
     }
 
@@ -295,7 +378,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         pvs_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         pvs_table.setTooltip(new Tooltip("Edit PVs. Add new PV in last row"));
         pvs_table.setPlaceholder(new Label("Select Script to see PVs"));
-        
+
         content.add(pvs_table, 0, 0, 1, 3);
         GridPane.setHgrow(pvs_table, Priority.ALWAYS);
         GridPane.setVgrow(pvs_table, Priority.ALWAYS);

@@ -7,13 +7,13 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import org.csstudio.javafx.MultiLineInputDialog;
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.Messages;
 import org.csstudio.javafx.rtplot.RTPlot;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.internal.undo.RemoveAnnotationAction;
 import org.csstudio.javafx.rtplot.internal.undo.UpdateAnnotationTextAction;
-import org.csstudio.javafx.rtplot.util.MultiLineInputDialog;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
