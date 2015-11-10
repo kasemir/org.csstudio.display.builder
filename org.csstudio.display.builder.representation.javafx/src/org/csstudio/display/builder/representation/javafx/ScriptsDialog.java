@@ -41,6 +41,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
@@ -54,8 +55,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     /** Modifiable ScriptPV */
     private static class PVItem
     {
-        public String name; // TODO Use JFX property to simplify binding to table column?
-
+        public String name;
         public BooleanProperty trigger = new SimpleBooleanProperty(true);
 
         public PVItem(final String name, final boolean trigger)
@@ -114,7 +114,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     {
         private final Button btn_file = new Button("File");
         private final Button btn_embed = new Button("Embedded");
-        private final HBox buttons = new HBox(btn_file, btn_embed);
+        private final HBox buttons = new HBox(10, btn_file, btn_embed);
 
         public ScriptButtonCell(TableColumn<ScriptItem, Boolean> col)
         {
@@ -240,11 +240,6 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     /** @return Node for UI elements that edit the scripts */
     private Node createScriptsTable()
     {
-        final GridPane content = new GridPane();
-        content.setHgap(10);
-        content.setVgap(10);
-        // content.setGridLinesVisible(true); // For debugging
-
         // Create table with editable script file column
         final TableColumn<ScriptItem, String> name_col = new TableColumn<>("Scripts");
         name_col.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ScriptItem, String>, ObservableValue<String>>()
@@ -281,15 +276,9 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         scripts_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         scripts_table.setTooltip(new Tooltip("Edit scripts. Add new script in last row"));
 
-        content.add(scripts_table, 0, 0, 1, 3);
-        GridPane.setHgrow(scripts_table, Priority.ALWAYS);
-        // TODO This has no effect, table does not grow vertically
-        GridPane.setVgrow(scripts_table, Priority.ALWAYS);
-
         // Buttons
         final Button add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         add.setMaxWidth(Double.MAX_VALUE);
-        content.add(add, 1, 0);
         add.setOnAction(event ->
         {
             script_items.add(new ScriptItem());
@@ -297,7 +286,6 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         final Button remove = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
         remove.setMaxWidth(Double.MAX_VALUE);
-        content.add(remove, 1, 1);
         remove.setOnAction(event ->
         {
             final int sel = scripts_table.getSelectionModel().getSelectedIndex();
@@ -308,6 +296,9 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             }
         });
 
+        final VBox buttons = new VBox(10, add, remove);
+        final HBox content = new HBox(10, scripts_table, buttons);
+        HBox.setHgrow(scripts_table, Priority.ALWAYS);
         return content;
     }
 
@@ -333,11 +324,6 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     /** @return Node for UI elements that edit the PVs of a script */
     private Node createPVsTable()
     {
-        final GridPane content = new GridPane();
-        content.setHgap(10);
-        content.setVgap(10);
-        // content.setGridLinesVisible(true); // For debugging
-
         // Create table with editable column
         final TableColumn<PVItem, String> name_col = new TableColumn<>("PVs");
         name_col.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<PVItem, String>, ObservableValue<String>>()
@@ -379,14 +365,9 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         pvs_table.setTooltip(new Tooltip("Edit PVs. Add new PV in last row"));
         pvs_table.setPlaceholder(new Label("Select Script to see PVs"));
 
-        content.add(pvs_table, 0, 0, 1, 3);
-        GridPane.setHgrow(pvs_table, Priority.ALWAYS);
-        GridPane.setVgrow(pvs_table, Priority.ALWAYS);
-
         // Buttons
         final Button add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
         add.setMaxWidth(Double.MAX_VALUE);
-        content.add(add, 1, 0);
         add.setOnAction(event ->
         {
             pv_items.add(new PVItem("", true));
@@ -394,7 +375,6 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         final Button remove = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
         remove.setMaxWidth(Double.MAX_VALUE);
-        content.add(remove, 1, 1);
         remove.setOnAction(event ->
         {
             final int sel = pvs_table.getSelectionModel().getSelectedIndex();
@@ -405,6 +385,9 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             }
         });
 
+        final VBox buttons = new VBox(10, add, remove);
+        final HBox content = new HBox(10, pvs_table, buttons);
+        HBox.setHgrow(pvs_table, Priority.ALWAYS);
         return content;
     }
 
