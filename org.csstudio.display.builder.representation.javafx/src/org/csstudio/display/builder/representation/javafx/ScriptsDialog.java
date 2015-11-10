@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.javafx.MultiLineInputDialog;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -38,7 +39,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -116,6 +116,11 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         private final Button btn_embed = new Button("Embedded");
         private final HBox buttons = new HBox(10, btn_file, btn_embed);
 
+        public static Callback<TableColumn<ScriptItem, Boolean>, TableCell<ScriptItem, Boolean>> forTableColumn()
+        {
+            return col -> new ScriptButtonCell(col);
+        };
+        
         public ScriptButtonCell(TableColumn<ScriptItem, Boolean> col)
         {
             col.getTableView().getScene().getWindow();
@@ -123,8 +128,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
             btn_file.setOnAction(event ->
             {
-                final TableView<ScriptItem> table = col.getTableView();
-                final ScriptItem item = table.getItems().get(getTableRow().getIndex());
+                final ScriptItem item = getScriptItem();
 
                 final FileChooser dlg = new FileChooser();
                 dlg.setTitle("Select Script");
@@ -139,18 +143,19 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
                 final File result = dlg.showOpenDialog(window);
                 if (result != null)
                 {
+                	// TODO Table doesn't always update to show the new file name
+                	// Use Platform.runLater(runnable); ? 	
                     item.file.set(result.getPath());
                     item.text = null;
                 }
             });
             btn_embed.setOnAction(event ->
             {
-                final TableView<ScriptItem> table = col.getTableView();
-                final ScriptItem item = table.getItems().get(getTableRow().getIndex());
+                final ScriptItem item = getScriptItem();
                 if (item.text == null  ||  item.text.trim().isEmpty())
                     item.text = "# Embedded python script\n\n";
 
-                final MultiLineInputDialog dlg = new MultiLineInputDialog(table, item.text);
+                final MultiLineInputDialog dlg = new MultiLineInputDialog(getTableView(), item.text);
                 final Optional<String> result = dlg.showAndWait();
                 if (result.isPresent())
                 {
@@ -158,6 +163,12 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
                     item.text = result.get();
                 }
             });
+        }
+
+        private ScriptItem getScriptItem()
+        {
+        	final TableView<ScriptItem> table = getTableView();
+        	return table.getItems().get(getTableRow().getIndex());
         }
 
         @Override
@@ -261,17 +272,13 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             fixupScripts(row);
         });
 
-        // TODO Table column to select file or set to ScriptInfo.EMBEDDED_PYTHON
-        final TableColumn<ScriptItem, Boolean> embed_col = new TableColumn<>();
-        Callback<TableColumn<ScriptItem, Boolean>, TableCell<ScriptItem, Boolean>> embed_cell_factory = col ->
-        {
-            return new ScriptButtonCell(col);
-        };
-        embed_col.setCellFactory(embed_cell_factory);
+        // Table column w/ buttons to select file or set to ScriptInfo.EMBEDDED_PYTHON
+        final TableColumn<ScriptItem, Boolean> buttons_col = new TableColumn<>();
+        buttons_col.setCellFactory(ScriptButtonCell.forTableColumn());
 
         scripts_table = new TableView<>(script_items);
         scripts_table.getColumns().add(name_col);
-        scripts_table.getColumns().add(embed_col);
+        scripts_table.getColumns().add(buttons_col);
         scripts_table.setEditable(true);
         scripts_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         scripts_table.setTooltip(new Tooltip("Edit scripts. Add new script in last row"));
