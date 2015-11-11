@@ -51,6 +51,20 @@ public class Messages extends NLS
     public static String MoveUp;
     public static String Red;
     public static String Remove;
+    public static String ScriptsDialog_BtnEmbed;
+    public static String ScriptsDialog_BtnFile;
+    public static String ScriptsDialog_ColPV;
+    public static String ScriptsDialog_ColScript;
+    public static String ScriptsDialog_ColTrigger;
+    public static String ScriptsDialog_DefaultEmbeddedScript;
+    public static String ScriptsDialog_FileBrowser_Title;
+    public static String ScriptsDialog_FileType_All;
+    public static String ScriptsDialog_FileType_Script;
+    public static String ScriptsDialog_Info;
+    public static String ScriptsDialog_PVsTT;
+    public static String ScriptsDialog_ScriptsTT;
+    public static String ScriptsDialog_SelectScript;
+    public static String ScriptsDialog_Title;
 
     static
     {
