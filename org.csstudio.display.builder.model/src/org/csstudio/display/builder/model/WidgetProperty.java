@@ -135,9 +135,8 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
 
         final T old_value = this.value;
         // Check value
-        Objects.requireNonNull(value);
         final T new_value = restrictValue(value);
-        this.value = Objects.requireNonNull(new_value);
+        this.value = new_value;
         firePropertyChange(this, old_value, new_value);
     }
 
