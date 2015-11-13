@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Display Builder SWT Representation
-Bundle-Description: Better Opi Builder Representation for SWT
+Bundle-Description: Display Builder SWT Representation
 Bundle-SymbolicName: org.csstudio.display.builder.representation.swt
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Kay Kasemir - SNS

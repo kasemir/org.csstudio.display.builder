@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Display Builder Test
-Bundle-Description: Better Opi Builder Model
+Bundle-Description: Display Builder Model
 Bundle-SymbolicName: org.csstudio.display.builder.model.test
 Bundle-Version: 1.0.0.qualifier
 Fragment-Host: org.csstudio.display.builder.model

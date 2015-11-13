@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: RTPlot
+Bundle-Description: RTPlot
 Bundle-SymbolicName: org.csstudio.javafx.rtplot
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -10,5 +11,6 @@ Require-Bundle: org.eclipse.osgi,
  org.csstudio.javafx;bundle-version="1.0.0",
  org.csstudio.display.builder.representation;bundle-version="1.0.0",
  org.csstudio.display.builder.util;bundle-version="1.0.0"
+Bundle-Vendor: Kay Kasemir - SNS
 Export-Package: org.csstudio.javafx.rtplot,
  org.csstudio.javafx.rtplot.data

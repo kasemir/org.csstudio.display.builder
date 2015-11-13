@@ -1,7 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Javafx
+Bundle-Name: JavaFX Utilities
+Bundle-Description: JavaFX Utilities
 Bundle-SymbolicName: org.csstudio.javafx
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.csstudio.javafx
+Bundle-Vendor: Kay Kasemir - SNS

@@ -1,9 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Javafx representation
+Bundle-Name: JavaFX representation
+Bundle-Description: JavaFX representation
 Bundle-SymbolicName: org.csstudio.display.builder.representation.javafx
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Vendor: Kay Kasemir - SNS
 Require-Bundle: org.eclipse.osgi,
  org.diirt.util,
  org.diirt.vtype,

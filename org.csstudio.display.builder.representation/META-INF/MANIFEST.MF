@@ -1,8 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Base for Representation of a display model
+Bundle-Description: Base for Representation of a display model
 Bundle-SymbolicName: org.csstudio.display.builder.representation
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.csstudio.display.builder.model;bundle-version="1.0.0"
+Bundle-Vendor: Kay Kasemir - SNS
 Export-Package: org.csstudio.display.builder.representation

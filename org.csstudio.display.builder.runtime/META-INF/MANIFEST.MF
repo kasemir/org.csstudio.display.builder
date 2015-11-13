@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Display Runtime
+Bundle-Name: Display Builder Runtime
+Bundle-Description: Display Builder Runtime
 Bundle-SymbolicName: org.csstudio.display.builder.runtime
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -12,5 +13,6 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.10.0",
  org.csstudio.vtype.pv;bundle-version="4.0.1",
  org.csstudio.display.builder.model;bundle-version="1.0.0",
  org.csstudio.display.builder.representation;bundle-version="1.0.0"
+Bundle-Vendor: Kay Kasemir - SNS
 Export-Package: org.csstudio.display.builder.runtime,
  org.csstudio.display.builder.runtime.script
