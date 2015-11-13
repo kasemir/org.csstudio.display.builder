@@ -7,11 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.run;
 
-import javax.annotation.PostConstruct;
-
-import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.part.ViewPart;
 
 import javafx.embed.swt.FXCanvas;
 import javafx.scene.Group;
@@ -19,19 +17,19 @@ import javafx.scene.Scene;
 
 /** Part that hosts display builder runtime
  *
- *  <p>Can be used as E4 POJO or E3 'e4view'.
- *  Usage with 'e4view' requires "Import-Package: javax.annotation"
- *  in MANIFEST.MF
- *
  *  <p>Hosts FXCanvas in SWT
  *
  *  @author Kay Kasemir
  */
-public class RuntimeViewPart
+public class RuntimeViewPart extends ViewPart
 {
+	// FXViewPart could save a tiny bit code, but this may allow more control.
+	// e4view would allow E4-like POJO, but unclear how representation
+	// would then best find the newly created RuntimeViewPart to set its input etc.
+	// --> Using E3 ViewPart
     public final static String ID = "org.csstudio.display.builder.rcp.run.RuntimeViewPart";
 
-    @PostConstruct
+    @Override
     public void createPartControl(final Composite parent)
     {
         final FXCanvas fx_canvas = new FXCanvas(parent, SWT.NONE);
@@ -43,8 +41,8 @@ public class RuntimeViewPart
         fx_canvas.setScene(scene);
     }
 
-    @Focus
-    void setFocus()
+    @Override
+    public void setFocus()
     {
     }
 }
