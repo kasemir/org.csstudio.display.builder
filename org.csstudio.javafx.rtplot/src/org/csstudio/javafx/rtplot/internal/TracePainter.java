@@ -187,7 +187,10 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
                 last_x = x;
             }
             if (Double.isNaN(value))
+            {
                 flushPolyLine(gc, poly_x, poly_y, line_width);
+                last_x = last_y = -1;
+            }
             else
             {
                 final int y = clipY(y_axis.getScreenCoord(value));
