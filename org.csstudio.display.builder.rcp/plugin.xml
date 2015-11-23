@@ -3,14 +3,13 @@
 <plugin>
    <extension
          point="org.eclipse.ui.views">
-      <e4view
-            allowMultiple="true"
+      <view
             class="org.csstudio.display.builder.rcp.run.RuntimeViewPart"
             icon="icons/display.png"
             id="org.csstudio.display.builder.rcp.run.RuntimeViewPart"
             name="%RuntimeView"
             restorable="true">
-      </e4view>
+      </view>
    </extension>
 
 </plugin>
