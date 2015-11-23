@@ -7,11 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.run;
 
-import java.util.UUID;
-
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
-
 /** Represent display builder in JFX inside RCP Views
  *
  *  @author Kay Kasemir
@@ -19,19 +14,19 @@ import org.eclipse.ui.PlatformUI;
 public class RCP_JFXRepresentation // TODO extends JFXRepresentation? extends ToolkitRepresentation<Group, Node>
 {
     // TODO Similar to JFXRepresentation, but using RuntimeViewPart as 'Window'
+	
+	// TODO Since each top-level RCP part has one RCP_JFXRepresentation,
+	//      perform the toolkit init. in a static init, not each constructor run.
 
-    public void openNewWindow()
+	// TODO Update ToolkitRepresentation to have
+	//     openInitialWindow()
+	// as well as
+	//     openNewWindow().
+	// For standalone SWT, openInitialWindow calls openNewWindow
+	// For JFX as well as RCP-hosted toolkit, the initial window is already 'there'.
+	
+    public void openNewWindow() throws Exception
     {
-        final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-        try
-        {
-            final RuntimeViewPart rt_view = (RuntimeViewPart)
-                    page.showView(RuntimeViewPart.ID, UUID.randomUUID().toString(), IWorkbenchPage.VIEW_ACTIVATE);
-
-        }
-        catch (Exception ex)
-        {
-            ex.printStackTrace();
-        }
+    	RuntimeViewPart.open();
     }
 }

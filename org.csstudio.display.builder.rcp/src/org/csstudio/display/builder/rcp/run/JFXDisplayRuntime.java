@@ -9,6 +9,8 @@ package org.csstudio.display.builder.rcp.run;
 
 import javafx.scene.Group;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 
 /** Display builder runtime with JFX representation
  *  @author Kay Kasemir
@@ -24,9 +26,21 @@ public class JFXDisplayRuntime
         {
             System.out.println("Pressed!");
 
-            new RCP_JFXRepresentation().openNewWindow();
+            try
+            {
+            	new RCP_JFXRepresentation().openNewWindow();
+            }
+            catch (Exception ex)
+            {
+            	ex.printStackTrace();
+            }
         });
-
+        
+        final MenuItem item = new MenuItem("JFX Item");
+        
+        final ContextMenu menu = new ContextMenu(item);
+        test.setContextMenu(menu);
+        
         parent.getChildren().add(test);
     }
 }
