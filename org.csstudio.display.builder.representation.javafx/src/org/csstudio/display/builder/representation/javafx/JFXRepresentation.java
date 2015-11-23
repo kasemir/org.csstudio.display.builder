@@ -48,18 +48,9 @@ import javafx.stage.WindowEvent;
 @SuppressWarnings("nls")
 public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
 {
-    /** JavaFX 'Application' for standalone demo already provides
-     *  a Stage, this one.
-     *  First call to openNewWindow() uses that initial stage,
-     *  while subsequent calls will create a new stage.
-     */
-    private Stage initial_stage;
-
-    /** @param stage Initial Stage from JavaFX 'Application' */
-    public JFXRepresentation(final Stage stage)
+    /** Construct new JFX representation */
+    public JFXRepresentation()
     {
-        initial_stage = stage;
-
         // TODO Load available widget representations from registry
         register(ActionButtonWidget.class, ActionButtonRepresentation.class);
         register(EmbeddedDisplayWidget.class, EmbeddedDisplayRepresentation.class);
@@ -74,34 +65,57 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
         register(XYPlotWidget.class, XYPlotRepresentation.class);
     }
 
-    @Override
-    public Group openNewWindow(final DisplayModel model, final Predicate<DisplayModel> close_request_handler)
+    /** Configure an existing Stage
+     *  @param stage Stage to configure
+     *  @param model Model that provides stage size
+     *  @param close_request_handler Close request handler that will be hooked to stage's close handler
+     *  @return Top-level Group
+     */
+    public Group configureStage(final Stage stage, final DisplayModel model, final Predicate<DisplayModel> close_request_handler)
     {
-        // Use initial stage, or create new one if that's already used
-        Stage stage = initial_stage;
-        initial_stage = null;
-        if (stage == null)
-            stage = new Stage();
-
         stage.setTitle(model.widgetName().getValue());
         stage.setWidth(model.positionWidth().getValue());
         stage.setHeight(model.positionHeight().getValue());
         stage.setX(model.positionX().getValue());
         stage.setY(model.positionY().getValue());
 
+        final Scene scene = createScene(model);
+        stage.setScene(scene);
+        stage.setOnCloseRequest((WindowEvent event) -> handleCloseRequest(event, model, close_request_handler));
+        stage.show();
+
+        return getSceneRoot(scene);
+    }
+
+    /** Create a Scene suitable for representing model
+     *  @param model Model to represent
+     *  @return Scene
+     *  @see JFXRepresentation#getSceneRoot(Scene)
+     */
+    public Scene createScene(final DisplayModel model)
+    {
         final Group parent = new Group();
         final Scene scene = new Scene(parent,
                 model.positionWidth().getValue().doubleValue(),
                 model.positionHeight().getValue().doubleValue());
-        stage.setScene(scene);
-
-        // Set style sheet
         scene.getStylesheets().add(getClass().getResource("opibuilder.css").toExternalForm());
-        stage.show();
+        return scene;
+    }
 
-        stage.setOnCloseRequest((WindowEvent event) -> handleCloseRequest(event, model, close_request_handler));
+    /** @see JFXRepresentation#createScene(DisplayModel)
+     *  @param scene Scene created for model
+     *  @return Root element
+     */
+    public Group getSceneRoot(final Scene scene)
+    {
+        return (Group) scene.getRoot();
+    }
 
-        return parent;
+    @Override
+    public Group openNewWindow(final DisplayModel model, final Predicate<DisplayModel> close_request_handler)
+    {
+        final Stage stage = new Stage();
+        return configureStage(stage, model, close_request_handler);
     }
 
     private void handleCloseRequest(final WindowEvent event, final DisplayModel model,

@@ -40,7 +40,6 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.representation.ToolkitListener;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
@@ -102,7 +101,7 @@ public class EditorGUI
     private final WidgetNaming widget_naming = new WidgetNaming();
     private final WidgetSelectionHandler selection = new WidgetSelectionHandler();
 
-    private final ToolkitRepresentation<Group, Node> toolkit;
+    private final JFXRepresentation toolkit;
 
     private final UndoableActionManager undo = new UndoableActionManager();
 
@@ -126,7 +125,7 @@ public class EditorGUI
 
     public EditorGUI(final Stage stage)
     {
-        toolkit = new JFXRepresentation(stage);
+        toolkit = new JFXRepresentation();
         createElements(stage);
         hookListeners();
     }

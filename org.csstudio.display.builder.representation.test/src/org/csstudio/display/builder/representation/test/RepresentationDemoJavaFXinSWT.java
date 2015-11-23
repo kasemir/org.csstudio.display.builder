@@ -7,12 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.test;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
 
 import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
@@ -22,7 +19,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import javafx.embed.swt.FXCanvas;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 
 /** JavaFX inside SWT Demo
@@ -56,11 +52,9 @@ public class RepresentationDemoJavaFXinSWT
             }
         };
 
-        final Group parent = new Group();
-        final Scene scene = new Scene(parent,
-                model.getPropertyValue(positionWidth).doubleValue(),
-                model.getPropertyValue(positionHeight).doubleValue());
-        final ToolkitRepresentation<Group, Node> toolkit = new JFXRepresentation(null);
+        final JFXRepresentation toolkit = new JFXRepresentation();
+        final Scene scene = toolkit.createScene(model);
+        final Group parent = toolkit.getSceneRoot(scene);
         toolkit.representModel(parent, model);
 
         final DummyRuntime runtime = new DummyRuntime(model);

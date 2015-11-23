@@ -11,7 +11,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.vtype.pv.PV;
@@ -20,7 +19,6 @@ import org.csstudio.vtype.pv.RefCountMap;
 
 import javafx.application.Application;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.stage.Stage;
 
 /** Runtime demo for JavaFX
@@ -30,7 +28,7 @@ import javafx.stage.Stage;
 public class RuntimeDemoJavaFX extends Application
 {
     private final Logger logger = Logger.getLogger(getClass().getName());
-    private ToolkitRepresentation<Group, Node> toolkit;
+    private JFXRepresentation toolkit;
 
     /** JavaFX main
      *  @throws Exception
@@ -45,7 +43,7 @@ public class RuntimeDemoJavaFX extends Application
     @Override
     public void start(final Stage stage)
     {
-        toolkit = new JFXRepresentation(stage);
+        toolkit = new JFXRepresentation();
         RuntimeUtil.hookListener(toolkit);
         // Load model in background
         RuntimeUtil.getExecutor().execute(() -> loadModel(stage));
@@ -71,7 +69,7 @@ public class RuntimeDemoJavaFX extends Application
         // Create representation for model items
         try
         {
-            final Group parent = toolkit.openNewWindow(model, this::handleClose);
+            final Group parent = toolkit.configureStage(stage, model, this::handleClose);
             toolkit.representModel(parent, model);
         }
         catch (final Exception ex)
