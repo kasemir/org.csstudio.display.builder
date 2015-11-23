@@ -19,6 +19,9 @@ E3 FXViewPart?
 E4 POJO with FXCanvas? Moving forward to E4?
 
 
+Or use Efxclipse for 100% JFX?
+https://wiki.eclipse.org/Efxclipse
+
 Issues
 ======
 
@@ -32,3 +35,4 @@ org.eclipse.e4.core.di.InjectionException: java.lang.NoClassDefFoundError: javaf
 Context Menu
 ------------
 https://bugs.eclipse.org/bugs/show_bug.cgi?id=425160
+https://bugs.openjdk.java.net/browse/JDK-8126170
