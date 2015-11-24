@@ -11,5 +11,16 @@
             restorable="true">
       </view>
    </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:file?after=new.ext">
+         <dynamic
+               class="org.csstudio.display.builder.rcp.top.TopDisplaysMenu"
+               id="org.csstudio.display.builder.rcp.menu.displays">
+         </dynamic>
+      </menuContribution>
+   </extension>
 
 </plugin>

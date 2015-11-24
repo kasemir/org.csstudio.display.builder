@@ -36,6 +36,11 @@ import javafx.scene.Scene;
 @SuppressWarnings("nls")
 public class RuntimeViewPart extends ViewPart
 {
+    // TODO Update part name with model name
+    // TODO back/forward navigation
+    // TODO Open "new" view
+    // TODO Zoom, scrollbars
+
 	// FXViewPart could save a tiny bit code, but this may allow more control.
 	// e4view would allow E4-like POJO, but unclear how representation
 	// would then best find the newly created RuntimeViewPart to set its input etc.
@@ -56,10 +61,18 @@ public class RuntimeViewPart extends ViewPart
      */
     private DisplayModel active_model = null;
 
-    public static RuntimeViewPart open() throws Exception
+    /** Open a runtime display
+     *
+     *  @param display_file
+     *  @return {@link RuntimeViewPart}
+     *  @throws Exception on error
+     */
+    public static RuntimeViewPart open(final String display_file) throws Exception
     {
         final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-    	return (RuntimeViewPart) page.showView(ID, UUID.randomUUID().toString(), IWorkbenchPage.VIEW_ACTIVATE);
+        final RuntimeViewPart part = (RuntimeViewPart) page.showView(ID, UUID.randomUUID().toString(), IWorkbenchPage.VIEW_ACTIVATE);
+        part.setDisplayFile(display_file);
+        return part;
     }
 
     @Override
@@ -67,8 +80,8 @@ public class RuntimeViewPart extends ViewPart
     {
         fx_canvas = new FXCanvas(parent, SWT.NONE);
 
-        // TODO Get model from saved memento or have API for setting it on new parts
-        setDisplayFile("https://webopi.sns.gov/webopi/opi/Instruments.opi");
+        // TODO Get model from saved memento
+        // setDisplayFile("https://webopi.sns.gov/webopi/opi/Instruments.opi");
 
         createContextMenu(parent);
 
@@ -78,7 +91,7 @@ public class RuntimeViewPart extends ViewPart
     /** Load display file, represent it, start runtime
      *  @param display_file Display file to load
      */
-    public void setDisplayFile(final String display_file)
+    private void setDisplayFile(final String display_file)
     {
         // Load model off UI thread
         RuntimeUtil.getExecutor().execute(() -> loadModel(display_file));
@@ -100,6 +113,7 @@ public class RuntimeViewPart extends ViewPart
         catch (Exception ex)
         {
             logger.log(Level.SEVERE, "Cannot load " + display_file, ex);
+            // TODO Show error in part
         }
     }
 

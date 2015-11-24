@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Display Builder RCP Integration Tests
+Bundle-Description: Display Builder RCP Integration Tests
+Bundle-SymbolicName: org.csstudio.display.builder.rcp.test
+Bundle-Vendor: Kay Kasemir - SNS
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: org.csstudio.display.builder.rcp
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit;bundle-version="4.12.0"
