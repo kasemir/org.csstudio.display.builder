@@ -98,7 +98,9 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
         final Scene scene = new Scene(parent,
                 model.positionWidth().getValue().doubleValue(),
                 model.positionHeight().getValue().doubleValue());
-        scene.getStylesheets().add(getClass().getResource("opibuilder.css").toExternalForm());
+        // Fetch css relative to JFXRepresentation, not derived class
+        final String css = JFXRepresentation.class.getResource("opibuilder.css").toExternalForm();
+        scene.getStylesheets().add(css);
         return scene;
     }
 
@@ -112,7 +114,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
     }
 
     @Override
-    public Group openNewWindow(final DisplayModel model, final Predicate<DisplayModel> close_request_handler)
+    public Group openNewWindow(final DisplayModel model, final Predicate<DisplayModel> close_request_handler) throws Exception
     {
         final Stage stage = new Stage();
         return configureStage(stage, model, close_request_handler);

@@ -1,25 +1,19 @@
 Top-Level Window
 ================
 
-Standalone
-----------
-javafx.application.Application provides initial Stage.
-Use that, later create additional Stages.
-Stage.setScene()
-
-RCP
----
-Create part with SWT FXCanvas.
-fx_canvas.setScene()
+Part with SWT FXCanvas, then call fx_canvas.setScene()
 
 
 Type of RCP Part
 ----------------
-E3 FXViewPart?
+E3 FXViewPart? Has no advantage over E3 ViewPart with FXCanvas.
+
+E3 ViewPart: Has access to memento.
+
 E4 POJO with FXCanvas? Moving forward to E4?
+Unclear how to get memento, or how to get the concrete class when opening new part.
 
-
-Or use Efxclipse for 100% JFX?
+Long term: Use Efxclipse for 100% JFX.
 https://wiki.eclipse.org/Efxclipse
 
 Issues

@@ -7,26 +7,50 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.run;
 
+import java.util.function.Predicate;
+
+import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
+import org.csstudio.display.builder.runtime.RuntimeUtil;
+
+import javafx.scene.Group;
+import javafx.stage.Stage;
+
 /** Represent display builder in JFX inside RCP Views
  *
  *  @author Kay Kasemir
  */
-public class RCP_JFXRepresentation // TODO extends JFXRepresentation? extends ToolkitRepresentation<Group, Node>
+public class RCP_JFXRepresentation extends JFXRepresentation
 {
-    // TODO Similar to JFXRepresentation, but using RuntimeViewPart as 'Window'
-	
-	// TODO Since each top-level RCP part has one RCP_JFXRepresentation,
-	//      perform the toolkit init. in a static init, not each constructor run.
+    // Similar to JFXRepresentation, but using RuntimeViewPart as 'Window'
+    private final static RCP_JFXRepresentation instance = new RCP_JFXRepresentation();
 
-	// TODO Update ToolkitRepresentation to have
-	//     openInitialWindow()
-	// as well as
-	//     openNewWindow().
-	// For standalone SWT, openInitialWindow calls openNewWindow
-	// For JFX as well as RCP-hosted toolkit, the initial window is already 'there'.
-	
-    public void openNewWindow() throws Exception
+    /** @return Singleton instance */
+    public static RCP_JFXRepresentation getInstance()
     {
-    	RuntimeViewPart.open();
+        return instance;
+    }
+
+    /** Prevent multiple instances */
+    private RCP_JFXRepresentation()
+    {
+        // TODO Replace with hook that allows view part to track prev/next
+        RuntimeUtil.hookListener(this);
+    }
+
+    @Override
+    public Group configureStage(final Stage stage, final DisplayModel model,
+            final Predicate<DisplayModel> close_request_handler)
+    {
+        throw new IllegalStateException("RCP-based representation should not use standalone Stage");
+    }
+
+    @Override
+    public Group openNewWindow(final DisplayModel model,
+            final Predicate<DisplayModel> close_request_handler) throws Exception
+    {
+        throw new IllegalStateException("TODO");
+//        final RuntimeViewPart part = RuntimeViewPart.open();
+//        return part.getRoot();
     }
 }

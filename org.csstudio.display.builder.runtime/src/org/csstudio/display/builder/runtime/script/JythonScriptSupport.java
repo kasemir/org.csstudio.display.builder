@@ -36,6 +36,12 @@ class JythonScriptSupport
     {
         executor = Executors.newSingleThreadExecutor(ScriptSupport.POOL);
         state = new PySystemState();
+
+        // TODO Figure out how to best handle this.
+        // Setting this options prevents
+        // "ImportError: Cannot import site module and its dependencies: No module named site"
+        System.setProperty("python.import.site", "false");
+
         python = new PythonInterpreter(null, state);
     }
 

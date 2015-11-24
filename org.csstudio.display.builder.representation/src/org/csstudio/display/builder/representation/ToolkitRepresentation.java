@@ -89,11 +89,13 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     /** Open new top-level window
      *  @param model {@link DisplayModel} that provides name and initial size
      *  @param close_request_handler Will be invoked with model when user tries to close the window.
-     *               Returns <code>true</code> to permit closing, <code>false</code> to prevent.
+     *                               Should stop runtime, dispose representation.
+     *                               Returns <code>true</code> to permit closing, <code>false</code> to prevent.
      *  @return Toolkit parent (Pane, Container, ..)
      *          for representing model items in the newly created window
+     *  @throws Exception on error
      */
-    abstract public TWP openNewWindow(DisplayModel model, Predicate<DisplayModel> close_request_handler);
+    abstract public TWP openNewWindow(DisplayModel model, Predicate<DisplayModel> close_request_handler) throws Exception;
 
     /** Create toolkit widgets for a display model.
      *
