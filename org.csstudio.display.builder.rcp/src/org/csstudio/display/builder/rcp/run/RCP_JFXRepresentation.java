@@ -20,6 +20,7 @@ import javafx.stage.Stage;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class RCP_JFXRepresentation extends JFXRepresentation
 {
     // Similar to JFXRepresentation, but using RuntimeViewPart as 'Window'
@@ -49,8 +50,8 @@ public class RCP_JFXRepresentation extends JFXRepresentation
     public Group openNewWindow(final DisplayModel model,
             final Predicate<DisplayModel> close_request_handler) throws Exception
     {
-        throw new IllegalStateException("TODO");
-//        final RuntimeViewPart part = RuntimeViewPart.open();
-//        return part.getRoot();
+        // TODO Review: Check ActionUtil.openDisplay() which calls this to open a new window
+        final RuntimeViewPart part = RuntimeViewPart.open(model.getName());
+        return part.getRoot();
     }
 }

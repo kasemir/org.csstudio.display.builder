@@ -79,7 +79,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
         stage.setX(model.positionX().getValue());
         stage.setY(model.positionY().getValue());
 
-        final Scene scene = createScene(model);
+        final Scene scene = createScene();
         stage.setScene(scene);
         stage.setOnCloseRequest((WindowEvent event) -> handleCloseRequest(event, model, close_request_handler));
         stage.show();
@@ -88,16 +88,13 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
     }
 
     /** Create a Scene suitable for representing model
-     *  @param model Model to represent
      *  @return Scene
      *  @see JFXRepresentation#getSceneRoot(Scene)
      */
-    public Scene createScene(final DisplayModel model)
+    public Scene createScene()
     {
         final Group parent = new Group();
-        final Scene scene = new Scene(parent,
-                model.positionWidth().getValue().doubleValue(),
-                model.positionHeight().getValue().doubleValue());
+        final Scene scene = new Scene(parent);
         // Fetch css relative to JFXRepresentation, not derived class
         final String css = JFXRepresentation.class.getResource("opibuilder.css").toExternalForm();
         scene.getStylesheets().add(css);

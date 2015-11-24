@@ -42,10 +42,9 @@ import javafx.scene.control.TextArea;
 public class RuntimeViewPart extends ViewPart
 {
     // TODO back/forward navigation
-    // TODO Open "new" view
     // TODO Zoom, scrollbars
 
-	// FXViewPart could save a tiny bit code, but this may allow more control.
+	// FXViewPart saves a tiny bit of code, but this allow more control over the FXCanvas.
 	// e4view would allow E4-like POJO, but unclear how representation
 	// would then best find the newly created RuntimeViewPart to set its input etc.
 	// --> Using E3 ViewPart
@@ -55,27 +54,23 @@ public class RuntimeViewPart extends ViewPart
 
     private FXCanvas fx_canvas;
 
-    /** Display file for the active display
-     *  Only accessed on UI thread
-     */
-    private String active_display_file = null;
-
     /** Model for the active display
      *  Only accessed on UI thread
      */
     private DisplayModel active_model = null;
 
+    private Group root;
+
     /** Open a runtime display
-     *
-     *  @param display_file
+     *  @param Name to use for the part
      *  @return {@link RuntimeViewPart}
      *  @throws Exception on error
      */
-    public static RuntimeViewPart open(final String display_file) throws Exception
+    public static RuntimeViewPart open(final String name) throws Exception
     {
         final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
         final RuntimeViewPart part = (RuntimeViewPart) page.showView(ID, UUID.randomUUID().toString(), IWorkbenchPage.VIEW_ACTIVATE);
-        part.setDisplayFile(display_file);
+        part.setPartName(name);
         return part;
     }
 
@@ -87,6 +82,11 @@ public class RuntimeViewPart extends ViewPart
 
         // TODO Get model from saved memento
         // setDisplayFile("https://webopi.sns.gov/webopi/opi/Instruments.opi");
+
+        RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
+        final Scene scene = representation.createScene();
+        root = representation.getSceneRoot(scene);
+        fx_canvas.setScene(scene);
 
         createContextMenu(parent);
 
@@ -107,9 +107,7 @@ public class RuntimeViewPart extends ViewPart
             text.setEditable(false);
             text.setPrefSize(bounds.width, bounds.height);
 
-            final Group root = new Group(text);
-            final Scene scene = new Scene(root);
-            fx_canvas.setScene(scene);
+            root.getChildren().setAll(text);
         });
     }
 
@@ -126,7 +124,7 @@ public class RuntimeViewPart extends ViewPart
     /** Load display file, represent it, start runtime
      *  @param display_file Display file to load
      */
-    private void setDisplayFile(final String display_file)
+    public void loadDisplayFile(final String display_file)
     {
         showMessage("Loading " + display_file);
         // Load model off UI thread
@@ -140,8 +138,7 @@ public class RuntimeViewPart extends ViewPart
     {
         try
         {
-            final DisplayModel model = RuntimeUtil.loadModel(active_display_file , display_file);
-            active_display_file = display_file;
+            final DisplayModel model = RuntimeUtil.loadModel(null, display_file);
 
             // Schedule representation on UI thread
             final RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
@@ -164,11 +161,8 @@ public class RuntimeViewPart extends ViewPart
         {
             setPartName(model.getName());
             final RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
-
-            final Scene scene = representation.createScene(model);
-            final Group root = representation.getSceneRoot(scene);
+            root.getChildren().clear();
             representation.representModel(root, model);
-            fx_canvas.setScene(scene);
             active_model = model;
         }
         catch (Exception ex)
@@ -201,7 +195,8 @@ public class RuntimeViewPart extends ViewPart
     private void disposeModel()
     {
         if (active_model != null)
-        {
+        {   // TODO This is basically same as ActionUtil.handleClose()
+            // Remove the close_request_handler and always use ActionUtil.handleClose()?
             RuntimeUtil.stopRuntime(active_model);
             RCP_JFXRepresentation.getInstance().disposeRepresentation(active_model);
             active_model = null;
@@ -212,5 +207,10 @@ public class RuntimeViewPart extends ViewPart
     public void setFocus()
     {
 	    fx_canvas.setFocus();
+    }
+
+    public Group getRoot()
+    {
+        return root;
     }
 }
