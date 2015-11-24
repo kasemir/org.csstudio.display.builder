@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.run;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,6 +18,8 @@ import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
@@ -26,6 +30,7 @@ import org.eclipse.ui.part.ViewPart;
 import javafx.embed.swt.FXCanvas;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.TextArea;
 
 /** Part that hosts display builder runtime
  *
@@ -36,7 +41,6 @@ import javafx.scene.Scene;
 @SuppressWarnings("nls")
 public class RuntimeViewPart extends ViewPart
 {
-    // TODO Update part name with model name
     // TODO back/forward navigation
     // TODO Open "new" view
     // TODO Zoom, scrollbars
@@ -78,6 +82,7 @@ public class RuntimeViewPart extends ViewPart
     @Override
     public void createPartControl(final Composite parent)
     {
+        parent.setLayout(new FillLayout());
         fx_canvas = new FXCanvas(parent, SWT.NONE);
 
         // TODO Get model from saved memento
@@ -88,11 +93,42 @@ public class RuntimeViewPart extends ViewPart
         parent.addDisposeListener(e -> disposeModel());
     }
 
+    /** Replace UI content with (error) message
+     *  @param message Message to show in the part
+     */
+    private void showMessage(final String message)
+    {
+        // Assert UI update on UI thread
+        RCP_JFXRepresentation.getInstance().execute(() ->
+        {
+            final Rectangle bounds = fx_canvas.getBounds();
+
+            final TextArea text = new TextArea(message);
+            text.setEditable(false);
+            text.setPrefSize(bounds.width, bounds.height);
+
+            final Group root = new Group(text);
+            final Scene scene = new Scene(root);
+            fx_canvas.setScene(scene);
+        });
+    }
+
+    /** @param message Message to show in the part
+     *  @param error Stack trace of error is added to the message
+     */
+    private void showMessage(final String message, final Throwable error)
+    {
+        final ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        error.printStackTrace(new PrintStream(buf));
+        showMessage(message + "\n" + buf.toString());
+    }
+
     /** Load display file, represent it, start runtime
      *  @param display_file Display file to load
      */
     private void setDisplayFile(final String display_file)
     {
+        showMessage("Loading " + display_file);
         // Load model off UI thread
         RuntimeUtil.getExecutor().execute(() -> loadModel(display_file));
     }
@@ -106,14 +142,16 @@ public class RuntimeViewPart extends ViewPart
         {
             final DisplayModel model = RuntimeUtil.loadModel(active_display_file , display_file);
             active_display_file = display_file;
-            final RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
+
             // Schedule representation on UI thread
+            final RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
             representation.execute(() -> representModel(model));
         }
         catch (Exception ex)
         {
-            logger.log(Level.SEVERE, "Cannot load " + display_file, ex);
-            // TODO Show error in part
+            final String message = "Cannot load " + display_file;
+            logger.log(Level.SEVERE, message, ex);
+            showMessage(message, ex);
         }
     }
 
@@ -124,6 +162,7 @@ public class RuntimeViewPart extends ViewPart
     {
         try
         {
+            setPartName(model.getName());
             final RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
 
             final Scene scene = representation.createScene(model);
@@ -135,6 +174,7 @@ public class RuntimeViewPart extends ViewPart
         catch (Exception ex)
         {
             logger.log(Level.SEVERE, "Cannot represent model", ex);
+            showMessage("Cannot represent model", ex);
         }
 
         // Start runtimes in background
