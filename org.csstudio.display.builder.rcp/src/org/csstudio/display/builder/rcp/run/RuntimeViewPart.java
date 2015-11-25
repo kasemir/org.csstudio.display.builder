@@ -10,10 +10,12 @@ package org.csstudio.display.builder.rcp.run;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
@@ -41,8 +43,8 @@ import javafx.scene.control.TextArea;
 @SuppressWarnings("nls")
 public class RuntimeViewPart extends ViewPart
 {
-    /** DisplayModel user data key for storing RuntimeViewPart */
-    public final static String USER_DATA_VIEW_PART = "_runtime_view_part";
+    /** Property on the 'root' Group of the JFX scene that holds RuntimeViewPart */
+    static final String ROOT_RUNTIME_VIEW_PART = "_runtime_view_part";
 
     // TODO back/forward navigation
     // TODO Zoom, scrollbars
@@ -57,31 +59,33 @@ public class RuntimeViewPart extends ViewPart
 
     private FXCanvas fx_canvas;
 
-    /** Model for the active display
-     *  Only accessed on UI thread
-     */
-    private DisplayModel active_model = null;
-
     private Group root;
 
+    private Consumer<DisplayModel> close_handler = null;
+
     /** Open a runtime display
+     *  @param close_handler Code to call when part is closed
      *  @return {@link RuntimeViewPart}
      *  @throws Exception on error
      */
-    public static RuntimeViewPart open() throws Exception
+    public static RuntimeViewPart open(final Consumer<DisplayModel> close_handler) throws Exception
     {
         final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
         final RuntimeViewPart part = (RuntimeViewPart) page.showView(ID, UUID.randomUUID().toString(), IWorkbenchPage.VIEW_ACTIVATE);
+        part.close_handler = close_handler;
         return part;
     }
 
-    // TODO Replace with "makeAwareOfModel(model)" so it can track the active_model and also update the part name
-    // ViewPart#setPartName() is protected, making it public
-    /** @param name Name of the part */
-    @Override
-    public void setPartName(final String name)
+    public Group getRoot()
     {
-        super.setPartName(name);
+        return root;
+    }
+
+    /** @param name Name of the part */
+    public void trackCurrentModel(final DisplayModel model)
+    {   // TODO Might need model input file plus macro params
+        //      to allow forward/backward navigation
+        super.setPartName(model.getName());
     }
 
     @Override
@@ -96,6 +100,7 @@ public class RuntimeViewPart extends ViewPart
         RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
         final Scene scene = representation.createScene();
         root = representation.getSceneRoot(scene);
+        root.getProperties().put(ROOT_RUNTIME_VIEW_PART, this);
         fx_canvas.setScene(scene);
 
         createContextMenu(parent);
@@ -149,7 +154,6 @@ public class RuntimeViewPart extends ViewPart
         try
         {
             final DisplayModel model = RuntimeUtil.loadModel(null, display_file);
-            model.setUserData(USER_DATA_VIEW_PART, this);
 
             // Schedule representation on UI thread
             final RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
@@ -170,11 +174,9 @@ public class RuntimeViewPart extends ViewPart
     {
         try
         {
-            setPartName(model.getName());
             final RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
             root.getChildren().clear();
             representation.representModel(root, model);
-            active_model = model;
         }
         catch (Exception ex)
         {
@@ -186,7 +188,7 @@ public class RuntimeViewPart extends ViewPart
         RuntimeUtil.getExecutor().execute(() -> RuntimeUtil.startRuntime(model));
     }
 
-    /** Dummy SWT context menu to test interaction of SWT and JFX context menues */
+    /** Dummy SWT context menu to test interaction of SWT and JFX context menus */
     private void createContextMenu(final Control parent)
     {
     	final MenuManager mm = new MenuManager();
@@ -202,26 +204,17 @@ public class RuntimeViewPart extends ViewPart
     	parent.setMenu(menu);
     }
 
-    /*** Dispose representation and runtime of active model */
+    /*** Invoke close_handler for model */
     private void disposeModel()
     {
-        if (active_model != null)
-        {   // TODO This is basically same as ActionUtil.handleClose()
-            // Remove the close_request_handler and always use ActionUtil.handleClose()?
-            RuntimeUtil.stopRuntime(active_model);
-            RCP_JFXRepresentation.getInstance().disposeRepresentation(active_model);
-            active_model = null;
-        }
+        final DisplayModel model = (DisplayModel) getRoot().getProperties().get(JFXRepresentation.ACTIVE_MODEL);
+        if (model != null  &&  close_handler != null)
+            close_handler.accept(model);
     }
 
 	@Override
     public void setFocus()
     {
 	    fx_canvas.setFocus();
-    }
-
-    public Group getRoot()
-    {
-        return root;
     }
 }

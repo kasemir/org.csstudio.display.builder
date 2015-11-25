@@ -9,6 +9,7 @@ package org.csstudio.display.builder.representation.test;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
+import org.csstudio.display.builder.representation.javafx.JFXStageRepresentation;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -34,8 +35,8 @@ public class RepresentationDemoJavaFX extends Application
         try
         {
             final DisplayModel model = ExampleModels.createModel();
-            final JFXRepresentation toolkit = new JFXRepresentation();
-            final Group parent = toolkit.configureStage(stage, model, (m) -> true);
+            final JFXStageRepresentation toolkit = new JFXStageRepresentation();
+            final Group parent = toolkit.configureStage(stage, model, this::close);
             toolkit.representModel(parent, model);
 
             runtime = new DummyRuntime(model);
@@ -45,5 +46,11 @@ public class RepresentationDemoJavaFX extends Application
             ex.printStackTrace();
             Platform.exit();
         }
+    }
+
+    public void close(final DisplayModel model)
+    {
+        final JFXRepresentation toolkit = model.getUserData(DisplayModel.USER_DATA_TOOLKIT);
+        toolkit.disposeRepresentation(model);
     }
 }

@@ -67,34 +67,6 @@ public class DisplayModel extends ContainerWidget
         throw new IllegalStateException("Display widget cannot have parent widget " + parent);
     }
 
-    /** Replace content, i.e. children and user data.
-     *
-     *  <p>A model is typically associated with a representation.
-     *  As the model changes, the representation is updated,
-     *  but it holds on to the same original model instance.
-     *  When replacing the model, the child elements of the
-     *  existing model instance are updated.
-     *  Note that the 'other_model' is afterwards empty,
-     *  because its children have been assigned to a different model.
-     *
-     *  @param other_model Other model
-     */
-    public void replaceWith(final DisplayModel other_model)
-    {
-        // removeChild also updates the child's parent. children.clear() wouldn't
-        for (final Widget child : getChildren())
-            removeChild(child);
-        for (final Widget child : other_model.getChildren())
-        {
-            other_model.removeChild(child);
-            addChild(child);
-        }
-        widgetMacros().setValue(other_model.widgetMacros().getValue());
-        user_data.clear();
-        user_data.putAll(other_model.user_data);
-        // TODO Issue some notification? firePropertyChange(null, null, null);
-    }
-
     /** Display model provides macros for all its widgets.
      *  @return {@link Macros}
      */

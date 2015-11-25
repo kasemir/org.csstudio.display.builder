@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
+import org.csstudio.display.builder.representation.javafx.JFXStageRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.vtype.pv.PV;
 import org.csstudio.vtype.pv.PVPool;
@@ -28,7 +28,7 @@ import javafx.stage.Stage;
 public class RuntimeDemoJavaFX extends Application
 {
     private final Logger logger = Logger.getLogger(getClass().getName());
-    private JFXRepresentation toolkit;
+    private JFXStageRepresentation toolkit;
 
     /** JavaFX main
      *  @throws Exception
@@ -43,7 +43,7 @@ public class RuntimeDemoJavaFX extends Application
     @Override
     public void start(final Stage stage)
     {
-        toolkit = new JFXRepresentation();
+        toolkit = new JFXStageRepresentation();
         RuntimeUtil.hookListener(toolkit);
         // Load model in background
         RuntimeUtil.getExecutor().execute(() -> loadModel(stage));

@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.rcp.Plugin;
 import org.csstudio.display.builder.rcp.run.RuntimeViewPart;
+import org.csstudio.display.builder.runtime.ActionUtil;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -42,7 +43,7 @@ public class OpenDisplayAction extends Action
     {
         try
         {
-            final RuntimeViewPart part = RuntimeViewPart.open();
+            final RuntimeViewPart part = RuntimeViewPart.open(ActionUtil::handleClose);
             part.loadDisplayFile(path);
         }
         catch (Exception ex)

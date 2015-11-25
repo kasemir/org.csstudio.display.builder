@@ -7,8 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
-import java.util.function.Predicate;
-import java.util.logging.Level;
+import java.util.function.Consumer;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
@@ -39,8 +38,6 @@ import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 /** Represent model items in JavaFX toolkit
  *  @author Kay Kasemir
@@ -48,6 +45,8 @@ import javafx.stage.WindowEvent;
 @SuppressWarnings("nls")
 public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
 {
+    public static final String ACTIVE_MODEL = "_active_model";
+
     /** Construct new JFX representation */
     public JFXRepresentation()
     {
@@ -63,28 +62,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
         register(TextEntryWidget.class, TextEntryRepresentation.class);
         register(TextUpdateWidget.class, TextUpdateRepresentation.class);
         register(XYPlotWidget.class, XYPlotRepresentation.class);
-    }
-
-    /** Configure an existing Stage
-     *  @param stage Stage to configure
-     *  @param model Model that provides stage size
-     *  @param close_request_handler Close request handler that will be hooked to stage's close handler
-     *  @return Top-level Group
-     */
-    public Group configureStage(final Stage stage, final DisplayModel model, final Predicate<DisplayModel> close_request_handler)
-    {
-        stage.setTitle(model.widgetName().getValue());
-        stage.setWidth(model.positionWidth().getValue());
-        stage.setHeight(model.positionHeight().getValue());
-        stage.setX(model.positionX().getValue());
-        stage.setY(model.positionY().getValue());
-
-        final Scene scene = createScene();
-        stage.setScene(scene);
-        stage.setOnCloseRequest((WindowEvent event) -> handleCloseRequest(event, model, close_request_handler));
-        stage.show();
-
-        return getSceneRoot(scene);
     }
 
     /** Create a Scene suitable for representing model
@@ -111,24 +88,24 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
     }
 
     @Override
-    public Group openNewWindow(final DisplayModel model, final Predicate<DisplayModel> close_request_handler) throws Exception
-    {
-        final Stage stage = new Stage();
-        return configureStage(stage, model, close_request_handler);
+    public Group openNewWindow(final DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception
+    {   // Use JFXStageRepresentation or RCP-based implementation
+        throw new IllegalStateException("Not implemented");
     }
 
-    private void handleCloseRequest(final WindowEvent event, final DisplayModel model,
-                                    final Predicate<DisplayModel> close_request_handler)
+    @Override
+    public void representModel(final Group root, final DisplayModel model) throws Exception
     {
-        try
-        {
-            if (close_request_handler.test(model) == false)
-                event.consume();
-        }
-        catch (final Exception ex)
-        {
-            logger.log(Level.WARNING, "Close request handler failed", ex);
-        }
+        root.getProperties().put(ACTIVE_MODEL, model);
+        super.representModel(root, model);
+    }
+
+    @Override
+    public Group disposeRepresentation(final DisplayModel model)
+    {
+        final Group root = super.disposeRepresentation(model);
+        root.getProperties().remove(ACTIVE_MODEL);
+        return root;
     }
 
     @Override

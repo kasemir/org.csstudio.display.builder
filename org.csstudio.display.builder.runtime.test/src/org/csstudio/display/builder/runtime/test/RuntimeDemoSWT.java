@@ -17,7 +17,6 @@ import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.vtype.pv.PV;
 import org.csstudio.vtype.pv.PVPool;
 import org.csstudio.vtype.pv.RefCountMap;
-import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -104,23 +103,9 @@ public class RuntimeDemoSWT implements Runnable
 
         // Start runtimes in background
         RuntimeUtil.getExecutor().execute(() -> RuntimeUtil.startRuntime(model));
-
-        // Arrange for runtimes to be stopped
-        parent.addDisposeListener((DisposeEvent e) ->
-        {
-            RuntimeUtil.stopRuntime(model);
-            try
-            {
-                toolkit.disposeRepresentation(model);
-            }
-            catch (final Exception ex)
-            {
-                ex.printStackTrace();
-            }
-        });
     }
 
-    private boolean handleClose(final DisplayModel model)
+    private void handleClose(final DisplayModel model)
     {
         RuntimeUtil.stopRuntime(model);
         toolkit.disposeRepresentation(model);
@@ -137,7 +122,5 @@ public class RuntimeDemoSWT implements Runnable
             // JCA Context remains running, so need to exit() to really quit
             System.exit(0);
         }
-
-        return true;
     }
 }

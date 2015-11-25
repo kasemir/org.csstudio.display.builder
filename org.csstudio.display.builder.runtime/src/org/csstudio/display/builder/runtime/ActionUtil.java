@@ -85,15 +85,13 @@ public class ActionUtil
                 final Future<Object> wait_for_ui = toolkit.submit(() ->
                 {   // Close old representation
                     final Object parent = toolkit.disposeRepresentation(top_model);
-                    // Replace top model with new content
-                    top_model.replaceWith(new_model);
-                    // Represent it
-                    toolkit.representModel(parent, top_model);
+                    // Tell toolkit about new model to represent
+                    toolkit.representModel(parent, new_model);
                     return null;
                 });
                 // Back in background thread, create new runtime
                 wait_for_ui.get();
-                RuntimeUtil.startRuntime(top_model);
+                RuntimeUtil.startRuntime(new_model);
             }
             else
             {
@@ -119,15 +117,12 @@ public class ActionUtil
     /** Passed to newly opened windows to handle runtime shutdown
      *  when window is closed
      *  @param model Model for which runtime needs to be closed.
-     *  @return <code>true</code> if window can be closed
      */
-    private static boolean handleClose(final DisplayModel model)
+    public static void handleClose(final DisplayModel model)
     {
         final ToolkitRepresentation<Object, Object> toolkit = RuntimeUtil.getToolkit(model);
-
         RuntimeUtil.stopRuntime(model);
         toolkit.disposeRepresentation(model);
-        return true;
     }
 
     /** Write a PV.

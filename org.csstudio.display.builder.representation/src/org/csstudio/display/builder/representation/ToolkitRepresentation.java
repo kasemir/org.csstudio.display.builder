@@ -17,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
-import java.util.function.Predicate;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -87,15 +87,25 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     }
 
     /** Open new top-level window
+     *
+     *  <p>Is invoked with the _initial_ model.
+     *  <code>representModel</code> is then called to create the
+     *  individual widget representations.
+     *
+     *  <p>If the model is replaced, <code>disposeRepresentation</code>
+     *  will be called with the current model, and then
+     *  <code>representModel</code> with the new model.
+     *
      *  @param model {@link DisplayModel} that provides name and initial size
-     *  @param close_request_handler Will be invoked with model when user tries to close the window.
-     *                               Should stop runtime, dispose representation.
-     *                               Returns <code>true</code> to permit closing, <code>false</code> to prevent.
+     *  @param close_handler Will be invoked when user closes the window
+     *                       with the then active model, i.e. the model
+     *                       provided in last call to <code>representModel</code>.
+     *                       Should stop runtime, dispose representation.
      *  @return Toolkit parent (Pane, Container, ..)
      *          for representing model items in the newly created window
      *  @throws Exception on error
      */
-    abstract public TWP openNewWindow(DisplayModel model, Predicate<DisplayModel> close_request_handler) throws Exception;
+    abstract public TWP openNewWindow(DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception;
 
     /** Create toolkit widgets for a display model.
      *
@@ -185,7 +195,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *  @param model Display model
      *  @return Parent toolkit item (Group, Container, ..) that used to host the model items
      */
-    final public TWP disposeRepresentation(final DisplayModel model)
+    public TWP disposeRepresentation(final DisplayModel model)
     {
         final TWP parent = disposeChildren(model);
         model.clearUserData(DisplayModel.USER_DATA_TOOLKIT);
@@ -225,8 +235,12 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         }
         final WidgetRepresentation<TWP, TW, ? extends Widget> representation =
             widget.clearUserData(Widget.USER_DATA_REPRESENTATION);
-        logger.log(Level.FINE, "Disposing {0} for {1}", new Object[] { representation, widget });
-        representation.dispose();
+        if (representation != null)
+        {
+            logger.log(Level.FINE, "Disposing {0} for {1}", new Object[] { representation, widget });
+            representation.dispose();
+        }
+        // else: Widget has no representation because not implemented for this toolkit
     }
 
     /** Called by toolkit representation to request an update.

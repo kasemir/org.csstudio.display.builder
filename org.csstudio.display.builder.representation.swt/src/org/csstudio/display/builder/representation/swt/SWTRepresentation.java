@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt;
 
-import java.util.function.Predicate;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
@@ -27,13 +27,10 @@ import org.csstudio.display.builder.representation.swt.widgets.LEDRepresentation
 import org.csstudio.display.builder.representation.swt.widgets.LabelRepresentation;
 import org.csstudio.display.builder.representation.swt.widgets.RectangleRepresentation;
 import org.csstudio.display.builder.representation.swt.widgets.TextUpdateRepresentation;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 /** Represent model items in SWT toolkit
@@ -42,6 +39,7 @@ import org.eclipse.swt.widgets.Shell;
 @SuppressWarnings("nls")
 public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
 {
+    private static final String ACTIVE_MODEL = "_active_model";
     private final Display display;
 
     public SWTRepresentation(final Display display)
@@ -59,30 +57,49 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     }
 
     @Override
-    public Composite openNewWindow(final DisplayModel model, final Predicate<DisplayModel> close_request_handler)
+    public Composite openNewWindow(final DisplayModel model, final Consumer<DisplayModel> close_request_handler)
     {
         final Shell shell = new Shell(display);
         shell.setText(model.widgetName().getValue());
         shell.setSize(model.positionWidth().getValue(),
                       model.positionHeight().getValue());
         shell.open();
-
-        shell.addListener(SWT.CLOSE, new Listener()
-        {
-            @Override
-            public void handleEvent(final Event event)
-            {
-                try
-                {
-                    event.doit = close_request_handler.test(model);
-                }
-                catch (final Exception ex)
-                {
-                    logger.log(Level.WARNING, "Close request handler failed", ex);
-                }
-            }
-        });
+        shell.addDisposeListener((e) -> handleClose(shell, close_request_handler));
         return shell;
+    }
+
+    @Override
+    public void representModel(final Composite shell, final DisplayModel model)
+            throws Exception
+    {
+        super.representModel(shell, model);
+        if (! (shell instanceof Shell))
+            throw new IllegalStateException("Expected Shell, got " + shell);
+        shell.setData(ACTIVE_MODEL, model);
+    }
+
+    @Override
+    public Composite disposeRepresentation(DisplayModel model)
+    {
+        final Composite shell = super.disposeRepresentation(model);
+        if (! (shell instanceof Shell))
+            throw new IllegalStateException("Expected Shell, got " + shell);
+        shell.setData(ACTIVE_MODEL, null);
+        return shell;
+    }
+
+    private void handleClose(final Shell shell, final Consumer<DisplayModel> close_request_handler)
+    {
+        final DisplayModel model = (DisplayModel) shell.getData(ACTIVE_MODEL);
+        try
+        {
+            if (model != null)
+                close_request_handler.accept(model);
+        }
+        catch (final Exception ex)
+        {
+            logger.log(Level.WARNING, "Close request handler failed", ex);
+        }
     }
 
     @Override
