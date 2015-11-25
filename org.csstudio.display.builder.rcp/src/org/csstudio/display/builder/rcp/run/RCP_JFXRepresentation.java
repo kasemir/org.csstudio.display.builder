@@ -51,7 +51,21 @@ public class RCP_JFXRepresentation extends JFXRepresentation
             final Predicate<DisplayModel> close_request_handler) throws Exception
     {
         // TODO Review: Check ActionUtil.openDisplay() which calls this to open a new window
-        final RuntimeViewPart part = RuntimeViewPart.open(model.getName());
+        final RuntimeViewPart part = RuntimeViewPart.open();
+        model.setUserData(RuntimeViewPart.USER_DATA_VIEW_PART, part);
         return part.getRoot();
+    }
+
+    @Override
+    public void representModel(final Group parent, final DisplayModel model)
+            throws Exception
+    {
+        final RuntimeViewPart part = model.getUserData(RuntimeViewPart.USER_DATA_VIEW_PART);
+        if (part == null)
+            System.err.println("\n\n*** Missing RuntimeViewPart ***");
+        else
+            part.setPartName(model.getName());
+
+        super.representModel(parent, model);
     }
 }

@@ -41,6 +41,9 @@ import javafx.scene.control.TextArea;
 @SuppressWarnings("nls")
 public class RuntimeViewPart extends ViewPart
 {
+    /** DisplayModel user data key for storing RuntimeViewPart */
+    public final static String USER_DATA_VIEW_PART = "_runtime_view_part";
+
     // TODO back/forward navigation
     // TODO Zoom, scrollbars
 
@@ -62,16 +65,23 @@ public class RuntimeViewPart extends ViewPart
     private Group root;
 
     /** Open a runtime display
-     *  @param Name to use for the part
      *  @return {@link RuntimeViewPart}
      *  @throws Exception on error
      */
-    public static RuntimeViewPart open(final String name) throws Exception
+    public static RuntimeViewPart open() throws Exception
     {
         final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
         final RuntimeViewPart part = (RuntimeViewPart) page.showView(ID, UUID.randomUUID().toString(), IWorkbenchPage.VIEW_ACTIVATE);
-        part.setPartName(name);
         return part;
+    }
+
+    // TODO Replace with "makeAwareOfModel(model)" so it can track the active_model and also update the part name
+    // ViewPart#setPartName() is protected, making it public
+    /** @param name Name of the part */
+    @Override
+    public void setPartName(final String name)
+    {
+        super.setPartName(name);
     }
 
     @Override
@@ -139,6 +149,7 @@ public class RuntimeViewPart extends ViewPart
         try
         {
             final DisplayModel model = RuntimeUtil.loadModel(null, display_file);
+            model.setUserData(USER_DATA_VIEW_PART, this);
 
             // Schedule representation on UI thread
             final RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();

@@ -42,7 +42,7 @@ public class OpenDisplayAction extends Action
     {
         try
         {
-            final RuntimeViewPart part = RuntimeViewPart.open(getText());
+            final RuntimeViewPart part = RuntimeViewPart.open();
             part.loadDisplayFile(path);
         }
         catch (Exception ex)
