@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.rcp.top;
+package org.csstudio.display.builder.rcp;
 
 /** Information about a display
  *  @author Kay Kasemir
@@ -14,6 +14,7 @@ public class DisplayInfo
 {
     private final String path, name;
 
+    // TODO Add macros
     public DisplayInfo(final String path, final String name)
     {
         this.path = path;

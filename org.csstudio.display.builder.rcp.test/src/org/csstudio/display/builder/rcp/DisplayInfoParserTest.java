@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.rcp.top;
+package org.csstudio.display.builder.rcp;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -20,6 +20,19 @@ import org.junit.Test;
 @SuppressWarnings("nls")
 public class DisplayInfoParserTest
 {
+    @Test
+    public void testSerialization()
+    {
+    	DisplayInfo display = new DisplayInfo("/a/path/file.opi", "Alias");
+    	String serialized = DisplayInfoParser.serialize(display);
+		assertThat(serialized, equalTo("\"Alias\"=\"/a/path/file.opi\""));
+
+    	display = new DisplayInfo("/a file.opi", "I call it \"this\"");
+    	serialized = DisplayInfoParser.serialize(display);
+    	System.out.println(serialized);
+    	assertThat(serialized, equalTo("\"I call it \\\"this\\\"\"=\"/a file.opi\""));
+    }
+    
     @Test
     public void testQuoted() throws Exception
     {

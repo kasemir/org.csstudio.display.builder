@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.display.builder.rcp.DisplayInfo;
+import org.csstudio.display.builder.rcp.DisplayInfoParser;
 import org.csstudio.display.builder.rcp.Messages;
 import org.csstudio.display.builder.rcp.Plugin;
 import org.eclipse.jface.action.IAction;

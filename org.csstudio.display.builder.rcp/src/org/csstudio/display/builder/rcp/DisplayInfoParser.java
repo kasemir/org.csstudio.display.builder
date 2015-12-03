@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.rcp.top;
+package org.csstudio.display.builder.rcp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,23 @@ public class DisplayInfoParser
 {
     private static final char QUOTE = '"';
 
-    /** Parse display info
+    /** @param display_info {@link DisplayInfo}
+     *  @return Serialized form suitable for <code>parse()</code>
+     */
+    public static String serialize(final DisplayInfo display_info)
+    {
+    	return quote(display_info.getName()) + "=" + quote(display_info.getPath());
+    }
+    
+    /** @param text Text to quote
+     *  @return Quoted text where inner quotes have been escaped
+     */
+    private static String quote(final String text)
+    {
+		return QUOTE + text.replace("\"", "\\\"") + QUOTE;
+	}
+
+	/** Parse display info
      *
      *  <p>For format, see preferences.ini
      *
