@@ -15,6 +15,27 @@ public class MacroParser
 {
     private static final char QUOTE = '"';
 
+    /** Serialize macros
+     *
+     *  @param macros Macros to serialize
+     *  @return Text suitable for parsing
+     *  @see #parseDefinition(String)
+     */
+    public static String serialize(final Macros macros)
+    {
+        final StringBuilder buf = new StringBuilder();
+        for (String name : macros.getNames())
+        {
+            if (buf.length() > 0)
+                buf.append(", ");
+            buf.append(name).append('=');
+            String value = macros.getValue(name);
+            value = value.replace("\"", "\\\"");
+            buf.append('"').append(value).append('"');
+        }
+        return buf.toString();
+    }
+
     /** Create macros from a string
      *
      *  <p>Parses a list of "macro=value" entries,
@@ -34,7 +55,10 @@ public class MacroParser
         {
             final String item = definition.substring(start, end);
             final String[] info = parseItem(item);
-            macros.add(info[0], info[1]);
+            final String name = info[0];
+            // Replace escaped quotes with plain quotes
+            final String value = info[1].replace("\\\"", "\"");
+            macros.add(name, value);
             start = end+1;
             end = findItem(definition, start);
         }

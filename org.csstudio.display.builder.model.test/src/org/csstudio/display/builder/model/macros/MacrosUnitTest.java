@@ -35,6 +35,54 @@ public class MacrosUnitTest
         assertThat(MacroHandler.containsMacros("Escaped \\$(S) Used $(S)"), equalTo(true));
     }
 
+
+    /** Test basic macro=value
+     *  @throws Exception on error
+     */
+    @Test
+    public void testParser() throws Exception
+    {
+        final String definition = "S = BL7, NAME=\"Flint, Eugene\", EQUAL=\"=\", TAB = \"    \", MACRO=S, QUOTED=\"Al \\\"Fred\\\" King\"";
+        System.out.println(definition);
+        final MacroValueProvider macros = MacroParser.parseDefinition(definition);
+        System.out.println(macros);
+
+        // Spaces around '=' and one-word value are trimmed
+        assertThat(macros.getValue("S"), equalTo("BL7"));
+
+        // Text in quotes can contain comma
+        assertThat(macros.getValue("NAME"), equalTo("Flint, Eugene"));
+
+        // Text in quotes can contain '='
+        assertThat(macros.getValue("EQUAL"), equalTo("="));
+
+        // Spaces within quotes are preserved
+        assertThat(macros.getValue("TAB"), equalTo("    "));
+
+        // Text can contain quotes as long as they are escaped.
+        // Value then has the plain quotes.
+        assertThat(macros.getValue("QUOTED"), equalTo("Al \"Fred\" King"));
+    }
+
+    @Test
+    public void testSerialization() throws Exception
+    {
+        final Macros macros = new Macros();
+        macros.add("S", "BL7");
+        macros.add("TAB", "    ");
+        macros.add("COMMA", "Flint, Fred");
+        macros.add("QUOTED", "Al \"Fred\" King");
+        final String text = MacroParser.serialize(macros);
+        System.out.println(text);
+
+        // Macros are serialized in alphabetical order.
+        // Values are _always_ quoted, even if "BL7" could remain unquoted.
+        assertThat(text, equalTo("COMMA=\"Flint, Fred\", QUOTED=\"Al \\\"Fred\\\" King\", S=\"BL7\", TAB=\"    \""));
+
+        final Macros copy = MacroParser.parseDefinition(text);
+        assertThat(copy, equalTo(macros));
+    }
+
     /** Test basic macro=value
      *  @throws Exception on error
      */
@@ -42,10 +90,6 @@ public class MacrosUnitTest
     public void testMacros() throws Exception
     {
         final MacroValueProvider macros = MacroParser.parseDefinition("S=BL7, NAME=\"Flint, Eugene\", TAB = \"    \", MACRO=S");
-        System.out.println(macros);
-        assertThat(macros.getValue("S"),    equalTo("BL7"));
-        assertThat(macros.getValue("NAME"), equalTo("Flint, Eugene"));
-        assertThat(macros.getValue("TAB"),  equalTo("    "));
 
         assertThat(MacroHandler.replace(macros, "Plain Text"), equalTo("Plain Text"));
         assertThat(MacroHandler.replace(macros, "${S}"), equalTo("BL7"));
