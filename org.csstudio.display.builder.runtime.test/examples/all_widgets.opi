@@ -5,8 +5,8 @@
   </macros>
   <x>0</x>
   <y>0</y>
-  <width>100</width>
-  <height>20</height>
+  <width>800</width>
+  <height>600</height>
   <visible>true</visible>
   <actions>
   </actions>
@@ -137,19 +137,6 @@
     </scripts>
     <pv_name></pv_name>
   </widget>
-  <widget type="xyplot" version="1.0.0">
-    <name>X/Y Plot 1</name>
-    <x>0</x>
-    <y>0</y>
-    <width>100</width>
-    <height>20</height>
-    <visible>true</visible>
-    <actions>
-    </actions>
-    <scripts>
-    </scripts>
-    <pv_name></pv_name>
-  </widget>
   <widget type="action_button" version="1.0.0">
     <name>Action Button 1</name>
     <macros>
@@ -194,6 +181,41 @@
     <scripts>
     </scripts>
     <pv_name></pv_name>
+  </widget>
+  <widget type="xyplot" version="1.0.0">
+    <name>X/Y Plot 1</name>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+    <visible>true</visible>
+    <actions>
+    </actions>
+    <scripts>
+    </scripts>
+    <show_legend>true</show_legend>
+    <x_axis>
+      <title>X</title>
+      <autoscale>false</autoscale>
+      <minimum>0.0</minimum>
+      <maximum>100.0</maximum>
+    </x_axis>
+    <y_axes>
+      <y_axis>
+        <title>Y</title>
+        <autoscale>false</autoscale>
+        <minimum>0.0</minimum>
+        <maximum>100.0</maximum>
+      </y_axis>
+    </y_axes>
+    <trace>
+      <x_pv></x_pv>
+      <y_pv></y_pv>
+      <color>
+        <color red="0" green="0" blue="255">
+        </color>
+      </color>
+    </trace>
   </widget>
   <widget type="embedded" version="1.0.0">
     <name>Embedded Display 1</name>

@@ -7,10 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.macros;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -35,61 +33,17 @@ public class MacrosUnitTest
         assertThat(MacroHandler.containsMacros("Escaped \\$(S) Used $(S)"), equalTo(true));
     }
 
-
-    /** Test basic macro=value
-     *  @throws Exception on error
-     */
-    @Test
-    public void testParser() throws Exception
-    {
-        final String definition = "S = BL7, NAME=\"Flint, Eugene\", EQUAL=\"=\", TAB = \"    \", MACRO=S, QUOTED=\"Al \\\"Fred\\\" King\"";
-        System.out.println(definition);
-        final MacroValueProvider macros = MacroParser.parseDefinition(definition);
-        System.out.println(macros);
-
-        // Spaces around '=' and one-word value are trimmed
-        assertThat(macros.getValue("S"), equalTo("BL7"));
-
-        // Text in quotes can contain comma
-        assertThat(macros.getValue("NAME"), equalTo("Flint, Eugene"));
-
-        // Text in quotes can contain '='
-        assertThat(macros.getValue("EQUAL"), equalTo("="));
-
-        // Spaces within quotes are preserved
-        assertThat(macros.getValue("TAB"), equalTo("    "));
-
-        // Text can contain quotes as long as they are escaped.
-        // Value then has the plain quotes.
-        assertThat(macros.getValue("QUOTED"), equalTo("Al \"Fred\" King"));
-    }
-
-    @Test
-    public void testSerialization() throws Exception
-    {
-        final Macros macros = new Macros();
-        macros.add("S", "BL7");
-        macros.add("TAB", "    ");
-        macros.add("COMMA", "Flint, Fred");
-        macros.add("QUOTED", "Al \"Fred\" King");
-        final String text = MacroParser.serialize(macros);
-        System.out.println(text);
-
-        // Macros are serialized in alphabetical order.
-        // Values are _always_ quoted, even if "BL7" could remain unquoted.
-        assertThat(text, equalTo("COMMA=\"Flint, Fred\", QUOTED=\"Al \\\"Fred\\\" King\", S=\"BL7\", TAB=\"    \""));
-
-        final Macros copy = MacroParser.parseDefinition(text);
-        assertThat(copy, equalTo(macros));
-    }
-
     /** Test basic macro=value
      *  @throws Exception on error
      */
     @Test
     public void testMacros() throws Exception
     {
-        final MacroValueProvider macros = MacroParser.parseDefinition("S=BL7, NAME=\"Flint, Eugene\", TAB = \"    \", MACRO=S");
+        final Macros macros = new Macros();
+        macros.add("S", "BL7");
+        macros.add("NAME", "Flint, Eugene");
+        macros.add("TAB", "    ");
+        macros.add("MACRO", "S");
 
         assertThat(MacroHandler.replace(macros, "Plain Text"), equalTo("Plain Text"));
         assertThat(MacroHandler.replace(macros, "${S}"), equalTo("BL7"));
@@ -102,38 +56,13 @@ public class MacrosUnitTest
         assertThat(MacroHandler.replace(macros, "Escaped \\$(S) Used $(S)"), equalTo("Escaped \\$(S) Used BL7"));
     }
 
-    /** Test errors*/
-    @Test
-    public void testErrors()
-    {
-        try
-        {
-            MacroParser.parseDefinition("S  value");
-            fail("Missing '='");
-        }
-        catch (Exception ex)
-        {
-            assertThat(ex.getMessage(), containsString("="));
-        }
-
-        try
-        {
-            MacroParser.parseDefinition("S=\"");
-            fail("Open quotes");
-        }
-        catch (Exception ex)
-        {
-            assertThat(ex.getMessage(), containsString("quote"));
-        }
-    }
-
     /** Test special cases
      *  @throws Exception on error
      */
     @Test
     public void testSpecials() throws Exception
     {
-        MacroValueProvider macros = MacroParser.parseDefinition("");
+        MacroValueProvider macros = new Macros();
         System.out.println(macros);
         assertThat(macros.toString(), equalTo("[]"));
 

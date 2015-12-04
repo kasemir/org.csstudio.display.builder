@@ -11,7 +11,7 @@ package org.csstudio.display.builder.model;
 import java.io.FileOutputStream;
 import java.util.Arrays;
 
-import org.csstudio.display.builder.model.macros.MacroParser;
+import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo.Target;
@@ -37,9 +37,14 @@ public class AllWidgetsAllProperties
             if (widget_type == ActionButtonWidget.WIDGET_DESCRIPTOR)
             {
                 ActionButtonWidget button = (ActionButtonWidget) widget;
-                button.widgetMacros().setValue(MacroParser.parseDefinition("S=Test, N=1"));
+                final Macros macros = new Macros();
+                macros.add("S", "Test");
+                macros.add("N", "1");
+                button.widgetMacros().setValue(macros);
+                final Macros macros2 = new Macros();
+                macros2.add("N", "2");
                 button.behaviorActions().setValue(Arrays.asList(
-                    new OpenDisplayActionInfo("Display", "other.opi", MacroParser.parseDefinition("N=2"), Target.REPLACE)));
+                    new OpenDisplayActionInfo("Display", "other.opi", macros2, Target.REPLACE)));
             }
 
             model.addChild(widget);

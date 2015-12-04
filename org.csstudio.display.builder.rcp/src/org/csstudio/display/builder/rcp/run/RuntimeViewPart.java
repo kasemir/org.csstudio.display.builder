@@ -9,7 +9,6 @@ package org.csstudio.display.builder.rcp.run;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -18,7 +17,7 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.rcp.DisplayInfo;
-import org.csstudio.display.builder.rcp.DisplayInfoParser;
+import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.eclipse.jface.action.Action;
@@ -55,7 +54,7 @@ public class RuntimeViewPart extends ViewPart
 	// would then best find the newly created RuntimeViewPart to set its input etc.
 	// --> Using E3 ViewPart
 	public static final String ID = "org.csstudio.display.builder.rcp.run.RuntimeViewPart";
-	
+
     /** Property on the 'root' Group of the JFX scene that holds RuntimeViewPart */
     static final String ROOT_RUNTIME_VIEW_PART = "_runtime_view_part";
 
@@ -69,7 +68,7 @@ public class RuntimeViewPart extends ViewPart
 
     /** Display info that may have been received from memento */
     private Optional<DisplayInfo> display_info = Optional.empty();
-    
+
     private FXCanvas fx_canvas;
 
     private Group root;
@@ -116,7 +115,7 @@ public class RuntimeViewPart extends ViewPart
 			return;
 		try
 		{
-			display_info = Optional.of(DisplayInfoParser.parse(serialized_info).get(0));
+			display_info = Optional.of(DisplayInfoXMLUtil.fromXML(serialized_info));
 		}
 		catch (Exception ex)
 		{
@@ -140,7 +139,7 @@ public class RuntimeViewPart extends ViewPart
         createContextMenu(parent);
 
         parent.addDisposeListener(e -> disposeModel());
-        
+
         // Load persisted DisplayInfo
         if (display_info.isPresent())
         	loadDisplayFile(display_info.get().getPath());
@@ -154,7 +153,14 @@ public class RuntimeViewPart extends ViewPart
     		return;
 		final DisplayInfo info = new DisplayInfo(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE),
 				                                 model.getName());
-		memento.putString(MEMENTO_DISPLAY_INFO, DisplayInfoParser.serialize(info));
+		try
+		{
+		    memento.putString(MEMENTO_DISPLAY_INFO, DisplayInfoXMLUtil.toXML(info));
+		}
+		catch (Exception ex)
+		{
+		    logger.log(Level.WARNING, "Cannot persist display info", ex);
+		}
 	}
 
 	/** Replace UI content with (error) message

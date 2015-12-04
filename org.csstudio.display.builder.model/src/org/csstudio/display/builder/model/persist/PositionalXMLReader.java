@@ -40,7 +40,7 @@ class PositionalXMLReader
     /** User data tag for line number */
     public static final String LINE_NUMBER = "lineNumber";
 
-    /** Read XML, creating document where nodes habe line number in user data.
+    /** Read XML, creating document where nodes have line number in user data.
      *  @param stream
      *  @return {@link Document}
      *  @throws Exception on error

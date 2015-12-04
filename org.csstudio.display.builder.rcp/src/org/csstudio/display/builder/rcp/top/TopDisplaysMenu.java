@@ -13,7 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.rcp.DisplayInfo;
-import org.csstudio.display.builder.rcp.DisplayInfoParser;
+import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
 import org.csstudio.display.builder.rcp.Messages;
 import org.csstudio.display.builder.rcp.Plugin;
 import org.eclipse.jface.action.IAction;
@@ -31,7 +31,7 @@ public class TopDisplaysMenu extends CompoundContributionItem
     private static List<IAction> createDisplayActions() throws Exception
     {
         final String setting = Plugin.getPreference("top_displays", "");
-        final List<DisplayInfo> displays = DisplayInfoParser.parse(setting);
+        final List<DisplayInfo> displays = DisplayInfoXMLUtil.fromDisplaysXML(setting);
         final List<IAction> actions = new ArrayList<>(displays.size());
         displays.forEach(info -> actions.add(new OpenDisplayAction(info)));
         return actions;

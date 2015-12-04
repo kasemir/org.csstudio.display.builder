@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.macros.MacroXMLUtil;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
@@ -80,7 +81,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 if (! action.getMacros().getNames().isEmpty())
                 {
                     writer.writeStartElement(XMLTags.MACROS);
-                    MacrosWidgetProperty.writeMacros(writer, action.getMacros());
+                    MacroXMLUtil.writeMacros(writer, action.getMacros());
                     writer.writeEndElement();
                 }
                 writer.writeStartElement(XMLTags.TARGET);
@@ -143,7 +144,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 final Macros macros;
                 final Element macro_xml = XMLUtil.getChildElement(action_xml, XMLTags.MACROS);
                 if (macro_xml != null)
-                    macros = MacrosWidgetProperty.readMacros(macro_xml);
+                    macros = MacroXMLUtil.readMacros(macro_xml);
                 else
                     macros = new Macros();
 

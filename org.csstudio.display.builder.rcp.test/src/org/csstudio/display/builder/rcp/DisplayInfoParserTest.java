@@ -10,8 +10,6 @@ package org.csstudio.display.builder.rcp;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-import java.util.List;
-
 import org.junit.Test;
 
 /** Information about a display
@@ -21,43 +19,14 @@ import org.junit.Test;
 public class DisplayInfoParserTest
 {
     @Test
-    public void testSerialization()
+    public void testSerialization() throws Exception
     {
     	DisplayInfo display = new DisplayInfo("/a/path/file.opi", "Alias");
-    	String serialized = DisplayInfoParser.serialize(display);
-		assertThat(serialized, equalTo("\"Alias\"=\"/a/path/file.opi\""));
-
-    	display = new DisplayInfo("/a file.opi", "I call it \"this\"");
-    	serialized = DisplayInfoParser.serialize(display);
+    	String serialized = DisplayInfoXMLUtil.toXML(display);
     	System.out.println(serialized);
-    	assertThat(serialized, equalTo("\"I call it \\\"this\\\"\"=\"/a file.opi\""));
-    }
-    
-    @Test
-    public void testQuoted() throws Exception
-    {
-        final List<DisplayInfo> displays = DisplayInfoParser.parse("\"Instruments\" = \"https://webopi.sns.gov/webopi/opi/Instruments.opi\"");
-        assertThat(displays.size(), equalTo(1));
-        assertThat(displays.get(0).getName(), equalTo("Instruments"));
-        assertThat(displays.get(0).getPath(), equalTo("https://webopi.sns.gov/webopi/opi/Instruments.opi"));
-    }
 
-    @Test
-    public void testPlain() throws Exception
-    {
-        final List<DisplayInfo> displays = DisplayInfoParser.parse("Instruments = https://webopi.sns.gov/webopi/opi/Instruments.opi");
-        assertThat(displays.size(), equalTo(1));
-        assertThat(displays.get(0).getName(), equalTo("Instruments"));
-        assertThat(displays.get(0).getPath(), equalTo("https://webopi.sns.gov/webopi/opi/Instruments.opi"));
-    }
-
-    @Test
-    public void testTwo() throws Exception
-    {
-        final List<DisplayInfo> displays = DisplayInfoParser.parse("Main=/some/path/main.opi|https://webopi.sns.gov/webopi/opi/Instruments.opi");
-        assertThat(displays.size(), equalTo(2));
-        assertThat(displays.get(0).getName(), equalTo("Main"));
-        assertThat(displays.get(0).getPath(), equalTo("/some/path/main.opi"));
-        assertThat(displays.get(1).getName(), equalTo("Instruments"));
+    	DisplayInfo copy = DisplayInfoXMLUtil.fromXML(serialized);
+    	System.out.println(copy);
+    	assertThat(copy, equalTo(display));
     }
 }

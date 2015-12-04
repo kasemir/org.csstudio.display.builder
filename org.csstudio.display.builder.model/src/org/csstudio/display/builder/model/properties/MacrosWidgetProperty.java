@@ -12,8 +12,8 @@ import javax.xml.stream.XMLStreamWriter;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.macros.MacroXMLUtil;
 import org.csstudio.display.builder.model.macros.Macros;
-import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.w3c.dom.Element;
 
 /** Widget property that describes macros.
@@ -49,51 +49,12 @@ public class MacrosWidgetProperty extends WidgetProperty<Macros>
     @Override
     public void writeToXML(final XMLStreamWriter writer) throws Exception
     {
-        writeMacros(writer, value);
+        MacroXMLUtil.writeMacros(writer, value);
     }
 
     @Override
     public void readFromXML(final Element property_xml) throws Exception
     {
-        setValue(readMacros(property_xml));
-    }
-
-    /** Write content of <macros>
-     *  @param writer
-     *  @param value
-     *  @throws Exception
-     */
-    static void writeMacros(final XMLStreamWriter writer, final Macros value) throws Exception
-    {
-        // TODO Write if parent macros are inherited (or forget about that concept, they're always inherited)
-        for (String name : value.getNames())
-        {
-            writer.writeStartElement(name);
-            writer.writeCharacters(value.getValue(name));
-            writer.writeEndElement();
-        }
-    }
-
-    /** Read content of <macros>
-     *  @param property_xml
-     */
-    static Macros readMacros(final Element property_xml)
-    {
-        final Macros macros = new Macros();
-        for (Element element = XMLUtil.findElement(property_xml.getFirstChild());
-             element != null;
-             element = XMLUtil.findElement(element.getNextSibling()))
-        {
-            final String name = element.getTagName();
-            final String value = XMLUtil.getString(element);
-            // Legacy used 'include_parent_macros'
-            // in a way that actually conflicts with a macro of that name.
-            // This implementation _always_ inherits parent macros,
-            // so that setting is obsolete.
-            if (name.equals("include_parent_macros"))
-                continue;
-            macros.add(name, value);
-        }
-        return macros;
+        setValue(MacroXMLUtil.readMacros(property_xml));
     }
 }
