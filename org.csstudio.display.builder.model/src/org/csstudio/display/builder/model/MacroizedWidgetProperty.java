@@ -101,7 +101,8 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
 
             // TODO Do not allow this...
             if (MacroHandler.containsMacros(expanded))
-                System.out.println(widget + "/" + getName() + " is not fully resolved: " + expanded);
+                Logger.getLogger(getClass().getName())
+                      .log(Level.WARNING, widget + " '" + getName() + "' is not fully resolved: " + expanded);
 
             try
             {

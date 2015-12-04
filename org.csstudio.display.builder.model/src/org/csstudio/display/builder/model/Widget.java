@@ -507,6 +507,6 @@ public class Widget
     @Override
     public String toString()
     {
-        return "Widget '" + getName() + "' (" + getType() + ")";
+        return "Widget '" + name.getDescription() + "' (" + getType() + ")";
     }
 }

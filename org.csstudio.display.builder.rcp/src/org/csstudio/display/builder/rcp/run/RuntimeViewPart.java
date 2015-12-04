@@ -142,7 +142,7 @@ public class RuntimeViewPart extends ViewPart
 
         // Load persisted DisplayInfo
         if (display_info.isPresent())
-        	loadDisplayFile(display_info.get().getPath());
+        	loadDisplayFile(display_info.get());
     }
 
     @Override
@@ -152,7 +152,8 @@ public class RuntimeViewPart extends ViewPart
     	if (model == null)
     		return;
 		final DisplayInfo info = new DisplayInfo(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE),
-				                                 model.getName());
+				                                 model.getName(),
+				                                 model.widgetMacros().getValue());
 		try
 		{
 		    memento.putString(MEMENTO_DISPLAY_INFO, DisplayInfoXMLUtil.toXML(info));
@@ -192,13 +193,14 @@ public class RuntimeViewPart extends ViewPart
     }
 
     /** Load display file, represent it, start runtime
-     *  @param display_file Display file to load
+     *  @param info Display file to load
      */
-    public void loadDisplayFile(final String display_file)
+    public void loadDisplayFile(final DisplayInfo info)
     {
-        showMessage("Loading " + display_file);
+        showMessage("Loading " + info);
         // Load model off UI thread
-        RuntimeUtil.getExecutor().execute(() -> loadModel(display_file));
+        // TODO Use info.getMacros()
+        RuntimeUtil.getExecutor().execute(() -> loadModel(info.getPath()));
     }
 
     /** Load display model, schedule representation

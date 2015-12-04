@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp;
 
+import org.csstudio.display.builder.model.macros.Macros;
+
 /** Information about a display
  *  @author Kay Kasemir
  */
@@ -14,12 +16,13 @@ package org.csstudio.display.builder.rcp;
 public class DisplayInfo
 {
     private final String path, name;
+    private final Macros macros;
 
-    // TODO Add macros
-    public DisplayInfo(final String path, final String name)
+    public DisplayInfo(final String path, final String name, final Macros macros)
     {
         this.path = path;
         this.name = name;
+        this.macros = macros;
     }
 
     public String getPath()
@@ -32,6 +35,11 @@ public class DisplayInfo
         return name;
     }
 
+    public Macros getMacros()
+    {
+        return macros;
+    }
+
     @Override
     public int hashCode()
     {
@@ -39,6 +47,7 @@ public class DisplayInfo
         int result = 1;
         result = prime * result + name.hashCode();
         result = prime * result + path.hashCode();
+        result = prime * result + macros.hashCode();
         return result;
     }
 
@@ -49,12 +58,14 @@ public class DisplayInfo
             return false;
         final DisplayInfo other = (DisplayInfo) obj;
         return name.equals(other.name) &&
-               path.equals(other.path);
+               path.equals(other.path) &&
+               macros.equals(other.macros);
     }
 
     @Override
     public String toString()
     {
-        return "DisplayInfo [path=" + path + ", name=" + name + "]";
+        return "Display '" + name + "', file " + path + ", macros " + macros;
+
     }
 }

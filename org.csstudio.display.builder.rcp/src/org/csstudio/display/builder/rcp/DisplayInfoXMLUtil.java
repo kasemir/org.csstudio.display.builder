@@ -15,6 +15,8 @@ import java.util.List;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.macros.MacroXMLUtil;
+import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.w3c.dom.Element;
@@ -55,6 +57,13 @@ public class DisplayInfoXMLUtil
         writer.writeCharacters(display_info.getPath());
         writer.writeEndElement();
 
+        if (! display_info.getMacros().getNames().isEmpty())
+        {
+            writer.writeStartElement(XMLTags.MACROS);
+            MacroXMLUtil.writeMacros(writer, display_info.getMacros());
+            writer.writeEndElement();
+        }
+
         writer.writeEndElement();
     }
 
@@ -91,6 +100,8 @@ public class DisplayInfoXMLUtil
     {
         final String path = XMLUtil.getChildString(display, XMLTags.FILE).orElseThrow(() -> new Exception("Missing display path"));
         final String name = XMLUtil.getChildString(display, XMLTags.NAME).orElse(path);
-        return new DisplayInfo(path, name);
+        final Element macros_xml = XMLUtil.getChildElement(display, XMLTags.MACROS);
+        final Macros macros = macros_xml == null ? new Macros() : MacroXMLUtil.readMacros(macros_xml);
+        return new DisplayInfo(path, name, macros);
     }
 }
