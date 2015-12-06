@@ -26,7 +26,7 @@ public class OpenDisplayAction extends Action
 {
     private final static ImageDescriptor icon = AbstractUIPlugin.imageDescriptorFromPlugin(Plugin.ID, "icons/display.png");
 
-    private final String path;
+    private final DisplayInfo info;
 
     public static ImageDescriptor getIcon()
     {
@@ -36,7 +36,7 @@ public class OpenDisplayAction extends Action
     public OpenDisplayAction(final DisplayInfo info)
     {
         super(info.getName(), icon);
-        this.path = info.getPath();
+        this.info = info;
     }
 
     @Override
@@ -45,12 +45,12 @@ public class OpenDisplayAction extends Action
         try
         {
             final RuntimeViewPart part = RuntimeViewPart.open(ActionUtil::handleClose);
-            part.loadDisplayFile(path);
+            part.loadDisplayFile(info);
         }
         catch (Exception ex)
         {
             Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Failed to open display " + path, ex);
+                  .log(Level.WARNING, "Failed to open " + info, ex);
         }
     }
 }

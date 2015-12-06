@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
@@ -199,26 +200,36 @@ public class RuntimeViewPart extends ViewPart
     {
         showMessage("Loading " + info);
         // Load model off UI thread
-        // TODO Use info.getMacros()
-        RuntimeUtil.getExecutor().execute(() -> loadModel(info.getPath()));
+        RuntimeUtil.getExecutor().execute(() -> loadModel(info));
     }
 
     /** Load display model, schedule representation
-     *  @param display_file Display file to load
+     *  @param info Display to load
      */
-    private void loadModel(final String display_file)
+    private void loadModel(final DisplayInfo info)
     {
         try
         {
-            final DisplayModel model = RuntimeUtil.loadModel(null, display_file);
+            final DisplayModel model = RuntimeUtil.loadModel(null, info.getPath());
 
+            // This code is called
+            // 1) From OpenDisplayAction
+            // No macros in info.
+            // 2) On application restart with DisplayInfo from memento
+            // info contains snapshot of macros from last run
+            // Could simply use info's macros if they are non-empty,
+            // but merging macros with those loaded from model file
+            // allows for newly added macros in the display file.
+            final Macros macros = Macros.merge(model.widgetMacros().getValue(), info.getMacros());
+            model.widgetMacros().setValue(macros);
+            
             // Schedule representation on UI thread
             final RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
             representation.execute(() -> representModel(model));
         }
         catch (Exception ex)
         {
-            final String message = "Cannot load " + display_file;
+            final String message = "Cannot load " + info;
             logger.log(Level.SEVERE, message, ex);
             showMessage(message, ex);
         }
