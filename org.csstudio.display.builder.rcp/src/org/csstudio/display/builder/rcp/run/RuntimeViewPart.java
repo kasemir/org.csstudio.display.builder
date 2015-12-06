@@ -100,7 +100,8 @@ public class RuntimeViewPart extends ViewPart
     public void trackCurrentModel(final DisplayModel model)
     {   // TODO Might need model input file plus macro params
         //      to allow forward/backward navigation
-        super.setPartName(model.getName());
+        setPartName(model.getName());
+        setTitleToolTip(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE));
         active_model = model;
     }
 
