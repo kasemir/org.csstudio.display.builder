@@ -7,7 +7,9 @@
  ******************************************************************************/
 package org.csstudio.display.builder.util.undo;
 
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /** A stack with limited size.
@@ -39,6 +41,24 @@ public class SizeLimitedStack<T>
         if (list.size() >= limit)
             list.removeFirst();
         list.addLast(item);
+    }
+
+    /** Get items which are currently on the stack.
+     *
+     *  <p>For efficiency, this returns a read-only view
+     *  that will be affected by changes to the underlying stack,
+     *  so the result should not be cached.
+     *  @return Items on the stack
+     */
+    public List<T> getItems()
+    {
+        return Collections.unmodifiableList(list);
+    }
+
+    /** @return Number of items on stack */
+    public int size()
+    {
+        return list.size();
     }
 
     /** @return Top element
