@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.4"?>
 <plugin>
+
    <extension
          point="org.eclipse.ui.views">
       <view
-            class="org.csstudio.display.builder.rcp.run.RuntimeViewPart"
-            icon="icons/display.png"
-            id="org.csstudio.display.builder.rcp.run.RuntimeViewPart"
             name="%RuntimeView"
-            restorable="true">
+            icon="icons/display.png"
+            class="org.csstudio.display.builder.rcp.run.RuntimeViewPart"
+            restorable="true"
+            id="org.csstudio.display.builder.rcp.run.RuntimeViewPart">
       </view>
    </extension>
    <extension
@@ -21,6 +21,13 @@
                id="org.csstudio.display.builder.rcp.menu.displays">
          </dynamic>
       </menuContribution>
+   </extension>
+   <extension
+         id="org.csstudio.display.builder.rcp.fragment"
+         point="org.eclipse.e4.workbench.model">
+      <fragment
+            uri="fragment.e4xmi">
+      </fragment>
    </extension>
 
 </plugin>

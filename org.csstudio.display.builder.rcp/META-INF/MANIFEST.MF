@@ -1,22 +1,26 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Display Builder RCP Integration
-Bundle-Description: Display Builder RCP Integration
 Bundle-SymbolicName: org.csstudio.display.builder.rcp;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ActivationPolicy: lazy
 Bundle-Vendor: Kay Kasemir - SNS
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.swt,
  org.eclipse.jface,
  org.eclipse.ui,
+ org.eclipse.e4.core.commands;bundle-version="0.11.0",
  org.eclipse.e4.core.di,
+ org.eclipse.e4.core.di.extensions;bundle-version="0.13.0",
  org.eclipse.e4.ui.di;bundle-version="1.1.0",
  org.eclipse.fx.javafx;bundle-version="2.2.0",
  org.eclipse.fx.ui.workbench3;bundle-version="1.2.0",
  org.csstudio.display.builder.representation.javafx;bundle-version="1.0.0",
  org.csstudio.display.builder.runtime;bundle-version="1.0.0",
- org.csstudio.display.builder.util
-Import-Package: javax.annotation
+ org.csstudio.display.builder.util,
+ org.eclipse.e4.ui.model.workbench;bundle-version="1.1.100.v20150407-1430"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-Description: Display Builder RCP Integration
+Import-Package: javax.annotation,
+ javax.inject;version="1.0.0"
+Bundle-ActivationPolicy: lazy
