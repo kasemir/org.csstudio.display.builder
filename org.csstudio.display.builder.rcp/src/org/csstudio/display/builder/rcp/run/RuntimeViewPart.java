@@ -22,6 +22,7 @@ import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Rectangle;
@@ -100,8 +101,12 @@ public class RuntimeViewPart extends ViewPart
     public void trackCurrentModel(final DisplayModel model)
     {   // TODO Might need model input file plus macro params
         //      to allow forward/backward navigation
-        setPartName(model.getName());
-        setTitleToolTip(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE));
+    	
+    	final DisplayInfo info = new DisplayInfo(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE),
+    			                                 model.getName(),
+    			                                 model.widgetMacros().getValue());
+        setPartName(info.getName());
+        setTitleToolTip(info.getPath());
         active_model = model;
     }
 
@@ -137,7 +142,8 @@ public class RuntimeViewPart extends ViewPart
         root = representation.getSceneRoot(scene);
         root.getProperties().put(ROOT_RUNTIME_VIEW_PART, this);
         fx_canvas.setScene(scene);
-
+        
+        createToolbarItems();
         createContextMenu(parent);
 
         parent.addDisposeListener(e -> disposeModel());
@@ -147,7 +153,7 @@ public class RuntimeViewPart extends ViewPart
         	loadDisplayFile(display_info.get());
     }
 
-    @Override
+	@Override
 	public void saveState(final IMemento memento)
     {	// Persist DisplayInfo so it's loaded on application restart
     	final DisplayModel model = active_model;
@@ -257,7 +263,15 @@ public class RuntimeViewPart extends ViewPart
         RuntimeUtil.getExecutor().execute(() -> RuntimeUtil.startRuntime(model));
     }
 
-    /** Dummy SWT context menu to test interaction of SWT and JFX context menus */
+    /** Create tool bar entries */
+    private void createToolbarItems()
+    {
+		final IToolBarManager toolbar = getViewSite().getActionBars().getToolBarManager();
+	    toolbar.add(new NavigateBackAction());
+	    toolbar.add(new NavigateForwardAction());
+	}
+
+	/** Dummy SWT context menu to test interaction of SWT and JFX context menus */
     private void createContextMenu(final Control parent)
     {
     	final MenuManager mm = new MenuManager();
