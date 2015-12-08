@@ -18,6 +18,10 @@ public class Messages extends NLS
     private static final String BUNDLE_NAME = "org.csstudio.display.builder.rcp.messages";
 
     // Keep in alphabetical order!
+    public static String NavigateBack;
+    public static String NavigateBack_TT;
+    public static String NavigateForward;
+    public static String NavigateForward_TT;
     public static String TopDisplays;
 
     static

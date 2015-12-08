@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -124,7 +126,10 @@ public class DisplayNavigation
     {
         final String backward = backwardStack.getItems().stream().map(d -> d.getName()).collect(Collectors.joining(", "));
         final String curr = current == null ? " -- " : current.getName();
-        final String forward = forwardStack.getItems().stream().map(d -> d.getName()).collect(Collectors.joining(", "));
+        // Show forwardStack in 'reverse' order so overall result has all items from first to last in order
+        final List<DisplayInfo> fwd = new ArrayList<>(forwardStack.getItems());
+        Collections.reverse(fwd);
+        final String forward = fwd.stream().map(d -> d.getName()).collect(Collectors.joining(", "));
         return "[ " + backward + " ], " + curr + ", [ " + forward + " ]";
     }
 }
