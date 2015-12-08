@@ -19,9 +19,11 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
+import org.csstudio.display.builder.rcp.DisplayNavigation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Rectangle;
@@ -63,6 +65,7 @@ public class RuntimeViewPart extends ViewPart
     private static final String MEMENTO_DISPLAY_INFO = "DISPLAY_INFO";
 
     // TODO back/forward navigation
+    private final DisplayNavigation navigation = new DisplayNavigation();
     // TODO Zoom, scrollbars
 
     private final Logger logger = Logger.getLogger(getClass().getName());
@@ -98,10 +101,13 @@ public class RuntimeViewPart extends ViewPart
 
     /** @param name Name of the part */
     public void trackCurrentModel(final DisplayModel model)
-    {   // TODO Might need model input file plus macro params
-        //      to allow forward/backward navigation
-        setPartName(model.getName());
-        setTitleToolTip(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE));
+    {
+    	final DisplayInfo info = new DisplayInfo(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE),
+    			                                 model.getName(),
+    			                                 model.widgetMacros().getValue());
+        setPartName(info.getName());
+        setTitleToolTip(info.getPath());
+        navigation.setCurrentDisplay(info);
         active_model = model;
     }
 
@@ -137,7 +143,8 @@ public class RuntimeViewPart extends ViewPart
         root = representation.getSceneRoot(scene);
         root.getProperties().put(ROOT_RUNTIME_VIEW_PART, this);
         fx_canvas.setScene(scene);
-
+        
+        createToolbarItems();
         createContextMenu(parent);
 
         parent.addDisposeListener(e -> disposeModel());
@@ -147,7 +154,7 @@ public class RuntimeViewPart extends ViewPart
         	loadDisplayFile(display_info.get());
     }
 
-    @Override
+	@Override
 	public void saveState(final IMemento memento)
     {	// Persist DisplayInfo so it's loaded on application restart
     	final DisplayModel model = active_model;
@@ -257,7 +264,15 @@ public class RuntimeViewPart extends ViewPart
         RuntimeUtil.getExecutor().execute(() -> RuntimeUtil.startRuntime(model));
     }
 
-    /** Dummy SWT context menu to test interaction of SWT and JFX context menus */
+    /** Create tool bar entries */
+    private void createToolbarItems()
+    {
+		final IToolBarManager toolbar = getViewSite().getActionBars().getToolBarManager();
+	    toolbar.add(new NavigateBackAction(this, navigation));
+	    toolbar.add(new NavigateForwardAction(this, navigation));
+	}
+
+	/** Dummy SWT context menu to test interaction of SWT and JFX context menus */
     private void createContextMenu(final Control parent)
     {
     	final MenuManager mm = new MenuManager();
