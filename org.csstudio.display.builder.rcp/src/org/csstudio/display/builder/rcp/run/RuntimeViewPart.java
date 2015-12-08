@@ -143,7 +143,7 @@ public class RuntimeViewPart extends ViewPart
         root = representation.getSceneRoot(scene);
         root.getProperties().put(ROOT_RUNTIME_VIEW_PART, this);
         fx_canvas.setScene(scene);
-        
+
         createToolbarItems();
         createContextMenu(parent);
 
@@ -230,7 +230,7 @@ public class RuntimeViewPart extends ViewPart
             // allows for newly added macros in the display file.
             final Macros macros = Macros.merge(model.widgetMacros().getValue(), info.getMacros());
             model.widgetMacros().setValue(macros);
-            
+
             // Schedule representation on UI thread
             final RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
             representation.execute(() -> representModel(model));
@@ -268,8 +268,8 @@ public class RuntimeViewPart extends ViewPart
     private void createToolbarItems()
     {
 		final IToolBarManager toolbar = getViewSite().getActionBars().getToolBarManager();
-	    toolbar.add(new NavigateBackAction(this, navigation));
-	    toolbar.add(new NavigateForwardAction(this, navigation));
+	    toolbar.add(NavigationAction.createBackAction(this, navigation));
+	    toolbar.add(NavigationAction.createForwardAction(this, navigation));
 	}
 
 	/** Dummy SWT context menu to test interaction of SWT and JFX context menus */
