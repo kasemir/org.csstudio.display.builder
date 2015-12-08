@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
+import org.csstudio.display.builder.rcp.DisplayNavigation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.eclipse.jface.action.Action;
@@ -64,6 +65,7 @@ public class RuntimeViewPart extends ViewPart
     private static final String MEMENTO_DISPLAY_INFO = "DISPLAY_INFO";
 
     // TODO back/forward navigation
+    private final DisplayNavigation navigation = new DisplayNavigation();
     // TODO Zoom, scrollbars
 
     private final Logger logger = Logger.getLogger(getClass().getName());
@@ -99,14 +101,13 @@ public class RuntimeViewPart extends ViewPart
 
     /** @param name Name of the part */
     public void trackCurrentModel(final DisplayModel model)
-    {   // TODO Might need model input file plus macro params
-        //      to allow forward/backward navigation
-    	
+    {
     	final DisplayInfo info = new DisplayInfo(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE),
     			                                 model.getName(),
     			                                 model.widgetMacros().getValue());
         setPartName(info.getName());
         setTitleToolTip(info.getPath());
+        navigation.setCurrentDisplay(info);
         active_model = model;
     }
 
@@ -267,8 +268,8 @@ public class RuntimeViewPart extends ViewPart
     private void createToolbarItems()
     {
 		final IToolBarManager toolbar = getViewSite().getActionBars().getToolBarManager();
-	    toolbar.add(new NavigateBackAction());
-	    toolbar.add(new NavigateForwardAction());
+	    toolbar.add(new NavigateBackAction(this, navigation));
+	    toolbar.add(new NavigateForwardAction(this, navigation));
 	}
 
 	/** Dummy SWT context menu to test interaction of SWT and JFX context menus */

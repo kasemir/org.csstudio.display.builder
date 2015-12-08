@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.run;
 
+import org.csstudio.display.builder.rcp.DisplayNavigation;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
@@ -15,9 +16,9 @@ import org.eclipse.ui.actions.ActionFactory;
 /** Action to open 'next' display in back/forward navigation
  *  @author Kay Kasemir
  */
-public class NavigateForwardAction extends Action
+public class NavigateForwardAction extends Action implements DisplayNavigation.Listener
 {
-	public NavigateForwardAction()
+	public NavigateForwardAction(final RuntimeViewPart part, final DisplayNavigation navigation)
 	{
 		final ISharedImages sharedImages = PlatformUI.getWorkbench().getSharedImages();
         setText("&Forward");
@@ -28,5 +29,13 @@ public class NavigateForwardAction extends Action
         setDisabledImageDescriptor(sharedImages
                 .getImageDescriptor(ISharedImages.IMG_TOOL_FORWARD_DISABLED));
         setActionDefinitionId("org.eclipse.ui.navigate.forwardHistory");
+        navigation.addListener(this);
+        displayHistoryChanged(navigation);
+	}
+
+	@Override
+	public void displayHistoryChanged(final DisplayNavigation navigation)
+	{
+		setEnabled(navigation.getForwardDisplays().size() > 0);
 	}
 }
