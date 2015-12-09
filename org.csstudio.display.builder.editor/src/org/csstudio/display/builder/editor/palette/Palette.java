@@ -36,6 +36,13 @@ import javafx.scene.layout.VBox;
 @SuppressWarnings("nls")
 public class Palette
 {
+    // TODO better auto-sizing
+    // All palette entries should have the same size,
+    // but since each Button is in a separate TilePane,
+    // it's not obvious how to get them to the same size
+    // unless that's set to a fixed pixel value.
+    private final static int PREFERRED_WIDTH = 180;
+
     private final WidgetSelectionHandler selection;
 
     /** @param selection Selection handler */
@@ -61,6 +68,10 @@ public class Palette
 
         final ScrollPane palette_scroll = new ScrollPane(palette);
         palette_scroll.setHbarPolicy(ScrollBarPolicy.NEVER);
+
+        // TODO Determine the correct size for the main node
+        // Using 2*PREFERRED_WIDTH was determined by trial and error
+        palette_scroll.setPrefWidth(2*PREFERRED_WIDTH);
         return palette_scroll;
     }
 
@@ -96,7 +107,7 @@ public class Palette
             final Image icon = WidgetIcons.getIcon(desc.getType());
             if (icon != null)
                 button.setGraphic(new ImageView(icon));
-            button.setPrefWidth(150);
+            button.setPrefWidth(PREFERRED_WIDTH);
             button.setAlignment(Pos.BASELINE_LEFT);
             palette_groups.get(desc.getCategory()).getChildren().add(button);
 

@@ -11,6 +11,8 @@ import java.util.concurrent.Executor;
 
 import org.csstudio.display.builder.model.util.NamedDaemonPool;
 
+import javafx.scene.Scene;
+
 /** Editor utility
  *  @author Kay Kasemir
  */
@@ -23,5 +25,10 @@ public class EditorUtil
     public static Executor getExecutor()
     {
         return executor;
+    }
+
+    public static void setSceneStyle(Scene scene)
+    {
+        scene.getStylesheets().add(EditorUtil.class.getResource("opieditor.css").toExternalForm());
     }
 }

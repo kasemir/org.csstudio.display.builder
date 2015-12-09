@@ -143,9 +143,9 @@ public class EditorGUI
 
         final Palette palette = new Palette(selection);
 
-        final SplitPane center = new SplitPane();
-        // editor_pane.getStyleClass().add("debug");
-        center.getItems().addAll(tree.create(), editor, palette.create(), property_panel);
+        final Node palette_node = palette.create();
+        final SplitPane center = new SplitPane(tree.create(), editor, palette_node, property_panel);
+        SplitPane.setResizableWithParent(palette_node, false);
         center.setDividerPositions(0.2, 0.63, 0.75);
 
         final Label status = new Label("Status");
@@ -160,9 +160,7 @@ public class EditorGUI
         stage.setHeight(600);
         final Scene scene = new Scene(toolbar_center_status, 1200, 600);
         stage.setScene(scene);
-
-        // Set style sheet
-        scene.getStylesheets().add(getClass().getResource("opieditor.css").toExternalForm());
+        EditorUtil.setSceneStyle(scene);
 
         stage.show();
 
