@@ -9,18 +9,20 @@ package org.csstudio.display.builder.rcp.run;
 
 import java.util.List;
 
+import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.DisplayNavigation;
 import org.csstudio.display.builder.rcp.Messages;
-import org.csstudio.display.builder.rcp.Plugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 /** Action to open 'previous' or 'next' display in back/forward navigation
  *  @author Kay Kasemir
@@ -28,6 +30,8 @@ import org.eclipse.ui.actions.ActionFactory;
 @SuppressWarnings("nls")
 abstract public class NavigationAction extends Action implements DisplayNavigation.Listener, IMenuCreator
 {
+    private final static ImageDescriptor icon =
+            AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/open_display.png");
 	private final RuntimeViewPart part;
 	private final DisplayNavigation navigation;
 	private Menu menu = null;
@@ -166,7 +170,7 @@ abstract public class NavigationAction extends Action implements DisplayNavigati
 				part.loadDisplayFile(display);
 			}
 		};
-		action.setImageDescriptor(Plugin.getIcon("display.png"));
+		action.setImageDescriptor(icon);
 		final ActionContributionItem item = new ActionContributionItem(action);
 		item.fill(menu, -1);
 	}

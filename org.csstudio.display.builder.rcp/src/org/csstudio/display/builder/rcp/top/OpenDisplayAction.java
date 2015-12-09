@@ -10,12 +10,13 @@ package org.csstudio.display.builder.rcp.top;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.rcp.DisplayInfo;
-import org.csstudio.display.builder.rcp.Plugin;
 import org.csstudio.display.builder.rcp.run.RuntimeViewPart;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 /** Action that opens a runtime display
  *  @author Kay Kasemir
@@ -23,7 +24,8 @@ import org.eclipse.jface.resource.ImageDescriptor;
 @SuppressWarnings("nls")
 public class OpenDisplayAction extends Action
 {
-    private final static ImageDescriptor icon = Plugin.getIcon("display.png");
+    private final static ImageDescriptor icon =
+        AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/display.png");
 
     private final DisplayInfo info;
 

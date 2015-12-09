@@ -5,7 +5,7 @@
          point="org.eclipse.ui.views">
       <view
             class="org.csstudio.display.builder.rcp.run.RuntimeViewPart"
-            icon="icons/display.png"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
             id="org.csstudio.display.builder.rcp.run.RuntimeViewPart"
             name="%RuntimeView"
             restorable="true">
