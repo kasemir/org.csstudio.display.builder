@@ -1,7 +1,7 @@
 Display Builder
 ===============
 
-Beginnings of an update to CS-Studio 'BOY',
+Ongoing update of CS-Studio 'BOY',
 i.e. the `org.csstudio.opibuilder.*` code in 
 https://github.com/ControlSystemStudio/cs-studio.
 
@@ -21,8 +21,10 @@ Dependencies
 
  * Java 8 SDK, must be 8u40 or later
  * In Eclipse Preferences, Java, Build Path, Classpath Variables: Set `JFXSWT` to `jre/lib/jfxswt.jar`
- * As Eclipse Target platform, use a CS-Studio target. For example use "Directory" of CSS product's `plugins/`
- * In product start config, set VM option "-Dpython.import.site=false"
+ * As Eclipse Preferences, Plugin Development, Target platform, use a CS-Studio target.
+   For example, use the current IDE and add a "Directory" pointing to a CSS product's `plugins/` directory.
+ * In product start config, add VM options
+   `-Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi  -Dpython.import.site=false`
  * Demos use EPICS `softIoc` for `org.csstudio.display.builder.runtime.test/examples/demo.db`
  * Install the "Liberation" fonts from https://fedorahosted.org/liberation-fonts.
    Mac OS X: Double-click each *.ttf to preview, then click "Install Font".
@@ -62,7 +64,6 @@ On change, it can prepare the UI update, which is then scheduled via `ToolkitRep
 to occur on the UI thread in a throttled manner.
 
 Major TODOs:
- * Overall zoom factor (should be easy with JFX), auto-size.
  * A ton of widgets and their representation
  * How to draw custom widgets in background? Draw JFX Canvas in background,then 'swap' with active canvas? Use AWT to draw image in background?
  
@@ -99,7 +100,6 @@ Editor, Palette, Property Panel, Widget Tree,
 move/resize via tracker, snap-to-grid, snap-to-other-widgets.
 
 Major TODOs:
- * Property editor for scripts, ...
  * Rulers, Guides
  * Editor for points of polyline, polygon
 
@@ -108,9 +108,11 @@ Major TODOs:
 
 Everything is in form of JUnit tests or 'main' type demos.
 
+There is RCP 'View' support for the runtime, using SWT FXCanvas.
+
 Major TODOs:
 
- * RCP plugins that demo this in Eclipse/CS-Studio, using SWT FXCanvas
+ * RCP plugins for Editor.
 
 
 Performance: JavaFX vs. SWT
