@@ -55,6 +55,14 @@ public class TextEntryRepresentation extends JFXBaseRepresentation<TextField, Te
         final TextField text = new TextField();
         text.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
+        // TODO: Improve handling of 'active' and focus
+        // When a display is opened, one of the text fields likely has the focus.
+        // That widget will then NOT show any value, because we're active as if the
+        // user just navigated into the field to edit it.
+        //
+        // Idea: Turn 'active' as soon as user types anything, including use of cursor keys.
+        // Just clicking into the field does not stop updates.
+
         // Determine 'active' state (gain focus, entered first character)
         text.focusedProperty().addListener((final ObservableValue<? extends Boolean> observable,
                                             final Boolean old_value, final Boolean focus) ->
