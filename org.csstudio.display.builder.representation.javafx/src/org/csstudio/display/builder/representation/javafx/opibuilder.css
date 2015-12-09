@@ -1,6 +1,12 @@
 /* Style sheet used by Java FX representations
  */
 
+/** Temporarily assigned to nodes to have them stand out during development */
+.debug
+{
+    -fx-background-color: rgb(255, 100, 0, 1.0);
+}
+
 /* LEDRepresentation */
 .led
 {

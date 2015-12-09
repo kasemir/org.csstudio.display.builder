@@ -23,6 +23,9 @@ public class Messages extends NLS
     public static String NavigateForward;
     public static String NavigateForward_TT;
     public static String TopDisplays;
+    public static String Zoom_All;
+    public static String Zoom_Height;
+    public static String Zoom_Width;
 
     static
     {

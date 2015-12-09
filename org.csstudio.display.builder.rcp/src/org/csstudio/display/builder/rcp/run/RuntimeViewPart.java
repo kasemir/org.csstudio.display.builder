@@ -64,9 +64,8 @@ public class RuntimeViewPart extends ViewPart
     /** Memento key for DisplayInfo */
     private static final String MEMENTO_DISPLAY_INFO = "DISPLAY_INFO";
 
-    // TODO back/forward navigation
+    /** Back/forward navigation */
     private final DisplayNavigation navigation = new DisplayNavigation();
-    // TODO Zoom, scrollbars
 
     private final Logger logger = Logger.getLogger(getClass().getName());
 
@@ -154,7 +153,17 @@ public class RuntimeViewPart extends ViewPart
         	loadDisplayFile(display_info.get());
     }
 
-	@Override
+	/** @param zoom Zoom level, 1.0 for 100%, -1 to 'fit'
+	 *  @return Zoom level actually used
+	 */
+	public double setZoom(final double zoom)
+    {
+        final RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
+        final Scene scene = fx_canvas.getScene();
+        return representation.setSceneZoom(scene, zoom);
+    }
+
+    @Override
 	public void saveState(final IMemento memento)
     {	// Persist DisplayInfo so it's loaded on application restart
     	final DisplayModel model = active_model;
@@ -268,6 +277,8 @@ public class RuntimeViewPart extends ViewPart
     private void createToolbarItems()
     {
 		final IToolBarManager toolbar = getViewSite().getActionBars().getToolBarManager();
+
+		toolbar.add(new ZoomAction(this));
 	    toolbar.add(NavigationAction.createBackAction(this, navigation));
 	    toolbar.add(NavigationAction.createForwardAction(this, navigation));
 	}
