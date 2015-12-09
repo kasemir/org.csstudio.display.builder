@@ -7,8 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
-import java.util.concurrent.Executor;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
+import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.util.NamedDaemonPool;
 
 import javafx.scene.Scene;
@@ -19,10 +25,10 @@ import javafx.scene.Scene;
 @SuppressWarnings("nls")
 public class EditorUtil
 {
-    private static final Executor executor = NamedDaemonPool.createThreadPool("DisplayEditor");
+    private static final ExecutorService executor = NamedDaemonPool.createThreadPool("DisplayEditor");
 
-    /** @return Executor for thread pool meant for editor-related background tasks */
-    public static Executor getExecutor()
+    /** @return ExecutorService for thread pool meant for editor-related background tasks */
+    public static ExecutorService getExecutor()
     {
         return executor;
     }
@@ -30,5 +36,19 @@ public class EditorUtil
     public static void setSceneStyle(Scene scene)
     {
         scene.getStylesheets().add(EditorUtil.class.getResource("opieditor.css").toExternalForm());
+    }
+
+    /** Load model from file
+     *  @param file File that contains the model
+     *  @return
+     */
+    public Future<DisplayModel> loadModel(final File file)
+    {
+        final Callable<DisplayModel> task = () ->
+        {
+            final ModelReader reader = new ModelReader(new FileInputStream(file));
+            return reader.readModel();
+        };
+        return executor.submit(task);
     }
 }
