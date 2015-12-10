@@ -104,6 +104,14 @@ public class UndoableActionManager
         fireOperationsHistoryChanged();
     }
 
+    /** Clear all undo/redo operations */
+    public void clear()
+    {
+        undoStack.clear();
+        redoStack.clear();
+        fireOperationsHistoryChanged();
+    }
+
     private void fireOperationsHistoryChanged()
     {
         final String to_undo = undoStack.isEmpty() ? null : undoStack.peek().toString();

@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
@@ -16,18 +18,30 @@ import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
+import org.csstudio.display.builder.util.undo.UndoRedoListener;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.EditorPart;
+import org.eclipse.ui.part.FileEditorInput;
 
 import javafx.embed.swt.FXCanvas;
 import javafx.scene.Parent;
@@ -38,6 +52,9 @@ import javafx.scene.Scene;
  */
 public class DisplayEditorPart extends EditorPart
 {
+    /** File extension used to save files */
+    final private static String FILE_EXTENSION = "opi";
+
     private final static JFXRepresentation toolkit = new JFXRepresentation();
 
     private final Logger logger = Logger.getLogger(getClass().getName());
@@ -45,6 +62,11 @@ public class DisplayEditorPart extends EditorPart
     private FXCanvas fx_canvas;
 
     private final DisplayEditor editor = new DisplayEditor(toolkit);
+
+    private UndoRedoListener undo_redo_listener = (undo, redo) ->
+    {
+        firePropertyChange(IEditorPart.PROP_DIRTY);
+    };
 
     public DisplayEditorPart()
     {
@@ -83,6 +105,8 @@ public class DisplayEditorPart extends EditorPart
         final IFile file = input.getAdapter(IFile.class);
         if (file != null)
             loadModel(file);
+
+        editor.getUndoableActionManager().addListener(undo_redo_listener);
     }
 
     private void loadModel(final IFile file)
@@ -101,6 +125,7 @@ public class DisplayEditorPart extends EditorPart
         }
         catch (Exception ex)
         {
+            // TODO Show error in UI (but don't use message box)
             logger.log(Level.WARNING, "Cannot load display " + file, ex);
             return null;
         }
@@ -135,8 +160,7 @@ public class DisplayEditorPart extends EditorPart
     @Override
     public boolean isDirty()
     {
-        // TODO Auto-generated method stub
-        return false;
+        return editor.getUndoableActionManager().canUndo();
     }
 
     @Override
@@ -145,21 +169,115 @@ public class DisplayEditorPart extends EditorPart
         return true;
     }
 
+    /** @return Workspace file for current editor input */
+    private IFile getInputFile()
+    {
+        IEditorInput input = getEditorInput();
+        if (input instanceof FileEditorInput)
+            return ((FileEditorInput)input).getFile();
+        return null;
+    }
+
     @Override
     public void doSave(final IProgressMonitor monitor)
     {
-        // TODO Auto-generated method stub
+        final IFile file = getInputFile();
+        if (file != null)
+            saveModelToFile(file);
+        else
+            doSaveAs();
     }
 
     @Override
     public void doSaveAs()
     {
-        // TODO Auto-generated method stub
+        final IFile file = promptForFile();
+        if (file != null)
+            saveModelToFile(file);
+    }
+
+    /** Save model to file, using background thread
+     *  @param file File to save
+     */
+    private void saveModelToFile(final IFile file)
+    {   // Save on background thread
+        Job job = new Job("Save")
+        {
+            @Override
+            protected IStatus run(final IProgressMonitor monitor)
+            {
+                final DisplayModel model = editor.getModel();
+                logger.log(Level.FINE, "Save as {0}", file);
+
+                // Want to use IFile API to get automated workspace update,
+                // but that requires a stream. So first persist into memory buffer..
+                try
+                {
+                    final ByteArrayOutputStream tmp = new ByteArrayOutputStream();
+                    final ModelWriter writer = new ModelWriter(tmp);
+                    writer.writeModel(model);
+                    writer.close();
+
+                    // .. then write file from buffer
+                    final ByteArrayInputStream stream = new ByteArrayInputStream(tmp.toByteArray());
+                    if (file.exists())
+                        file.setContents(stream, true, false, monitor);
+                    else
+                        file.create(stream, true, monitor);
+                }
+                catch (Exception ex)
+                {
+                    logger.log(Level.SEVERE, "Cannot save as " + file, ex);
+                    return Status.OK_STATUS;
+                }
+
+                // Back on UI thread..
+                final IEditorInput input = new FileEditorInput(file);
+                toolkit.execute(() ->
+                {   // Update editor input to current file name
+                    setInput(input);
+                    setPartName(model.getName());
+                    setTitleToolTip(input.getToolTipText());
+
+                    // Clear 'undo'
+                    editor.getUndoableActionManager().clear();
+                });
+                return Status.OK_STATUS;
+            }
+        };
+        job.schedule();
+    }
+
+    /** Prompt for file name used to 'save'
+     *  @return File in workspace or <code>null</code>
+     */
+    private IFile promptForFile()
+    {
+        final SaveAsDialog dlg = new SaveAsDialog(getSite().getShell());
+        dlg.setBlockOnOpen(true);
+        final IEditorInput input = getEditorInput();
+        if (input instanceof FileEditorInput)
+            dlg.setOriginalFile(((FileEditorInput)input).getFile());
+        if (dlg.open() != Window.OK)
+            return null;
+
+        // Path to the new resource relative to the workspace
+        IPath path = dlg.getResult();
+        if (path == null)
+            return null;
+        // Assert it's an '.opi' file
+        final String ext = path.getFileExtension();
+        if (ext == null  ||  !ext.equals(FILE_EXTENSION))
+            path = path.removeFileExtension().addFileExtension(FILE_EXTENSION);
+        // Get the file for the new resource's path.
+        final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        return root.getFile(path);
     }
 
     @Override
     public void dispose()
     {
+        editor.getUndoableActionManager().removeListener(undo_redo_listener);
         editor.dispose();
         super.dispose();
     }
