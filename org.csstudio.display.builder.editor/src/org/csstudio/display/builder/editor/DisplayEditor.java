@@ -14,7 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.palette.Palette;
-import org.csstudio.display.builder.editor.tracker.SelectionTracker;
+import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.editor.undo.AddWidgetAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.GroupHandler;
@@ -102,7 +102,7 @@ public class DisplayEditor
 
     private GroupHandler group_handler;
 
-    private SelectionTracker selection_tracker;
+    private SelectedWidgetUITracker selection_tracker;
 
     private SplitPane root;
     private ScrollPane scroll;
@@ -110,6 +110,7 @@ public class DisplayEditor
     private final Group edit_tools = new Group();
     private final Pane editor_pane = new Pane(model_parent, edit_tools);
 
+    /** @param toolkit JFX Toolkit */
     public DisplayEditor(final JFXRepresentation toolkit)
     {
         this.toolkit = toolkit;
@@ -122,7 +123,7 @@ public class DisplayEditor
     {
         group_handler = new GroupHandler(edit_tools, selection);
 
-        selection_tracker = new SelectionTracker(toolkit, group_handler, selection, undo);
+        selection_tracker = new SelectedWidgetUITracker(toolkit, group_handler, selection, undo);
         selection_tracker.enableSnap(true);
         selection_tracker.enableGrid(true);
 
@@ -140,6 +141,24 @@ public class DisplayEditor
         hookListeners();
 
         return root;
+    }
+
+    /** @return Selection tracker */
+    public SelectedWidgetUITracker getSelectedWidgetUITracker()
+    {
+        return selection_tracker;
+    }
+
+    /** @return Selection tracker */
+    public WidgetSelectionHandler getWidgetSelectionHandler()
+    {
+        return selection;
+    }
+
+    /** @return Undo manager */
+    public UndoableActionManager getUndoableActionManager()
+    {
+        return undo;
     }
 
     private void hookListeners()
@@ -241,6 +260,40 @@ public class DisplayEditor
         {
             logger.log(Level.SEVERE, "Error representing model", ex);
         }
+    }
+
+    /** @return Currently edited model */
+    public DisplayModel getModel()
+    {
+        return model;
+    }
+
+    /** Print debug info */
+    public void debug()
+    {
+        System.out.println("JavaFX Nodes for Model's Representation");
+        final int nodes = countAndDumpNodes(model_parent, 1);
+        System.out.println("Node Count: " + nodes);
+    }
+
+    /** Recursively dump nodes
+     *  @param parent {@link Parent}
+     *  @param level Indentation level
+     *  @return Number of nodes and sub-nodes
+     */
+    private int countAndDumpNodes(final Parent parent, final int level)
+    {
+        int count = 0;
+        for (Node node : parent.getChildrenUnmodifiable())
+        {
+            ++count;
+            for (int i=0; i<level; ++i)
+                System.out.print("  ");
+            System.out.println(node.getClass().getSimpleName());
+            if (node instanceof Parent)
+                count += countAndDumpNodes((Parent) node, level + 1);
+        }
+        return count;
     }
 
     public void dispose()

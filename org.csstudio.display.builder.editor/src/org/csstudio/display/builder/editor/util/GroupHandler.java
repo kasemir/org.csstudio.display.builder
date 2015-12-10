@@ -153,6 +153,8 @@ public class GroupHandler
     public void setModel(final DisplayModel model)
     {
         this.model = model;
+        active_group = null;
+        group_highlight.setVisible(false);
     }
 
     /** Locate group for region of display.

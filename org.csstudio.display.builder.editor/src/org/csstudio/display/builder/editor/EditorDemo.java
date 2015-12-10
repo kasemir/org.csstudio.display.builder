@@ -23,7 +23,7 @@ public class EditorDemo extends Application
 {
     private final String display_file = "../org.csstudio.display.builder.runtime.test/examples/main.opi";
 //    private final String display_file = "../org.csstudio.display.builder.runtime.test/examples/legacy.opi";
-    private EditorGUI editor;
+    private EditorDemoGUI editor;
 
     /** JavaFX main
      *  @throws Exception
@@ -45,8 +45,8 @@ public class EditorDemo extends Application
         final File font_file = new File("../org.csstudio.display.builder.runtime.test/examples/font.def");
         WidgetFontService.loadFonts(font_file.getPath(), () -> new FileInputStream(font_file));
 
-        editor = new EditorGUI(stage);
+        editor = new EditorDemoGUI(stage);
         editor.loadModel(new File(display_file));
-        stage.setOnCloseRequest((WindowEvent event) -> editor.handleClose());
+        stage.setOnCloseRequest((WindowEvent event) -> editor.dispose());
     }
 }

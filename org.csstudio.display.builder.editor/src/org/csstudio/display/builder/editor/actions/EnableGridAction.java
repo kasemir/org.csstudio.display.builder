@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.editor.actions;
 
 import org.csstudio.display.builder.editor.Messages;
-import org.csstudio.display.builder.editor.tracker.SelectionTracker;
+import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 
 /** Enable/disable grid
  *  @author Kay Kasemir
@@ -16,9 +16,9 @@ import org.csstudio.display.builder.editor.tracker.SelectionTracker;
 @SuppressWarnings("nls")
 public class EnableGridAction extends ActionDescription
 {
-    private final SelectionTracker tracker;
+    private final SelectedWidgetUITracker tracker;
 
-    public EnableGridAction(final SelectionTracker tracker)
+    public EnableGridAction(final SelectedWidgetUITracker tracker)
     {
         super("platform:/plugin/org.csstudio.display.builder.editor/icons/grid.png",
               Messages.Grid);

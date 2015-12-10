@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.editor.actions;
 
 import org.csstudio.display.builder.editor.Messages;
-import org.csstudio.display.builder.editor.tracker.SelectionTracker;
+import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 
 /** Enable/disable snapping to other widgets
  *  @author Kay Kasemir
@@ -16,9 +16,9 @@ import org.csstudio.display.builder.editor.tracker.SelectionTracker;
 @SuppressWarnings("nls")
 public class EnableSnapAction extends ActionDescription
 {
-    private final SelectionTracker tracker;
+    private final SelectedWidgetUITracker tracker;
 
-    public EnableSnapAction(final SelectionTracker tracker)
+    public EnableSnapAction(final SelectedWidgetUITracker tracker)
     {
         super("platform:/plugin/org.csstudio.display.builder.editor/icons/snap.png",
               Messages.Snap);

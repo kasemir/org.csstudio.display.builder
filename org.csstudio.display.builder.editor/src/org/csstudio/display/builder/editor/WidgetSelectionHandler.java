@@ -15,6 +15,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.csstudio.display.builder.model.Widget;
 
 /** Handler for currently selected widgets in a model.
+ *
+ *  <p>Has list of currently selected widgets,
+ *  allows adding/removing widgets from selection,
+ *  updates listeners.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")

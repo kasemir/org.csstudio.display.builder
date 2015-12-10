@@ -39,14 +39,15 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.shape.Rectangle;
 
-/** Rubber-band-type tracker.
+/** Rubber-band-type tracker of currently selected widgets in UI.
  *
- *  <p>Allows moving and resizing several widgets.
+ *  <p>UI element that allows selecting widgets,
+ *  moving and resizing them.
  *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class SelectionTracker extends Group
+public class SelectedWidgetUITracker extends Group
 {
     // Would be nice to treat every tracker move as a 'move-drag'.
     // Ctrl-drag would naturally become a 'copy-drag'.
@@ -105,7 +106,7 @@ public class SelectionTracker extends Group
      *  @param selection Selection handler
      *  @param undo 'Undo' manager
      */
-    public SelectionTracker(final ToolkitRepresentation<Group, Node> toolkit,
+    public SelectedWidgetUITracker(final ToolkitRepresentation<Group, Node> toolkit,
                             final GroupHandler group_handler,
                             final WidgetSelectionHandler selection,
                             final UndoableActionManager undo)
