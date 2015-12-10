@@ -16,11 +16,14 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
+import org.csstudio.display.builder.editor.actions.RedoAction;
+import org.csstudio.display.builder.editor.actions.UndoAction;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoRedoListener;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -29,7 +32,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -144,11 +146,25 @@ public class DisplayEditorPart extends EditorPart
 
     private void createToolbar()
     {
-        // TODO Toolbar..
+        // TODO Toolbar needs to use ActionBarContributor,
+        // because otherwise N editors will result in N toolbar buttons.
+        // "works", but ugly
         final IToolBarManager toolbar = getEditorSite().getActionBars().getToolBarManager();
-        toolbar.add(new Action("Test")
+
+        final UndoableActionManager undo = editor.getUndoableActionManager();
+        final SWTActionAdapter undo_action = new SWTActionAdapter(new UndoAction(undo));
+        final SWTActionAdapter redo_action = new SWTActionAdapter(new RedoAction(undo));
+        toolbar.add(undo_action);
+        toolbar.add(redo_action);
+
+        final UndoRedoListener undo_listener = (to_undo, to_redo) ->
         {
-        });
+            undo_action.setEnabled(to_undo != null);
+            redo_action.setEnabled(to_redo != null);
+        };
+        undo.addListener(undo_listener);
+        // Perform initial update
+        undo_redo_listener.operationsHistoryChanged(null, null);
     }
 
     @Override

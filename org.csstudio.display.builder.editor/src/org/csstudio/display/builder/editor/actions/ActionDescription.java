@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.editor.actions;
 
 import java.io.InputStream;
+import java.net.URL;
 
 import org.csstudio.display.builder.util.Icons;
 
@@ -32,6 +33,14 @@ public abstract class ActionDescription
         this.tool_tip = tool_tip;
     }
 
+    /** @return URL for icon
+     *  @throws Exception on error
+     */
+    public URL getIconURL() throws Exception
+    {
+        return new URL(icon);
+    }
+
     /** @return Stream for icon's content
      *  @throws Exception on error
      */
@@ -54,5 +63,5 @@ public abstract class ActionDescription
 
      *  @param selected Selected?
      */
-    abstract void run(boolean selected);
+    abstract public void run(boolean selected);
 }
