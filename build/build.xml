@@ -31,6 +31,7 @@
             <include name="org.eclipse.swt*.jar" />
             <include name="org.csstudio.vtype.pv_*.jar" />
             <include name="org.csstudio.platform.libs.epics_*.jar" />
+	    	<include name="org.python.jython*.jar"/>
         </fileset>
     	<dirset dir="${env.CSS}/plugins">
 	    	<include name="org.python.jython*"/>
