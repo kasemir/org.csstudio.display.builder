@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.BaseWidget;
-import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
@@ -37,9 +36,9 @@ public class TextUpdateWidget extends BaseWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("textupdate", WidgetCategory.MONITOR,
-            Messages.TextUpdateWidget_Name,
+            "TextUpdate",
             "platform:/plugin/org.csstudio.display.builder.model/icons/textupdate.png",
-            Messages.TextUpdateWidget_Description,
+            "Displays current value of PV as text",
             Arrays.asList("org.csstudio.opibuilder.widgets.TextUpdate"))
     {
         @Override

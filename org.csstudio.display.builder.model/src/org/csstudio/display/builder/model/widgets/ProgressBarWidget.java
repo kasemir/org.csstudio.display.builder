@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.BaseWidget;
-import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
@@ -35,9 +34,9 @@ public class ProgressBarWidget extends BaseWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("progressbar", WidgetCategory.MONITOR,
-            Messages.ProgressBar_Name,
+            "Progress Bar",
             "platform:/plugin/org.csstudio.display.builder.model/icons/progressbar.png",
-            Messages.ProgressBar_Description,
+            "Bar graph widget that 'fills' relative to numeric value of a PV",
             Arrays.asList("org.csstudio.opibuilder.widgets.progressbar"))
     {
         @Override

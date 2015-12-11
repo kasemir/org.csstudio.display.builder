@@ -34,9 +34,9 @@ public class LEDWidget extends BaseWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("led", WidgetCategory.MONITOR,
-            Messages.LEDWidget_Name,
+            "LED",
             "platform:/plugin/org.csstudio.display.builder.model/icons/led.png",
-            Messages.LEDWidget_Description,
+            "LED that represents on/off or multi-state enum",
             Arrays.asList("org.csstudio.opibuilder.widgets.LED"))
     {
         @Override

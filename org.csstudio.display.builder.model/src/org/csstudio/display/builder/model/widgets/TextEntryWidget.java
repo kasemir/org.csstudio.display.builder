@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.BaseWidget;
-import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
@@ -36,9 +35,9 @@ public class TextEntryWidget extends BaseWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("textentry", WidgetCategory.CONTROL,
-            Messages.TextEntryWidget_Name,
+            "Text Entry",
             "platform:/plugin/org.csstudio.display.builder.model/icons/textentry.png",
-            Messages.TextEntryWidget_Description,
+            "Text field that writes entered values to PV",
             Arrays.asList("org.csstudio.opibuilder.widgets.TextInput"))
     {
         @Override

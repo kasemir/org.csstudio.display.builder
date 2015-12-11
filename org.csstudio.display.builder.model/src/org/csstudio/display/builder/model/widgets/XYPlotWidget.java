@@ -13,7 +13,6 @@ import java.util.Optional;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.BaseWidget;
-import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.StructuredWidgetProperty.Descriptor;
 import org.csstudio.display.builder.model.Widget;
@@ -114,9 +113,9 @@ public class XYPlotWidget extends BaseWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("xyplot", WidgetCategory.PLOT,
-            Messages.XYPlotWidget_Name,
+            "X/Y Plot",
             "platform:/plugin/org.csstudio.display.builder.model/icons/xyplot.png",
-            Messages.XYPlotWidget_Description,
+            "Displays waveform PVs",
             Arrays.asList("org.csstudio.opibuilder.widgets.xyGraph"))
     {
         @Override

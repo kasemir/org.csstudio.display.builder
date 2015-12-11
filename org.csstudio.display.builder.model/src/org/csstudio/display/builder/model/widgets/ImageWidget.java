@@ -37,9 +37,9 @@ public class ImageWidget extends BaseWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("image", WidgetCategory.MONITOR,
-            Messages.ImageWidget_Name,
+            "Image",
             "platform:/plugin/org.csstudio.display.builder.model/icons/image.png",
-            Messages.ImageWidget_Description,
+            "Display image",
             Arrays.asList("org.csstudio.opibuilder.widgets.intensityGraph"))
     {
         @Override

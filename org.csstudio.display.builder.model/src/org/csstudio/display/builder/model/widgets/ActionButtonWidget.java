@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.BaseWidget;
-import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
@@ -30,9 +29,9 @@ public class ActionButtonWidget extends BaseWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("action_button", WidgetCategory.CONTROL,
-            Messages.ActionButtonWidget_Name,
+            "Action Button",
             "platform:/plugin/org.csstudio.display.builder.model/icons/action_button.png",
-            Messages.ActionButtonWidget_Description,
+            "Button that can open related displays or write PVs",
             Arrays.asList("org.csstudio.opibuilder.widgets.ActionButton"))
     {
         @Override

@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.ContainerWidget;
-import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
@@ -47,9 +46,9 @@ public class GroupWidget extends ContainerWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("group", WidgetCategory.STRUCTURE,
-            Messages.GroupWidget_Name,
+            "Group",
             "platform:/plugin/org.csstudio.display.builder.model/icons/group.png",
-            Messages.GroupWidget_Description,
+            "Group of widgets",
             Arrays.asList("org.csstudio.opibuilder.widgets.groupingContainer"))
     {
         @Override

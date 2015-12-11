@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.csstudio.display.builder.model.BaseWidget;
-import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
@@ -47,9 +46,9 @@ public class EmbeddedDisplayWidget extends BaseWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("embedded", WidgetCategory.STRUCTURE,
-            Messages.EmbeddedDisplayWidget_Name,
+            "Embedded Display",
             "platform:/plugin/org.csstudio.display.builder.model/icons/embedded.png",
-            Messages.EmbeddedDisplayWidget_Description,
+            "Widget that embeds another display",
             Arrays.asList("org.csstudio.opibuilder.widgets.linkingContainer"))
     {
         @Override

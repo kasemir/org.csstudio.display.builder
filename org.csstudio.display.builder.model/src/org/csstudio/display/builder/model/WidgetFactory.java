@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
@@ -38,6 +40,9 @@ import org.eclipse.core.runtime.RegistryFactory;
 @SuppressWarnings("nls")
 public class WidgetFactory
 {
+    /** Extension point that allows contributing widgets */
+    public static final String EXTENSION_POINT_ID = "org.csstudio.display.builder.model.widgets";
+
     /** Singleton instance */
     private static final WidgetFactory instance = new WidgetFactory();
 
@@ -56,12 +61,10 @@ public class WidgetFactory
     // Prevent instantiation
     private WidgetFactory()
     {
-        // TODO Add equivalent of org.csstudio.opibuilder.widgets.MenuButton
-
-        IExtensionRegistry registry = RegistryFactory.getRegistry();
+        final IExtensionRegistry registry = RegistryFactory.getRegistry();
         if (registry == null)
         {
-            // Fall back to hardcoded list of widgets for standalone demo
+            // Fall back to hardcoded list of widgets for standalone demo.
             addWidgetType(ActionButtonWidget.WIDGET_DESCRIPTOR);
             addWidgetType(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR);
             addWidgetType(GroupWidget.WIDGET_DESCRIPTOR);
@@ -76,11 +79,13 @@ public class WidgetFactory
         }
         else
         {
-            // Load available widgets from registry
-            for (IConfigurationElement config : registry.getConfigurationElementsFor("org.csstudio.display.builder.model.widgets"))
+            // Load available widgets from registry, which allows
+            // other plugins to contribute widgets
+            final Logger logger = Logger.getLogger(getClass().getName());
+            for (IConfigurationElement config : registry.getConfigurationElementsFor(EXTENSION_POINT_ID))
             {
                 final WidgetDescriptor descriptor = WidgetDescriptor.fromRegistryEntry(config);
-                System.out.println(config.getContributor().getName() + ": " + descriptor);
+                logger.log(Level.CONFIG, "{0} contributes {1}", new Object[] { config.getContributor().getName(), descriptor});
                 addWidgetType(descriptor);
             }
         }
