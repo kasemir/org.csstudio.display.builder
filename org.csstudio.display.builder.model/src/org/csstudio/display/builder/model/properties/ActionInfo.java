@@ -14,7 +14,7 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo.Target;
-import org.csstudio.display.builder.util.Icons;
+import org.csstudio.display.builder.util.UtilPlugin;
 
 /** Information about an action
  *
@@ -42,7 +42,7 @@ public abstract class ActionInfo
         {
             try
             {
-                return Icons.getStream(icon_path);
+                return UtilPlugin.getStream(icon_path);
             }
             catch (Exception ex)
             {

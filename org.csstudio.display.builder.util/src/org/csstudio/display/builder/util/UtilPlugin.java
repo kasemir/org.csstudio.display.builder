@@ -15,8 +15,11 @@ import java.net.URL;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class Icons
+public class UtilPlugin
 {
+    /** Plugin ID */
+    public final static String ID = "org.csstudio.display.builder.util";
+
     /** @return Stream for icon's content
      *  @throws Exception on error
      */

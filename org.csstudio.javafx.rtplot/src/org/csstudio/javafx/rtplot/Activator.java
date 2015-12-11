@@ -8,7 +8,7 @@
 package org.csstudio.javafx.rtplot;
 
 import java.util.logging.Logger;
-import org.csstudio.display.builder.util.Icons;
+import org.csstudio.display.builder.util.UtilPlugin;
 import javafx.scene.image.Image;
 
 /** Not an actual Plugin Activator, but providing plugin-related helpers
@@ -34,6 +34,6 @@ public class Activator
     public static Image getIcon(final String base_name) throws Exception
     {
         String path = "platform:/plugin/org.csstudio.javafx.rtplot/icons/" + base_name + ".png";
-        return new Image(Icons.getStream(path));
+        return new Image(UtilPlugin.getStream(path));
     }
 }

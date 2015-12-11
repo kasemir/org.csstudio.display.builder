@@ -5,6 +5,7 @@
          point="org.eclipse.ui.editors">
       <editor
             class="org.csstudio.display.builder.editor.rcp.DisplayEditorPart"
+            contributorClass="org.csstudio.display.builder.editor.rcp.DisplayEditorToolbarContributor"
             default="true"
             extensions="opi"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"

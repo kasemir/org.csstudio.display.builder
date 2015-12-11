@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
-import org.csstudio.display.builder.util.Icons;
+import org.csstudio.display.builder.util.UtilPlugin;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -99,7 +99,7 @@ public class JFXUtil
     {
         try
         {
-            return new ImageView(new Image(Icons.getStream(image_path)));
+            return new ImageView(new Image(UtilPlugin.getStream(image_path)));
         }
         catch (Exception ex)
         {

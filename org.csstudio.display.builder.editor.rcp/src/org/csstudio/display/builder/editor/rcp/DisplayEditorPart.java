@@ -10,14 +10,14 @@ package org.csstudio.display.builder.editor.rcp;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
-import org.csstudio.display.builder.editor.actions.RedoAction;
-import org.csstudio.display.builder.editor.actions.UndoAction;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
@@ -32,7 +32,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -41,6 +41,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
@@ -65,8 +66,13 @@ public class DisplayEditorPart extends EditorPart
 
     private final DisplayEditor editor = new DisplayEditor(toolkit);
 
+    /** Actions by ID */
+    private Map<String, IAction> actions = new HashMap<>();
+
     private UndoRedoListener undo_redo_listener = (undo, redo) ->
     {
+        actions.get(ActionFactory.UNDO.getId()).setEnabled(undo != null);
+        actions.get(ActionFactory.REDO.getId()).setEnabled(redo != null);
         firePropertyChange(IEditorPart.PROP_DIRTY);
     };
 
@@ -101,7 +107,7 @@ public class DisplayEditorPart extends EditorPart
 
         fx_canvas.setScene(scene);
 
-        createToolbar();
+        createActions();
 
         final IEditorInput input = getEditorInput();
         final IFile file = input.getAdapter(IFile.class);
@@ -144,27 +150,20 @@ public class DisplayEditorPart extends EditorPart
         });
     }
 
-    private void createToolbar()
+    private void createActions()
     {
-        // TODO Toolbar needs to use ActionBarContributor,
-        // because otherwise N editors will result in N toolbar buttons.
-        // "works", but ugly
-        final IToolBarManager toolbar = getEditorSite().getActionBars().getToolBarManager();
-
         final UndoableActionManager undo = editor.getUndoableActionManager();
-        final SWTActionAdapter undo_action = new SWTActionAdapter(new UndoAction(undo));
-        final SWTActionAdapter redo_action = new SWTActionAdapter(new RedoAction(undo));
-        toolbar.add(undo_action);
-        toolbar.add(redo_action);
+        actions.put(ActionFactory.UNDO.getId(), new UndoAction(undo));
+        actions.put(ActionFactory.REDO.getId(), new RedoAction(undo));
+    }
 
-        final UndoRedoListener undo_listener = (to_undo, to_redo) ->
-        {
-            undo_action.setEnabled(to_undo != null);
-            redo_action.setEnabled(to_redo != null);
-        };
-        undo.addListener(undo_listener);
-        // Perform initial update
-        undo_redo_listener.operationsHistoryChanged(null, null);
+    /** Get action resp. handler for retargetable actions
+     *  @param id Action ID
+     *  @return Action for that ID
+     */
+    public IAction getAction(final String id)
+    {
+        return actions.get(id);
     }
 
     @Override

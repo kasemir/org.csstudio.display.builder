@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 
-import org.csstudio.display.builder.util.Icons;
+import org.csstudio.display.builder.util.UtilPlugin;
 
 /** Description of a widget.
  *
@@ -115,7 +115,7 @@ public abstract class WidgetDescriptor
      */
     public InputStream getIconStream() throws Exception
     {
-        return Icons.getStream(icon);
+        return UtilPlugin.getStream(icon);
     }
 
     /** @return Description of the widget */
