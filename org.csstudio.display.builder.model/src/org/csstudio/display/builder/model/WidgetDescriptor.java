@@ -8,10 +8,15 @@
 package org.csstudio.display.builder.model;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.csstudio.display.builder.util.UtilPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
 
 /** Description of a widget.
  *
@@ -41,6 +46,42 @@ public abstract class WidgetDescriptor
     final private String name;
     final private String icon;
     final private String description;
+
+    /** Create WidgetDescriptor from information in extension point registry
+     *  @param config Configuration element from registry
+     *  @return {@link WidgetDescriptor}
+     */
+    public static WidgetDescriptor fromRegistryEntry(final IConfigurationElement config)
+    {
+        final String type = config.getAttribute("type");
+        final WidgetCategory category = WidgetCategory.valueOf(config.getAttribute("category"));
+        final String name = config.getAttribute("name");
+        final String icon = config.getAttribute("icon");
+        final String description = config.getAttribute("description");
+        final List<String> alternate_types = new ArrayList<>();
+        for (IConfigurationElement alt : config.getChildren("alternates"))
+            alternate_types.add(alt.getAttribute("type"));
+
+        return new WidgetDescriptor(type, category, name, icon, description, alternate_types)
+        {
+            @Override
+            public Widget createWidget()
+            {
+                try
+                {
+                    return (Widget) config.createExecutableExtension("class");
+                }
+                catch (CoreException ex)
+                {   // This could fail if the extension point didn't include a 'class',
+                    // or if the contributing plugin has been removed at runtime,
+                    // so the extension point is no longer valid.
+                    Logger.getLogger(WidgetDescriptor.class.getName())
+                          .log(Level.SEVERE, "Cannot create " + this, ex);
+                }
+                return null;
+            }
+        };
+    }
 
     /** @param type Type ID of the widget
      *  @param category Widget category

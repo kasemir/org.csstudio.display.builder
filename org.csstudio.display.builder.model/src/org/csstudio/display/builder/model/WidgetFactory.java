@@ -27,6 +27,9 @@ import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.RegistryFactory;
 
 /** Factory that creates widgets based on type
  *
@@ -50,24 +53,37 @@ public class WidgetFactory
     /** Map of type IDs (current and alternate) to {@link WidgetDescriptor} */
     private final Map<String, WidgetDescriptor> descriptor_by_type = new ConcurrentHashMap<>();
 
+    // Prevent instantiation
     private WidgetFactory()
     {
-        // Prevent instantiation
-
-        // TODO Load available widgets from registry
-        addWidgetType(ActionButtonWidget.WIDGET_DESCRIPTOR);
-        addWidgetType(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR);
-        addWidgetType(GroupWidget.WIDGET_DESCRIPTOR);
-        addWidgetType(ImageWidget.WIDGET_DESCRIPTOR);
-        addWidgetType(LabelWidget.WIDGET_DESCRIPTOR);
-        addWidgetType(LEDWidget.WIDGET_DESCRIPTOR);
-        addWidgetType(ProgressBarWidget.WIDGET_DESCRIPTOR);
-        addWidgetType(RectangleWidget.WIDGET_DESCRIPTOR);
-        addWidgetType(TextEntryWidget.WIDGET_DESCRIPTOR);
-        addWidgetType(TextUpdateWidget.WIDGET_DESCRIPTOR);
-        addWidgetType(XYPlotWidget.WIDGET_DESCRIPTOR);
-
         // TODO Add equivalent of org.csstudio.opibuilder.widgets.MenuButton
+
+        IExtensionRegistry registry = RegistryFactory.getRegistry();
+        if (registry == null)
+        {
+            // Fall back to hardcoded list of widgets for standalone demo
+            addWidgetType(ActionButtonWidget.WIDGET_DESCRIPTOR);
+            addWidgetType(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR);
+            addWidgetType(GroupWidget.WIDGET_DESCRIPTOR);
+            addWidgetType(ImageWidget.WIDGET_DESCRIPTOR);
+            addWidgetType(LabelWidget.WIDGET_DESCRIPTOR);
+            addWidgetType(LEDWidget.WIDGET_DESCRIPTOR);
+            addWidgetType(ProgressBarWidget.WIDGET_DESCRIPTOR);
+            addWidgetType(RectangleWidget.WIDGET_DESCRIPTOR);
+            addWidgetType(TextEntryWidget.WIDGET_DESCRIPTOR);
+            addWidgetType(TextUpdateWidget.WIDGET_DESCRIPTOR);
+            addWidgetType(XYPlotWidget.WIDGET_DESCRIPTOR);
+        }
+        else
+        {
+            // Load available widgets from registry
+            for (IConfigurationElement config : registry.getConfigurationElementsFor("org.csstudio.display.builder.model.widgets"))
+            {
+                final WidgetDescriptor descriptor = WidgetDescriptor.fromRegistryEntry(config);
+                System.out.println(config.getContributor().getName() + ": " + descriptor);
+                addWidgetType(descriptor);
+            }
+        }
     }
 
     /** @return Singleton instance */

@@ -34,7 +34,7 @@ public enum WidgetCategory
     MISC(Messages.WidgetCategory_Miscellaneous);
 
     final private String description;
-
+    
     private WidgetCategory(final String description)
     {
         this.description = Objects.requireNonNull(description);

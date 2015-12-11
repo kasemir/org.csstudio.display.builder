@@ -79,6 +79,23 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     /** Register the toolkit's representation of a model widget
      *  @param widget_class Class of a model's {@link Widget}
      *  @param representation_class Class of the {@link WidgetRepresentation} in the toolkit
+     *
+     *  TODO Might have to change from representation_class to a concrete WidgetFactory instance.
+     *
+     *  For tests, while all code is in the same classloader, this code is able to create the
+     *  representation based on its class.
+     *  Once widgets get added via extension points, this code cannot instantiate classes from
+     *  other plugins. It will need something like this to create the factory for each representation,
+     *  where IConfigurationElement.createExecutableExtension() is able to instantiate the class
+     *  within the contributing plugin:
+     *
+     *   final IConfigurationElement[] configs = Platform.getExtensionRegistry().getConfigurationElementsFor("display.builder.widgets");
+     *   for (IConfigurationElement config : configs)
+     *   {
+     *       WidgetRepresentationFactory factory = config.createExecutableExtension("class");
+     *       factory.getWidgetClass(); // Class of widget that this factory can represent
+     *   }
+     *
      */
     protected void register(final Class<? extends Widget> widget_class,
                             final Class<? extends WidgetRepresentation<TWP, TW, ? extends Widget>> representation_class)

@@ -36,9 +36,9 @@ public class LabelWidget extends BaseWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("label", WidgetCategory.GRAPHIC,
-            Messages.LabelWidget_Name,
+            "Label",
             "platform:/plugin/org.csstudio.display.builder.model/icons/label.png",
-            Messages.LabelWidget_Description,
+            "Label displays one or more lines of text",
             Arrays.asList("org.csstudio.opibuilder.widgets.Label"))
     {
         @Override

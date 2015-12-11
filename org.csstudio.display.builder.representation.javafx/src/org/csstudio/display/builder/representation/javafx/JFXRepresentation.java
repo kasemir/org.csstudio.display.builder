@@ -61,7 +61,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
     /** Construct new JFX representation */
     public JFXRepresentation()
     {
-        // TODO Load available widget representations from registry
+        // TODO Load available widget representations from registry.
+        // Should do this _once_, not for every instance of the JFX toolkit.
         register(ActionButtonWidget.class, ActionButtonRepresentation.class);
         register(EmbeddedDisplayWidget.class, EmbeddedDisplayRepresentation.class);
         register(GroupWidget.class, GroupRepresentation.class);

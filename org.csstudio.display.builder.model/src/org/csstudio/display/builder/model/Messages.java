@@ -30,8 +30,6 @@ public class Messages extends NLS
     public static String GroupWidget_Name;
     public static String ImageWidget_Name;
     public static String ImageWidget_Description;
-    public static String LabelWidget_Description;
-    public static String LabelWidget_Name;
     public static String LabelWidget_Text;
     public static String LEDWidget_Description;
     public static String LEDWidget_Name;

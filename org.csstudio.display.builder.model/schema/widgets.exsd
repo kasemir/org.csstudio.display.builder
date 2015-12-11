@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="org.csstudio.display.builder.model" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="org.csstudio.display.builder.model" id="widget.model" name="Display Builder Widget Model"/>
+      </appinfo>
+      <documentation>
+         Extension point for adding widget models to the display builder.
+
+In addition to the model, each widget will also need a representation that is contributed to the toolkit.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
+      <complexType>
+         <sequence minOccurs="1" maxOccurs="unbounded">
+            <element ref="widget"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="widget">
+      <complexType>
+         <sequence minOccurs="0" maxOccurs="unbounded">
+            <element ref="alternates"/>
+         </sequence>
+         <attribute name="type" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Widget type ID, e.g. &quot;label&quot;
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="category" type="string" use="required">
+            <annotation>
+               <documentation>
+                  One of the org.csstudio.display.builder.modelWidgetCategory values, e.g. &quot;MONITOR&quot;
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Human-readable name for this type of widget
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="icon" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Widget icon
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="resource"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="description" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Human-readable description of the widget.
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="class" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Widget model implementation
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn="org.csstudio.display.builder.model.Widget:"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="alternates">
+      <annotation>
+         <documentation>
+            Alternate types that this widget can represent.
+
+For example, a &quot;label&quot; widget may also represent the legacy widget type &quot;org.csstudio.opibuilder.widgets.Label&quot;.
+         </documentation>
+      </annotation>
+      <complexType>
+         <attribute name="type" type="string">
+            <annotation>
+               <documentation>
+                  Alternate widget type ID.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         1.0
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         &lt;pre&gt;
+&lt;extension point=&quot;org.csstudio.display.builder.model.widgets&quot;&gt;
+   &lt;widget category=&quot;GRAPHIC&quot;
+           class=&quot;org.csstudio.display.builder.model.widgets.LabelWidget&quot;
+           description=&quot;Label displays one or more lines of text.&quot;
+           icon=&quot;platform:/plugin/org.csstudio.display.builder.model/icons/label.png&quot;
+           name=&quot;Label&quot;
+           type=&quot;label&quot;&gt;
+      &lt;alternates type=&quot;org.csstudio.opibuilder.widgets.Label&quot;/&gt;
+   &lt;/widget&gt;
+&lt;/extension&gt;
+&lt;/pre&gt;
+
+      </documentation>
+   </annotation>
+
+
+   <annotation>
+      <appinfo>
+         <meta.section type="implementation"/>
+      </appinfo>
+      <documentation>
+         org.csstudio.opibuilder.widgets.Label, TextEntry, others
+      </documentation>
+   </annotation>
+
+
+</schema>
