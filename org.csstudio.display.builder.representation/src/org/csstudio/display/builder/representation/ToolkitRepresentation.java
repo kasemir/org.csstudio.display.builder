@@ -45,6 +45,9 @@ import org.csstudio.display.builder.representation.internal.UpdateThrottle;
 @SuppressWarnings("nls")
 abstract public class ToolkitRepresentation<TWP extends Object, TW> implements Executor
 {
+    /** Extension point ID for contributing {@link WidgetRepresentation}s */
+    public static final String EXTENSION_POINT = "org.csstudio.display.builder.representation.widgets";
+
     protected final Logger logger = Logger.getLogger(getClass().getName());
 
     private final UpdateThrottle throttle = new UpdateThrottle(this);

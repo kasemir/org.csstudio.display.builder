@@ -8,6 +8,8 @@
 package org.csstudio.display.builder.representation.javafx;
 
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
@@ -33,6 +35,10 @@ import org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepre
 import org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.RegistryFactory;
 
 import javafx.application.Platform;
 import javafx.geometry.Bounds;
@@ -63,6 +69,36 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
     {
         // TODO Load available widget representations from registry.
         // Should do this _once_, not for every instance of the JFX toolkit.
+
+        final IExtensionRegistry registry = RegistryFactory.getRegistry();
+        if (registry == null)
+        {
+            // Fall back to hardcoded entries for tests
+        }
+        else
+        {
+            // Load available representations from registry,
+            // which allows other plugins to contribute new widgets.
+            final Logger logger = Logger.getLogger(getClass().getName());
+            for (IConfigurationElement config : registry.getConfigurationElementsFor(EXTENSION_POINT))
+            {
+                final String type = config.getAttribute("type");
+                final String clazz = config.getAttribute("class");
+                logger.log(Level.CONFIG, "{0} contributes {1}", new Object[] { config.getContributor().getName(), clazz });
+                // TODO Doesn't work because representation's constructor needs arguments,
+                // while createExecutableExtension can only call no-arg constructors...
+                try
+                {
+                    config.createExecutableExtension("class");
+                }
+                catch (CoreException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+
         register(ActionButtonWidget.class, ActionButtonRepresentation.class);
         register(EmbeddedDisplayWidget.class, EmbeddedDisplayRepresentation.class);
         register(GroupWidget.class, GroupRepresentation.class);

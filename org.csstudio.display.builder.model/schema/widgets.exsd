@@ -3,7 +3,7 @@
 <schema targetNamespace="org.csstudio.display.builder.model" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="org.csstudio.display.builder.model" id="widget.model" name="Display Builder Widget Model"/>
+         <meta.schema plugin="org.csstudio.display.builder.model" id="widgets" name="Display Builder Widget Models"/>
       </appinfo>
       <documentation>
          Extension point for adding widget models to the display builder.
@@ -156,7 +156,6 @@ For example, a &quot;label&quot; widget may also represent the legacy widget typ
    &lt;/widget&gt;
 &lt;/extension&gt;
 &lt;/pre&gt;
-
       </documentation>
    </annotation>
 
