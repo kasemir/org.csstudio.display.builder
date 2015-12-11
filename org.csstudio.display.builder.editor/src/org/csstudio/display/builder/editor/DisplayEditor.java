@@ -35,8 +35,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
@@ -188,15 +186,6 @@ public class DisplayEditor
         new Rubberband(scroll, edit_tools, this::selectWidgetsInRegion);
 
         WidgetTransfer.addDropSupport(scroll, group_handler, this::handleDroppedModel);
-
-        root.setOnKeyPressed((KeyEvent event) ->
-        {
-            if (event.isControlDown())
-                if (event.getCode() == KeyCode.Z)
-                    undo.undoLast();
-                else if (event.getCode() == KeyCode.Y)
-                    undo.redoLast();
-        });
     }
 
     private void selectWidgetsInRegion(final Rectangle2D region)
