@@ -36,11 +36,6 @@ public class DisplayRuntime extends WidgetRuntime<DisplayModel>
         pv_initialized = true;
     }
 
-    public DisplayRuntime(final DisplayModel widget)
-    {
-        super(widget);
-    }
-
     /** Start: Connect to PVs, ...
      *  @throws Exception on error
      */

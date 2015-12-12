@@ -24,6 +24,8 @@ import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 @SuppressWarnings("nls")
 public class DisplayModel extends ContainerWidget
 {
+    public static final String WIDGET_TYPE = "display";
+
     /** Reserved DisplayModel user data key for name of input file */
     public static final String USER_DATA_INPUT_FILE = "_input_file";
 
@@ -45,7 +47,7 @@ public class DisplayModel extends ContainerWidget
     /** Create display model */
     public DisplayModel()
     {
-        super("display", 800, 600);
+        super(WIDGET_TYPE, 800, 600);
     }
 
     @Override

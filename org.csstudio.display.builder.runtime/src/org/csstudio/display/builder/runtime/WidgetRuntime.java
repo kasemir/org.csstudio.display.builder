@@ -38,10 +38,12 @@ import org.diirt.vtype.VType;
 @SuppressWarnings("nls")
 public class WidgetRuntime<MW extends Widget>
 {
-    final protected static Logger logger = Logger.getLogger(WidgetRuntime.class.getName());
+    public static final String EXTENSION_POINT = "org.csstudio.display.builder.runtime.widgets";
+
+    protected static final Logger logger = Logger.getLogger(WidgetRuntime.class.getName());
 
     /** The widget handled by this runtime */
-    protected final MW widget;
+    protected MW widget;
 
     /** Primary widget PV for behaviorPVName property */
     private volatile Optional<PV> primary_pv = Optional.empty();
@@ -87,10 +89,14 @@ public class WidgetRuntime<MW extends Widget>
         }
     };
 
+    // initialize() could be the constructor, but
+    // instantiation from Eclipse registry requires
+    // zero-arg constructor
+
     /** Construct runtime
      *  @param widget Model widget
      */
-    public WidgetRuntime(final MW widget)
+    public void initialize(final MW widget)
     {
         this.widget = widget;
         widget.setUserData(Widget.USER_DATA_RUNTIME, this);

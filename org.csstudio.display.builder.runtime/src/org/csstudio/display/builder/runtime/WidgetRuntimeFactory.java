@@ -17,6 +17,9 @@ import org.csstudio.display.builder.model.widgets.XYPlotWidget;
 import org.csstudio.display.builder.runtime.internal.DisplayRuntime;
 import org.csstudio.display.builder.runtime.internal.EmbeddedDisplayRuntime;
 import org.csstudio.display.builder.runtime.internal.XYPlotWidgetRuntime;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.RegistryFactory;
 
 /** Factory for runtimes
  *
@@ -26,33 +29,60 @@ public class WidgetRuntimeFactory
 {
     public static final WidgetRuntimeFactory INSTANCE = new WidgetRuntimeFactory();
 
-    private final Map<Class<? extends Widget>,
-                      Class<? extends WidgetRuntime<? extends Widget>>> runtimes = new HashMap<>();
+    /** Supplier of a WidgetRuntime, may throw Exception */
+    private static interface RuntimeSupplier
+    {
+        WidgetRuntime<? extends Widget> get() throws Exception;
+    };
 
+    /** Map widget type IDs to RuntimeSuppliers */
+    private final Map<String, RuntimeSupplier> runtimes = new HashMap<>();
+
+    /** Initialize available runtimes */
     private WidgetRuntimeFactory()
     {
-        // TODO Locate runtimes in registry
-        register(DisplayModel.class, DisplayRuntime.class);
-        register(EmbeddedDisplayWidget.class, EmbeddedDisplayRuntime.class);
-        register(XYPlotWidget.class, XYPlotWidgetRuntime.class);
-
+        final IExtensionRegistry registry = RegistryFactory.getRegistry();
+        if (registry == null)
+        {   // Fall back to hardcoded runtimes
+            runtimes.put(DisplayModel.WIDGET_TYPE, () -> new DisplayRuntime());
+            runtimes.put(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getType(), () -> new EmbeddedDisplayRuntime());
+            runtimes.put(XYPlotWidget.WIDGET_DESCRIPTOR.getType(), () -> new XYPlotWidgetRuntime());
+        }
+        else
+        {   // Locate runtimes in registry
+            for (IConfigurationElement config : registry.getConfigurationElementsFor(WidgetRuntime.EXTENSION_POINT))
+            {
+                final String type = config.getAttribute("type");
+                runtimes.put(type, createSupplier(config));
+            }
+        }
     }
 
-    protected void register(final Class<? extends Widget> widget_class,
-                            final Class<? extends WidgetRuntime<? extends Widget>> runtime_class)
+    @SuppressWarnings("unchecked")
+    private RuntimeSupplier createSupplier(final IConfigurationElement config)
     {
-        runtimes.put(widget_class, runtime_class);
+        return () -> (WidgetRuntime<? extends Widget>) config.createExecutableExtension("class");
     }
 
+    /** Create a runtime and initialize for widget
+     *  @param model_widget
+     *  @return {@link WidgetRuntime}
+     *  @throws Exception on error
+     */
     @SuppressWarnings("unchecked")
     public <MW extends Widget> WidgetRuntime<MW> createRuntime(final MW model_widget) throws Exception
     {
         // Locate registered Runtime, or use default
-        final Class<? extends WidgetRuntime<?>> runtime_class = runtimes.get(model_widget.getClass());
+        final String type = model_widget.getType();
+        final RuntimeSupplier runtime_class = runtimes.get(type);
+        final WidgetRuntime<MW> runtime;
         if (runtime_class == null)
-            return new WidgetRuntime<MW>(model_widget);
-        // return new ThatRuntime(widget);
-        return (WidgetRuntime<MW>)
-                runtime_class.getDeclaredConstructor(model_widget.getClass()).newInstance(model_widget);
+            // Use default runtime
+            runtime = new WidgetRuntime<MW>();
+        else
+            // Use widget-specific runtime
+            runtime = (WidgetRuntime<MW>) runtime_class.get();
+        runtime.initialize(model_widget);
+        return runtime;
     }
 }

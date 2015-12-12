@@ -38,11 +38,6 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
     }
     private final List<Subscription> subscriptions = new ArrayList<>();
 
-    public XYPlotWidgetRuntime(final XYPlotWidget widget)
-    {
-        super(widget);
-    }
-
     @Override
     public void start() throws Exception
     {

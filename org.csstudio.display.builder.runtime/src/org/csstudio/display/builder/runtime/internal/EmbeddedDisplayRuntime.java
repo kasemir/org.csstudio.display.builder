@@ -28,11 +28,6 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
     /** Model for the embedded content */
     private volatile DisplayModel content_model;
 
-    public EmbeddedDisplayRuntime(final EmbeddedDisplayWidget widget)
-    {
-        super(widget);
-    }
-
     /** Start: Connect to PVs, ...
      *  @throws Exception on error
      */

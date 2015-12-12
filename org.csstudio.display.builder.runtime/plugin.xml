@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="widgets" name="Widget Runtime" schema="schema/runtimes.exsd"/>
+   <extension
+         point="org.csstudio.display.builder.runtime.widgets">
+      <runtime
+            class="org.csstudio.display.builder.runtime.internal.DisplayRuntime"
+            type="display">
+      </runtime>
+      <runtime
+            class="org.csstudio.display.builder.runtime.internal.EmbeddedDisplayRuntime"
+            type="embedded">
+      </runtime>
+      <runtime
+            class="org.csstudio.display.builder.runtime.internal.XYPlotWidgetRuntime"
+            type="xyplot">
+      </runtime>
+   </extension>
+
+</plugin>
