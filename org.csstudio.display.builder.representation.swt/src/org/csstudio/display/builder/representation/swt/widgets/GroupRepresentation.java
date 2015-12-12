@@ -10,10 +10,8 @@ package org.csstudio.display.builder.representation.swt.widgets;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 
 /** Creates SWT item for model widget
@@ -22,12 +20,6 @@ import org.eclipse.swt.widgets.Group;
 public class GroupRepresentation extends SWTBaseRepresentation<Group, GroupWidget>
 {
     private final DirtyFlag dirty_border = new DirtyFlag();
-
-    public GroupRepresentation(final ToolkitRepresentation<Composite, Control> toolkit,
-	                           final GroupWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
 
     @Override
     protected Group createSWTControl(final Composite parent) throws Exception

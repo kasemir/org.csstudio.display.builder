@@ -10,7 +10,6 @@ package org.csstudio.display.builder.representation.swt.widgets;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -29,19 +28,9 @@ abstract public class SWTBaseRepresentation<W extends Control, MW extends Widget
 
     private final DirtyFlag dirty_position = new DirtyFlag();
 
-    /** Construct representation for a model widget
-     *  @param toolkit Toolkit helper
-     *  @param model_widget Model widget
-     */
-    public SWTBaseRepresentation(final ToolkitRepresentation<Composite, Control> toolkit,
-                                 final MW model_widget)
-    {
-        super(toolkit, model_widget);
-    }
-
     /** {@inheritDoc} */
     @Override
-    final public Composite init(final Composite parent) throws Exception
+    final public Composite createComponents(final Composite parent) throws Exception
     {
         control = createSWTControl(parent);
         control.addMouseListener(new MouseAdapter()

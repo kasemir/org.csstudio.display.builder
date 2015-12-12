@@ -15,7 +15,6 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget.AxisWidgetProperty;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.javafx.rtplot.PointType;
 import org.csstudio.javafx.rtplot.RTValuePlot;
@@ -25,8 +24,6 @@ import org.csstudio.javafx.rtplot.YAxis;
 import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 
-import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
@@ -45,12 +42,6 @@ public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidg
     // TODO Support 0..N traces, not 1
     private AtomicReference<Trace<Double>> trace0 = new AtomicReference<>();
     final private XYVTypeDataProvider data0 = new XYVTypeDataProvider();
-
-    public XYPlotRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
-                                final XYPlotWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
 
     @Override
     public Pane createJFXNode() throws Exception

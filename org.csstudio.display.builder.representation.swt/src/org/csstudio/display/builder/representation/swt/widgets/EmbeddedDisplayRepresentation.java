@@ -8,10 +8,8 @@
 package org.csstudio.display.builder.representation.swt.widgets;
 
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 /** Creates SWT item for model widget
  *  @author Kay Kasemir
@@ -22,12 +20,6 @@ public class EmbeddedDisplayRepresentation extends SWTBaseRepresentation<Composi
 
     /** Inner composite that holds child widgets */
     private Composite inner;
-
-    public EmbeddedDisplayRepresentation(final ToolkitRepresentation<Composite, Control> toolkit,
-	                                     final EmbeddedDisplayWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
 
     @Override
     protected Composite createSWTControl(final Composite parent) throws Exception

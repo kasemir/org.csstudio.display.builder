@@ -16,10 +16,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 
-import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuButton;
@@ -47,12 +44,6 @@ public class ActionButtonRepresentation extends JFXBaseRepresentation<ButtonBase
 
     /** Optional modifier of the open display 'target */
     private Optional<OpenDisplayActionInfo.Target> target_modifier = Optional.empty();
-
-    public ActionButtonRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
-                                      final ActionButtonWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
 
     @Override
     public ButtonBase createJFXNode() throws Exception

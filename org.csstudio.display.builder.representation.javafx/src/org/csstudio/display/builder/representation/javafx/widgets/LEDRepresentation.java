@@ -11,12 +11,9 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
 
-import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
@@ -35,12 +32,6 @@ public class LEDRepresentation extends JFXBaseRepresentation<Ellipse, LEDWidget>
     private volatile Color[] colors = new Color[0];
 
     private volatile Color value_color = Color.VIOLET;
-
-    public LEDRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
-                             final LEDWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
 
     @Override
     public Ellipse createJFXNode() throws Exception

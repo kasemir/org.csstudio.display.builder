@@ -11,13 +11,10 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
 
 import javafx.geometry.Insets;
-import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -34,16 +31,10 @@ public class TextUpdateRepresentation extends JFXBaseRepresentation<Label, TextU
     private final DirtyFlag dirty_content = new DirtyFlag();
     private volatile String value_text = "<?>";
 
-    public TextUpdateRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
-                                    final TextUpdateWidget model_widget)
-    {
-        super(toolkit, model_widget);
-        value_text = "<" + model_widget.behaviorPVName().getValue() + ">";
-    }
-
     @Override
     public Label createJFXNode() throws Exception
     {
+    	value_text = "<" + model_widget.behaviorPVName().getValue() + ">";
         return new Label();
     }
 

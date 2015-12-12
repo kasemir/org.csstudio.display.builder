@@ -14,13 +14,11 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
@@ -30,12 +28,6 @@ import org.eclipse.swt.widgets.MenuItem;
 public class ActionButtonRepresentation extends SWTBaseRepresentation<Button, ActionButtonWidget>
 {
     private final DirtyFlag dirty_representation = new DirtyFlag();
-
-    public ActionButtonRepresentation(final ToolkitRepresentation<Composite, Control> toolkit,
-                                      final ActionButtonWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
 
     @Override
     protected Button createSWTControl(final Composite parent) throws Exception

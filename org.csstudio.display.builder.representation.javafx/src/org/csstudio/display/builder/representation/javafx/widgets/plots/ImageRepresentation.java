@@ -16,7 +16,6 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ImageWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.diirt.util.array.IteratorNumber;
 import org.diirt.util.array.ListNumber;
@@ -24,7 +23,6 @@ import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 
 import javafx.embed.swing.SwingFXUtils;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -54,12 +52,6 @@ public class ImageRepresentation extends JFXBaseRepresentation<Node, ImageWidget
 
     // TODO Axes, axis info for cursor
     // TODO Zoom in and back out
-
-    public ImageRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
-                               final ImageWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
 
     @Override
     public Canvas createJFXNode() throws Exception

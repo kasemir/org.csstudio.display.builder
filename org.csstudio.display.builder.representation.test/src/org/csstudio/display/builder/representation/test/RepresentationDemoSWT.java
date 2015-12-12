@@ -14,7 +14,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.swt.SWTRepresentation;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -34,17 +33,15 @@ public class RepresentationDemoSWT
         final Shell shell = new Shell(display);
         shell.setText(model.getPropertyValue(widgetName));
 
-        final Composite parent = new Composite(shell, SWT.NONE);
-        parent.setSize(model.getPropertyValue(positionWidth),
-                       model.getPropertyValue(positionHeight));
+        shell.setSize(model.getPropertyValue(positionWidth),
+                      model.getPropertyValue(positionHeight));
 
         final ToolkitRepresentation<Composite, Control> toolkit =
                 new SWTRepresentation(display);
-        toolkit.representModel(parent, model);
+        toolkit.representModel(shell, model);
 
         final DummyRuntime runtime = new DummyRuntime(model);
 
-        shell.pack();
         shell.open();
 
         while (!shell.isDisposed())

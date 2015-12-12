@@ -45,19 +45,12 @@ import org.csstudio.display.builder.representation.internal.UpdateThrottle;
 @SuppressWarnings("nls")
 abstract public class ToolkitRepresentation<TWP extends Object, TW> implements Executor
 {
-    /** Extension point ID for contributing {@link WidgetRepresentation}s */
-    public static final String EXTENSION_POINT = "org.csstudio.display.builder.representation.widgets";
-
     protected final Logger logger = Logger.getLogger(getClass().getName());
 
     private final UpdateThrottle throttle = new UpdateThrottle(this);
 
-    /** Registered representations based on widget class */
-    private final Map<Class<? extends Widget>,
-                      Class<? extends WidgetRepresentation<TWP, TW, ? extends Widget>>> representations = new HashMap<>();
-    
     /** Factories for representations based on widget type */
-    private final Map<String, WidgetRepresentationFactory<TWP, TW, ? extends Widget>> factories = new HashMap<>();
+    private final Map<String, WidgetRepresentationFactory<TWP, TW>> factories = new HashMap<>();
 
     /** Listener list */
     private final List<ToolkitListener> listeners = new CopyOnWriteArrayList<>();
@@ -83,43 +76,16 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     };
 
     /** Register the toolkit's representation of a model widget
-     *  @param widget_class Class of a model's {@link Widget}
-     *  @param representation_class Class of the {@link WidgetRepresentation} in the toolkit
      *
-     *  TODO Might have to change from representation_class to a concrete WidgetFactory instance.
-     *
-     *  For tests, while all code is in the same classloader, this code is able to create the
-     *  representation based on its class.
-     *  Once widgets get added via extension points, this code cannot instantiate classes from
-     *  other plugins. It will need something like this to create the factory for each representation,
-     *  where IConfigurationElement.createExecutableExtension() is able to instantiate the class
-     *  within the contributing plugin:
-     *
-     *   final IConfigurationElement[] configs = Platform.getExtensionRegistry().getConfigurationElementsFor("display.builder.widgets");
-     *   for (IConfigurationElement config : configs)
-     *   {
-     *       WidgetRepresentationFactory factory = config.createExecutableExtension("class");
-     *       factory.getWidgetClass(); // Class of widget that this factory can represent
-     *   }
-     *
-     */
-    protected void register(final Class<? extends Widget> widget_class,
-                            final Class<? extends WidgetRepresentation<TWP, TW, ? extends Widget>> representation_class)
-    {
-        representations.put(widget_class, representation_class);
-    }
-
-    /** Register the toolkit's representation of a model widget
-     * 
      *  @param widget_type {@link Widget} type ID
      *  @param factory Factory for creating representation
      */
-    protected <MW extends Widget> void register(final String widget_type,
-    						final WidgetRepresentationFactory<TWP, TW, MW> factory)
-	{
-    	factories.put(widget_type, factory);
-	}
-    
+    protected void register(final String widget_type,
+                            final WidgetRepresentationFactory<TWP, TW> factory)
+    {
+        factories.put(widget_type, factory);
+    }
+
     /** Open new top-level window
      *
      *  <p>Is invoked with the _initial_ model.
@@ -186,44 +152,27 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     private void representWidget(final TWP parent, final Widget widget)
     {
-    	// TODO Use this code to get 'representation' instead of code below
-//    	final WidgetRepresentationFactory<TWP, TW, Widget> factory = factories.get(widget.getType());
-//    	if (factory == null)
-//        {
-//        	logger.log(Level.SEVERE, "Lacking representation for " + widget.getType());
-//        	return;
-//        }
-//    	final WidgetRepresentation<TWP, TW, Widget> representation = factory.create(this, widget);
-    	
-
-    	final Class<? extends WidgetRepresentation<TWP, TW, ? extends Widget>> representation_class =
-                representations.get(widget.getClass());
-        if (representation_class == null)
+        final WidgetRepresentationFactory<TWP, TW> factory = factories.get(widget.getType());
+        if (factory == null)
         {
-        	logger.log(Level.SEVERE, "Lacking representation for " + widget.getClass());
-        	return;
+            logger.log(Level.SEVERE, "Lacking representation for " + widget.getType());
+            return;
         }
 
-        // Constructors expect a _generic_ ToolkitRepresentation (not JFXRepresentation),
-        // but a _specific_ widget like GroupWidget (not just Widget):
-        //
-        //   new ThatWidgetRepresentation(ToolkitRepresentation this, ActualWidget model_widget)
-        final WidgetRepresentation<TWP, TW, ? extends Widget> representation;
         final TWP re_parent;
         try
         {
-            representation = representation_class.getDeclaredConstructor(ToolkitRepresentation.class,
-                                                                         widget.getClass())
-                                                 .newInstance(this, widget);
-            re_parent = representation.init(parent);
+            final WidgetRepresentation<TWP, TW, Widget> representation = factory.create();
+            representation.initialize(this, widget);
+            re_parent = representation.createComponents(parent);
             widget.setUserData(Widget.USER_DATA_REPRESENTATION, representation);
+            logger.log(Level.FINE, "Representing {0} as {1}", new Object[] { widget, representation });
         }
         catch (Exception ex)
         {
             logger.log(Level.SEVERE, "Cannot represent " + widget, ex);
             return;
         }
-        logger.log(Level.FINE, "Representing {0} as {1}", new Object[] { widget, representation });
         // Recurse into child widgets
         if (widget instanceof ContainerWidget)
         {

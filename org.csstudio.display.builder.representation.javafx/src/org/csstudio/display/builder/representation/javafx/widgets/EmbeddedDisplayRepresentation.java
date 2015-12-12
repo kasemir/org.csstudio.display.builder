@@ -10,10 +10,8 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
@@ -33,12 +31,6 @@ public class EmbeddedDisplayRepresentation extends JFXBaseRepresentation<Group, 
 
     /** Inner group that holds child widgets */
     private Group inner;
-
-    public EmbeddedDisplayRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
-                                         final EmbeddedDisplayWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
 
     @Override
     public Group createJFXNode() throws Exception

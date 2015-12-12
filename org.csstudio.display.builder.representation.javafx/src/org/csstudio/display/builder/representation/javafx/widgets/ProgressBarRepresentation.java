@@ -11,14 +11,11 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.Display;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueUtil;
 
-import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.control.ProgressBar;
 
 /** Creates JavaFX item for model widget
@@ -30,12 +27,6 @@ public class ProgressBarRepresentation extends JFXBaseRepresentation<ProgressBar
     private final DirtyFlag dirty_look = new DirtyFlag();
     private final DirtyFlag dirty_value = new DirtyFlag();
     private volatile double percentage = 0.0;
-
-    public ProgressBarRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
-                                     final ProgressBarWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
 
     @Override
     public ProgressBar createJFXNode() throws Exception

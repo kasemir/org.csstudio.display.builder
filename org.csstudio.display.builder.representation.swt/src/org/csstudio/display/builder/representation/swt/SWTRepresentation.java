@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.representation.WidgetRepresentation;
 import org.csstudio.display.builder.representation.swt.widgets.ActionButtonRepresentation;
 import org.csstudio.display.builder.representation.swt.widgets.EmbeddedDisplayRepresentation;
 import org.csstudio.display.builder.representation.swt.widgets.GroupRepresentation;
@@ -42,18 +43,19 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     private static final String ACTIVE_MODEL = "_active_model";
     private final Display display;
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public SWTRepresentation(final Display display)
     {
         this.display = display;
 
         // TODO Load available widget representation from registry
-        register(ActionButtonWidget.class, ActionButtonRepresentation.class);
-        register(EmbeddedDisplayWidget.class, EmbeddedDisplayRepresentation.class);
-        register(GroupWidget.class, GroupRepresentation.class);
-        register(LabelWidget.class, LabelRepresentation.class);
-        register(LEDWidget.class, LEDRepresentation.class);
-        register(RectangleWidget.class, RectangleRepresentation.class);
-        register(TextUpdateWidget.class, TextUpdateRepresentation.class);
+        register(ActionButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new ActionButtonRepresentation());
+        register(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new EmbeddedDisplayRepresentation());
+        register(GroupWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new GroupRepresentation());
+        register(LabelWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new LabelRepresentation());
+        register(LEDWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new LEDRepresentation());
+        register(RectangleWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new RectangleRepresentation());
+        register(TextUpdateWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new TextUpdateRepresentation());
     }
 
     @Override

@@ -10,10 +10,8 @@ package org.csstudio.display.builder.representation.swt.widgets;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
 /** Creates SWT item for model widget
@@ -22,12 +20,6 @@ import org.eclipse.swt.widgets.Label;
 public class LabelRepresentation extends SWTBaseRepresentation<Label, LabelWidget>
 {
     private final DirtyFlag dirty_content = new DirtyFlag();
-
-    public LabelRepresentation(final ToolkitRepresentation<Composite, Control> toolkit,
-                               final LabelWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
 
     @Override
     protected Label createSWTControl(final Composite parent) throws Exception

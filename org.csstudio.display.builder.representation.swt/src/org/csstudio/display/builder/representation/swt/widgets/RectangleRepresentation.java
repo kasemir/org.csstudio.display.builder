@@ -8,26 +8,18 @@
 package org.csstudio.display.builder.representation.swt.widgets;
 
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 /** Creates SWT item for model widget
  *  @author Kay Kasemir
  */
 public class RectangleRepresentation extends SWTBaseRepresentation<Canvas, RectangleWidget>
 {
-	public RectangleRepresentation(final ToolkitRepresentation<Composite, Control> toolkit,
-	                               final RectangleWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
-
     @Override
     protected Canvas createSWTControl(final Composite parent) throws Exception
     {   // Unfortunately, the canvas is not transparent..

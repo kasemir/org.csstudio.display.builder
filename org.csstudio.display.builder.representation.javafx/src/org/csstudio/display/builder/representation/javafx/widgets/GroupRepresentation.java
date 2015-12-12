@@ -12,12 +12,10 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import javafx.geometry.Insets;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -45,12 +43,6 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
 
     /** Inner group that holds child widgets */
     private Group inner;
-
-    public GroupRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
-                               final GroupWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
 
     @Override
     public Group createJFXNode() throws Exception

@@ -11,7 +11,6 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.swt.SWTRepresentation;
 import org.diirt.vtype.VType;
 import org.eclipse.swt.SWT;
@@ -21,7 +20,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 /** Creates SWT item for model widget
  *  @author Kay Kasemir
@@ -32,12 +30,6 @@ public class LEDRepresentation extends SWTBaseRepresentation<Canvas, LEDWidget>
 
     private volatile Color[] colors = new Color[0];
     private volatile Color value_color;
-
-    public LEDRepresentation(final ToolkitRepresentation<Composite, Control> toolkit,
-                             final LEDWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
 
     @Override
     protected Canvas createSWTControl(final Composite parent) throws Exception

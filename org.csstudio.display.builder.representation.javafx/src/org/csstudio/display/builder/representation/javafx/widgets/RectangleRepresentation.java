@@ -10,10 +10,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 
-import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
@@ -24,12 +21,6 @@ import javafx.scene.shape.StrokeType;
 public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, RectangleWidget>
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
-
-    public RectangleRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
-                                   final RectangleWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
 
     @Override
     public Rectangle createJFXNode() throws Exception

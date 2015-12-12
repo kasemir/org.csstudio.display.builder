@@ -11,14 +11,11 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
 
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
-import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
@@ -41,17 +38,10 @@ public class TextEntryRepresentation extends JFXBaseRepresentation<TextField, Te
     private final DirtyFlag dirty_content = new DirtyFlag();
     private volatile String value_text = "<?>";
 
-
-    public TextEntryRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
-                                   final TextEntryWidget model_widget)
-    {
-        super(toolkit, model_widget);
-        value_text = "<" + model_widget.behaviorPVName().getValue() + ">";
-    }
-
     @Override
     public TextField createJFXNode() throws Exception
     {
+    	value_text = "<" + model_widget.behaviorPVName().getValue() + ">";
         final TextField text = new TextField();
         text.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 

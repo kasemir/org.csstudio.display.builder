@@ -25,20 +25,19 @@ import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.representation.WidgetRepresentation;
 import org.csstudio.display.builder.representation.WidgetRepresentationFactory;
 import org.csstudio.display.builder.representation.javafx.widgets.ActionButtonRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.EmbeddedDisplayRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.GroupRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LEDRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentation;
-import org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentationFactory;
 import org.csstudio.display.builder.representation.javafx.widgets.ProgressBarRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.RectangleRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.RegistryFactory;
@@ -70,49 +69,46 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
     /** Construct new JFX representation */
     public JFXRepresentation()
     {
-        // TODO Load available widget representations from registry.
-        // Should do this _once_, not for every instance of the JFX toolkit.
-
+        // TODO Should do this _once_, not for every instance of the JFX toolkit.
         final IExtensionRegistry registry = RegistryFactory.getRegistry();
         if (registry == null)
-        {
-            // Fall back to hardcoded entries for tests
-            register(LabelWidget.WIDGET_DESCRIPTOR.getType(), new LabelRepresentationFactory());
-        }
+            registerKnownRepresentations();
         else
         {
             // Load available representations from registry,
             // which allows other plugins to contribute new widgets.
             final Logger logger = Logger.getLogger(getClass().getName());
-            for (IConfigurationElement config : registry.getConfigurationElementsFor(EXTENSION_POINT))
+            for (IConfigurationElement config : registry.getConfigurationElementsFor(WidgetRepresentation.EXTENSION_POINT))
             {
                 final String type = config.getAttribute("type");
                 final String clazz = config.getAttribute("class");
                 logger.log(Level.CONFIG, "{0} contributes {1}", new Object[] { config.getContributor().getName(), clazz });
-                try
-                {
-                    WidgetRepresentationFactory<Group, Node, Widget> factory = (WidgetRepresentationFactory)config.createExecutableExtension("class");
-                    register(type, factory);
-                }
-                catch (CoreException e)
-                {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                register(type, createFactory(config));
             }
         }
-        
-        register(ActionButtonWidget.class, ActionButtonRepresentation.class);
-        register(EmbeddedDisplayWidget.class, EmbeddedDisplayRepresentation.class);
-        register(GroupWidget.class, GroupRepresentation.class);
-        register(ImageWidget.class, ImageRepresentation.class);
-        register(LabelWidget.class, LabelRepresentation.class);
-        register(LEDWidget.class, LEDRepresentation.class);
-        register(ProgressBarWidget.class, ProgressBarRepresentation.class);
-        register(RectangleWidget.class, RectangleRepresentation.class);
-        register(TextEntryWidget.class, TextEntryRepresentation.class);
-        register(TextUpdateWidget.class, TextUpdateRepresentation.class);
-        register(XYPlotWidget.class, XYPlotRepresentation.class);
+    }
+
+    /** Fall back to hardcoded entries for tests */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private void registerKnownRepresentations()
+    {
+        register(ActionButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ActionButtonRepresentation());
+        register(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new EmbeddedDisplayRepresentation());
+        register(GroupWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new GroupRepresentation());
+        register(ImageWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ImageRepresentation());
+        register(LabelWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new LabelRepresentation());
+        register(LEDWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new LEDRepresentation());
+        register(ProgressBarWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ProgressBarRepresentation());
+        register(RectangleWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new RectangleRepresentation());
+        register(TextEntryWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextEntryRepresentation());
+        register(TextUpdateWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextUpdateRepresentation());
+        register(XYPlotWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new XYPlotRepresentation());
+    }
+
+    @SuppressWarnings("unchecked")
+    private WidgetRepresentationFactory<Group, Node> createFactory(final IConfigurationElement config)
+    {
+        return () -> (WidgetRepresentation<Group, Node, Widget>) config.createExecutableExtension("class");
     }
 
     // Scene support, meant for runtime, supporting scroll & zoom.

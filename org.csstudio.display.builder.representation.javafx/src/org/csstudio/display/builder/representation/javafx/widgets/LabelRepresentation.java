@@ -10,14 +10,9 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
-import org.csstudio.display.builder.representation.WidgetRepresentation;
-import org.csstudio.display.builder.representation.WidgetRepresentationFactory;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import javafx.geometry.Insets;
-import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -32,12 +27,6 @@ public class LabelRepresentation extends JFXBaseRepresentation<Label, LabelWidge
 {
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
-
-    public LabelRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
-                               final LabelWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
 
     @Override
     public Label createJFXNode() throws Exception

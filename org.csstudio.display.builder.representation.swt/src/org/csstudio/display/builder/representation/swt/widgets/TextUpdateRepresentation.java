@@ -11,11 +11,9 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.diirt.vtype.VType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
 /** Creates SWT item for model widget
@@ -26,12 +24,6 @@ public class TextUpdateRepresentation extends SWTBaseRepresentation<Label, TextU
 {
     private final DirtyFlag dirty_content = new DirtyFlag();
     private volatile String value_text = "<?>";
-
-    public TextUpdateRepresentation(final ToolkitRepresentation<Composite, Control> toolkit,
-                                    final TextUpdateWidget model_widget)
-    {
-        super(toolkit, model_widget);
-    }
 
     @Override
     protected Label createSWTControl(final Composite parent) throws Exception

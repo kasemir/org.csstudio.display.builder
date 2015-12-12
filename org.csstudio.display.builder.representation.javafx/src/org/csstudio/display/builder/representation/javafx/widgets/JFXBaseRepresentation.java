@@ -12,7 +12,6 @@ import java.util.Objects;
 import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 
 import javafx.scene.Group;
@@ -29,19 +28,9 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWid
 
     private final DirtyFlag dirty_position = new DirtyFlag();
 
-    /** Construct representation for a model widget
-     *  @param toolkit Toolkit helper
-     *  @param model_widget Model widget
-     */
-    public JFXBaseRepresentation(final ToolkitRepresentation<Group, Node> toolkit,
-                             final MW model_widget)
-    {
-        super(toolkit, model_widget);
-    }
-
     /** {@inheritDoc} */
     @Override
-    public Group init(final Group parent) throws Exception
+    public Group createComponents(final Group parent) throws Exception
     {
         jfx_node = createJFXNode();
         if (jfx_node != null)

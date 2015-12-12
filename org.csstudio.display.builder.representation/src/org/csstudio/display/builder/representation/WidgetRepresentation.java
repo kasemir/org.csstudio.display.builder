@@ -23,26 +23,32 @@ import org.csstudio.display.builder.model.Widget;
  */
 abstract public class WidgetRepresentation<TWP, TW, MW extends Widget>
 {
+    /** Extension point ID for contributing {@link WidgetRepresentation}s */
+    public static final String EXTENSION_POINT = "org.csstudio.display.builder.representation.widgets";
+
     protected final Logger logger = Logger.getLogger(getClass().getName());
 
     /** Toolkit helper */
-    protected final ToolkitRepresentation<TWP, TW> toolkit;
+    protected ToolkitRepresentation<TWP, TW> toolkit;
 
     /** Model widget that is represented in toolkit */
-    protected final MW model_widget;
+    protected MW model_widget;
+
+    // initialize() could be a constructor, but for instantiation
+    // from Eclipse registry we need a zero-argument constructor.
 
     /** Construct representation for a model widget
-     *  @param toolkit Toolkit helper
-     *  @param model_widget Model widget
+     *  @param toolkit Toolkit
+     *  @param model_widget Model {@link Widget}
      */
-    public WidgetRepresentation(final ToolkitRepresentation<TWP, TW> toolkit,
-                                final MW model_widget)
-    {
-        this.toolkit = toolkit;
-        this.model_widget = model_widget;
-    }
+	public void initialize(final ToolkitRepresentation<TWP, TW> toolkit,
+						   final MW model_widget)
+	{
+		this.toolkit = toolkit;
+		this.model_widget = model_widget;
+	}
 
-    /** Initialize the toolkit item(s)
+    /** Create the toolkit item(s)
      *
      *  <p>If this widget is a container, it returns a
      *  new parent for its child widgets.
@@ -53,7 +59,7 @@ abstract public class WidgetRepresentation<TWP, TW, MW extends Widget>
      *  @return New parent to use for child items
      *  @throws Exception on error
      */
-    abstract public TWP init(final TWP parent) throws Exception;
+    abstract public TWP createComponents(final TWP parent) throws Exception;
 
     /** Update toolkit representation to match model.
      *
