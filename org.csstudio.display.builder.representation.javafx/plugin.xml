@@ -3,6 +3,7 @@
 <plugin>
    <extension
          point="org.csstudio.display.builder.representation.widgets">
+         <!--
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.ActionButtonRepresentation"
             type="action_button">
@@ -15,10 +16,12 @@
             class="org.csstudio.display.builder.representation.javafx.widgets.GroupRepresentation"
             type="group">
       </representation>
+      -->
       <representation
-            class="org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentation"
+            class="org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentationFactory"
             type="label">
       </representation>
+      <!--
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.LEDRepresentation"
             type="led">
@@ -47,6 +50,7 @@
             class="org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation"
             type="xyplot">
       </representation>
+      -->
    </extension>
 
 </plugin>

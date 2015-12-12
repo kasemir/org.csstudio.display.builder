@@ -55,6 +55,9 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     /** Registered representations based on widget class */
     private final Map<Class<? extends Widget>,
                       Class<? extends WidgetRepresentation<TWP, TW, ? extends Widget>>> representations = new HashMap<>();
+    
+    /** Factories for representations based on widget type */
+    private final Map<String, WidgetRepresentationFactory<TWP, TW, ? extends Widget>> factories = new HashMap<>();
 
     /** Listener list */
     private final List<ToolkitListener> listeners = new CopyOnWriteArrayList<>();
@@ -106,6 +109,17 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         representations.put(widget_class, representation_class);
     }
 
+    /** Register the toolkit's representation of a model widget
+     * 
+     *  @param widget_type {@link Widget} type ID
+     *  @param factory Factory for creating representation
+     */
+    protected <MW extends Widget> void register(final String widget_type,
+    						final WidgetRepresentationFactory<TWP, TW, MW> factory)
+	{
+    	factories.put(widget_type, factory);
+	}
+    
     /** Open new top-level window
      *
      *  <p>Is invoked with the _initial_ model.
@@ -172,7 +186,17 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     private void representWidget(final TWP parent, final Widget widget)
     {
-        final Class<? extends WidgetRepresentation<TWP, TW, ? extends Widget>> representation_class =
+    	// TODO Use this code to get 'representation' instead of code below
+//    	final WidgetRepresentationFactory<TWP, TW, Widget> factory = factories.get(widget.getType());
+//    	if (factory == null)
+//        {
+//        	logger.log(Level.SEVERE, "Lacking representation for " + widget.getType());
+//        	return;
+//        }
+//    	final WidgetRepresentation<TWP, TW, Widget> representation = factory.create(this, widget);
+    	
+
+    	final Class<? extends WidgetRepresentation<TWP, TW, ? extends Widget>> representation_class =
                 representations.get(widget.getClass());
         if (representation_class == null)
         {

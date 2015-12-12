@@ -9,7 +9,6 @@
          Extension point for adding widget representations to the display builder.
 
 The underlying model for each widget needs to be defined via the org.csstudio.display.builder.model.widgets extension point.
-
       </documentation>
    </annotation>
 
@@ -62,10 +61,10 @@ The underlying model for each widget needs to be defined via the org.csstudio.di
          <attribute name="class" type="string">
             <annotation>
                <documentation>
-                  Widget representation implementation
+                  Factory for representation of that widget type
                </documentation>
                <appinfo>
-                  <meta.attribute kind="java" basedOn="org.csstudio.display.builder.representation.WidgetRepresentation:"/>
+                  <meta.attribute kind="java" basedOn=":org.csstudio.display.builder.representation.WidgetRepresentationFactory"/>
                </appinfo>
             </annotation>
          </attribute>

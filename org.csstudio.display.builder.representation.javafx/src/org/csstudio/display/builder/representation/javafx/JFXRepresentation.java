@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
@@ -24,11 +25,13 @@ import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.representation.WidgetRepresentationFactory;
 import org.csstudio.display.builder.representation.javafx.widgets.ActionButtonRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.EmbeddedDisplayRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.GroupRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LEDRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentationFactory;
 import org.csstudio.display.builder.representation.javafx.widgets.ProgressBarRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.RectangleRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepresentation;
@@ -74,6 +77,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
         if (registry == null)
         {
             // Fall back to hardcoded entries for tests
+            register(LabelWidget.WIDGET_DESCRIPTOR.getType(), new LabelRepresentationFactory());
         }
         else
         {
@@ -85,11 +89,10 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
                 final String type = config.getAttribute("type");
                 final String clazz = config.getAttribute("class");
                 logger.log(Level.CONFIG, "{0} contributes {1}", new Object[] { config.getContributor().getName(), clazz });
-                // TODO Doesn't work because representation's constructor needs arguments,
-                // while createExecutableExtension can only call no-arg constructors...
                 try
                 {
-                    config.createExecutableExtension("class");
+                    WidgetRepresentationFactory<Group, Node, Widget> factory = (WidgetRepresentationFactory)config.createExecutableExtension("class");
+                    register(type, factory);
                 }
                 catch (CoreException e)
                 {
@@ -98,7 +101,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
                 }
             }
         }
-
+        
         register(ActionButtonWidget.class, ActionButtonRepresentation.class);
         register(EmbeddedDisplayWidget.class, EmbeddedDisplayRepresentation.class);
         register(GroupWidget.class, GroupRepresentation.class);
