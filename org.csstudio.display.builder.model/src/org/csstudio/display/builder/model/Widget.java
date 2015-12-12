@@ -364,11 +364,6 @@ public class Widget
         return property;
     }
 
-    // TODO Support indexed property for the basic types:
-    // StringsWidgetProperty, DoublesWidgetProperty, ..
-    // and allow per-element access.
-    // Updates send IndexedPropertyChangeEvent
-
     /** Get widget property value.
      *
      *  <p>Property access based on property description allows
