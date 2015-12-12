@@ -46,7 +46,7 @@ public class ColorMapWidgetProperty extends WidgetProperty<ColorMap>
     @Override
     public void writeToXML(final XMLStreamWriter writer) throws Exception
     {
-        // TODO
+        // TODO Write colormap
         writer.writeStartElement("color_map");
         writer.writeEndElement();
     }
@@ -54,6 +54,6 @@ public class ColorMapWidgetProperty extends WidgetProperty<ColorMap>
     @Override
     public void readFromXML(final Element property_xml) throws Exception
     {
-        // TODO
+        // TODO Read colormap
     }
 }
