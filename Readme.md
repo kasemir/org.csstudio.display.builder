@@ -5,15 +5,24 @@ Ongoing update of CS-Studio 'BOY',
 i.e. the `org.csstudio.opibuilder.*` code in 
 https://github.com/ControlSystemStudio/cs-studio.
 
-Overall goal is providing the same functionality, read-compatibility with existing *.opi files,
-with the following improvements:
+Overall goal is to provide the same functionality,
+including read-compatibility with existing *.opi files
+and similar "look", but with the following improvements:
 
+ * Model loads in background threads.
+   Opening a new display will no longer result in user interface "freeze",
+   even if the display takes some time to load because of embedded displays
+   or accessing display files over http.
+ * Runtime handles PV updates and scripts in background threads,
+   again lessening the likelyhood of user interface freezeups.
  * Separation of Model, Representation, Runtime and Editor
+   to facilitate long term maintainability.
  * Model without reference to SWT/GEF (color, dimensions, ..)
- * Model loads in background threads
+   to allow each to be developed and optimized in parallel.
  * Representation could be SWT, AWT, .., JavaFX, favoring the latter
- * Runtime independent of representation and editor
- * Runtime handles PV updates and scripts in background threads.
+   because it currently promises best performance and long term
+   Java support
+ * Runtime independent of representation and editor.
  
 
 Dependencies
@@ -35,37 +44,41 @@ Development Status
 
 ** Model **
 
-Many essentials: Widgets, widget categories, typed properties, property categories, change notifications, persistence, named colors.
+Describes Widgets and their Properties.
+Widget Properties have well defined types. Access to properties is thread-safe.
+Listeners can react to widget property changes.
+Widgets and their properties can be persisted to and loaded from XML files.
+Widget categories as well as property categories combined with a well defined order of widget properties
+allow editors to present them in a consistent way.
 
-Basic Rectangle, Label, TextUpdate, LED, ProgressBar.
+The Model reads existing *.opi files, adapting them to the current model
+and writing them in the new format.
 
-Group that contains child widgets,
+Available basic widgets include Rectangle, Label, TextUpdate, LED, ProgressBar with their essential properties.
 
-EmbeddedDisplay widget that (at runtime) loads other *.opi file,
+Widgets with key functionality:
+* Group that contains child widgets,
+* EmbeddedDisplay widget that (at runtime) loads other *.opi file,
+* ActionButton that opens new *.opi, either in new window or replacing existing model.
 
-ActionButton that opens new *.opi, either in new window or replacing existing model.
-
-All read existing *.opi files.
-
-Each new widget is added as its own class derived from the base `Widget` and registered in `WidgetFactory`.
 
 Major TODOs:
- * Add many more widgets and their properties
+ * Add many more widgets and their properties.
+   Each new widget is added as its own class derived from the base `Widget` and registered in `WidgetFactory`.
 
 ** Representation **
 
-Examples for SWT and JavaFX.
-Emphasis is for now JavaFX.
-SWT example mostly to assert that alternate representation is possible. Purely using SWT, not Draw2D.
-
-Each new widget needs to implement a `WidgetRepresentation` for either JavaFX or SWT (or both) and register with the `JFXRepresentation` respectively `SWTRepresentation`.
-The representation needs to add listeners to model properties of interest.
-On change, it can prepare the UI update, which is then scheduled via `ToolkitRepresentation.scheduleUpdate()`
-to occur on the UI thread in a throttled manner.
+Represents Widgets in a UI toolkit, i.e. makes them visible on the screen.
+Implemented for SWT and JavaFX to demonstrate that different toolkits can be supported,
+but SWT implementation is limited because emphasis is on JavaFX.
 
 Major TODOs:
- * A ton of widgets and their representation
- * How to draw custom widgets in background? Draw JFX Canvas in background,then 'swap' with active canvas? Use AWT to draw image in background?
+ * A ton of widgets and their representation.
+   Each new widget needs to implement a `WidgetRepresentation` for either JavaFX or SWT (or both)
+   and register with the `JFXRepresentation` respectively `SWTRepresentation`.
+   The representation needs to add listeners to model properties of interest.
+   On change, it can prepare the UI update, which is then scheduled via `ToolkitRepresentation.scheduleUpdate()`
+   to occur on the UI thread in a throttled manner.
  
 ** Runtime **
 
@@ -93,26 +106,32 @@ Major TODOs:
  
 ** Editor **
 
-GEF 3 is tied to SWT. GEF 4 lacks basics like palette & property panel.
+Interactive display editor.
 
-Features of demo editor:
-Editor, Palette, Property Panel, Widget Tree,
+New JFX-based development has Palette, Property Panel, Widget Tree,
 move/resize via tracker, snap-to-grid, snap-to-other-widgets.
 
+Considered GEF 4 which supports JFX, but still lacks basics like palette & property panel.
+
 Major TODOs:
+ * Copy/paste
  * Rulers, Guides
  * Editor for points of polyline, polygon
+ * Align, distribute within selection
 
+** Eclipse Integration **
 
-** Overall **
+Everything can be tested in form of JUnit tests or 'main' type demos.
 
-Everything is in form of JUnit tests or 'main' type demos.
+RCP integration uses SWT FXCanvas.
 
-There is RCP 'View' support for the runtime, using SWT FXCanvas.
+RCP 'View' for the runtime.
+
+RCP 'Editor' for editor.
 
 Major TODOs:
 
- * RCP plugins for Editor.
+ * Context menus.
 
 
 Performance: JavaFX vs. SWT
@@ -169,6 +188,22 @@ Both `RuntimeDemoJavaFX` and CSS can execute
 `org.csstudio.display.builder.runtime.test/examples/legacy.opi`.
 
 Linux: RuntimeDemo 10% CPU, CSS 20% CPU.
+
+
+JavaFX Issues
+-------------
+
+How to draw custom widgets in background?
+
+JFX Canvas offers good API. Canvas can be prepared off UI thread,
+but turns out that drawing operations are simply buffered
+to be executed on UI thread once canvas becomes visible,
+loading the UI thread.
+
+JFX WritableImage has very limited API.
+
+Best option seems to use AWT to draw buffered image in background thread,
+then show that in JFX Canvas.
 
 
 Macros
