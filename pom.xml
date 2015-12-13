@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+     Maven settings for building display.builder
+
+     Mostly based on top-level cs-studio/applications/pom.xml
+
+     Kay Kasemir
+  -->
+<project
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+  xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.csstudio</groupId>
+  <artifactId>display-builder</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <!-- USE MAVEN 3.0 --> 
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
+
+  <!-- PROPERTIES -->
+  <properties>
+    <!-- VERSIONS -->
+    <tycho.version>0.22.0</tycho.version>
+    <tycho-extras.version>0.22.0</tycho-extras.version>
+
+    <!-- Repo that has CSS dependencies.
+         Customize via command line option
+         -Dcss-repo=file:/path/to/your/repo
+      -->
+    <css-repo>file:/Users/ky9/git/org.csstudio.sns/repository/target/repository</css-repo>
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <!-- How to handle errors -->
+    <!-- jgit.dirtyWorkingTree options: ignore, warning, error -->
+    <jgit.dirtyWorkingTree>warning</jgit.dirtyWorkingTree>
+  </properties>
+
+  <!-- PLUGIN REPOSITORIES -->
+  <pluginRepositories>
+    <pluginRepository>
+      <id>tycho</id>
+      <url>https://oss.sonatype.org/content/groups/public</url>
+      <releases><enabled>false</enabled></releases>
+      <snapshots><enabled>true</enabled></snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <!--
+    P2 REPOSITORIES
+  -->
+  <repositories>
+    <repository>
+      <id>CSS</id>
+      <url>${css-repo}</url>
+      <layout>p2</layout>
+    </repository>
+  </repositories>
+  
+  <!-- CHILD MODULES -->
+  <modules>
+    <module>org.csstudio.display.builder.editor</module>
+    <module>org.csstudio.display.builder.editor.rcp</module>
+    <module>org.csstudio.display.builder.model</module>
+    <module>org.csstudio.display.builder.rcp</module>
+    <module>org.csstudio.display.builder.representation</module>
+    <module>org.csstudio.display.builder.representation.javafx</module>
+    <module>org.csstudio.display.builder.representation.swt</module>
+    <module>org.csstudio.display.builder.runtime</module>
+    <module>org.csstudio.display.builder.util</module>
+    <module>org.csstudio.javafx</module>
+    <module>org.csstudio.javafx.rtplot</module>
+  </modules>
+
+  <build>
+    <!-- PLUGIN MANAGEMENT -->
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-packaging-plugin</artifactId>
+          <version>${tycho.version}</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.eclipse.tycho.extras</groupId>
+              <artifactId>tycho-buildtimestamp-jgit</artifactId>
+              <version>${tycho-extras.version}</version>
+            </dependency>
+          </dependencies>
+          <configuration>
+            <timestampProvider>jgit</timestampProvider>
+            <jgit.ignore>
+              pom.xml
+              .gitignore
+            </jgit.ignore>
+            <jgit.dirtyWorkingTree>${jgit.dirtyWorkingTree}</jgit.dirtyWorkingTree>
+          </configuration>
+        </plugin>
+      </plugins> 
+    </pluginManagement>
+
+    <!--
+      PLUGIN CONFIGURATION
+    -->
+    <plugins>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-maven-plugin</artifactId>
+        <version>${tycho.version}</version>
+        <extensions>true</extensions>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-compiler-plugin</artifactId>
+        <version>${tycho.version}</version>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <extraClasspathElements>
+            <!-- Add jfxswt.jar to avoid error w/ missing FXCanvas -->
+            <extraClasspathElement>
+              <groupId>com.oracle</groupId>
+              <artifactId>javafx</artifactId>
+              <version>8.0.0-SNAPSHOT</version>
+              <systemPath>${java.home}/lib/jfxswt.jar</systemPath>
+              <scope>system</scope>
+            </extraClasspathElement>
+          </extraClasspathElements>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-packaging-plugin</artifactId>
+        <version>${tycho.version}</version>
+        <configuration>
+          <!--Some project include things that no longer exists. This should be fixed, but for now this parameter lets the build continue.-->
+          <strictBinIncludes>false</strictBinIncludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-source-plugin</artifactId>
+        <version>${tycho.version}</version>
+        <executions>
+          <execution>
+            <id>plugin-source</id>
+            <goals>
+              <goal>plugin-source</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>all_platforms</id>
+      <activation>
+        <property>
+	      <name>!specific_platform</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.eclipse.tycho</groupId>
+            <artifactId>target-platform-configuration</artifactId>
+            <version>${tycho.version}</version>
+            <configuration>
+              <environments>
+                <!-- 
+                <environment>
+                  <os>linux</os>
+                  <ws>gtk</ws>
+                  <arch>x86</arch>
+                </environment>
+                <environment>
+                  <os>linux</os>
+                  <ws>gtk</ws>
+                  <arch>x86_64</arch>
+                </environment>
+                <environment>
+                  <os>win32</os>
+                  <ws>win32</ws>
+                  <arch>x86</arch>
+                </environment>
+                <environment>
+                  <os>win32</os>
+                  <ws>win32</ws>
+                  <arch>x86_64</arch>
+                </environment>
+                 -->
+                <environment>
+                  <os>macosx</os>
+                  <ws>cocoa</ws>
+                  <arch>x86_64</arch>
+                </environment>
+              </environments>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>
