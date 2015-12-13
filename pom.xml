@@ -62,6 +62,7 @@
   
   <!-- CHILD MODULES -->
   <modules>
+    <!-- Plugins -->
     <module>org.csstudio.display.builder.editor</module>
     <module>org.csstudio.display.builder.editor.rcp</module>
     <module>org.csstudio.display.builder.model</module>
@@ -73,6 +74,12 @@
     <module>org.csstudio.display.builder.util</module>
     <module>org.csstudio.javafx</module>
     <module>org.csstudio.javafx.rtplot</module>
+
+    <!-- Features -->
+    <module>org.csstudio.display.builder.feature</module>
+
+    <!-- Repository -->
+    <module>repository</module>
   </modules>
 
   <build>
