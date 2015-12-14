@@ -23,17 +23,28 @@ import org.csstudio.display.builder.model.properties.NamedWidgetColor;
 @SuppressWarnings("nls")
 public class NamedWidgetColors extends ConfigFileParser
 {
-    public static final NamedWidgetColor ALARM_OK = new NamedWidgetColor("OK", 0, 255, 0);
-    public static final NamedWidgetColor ALARM_MINOR = new NamedWidgetColor("MINOR", 255, 128, 0);
-    public static final NamedWidgetColor ALARM_MAJOR = new NamedWidgetColor("MAJOR", 255, 0, 0);
-    public static final NamedWidgetColor ALARM_INVALID = new NamedWidgetColor("INVALID", 255, 0, 255);
-    public static final NamedWidgetColor ALARM_DISCONNECTED = new NamedWidgetColor("DISCONNECTED", 255, 0, 255);
+    /** Name of predefined color */
+    public static final String ALARM_OK = "OK",
+                               ALARM_MINOR = "MINOR",
+                               ALARM_MAJOR = "MAJOR",
+                               ALARM_INVALID = "INVALID",
+                               ALARM_DISCONNECTED = "DISCONNECTED",
 
-    public static final NamedWidgetColor TEXT = new NamedWidgetColor("Text", 0, 0, 0);
-    public static final NamedWidgetColor BACKGROUND = new NamedWidgetColor("Background", 255, 255, 255);
-    public static final NamedWidgetColor READ_BACKGROUND = new NamedWidgetColor("Read_Background", 240, 240, 240);
-    public static final NamedWidgetColor WRITE_BACKGROUND = new NamedWidgetColor("Write_Background", 128, 255, 255);
+                               TEXT = "Text",
+                               BACKGROUND = "Background",
+                               READ_BACKGROUND = "Read_Background",
+                               WRITE_BACKGROUND = "Write_Background";
 
+    private static final NamedWidgetColor DEFAULT_ALARM_OK = new NamedWidgetColor(ALARM_OK, 0, 255, 0);
+    private static final NamedWidgetColor DEFAULT_ALARM_MINOR = new NamedWidgetColor(ALARM_MINOR, 255, 128, 0);
+    private static final NamedWidgetColor DEFAULT_ALARM_MAJOR = new NamedWidgetColor(ALARM_MAJOR, 255, 0, 0);
+    private static final NamedWidgetColor DEFAULT_ALARM_INVALID = new NamedWidgetColor(ALARM_INVALID, 255, 0, 255);
+    private static final NamedWidgetColor DEFAULT_ALARM_DISCONNECTED = new NamedWidgetColor(ALARM_DISCONNECTED, 255, 0, 255);
+
+    private static final NamedWidgetColor DEFAULT_TEXT = new NamedWidgetColor(TEXT, 0, 0, 0);
+    private static final NamedWidgetColor DEFAULT_BACKGROUND = new NamedWidgetColor(BACKGROUND, 255, 255, 255);
+    private static final NamedWidgetColor DEFAULT_READ_BACKGROUND = new NamedWidgetColor(READ_BACKGROUND, 240, 240, 240);
+    private static final NamedWidgetColor DEFAULT_WRITE_BACKGROUND = new NamedWidgetColor(WRITE_BACKGROUND, 128, 255, 255);
 
     private final Map<String, NamedWidgetColor> colors = new LinkedHashMap<>();
 
@@ -44,18 +55,21 @@ public class NamedWidgetColors extends ConfigFileParser
 
     private void defineDefaultColors()
     {
-        define(ALARM_OK);
-        define(ALARM_MINOR);
-        define(ALARM_MAJOR);
-        define(ALARM_INVALID);
-        define(ALARM_DISCONNECTED);
-        define(TEXT);
-        define(BACKGROUND);
-        define(READ_BACKGROUND);
-        define(WRITE_BACKGROUND);
+        define(DEFAULT_ALARM_OK);
+        define(DEFAULT_ALARM_MINOR);
+        define(DEFAULT_ALARM_MAJOR);
+        define(DEFAULT_ALARM_INVALID);
+        define(DEFAULT_ALARM_DISCONNECTED);
+        define(DEFAULT_TEXT);
+        define(DEFAULT_BACKGROUND);
+        define(DEFAULT_READ_BACKGROUND);
+        define(DEFAULT_WRITE_BACKGROUND);
     }
 
-    private void define(final NamedWidgetColor color)
+    /** Define a named color
+     *  @param color Named color
+     */
+    void define(final NamedWidgetColor color)
     {
         colors.put(color.getName(), color);
     }

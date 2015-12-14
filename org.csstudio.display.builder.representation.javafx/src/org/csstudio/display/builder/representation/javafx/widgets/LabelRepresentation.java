@@ -23,7 +23,7 @@ import javafx.scene.paint.Color;
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
  */
-public class LabelRepresentation extends JFXBaseRepresentation<Label, LabelWidget>
+public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWidget>
 {
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();

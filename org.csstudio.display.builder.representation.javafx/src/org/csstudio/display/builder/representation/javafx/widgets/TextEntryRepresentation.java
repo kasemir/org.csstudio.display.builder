@@ -28,7 +28,7 @@ import javafx.scene.paint.Color;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class TextEntryRepresentation extends JFXBaseRepresentation<TextField, TextEntryWidget>
+public class TextEntryRepresentation extends RegionBaseRepresentation<TextField, TextEntryWidget>
 {
     /** Is user actively editing the content, so updates should be suppressed? */
     private volatile boolean active = false;

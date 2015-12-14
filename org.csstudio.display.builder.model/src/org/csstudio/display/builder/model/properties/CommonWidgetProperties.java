@@ -202,6 +202,10 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<Boolean> positionVisible =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.POSITION, "visible", Messages.WidgetProperties_Visible);
 
+    /** Display 'border_alarm_sensitive' */
+    public static final WidgetPropertyDescriptor<Boolean> displayBorderAlarmSensitive =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "border_alarm_sensitive", Messages.WidgetProperties_BorderAlarmSensitive);
+
     /** Display 'foreground_color' */
     public static final WidgetPropertyDescriptor<WidgetColor> displayForegroundColor =
         newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "foreground_color", Messages.WidgetProperties_ForegroundColor);

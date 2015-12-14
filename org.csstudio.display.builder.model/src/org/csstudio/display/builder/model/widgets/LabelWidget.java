@@ -24,6 +24,7 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 
@@ -64,8 +65,8 @@ public class LabelWidget extends BaseWidget
     {
         super.defineProperties(properties);
         properties.add(text = displayText.createProperty(this, Messages.LabelWidget_Text));
-        properties.add(foreground = displayForegroundColor.createProperty(this, NamedWidgetColors.TEXT));
-        properties.add(background = displayBackgroundColor.createProperty(this, NamedWidgetColors.BACKGROUND));
+        properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(transparent = displayTransparent.createProperty(this, true));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
     }

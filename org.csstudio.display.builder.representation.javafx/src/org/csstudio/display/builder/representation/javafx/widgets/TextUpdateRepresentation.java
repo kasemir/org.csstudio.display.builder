@@ -25,7 +25,7 @@ import javafx.scene.paint.Color;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class TextUpdateRepresentation extends JFXBaseRepresentation<Label, TextUpdateWidget>
+public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, TextUpdateWidget>
 {
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();

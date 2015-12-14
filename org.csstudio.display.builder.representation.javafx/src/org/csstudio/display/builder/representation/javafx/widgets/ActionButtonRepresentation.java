@@ -27,7 +27,7 @@ import javafx.scene.input.MouseEvent;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class ActionButtonRepresentation extends JFXBaseRepresentation<ButtonBase, ActionButtonWidget>
+public class ActionButtonRepresentation extends RegionBaseRepresentation<ButtonBase, ActionButtonWidget>
 {
     // Uses a Button if there is only one action,
     // otherwise a MenuButton so that user can select the specific action.

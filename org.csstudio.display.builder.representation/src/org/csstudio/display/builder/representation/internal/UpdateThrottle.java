@@ -113,7 +113,7 @@ public class UpdateThrottle
                 }
                 if (! run)
                     return;
-                // Wait a little longer to allow more to accumulate updates.
+                // Wait a little longer to allow more updates to accumulate
                 Thread.sleep(update_accumulation_time);
 
                 // Obtain safe copy, clear what had been accumulated

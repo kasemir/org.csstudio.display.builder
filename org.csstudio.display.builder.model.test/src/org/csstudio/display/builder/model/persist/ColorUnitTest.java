@@ -36,7 +36,7 @@ public class ColorUnitTest
     {
         final NamedWidgetColors colors = new NamedWidgetColors();
 
-        NamedWidgetColor color = colors.getColor("MAJOR").orElse(null);
+        NamedWidgetColor color = colors.getColor(NamedWidgetColors.ALARM_MAJOR).orElse(null);
         System.out.println(color);
         assertThat(color, not(nullValue()));
         assertThat(color.getRed(), equalTo(255));
@@ -49,7 +49,44 @@ public class ColorUnitTest
         color = colors.getColor("STOP").orElse(null);
         System.out.println(color);
         assertThat(color, not(nullValue()));
-   }
+    }
+
+    /** Test fetching named colors
+     *  @throws Exception on error
+     */
+    @Test
+    public void testDefaultColors() throws Exception
+    {
+        final NamedWidgetColors colors = new NamedWidgetColors();
+
+        // Fetch default alarm color
+        NamedWidgetColor color = colors.getColor(NamedWidgetColors.ALARM_MAJOR).orElse(null);
+        System.out.println(color);
+        assertThat(color, not(nullValue()));
+        assertThat(color.getRed(), equalTo(255));
+
+        // Redefine, temporarily
+        colors.define(new NamedWidgetColor(color.getName(), 0, 0, 0));
+        color = colors.getColor(NamedWidgetColors.ALARM_MAJOR).orElse(null);
+        System.out.println(color);
+        assertThat(color.getRed(), equalTo(0));
+
+        // STOP is not known by default
+        color = colors.getColor("STOP").orElse(null);
+        assertThat(color, nullValue());
+
+        // Load STOP, also load MAJOR back to default
+        colors.read(new FileInputStream("../org.csstudio.display.builder.runtime.test/examples/color.def"));
+
+        color = colors.getColor(NamedWidgetColors.ALARM_MAJOR).orElse(null);
+        System.out.println(color);
+        assertThat(color, not(nullValue()));
+        assertThat(color.getRed(), equalTo(255));
+
+        color = colors.getColor("STOP").orElse(null);
+        System.out.println(color);
+        assertThat(color, not(nullValue()));
+    }
 
     /** Test fetching named colors from service
      *  @throws Exception on error

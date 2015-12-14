@@ -45,6 +45,12 @@ public class WidgetRuntime<MW extends Widget>
     /** The widget handled by this runtime */
     protected MW widget;
 
+    // TODO Handle indication of disconnected PVs
+    // The primary_pv may already be linked to alarm sensitive border,
+    // but the PVs used by actions or scripts could also be disconnected,
+    // and _any_ disconnected PV on a widget needs to be detected
+    // and somehow indicated in representation.
+
     /** Primary widget PV for behaviorPVName property */
     private volatile Optional<PV> primary_pv = Optional.empty();
 

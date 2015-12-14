@@ -4,20 +4,20 @@
 
 # Predefined colors that could be overridden in here
 # Alarm related
-# OK = 0, 255, 0
-# MINOR = 255, 128, 0
-# MAJOR = 255, 0, 0
-# INVALID = 255, 0, 255
-# DISCONNECTED = 255, 0, 255
+OK = 0, 255, 0
+MINOR = 255, 128, 0
+MAJOR = 255, 0, 0
+INVALID = 255, 0, 255
+DISCONNECTED = 255, 0, 255
 
-# Text=0,0,0
+Text=0,0,0
 
 # Display background
-# Background = 255, 255, 255
+Background = 255, 255, 255
 
 # .. for widgets that read/write a value
-# Read_Background = 240, 240, 240
-# Write_Background = 128, 255, 255
+Read_Background = 240, 240, 240
+Write_Background = 128, 255, 255
 
 
 

@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.persist;
 
 import java.io.InputStream;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.display.builder.model.properties.NamedWidgetColor;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.util.ResourceUtil;
 
@@ -128,5 +130,21 @@ public class WidgetColorService
             logger.log(Level.WARNING, "Cannot obtain named colors", ex);
         }
         return new NamedWidgetColors();
+    }
+
+    /** Fetch named color
+     *
+     *  <p>Falls back to "Text" if requested color is not known.
+     *
+     *  @param name Name of color
+     *  @return {@link NamedWidgetColor}
+     */
+    public static NamedWidgetColor getColor(final String name)
+    {
+        final Optional<NamedWidgetColor> color = getColors().getColor(name);
+        if (color.isPresent())
+            return color.get();
+        logger.log(Level.WARNING, "Request for unknown named color {0}", name);
+        return getColors().getColor(NamedWidgetColors.TEXT).get();
     }
 }

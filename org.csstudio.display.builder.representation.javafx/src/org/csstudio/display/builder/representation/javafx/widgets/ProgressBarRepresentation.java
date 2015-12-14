@@ -22,7 +22,7 @@ import javafx.scene.control.ProgressBar;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class ProgressBarRepresentation extends JFXBaseRepresentation<ProgressBar, ProgressBarWidget>
+public class ProgressBarRepresentation extends RegionBaseRepresentation<ProgressBar, ProgressBarWidget>
 {
     private final DirtyFlag dirty_look = new DirtyFlag();
     private final DirtyFlag dirty_value = new DirtyFlag();

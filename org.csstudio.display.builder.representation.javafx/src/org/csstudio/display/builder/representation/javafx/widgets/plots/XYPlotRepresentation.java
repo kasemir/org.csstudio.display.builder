@@ -15,7 +15,7 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget.AxisWidgetProperty;
-import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.PointType;
 import org.csstudio.javafx.rtplot.RTValuePlot;
 import org.csstudio.javafx.rtplot.Trace;
@@ -31,7 +31,7 @@ import javafx.scene.paint.Color;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class XYPlotRepresentation extends JFXBaseRepresentation<Pane, XYPlotWidget>
+public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotWidget>
 {
     private final DirtyFlag dirty_position = new DirtyFlag();
     private final DirtyFlag dirty_config = new DirtyFlag();

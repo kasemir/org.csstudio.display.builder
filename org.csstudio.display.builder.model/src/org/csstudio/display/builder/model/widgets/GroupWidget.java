@@ -22,6 +22,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 
@@ -72,7 +73,7 @@ public class GroupWidget extends ContainerWidget
     {
         super.defineProperties(properties);
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
-        properties.add(background = displayBackgroundColor.createProperty(this, NamedWidgetColors.BACKGROUND));
+        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
 
         // Initial size
