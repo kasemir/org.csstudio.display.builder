@@ -7,6 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,43 +70,54 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
     /** Zoom to fit display's height */
     public static final double ZOOM_HEIGHT = -2.0;
 
+    /** Cached map of widget ID to representation factory */
+    private static final Map<String, WidgetRepresentationFactory<Group, Node>> factories = new HashMap<>();
+
     /** Construct new JFX representation */
     public JFXRepresentation()
     {
-        // TODO Should do this _once_, not for every instance of the JFX toolkit.
-        final IExtensionRegistry registry = RegistryFactory.getRegistry();
-        if (registry == null)
-            registerKnownRepresentations();
-        else
+        // Parse registry only once, not for every instance of the JFX toolkit
+        final Set<Entry<String, WidgetRepresentationFactory<Group, Node>>> entries;
+        synchronized (factories)
         {
-            // Load available representations from registry,
-            // which allows other plugins to contribute new widgets.
-            final Logger logger = Logger.getLogger(getClass().getName());
-            for (IConfigurationElement config : registry.getConfigurationElementsFor(WidgetRepresentation.EXTENSION_POINT))
+            if (factories.isEmpty())
             {
-                final String type = config.getAttribute("type");
-                final String clazz = config.getAttribute("class");
-                logger.log(Level.CONFIG, "{0} contributes {1}", new Object[] { config.getContributor().getName(), clazz });
-                register(type, createFactory(config));
+                registerKnownRepresentations();
+                final IExtensionRegistry registry = RegistryFactory.getRegistry();
+                if (registry != null)
+                {   // Load available representations from registry,
+                    // which allows other plugins to contribute new widgets.
+                    final Logger logger = Logger.getLogger(getClass().getName());
+                    for (IConfigurationElement config : registry.getConfigurationElementsFor(WidgetRepresentation.EXTENSION_POINT))
+                    {
+                        final String type = config.getAttribute("type");
+                        final String clazz = config.getAttribute("class");
+                        logger.log(Level.CONFIG, "{0} contributes {1}", new Object[] { config.getContributor().getName(), clazz });
+                        factories.put(type, createFactory(config));
+                    }
+                }
             }
+            entries = factories.entrySet();
         }
+        for (Map.Entry<String, WidgetRepresentationFactory<Group, Node>> entry : entries)
+            register(entry.getKey(), entry.getValue());
     }
 
-    /** Fall back to hardcoded entries for tests */
+    /** Add known representations as fallback in absence of registry information */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void registerKnownRepresentations()
+    private static void registerKnownRepresentations()
     {
-        register(ActionButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ActionButtonRepresentation());
-        register(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new EmbeddedDisplayRepresentation());
-        register(GroupWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new GroupRepresentation());
-        register(ImageWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ImageRepresentation());
-        register(LabelWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new LabelRepresentation());
-        register(LEDWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new LEDRepresentation());
-        register(ProgressBarWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ProgressBarRepresentation());
-        register(RectangleWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new RectangleRepresentation());
-        register(TextEntryWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextEntryRepresentation());
-        register(TextUpdateWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextUpdateRepresentation());
-        register(XYPlotWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new XYPlotRepresentation());
+        factories.put(ActionButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ActionButtonRepresentation());
+        factories.put(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new EmbeddedDisplayRepresentation());
+        factories.put(GroupWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new GroupRepresentation());
+        factories.put(ImageWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ImageRepresentation());
+        factories.put(LabelWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new LabelRepresentation());
+        factories.put(LEDWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new LEDRepresentation());
+        factories.put(ProgressBarWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ProgressBarRepresentation());
+        factories.put(RectangleWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new RectangleRepresentation());
+        factories.put(TextEntryWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextEntryRepresentation());
+        factories.put(TextUpdateWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextUpdateRepresentation());
+        factories.put(XYPlotWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new XYPlotRepresentation());
     }
 
     @SuppressWarnings("unchecked")
