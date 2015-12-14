@@ -193,6 +193,20 @@ Linux: RuntimeDemo 10% CPU, CSS 20% CPU.
 JavaFX Issues
 -------------
 
+What base class to use for all widget representations?
+
+* Node (Currently used)
+Most basic option, allows for any JFX item:
+Canvas, Shape, Control, ...
+
+* Region
+Allows for Border (alarm sensitive border, ..)
+
+* Control
+Has Border, Context Menu, Tool Tip
+
+
+
 How to draw custom widgets in background?
 
 JFX Canvas offers good API. Canvas can be prepared off UI thread,

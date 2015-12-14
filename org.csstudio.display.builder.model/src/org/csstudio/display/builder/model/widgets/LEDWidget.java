@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.Arrays;
@@ -90,6 +91,7 @@ public class LEDWidget extends BaseWidget
     {
         super.defineProperties(properties);
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
+        properties.add(displayBorderAlarmSensitive.createProperty(this, true));
         properties.add(off_color = displayOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
         properties.add(on_color = displayOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
         properties.add(value = runtimeValue.createProperty(this, null));

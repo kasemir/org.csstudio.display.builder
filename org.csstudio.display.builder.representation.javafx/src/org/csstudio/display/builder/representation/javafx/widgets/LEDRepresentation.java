@@ -14,6 +14,7 @@ import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
 
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
@@ -24,24 +25,30 @@ import javafx.scene.shape.Ellipse;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class LEDRepresentation extends JFXBaseRepresentation<Ellipse, LEDWidget>
+public class LEDRepresentation extends RegionBaseRepresentation<Pane, LEDWidget>
 {
-    private final DirtyFlag dirty_position = new DirtyFlag();
+    private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
 
     private volatile Color[] colors = new Color[0];
 
-    private volatile Color value_color = Color.VIOLET;
+    private volatile Color value_color;
+
+    /** Actual LED Ellipse inside {@link Pane} to allow for border */
+    private Ellipse led;
 
     @Override
-    public Ellipse createJFXNode() throws Exception
+    public Pane createJFXNode() throws Exception
     {
         createColors();
+        value_color = colors[0];
 
-        final Ellipse led = new Ellipse();
+        led = new Ellipse();
         led.getStyleClass().add("led");
-
-        return led;
+        final Pane pane = new Pane(led);
+        pane.setMinSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
+        pane.setMaxSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
+        return pane;
     }
 
     private void createColors()
@@ -56,21 +63,17 @@ public class LEDRepresentation extends JFXBaseRepresentation<Ellipse, LEDWidget>
     @Override
     protected void registerListeners()
     {
-        // NOT calling  super.registerListeners()
-        // because Ellipse uses center instead of top-left X/Y
-        model_widget.positionVisible().addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionX().addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionY().addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionWidth().addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
+        super.registerListeners();
+        model_widget.positionWidth().addPropertyListener(this::sizeChanged);
+        model_widget.positionHeight().addPropertyListener(this::sizeChanged);
         model_widget.offColor().addUntypedPropertyListener(this::configChanged);
         model_widget.onColor().addUntypedPropertyListener(this::configChanged);
         model_widget.runtimeValue().addPropertyListener(this::contentChanged);
     }
 
-    private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    private void sizeChanged(final WidgetProperty<Integer> property, final Integer old_value, final Integer new_value)
     {
-        dirty_position.mark();
+        dirty_size.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -97,20 +100,20 @@ public class LEDRepresentation extends JFXBaseRepresentation<Ellipse, LEDWidget>
     @Override
     public void updateChanges()
     {
-        if (dirty_position.checkAndClear())
+        super.updateChanges();
+        if (dirty_size.checkAndClear())
         {
-            final int x = model_widget.positionX().getValue();
-            final int y = model_widget.positionY().getValue();
             final int w = model_widget.positionWidth().getValue();
             final int h = model_widget.positionHeight().getValue();
-            jfx_node.setCenterX(x + w/2);
-            jfx_node.setCenterY(y + h/2);
-            jfx_node.setRadiusX(w/2);
-            jfx_node.setRadiusY(h/2);
-            jfx_node.setVisible(model_widget.positionVisible().getValue());
+
+            jfx_node.setPrefSize(w, h);
+            led.setCenterX(w/2);
+            led.setCenterY(h/2);
+            led.setRadiusX(w/2);
+            led.setRadiusY(h/2);
         }
         if (dirty_content.checkAndClear())
-            jfx_node.setFill(
+            led.setFill(
                 // Put highlight in top-left corner, about 0.2 wide,
                 // relative to actual size of LED
                 new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
