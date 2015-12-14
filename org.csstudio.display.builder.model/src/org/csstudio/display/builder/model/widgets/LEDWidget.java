@@ -9,6 +9,10 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.Arrays;
@@ -18,13 +22,17 @@ import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.diirt.vtype.VType;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
 
 /** Widget that displays an LED which reflects the enumerated state of a PV
  *  @author Kay Kasemir
@@ -46,6 +54,46 @@ public class LEDWidget extends BaseWidget
             return new LEDWidget();
         }
     };
+
+    /** Custom configurator to read legacy *.opi files */
+    private static class LEDConfigurator extends WidgetConfigurator
+    {
+        public LEDConfigurator(final Version xml_version)
+        {
+            super(xml_version);
+        }
+
+        @Override
+        public void configureFromXML(final Widget widget, final Element xml)
+                throws Exception
+        {
+            super.configureFromXML(widget, xml);
+
+            if (xml_version.getMajor() < 2)
+            {   // Handle legacy LED sizing.
+                // Border was included in the size,
+                // so with the same nominal size an "alarm sensitive" LED
+                // was smaller than a non-a.s. LED
+                if (widget.getProperty(displayBorderAlarmSensitive).getValue())
+                {
+                    final int border = Integer.parseInt(XMLUtil.getChildString(xml, "border_width").orElse("1"));
+                    // In principle, border goes around the widget,
+                    // so X, Y get adjusted by 1*border
+                    // and Width, Height by 2*border.
+                    // But when comparing older files, border was 2* added to X, Y
+                    // as well as size?!
+                    WidgetProperty<Integer> prop = widget.getProperty(positionX);
+                    prop.setValue(prop.getValue() + 2*border);
+                    prop = widget.getProperty(positionY);
+                    prop.setValue(prop.getValue() + 2*border);
+                    prop = widget.getProperty(positionWidth);
+                    prop.setValue(prop.getValue() - 2*border);
+                    prop = widget.getProperty(positionHeight);
+                    prop.setValue(prop.getValue() - 2*border);
+                }
+            }
+        }
+    }
 
     /** Property for the 'off' color */
     public static final WidgetPropertyDescriptor<WidgetColor> displayOffColor = new WidgetPropertyDescriptor<WidgetColor>(
@@ -76,14 +124,15 @@ public class LEDWidget extends BaseWidget
     private WidgetProperty<WidgetColor> on_color;
     private WidgetProperty<VType> value;
 
-    // TODO Handle legacy LED sizing
-    // Border was included in the size,
-    // so with the same nominal size an "alarm sensitive" LED
-    // was smaller than a non-a.s. LED
-
     public LEDWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
+    }
+
+    @Override
+    public Version getVersion()
+    {   // Legacy used 1.0.0
+        return new Version(2, 0, 0);
     }
 
     @Override
@@ -123,5 +172,12 @@ public class LEDWidget extends BaseWidget
     public WidgetProperty<VType> runtimeValue()
     {
         return value;
+    }
+
+    @Override
+    public WidgetConfigurator getConfigurator(final Version persisted_version)
+            throws Exception
+    {
+        return new LEDConfigurator(persisted_version);
     }
 }
