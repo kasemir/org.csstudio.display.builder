@@ -21,6 +21,7 @@ import org.csstudio.display.builder.model.Widget;
  *  @param <TW> Toolkit widget base class
  *  @param <MW> Toolkit widget base class
  */
+@SuppressWarnings("nls")
 abstract public class WidgetRepresentation<TWP, TW, MW extends Widget>
 {
     /** Extension point ID for contributing {@link WidgetRepresentation}s */
