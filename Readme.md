@@ -28,7 +28,8 @@ and similar "look", but with the following improvements:
 Dependencies
 ------------
 
- * Java 8 SDK, must be 8u40 or later
+ * Java 8 SDK, must be 8u40 or later.
+   Older versions of Java 8 lack javafx.scene.control.Dialog.
  * In Eclipse Preferences, Java, Build Path, Classpath Variables: Set `JFXSWT` to `jre/lib/jfxswt.jar`
  * As Eclipse Preferences, Plugin Development, Target platform, use a CS-Studio target.
    For example, use the current IDE and add a "Directory" pointing to a CSS product's `plugins/` directory.

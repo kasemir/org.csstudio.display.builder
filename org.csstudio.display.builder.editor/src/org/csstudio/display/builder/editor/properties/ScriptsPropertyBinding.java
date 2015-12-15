@@ -10,6 +10,7 @@ package org.csstudio.display.builder.editor.properties;
 import java.util.List;
 import java.util.Optional;
 
+import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.editor.undo.SetWidgetScriptsAction;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
@@ -32,7 +33,7 @@ public class ScriptsPropertyBinding
     /** Update property panel field as model changes */
     private final WidgetPropertyListener<List<ScriptInfo>> model_listener = (p, o, n) ->
     {
-        jfx_node.setText(NLS.bind("{0} scripts", widget_property.getValue().size()));
+        jfx_node.setText(NLS.bind(Messages.ScriptCountFMT, widget_property.getValue().size()));
     };
 
     /** Update model from user input */

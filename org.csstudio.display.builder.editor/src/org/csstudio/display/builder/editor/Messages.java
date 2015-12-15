@@ -29,6 +29,7 @@ public class Messages extends NLS
     public static String RemoveWidgets;
     public static String SaveDisplay;
     public static String SaveDisplay_TT;
+    public static String ScriptCountFMT;
     public static String SetPropertyFmt;
     public static String SetWidgetActions;
     public static String SetWidgetColor;
