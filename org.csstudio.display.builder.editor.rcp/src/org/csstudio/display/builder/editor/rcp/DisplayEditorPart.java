@@ -24,6 +24,7 @@ import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoRedoListener;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -37,6 +38,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
@@ -138,15 +140,20 @@ public class DisplayEditorPart extends EditorPart
         }
         catch (Exception ex)
         {
-            // TODO Show error in UI (but don't use message box)
-            logger.log(Level.WARNING, "Cannot load display " + file, ex);
+            final String message = "Cannot load display " + file;
+            logger.log(Level.WARNING, message, ex);
+            final Shell shell = getSite().getShell();
+            // Also show error to user
+            shell.getDisplay().asyncExec(() ->
+                ExceptionDetailsErrorDialog.openError(shell, message, ex));
             return null;
         }
     }
 
     private void setModel(final DisplayModel model)
     {
-        // TODO handle model == null
+        if (model == null)
+            return;
         // In UI thread..
         toolkit.execute(() ->
         {

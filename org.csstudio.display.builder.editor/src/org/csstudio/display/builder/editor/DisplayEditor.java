@@ -287,6 +287,7 @@ public class DisplayEditor
 
     public void dispose()
     {
-        toolkit.disposeRepresentation(model);
+        if (model != null)
+            toolkit.disposeRepresentation(model);
     }
 }

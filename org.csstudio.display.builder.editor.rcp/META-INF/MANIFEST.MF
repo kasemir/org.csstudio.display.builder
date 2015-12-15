@@ -12,6 +12,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.swt,
  org.eclipse.jface,
  org.eclipse.ui,
+ org.eclipse.ui.views,
+ org.eclipse.ui.ide,
  org.eclipse.ui.workbench,
  org.eclipse.fx.javafx,
  org.csstudio.display.builder.model,
@@ -19,6 +21,5 @@ Require-Bundle: org.eclipse.core.runtime,
  org.csstudio.display.builder.representation.javafx,
  org.csstudio.display.builder.editor,
  org.csstudio.display.builder.util,
- org.eclipse.ui.ide,
- org.eclipse.ui.views
+ org.csstudio.ui.util;bundle-version="4.0.0"
 
