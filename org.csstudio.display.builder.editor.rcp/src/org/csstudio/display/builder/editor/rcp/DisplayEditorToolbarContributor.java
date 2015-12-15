@@ -9,6 +9,7 @@ package org.csstudio.display.builder.editor.rcp;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayAction;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.ui.IActionBars;
@@ -29,20 +30,22 @@ import org.eclipse.ui.part.EditorActionBarContributor;
  */
 public class DisplayEditorToolbarContributor extends EditorActionBarContributor
 {
-    private final List<IWorkbenchAction> actions = new ArrayList<>();
+    private final ExecuteDisplayAction execute_action = new ExecuteDisplayAction();
+    private final List<IWorkbenchAction> global_actions = new ArrayList<>();
 
     @Override
-    public void contributeToToolBar(IToolBarManager manager)
+    public void contributeToToolBar(final IToolBarManager manager)
     {
         final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        addAction(manager, ActionFactory.UNDO.create(window));
-        addAction(manager, ActionFactory.REDO.create(window));
+        manager.add(execute_action);
+        addGlobalAction(manager, ActionFactory.UNDO.create(window));
+        addGlobalAction(manager, ActionFactory.REDO.create(window));
     }
 
-    private void addAction(final IToolBarManager manager, final IWorkbenchAction action)
+    private void addGlobalAction(final IToolBarManager manager, final IWorkbenchAction action)
     {
         manager.add(action);
-        actions.add(action);
+        global_actions.add(action);
     }
 
     @Override
@@ -56,7 +59,8 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         if (bars == null)
             return;
 
-        for (IAction action : actions)
+        execute_action.setActiveEditor(editor);
+        for (IAction action : global_actions)
             bars.setGlobalActionHandler(action.getId(), editor.getAction(action.getId()));
 
         bars.updateActionBars();
@@ -65,8 +69,8 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
     @Override
     public void dispose()
     {
-        for (IWorkbenchAction action : actions)
+        for (IWorkbenchAction action : global_actions)
             action.dispose();
-        actions.clear();
+        global_actions.clear();
     }
 }

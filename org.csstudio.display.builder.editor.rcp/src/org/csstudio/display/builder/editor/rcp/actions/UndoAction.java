@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.editor.rcp;
+package org.csstudio.display.builder.editor.rcp.actions;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.eclipse.jface.action.Action;

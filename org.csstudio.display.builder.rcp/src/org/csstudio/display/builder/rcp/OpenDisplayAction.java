@@ -5,13 +5,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.rcp.top;
+package org.csstudio.display.builder.rcp;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.ModelPlugin;
-import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.run.RuntimeViewPart;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.eclipse.jface.action.Action;

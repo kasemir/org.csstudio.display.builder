@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
 import org.csstudio.display.builder.rcp.Messages;
+import org.csstudio.display.builder.rcp.OpenDisplayAction;
 import org.csstudio.display.builder.rcp.Plugin;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;

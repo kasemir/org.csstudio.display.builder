@@ -7,25 +7,26 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp;
 
-import org.csstudio.display.builder.util.undo.UndoableActionManager;
-import org.eclipse.jface.action.Action;
+import org.eclipse.osgi.util.NLS;
 
-/** Action to re-do last operation
+/** Externalized texts
  *  @author Kay Kasemir
  */
-public class RedoAction extends Action
-{   // Used as handler for RetargetAction, so no need for label, icon
-    private final UndoableActionManager manager;
+@SuppressWarnings("nls")
+public class Messages extends NLS
+{
+    private static final String BUNDLE_NAME = "org.csstudio.display.builder.editor.rcp.messages";
 
-    public RedoAction(final UndoableActionManager manager)
+    // Keep in alphabetical order!
+    public static String ExecuteDisplay;
+
+    static
     {
-        this.manager = manager;
-        setEnabled(manager.canRedo());
+        // initialize resource bundle
+        NLS.initializeMessages(BUNDLE_NAME, Messages.class);
     }
 
-    @Override
-    public void run()
+    private Messages()
     {
-        manager.redoLast();
     }
 }

@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.rcp;
+package org.csstudio.display.builder.rcp.run;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
+import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.util.undo.SizeLimitedStack;
 
 /** Navigate backward/forward between displays

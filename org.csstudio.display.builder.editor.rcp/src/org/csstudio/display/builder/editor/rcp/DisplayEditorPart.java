@@ -18,9 +18,13 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
+import org.csstudio.display.builder.editor.rcp.actions.RedoAction;
+import org.csstudio.display.builder.editor.rcp.actions.UndoAction;
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoRedoListener;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
@@ -301,6 +305,16 @@ public class DisplayEditorPart extends EditorPart
         // Get the file for the new resource's path.
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         return root.getFile(path);
+    }
+
+    /** @return {@link DisplayInfo} for file in editor */
+    public DisplayInfo getDisplayInfo()
+    {
+        final IFile file = getInputFile();
+
+        // TODO Use workspace location, file.getFullPath(),
+        // and have org.csstudio.display.builder.model.util.ResourceUtil handle it
+        return new DisplayInfo(file.getLocation().toOSString(), editor.getModel().getName(), new Macros());
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

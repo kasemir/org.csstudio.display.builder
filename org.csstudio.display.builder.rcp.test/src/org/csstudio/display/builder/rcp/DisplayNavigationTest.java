@@ -13,7 +13,8 @@ import static org.junit.Assert.assertThat;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.csstudio.display.builder.model.macros.Macros;
-import org.csstudio.display.builder.rcp.DisplayNavigation.Listener;
+import org.csstudio.display.builder.rcp.run.DisplayNavigation;
+import org.csstudio.display.builder.rcp.run.DisplayNavigation.Listener;
 import org.junit.Test;
 
 /** JUnit test for {@link DisplayNavigation}
