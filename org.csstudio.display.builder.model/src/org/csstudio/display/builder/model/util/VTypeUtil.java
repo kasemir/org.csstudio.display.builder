@@ -8,9 +8,14 @@
 package org.csstudio.display.builder.model.util;
 
 import java.text.NumberFormat;
+import java.util.List;
 
+import org.diirt.util.array.ListInt;
+import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.VEnum;
+import org.diirt.vtype.VEnumArray;
 import org.diirt.vtype.VNumber;
+import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VString;
 import org.diirt.vtype.VType;
 
@@ -47,7 +52,30 @@ public class VTypeUtil
             return ((VString)value).getValue();
         if (value instanceof VEnum)
             return ((VEnum)value).getValue();
-        // TODO Handle VNumberArray, VStringArray, VEnumArray
+        // For arrays, return first element
+        if (value instanceof VNumberArray)
+        {
+            final VNumberArray cast = (VNumberArray)value;
+            final ListNumber numbers = cast.getData();
+            final NumberFormat format = cast.getFormat();
+            if (numbers.size() <= 0)
+                return "[]";
+            final String text;
+            if (format != null)
+                text = format.format(numbers.getDouble(0));
+            else
+                text = Double.toString(numbers.getDouble(0));
+            if (with_units  &&  !cast.getUnits().isEmpty())
+                return text + " " + cast.getUnits();
+        }
+        if (value instanceof VEnumArray)
+        {
+            final List<String> labels = ((VEnumArray)value).getLabels();
+            if (labels.size() > 0)
+                return labels.get(0);
+            else
+                return "[]";
+        }
         if (value == null)
             return "<null>";
         return "<" + value.getClass().getName() + ">";
@@ -68,7 +96,19 @@ public class VTypeUtil
         }
         if (value instanceof VEnum)
             return ((VEnum)value).getIndex();
-        // TODO Handle VNumberArray, VEnumArray?
+        // For arrays, return first element
+        if (value instanceof VNumberArray)
+        {
+            final ListNumber array = ((VNumberArray)value).getData();
+            if (array.size() > 0)
+                return array.getDouble(0);
+        }
+        if (value instanceof VEnumArray)
+        {
+            final ListInt array = ((VEnumArray)value).getIndexes();
+            if (array.size() > 0)
+                return array.getInt(0);
+        }
         return Double.valueOf(Double.NaN);
     }
 }
