@@ -55,6 +55,7 @@ import javafx.scene.Scene;
 /** RCP 'Editor' for the display builder
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class DisplayEditorPart extends EditorPart
 {
     /** File extension used to save files */
@@ -83,8 +84,7 @@ public class DisplayEditorPart extends EditorPart
 
     public DisplayEditorPart()
     {
-        // TODO Properties
-        // TODO Outline
+        // TODO Context menu
     }
 
     @Override
@@ -307,7 +307,7 @@ public class DisplayEditorPart extends EditorPart
             return outline_page;
         }
         else if (adaptable == IPropertySheetPage.class)
-            return new DisplayPropertyPage(editor.getWidgetSelectionHandler(),
+            return new PropertyPage(editor.getWidgetSelectionHandler(),
                                            editor.getUndoableActionManager());
         return super.getAdapter(adaptable);
     }
