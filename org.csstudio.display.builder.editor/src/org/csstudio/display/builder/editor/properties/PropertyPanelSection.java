@@ -221,10 +221,10 @@ public class PropertyPanelSection extends GridPane
             GridPane.setHgrow(array_section, Priority.ALWAYS);
             return;
         }
+        // As new property types are added, they might need to be handled:
+        // else if (property instanceof SomeNewWidgetProperty) { ... }
         else
-        {
-            // TODO Provide editor for other property types
-            // Defaulting to same as read-only
+        {   // Fallback for unknown property: read-only
             final TextField text = new TextField();
             text.setText(String.valueOf(property.getValue()));
             text.setEditable(false);

@@ -126,7 +126,7 @@ public class GeometryTools
     private static class WidgetSearch extends RecursiveTask<List<Widget>>
     {
         private static final long serialVersionUID = 1L;
-        private static final int THRESHOLD = 50; // TODO Find suitable threshold
+        private static final int THRESHOLD = 50; // XXX Find suitable threshold
         private final List<Widget> widgets;
         private final Rectangle2D region;
 

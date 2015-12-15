@@ -27,7 +27,7 @@ public enum WidgetPropertyCategory
     /** How the widget behaves */
     BEHAVIOR(Messages.WidgetPropertyCategory_Behavior),
 
-    // TODO Add more property categories
+    // XXX Add more property categories ?
 
     /** Widget properties that do not fit the other categories */
     MISC(Messages.WidgetPropertyCategory_Misc),

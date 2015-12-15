@@ -25,7 +25,7 @@ public class MacroXMLUtil
      */
     public static void writeMacros(final XMLStreamWriter writer, final Macros macros) throws Exception
     {
-        // TODO Write if parent macros are inherited (or forget about that concept, they're always inherited)
+        // XXX Write if parent macros are inherited (or forget about that concept, they're always inherited)
         for (String name : macros.getNames())
         {
             writer.writeStartElement(name);
