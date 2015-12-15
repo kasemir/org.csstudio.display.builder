@@ -20,8 +20,8 @@ import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import javafx.embed.swt.FXCanvas;
-import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
 
 /** Outline view
  *
@@ -47,10 +47,11 @@ public class OutlinePage extends Page implements IContentOutlinePage
     @Override
     public void createControl(final Composite parent)
     {
-        // TODO FXCanvas size; WidgetTree scrollbars don't show up as view gets smaller
         canvas = new FXCanvas(parent, SWT.NONE);
-        final Group root = new Group(tree.create());
-        final Scene scene = new Scene(root);
+        // StackPane w/ tree as single child to 'fill' the available space.
+        final StackPane root = new StackPane(tree.create());
+        final Scene scene = new Scene(root, 200.0, 400.0);
+        scene.widthProperty().addListener((e) -> System.out.println("WIDTH: " + scene.getWidth()));
         EditorUtil.setSceneStyle(scene);
         canvas.setScene(scene);
     }
