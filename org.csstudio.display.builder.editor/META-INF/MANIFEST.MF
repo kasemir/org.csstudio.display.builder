@@ -14,6 +14,7 @@ Bundle-Vendor: Kay Kasemir - SNS
 Export-Package: org.csstudio.display.builder.editor,
  org.csstudio.display.builder.editor.actions,
  org.csstudio.display.builder.editor.palette,
+ org.csstudio.display.builder.editor.properties,
  org.csstudio.display.builder.editor.tracker,
  org.csstudio.display.builder.editor.tree,
  org.csstudio.display.builder.editor.undo,

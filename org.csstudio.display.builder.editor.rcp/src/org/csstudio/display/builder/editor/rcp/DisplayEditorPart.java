@@ -46,6 +46,7 @@ import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.eclipse.ui.views.properties.IPropertySheetPage;
 
 import javafx.embed.swt.FXCanvas;
 import javafx.scene.Parent;
@@ -302,8 +303,12 @@ public class DisplayEditorPart extends EditorPart
         if (adaptable == IContentOutlinePage.class)
         {
             outline_page = new OutlinePage(editor.getWidgetSelectionHandler());
+            outline_page.setModel(editor.getModel());
             return outline_page;
         }
+        else if (adaptable == IPropertySheetPage.class)
+            return new DisplayPropertyPage(editor.getWidgetSelectionHandler(),
+                                           editor.getUndoableActionManager());
         return super.getAdapter(adaptable);
     }
 
