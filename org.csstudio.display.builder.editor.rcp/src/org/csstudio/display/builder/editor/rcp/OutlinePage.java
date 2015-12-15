@@ -51,7 +51,6 @@ public class OutlinePage extends Page implements IContentOutlinePage
         // StackPane w/ tree as single child to 'fill' the available space.
         final StackPane root = new StackPane(tree.create());
         final Scene scene = new Scene(root, 200.0, 400.0);
-        scene.widthProperty().addListener((e) -> System.out.println("WIDTH: " + scene.getWidth()));
         EditorUtil.setSceneStyle(scene);
         canvas.setScene(scene);
     }
