@@ -45,6 +45,7 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 
 import javafx.embed.swt.FXCanvas;
 import javafx.scene.Parent;
@@ -66,6 +67,8 @@ public class DisplayEditorPart extends EditorPart
 
     private final DisplayEditor editor = new DisplayEditor(toolkit);
 
+    private OutlinePage outline_page = null;
+
     /** Actions by ID */
     private Map<String, IAction> actions = new HashMap<>();
 
@@ -75,6 +78,7 @@ public class DisplayEditorPart extends EditorPart
         actions.get(ActionFactory.REDO.getId()).setEnabled(redo != null);
         firePropertyChange(IEditorPart.PROP_DIRTY);
     };
+
 
     public DisplayEditorPart()
     {
@@ -147,6 +151,8 @@ public class DisplayEditorPart extends EditorPart
         {
             setPartName(model.getName());
             editor.setModel(model);
+            if (outline_page != null)
+                outline_page.setModel(model);
         });
     }
 
@@ -287,6 +293,18 @@ public class DisplayEditorPart extends EditorPart
         // Get the file for the new resource's path.
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         return root.getFile(path);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+    public Object getAdapter(final Class adaptable)
+    {
+        if (adaptable == IContentOutlinePage.class)
+        {
+            outline_page = new OutlinePage(editor.getWidgetSelectionHandler());
+            return outline_page;
+        }
+        return super.getAdapter(adaptable);
     }
 
     @Override
