@@ -7,8 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.macros;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -69,5 +71,24 @@ public class MacrosUnitTest
         assertThat(MacroHandler.replace(macros, "Plain Text"), equalTo("Plain Text"));
         assertThat(MacroHandler.replace(macros, "Nothing for ${S} <-- this one"), equalTo("Nothing for ${S} <-- this one"));
         assertThat(MacroHandler.replace(macros, "${NOT_CLOSED"), equalTo("${NOT_CLOSED"));
+    }
+
+    /** Test recursive macro error
+     *  @throws Exception on error
+     */
+    @Test
+    public void testReursion() throws Exception
+    {
+        final Macros macros = new Macros();
+        macros.add("S", "$(S)");
+        try
+        {
+            MacroHandler.replace(macros, "Never ending $(S)");
+            fail("Didn't detect recursive macro");
+        }
+        catch (Exception ex)
+        {
+            assertThat(ex.getMessage(), containsString(/* [Rr] */ "ecursive"));
+        }
     }
 }

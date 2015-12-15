@@ -97,7 +97,17 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
         if (value == null)
         {
             final MacroValueProvider macros = widget.getMacrosOrProperties();
-            final String expanded = MacroHandler.replace(macros, specification);
+            String expanded;
+            try
+            {
+                expanded = MacroHandler.replace(macros, specification);
+            }
+            catch (final Exception ex)
+            {
+                Logger.getLogger(getClass().getName())
+                      .log(Level.WARNING, widget + " property " + getName() + " cannot expand macros for " + specification, ex);
+                expanded = specification;
+            }
 
             // TODO Do not allow this...
             if (MacroHandler.containsMacros(expanded))

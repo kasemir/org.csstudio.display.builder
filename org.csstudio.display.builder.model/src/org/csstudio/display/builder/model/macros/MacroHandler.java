@@ -16,6 +16,14 @@ import java.util.regex.Pattern;
 @SuppressWarnings("nls")
 public class MacroHandler
 {
+    /** Max. recursion level to guard against recursive macros that never resolve */
+    // In principle, could try to detect loops like
+    // A=$(B)
+    // B=$(A)
+    // Current implementation quits after MAX_RECURSION attempts because
+    // that's much simpler and plenty fast.
+    private static final int MAX_RECURSION = 50;
+
     // Pattern for $(xxx) or ${xxx}, asserting that there is NO leading '\' to escape it
     private static final Pattern spec = Pattern.compile("(?<!\\\\)\\$\\((\\w+)\\)" + "|" + "(?<!\\\\)\\$\\{(\\w+)\\}");
 
@@ -41,24 +49,28 @@ public class MacroHandler
      *  @param input Text that may contain macros "$(NAME)" or "${NAME}",
      *               also allowing nested "${{INNER}}"
      *  @return Text where all macros have been resolved
+     *  @throws Exception on error, including recursive macro that never resolves
      */
-    public static String replace(final MacroValueProvider macros, final String input)
+    public static String replace(final MacroValueProvider macros, final String input) throws Exception
     {
-        return replace(macros, input, 0);
+        return replace(macros, input, 0, 0);
     }
-
-    // TODO Catch/handle recursion:
-    // Macros: S=$(S)
 
     /** Replace macros in input
      *
      *  @param macros {@link MacroValueProvider} to use
      *  @param input Text that may contain macros "$(NAME)" or "${NAME}",
      *               also allowing nested "${{INNER}}"
+     *  @param from Position within input where replacement should start
+     *  @param recursion Recursion level
      *  @return Text where all macros have been resolved
+     *  @throws Exception on error
      */
-    private static String replace(final MacroValueProvider macros, final String input, final int from)
+    private static String replace(final MacroValueProvider macros, final String input,
+                                  final int from, final int recursion) throws Exception
     {
+        if (recursion > MAX_RECURSION)
+            throw new Exception("Recursive macro " + input);
         // Short cut if there is nothing to replace
         if (input.indexOf('$',  from) < 0)
             return input;
@@ -86,11 +98,11 @@ public class MacroHandler
             // which are no longer valid for the changed text
             // -> Recurse with updated text for next macro,
             //    which also handles nested $($(INNER))
-            return replace(macros, result, 0);
+            return replace(macros, result, 0, recursion + 1);
         }
         else
         {   // Leave macro unresolved, continue with remaining input
-            return replace(macros, input, end+1);
+            return replace(macros, input, end+1, recursion);
         }
     }
 }
