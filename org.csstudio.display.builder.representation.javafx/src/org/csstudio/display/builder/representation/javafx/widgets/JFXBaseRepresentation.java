@@ -7,17 +7,20 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
+
 import java.util.Objects;
 
 import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
+import org.csstudio.display.builder.representation.javafx.actions.CopyPVNameToClipboard;
 
+import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Control;
 import javafx.scene.control.MenuItem;
 
 /** Base class for all JavaFX widget representations
@@ -46,21 +49,42 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWid
                 event.consume();
             });
         }
-        if (jfx_node instanceof Control)
-            createContextMenu((Control)jfx_node);
+        createContextMenu();
         registerListeners();
         updateChanges();
         return getChildParent(parent);
     }
 
-    private void createContextMenu(final Control control)
-    {   // TODO Dummy context menu
+    /** Create context menu */
+    private void createContextMenu()
+    {
+        // TODO Dummy context menu
         // Need to get fixed entries set by either runtime or editor,
         // then PV-based contributions
-        ContextMenu menu = new ContextMenu();
-        menu.getItems().add(new MenuItem("Copy PV Name"));
-        menu.getItems().add(new MenuItem("Data Browser"));
-        control.setContextMenu(menu );
+        final ContextMenu menu = new ContextMenu();
+        final ObservableList<MenuItem> items = menu.getItems();
+        if (model_widget.hasProperty(behaviorPVName)  &&
+            ! model_widget.getProperty(behaviorPVName).getValue().isEmpty())
+            items.add(new CopyPVNameToClipboard(model_widget));
+
+        if (items.isEmpty())
+            return;
+
+        // While functional on other platforms, a menu set via
+        //    Control#setContextMenu(menu)
+        // will not activate on Linux for a JFX scene inside FXCanvas/SWT.
+        // Directly handling the context menu event works on all platforms,
+        // plus allows attaching a menu to even a basic Node.
+        jfx_node.setOnContextMenuRequested((event) ->
+        {
+            event.consume();
+            menu.show(jfx_node, event.getScreenX(), event.getScreenY());
+        });
+
+        // TODO Still fall back to Control#setContextMenu(menu) when not on Linux?
+
+        // TODO Handle clash of this context menu with the built-in copy/paste context
+        //      menu of text field widgets
     }
 
     /** Implementation needs to create the JavaFX node

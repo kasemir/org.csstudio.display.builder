@@ -31,6 +31,7 @@ public class Messages extends NLS
     public static String ColorDialog_Info;
     public static String ColorDialog_Predefined;
     public static String ColorDialog_Title;
+    public static String CopyPVName;
     public static String FontDialog_ExampleText;
     public static String FontDialog_Family;
     public static String FontDialog_Info;
