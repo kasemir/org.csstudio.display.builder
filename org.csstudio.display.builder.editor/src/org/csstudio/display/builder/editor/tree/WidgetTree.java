@@ -206,12 +206,14 @@ public class WidgetTree
         {   // Using FJPool as plain executor, not dividing tree generation into sub-tasks
             final TreeItem<Widget> root = new TreeItem<Widget>(model);
             final Map<Widget, TreeItem<Widget>> widget_items = new HashMap<>();
-            widget_items.put(model, root);
-            createTree(root, model, widget_items);
-            root.setExpanded(true);
-            this.widget_items = widget_items;
-            addWidgetListeners(model);
-
+            if (model != null)
+            {
+                widget_items.put(model, root);
+                createTree(root, model, widget_items);
+                root.setExpanded(true);
+                this.widget_items = widget_items;
+                addWidgetListeners(model);
+            }
             logger.log(Level.FINE, "Computed new tree on {0}, updating UI", Thread.currentThread().getName());
             Platform.runLater(() ->
             {
@@ -252,7 +254,7 @@ public class WidgetTree
         {
             final TreeItem<Widget> item = new TreeItem<>(widget);
             widget_items.put(widget, item);
-            item.setExpanded(true);
+            item.setExpanded(false);
             parent.getChildren().add(item);
 
             if (widget instanceof ContainerWidget)
