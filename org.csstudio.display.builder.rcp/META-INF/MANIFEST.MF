@@ -18,6 +18,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.fx.ui.workbench3;bundle-version="1.2.0",
  org.csstudio.display.builder.representation.javafx;bundle-version="1.0.0",
  org.csstudio.display.builder.runtime;bundle-version="1.0.0",
- org.csstudio.display.builder.util
+ org.csstudio.display.builder.util;bundle-version="1.0.0",
+ org.csstudio.csdata;bundle-version="3.2.0",
+ org.eclipse.core.expressions;bundle-version="3.5.0",
+ org.eclipse.ui.workbench
 Import-Package: javax.annotation
 Export-Package: org.csstudio.display.builder.rcp

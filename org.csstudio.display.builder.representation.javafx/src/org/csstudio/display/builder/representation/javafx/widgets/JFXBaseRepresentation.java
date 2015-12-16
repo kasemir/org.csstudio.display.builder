@@ -7,22 +7,15 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-
 import java.util.Objects;
 
 import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
-import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
-import org.csstudio.display.builder.representation.javafx.actions.CopyPVNameToClipboard;
 
-import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 
 /** Base class for all JavaFX widget representations
  *  @param <JFX> JFX Widget
@@ -50,48 +43,26 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWid
                 event.consume();
             });
         }
-        createContextMenu();
         registerListeners();
         updateChanges();
         return getChildParent(parent);
     }
 
-    /** Create context menu */
-    private void createContextMenu()
-    {
-        // TODO Dummy context menu
-        // Need to get fixed entries set by either runtime or editor,
-        // then PV-based contributions
-
-        // While functional on other platforms, a menu set via
-        //    Control#setContextMenu(menu)
-        // will not activate on Linux for a JFX scene inside FXCanvas/SWT.
-        // Directly handling the context menu event works on all platforms,
-        // plus allows attaching a menu to even a basic Node.
-        jfx_node.setOnContextMenuRequested((event) ->
-        {
-            final ContextMenu menu = new ContextMenu();
-            final ObservableList<MenuItem> items = menu.getItems();
-            if (model_widget.hasProperty(behaviorPVName)  &&
-                ! model_widget.getProperty(behaviorPVName).getValue().isEmpty())
-            {
-                items.addAll(((JFXRepresentation) toolkit).getPVMenuItems());
-                items.add(new CopyPVNameToClipboard(model_widget));
-            }
-            if (items.isEmpty())
-                return;
-
-
-
-            event.consume();
-            menu.show(jfx_node, event.getScreenX(), event.getScreenY());
-        });
-
-        // TODO Still fall back to Control#setContextMenu(menu) when not on Linux?
-
-        // TODO Handle clash of this context menu with the built-in copy/paste context
-        //      menu of text field widgets
-    }
+    // For what it's worth, in case the node eventually has a JFX contest menu:
+    //
+    // While functional on other platforms, a menu set via
+    //    Control#setContextMenu(menu)
+    // will not activate on Linux for a JFX scene inside FXCanvas/SWT.
+    // Directly handling the context menu event works on all platforms,
+    // plus allows attaching a menu to even a basic Node.
+    //
+    // jfx_node.setOnContextMenuRequested((event) ->
+    // {
+    //     event.consume();
+    //     final ContextMenu menu = new ContextMenu();
+    //     menu.getItems().add(new MenuItem("Demo"));
+    //     menu.show(jfx_node, event.getScreenX(), event.getScreenY());
+    // });
 
     /** Implementation needs to create the JavaFX node
      *  or node tree for the model widget.

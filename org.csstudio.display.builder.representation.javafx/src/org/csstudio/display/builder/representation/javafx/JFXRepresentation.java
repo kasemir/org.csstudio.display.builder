@@ -7,9 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -53,7 +51,6 @@ import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 
 /** Represent model items in JavaFX toolkit
@@ -223,16 +220,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
     {
         root.getProperties().put(ACTIVE_MODEL, model);
         super.representModel(root, model);
-    }
-
-    /** Menu items that should appear in context menu for widgets that have a PV
-     *
-     *  <p>Base class does not provide any.
-     *  @return {@link MenuItem}s
-     */
-    public List<MenuItem> getPVMenuItems()
-    {
-        return Collections.emptyList();
     }
 
     @Override

@@ -15,19 +15,28 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -142,6 +151,7 @@ public class RuntimeViewPart extends ViewPart
         fx_canvas.setScene(scene);
 
         createToolbarItems();
+        createContextMenu(parent);
 
         parent.addDisposeListener(e -> disposeModel());
 
@@ -276,6 +286,51 @@ public class RuntimeViewPart extends ViewPart
 	    toolbar.add(NavigationAction.createBackAction(this, navigation));
 	    toolbar.add(NavigationAction.createForwardAction(this, navigation));
 	}
+
+    /** Create SWT context menu
+     *  @param parent SWT parent
+     */
+    private void createContextMenu(final Composite parent)
+    {
+        // Tried to use a JFX context menu on the individual items,
+        // but to get the existing PV contributions requires parsing
+        // the registry and creating suitable JFX menu entries.
+        // Finally, it was unclear how to set the "activeMenuSelection"
+        // where the existing object contributions expect the PV.
+        //
+        // An SWT context menu is automatically populated with PV contributions.
+
+        // TODO Get PV from widget
+        // Idea:
+        // Add 'ActiveContextMenu(ModelWidget)' event to ToolkitListener
+        // JFX representations invoke this via jfx_widget.setOnContextMenuRequested()
+        //
+        // This part would then react by setting the widget's PV into the selection
+        // and opening the SWT menu.
+        final ProcessVariable pv = new ProcessVariable("DummyDemoPV");
+        final IStructuredSelection sel = new StructuredSelection(pv);
+        final ISelectionProvider sel_provider = new RCPSelectionProvider();
+        sel_provider.setSelection(sel);
+        getSite().setSelectionProvider(sel_provider);
+
+        final MenuManager mm = new MenuManager();
+        mm.setRemoveAllWhenShown(true);
+        mm.addMenuListener((manager) ->
+        {
+            manager.add(new Action("Demo") {});
+            manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+        });
+        getSite().registerContextMenu(mm, sel_provider);
+
+        final Menu menu = mm.createContextMenu(parent);
+        parent.setMenu(menu);
+
+        root.setOnContextMenuRequested(e ->
+        {
+            e.consume();
+            menu.setVisible(true);
+        });
+    }
 
     /*** Invoke close_handler for model */
     private void disposeModel()
