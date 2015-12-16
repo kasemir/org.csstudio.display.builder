@@ -61,25 +61,10 @@ public class WidgetFactory
     // Prevent instantiation
     private WidgetFactory()
     {
+        registerKnownWidgets();
         final IExtensionRegistry registry = RegistryFactory.getRegistry();
-        if (registry == null)
-        {
-            // Fall back to hardcoded list of widgets for standalone demo.
-            addWidgetType(ActionButtonWidget.WIDGET_DESCRIPTOR);
-            addWidgetType(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR);
-            addWidgetType(GroupWidget.WIDGET_DESCRIPTOR);
-            addWidgetType(ImageWidget.WIDGET_DESCRIPTOR);
-            addWidgetType(LabelWidget.WIDGET_DESCRIPTOR);
-            addWidgetType(LEDWidget.WIDGET_DESCRIPTOR);
-            addWidgetType(ProgressBarWidget.WIDGET_DESCRIPTOR);
-            addWidgetType(RectangleWidget.WIDGET_DESCRIPTOR);
-            addWidgetType(TextEntryWidget.WIDGET_DESCRIPTOR);
-            addWidgetType(TextUpdateWidget.WIDGET_DESCRIPTOR);
-            addWidgetType(XYPlotWidget.WIDGET_DESCRIPTOR);
-        }
-        else
-        {
-            // Load available widgets from registry, which allows
+        if (registry != null)
+        {   // Load available widgets from registry, which allows
             // other plugins to contribute widgets
             final Logger logger = Logger.getLogger(getClass().getName());
             for (IConfigurationElement config : registry.getConfigurationElementsFor(EXTENSION_POINT_ID))
@@ -89,6 +74,22 @@ public class WidgetFactory
                 addWidgetType(descriptor);
             }
         }
+    }
+
+    /** Add known widgets as fallback in absence of registry information */
+    private void registerKnownWidgets()
+    {
+        addWidgetType(ActionButtonWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(GroupWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(ImageWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(LabelWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(LEDWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(ProgressBarWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(RectangleWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(TextEntryWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(TextUpdateWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(XYPlotWidget.WIDGET_DESCRIPTOR);
     }
 
     /** @return Singleton instance */
@@ -109,7 +110,7 @@ public class WidgetFactory
         // descriptor_by_type contains type and all aliases,
         // and new type must be unique
         if (descriptor_by_type.containsKey(descriptor.getType()))
-                throw new Error(descriptor + " already defined");
+            throw new Error(descriptor + " already defined");
 
         // descriptors sorts by category and type
         descriptors.add(descriptor);
