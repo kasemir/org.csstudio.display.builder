@@ -133,7 +133,7 @@ public class WidgetRuntime<MW extends Widget>
             if (action instanceof WritePVActionInfo)
             {
                 final String pv_name = ((WritePVActionInfo) action).getPV();
-                final String expanded = MacroHandler.replace(widget.getEffectiveMacros(), pv_name);
+                final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
                 pvs.add(PVPool.getPV(expanded));
             }
         }
@@ -185,7 +185,7 @@ public class WidgetRuntime<MW extends Widget>
      */
     public void writePV(final String pv_name, final Object value) throws Exception
     {
-        final String expanded = MacroHandler.replace(widget.getEffectiveMacros(), pv_name);
+        final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
         for (final PV pv : pvs)
             if (pv.getName().equals(expanded))
             {

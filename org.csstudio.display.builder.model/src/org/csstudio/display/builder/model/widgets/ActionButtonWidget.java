@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
 
@@ -53,6 +54,7 @@ public class ActionButtonWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
+        properties.add(behaviorPVName.createProperty(this, ""));
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(text = displayText.createProperty(this, "Action"));
     }

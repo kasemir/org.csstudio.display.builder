@@ -39,7 +39,7 @@ public class MacroOrPropertyProvider implements MacroValueProvider
 
         final WidgetProperty<?> property = properties.get(name);
         if (property != null)
-            return property.toString();
+            return property.getValue().toString();
         return null;
     }
 }
