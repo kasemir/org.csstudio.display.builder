@@ -61,9 +61,10 @@ public class WidgetFactory
     // Prevent instantiation
     private WidgetFactory()
     {
-        registerKnownWidgets();
         final IExtensionRegistry registry = RegistryFactory.getRegistry();
-        if (registry != null)
+        if (registry == null)
+            registerKnownWidgets();
+        else
         {   // Load available widgets from registry, which allows
             // other plugins to contribute widgets
             final Logger logger = Logger.getLogger(getClass().getName());
