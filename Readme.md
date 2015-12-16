@@ -1,18 +1,18 @@
 Display Builder
 ===============
 
-Ongoing update of CS-Studio 'BOY',
+Update of CS-Studio 'BOY',
 i.e. the `org.csstudio.opibuilder.*` code in 
 https://github.com/ControlSystemStudio/cs-studio.
 
-Overall goal is to provide the same functionality,
+Goal is to provide the same functionality,
 including read-compatibility with existing *.opi files
-and similar "look", but with the following improvements:
+and similar "look", with improvements:
 
  * Model loads in background threads.
-   Opening a new display will no longer result in user interface "freeze",
-   even if the display takes some time to load because of embedded displays
-   or accessing display files over http.
+   Opening a new display will no longer result in user interface freeze,
+   even if the display startup is delayed because of embedded displays
+   or slow display file access over http.
  * Runtime handles PV updates and scripts in background threads,
    again lessening the likelyhood of user interface freezeups.
  * Separation of Model, Representation, Runtime and Editor
@@ -40,6 +40,40 @@ Dependencies
    Mac OS X: Double-click each *.ttf to preview, then click "Install Font".
  
 
+Code Overview
+-------------
+
+`org.csstudio.display.builder.model`:
+Model of Widgets and Properties
+
+`org.csstudio.display.builder.representation`, 
+`org.csstudio.display.builder.representation.javafx`,
+`org.csstudio.display.builder.representation.swt`:
+Graphical rendering of model on screen, with implementation for Java FX and SWT.
+
+`org.csstudio.display.builder.runtime`:
+Connects widgets to process variables, executes scripts, executes actions when
+user presses buttons etc.
+
+`org.csstudio.display.builder.rcp`:
+Combines model, representation (Java FX) and runtime into RCP 'View'
+for executing displays inside CS-Studio.
+
+`org.csstudio.display.builder.editor`:
+Display editor, implemented in Java FX.
+
+`org.csstudio.display.builder.editor.rcp`:
+Hosts editor inside CS-Studio.
+
+`org.csstudio.display.builder.util`,
+`org.csstudio.javafx`,
+`org.csstudio.javafx.rtplot`:
+Utilities; Generic, Java FX, Plot widget.
+
+`org.csstudio.display.builder.feature`:
+Eclipse feature for all of the above.
+ 
+
 Development Status
 ------------------
 
@@ -48,7 +82,7 @@ Development Status
 Describes Widgets and their Properties.
 Widget Properties have well defined types. Access to properties is thread-safe.
 Listeners can react to widget property changes.
-Widgets and their properties can be persisted to and loaded from XML files.
+Widgets and their properties can persist to and load from XML files.
 Widget categories as well as property categories combined with a well defined order of widget properties
 allow editors to present them in a consistent way.
 
@@ -65,7 +99,8 @@ Widgets with key functionality:
 
 Major TODOs:
  * Add many more widgets and their properties.
-   Each new widget is added as its own class derived from the base `Widget` and registered in `WidgetFactory`.
+   Each new widget is added as its own class derived from the base `Widget`
+   and registered via extension point.
 
 ** Representation **
 
@@ -76,7 +111,8 @@ but SWT implementation is limited because emphasis is on JavaFX.
 Major TODOs:
  * A ton of widgets and their representation.
    Each new widget needs to implement a `WidgetRepresentation` for either JavaFX or SWT (or both)
-   and register with the `JFXRepresentation` respectively `SWTRepresentation`.
+   and register with the `JFXRepresentation` respectively `SWTRepresentation`
+   via an extension point.
    The representation needs to add listeners to model properties of interest.
    On change, it can prepare the UI update, which is then scheduled via `ToolkitRepresentation.scheduleUpdate()`
    to occur on the UI thread in a throttled manner.
@@ -87,7 +123,9 @@ Connects to PVs, executes Jython and JavaScript in background threads.
 Throttled updates on user interface thread.
 Resolves embedded displays relative to parent.
 
-New widgets do not necessarily need to register their own runtime.
+New widgets do not necessarily need to register their own runtime,
+but can do so via an extension point.
+
 The base `WidgetRuntime` handles the following:
 
  * If widget has "pv_name" and "value" properties, a primary PV is created for
