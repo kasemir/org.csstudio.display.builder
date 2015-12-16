@@ -28,10 +28,13 @@ public class DisplayRuntime extends WidgetRuntime<DisplayModel>
         if (pv_initialized)
             return;
 
-        // TODO PVPool initializes from registry
-        PVPool.addPVFactory(new JCA_PVFactory());
-        PVPool.addPVFactory(new LocalPVFactory());
-        PVPool.setDefaultType(JCA_PVFactory.TYPE);
+        // PVPool should initialize from registry
+        if (PVPool.getSupportedPrefixes().length == 0)
+        {   // Fall back for tests without OSGi
+            PVPool.addPVFactory(new JCA_PVFactory());
+            PVPool.addPVFactory(new LocalPVFactory());
+            PVPool.setDefaultType(JCA_PVFactory.TYPE);
+        }
 
         pv_initialized = true;
     }
