@@ -62,7 +62,7 @@ public class RuntimeUtil
     /** Connect runtime listener to toolkit
      *  @param toolkit Toolkit that runtime needs to monitor
      */
-    public static void hookListener(final ToolkitRepresentation<?,?> toolkit)
+    public static void hookRepresentationListener(final ToolkitRepresentation<?,?> toolkit)
     {
         toolkit.addListener(toolkit_listener);
     }

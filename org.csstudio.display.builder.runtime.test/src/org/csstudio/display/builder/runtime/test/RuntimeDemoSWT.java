@@ -44,7 +44,7 @@ public class RuntimeDemoSWT implements Runnable
     {
         final Display display = new Display();
         toolkit = new SWTRepresentation(display);
-        RuntimeUtil.hookListener(toolkit);
+        RuntimeUtil.hookRepresentationListener(toolkit);
 
         // Load model in background
         RuntimeUtil.getExecutor().execute(() -> loadModel(display));

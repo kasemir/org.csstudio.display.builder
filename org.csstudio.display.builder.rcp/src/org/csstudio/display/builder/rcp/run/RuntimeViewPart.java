@@ -21,15 +21,11 @@ import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.MenuManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
@@ -73,11 +69,14 @@ public class RuntimeViewPart extends ViewPart
 
     private FXCanvas fx_canvas;
 
+    private RCP_JFXRepresentation representation;
+
     private Group root;
 
     private Consumer<DisplayModel> close_handler = null;
 
 	private DisplayModel active_model;
+
 
     /** Open a runtime display
      *  @param close_handler Code to call when part is closed
@@ -136,14 +135,13 @@ public class RuntimeViewPart extends ViewPart
         parent.setLayout(new FillLayout());
         fx_canvas = new FXCanvas(parent, SWT.NONE);
 
-        RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
+        representation = new RCP_JFXRepresentation();
         final Scene scene = representation.createScene();
         root = representation.getSceneRoot(scene);
         root.getProperties().put(ROOT_RUNTIME_VIEW_PART, this);
         fx_canvas.setScene(scene);
 
         createToolbarItems();
-        // createContextMenu(parent);
 
         parent.addDisposeListener(e -> disposeModel());
 
@@ -157,7 +155,6 @@ public class RuntimeViewPart extends ViewPart
 	 */
 	public double setZoom(final double zoom)
     {
-        final RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
         final Scene scene = fx_canvas.getScene();
         return representation.setSceneZoom(scene, zoom);
     }
@@ -187,7 +184,7 @@ public class RuntimeViewPart extends ViewPart
     private void showMessage(final String message)
     {
         // Assert UI update on UI thread
-        RCP_JFXRepresentation.getInstance().execute(() ->
+        representation.execute(() ->
         {
             final Rectangle bounds = fx_canvas.getBounds();
 
@@ -240,7 +237,6 @@ public class RuntimeViewPart extends ViewPart
             model.widgetMacros().setValue(macros);
 
             // Schedule representation on UI thread
-            final RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
             representation.execute(() -> representModel(model));
         }
         catch (Exception ex)
@@ -258,7 +254,6 @@ public class RuntimeViewPart extends ViewPart
     {
         try
         {
-            final RCP_JFXRepresentation representation = RCP_JFXRepresentation.getInstance();
             root.getChildren().clear();
             representation.representModel(root, model);
         }
@@ -281,22 +276,6 @@ public class RuntimeViewPart extends ViewPart
 	    toolbar.add(NavigationAction.createBackAction(this, navigation));
 	    toolbar.add(NavigationAction.createForwardAction(this, navigation));
 	}
-
-	/** TODO Remove Dummy SWT context menu to test interaction of SWT and JFX context menus */
-    private void createContextMenu(final Control parent)
-    {
-    	final MenuManager mm = new MenuManager();
-    	mm.add(new Action("SWT Test Menu")
-    	{
-			@Override
-			public void run()
-			{
-				System.out.println("Invoked SWT Context menu");
-			}
-		});
-    	final Menu menu = mm.createContextMenu(parent);
-    	parent.setMenu(menu);
-    }
 
     /*** Invoke close_handler for model */
     private void disposeModel()

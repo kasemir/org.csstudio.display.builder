@@ -44,7 +44,7 @@ public class RuntimeDemoJavaFX extends Application
     public void start(final Stage stage)
     {
         toolkit = new JFXStageRepresentation();
-        RuntimeUtil.hookListener(toolkit);
+        RuntimeUtil.hookRepresentationListener(toolkit);
         // Load model in background
         RuntimeUtil.getExecutor().execute(() -> loadModel(stage));
     }

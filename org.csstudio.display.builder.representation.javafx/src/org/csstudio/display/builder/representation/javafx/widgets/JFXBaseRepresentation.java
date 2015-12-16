@@ -15,6 +15,7 @@ import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
+import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.representation.javafx.actions.CopyPVNameToClipboard;
 
 import javafx.collections.ObservableList;
@@ -61,14 +62,6 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWid
         // TODO Dummy context menu
         // Need to get fixed entries set by either runtime or editor,
         // then PV-based contributions
-        final ContextMenu menu = new ContextMenu();
-        final ObservableList<MenuItem> items = menu.getItems();
-        if (model_widget.hasProperty(behaviorPVName)  &&
-            ! model_widget.getProperty(behaviorPVName).getValue().isEmpty())
-            items.add(new CopyPVNameToClipboard(model_widget));
-
-        if (items.isEmpty())
-            return;
 
         // While functional on other platforms, a menu set via
         //    Control#setContextMenu(menu)
@@ -77,6 +70,19 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWid
         // plus allows attaching a menu to even a basic Node.
         jfx_node.setOnContextMenuRequested((event) ->
         {
+            final ContextMenu menu = new ContextMenu();
+            final ObservableList<MenuItem> items = menu.getItems();
+            if (model_widget.hasProperty(behaviorPVName)  &&
+                ! model_widget.getProperty(behaviorPVName).getValue().isEmpty())
+            {
+                items.addAll(((JFXRepresentation) toolkit).getPVMenuItems());
+                items.add(new CopyPVNameToClipboard(model_widget));
+            }
+            if (items.isEmpty())
+                return;
+
+
+
             event.consume();
             menu.show(jfx_node, event.getScreenX(), event.getScreenY());
         });
