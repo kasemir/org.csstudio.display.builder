@@ -143,7 +143,7 @@ public class RuntimeViewPart extends ViewPart
         fx_canvas.setScene(scene);
 
         createToolbarItems();
-        createContextMenu(parent);
+        // createContextMenu(parent);
 
         parent.addDisposeListener(e -> disposeModel());
 
@@ -282,7 +282,7 @@ public class RuntimeViewPart extends ViewPart
 	    toolbar.add(NavigationAction.createForwardAction(this, navigation));
 	}
 
-	/** Dummy SWT context menu to test interaction of SWT and JFX context menus */
+	/** TODO Remove Dummy SWT context menu to test interaction of SWT and JFX context menus */
     private void createContextMenu(final Control parent)
     {
     	final MenuManager mm = new MenuManager();

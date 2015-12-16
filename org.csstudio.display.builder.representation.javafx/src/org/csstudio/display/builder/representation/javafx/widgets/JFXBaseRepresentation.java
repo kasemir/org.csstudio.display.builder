@@ -16,6 +16,9 @@ import org.csstudio.display.builder.representation.WidgetRepresentation;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Control;
+import javafx.scene.control.MenuItem;
 
 /** Base class for all JavaFX widget representations
  *  @param <JFX> JFX Widget
@@ -43,9 +46,21 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWid
                 event.consume();
             });
         }
+        if (jfx_node instanceof Control)
+            createContextMenu((Control)jfx_node);
         registerListeners();
         updateChanges();
         return getChildParent(parent);
+    }
+
+    private void createContextMenu(final Control control)
+    {   // TODO Dummy context menu
+        // Need to get fixed entries set by either runtime or editor,
+        // then PV-based contributions
+        ContextMenu menu = new ContextMenu();
+        menu.getItems().add(new MenuItem("Copy PV Name"));
+        menu.getItems().add(new MenuItem("Data Browser"));
+        control.setContextMenu(menu );
     }
 
     /** Implementation needs to create the JavaFX node
