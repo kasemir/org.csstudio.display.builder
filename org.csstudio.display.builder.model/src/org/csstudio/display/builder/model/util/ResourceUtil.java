@@ -20,6 +20,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.csstudio.display.builder.model.Preferences;
+
 /** Helper for handling resources: File, web link.
  *  @author Kay Kasemir
  */
@@ -28,6 +30,7 @@ public class ResourceUtil
 {
     /** Used by trustAnybody() to only initialize once */
     private static boolean trusting_anybody = false;
+    private static int timeout_ms = Preferences.getReadTimeout();
 
     // Many basic String operations since paths
     // may include " ", which URL won't handle,
@@ -157,7 +160,7 @@ public class ResourceUtil
 
         final URL url = new URL(resource_name);
         final URLConnection connection = url.openConnection();
-        connection.setReadTimeout(10000); // TODO Preference for read timeout
+        connection.setReadTimeout(timeout_ms);
         return connection.getInputStream();
     }
 

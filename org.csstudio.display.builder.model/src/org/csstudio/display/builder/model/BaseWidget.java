@@ -40,8 +40,6 @@ public class BaseWidget extends Widget
    {
        super.defineProperties(properties);
        properties.add(visible = positionVisible.createProperty(this, true));
-
-       // TODO colors, border
    }
 
    /** @return Position 'visible' */
