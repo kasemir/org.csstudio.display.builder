@@ -114,14 +114,17 @@ public class WidgetRuntime<MW extends Widget>
     public void start() throws Exception
     {
         // Update "value" property from primary PV, if defined
-        if (widget.hasProperty(behaviorPVName) &&  widget.hasProperty(runtimeValue))
+        final Optional<WidgetProperty<String>> name = widget.checkProperty(behaviorPVName);
+        final Optional<WidgetProperty<VType>> value = widget.checkProperty(runtimeValue);
+
+        if (name.isPresent() &&  value.isPresent())
         {
-            final String pv_name = widget.getPropertyValue(behaviorPVName);
+            final String pv_name = name.get().getValue();
             if (! pv_name.isEmpty())
             {
                 logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, pv_name });
                 final PV pv = PVPool.getPV(pv_name);
-                primary_pv_listener = new PropertyUpdater(widget.getProperty(runtimeValue));
+                primary_pv_listener = new PropertyUpdater(value.get());
                 pv.addListener(primary_pv_listener);
                 primary_pv = Optional.of(pv);
             }

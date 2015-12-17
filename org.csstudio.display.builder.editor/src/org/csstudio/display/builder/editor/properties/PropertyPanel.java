@@ -77,9 +77,9 @@ public class PropertyPanel extends ScrollPane
 
         // Start with properties of primary widget
         final Set<WidgetProperty<?>> common = new LinkedHashSet<>(primary.getProperties());
-        // Keep properties shared by other widgets
-        for (Widget w : other)
-            common.removeIf(prop  ->  ! w.hasProperty(prop.getName()));
+        // Keep properties shared by other widgets, i.e. remove those _not_ in other
+        for (Widget o : other)
+            common.removeIf(prop  ->  ! o.checkProperty(prop.getName()).isPresent());
         return common;
     }
 }

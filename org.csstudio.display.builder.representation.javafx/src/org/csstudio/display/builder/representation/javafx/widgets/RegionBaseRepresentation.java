@@ -10,6 +10,8 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
+import java.util.Optional;
+
 import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -55,11 +57,12 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Ba
     {
         super.registerListeners();
 
-        if (model_widget.hasProperty(displayBorderAlarmSensitive)  &&
-            model_widget.hasProperty(runtimeValue))
+        final Optional<WidgetProperty<Boolean>> border = model_widget.checkProperty(displayBorderAlarmSensitive);
+        final Optional<WidgetProperty<VType>> value = model_widget.checkProperty(runtimeValue);
+        if (border.isPresent()  &&  value.isPresent())
         {
-            alarm_sensitive_border = model_widget.getProperty(displayBorderAlarmSensitive);
-            model_widget.getProperty(runtimeValue).addPropertyListener(this::valueChanged);
+            alarm_sensitive_border = border.get();
+            value.get().addPropertyListener(this::valueChanged);
         }
     }
 

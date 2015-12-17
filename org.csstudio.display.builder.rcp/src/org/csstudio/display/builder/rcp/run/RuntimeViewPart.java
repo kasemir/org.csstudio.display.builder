@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.run;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Optional;
@@ -17,29 +15,19 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
-import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -154,7 +142,8 @@ public class RuntimeViewPart extends ViewPart
         fx_canvas.setScene(scene);
 
         createToolbarItems();
-        createContextMenu(fx_canvas);
+
+        new ContextMenuSupport(getSite(), fx_canvas, representation);
 
         parent.addDisposeListener(e -> disposeModel());
 
@@ -289,61 +278,6 @@ public class RuntimeViewPart extends ViewPart
 	    toolbar.add(NavigationAction.createBackAction(this, navigation));
 	    toolbar.add(NavigationAction.createForwardAction(this, navigation));
 	}
-
-    /** Create SWT context menu
-     *  @param parent SWT parent
-     */
-    private void createContextMenu(final Composite parent)
-    {
-        // Tried to use a JFX context menu on the individual items,
-        // but to get the existing PV contributions requires parsing
-        // the registry and creating suitable JFX menu entries.
-        // Finally, it was unclear how to set the "activeMenuSelection"
-        // where the existing object contributions expect the PV.
-        //
-        // An SWT context menu is automatically populated with PV contributions,
-        // that that's used, activated by the toolkit with widget on which
-        // context menu was invoked
-
-        // Selection provider to inform RCP about PV for the context menu
-        final ISelectionProvider sel_provider = new RCPSelectionProvider();
-        getSite().setSelectionProvider(sel_provider);
-
-        // RCP context menu w/ "additions" placeholder for contributions
-        final MenuManager mm = new MenuManager();
-        mm.setRemoveAllWhenShown(true);
-        mm.addMenuListener((manager) ->
-        {
-            // manager.add(new Action("Additional Runtime Action") {});
-            manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
-        });
-        getSite().registerContextMenu(mm, sel_provider);
-
-        // Attach menu to SWT control
-        final Menu menu = mm.createContextMenu(parent);
-        parent.setMenu(menu);
-
-        representation.addListener(new ToolkitListener()
-        {
-            @Override
-            public void handleContextMenu(final Widget widget)
-            {
-                if (! widget.hasProperty(behaviorPVName))
-                    return;
-                final String pv_name = widget.getProperty(behaviorPVName).getValue();
-                if (pv_name.isEmpty())
-                    return;
-                System.out.println("Opening context menu for " + pv_name);
-                final ProcessVariable pv = new ProcessVariable(pv_name);
-                final IStructuredSelection sel = new StructuredSelection(pv);
-                sel_provider.setSelection(sel);
-
-                // TODO Menu tends to use the _previous_ PV
-                parent.getDisplay().asyncExec(() -> menu.setVisible(true));
-                // sel_provider.setSelection(new StructuredSelection());
-            }
-        });
-    }
 
     /*** Invoke close_handler for model */
     private void disposeModel()

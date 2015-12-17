@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import java.util.Optional;
+
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
@@ -57,8 +59,9 @@ public class WidgetConfigurator
         {
             final String prop_name = prop_xml.getNodeName();
             // Skip unknown properties
-            if (widget.hasProperty(prop_name))
-                widget.getProperty(prop_name).readFromXML(prop_xml);
+            final Optional<WidgetProperty<?>> prop = widget.checkProperty(prop_name);
+            if (prop.isPresent())
+                prop.get().readFromXML(prop_xml);
         }
     }
 }

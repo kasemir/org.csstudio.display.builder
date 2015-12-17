@@ -315,20 +315,23 @@ public class Widget
 
     /** Check if widget has a given property.
      *  @param name Property name
-     *  @return <code>true</code> if widget has this property
+     *  @return Optional {@link WidgetProperty}
      */
-    public boolean hasProperty(final String name)
+    public Optional<WidgetProperty<?>> checkProperty(final String name)
     {
-        return property_map.get(name) != null;
+        final WidgetProperty<?> property = property_map.get(name);
+        return Optional.ofNullable(property);
     }
 
     /** Check if widget has a given property.
      *  @param property Property descriptor
-     *  @return <code>true</code> if widget has this property
+     *  @return Optional {@link WidgetProperty}
      */
-    public boolean hasProperty(final WidgetPropertyDescriptor<?> property)
+    public <PT> Optional<WidgetProperty<PT>> checkProperty(final WidgetPropertyDescriptor<PT> property_description)
     {
-        return hasProperty(property.getName());
+        @SuppressWarnings("unchecked")
+        final WidgetProperty<PT> property = (WidgetProperty<PT>) property_map.get(property_description.getName());
+        return Optional.ofNullable(property);
     }
 
     /** Get widget property.
