@@ -32,6 +32,11 @@ public interface ToolkitListener
      */
     default public void handleClick(Widget widget, boolean with_control) {};
 
+    /** User requested context menu for a widget
+     *  @param widget Widget on which context menu was invoked
+     */
+    default public void handleContextMenu(Widget widget) {};
+
     /** User provided a new value that should be written to PV
      *  @param widget Widget that provided the value; Widget's (primary) PV should be written
      *  @param value The value

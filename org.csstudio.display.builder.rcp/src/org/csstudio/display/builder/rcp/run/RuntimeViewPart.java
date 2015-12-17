@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.run;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Optional;
@@ -17,12 +19,13 @@ import java.util.logging.Logger;
 
 import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
+import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
@@ -151,7 +154,7 @@ public class RuntimeViewPart extends ViewPart
         fx_canvas.setScene(scene);
 
         createToolbarItems();
-        createContextMenu(parent);
+        createContextMenu(fx_canvas);
 
         parent.addDisposeListener(e -> disposeModel());
 
@@ -298,37 +301,47 @@ public class RuntimeViewPart extends ViewPart
         // Finally, it was unclear how to set the "activeMenuSelection"
         // where the existing object contributions expect the PV.
         //
-        // An SWT context menu is automatically populated with PV contributions.
+        // An SWT context menu is automatically populated with PV contributions,
+        // that that's used, activated by the toolkit with widget on which
+        // context menu was invoked
 
-        // TODO Get PV from widget
-        // Idea:
-        // Add 'ActiveContextMenu(ModelWidget)' event to ToolkitListener
-        // JFX representations invoke this via jfx_widget.setOnContextMenuRequested()
-        //
-        // This part would then react by setting the widget's PV into the selection
-        // and opening the SWT menu.
-        final ProcessVariable pv = new ProcessVariable("DummyDemoPV");
-        final IStructuredSelection sel = new StructuredSelection(pv);
+        // Selection provider to inform RCP about PV for the context menu
         final ISelectionProvider sel_provider = new RCPSelectionProvider();
-        sel_provider.setSelection(sel);
         getSite().setSelectionProvider(sel_provider);
 
+        // RCP context menu w/ "additions" placeholder for contributions
         final MenuManager mm = new MenuManager();
         mm.setRemoveAllWhenShown(true);
         mm.addMenuListener((manager) ->
         {
-            manager.add(new Action("Demo") {});
+            // manager.add(new Action("Additional Runtime Action") {});
             manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
         });
         getSite().registerContextMenu(mm, sel_provider);
 
+        // Attach menu to SWT control
         final Menu menu = mm.createContextMenu(parent);
         parent.setMenu(menu);
 
-        root.setOnContextMenuRequested(e ->
+        representation.addListener(new ToolkitListener()
         {
-            e.consume();
-            menu.setVisible(true);
+            @Override
+            public void handleContextMenu(final Widget widget)
+            {
+                if (! widget.hasProperty(behaviorPVName))
+                    return;
+                final String pv_name = widget.getProperty(behaviorPVName).getValue();
+                if (pv_name.isEmpty())
+                    return;
+                System.out.println("Opening context menu for " + pv_name);
+                final ProcessVariable pv = new ProcessVariable(pv_name);
+                final IStructuredSelection sel = new StructuredSelection(pv);
+                sel_provider.setSelection(sel);
+
+                // TODO Menu tends to use the _previous_ PV
+                parent.getDisplay().asyncExec(() -> menu.setVisible(true));
+                // sel_provider.setSelection(new StructuredSelection());
+            }
         });
     }
 

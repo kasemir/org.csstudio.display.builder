@@ -312,6 +312,22 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         }
     }
 
+    /** Notify listeners that context menu has been invoked
+     *  @param widget Widget
+     */
+    public void fireContextMenu(final Widget widget)
+    {
+        for (final ToolkitListener listener : listeners)
+        try
+        {
+            listener.handleContextMenu(widget);
+        }
+        catch (final Throwable ex)
+        {
+            logger.log(Level.WARNING, "Context menu failure for " + widget, ex);
+        }
+    }
+
     /** Notify listeners that a widget requests writing a value
      *  @param widget Widget
      *  @param value Value
