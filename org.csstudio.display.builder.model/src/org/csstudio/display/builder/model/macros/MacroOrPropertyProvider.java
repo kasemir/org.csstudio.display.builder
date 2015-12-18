@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.macros;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -39,7 +40,19 @@ public class MacroOrPropertyProvider implements MacroValueProvider
 
         final WidgetProperty<?> property = properties.get(name);
         if (property != null)
-            return property.getValue().toString();
+        {   // If value is a single-element collection, get string for that one element.
+            // This is primarily for buttons that use $(actions) as their text,
+            // and there's a single action which should show as "That Action"
+            // and not "[That Action]".
+            final Object prop_val = property.getValue();
+            if (prop_val instanceof Collection<?>)
+            {
+                final Collection<?> coll = (Collection<?>) prop_val;
+                if (coll.size() == 1)
+                    return coll.iterator().next().toString();
+            }
+            return prop_val.toString();
+        }
         return null;
     }
 }
