@@ -38,6 +38,8 @@ public class Messages extends NLS
     public static String WidgetProperties_BackgroundColor;
     public static String WidgetProperties_BorderAlarmSensitive;
     public static String WidgetProperties_ColorMap;
+    public static String WidgetProperties_CornerHeight;
+    public static String WidgetProperties_CornerWidth;
     public static String WidgetProperties_DataHeight;
     public static String WidgetProperties_DataWidth;
     public static String WidgetProperties_File;

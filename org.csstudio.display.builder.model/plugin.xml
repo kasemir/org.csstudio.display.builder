@@ -25,6 +25,9 @@
          <alternates
                type="org.csstudio.opibuilder.widgets.Rectangle">
          </alternates>
+         <alternates
+               type="org.csstudio.opibuilder.widgets.RoundedRectangle">
+         </alternates>
       </widget>
       <widget
             category="GRAPHIC"
