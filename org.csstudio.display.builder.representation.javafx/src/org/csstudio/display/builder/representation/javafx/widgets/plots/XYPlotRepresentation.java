@@ -155,4 +155,11 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             plot_axis.setAutoscale(model_axis.autoscale().getValue());
         }
     }
+
+    @Override
+    public void dispose()
+    {
+        plot.dispose();
+        super.dispose();
+    }
 }
