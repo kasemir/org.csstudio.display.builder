@@ -41,6 +41,17 @@
          </alternates>
       </widget>
       <widget
+            category="GRAPHIC"
+            class="org.csstudio.display.builder.model.widgets.PolylineWidget"
+            description="%PolylineWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/polyline.png"
+            name="%PolylineWidget_Name"
+            type="polyline">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.polyline">
+         </alternates>
+      </widget>
+      <widget
             category="MONITOR"
             class="org.csstudio.display.builder.model.widgets.ImageWidget"
             description="%ImageWidget_Description"

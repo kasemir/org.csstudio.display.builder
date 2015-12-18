@@ -36,6 +36,10 @@
             type="ellipse">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.PolylineRepresentation"
+            type="polyline">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepresentation"
             type="textentry">
       </representation>
