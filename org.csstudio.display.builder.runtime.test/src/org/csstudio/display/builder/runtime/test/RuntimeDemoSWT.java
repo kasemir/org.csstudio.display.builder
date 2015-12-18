@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.swt.SWTRepresentation;
+import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.vtype.pv.PV;
 import org.csstudio.vtype.pv.PVPool;
@@ -107,8 +108,7 @@ public class RuntimeDemoSWT implements Runnable
 
     private void handleClose(final DisplayModel model)
     {
-        RuntimeUtil.stopRuntime(model);
-        toolkit.disposeRepresentation(model);
+        ActionUtil.handleClose(model);
 
         int refs = 0;
         for (final RefCountMap.ReferencedEntry<PV> ref : PVPool.getPVReferences())

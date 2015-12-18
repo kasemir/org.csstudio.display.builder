@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
+import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
@@ -73,7 +74,7 @@ public class RuntimeViewPart extends ViewPart
 
     private Group root;
 
-    private Consumer<DisplayModel> close_handler = null;
+    private Consumer<DisplayModel> close_handler = ActionUtil::handleClose;
 
 	private DisplayModel active_model;
 
@@ -215,7 +216,13 @@ public class RuntimeViewPart extends ViewPart
     {
         showMessage("Loading " + info);
         // Load model off UI thread
-        RuntimeUtil.getExecutor().execute(() -> loadModel(info));
+        RuntimeUtil.getExecutor().execute(() ->
+        {
+            // If already executing another display, shut it down
+            // TODO disposeModel();
+
+            loadModel(info);
+        });
     }
 
     /** Load display model, schedule representation

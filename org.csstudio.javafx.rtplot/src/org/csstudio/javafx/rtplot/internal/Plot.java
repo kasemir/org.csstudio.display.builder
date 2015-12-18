@@ -100,7 +100,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
      *  <p>Synchronizing to access one and the same image
      *  deadlocks on Linux, so a new image is created for updates.
      *  To avoid access to disposed image, SYNC on the actual image during access.
-     *  // TODO Still need to dispose and thus SYNC on the image with JFX?
      */
     private volatile Optional<Image> plot_image = Optional.empty();
 
