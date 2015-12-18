@@ -19,7 +19,6 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
-import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.eclipse.jface.action.IToolBarManager;
@@ -215,14 +214,10 @@ public class RuntimeViewPart extends ViewPart
     public void loadDisplayFile(final DisplayInfo info)
     {
         showMessage("Loading " + info);
+        // If already executing another display, shut it down
+        disposeModel();
         // Load model off UI thread
-        RuntimeUtil.getExecutor().execute(() ->
-        {
-            // If already executing another display, shut it down
-            // TODO disposeModel();
-
-            loadModel(info);
-        });
+        RuntimeUtil.getExecutor().execute(() -> loadModel(info));
     }
 
     /** Load display model, schedule representation
@@ -289,7 +284,7 @@ public class RuntimeViewPart extends ViewPart
     /*** Invoke close_handler for model */
     private void disposeModel()
     {
-        final DisplayModel model = (DisplayModel) getRoot().getProperties().get(JFXRepresentation.ACTIVE_MODEL);
+        final DisplayModel model = active_model;
         if (model != null  &&  close_handler != null)
             close_handler.accept(model);
     }
