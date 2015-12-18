@@ -218,6 +218,14 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<WidgetColor> displayFillColor =
         newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "fill_color", Messages.WidgetProperties_FillColor);
 
+    /** Display 'line_color' */
+    public static final WidgetPropertyDescriptor<WidgetColor> displayLineColor =
+        newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "line_color", Messages.WidgetProperties_LineColor);
+
+    /** Display 'line_width' */
+    public static final WidgetPropertyDescriptor<Integer> displayLineWidth =
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "line_width", Messages.WidgetProperties_LineWidth);
+
     /** Display 'transparent' */
     public static final WidgetPropertyDescriptor<Boolean> displayTransparent =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "transparent", Messages.WidgetProperties_Transparent);
