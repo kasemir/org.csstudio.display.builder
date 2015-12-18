@@ -72,6 +72,11 @@ Utilities; Generic, Java FX, Plot widget.
 
 `org.csstudio.display.builder.feature`:
 Eclipse feature for all of the above.
+
+
+Basic widgets can be added by implementing a Model and a Representation,
+see Ellipse example
+https://github.com/kasemir/org.csstudio.display.builder/commit/5abd05bcdd2a3c4fdae1ade0cbaf30de8703d814
  
 
 Development Status
@@ -141,7 +146,7 @@ The base `WidgetRuntime` handles the following:
 Major TODOs:
 
  * Check details of script support: One instance per display? One for each action?
- * Alarm-sensitive behavior
+ * Rule engine
  
 ** Editor **
 
