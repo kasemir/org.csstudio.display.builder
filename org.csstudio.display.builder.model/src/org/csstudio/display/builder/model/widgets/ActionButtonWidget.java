@@ -56,7 +56,7 @@ public class ActionButtonWidget extends BaseWidget
         super.defineProperties(properties);
         properties.add(behaviorPVName.createProperty(this, ""));
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
-        properties.add(text = displayText.createProperty(this, "Action"));
+        properties.add(text = displayText.createProperty(this, "$(actions)"));
     }
 
     /** @return Widget 'macros' */
