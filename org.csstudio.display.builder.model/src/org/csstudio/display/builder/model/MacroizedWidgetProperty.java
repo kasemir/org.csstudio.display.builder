@@ -52,7 +52,13 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
             final T default_value)
     {
         super(descriptor, widget, default_value);
+        // XXX Should null become "null" or ""?
         specification = String.valueOf(default_value);
+        // If specification contains macro,
+        // clear value to force evaluation of macro on first value request.
+        // Can't evaluate now because macros may not be available.
+        if (MacroHandler.containsMacros(specification))
+            value = null;
     }
 
     /** @return Value specification. Text that may contain macros */
