@@ -218,7 +218,7 @@ public class SelectedWidgetUITracker extends Group
             updateTracker(orig_x, tr.getY(),
                           tr.getX() - orig_x, orig_height - (tr.getY() - orig_y));
         });
-        handle_right.setCursor(Cursor.W_RESIZE);
+        handle_right.setCursor(Cursor.E_RESIZE);
         handle_right.setOnMouseDragged((MouseEvent event) ->
         {
             if (start_x < 0)
