@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
 import org.csstudio.display.builder.model.widgets.PolylineWidget.PointWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -26,6 +27,17 @@ import javafx.scene.shape.StrokeLineJoin;
 public class PolylineRepresentation extends JFXBaseRepresentation<Polyline, PolylineWidget>
 {
     private final DirtyFlag dirty_display = new DirtyFlag();
+
+    // Need known instance of this listener, not "this::pointChanged",
+    // to be able to _remove_ one that's previously added
+    private WidgetPropertyListener<Integer> pointChanged =
+        (final WidgetProperty<Integer> property,
+         final Integer old_value, final Integer new_value) ->
+    {
+        dirty_display.mark();
+        toolkit.scheduleUpdate(this);
+    };
+
 
     @Override
     public Polyline createJFXNode() throws Exception
@@ -45,13 +57,40 @@ public class PolylineRepresentation extends JFXBaseRepresentation<Polyline, Poly
         model_widget.positionY().addUntypedPropertyListener(this::displayChanged);
         model_widget.positionWidth().addUntypedPropertyListener(this::displayChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::displayChanged);
-        model_widget.displayPoints().addUntypedPropertyListener(this::displayChanged);
         model_widget.displayLineColor().addUntypedPropertyListener(this::displayChanged);
         model_widget.displayLineWidth().addUntypedPropertyListener(this::displayChanged);
+
+        // Listen to list for added/removed points
+        model_widget.displayPoints().addPropertyListener(this::pointsChanged);
+        // For each point, listen to coordinate changes
+        for (PointWidgetProperty point : model_widget.displayPoints().getValue())
+        {
+            point.x().addPropertyListener(pointChanged);
+            point.y().addPropertyListener(pointChanged);
+        }
     }
 
     private void displayChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        dirty_display.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+    private void pointsChanged(final WidgetProperty<List<PointWidgetProperty>> property,
+                               final List<PointWidgetProperty> removed, final List<PointWidgetProperty> added)
+    {
+        if (removed != null)
+            for (PointWidgetProperty point : removed)
+            {
+                point.x().removePropertyListener(pointChanged);
+                point.y().removePropertyListener(pointChanged);
+            }
+        if (added != null)
+            for (PointWidgetProperty point : added)
+            {
+                point.x().addPropertyListener(pointChanged);
+                point.y().addPropertyListener(pointChanged);
+            }
         dirty_display.mark();
         toolkit.scheduleUpdate(this);
     }
