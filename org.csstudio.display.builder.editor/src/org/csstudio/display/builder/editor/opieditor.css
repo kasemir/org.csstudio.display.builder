@@ -39,6 +39,23 @@
     -fx-arc-height: 10;
 }
 
+/** PointsEditor */
+.points_edit_line
+{
+    -fx-stroke: gold;
+    -fx-stroke-width: 2;
+}
+
+.points_edit_handle
+{
+    -fx-stroke: rgb(255, 215, 0);
+    -fx-stroke-width: 2;
+    -fx-fill: rgb(255, 215, 0, 0.25);
+    -fx-arc-height: 5;
+    -fx-arc-width: 5;
+}
+
+
 /** Snap-to-Objects guide line */
 .guide_line
 {
