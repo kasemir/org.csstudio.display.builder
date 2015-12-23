@@ -104,11 +104,34 @@ public class Points implements Iterable<Point>
         points.set(index*2+1, y);
     }
 
-    /** @return Array of point coordinates <code>[ x0, y0, x1, y1, ...]</code>
-     */
+    /** @return Array of point coordinates <code>[ x0, y0, x1, y1, ...]</code> */
     public Double[] asDoubleArray()
     {
         return points.toArray(new Double[points.size()]);
+    }
+
+    /** @return Another instance with same points */
+    @Override
+    public Points clone()
+    {
+        final Points copy = new Points();
+        copy.points.addAll(points);
+        return copy;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return points.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj)
+    {
+        if (! (obj instanceof Points))
+            return false;
+        final Points other = (Points) obj;
+        return other.points.equals(points);
     }
 
     private class PointIterator implements Iterator<Point>
@@ -133,5 +156,11 @@ public class Points implements Iterable<Point>
     public Iterator<Point> iterator()
     {
         return new PointIterator();
+    }
+
+    @Override
+    public String toString()
+    {
+        return points.toString();
     }
 }

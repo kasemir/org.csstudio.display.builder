@@ -55,6 +55,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Maximum;
     public static String WidgetProperties_Minimum;
     public static String WidgetProperties_Name;
+    public static String WidgetProperties_Points;
     public static String WidgetProperties_PVName;
     public static String WidgetProperties_Scripts;
     public static String WidgetProperties_Text;

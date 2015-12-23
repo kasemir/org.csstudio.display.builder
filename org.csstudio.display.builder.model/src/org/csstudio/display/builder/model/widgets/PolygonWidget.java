@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayLineColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayLineWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayPoints;
@@ -24,34 +25,56 @@ import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.Points;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.osgi.framework.Version;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-/** Widget that displays a static line of points
+/** Widget that displays a static area defined by points
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class PolylineWidget extends BaseWidget
+public class PolygonWidget extends BaseWidget
 {
-    // TODO Add Polyline Arrows
-
-    /** Legacy polyline used 1.0.0 */
+    /** Legacy polygon used 1.0.0 */
     private static final Version version = new Version(2, 0, 0);
 
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
-        new WidgetDescriptor("polyline", WidgetCategory.GRAPHIC,
-            "Polyline",
-            "platform:/plugin/org.csstudio.display.builder.model/icons/polyline.png",
-            "Line with two or more points",
-            Arrays.asList("org.csstudio.opibuilder.widgets.polyline"))
+        new WidgetDescriptor("polygon", WidgetCategory.GRAPHIC,
+            "Polygon",
+            "platform:/plugin/org.csstudio.display.builder.model/icons/polygon.png",
+            "Area defined by points",
+            Arrays.asList("org.csstudio.opibuilder.widgets.polygon"))
     {
         @Override
         public Widget createWidget()
         {
-            return new PolylineWidget();
+            return new PolygonWidget();
         }
     };
+
+    /** Adjust "&lt;points>" in the XML
+     *
+     *  <p>Legacy coordinates were relative to display or parent group.
+     *  New coords. are relative to this widget's x/y position.
+     *  @param widget_xml XML for widget where "points" will be adjusted
+     *  @throws Exception on error
+     */
+    static void adjustXMLPoints(final Element widget_xml) throws Exception
+    {
+        final int x0 = Integer.parseInt(XMLUtil.getChildString(widget_xml, "x").orElse("0"));
+        final int y0 = Integer.parseInt(XMLUtil.getChildString(widget_xml, "y").orElse("0"));
+        Element xml = XMLUtil.getChildElement(widget_xml, "points");
+        if (xml != null)
+        {
+            for (Element p_xml : XMLUtil.getChildElements(xml, "point"))
+            {   // Fetch legacy x, y attributes
+                final int x = Integer.parseInt(p_xml.getAttribute("x"));
+                final int y = Integer.parseInt(p_xml.getAttribute("y"));
+                // Adjust to be relative to x0/y0
+                p_xml.setAttribute("x", Integer.toString(x - x0));
+                p_xml.setAttribute("y", Integer.toString(y - y0));
+            }
+        }
+    }
 
     /** Handle legacy XML format */
     static class LegacyWidgetConfigurator extends WidgetConfigurator
@@ -64,28 +87,18 @@ public class PolylineWidget extends BaseWidget
         @Override
         public void configureFromXML(final Widget widget, final Element widget_xml) throws Exception
         {
-            PolygonWidget.adjustXMLPoints(widget_xml);
-            // Legacy used background color for the line
-            Element xml = XMLUtil.getChildElement(widget_xml, "background_color");
-            if (xml != null)
-            {
-                final Document doc = widget_xml.getOwnerDocument();
-                Element line = doc.createElement(displayLineColor.getName());
-                final Element c = XMLUtil.getChildElement(xml, "color");
-                line.appendChild(c.cloneNode(true));
-                widget_xml.appendChild(line);
-            }
-
+            adjustXMLPoints(widget_xml);
             // Parse updated XML
             super.configureFromXML(widget, widget_xml);
         }
     };
 
+    private WidgetProperty<WidgetColor> background_color;
     private WidgetProperty<WidgetColor> line_color;
     private WidgetProperty<Integer> line_width;
     private WidgetProperty<Points> points;
 
-    public PolylineWidget()
+    public PolygonWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
     }
@@ -94,6 +107,7 @@ public class PolylineWidget extends BaseWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
+        properties.add(background_color = displayBackgroundColor.createProperty(this, new WidgetColor(50, 50, 255)));
         properties.add(line_color = displayLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
         properties.add(line_width = displayLineWidth.createProperty(this, 3));
         properties.add(points = displayPoints.createProperty(this, new Points()));
@@ -113,6 +127,12 @@ public class PolylineWidget extends BaseWidget
             return new LegacyWidgetConfigurator(persisted_version);
         else
             return super.getConfigurator(persisted_version);
+    }
+
+    /** @return Display 'background_color' */
+    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    {
+        return background_color;
     }
 
     /** @return Display 'line_color' */

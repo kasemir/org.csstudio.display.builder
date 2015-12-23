@@ -23,6 +23,8 @@ import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.model.widgets.ImageWidget;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
+import org.csstudio.display.builder.model.widgets.PolygonWidget;
+import org.csstudio.display.builder.model.widgets.PolylineWidget;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
@@ -36,6 +38,8 @@ import org.csstudio.display.builder.representation.javafx.widgets.EmbeddedDispla
 import org.csstudio.display.builder.representation.javafx.widgets.GroupRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LEDRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.PolygonRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.PolylineRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ProgressBarRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.RectangleRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepresentation;
@@ -113,6 +117,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
         factories.put(ImageWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ImageRepresentation());
         factories.put(LabelWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new LabelRepresentation());
         factories.put(LEDWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new LEDRepresentation());
+        factories.put(PolygonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new PolygonRepresentation());
+        factories.put(PolylineWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new PolylineRepresentation());
         factories.put(ProgressBarWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ProgressBarRepresentation());
         factories.put(RectangleWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new RectangleRepresentation());
         factories.put(TextEntryWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextEntryRepresentation());

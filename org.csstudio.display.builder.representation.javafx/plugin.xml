@@ -8,6 +8,10 @@
             type="action_button">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.EllipseRepresentation"
+            type="ellipse">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.EmbeddedDisplayRepresentation"
             type="embedded">
       </representation>
@@ -24,20 +28,20 @@
             type="led">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.PolygonRepresentation"
+            type="polygon">
+      </representation>
+      <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.PolylineRepresentation"
+            type="polyline">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.ProgressBarRepresentation"
             type="progressbar">
       </representation>
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.RectangleRepresentation"
             type="rectangle">
-      </representation>
-      <representation
-            class="org.csstudio.display.builder.representation.javafx.widgets.EllipseRepresentation"
-            type="ellipse">
-      </representation>
-      <representation
-            class="org.csstudio.display.builder.representation.javafx.widgets.PolylineRepresentation"
-            type="polyline">
       </representation>
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepresentation"

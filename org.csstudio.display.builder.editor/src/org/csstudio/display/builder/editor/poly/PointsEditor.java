@@ -57,7 +57,7 @@ public class PointsEditor
         EDIT;
     }
 
-    private Mode mode = Mode.APPEND;
+    private Mode mode;
 
     private final EventHandler<KeyEvent> key_filter = event ->
     {
@@ -160,7 +160,9 @@ public class PointsEditor
 
         line.getStyleClass().add("points_edit_line");
 
-        startMode(Mode.APPEND);
+        startMode(points.size() <= 0
+                  ? Mode.APPEND // No points, first append some
+                  : Mode.EDIT); // Start by editing existing points
 
         handle_group.getScene().addEventFilter(KeyEvent.KEY_PRESSED, key_filter);
     }

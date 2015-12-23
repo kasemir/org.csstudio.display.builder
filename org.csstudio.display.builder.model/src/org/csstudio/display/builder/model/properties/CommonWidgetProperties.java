@@ -251,6 +251,18 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<String> displayFile =
         newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "file", Messages.WidgetProperties_File);
 
+    /** Display 'points': Points to display */
+    public static final WidgetPropertyDescriptor<Points> displayPoints =
+        new WidgetPropertyDescriptor<Points>(
+            WidgetPropertyCategory.DISPLAY, "points", Messages.WidgetProperties_Points)
+    {
+        @Override
+        public WidgetProperty<Points> createProperty(final Widget widget,
+                                                     final Points points)
+        {
+            return new PointsWidgetProperty(this, widget, points);
+        }
+    };
 
     /** Behavior 'pv_name':Primary PV Name */
     public static final WidgetPropertyDescriptor<String> behaviorPVName =

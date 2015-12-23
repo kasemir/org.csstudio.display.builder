@@ -9,36 +9,37 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.widgets.PolylineWidget;
+import org.csstudio.display.builder.model.widgets.PolygonWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
-import javafx.scene.shape.Polyline;
+import javafx.scene.shape.Polygon;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
  */
-public class PolylineRepresentation extends JFXBaseRepresentation<Polyline, PolylineWidget>
+public class PolygonRepresentation extends JFXBaseRepresentation<Polygon, PolygonWidget>
 {
     private final DirtyFlag dirty_display = new DirtyFlag();
 
     @Override
-    public Polyline createJFXNode() throws Exception
+    public Polygon createJFXNode() throws Exception
     {
-        final Polyline polyline = new Polyline();
-        polyline.setStrokeLineJoin(StrokeLineJoin.ROUND);
-        polyline.setStrokeLineCap(StrokeLineCap.BUTT);
-        return polyline;
+        final Polygon polygon = new Polygon();
+        polygon.setStrokeLineJoin(StrokeLineJoin.ROUND);
+        polygon.setStrokeLineCap(StrokeLineCap.BUTT);
+        return polygon;
     }
 
     @Override
     protected void registerListeners()
     {
-        // Polyline can't use the default x/y handling from super.registerListeners();
+        // Polygon can't use the default x/y handling from super.registerListeners();
         model_widget.positionVisible().addUntypedPropertyListener(this::displayChanged);
         model_widget.positionX().addUntypedPropertyListener(this::displayChanged);
         model_widget.positionY().addUntypedPropertyListener(this::displayChanged);
+        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::displayChanged);
         model_widget.displayLineColor().addUntypedPropertyListener(this::displayChanged);
         model_widget.displayLineWidth().addUntypedPropertyListener(this::displayChanged);
         model_widget.displayPoints().addUntypedPropertyListener(this::displayChanged);
@@ -70,6 +71,7 @@ public class PolylineRepresentation extends JFXBaseRepresentation<Polyline, Poly
                     points[i+1] += y;
                 }
                 jfx_node.getPoints().setAll(points);
+                jfx_node.setFill(JFXUtil.convert(model_widget.displayBackgroundColor().getValue()));
                 jfx_node.setStroke(JFXUtil.convert(model_widget.displayLineColor().getValue()));
                 jfx_node.setStrokeWidth(model_widget.displayLineWidth().getValue());
             }
