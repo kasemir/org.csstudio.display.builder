@@ -54,7 +54,7 @@ public class PointsWidgetProperty extends WidgetProperty<Points>
         {   // <point x="48" y="102" />
             writer.writeStartElement("point");
             writer.writeAttribute("x", Double.toString(p.getX()));
-            writer.writeAttribute("y", Double.toString(p.getX()));
+            writer.writeAttribute("y", Double.toString(p.getY()));
             writer.writeEndElement();
         }
     }

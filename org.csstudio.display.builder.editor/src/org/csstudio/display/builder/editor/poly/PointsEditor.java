@@ -64,6 +64,7 @@ public class PointsEditor
         // Space to change modes
         if (event.getCode() == KeyCode.SPACE)
         {
+            event.consume();
             endMode();
             if (mode == Mode.APPEND)
                 startMode(Mode.EDIT);
@@ -76,6 +77,7 @@ public class PointsEditor
         if (mode == Mode.APPEND  &&  N > 0  &&
             event.getCode() == KeyCode.BACK_SPACE)
         {
+            event.consume();
             points.delete(N-1);
             --N;
             if (N > 0)
@@ -91,11 +93,12 @@ public class PointsEditor
         }
 
         if (event.getCode() == KeyCode.ESCAPE)
-            listener.done();
+            listener.done(); // XXX Not 'consumed' so others may also react to Escape
     };
 
     private EventHandler<MouseEvent> append_mouse_handler = event ->
     {
+        event.consume();
         if (event.getEventType() == MouseEvent.MOUSE_MOVED)
         {
             if (cursor_add != null)
@@ -238,6 +241,7 @@ public class PointsEditor
         {
             setOnMousePressed(event ->
             {
+                event.consume();
                 x_offset = getX()+SIZE/2 - event.getX();
                 y_offset = getY()+SIZE/2 - event.getY();
                 getScene().setCursor(Cursor.CLOSED_HAND);
@@ -280,6 +284,7 @@ public class PointsEditor
             });
             setOnMouseMoved(event ->
             {
+                event.consume();
                 if (event.isControlDown()  &&  cursor_add != null)
                     setCursor(cursor_add);
                 else if (event.isAltDown()  &&  cursor_remove != null)
@@ -289,6 +294,7 @@ public class PointsEditor
             });
             setOnMouseDragged(event ->
             {
+                event.consume();
                 final double x = event.getX() + x_offset;
                 final double y = event.getY() + y_offset;
                 points.set(index, x, y);
@@ -297,7 +303,11 @@ public class PointsEditor
                 listener.pointsChanged(points);
                 getScene().setCursor(Cursor.CLOSED_HAND);
             });
-            setOnMouseReleased(event -> getScene().setCursor(Cursor.HAND));
+            setOnMouseReleased(event ->
+            {
+                event.consume();
+                getScene().setCursor(Cursor.HAND);
+            });
         }
 
         void dispose()

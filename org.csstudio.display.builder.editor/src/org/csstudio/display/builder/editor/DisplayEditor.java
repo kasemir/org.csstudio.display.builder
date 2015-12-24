@@ -180,10 +180,13 @@ public class DisplayEditor
             if (event.isControlDown())
                 return;
             logger.log(Level.FINE, "Clicked in 'editor' De-select all widgets");
+            event.consume();
             selection.clear();
         });
 
         new Rubberband(scroll, edit_tools, this::selectWidgetsInRegion);
+
+        new PointsBinding(edit_tools, selection);
 
         WidgetTransfer.addDropSupport(scroll, group_handler, this::handleDroppedModel);
     }
