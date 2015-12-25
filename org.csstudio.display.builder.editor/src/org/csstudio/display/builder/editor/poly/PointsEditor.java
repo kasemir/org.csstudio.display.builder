@@ -15,6 +15,7 @@ import org.csstudio.display.builder.util.UtilPlugin;
 
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.ImageCursor;
@@ -96,9 +97,17 @@ public class PointsEditor
             listener.done(); // XXX Not 'consumed' so others may also react to Escape
     };
 
-    private EventHandler<MouseEvent> append_mouse_handler = event ->
+    /** Filter, not handler (!), to get all mouse events
+     *  before other editor tools can see them
+     */
+    private EventHandler<MouseEvent> append_mouse_filter = event ->
     {
-        event.consume();
+        // Since filter is on scene.
+        // Transform mouse coordinates from scene into handle_group.
+        final Point2D origin = handle_group.localToScene(new Point2D(0.0, 0.0));
+        final double x = event.getX() - origin.getX();
+        final double y = event.getY() - origin.getY();
+
         if (event.getEventType() == MouseEvent.MOUSE_MOVED)
         {
             if (cursor_add != null)
@@ -108,23 +117,23 @@ public class PointsEditor
             {
                 line.setStartX(points.getX(points.size()-1));
                 line.setStartY(points.getY(points.size()-1));
-                line.setEndX(event.getX());
-                line.setEndY(event.getY());
+                line.setEndX(x);
+                line.setEndY(y);
                 line.setVisible(true);
             }
             else
                 line.setVisible(false);
         }
-        else if (event.getEventType() == MouseEvent.MOUSE_CLICKED)
+        else if (event.getEventType() == MouseEvent.MOUSE_PRESSED)
         {
-            if (event.getClickCount() == 1)
-            {
-                points.add(event.getX(), event.getY());
-                line.setStartX(event.getX());
-                line.setStartY(event.getY());
-                listener.pointsChanged(points);
-            }
+            points.add(x, y);
+            line.setStartX(x);
+            line.setStartY(y);
+            listener.pointsChanged(points);
         }
+        else // Pass on w/o consuming
+            return;
+        event.consume();
     };
 
     /** Static initialization of custom cursors */
@@ -180,8 +189,8 @@ public class PointsEditor
         this.mode = mode;
         if (mode == Mode.APPEND)
         {
-            handle_group.getScene().addEventHandler(MouseEvent.MOUSE_CLICKED, append_mouse_handler);
-            handle_group.getScene().addEventHandler(MouseEvent.MOUSE_MOVED, append_mouse_handler);
+            handle_group.getScene().addEventFilter(MouseEvent.MOUSE_PRESSED, append_mouse_filter);
+            handle_group.getScene().addEventFilter(MouseEvent.MOUSE_MOVED, append_mouse_filter);
             handle_group.getChildren().setAll(line);
             line.setVisible(false);
             if (cursor_add != null)
@@ -202,8 +211,8 @@ public class PointsEditor
     {
         if (mode == Mode.APPEND)
         {
-            handle_group.getScene().removeEventHandler(MouseEvent.MOUSE_CLICKED, append_mouse_handler);
-            handle_group.getScene().removeEventHandler(MouseEvent.MOUSE_MOVED, append_mouse_handler);
+            handle_group.getScene().removeEventFilter(MouseEvent.MOUSE_PRESSED, append_mouse_filter);
+            handle_group.getScene().removeEventFilter(MouseEvent.MOUSE_MOVED, append_mouse_filter);
             handle_group.getChildren().clear();
         }
         else
@@ -295,13 +304,13 @@ public class PointsEditor
             setOnMouseDragged(event ->
             {
                 event.consume();
+                getScene().setCursor(Cursor.CLOSED_HAND);
                 final double x = event.getX() + x_offset;
                 final double y = event.getY() + y_offset;
                 points.set(index, x, y);
                 setX(x - SIZE/2);
                 setY(y - SIZE/2);
                 listener.pointsChanged(points);
-                getScene().setCursor(Cursor.CLOSED_HAND);
             });
             setOnMouseReleased(event ->
             {

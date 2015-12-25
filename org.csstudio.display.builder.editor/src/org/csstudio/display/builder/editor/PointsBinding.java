@@ -33,7 +33,7 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
     private Widget widget;
     private PointsEditor editor;
 
-    // TODO "Append" mode clicks don't reach PointsEditor
+    // TODO Hide/update editor when widget X/Y changed from property panel
 
     public PointsBinding(final Group parent, final WidgetSelectionHandler selection)
     {

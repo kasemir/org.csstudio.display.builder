@@ -35,7 +35,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
 /** Display editor UI
@@ -175,11 +174,11 @@ public class DisplayEditor
             }
         });
 
-        scroll.addEventHandler(MouseEvent.MOUSE_PRESSED, event ->
+        scroll.setOnMousePressed(event ->
         {
             if (event.isControlDown())
                 return;
-            logger.log(Level.FINE, "Clicked in 'editor' De-select all widgets");
+            logger.log(Level.FINE, "Mouse pressed in 'editor', de-select all widgets");
             event.consume();
             selection.clear();
         });
