@@ -17,6 +17,7 @@ import java.util.Optional;
 import org.csstudio.display.builder.editor.poly.PointsEditor;
 import org.csstudio.display.builder.editor.poly.PointsEditorListener;
 import org.csstudio.display.builder.editor.util.GeometryTools;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.Points;
@@ -27,13 +28,11 @@ import javafx.scene.Group;
 /** Bind "points" property of selected widget to {@link PointsEditor}
  *  @author Kay Kasemir
  */
-public class PointsBinding implements WidgetSelectionListener, PointsEditorListener
+public class PointsBinding implements WidgetSelectionListener, PointsEditorListener, UntypedWidgetPropertyListener
 {
     private final Group parent;
     private Widget widget;
     private PointsEditor editor;
-
-    // TODO Hide/update editor when widget X/Y changed from property panel
 
     public PointsBinding(final Group parent, final WidgetSelectionHandler selection)
     {
@@ -46,10 +45,11 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
     {
         if (widgets != null  &&  widgets.size() == 1)
         {
-            widget = widgets.get(0);
-            Optional<WidgetProperty<Points>> prop = widget.checkProperty(displayPoints);
+            final Widget w = widgets.get(0);
+            Optional<WidgetProperty<Points>> prop = w.checkProperty(displayPoints);
             if (prop.isPresent())
             {
+                widget = w;
                 // Turn points from widget into absolute screen coords for editor
                 final Points screen_points = prop.get().getValue().clone();
                 final Point2D offset = GeometryTools.getDisplayOffset(widget);
@@ -73,15 +73,31 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
     {
         disposeEditor();
         editor = new PointsEditor(parent, screen_points, this);
+        widget.getProperty(positionX).addUntypedPropertyListener(this);
+        widget.getProperty(positionY).addUntypedPropertyListener(this);
     }
 
     private void disposeEditor()
     {
         if (editor == null)
             return;
+        widget.getProperty(positionY).removePropertyListener(this);
+        widget.getProperty(positionX).removePropertyListener(this);
         editor.dispose();
         editor = null;
+        widget = null;
     }
+
+    // UntypedWidgetPropertyListener:
+    // Delete editor since position has changed, and editor's points
+    // are thus invalid
+    @Override
+    public void propertyChanged(WidgetProperty<?> property, Object old_value,
+            Object new_value)
+    {
+        disposeEditor();
+    }
+
 
     @Override
     public void pointsChanged(final Points screen_points)
