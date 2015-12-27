@@ -22,6 +22,7 @@ import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
+import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
@@ -220,6 +221,17 @@ public class PropertyPanelSection extends GridPane
             add(array_section, 0, row, 2, 1);
             GridPane.setHgrow(array_section, Priority.ALWAYS);
             return;
+        }
+        else if (property instanceof PointsWidgetProperty)
+        {
+            // TODO Table-based editor for list of points
+            final PointsWidgetProperty points_prop = (PointsWidgetProperty) property;
+            final Button points_field = new Button();
+            points_field.setMaxWidth(Double.MAX_VALUE);
+            final PointsPropertyBinding binding = new PointsPropertyBinding(undo, points_field, points_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = points_field;
         }
         // As new property types are added, they might need to be handled:
         // else if (property instanceof SomeNewWidgetProperty) { ... }

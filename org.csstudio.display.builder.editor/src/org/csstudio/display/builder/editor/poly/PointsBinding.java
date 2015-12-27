@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.editor;
+package org.csstudio.display.builder.editor.poly;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayPoints;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.csstudio.display.builder.editor.poly.PointsEditor;
-import org.csstudio.display.builder.editor.poly.PointsEditorListener;
+import org.csstudio.display.builder.editor.WidgetSelectionHandler;
+import org.csstudio.display.builder.editor.WidgetSelectionListener;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -36,6 +36,7 @@ import javafx.scene.Group;
 public class PointsBinding implements WidgetSelectionListener, PointsEditorListener, WidgetPropertyListener<Integer>
 {
     private final Group parent;
+    private final WidgetSelectionHandler selection;
     private Widget widget;
     private PointsEditor editor;
     /** Flag to prevent loop when this binding is changing the widget */
@@ -44,6 +45,7 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
     public PointsBinding(final Group parent, final WidgetSelectionHandler selection)
     {
         this.parent = parent;
+        this.selection = selection;
         selection.addListener(this);
     }
 
@@ -115,20 +117,36 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
         final Widget active_widget = this.widget;
         disposeEditor();
 
-        // TODO ScalePoints
         if (property.getName().equals(positionWidth.getName()))
-        {
-            System.out.println("Need to scale width from " + old_value + " to " + new_value);
-        }
+            scaleHoriz(active_widget, ((double)new_value) / old_value);
         else if (property.getName().equals(positionHeight.getName()))
-        {
-            System.out.println("Need to scale height from " + old_value + " to " + new_value);
-        }
+            scaleVert(active_widget, ((double)new_value) / old_value);
 
         // Re-create editor for changed widget
         createEditor(active_widget);
     }
 
+    private void scaleHoriz(final Widget widget, final double factor)
+    {
+        final WidgetProperty<Points> prop = widget.getProperty(displayPoints);
+        final Points points = prop.getValue().clone();
+        final int N = points.size();
+        for (int i=0; i<N; ++i)
+            points.setX(i, factor * points.getX(i));
+        prop.setValue(points);
+    }
+
+    private void scaleVert(final Widget widget, final double factor)
+    {
+        final WidgetProperty<Points> prop = widget.getProperty(displayPoints);
+        final Points points = prop.getValue().clone();
+        final int N = points.size();
+        for (int i=0; i<N; ++i)
+            points.setY(i, factor * points.getY(i));
+        prop.setValue(points);
+    }
+
+    // PointsEditorListener
     @Override
     public void pointsChanged(final Points screen_points)
     {
@@ -176,9 +194,11 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
         }
     }
 
+    // PointsEditorListener
     @Override
     public void done()
     {
         disposeEditor();
+        selection.clear();
     }
 }
