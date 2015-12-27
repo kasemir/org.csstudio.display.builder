@@ -10,6 +10,8 @@ package org.csstudio.display.builder.editor.util;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -96,10 +98,21 @@ public class GeometryTools
     public static Rectangle2D getDisplayBounds(final Widget widget)
     {
         final Point2D offset = getDisplayOffset(widget);
-        return new Rectangle2D(offset.getX() + widget.positionX().getValue(),
-                               offset.getY() + widget.positionY().getValue(),
-                               widget.positionWidth().getValue(),
-                               widget.positionHeight().getValue());
+        try
+        {
+            return new Rectangle2D(offset.getX() + widget.positionX().getValue(),
+                                   offset.getY() + widget.positionY().getValue(),
+                                   widget.positionWidth().getValue(),
+                                   widget.positionHeight().getValue());
+        }
+        catch (IllegalArgumentException ex)
+        {
+            Logger.getLogger(GeometryTools.class.getName())
+                  .log(Level.WARNING, "Widget has invalid size " + widget, ex);
+            return new Rectangle2D(offset.getX() + widget.positionX().getValue(),
+                                   offset.getY() + widget.positionY().getValue(),
+                                   1, 1);
+        }
     }
 
 
