@@ -10,7 +10,9 @@ package org.csstudio.display.builder.editor.properties;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
+import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
@@ -20,11 +22,13 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.MultiLineInputDialog;
 
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -179,13 +183,32 @@ public class PropertyPanelSection extends GridPane
         }
         else if (property instanceof MacroizedWidgetProperty)
         {
+            final MacroizedWidgetProperty<?> macro_prop = (MacroizedWidgetProperty<?>)property;
             final TextField text = new TextField();
             final MacroizedWidgetPropertyBinding binding =
-                    new MacroizedWidgetPropertyBinding(undo, text,
-                                                       (MacroizedWidgetProperty<?>)property, other);
+                    new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
             bindings.add(binding);
             binding.bind();
-            field = text;
+            if (property.getName() == CommonWidgetProperties.displayText.getName())
+            {   // Allow editing multi-line text in dialog
+                final Button open_editor = new Button("...");
+                open_editor.setOnAction(event ->
+                {
+                    final MultiLineInputDialog dialog = new MultiLineInputDialog(macro_prop.getSpecification());
+                    final Optional<String> result = dialog.showAndWait();
+                    if (!result.isPresent())
+                        return;
+                    undo.execute(new SetMacroizedWidgetPropertyAction(macro_prop, result.get()));
+                    for (Widget w : other)
+                    {
+                        final MacroizedWidgetProperty<?> other_prop = (MacroizedWidgetProperty<?>) w.getProperty(macro_prop.getName());
+                        undo.execute(new SetMacroizedWidgetPropertyAction(other_prop, result.get()));
+                    }
+                });
+                field = new HBox(text, open_editor);
+            }
+            else
+                field = text;
         }
         else if (property instanceof StructuredWidgetProperty)
         {
