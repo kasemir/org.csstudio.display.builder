@@ -49,6 +49,11 @@ public class Messages extends NLS
     public static String MacrosTable_ValueHint;
     public static String MoveDown;
     public static String MoveUp;
+    public static String PointsDialog_Info;
+    public static String PointsDialog_Title;
+    public static String PointsTable_Empty;
+    public static String PointsTable_X;
+    public static String PointsTable_Y;
     public static String Red;
     public static String Remove;
     public static String ScriptsDialog_BtnEmbed;

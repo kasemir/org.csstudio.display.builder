@@ -20,9 +20,9 @@ import java.util.Optional;
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.WidgetSelectionListener;
 import org.csstudio.display.builder.editor.util.GeometryTools;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.Points;
 
 import javafx.geometry.Point2D;
@@ -33,7 +33,7 @@ import javafx.scene.Group;
  *  <p>Also updates widget's X, Y, Width, Height to coordinate range of points.
  *  @author Kay Kasemir
  */
-public class PointsBinding implements WidgetSelectionListener, PointsEditorListener, WidgetPropertyListener<Integer>
+public class PointsBinding implements WidgetSelectionListener, PointsEditorListener, UntypedWidgetPropertyListener
 {
     private final Group parent;
     private final WidgetSelectionHandler selection;
@@ -86,16 +86,18 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
         }
 
         editor = new PointsEditor(parent, screen_points, this);
-        widget.getProperty(positionX).addPropertyListener(this);
-        widget.getProperty(positionY).addPropertyListener(this);
-        widget.getProperty(positionWidth).addPropertyListener(this);
-        widget.getProperty(positionHeight).addPropertyListener(this);
+        widget.getProperty(positionX).addUntypedPropertyListener(this);
+        widget.getProperty(positionY).addUntypedPropertyListener(this);
+        widget.getProperty(positionWidth).addUntypedPropertyListener(this);
+        widget.getProperty(positionHeight).addUntypedPropertyListener(this);
+        widget.getProperty(displayPoints).addUntypedPropertyListener(this);
     }
 
     private void disposeEditor()
     {
         if (editor == null)
             return;
+        widget.getProperty(displayPoints).removePropertyListener(this);
         widget.getProperty(positionHeight).removePropertyListener(this);
         widget.getProperty(positionWidth).removePropertyListener(this);
         widget.getProperty(positionY).removePropertyListener(this);
@@ -107,8 +109,7 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
 
     // WidgetPropertyListener
     @Override
-    public void propertyChanged(final WidgetProperty<Integer> property,
-                                final Integer old_value, final Integer new_value)
+    public void propertyChanged(WidgetProperty<?> property, Object old_value, Object new_value)
     {   // Ignore changes performed by this class
         if (changing_widget)
             return;
@@ -118,16 +119,17 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
         disposeEditor();
 
         if (property.getName().equals(positionWidth.getName()))
-            scaleHoriz(active_widget, ((double)new_value) / old_value);
+            scaleHoriz(active_widget, (Number)new_value, (Number)old_value);
         else if (property.getName().equals(positionHeight.getName()))
-            scaleVert(active_widget, ((double)new_value) / old_value);
+            scaleVert(active_widget, (Number)new_value, (Number)old_value);
 
         // Re-create editor for changed widget
         createEditor(active_widget);
     }
 
-    private void scaleHoriz(final Widget widget, final double factor)
+    private void scaleHoriz(final Widget widget, final Number new_size, final Number old_size)
     {
+        final double factor = new_size.doubleValue() / old_size.doubleValue();
         final WidgetProperty<Points> prop = widget.getProperty(displayPoints);
         final Points points = prop.getValue().clone();
         final int N = points.size();
@@ -136,8 +138,9 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
         prop.setValue(points);
     }
 
-    private void scaleVert(final Widget widget, final double factor)
+    private void scaleVert(final Widget widget, final Number new_size, final Number old_size)
     {
+        final double factor = new_size.doubleValue() / old_size.doubleValue();
         final WidgetProperty<Points> prop = widget.getProperty(displayPoints);
         final Points points = prop.getValue().clone();
         final int N = points.size();

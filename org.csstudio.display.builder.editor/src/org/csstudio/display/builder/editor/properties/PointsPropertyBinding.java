@@ -8,19 +8,20 @@
 package org.csstudio.display.builder.editor.properties;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.Points;
 import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
+import org.csstudio.display.builder.representation.javafx.PointsDialog;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.eclipse.osgi.util.NLS;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 
 /** Bidirectional binding between a macro property in model and Java FX Node in the property panel
  *  @author Kay Kasemir
@@ -31,13 +32,19 @@ public class PointsPropertyBinding
 {
     private WidgetPropertyListener<Points> model_listener = (p, o, n) ->
     {
-        jfx_node.setText(widget_property.getValue().size() + " Points");
+        jfx_node.setText(NLS.bind(Messages.PointCount_Fmt, widget_property.getValue().size()));
     };
 
     private EventHandler<ActionEvent> actionHandler = event ->
     {
-        // TODO Table Editor for list of points
-        new Alert(AlertType.INFORMATION, "Should open list of points", ButtonType.OK).showAndWait();
+        final PointsDialog dialog = new PointsDialog(widget_property.getValue());
+        final Optional<Points> result = dialog.showAndWait();
+        if (result.isPresent())
+        {
+            // TODO Use undo
+            widget_property.setValue(result.get());
+            // TODO Same for 'other' widgets?
+        }
     };
 
     public PointsPropertyBinding(final UndoableActionManager undo,

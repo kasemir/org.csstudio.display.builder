@@ -153,14 +153,14 @@ Major TODOs:
 Interactive display editor.
 
 New JFX-based development has Palette, Property Panel, Widget Tree,
-move/resize via tracker, snap-to-grid, snap-to-other-widgets.
+move/resize via tracker, snap-to-grid, snap-to-other-widgets,
+editor for points of polyline/polygon.
 
 Considered GEF 4 which supports JFX, but still lacks basics like palette & property panel.
 
 Major TODOs:
  * Copy/paste
  * Rulers, Guides
- * Editor for points of polyline, polygon
  * Align, distribute within selection
 
 ** Eclipse Integration **
