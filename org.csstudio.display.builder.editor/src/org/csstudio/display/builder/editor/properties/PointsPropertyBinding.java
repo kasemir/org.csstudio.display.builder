@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.csstudio.display.builder.editor.Messages;
+import org.csstudio.display.builder.editor.undo.SetWidgetPointsAction;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.Points;
@@ -41,9 +42,12 @@ public class PointsPropertyBinding
         final Optional<Points> result = dialog.showAndWait();
         if (result.isPresent())
         {
-            // TODO Use undo
-            widget_property.setValue(result.get());
-            // TODO Same for 'other' widgets?
+            undo.execute(new SetWidgetPointsAction(widget_property, result.get()));
+            for (Widget w : other)
+            {
+                final PointsWidgetProperty other_prop = (PointsWidgetProperty) w.getProperty(widget_property.getName());
+                undo.execute(new SetWidgetPointsAction(other_prop, result.get()));
+            }
         }
     };
 

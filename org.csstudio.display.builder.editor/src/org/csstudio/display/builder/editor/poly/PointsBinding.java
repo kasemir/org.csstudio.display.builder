@@ -19,11 +19,13 @@ import java.util.Optional;
 
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.WidgetSelectionListener;
+import org.csstudio.display.builder.editor.undo.SetWidgetPointsAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.Points;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -35,17 +37,33 @@ import javafx.scene.Group;
  */
 public class PointsBinding implements WidgetSelectionListener, PointsEditorListener, UntypedWidgetPropertyListener
 {
+    private static boolean enable_scaling = true;
     private final Group parent;
     private final WidgetSelectionHandler selection;
+    private final UndoableActionManager undo;
     private Widget widget;
     private PointsEditor editor;
     /** Flag to prevent loop when this binding is changing the widget */
     private boolean changing_widget = false;
 
-    public PointsBinding(final Group parent, final WidgetSelectionHandler selection)
+    /** Disable or enable scaling of points as width/height of widget changes
+     *  @param enabled Enable scaling?
+     */
+    public static void setScaling(final boolean enabled)
+    {
+        enable_scaling = enabled;
+    }
+
+    /** @param parent JFX {@link Group} where points editor is placed
+     *  @param selection Selection handler
+     *  @param undo Undo manager
+     */
+    public PointsBinding(final Group parent, final WidgetSelectionHandler selection,
+                         final UndoableActionManager undo)
     {
         this.parent = parent;
         this.selection = selection;
+        this.undo = undo;
         selection.addListener(this);
     }
 
@@ -113,15 +131,19 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
     {   // Ignore changes performed by this class
         if (changing_widget)
             return;
+
         // Delete editor since position has changed, and editor's points
         // are thus invalid
         final Widget active_widget = this.widget;
         disposeEditor();
 
-        if (property.getName().equals(positionWidth.getName()))
-            scaleHoriz(active_widget, (Number)new_value, (Number)old_value);
-        else if (property.getName().equals(positionHeight.getName()))
-            scaleVert(active_widget, (Number)new_value, (Number)old_value);
+        if (enable_scaling)
+        {
+            if (property.getName().equals(positionWidth.getName()))
+                scaleHoriz(active_widget, (Number)new_value, (Number)old_value);
+            else if (property.getName().equals(positionHeight.getName()))
+                scaleVert(active_widget, (Number)new_value, (Number)old_value);
+        }
 
         // Re-create editor for changed widget
         createEditor(active_widget);
@@ -182,14 +204,12 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
         changing_widget = true;
         try
         {
-            widget.setPropertyValue(displayPoints, points);
             if (N > 0)
-            {
-                widget.setPropertyValue(positionX, (int)x0);
-                widget.setPropertyValue(positionY, (int)y0);
-                widget.setPropertyValue(positionWidth, (int)(x1 - x0));
-                widget.setPropertyValue(positionHeight, (int)(y1 - y0));
-            }
+                undo.execute(new SetWidgetPointsAction(widget.getProperty(displayPoints), points,
+                                                       (int) x0, (int) y0,
+                                                       (int) (x1 - x0), (int) (y1 - y0)));
+            else
+                undo.execute(new SetWidgetPointsAction(widget.getProperty(displayPoints), points));
         }
         finally
         {

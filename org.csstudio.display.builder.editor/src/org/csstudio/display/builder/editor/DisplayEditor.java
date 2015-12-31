@@ -186,7 +186,7 @@ public class DisplayEditor
 
         new Rubberband(scroll, edit_tools, this::selectWidgetsInRegion);
 
-        new PointsBinding(edit_tools, selection);
+        new PointsBinding(edit_tools, selection, undo);
 
         WidgetTransfer.addDropSupport(scroll, group_handler, this::handleDroppedModel);
     }
