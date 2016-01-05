@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Display</name>
+  <x>-1</x>
+  <y>-1</y>
+  <widget type="label" version="1.0.0">
+    <name>Label</name>
+    <width>281</width>
+    <height>31</height>
+    <text>Display Builder Examples</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="action_button" version="1.0.0">
+    <name>Action Button</name>
+    <y>121</y>
+    <width>110</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>02_intro.opi</file>
+        <target>replace</target>
+        <description>Introduction</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="1.0.0">
+    <name>Action Button_1</name>
+    <x>191</x>
+    <y>121</y>
+    <width>110</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>graphics_label.opi</file>
+        <target>replace</target>
+        <description>Label</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="1.0.0">
+    <name>Action Button_2</name>
+    <x>332</x>
+    <y>121</y>
+    <width>110</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>monitors_textupdate.opi</file>
+        <target>replace</target>
+        <description>Text Update</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="1.0.0">
+    <name>Action Button_3</name>
+    <x>332</x>
+    <y>161</y>
+    <width>110</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>monitors_led.opi</file>
+        <target>replace</target>
+        <description>LED</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_1</name>
+    <y>51</y>
+    <width>141</width>
+    <height>30</height>
+    <text>Information</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_2</name>
+    <x>191</x>
+    <y>51</y>
+    <width>141</width>
+    <height>30</height>
+    <text>Widgets</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_3</name>
+    <x>191</x>
+    <y>91</y>
+    <width>141</width>
+    <height>30</height>
+    <text>Graphics</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_4</name>
+    <x>332</x>
+    <y>91</y>
+    <width>110</width>
+    <height>30</height>
+    <text>Monitors</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_5</name>
+    <x>191</x>
+    <y>261</y>
+    <width>120</width>
+    <height>30</height>
+    <text>Controls</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_6</name>
+    <x>332</x>
+    <y>261</y>
+    <width>120</width>
+    <height>30</height>
+    <text>Plots</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="action_button" version="1.0.0">
+    <name>Action Button_4</name>
+    <x>332</x>
+    <y>291</y>
+    <width>110</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>plots_xy.opi</file>
+        <target>replace</target>
+        <description>X/Y Plot</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="1.0.0">
+    <name>Action Button_5</name>
+    <x>332</x>
+    <y>201</y>
+    <width>110</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>monitors_image.opi</file>
+        <target>replace</target>
+        <description>Image</description>
+      </action>
+    </actions>
+  </widget>
+</display>

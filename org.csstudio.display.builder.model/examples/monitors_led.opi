@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Display</name>
+  <x>-1</x>
+  <y>-1</y>
+  <widget type="label" version="1.0.0">
+    <name>Label</name>
+    <width>181</width>
+    <height>31</height>
+    <text>LED Widget</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_1</name>
+    <y>41</y>
+    <width>321</width>
+    <height>30</height>
+    <text>Displays if the value of a PV is zero or non-zero.</text>
+  </widget>
+  <widget type="textupdate" version="1.0.0">
+    <name>Text Update</name>
+    <x>181</x>
+    <y>91</y>
+    <width>170</width>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <pv_name>sim://ramp(0, 1, 1, 1)</pv_name>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_2</name>
+    <y>91</y>
+    <width>111</width>
+    <text>Basic 0/1:</text>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>LED</name>
+    <x>121</x>
+    <y>91</y>
+    <width>20</width>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <pv_name>sim://ramp(0, 1, 1, 1)</pv_name>
+  </widget>
+  <widget type="textupdate" version="1.0.0">
+    <name>Text Update_1</name>
+    <x>181</x>
+    <y>141</y>
+    <width>170</width>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <pv_name>sim://ramp(0, 3, 1, 1)</pv_name>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>LED_1</name>
+    <x>121</x>
+    <y>141</y>
+    <width>20</width>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <pv_name>sim://ramp(0, 3, 1, 1)</pv_name>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_3</name>
+    <y>141</y>
+    <width>111</width>
+    <text>More Values:</text>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_4</name>
+    <y>231</y>
+    <width>111</width>
+    <text>Can be configured to be ugly:</text>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>LED_2</name>
+    <x>201</x>
+    <y>211</y>
+    <width>97</width>
+    <height>52</height>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <off_color>
+      <color red="206" green="89" blue="250">
+      </color>
+    </off_color>
+    <on_color>
+      <color red="255" green="128" blue="0">
+      </color>
+    </on_color>
+    <pv_name>sim://ramp(0, 1, 1, 1)</pv_name>
+  </widget>
+</display>

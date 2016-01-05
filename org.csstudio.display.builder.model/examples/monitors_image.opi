@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Display</name>
+  <x>-1</x>
+  <y>-1</y>
+  <widget type="label" version="1.0.0">
+    <name>Label</name>
+    <width>181</width>
+    <height>31</height>
+    <text>Image Widget</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_1</name>
+    <y>41</y>
+    <width>441</width>
+    <height>100</height>
+    <text>Displays an image PV.
+
+For Channel Access, this needs to be a waveform that contains
+the pixel values starting with the top-left pixel,
+followed by the pixels of the top row, then the second row and so on.</text>
+  </widget>
+  <widget type="image" version="1.0.0">
+    <name>Image</name>
+    <y>151</y>
+    <width>471</width>
+    <height>299</height>
+    <pv_name>sim://sawtooth(10, 50, 10000, 0.5)</pv_name>
+    <minimum>-1.0</minimum>
+    <maximum>1.0</maximum>
+  </widget>
+</display>

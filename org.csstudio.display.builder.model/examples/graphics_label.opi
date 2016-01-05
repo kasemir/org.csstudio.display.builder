@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Display</name>
+  <x>-1</x>
+  <y>-1</y>
+  <widget type="label" version="1.0.0">
+    <name>Label</name>
+    <width>181</width>
+    <height>31</height>
+    <text>Label Widget</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_1</name>
+    <y>41</y>
+    <width>191</width>
+    <height>30</height>
+    <text>Label widgets display text.</text>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_2</name>
+    <x>111</x>
+    <y>111</y>
+    <width>410</width>
+    <height>54</height>
+    <text>Test, font and color can be configured.</text>
+    <background_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </background_color>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_5</name>
+    <x>126</x>
+    <y>165</y>
+    <width>365</width>
+    <height>36</height>
+    <text>Test, font and color can be configured.</text>
+    <background_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </background_color>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_6</name>
+    <x>126</x>
+    <y>223</y>
+    <width>265</width>
+    <height>38</height>
+    <text>Test, font and color can be configured.</text>
+    <background_color>
+      <color name="Write_Background" red="128" green="255" blue="255">
+      </color>
+    </background_color>
+    <transparent>false</transparent>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+  </widget>
+</display>
