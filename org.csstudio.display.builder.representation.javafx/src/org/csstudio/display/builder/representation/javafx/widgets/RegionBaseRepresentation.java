@@ -41,16 +41,16 @@ import javafx.scene.shape.StrokeType;
  */
 abstract public class RegionBaseRepresentation<JFX extends Region, MW extends BaseWidget> extends JFXBaseRepresentation<JFX, MW>
 {
-    private WidgetProperty<Boolean> alarm_sensitive_border;
-    private volatile AlarmSeverity current_alarm = AlarmSeverity.NONE;
-    private final DirtyFlag dirty_border = new DirtyFlag();
-    private volatile Border border = null;
-
     /** Draw border OUTSIDE, so adding/removing border does not change the layout of the region's content
      *  (Like BorderStrokeStyle.SOLID except for OUTSIDE)
      */
     private static final BorderStrokeStyle border_stroke_style =
-        new BorderStrokeStyle(StrokeType.OUTSIDE, StrokeLineJoin.MITER, StrokeLineCap.BUTT, 10, 0, null);
+            new BorderStrokeStyle(StrokeType.OUTSIDE, StrokeLineJoin.MITER, StrokeLineCap.BUTT, 10, 0, null);
+
+    private final DirtyFlag dirty_border = new DirtyFlag();
+    private WidgetProperty<Boolean> alarm_sensitive_border;
+    private volatile AlarmSeverity current_alarm;
+    private volatile Border border;
 
     @Override
     protected void registerListeners()
@@ -62,30 +62,38 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Ba
         if (border.isPresent()  &&  value.isPresent())
         {
             alarm_sensitive_border = border.get();
+            // Start 'disconnected' w/ undefined severity
+            computeBorder(AlarmSeverity.UNDEFINED);
             value.get().addPropertyListener(this::valueChanged);
         }
     }
 
     private void valueChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
-        AlarmSeverity alarm;
+        AlarmSeverity severity;
         if (alarm_sensitive_border.getValue())
         {
             if (new_value instanceof Alarm)
-                alarm = ((Alarm)new_value).getAlarmSeverity();
+                severity = ((Alarm)new_value).getAlarmSeverity();
             else
-                alarm = AlarmSeverity.UNDEFINED;
+                severity = AlarmSeverity.UNDEFINED;
         }
         else
-            alarm = AlarmSeverity.NONE;
+            severity = AlarmSeverity.NONE;
 
         // Any change?
-        if (current_alarm == alarm)
+        if (current_alarm == severity)
             return;
 
-        // Compute border
-        current_alarm = alarm;
-        final Color color = getAlarmColor(alarm);
+        computeBorder(severity);
+        dirty_border.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+    private void computeBorder(final AlarmSeverity severity)
+    {
+        current_alarm = severity;
+        final Color color = getAlarmColor(severity);
         if (color == null)
             border = null;
         else
@@ -93,8 +101,6 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Ba
             final int width = 2;
             border = new Border(new BorderStroke(color, border_stroke_style, CornerRadii.EMPTY, new BorderWidths(width)));
         }
-        dirty_border.mark();
-        toolkit.scheduleUpdate(this);
     }
 
     /** @param alarm {@link AlarmSeverity}
