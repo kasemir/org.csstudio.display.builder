@@ -52,29 +52,38 @@ public class VTypeUtil
             return ((VString)value).getValue();
         if (value instanceof VEnum)
             return ((VEnum)value).getValue();
-        // For arrays, return first element
         if (value instanceof VNumberArray)
         {
             final VNumberArray cast = (VNumberArray)value;
             final ListNumber numbers = cast.getData();
             final NumberFormat format = cast.getFormat();
-            if (numbers.size() <= 0)
-                return "[]";
-            final String text;
-            if (format != null)
-                text = format.format(numbers.getDouble(0));
-            else
-                text = Double.toString(numbers.getDouble(0));
+            final StringBuilder text = new StringBuilder("[");
+            for (int i=0; i<numbers.size(); ++i)
+            {
+                if (i > 0)
+                    text.append(", ");
+                if (format != null)
+                    text.append(format.format(numbers.getDouble(i)));
+                else
+                    text.append(numbers.getDouble(i));
+            }
             if (with_units  &&  !cast.getUnits().isEmpty())
                 return text + " " + cast.getUnits();
+            text.append("]");
+            return text.toString();
         }
         if (value instanceof VEnumArray)
         {
             final List<String> labels = ((VEnumArray)value).getLabels();
-            if (labels.size() > 0)
-                return labels.get(0);
-            else
-                return "[]";
+            final StringBuilder text = new StringBuilder("[");
+            for (int i=0; i<labels.size(); ++i)
+            {
+                if (i > 0)
+                    text.append(", ");
+                text.append(labels.get(i));
+            }
+            text.append("]");
+            return text.toString();
         }
         if (value == null)
             return "<null>";
