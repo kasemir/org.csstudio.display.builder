@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.properties.NamedWidgetColor;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
-import org.csstudio.display.builder.model.util.ResourceUtil;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 
 /** Service that provides {@link NamedWidgetColors}
  *
@@ -57,7 +57,7 @@ public class WidgetColorService
             final NamedWidgetColors colors = new NamedWidgetColors();
             try
             {
-                final InputStream stream = ResourceUtil.openInputStream(color_resource);
+                final InputStream stream = ModelResourceUtil.openResourceStream(color_resource);
                 logger.log(Level.CONFIG, "Loading named colors from {0}",  color_resource);
                 colors.read(stream);
             }

@@ -9,13 +9,12 @@ package org.csstudio.display.builder.rcp;
 
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.WidgetFontService;
-import org.csstudio.display.builder.util.UtilPlugin;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
-/** Plugin information.
+/** Plugin initialization and helpers
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -29,11 +28,11 @@ public class Plugin implements BundleActivator
     {
         final String color_file = getPreference("color_file",
                                                 "platform:/plugin/org.csstudio.display.builder.model/examples/color.def");
-        WidgetColorService.loadColors(color_file, () -> UtilPlugin.getStream(color_file));
+        WidgetColorService.loadColors(color_file);
 
         final String font_file = getPreference("font_file",
                                                "platform:/plugin/org.csstudio.display.builder.model/examples/font.def");
-        WidgetFontService.loadFonts(font_file, () ->  UtilPlugin.getStream(font_file));
+        WidgetFontService.loadFonts(font_file);
     }
 
     @Override

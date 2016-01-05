@@ -10,7 +10,7 @@ package org.csstudio.display.builder.editor.actions;
 import java.io.InputStream;
 import java.net.URL;
 
-import org.csstudio.display.builder.util.UtilPlugin;
+import org.csstudio.display.builder.util.ResourceUtil;
 
 /** Description of an action
  *
@@ -46,7 +46,7 @@ public abstract class ActionDescription
      */
     public InputStream getIconStream() throws Exception
     {
-        return UtilPlugin.getStream(icon);
+        return ResourceUtil.openPlatformResource(icon);
     }
 
     /** @return Tool tip */

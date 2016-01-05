@@ -10,26 +10,16 @@ package org.csstudio.display.builder.model.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.security.cert.X509Certificate;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.csstudio.display.builder.model.Preferences;
+import org.csstudio.display.builder.util.ResourceUtil;
 
 /** Helper for handling resources: File, web link.
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class ResourceUtil
+public class ModelResourceUtil extends ResourceUtil
 {
-    /** Used by trustAnybody() to only initialize once */
-    private static boolean trusting_anybody = false;
     private static int timeout_ms = Preferences.getReadTimeout();
 
     // Many basic String operations since paths
@@ -62,20 +52,20 @@ public class ResourceUtil
 
     /** Combine display paths
      *  @param parent_display Path to a 'parent' file, may be <code>null</code>
-     *  @param display_file Display file. If relative, it is resolved relative to the parent display
+     *  @param display_path Display file. If relative, it is resolved relative to the parent display
      *  @return Combined path
      */
-    public static String combineDisplayPaths(String parent_display, String display_file)
+    public static String combineDisplayPaths(String parent_display, String display_path)
     {
         // Anything in the parent?
         if (parent_display == null  ||  parent_display.isEmpty())
-            return display_file;
+            return display_path;
 
-        display_file = normalize(display_file);
+        display_path = normalize(display_path);
 
         // Is display already absolute?
-        if (isAbsolute(display_file))
-            return display_file;
+        if (isAbsolute(display_path))
+            return display_path;
 
         parent_display = normalize(parent_display);
 
@@ -84,7 +74,7 @@ public class ResourceUtil
         if (sep >= 0)
             parent_display = parent_display.substring(0, sep);
 
-        String result = parent_display + "/" + display_file;
+        String result = parent_display + "/" + display_path;
 
         // Collapse  "some/path/remove/../else/file.opi"
         int up = result.indexOf("/../");
@@ -101,104 +91,67 @@ public class ResourceUtil
         return result;
     }
 
-    /** Attempt to resolve a display file
+    /** Attempt to resolve a resource relative to a display
      *  @param parent_display Path to a 'parent' file, may be <code>null</code>
-     *  @param display_file Display file. If relative, it is resolved relative to the parent display
+     *  @param resource_name Resource path. If relative, it is resolved relative to the parent display
      *  @return Resolved file name. May also be the original name if no idea how to adjust it
      */
-    public static String resolveDisplay(final String parent_display, final String display_file)
+    public static String resolveResource(final String parent_display, final String resource_name)
     {
         // Can display be opened as file?
-        File file = new File(display_file);
+        File file = new File(resource_name);
         if (file.exists())
             return file.getAbsolutePath();
 
         // .. relative to parent?
-        file = new File(combineDisplayPaths(parent_display, display_file));
+        file = new File(combineDisplayPaths(parent_display, resource_name));
         if (file.exists())
             return file.getAbsolutePath();
 
         // Can display be opened as URL?
-        if (isURL(display_file))
-            return display_file;
+        if (isURL(resource_name))
+            return resource_name;
 
         // .. relative to parent?
-        final String combined = combineDisplayPaths(parent_display, display_file);
+        final String combined = combineDisplayPaths(parent_display, resource_name);
         if (isURL(combined))
             return combined;
 
         // TODO Search along a configurable list of lookup paths
 
         // Give up, return the original name
-        return display_file;
+        return resource_name;
     }
 
     /** Open a file, web location, ..
      *
-     *  @param resource_name Path to file or "http:/.."
+     *  @param resource_name Path to file, "platform:", "http:/.."
      *  @return {@link InputStream}
      *  @throws Exception on error
      */
-    // TODO Handle Workspace location
-    public static InputStream openInputStream(final String resource_name) throws Exception
+    public static InputStream openResourceStream(final String resource_name) throws Exception
     {
+        // TODO Handle Workspace location
+        // Provide hook for RCP plugin to add a workspace handler that's checked first:
+        // if (external_handler != null)
+        //    .. try that one first ..
+
+        if (resource_name.startsWith("platform:"))
+            return openPlatformResource(resource_name);
+
         if (resource_name.startsWith("http"))
             return openURL(resource_name);
 
         return new FileInputStream(resource_name);
     }
 
-    /** Open URL
+    /** Open URL for "http", "https", "ftp", ..
      *  @param resource_name URL specification
      *  @return {@link InputStream}
      *  @throws Exception on error
      */
-    private static InputStream openURL(final String resource_name) throws Exception
+    protected static InputStream openURL(final String resource_name) throws Exception
     {
-        if (resource_name.startsWith("https"))
-            trustAnybody();
-
-        final URL url = new URL(resource_name);
-        final URLConnection connection = url.openConnection();
-        connection.setReadTimeout(timeout_ms);
-        return connection.getInputStream();
-    }
-
-    /** Allow https:// access to self-signed certificates
-     *  @throws Exception on error
-     */
-    // From Eric Berryman's code in org.csstudio.opibuilder.util.ResourceUtil.
-    private static synchronized void trustAnybody() throws Exception
-    {
-        if (trusting_anybody)
-            return;
-
-        // Create a trust manager that does not validate certificate chains.
-        final TrustManager[] trustAllCerts = new TrustManager[]
-        {
-            new X509TrustManager()
-            {
-                @Override
-                public java.security.cert.X509Certificate[] getAcceptedIssuers()
-                {
-                    return null;
-                }
-                @Override
-                public void checkClientTrusted(X509Certificate[] certs, String authType)
-                { /* NOP */ }
-                @Override
-                public void checkServerTrusted(X509Certificate[] certs, String authType)
-                { /* NOP */ }
-            }
-        };
-        final SSLContext sc = SSLContext.getInstance("SSL");
-        sc.init(null, trustAllCerts, new java.security.SecureRandom());
-        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-
-        // All-trusting host name verifier
-        final HostnameVerifier allHostsValid = (hostname, session) -> true;
-        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-
-        trusting_anybody = true;
+        return openURL(resource_name, timeout_ms);
     }
 }

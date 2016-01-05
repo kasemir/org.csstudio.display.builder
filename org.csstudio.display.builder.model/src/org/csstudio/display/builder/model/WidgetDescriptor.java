@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.csstudio.display.builder.util.UtilPlugin;
+import org.csstudio.display.builder.util.ResourceUtil;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 
@@ -156,7 +156,7 @@ public abstract class WidgetDescriptor
      */
     public InputStream getIconStream() throws Exception
     {
-        return UtilPlugin.getStream(icon);
+        return ResourceUtil.openPlatformResource(icon);
     }
 
     /** @return Description of the widget */

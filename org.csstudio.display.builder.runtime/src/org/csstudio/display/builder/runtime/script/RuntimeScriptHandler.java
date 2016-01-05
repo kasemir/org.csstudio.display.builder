@@ -17,7 +17,7 @@ import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
-import org.csstudio.display.builder.model.util.ResourceUtil;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.vtype.pv.PV;
 import org.csstudio.vtype.pv.PVListener;
@@ -60,8 +60,8 @@ public class RuntimeScriptHandler implements PVListener
         {   // Load external script
             final DisplayModel model = widget.getDisplayModel();
             final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-            final String resolved = ResourceUtil.resolveDisplay(parent_display, script_name);
-            stream = ResourceUtil.openInputStream(resolved);
+            final String resolved = ModelResourceUtil.resolveResource(parent_display, script_name);
+            stream = ModelResourceUtil.openResourceStream(resolved);
         }
         else
         {   // Use script text that was embedded in display

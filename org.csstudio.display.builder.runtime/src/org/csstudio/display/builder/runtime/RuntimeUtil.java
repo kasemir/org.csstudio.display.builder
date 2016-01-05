@@ -18,7 +18,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.util.NamedDaemonPool;
-import org.csstudio.display.builder.model.util.ResourceUtil;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -83,8 +83,8 @@ public class RuntimeUtil
      */
     public static DisplayModel loadModel(final String parent_display, final String display_file) throws Exception
     {
-        final String resolved_name = ResourceUtil.resolveDisplay(parent_display, display_file);
-        final ModelReader reader = new ModelReader(ResourceUtil.openInputStream(resolved_name));
+        final String resolved_name = ModelResourceUtil.resolveResource(parent_display, display_file);
+        final ModelReader reader = new ModelReader(ModelResourceUtil.openResourceStream(resolved_name));
         final DisplayModel model = reader.readModel();
         model.setUserData(DisplayModel.USER_DATA_INPUT_FILE, resolved_name);
         return model;

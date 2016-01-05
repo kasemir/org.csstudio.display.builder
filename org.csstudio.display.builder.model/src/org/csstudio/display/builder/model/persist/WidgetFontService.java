@@ -17,7 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.util.ModelThreadPool;
-import org.csstudio.display.builder.model.util.ResourceUtil;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 
 /** Service that provides {@link NamedWidgetFonts}
  *
@@ -55,7 +55,7 @@ public class WidgetFontService
             final NamedWidgetFonts fonts = new NamedWidgetFonts();
             try
             {
-                final InputStream stream = ResourceUtil.openInputStream(font_resource);
+                final InputStream stream = ModelResourceUtil.openResourceStream(font_resource);
                 logger.log(Level.CONFIG, "Loading named fonts from {0}",  font_resource);
                 fonts.read(stream);
             }
