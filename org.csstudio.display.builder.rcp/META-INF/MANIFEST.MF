@@ -24,3 +24,4 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.workbench
 Import-Package: javax.annotation
 Export-Package: org.csstudio.display.builder.rcp
+Bundle-Activator: org.csstudio.display.builder.rcp.Plugin

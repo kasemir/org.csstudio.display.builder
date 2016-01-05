@@ -2,7 +2,9 @@
 # Whenever possible, use named colors
 # instead of arbitrary red/green/blue values.
 
-# Predefined colors that could be overridden in here
+# ------- Predefined colors ----------------
+# May be overridden in here
+
 # Alarm related
 OK = 0, 255, 0
 MINOR = 255, 128, 0
@@ -10,6 +12,7 @@ MAJOR = 255, 0, 0
 INVALID = 255, 0, 255
 DISCONNECTED = 255, 0, 255
 
+# Default color for text
 Text=0,0,0
 
 # Display background
@@ -19,7 +22,13 @@ Background = 255, 255, 255
 Read_Background = 240, 240, 240
 Write_Background = 128, 255, 255
 
+# ------- Examples for additional colors ----------------
+# Also show ideas for site-specific guidelines that
+# are required to make sense of the color names.
 
+# Styling
+Header_Background=77,77,77
+Header_ForeGround=255,255,255
 
 # Use alarm colors only when you mean to indicate an alarm.
 # Avoid using 'Red' which might suggest an alarm
@@ -30,10 +39,7 @@ STOP = 255,0,0
 
 # Attention looks similar to a MINOR alarm.
 # It is meant to draw attention
-# Attention = 255,160,0
-
-Header_Background=77,77,77
-Header_ForeGround=255,255,255
+Attention = 255,160,0
 
 # The colors for On/Off, Open/Close etc,.
 # "On" does not necessarily mean 'device is turned on', but

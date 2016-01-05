@@ -39,10 +39,10 @@ public class EditorDemo extends Application
     @Override
     public void start(final Stage stage)
     {
-        final File color_file = new File("../org.csstudio.display.builder.runtime.test/examples/color.def");
+        final File color_file = new File("../org.csstudio.display.builder.model/examples/color.def");
         WidgetColorService.loadColors(color_file.getPath(), () -> new FileInputStream(color_file));
 
-        final File font_file = new File("../org.csstudio.display.builder.runtime.test/examples/font.def");
+        final File font_file = new File("../org.csstudio.display.builder.model/examples/font.def");
         WidgetFontService.loadFonts(font_file.getPath(), () -> new FileInputStream(font_file));
 
         editor = new EditorDemoGUI(stage);

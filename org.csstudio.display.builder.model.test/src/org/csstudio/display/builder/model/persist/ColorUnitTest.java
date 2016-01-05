@@ -44,7 +44,7 @@ public class ColorUnitTest
         color = colors.getColor("STOP").orElse(null);
         assertThat(color, nullValue());
 
-        colors.read(new FileInputStream("../org.csstudio.display.builder.runtime.test/examples/color.def"));
+        colors.read(new FileInputStream("../org.csstudio.display.builder.model/examples/color.def"));
 
         color = colors.getColor("STOP").orElse(null);
         System.out.println(color);
@@ -76,7 +76,7 @@ public class ColorUnitTest
         assertThat(color, nullValue());
 
         // Load STOP, also load MAJOR back to default
-        colors.read(new FileInputStream("../org.csstudio.display.builder.runtime.test/examples/color.def"));
+        colors.read(new FileInputStream("../org.csstudio.display.builder.model/examples/color.def"));
 
         color = colors.getColor(NamedWidgetColors.ALARM_MAJOR).orElse(null);
         System.out.println(color);
@@ -108,7 +108,7 @@ public class ColorUnitTest
             logger.warning("Delaying file access.. on " + Thread.currentThread().getName());
             TimeUnit.SECONDS.sleep(2 * WidgetColorService.LOAD_DELAY);
             logger.warning("Finally opening the file");
-            return new FileInputStream("../org.csstudio.display.builder.runtime.test/examples/color.def");
+            return new FileInputStream("../org.csstudio.display.builder.model/examples/color.def");
         };
         WidgetColorService.loadColors("Slow file", slow_color_source);
 

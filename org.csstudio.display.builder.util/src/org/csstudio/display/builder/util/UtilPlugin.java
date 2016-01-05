@@ -20,11 +20,13 @@ public class UtilPlugin
     /** Plugin ID */
     public final static String ID = "org.csstudio.display.builder.util";
 
-    /** @return Stream for icon's content
+    /** @param path Path to resource
+     *  @return Stream for content
      *  @throws Exception on error
      */
     public static InputStream getStream(final String path) throws Exception
     {
+        // TODO make more generic, handle http, and workspace files IF RUNNING IN ECLIPSE
         if (! path.startsWith("platform:"))
             throw new Exception("Only handling 'platform:' path");
         try

@@ -21,14 +21,14 @@
 // is "Liberation Sans", it has to be typed with just that one space between
 // "Liberation" and "Sans"
 
-// These fonts are actually predefined as follows, and file could re-define them
-//Default      = Liberation Sans - regular - 14
-//Default Bold = Liberation Sans - bold    - 14
-//Header 1     = Liberation Sans - bold    - 22
-//Header 2     = Liberation Sans - bold    - 18
-//Header 3     = Liberation Sans - bold    - 16
-//Comment      = Liberation Sans - italic  - 14
-//Fine Print   = Liberation Sans - regular - 12
+// Predefined fonts that this file could re-define
+Default      = Liberation Sans - regular - 14
+Default Bold = Liberation Sans - bold    - 14
+Header 1     = Liberation Sans - bold    - 22
+Header 2     = Liberation Sans - bold    - 18
+Header 3     = Liberation Sans - bold    - 16
+Comment      = Liberation Sans - italic  - 14
+Fine Print   = Liberation Sans - regular - 12
 
 
 // Example for a named font
