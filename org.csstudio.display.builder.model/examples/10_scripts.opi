@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Display</name>
+  <x>-1</x>
+  <y>-1</y>
+  <widget type="label" version="1.0.0">
+    <name>Label</name>
+    <text>Scripts</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_1</name>
+    <y>41</y>
+    <width>381</width>
+    <height>50</height>
+    <text>Scripts allow modifications of the display at runtime
+that go beyond the usual PV-based update of a widget.</text>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_2</name>
+    <y>91</y>
+    <width>301</width>
+    <height>30</height>
+    <text>The use of scripts should be limited!</text>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_3</name>
+    <y>331</y>
+    <width>381</width>
+    <height>80</height>
+    <text>Bad examples of using a script:
+- Turn control system display into video game.
+- Perform automation of the control system in the display.
+- Handle interlocks for the control system in the display.</text>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_4</name>
+    <y>121</y>
+    <width>521</width>
+    <height>80</height>
+    <text>Scripts should only be employed to solve very few and specific cases.
+
+The script API cannot be guaranteed to remain available as the display builder
+evolves. Scripts may need to be updated as the API changes.
+</text>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_5</name>
+    <y>201</y>
+    <width>381</width>
+    <height>140</height>
+    <text>Acceptable examples of using a script:
+- Improve the visualization of the control system state
+  in a few, carefully selected cases.
+- Integrate external functionality, for example perform
+  a web service lookup, for a specific need that is not
+  generic enough to create a new widget or
+  PV data source.</text>
+  </widget>
+  <widget type="textupdate" version="1.0.0">
+    <name>Text Update</name>
+    <x>11</x>
+    <y>481</y>
+    <width>70</width>
+    <pv_name>sim://ramp(-5,5,0.1)</pv_name>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_7</name>
+    <x>141</x>
+    <y>481</y>
+    <foreground_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </foreground_color>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+    <scripts>
+      <script file="scripts/update_text.py">
+        <pv_name>sim://ramp(-5,5,0.1)</pv_name>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_6</name>
+    <y>451</y>
+    <width>180</width>
+    <height>30</height>
+    <text>Update Label Text</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_8</name>
+    <y>511</y>
+    <width>381</width>
+    <height>50</height>
+    <text>Script attached to label, triggered by the PV,
+updates the label's text to indicate positive or negative value.</text>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_9</name>
+    <y>561</y>
+    <width>391</width>
+    <height>70</height>
+    <text>Such a check could be performed on the IOC, updating
+an enum PV with the "Positive", "Negative" text,
+then using a plain Text Update widget to show the result...</text>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="textupdate" version="1.0.0">
+    <name>Text Update_1</name>
+    <x>11</x>
+    <y>671</y>
+    <width>70</width>
+    <pv_name>sim://ramp(-5,5,0.1)</pv_name>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_11</name>
+    <y>641</y>
+    <width>180</width>
+    <height>30</height>
+    <text>Update Label Position</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_12</name>
+    <y>701</y>
+    <width>381</width>
+    <height>70</height>
+    <text>Script attached to label, triggered by the PV,
+updates the label's position based on that PV
+and some other local PVs which are used to pass in 
+constant configuration parameters.</text>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_13</name>
+    <y>781</y>
+    <width>391</width>
+    <height>50</height>
+    <text>Not clear why one would want to do this.
+Clearly a counterexample for the use of scripts.</text>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_10</name>
+    <x>141</x>
+    <y>671</y>
+    <width>90</width>
+    <text>I'm moving!</text>
+    <foreground_color>
+      <color name="STOP" red="255" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </background_color>
+    <transparent>false</transparent>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+    <scripts>
+      <script file="scripts/update_x.py">
+        <pv_name>sim://ramp(-5,5,0.1)</pv_name>
+        <pv_name trigger="false">loc://pos(160)</pv_name>
+        <pv_name trigger="false">loc://scale(10)</pv_name>
+      </script>
+    </scripts>
+  </widget>
+</display>

@@ -141,8 +141,11 @@ public class WidgetRuntime<MW extends Widget>
             if (! pv_name.isEmpty())
             {
                 logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, pv_name });
-                final PV pv = PVPool.getPV(pv_name);
+                // Create listener, which marks the value as disconnected
                 primary_pv_listener = new PropertyUpdater(value.get());
+                // Then create PV, which either gets a value soon,
+                // or may throw exception -> widget already shows disconneted
+                final PV pv = PVPool.getPV(pv_name);
                 pv.addListener(primary_pv_listener);
                 primary_pv = Optional.of(pv);
             }

@@ -7,9 +7,28 @@
  *******************************************************************************/
 package org.csstudio.opibuilder.scriptUtil;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /** Compatibility wrapper of PVUtil for legacy scripts
+ *
+ *  <p>When the legacy opibuilder is included in the product,
+ *  its scriptUtils will be found and they will fail.
+ *
+ *  <p>If the legacy opibuilder is not included in the product,
+ *  existing scripts will find this wrapper which will "work"
+ *  for the most part, but issue an initial warning so that
+ *  scripts can be updated.
+ *
  *  @author Kay Kasemir
  */
 public class PVUtil extends org.csstudio.display.builder.runtime.script.PVUtil
 {
+    static
+    {
+        Logger.getLogger(PVUtil.class.getName())
+              .log(Level.SEVERE,
+                   "Script accessed deprecated org.csstudio.opibuilder.scriptUtil.PVUtil," +
+                   " update to org.csstudio.display.builder.runtime.script.PVUtil");
+    }
 }

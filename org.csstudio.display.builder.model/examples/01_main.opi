@@ -15,7 +15,7 @@
   </widget>
   <widget type="action_button" version="1.0.0">
     <name>Action Button</name>
-    <y>121</y>
+    <y>81</y>
     <width>110</width>
     <height>26</height>
     <text>$(actions)</text>
@@ -170,6 +170,62 @@
         <file>monitors_image.opi</file>
         <target>replace</target>
         <description>Image</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="1.0.0">
+    <name>Action Button_6</name>
+    <y>291</y>
+    <width>110</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>10_scripts.opi</file>
+        <target>replace</target>
+        <description>Scripts</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="1.0.0">
+    <name>Action Button_7</name>
+    <y>121</y>
+    <width>110</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file></file>
+        <target>replace</target>
+        <description>Properties</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="1.0.0">
+    <name>Action Button_9</name>
+    <y>161</y>
+    <width>110</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file></file>
+        <target>replace</target>
+        <description>Macros</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="1.0.0">
+    <name>Action Button_10</name>
+    <y>201</y>
+    <width>110</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file></file>
+        <target>replace</target>
+        <description>Actions</description>
       </action>
     </actions>
   </widget>
