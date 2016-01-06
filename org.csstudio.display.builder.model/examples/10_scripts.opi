@@ -188,4 +188,72 @@ Clearly a counterexample for the use of scripts.</text>
       </script>
     </scripts>
   </widget>
+  <widget type="textentry" version="1.0.0">
+    <name>Text Entry</name>
+    <x>541</x>
+    <y>481</y>
+    <width>210</width>
+    <pv_name>loc://pv_name("sim://sine")</pv_name>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_14</name>
+    <x>411</x>
+    <y>451</y>
+    <width>180</width>
+    <height>30</height>
+    <text>Update PV Name</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_15</name>
+    <x>411</x>
+    <y>481</y>
+    <width>120</width>
+    <text>Enter PV Name:</text>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_16</name>
+    <x>411</x>
+    <y>511</y>
+    <width>330</width>
+    <height>30</height>
+    <text>Script will update the PV name of the Text Update:</text>
+  </widget>
+  <widget type="textupdate" version="1.0.0">
+    <name>Text Update_2</name>
+    <x>541</x>
+    <y>541</y>
+    <width>210</width>
+    <height>26</height>
+    <scripts>
+      <script file="scripts/update_pv_name.py">
+        <pv_name>loc://pv_name("sim://sine")</pv_name>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_17</name>
+    <x>411</x>
+    <y>541</y>
+    <width>120</width>
+    <text>Value of PV:</text>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_18</name>
+    <x>411</x>
+    <y>581</y>
+    <width>360</width>
+    <height>80</height>
+    <text>This could be useful to update the PVs of a display.
+On the other hand, the display structure may be easier to understand
+and long term maintenance is simplified when using buttons that open
+new displays, passing macros for the PV names...</text>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+  </widget>
 </display>

@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
@@ -51,8 +52,12 @@ public class WidgetRuntime<MW extends Widget>
     // and _any_ disconnected PV on a widget needs to be detected
     // and somehow indicated in representation.
 
-    /** Primary widget PV for behaviorPVName property */
-    private volatile Optional<PV> primary_pv = Optional.empty();
+    private WidgetPropertyListener<String> pv_name_listener = null;
+
+    /** Primary widget PV for behaviorPVName property
+     *  <p>SYNC on this
+     */
+    private Optional<PV> primary_pv = Optional.empty();
 
     /** Listener for <code>primary_pv</code> */
     private PVListener primary_pv_listener;
@@ -98,6 +103,40 @@ public class WidgetRuntime<MW extends Widget>
         }
     };
 
+    /** Listener to "pv_name" property. Connects/re-connects PV */
+    private class PVNameListener implements WidgetPropertyListener<String>
+    {
+        @Override
+        public void propertyChanged(final WidgetProperty<String> name_property,
+                                    final String old_name, final String pv_name)
+        {
+            // In case already connected...
+            disconnectPV();
+
+            if (pv_name.isEmpty())
+                return;
+
+            logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, pv_name });
+            // Create listener, which marks the value as disconnected
+            primary_pv_listener = new PropertyUpdater(widget.getProperty(runtimeValue));
+            // Then connect PV, which either gets a value soon,
+            // or may throw exception -> widget already shows disconnected
+            try
+            {
+                final PV pv = PVPool.getPV(pv_name);
+                synchronized (this)
+                {
+                    primary_pv = Optional.of(pv);
+                }
+                pv.addListener(primary_pv_listener);
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Error connecting PV " + pv_name, ex);
+            }
+        }
+    };
+
     // initialize() could be the constructor, but
     // instantiation from Eclipse registry requires
     // zero-arg constructor
@@ -122,33 +161,10 @@ public class WidgetRuntime<MW extends Widget>
 
         if (name.isPresent() &&  value.isPresent())
         {
-            final String pv_name = name.get().getValue();
-
-            // TODO Listen to PV name changes
-            // Currently only connects once to the initial PV name.
-            // Should listen to PV name, connect to initial name.
-            // When name changes, disconnect from old PV and connect
-            // to new PV:
-            // pv_name_listener =
-            // {
-            //    // If already connected, disconnect
-            //    if (primary_pv..)
-            //    // Then connect to new PV
-            // }
-            // name.get().addPropertyListener(pv_name_listener);
-            // Initial connection:
-            // pv_name_listener.propertyChanged(name.get(), null, name.get().getValue());
-            if (! pv_name.isEmpty())
-            {
-                logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, pv_name });
-                // Create listener, which marks the value as disconnected
-                primary_pv_listener = new PropertyUpdater(value.get());
-                // Then create PV, which either gets a value soon,
-                // or may throw exception -> widget already shows disconneted
-                final PV pv = PVPool.getPV(pv_name);
-                pv.addListener(primary_pv_listener);
-                primary_pv = Optional.of(pv);
-            }
+            pv_name_listener = new PVNameListener();
+            name.get().addPropertyListener(pv_name_listener);
+            // Initial connection
+            pv_name_listener.propertyChanged(name.get(), null, name.get().getValue());
         }
 
         // Prepare action-related PVs
@@ -226,18 +242,35 @@ public class WidgetRuntime<MW extends Widget>
         throw new Exception("Unknown PV '" + pv_name + "' (expanded: '" + expanded + "')");
     }
 
+    /** Disconnect the primary PV
+     *
+     *  <p>OK to call when there was no PV
+     */
+    private void disconnectPV()
+    {
+        final PV pv;
+        synchronized (this)
+        {
+            pv = primary_pv.orElse(null);
+            primary_pv = Optional.empty();
+            if (pv == null)
+                return;
+        }
+        pv.removeListener(primary_pv_listener);
+        PVPool.releasePV(pv);
+    }
+
     /** Stop: Disconnect PVs, ... */
     public void stop()
     {
         for (final PV pv : pvs)
             PVPool.releasePV(pv);
 
-        final PV pv = primary_pv.orElse(null);
-        primary_pv = Optional.empty();
-        if (pv != null)
+        disconnectPV();
+        if (pv_name_listener != null)
         {
-            pv.removeListener(primary_pv_listener);
-            PVPool.releasePV(pv);
+            widget.getProperty(behaviorPVName).removePropertyListener(pv_name_listener);
+            pv_name_listener = null;
         }
 
         for (final RuntimeScriptHandler handler : script_handlers)
