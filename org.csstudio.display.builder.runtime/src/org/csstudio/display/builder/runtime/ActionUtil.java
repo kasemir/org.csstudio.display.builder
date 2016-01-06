@@ -57,8 +57,15 @@ public class ActionUtil
     private static void openDisplay(final Widget source_widget,
                                     final OpenDisplayActionInfo action)
     {
+        if (action.getFile().isEmpty())
+        {
+            logger.log(Level.WARNING, "Action without file: {0}", action);
+            return;
+        }
         try
         {
+
+
             // Path to resolve, after expanding macros of source widget and action
             final Macros macros = Macros.merge(source_widget.getEffectiveMacros(), action.getMacros());
             final String expanded_path = MacroHandler.replace(macros, action.getFile());
