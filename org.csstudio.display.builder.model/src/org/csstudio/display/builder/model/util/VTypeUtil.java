@@ -68,7 +68,7 @@ public class VTypeUtil
                     text.append(numbers.getDouble(i));
             }
             if (with_units  &&  !cast.getUnits().isEmpty())
-                return text + " " + cast.getUnits();
+                text.append(" ").append(cast.getUnits());
             text.append("]");
             return text.toString();
         }
