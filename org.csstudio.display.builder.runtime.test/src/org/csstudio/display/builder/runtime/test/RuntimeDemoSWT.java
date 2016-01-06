@@ -37,6 +37,8 @@ public class RuntimeDemoSWT implements Runnable
     public static void main(final String[] args) throws Exception
     {
         Settings.setup();
+        if (args.length == 1)
+            Settings.display_path = args[0];
         new RuntimeDemoSWT().run();
     }
 
@@ -76,7 +78,7 @@ public class RuntimeDemoSWT implements Runnable
     {
         try
         {
-            final DisplayModel model = RuntimeUtil.loadModel("examples/dummy.opi", Settings.example_name);
+            final DisplayModel model = RuntimeUtil.loadModel("examples/dummy.opi", Settings.display_path);
 
             // Representation needs to be created in UI thread
             toolkit.execute(() -> representModel(display, model));

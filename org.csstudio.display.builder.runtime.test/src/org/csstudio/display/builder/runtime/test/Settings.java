@@ -18,11 +18,13 @@ import org.csstudio.display.builder.model.persist.WidgetColorService;
 @SuppressWarnings("nls")
 public class Settings
 {
-    public static final String example_name =
+    // Default display, can be changed via command line
+    public static String display_path =
+          "../org.csstudio.display.builder.model/examples/01_main.opi";
 //        "example.opi";
 //        "legacy.opi";
 //        "legacy_embed.opi";
-        "https://webopi.sns.gov/webopi/opi/Instruments.opi";
+//        "https://webopi.sns.gov/webopi/opi/Instruments.opi";
 //        "image.opi";
 //          "embedded_script.opi";
 //        "main.opi";
