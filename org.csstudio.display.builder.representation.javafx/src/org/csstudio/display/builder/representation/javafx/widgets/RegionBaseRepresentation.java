@@ -62,8 +62,8 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Ba
         if (border.isPresent()  &&  value.isPresent())
         {
             alarm_sensitive_border = border.get();
-            // Start 'disconnected' w/ undefined severity
-            computeBorder(AlarmSeverity.UNDEFINED);
+            // Start 'OK'
+            computeBorder(AlarmSeverity.NONE);
             value.get().addPropertyListener(this::valueChanged);
         }
     }

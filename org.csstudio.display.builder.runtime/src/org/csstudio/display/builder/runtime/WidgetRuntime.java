@@ -74,6 +74,9 @@ public class WidgetRuntime<MW extends Widget>
         public PropertyUpdater(final WidgetProperty<VType> property)
         {
             this.property = property;
+            // Send initial 'disconnected' update so widget shows
+            // disconnected state until the first value arrives
+            disconnected(null);
         }
 
         @Override
@@ -120,6 +123,21 @@ public class WidgetRuntime<MW extends Widget>
         if (name.isPresent() &&  value.isPresent())
         {
             final String pv_name = name.get().getValue();
+
+            // TODO Listen to PV name changes
+            // Currently only connects once to the initial PV name.
+            // Should listen to PV name, connect to initial name.
+            // When name changes, disconnect from old PV and connect
+            // to new PV:
+            // pv_name_listener =
+            // {
+            //    // If already connected, disconnect
+            //    if (primary_pv..)
+            //    // Then connect to new PV
+            // }
+            // name.get().addPropertyListener(pv_name_listener);
+            // Initial connection:
+            // pv_name_listener.propertyChanged(name.get(), null, name.get().getValue());
             if (! pv_name.isEmpty())
             {
                 logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, pv_name });

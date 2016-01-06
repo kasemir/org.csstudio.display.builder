@@ -33,8 +33,8 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
 
     @Override
     public Label createJFXNode() throws Exception
-    {
-    	value_text = "<" + model_widget.behaviorPVName().getValue() + ">";
+    {   // Start out 'disconnected' until first value arrives
+        value_text = computeText(null);
         return new Label();
     }
 
@@ -48,6 +48,7 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
         model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayFont().addUntypedPropertyListener(this::styleChanged);
         model_widget.runtimeValue().addPropertyListener(this::contentChanged);
+        model_widget.behaviorPVName().addPropertyListener(this::pvnameChanged);
     }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -56,9 +57,30 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
         toolkit.scheduleUpdate(this);
     }
 
+    /** @param value Current value of PV
+     *  @return Text to show, "<pv name>" if disconnected (no value)
+     */
+    private String computeText(final VType value)
+    {
+        if (value == null)
+            return "<" + model_widget.behaviorPVName().getValue() + ">";
+        return VTypeUtil.getValueString(value, true);
+    }
+
+    private void pvnameChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
+    {   // PV name typically changes in edit mode.
+        // -> Show new PV name.
+        // Runtime could deal with disconnect/reconnect for new PV name
+        // -> Also OK to show disconnected state until runtime
+        //    subscribes to new PV, so we eventually get values from new PV.
+        value_text = computeText(null);
+        dirty_content.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
     private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
-        value_text = VTypeUtil.getValueString(new_value, true);
+        value_text = computeText(new_value);
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
     }
