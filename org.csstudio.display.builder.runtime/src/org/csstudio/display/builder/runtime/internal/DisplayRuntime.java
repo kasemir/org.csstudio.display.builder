@@ -12,6 +12,7 @@ import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.vtype.pv.PVPool;
 import org.csstudio.vtype.pv.jca.JCA_PVFactory;
 import org.csstudio.vtype.pv.local.LocalPVFactory;
+import org.csstudio.vtype.pv.sim.SimPVFactory;
 
 /** Display Runtime.
  *
@@ -31,9 +32,9 @@ public class DisplayRuntime extends WidgetRuntime<DisplayModel>
         // PVPool should initialize from registry
         if (PVPool.getSupportedPrefixes().length == 0)
         {   // Fall back for tests without OSGi
-            PVPool.addPVFactory(new JCA_PVFactory());
             PVPool.addPVFactory(new LocalPVFactory());
-            PVPool.setDefaultType(JCA_PVFactory.TYPE);
+            PVPool.addPVFactory(new SimPVFactory());
+            PVPool.addPVFactory(new JCA_PVFactory());
         }
 
         pv_initialized = true;
