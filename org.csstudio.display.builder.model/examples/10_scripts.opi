@@ -256,4 +256,74 @@ new displays, passing macros for the PV names...</text>
       </font>
     </font>
   </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_19</name>
+    <x>201</x>
+    <y>831</y>
+    <width>90</width>
+    <text>&lt;- Active</text>
+    <foreground_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </foreground_color>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+    <scripts>
+      <script file="scripts/update_x.py">
+        <pv_name>loc://mode(0)</pv_name>
+        <pv_name trigger="false">loc://pos(200)</pv_name>
+        <pv_name trigger="false">loc://scale(150)</pv_name>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="textentry" version="1.0.0">
+    <name>Text Entry_1</name>
+    <x>11</x>
+    <y>831</y>
+    <pv_name>loc://mode(0)</pv_name>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_20</name>
+    <x>151</x>
+    <y>831</y>
+    <width>60</width>
+    <text>Mode 1</text>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_21</name>
+    <x>301</x>
+    <y>831</y>
+    <width>60</width>
+    <text>Mode 2</text>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_22</name>
+    <x>451</x>
+    <y>831</y>
+    <width>60</width>
+    <text>Mode 3</text>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_23</name>
+    <y>901</y>
+    <width>391</width>
+    <height>50</height>
+    <text>Is this good or gimmickry?
+LEDs next to each mode that are 'on' for the active mode
+would avoid scripts and maybe overall be better.</text>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="1.0.0">
+    <name>Label_24</name>
+    <y>861</y>
+    <width>361</width>
+    <height>40</height>
+    <text>Similar: Enter mode values 0, 1, 2,
+and the "Active" label moves next to the selected mode.</text>
+  </widget>
 </display>
