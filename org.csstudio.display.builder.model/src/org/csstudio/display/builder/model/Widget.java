@@ -182,7 +182,11 @@ public class Widget
     /** @return Widget version number */
     public Version getVersion()
     {
-        return new Version(1, 0, 0);
+        // Legacy used 1.0.0 for most widgets,
+        // so 2.0.0 indicates an update.
+        // Selected legacy widgets had incremented to a higher version,
+        // which needs to be handled for each such widget.
+        return new Version(2, 0, 0);
     }
 
     /** @return Widget Type */

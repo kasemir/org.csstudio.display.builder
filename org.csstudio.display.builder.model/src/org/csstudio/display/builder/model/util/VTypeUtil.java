@@ -10,8 +10,10 @@ package org.csstudio.display.builder.model.util;
 import java.text.NumberFormat;
 import java.util.List;
 
+import org.diirt.util.array.ListByte;
 import org.diirt.util.array.ListInt;
 import org.diirt.util.array.ListNumber;
+import org.diirt.vtype.VByteArray;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VEnumArray;
 import org.diirt.vtype.VNumber;
@@ -25,7 +27,30 @@ import org.diirt.vtype.VType;
 @SuppressWarnings("nls")
 public class VTypeUtil
 {
+    /** Convert byte array into String
+     *  @param barray {@link VByteArray}
+     *  @return {@link String}
+     */
+    final public static String toString(final VByteArray barray)
+    {
+        final ListByte data = barray.getData();
+        final byte[] bytes = new byte[data.size()];
+        // Copy bytes until end or '\0'
+        int len = 0;
+        while (len<bytes.length)
+        {
+            final byte b = data.getByte(len);
+            if (b == 0)
+                break;
+            else
+                bytes[len++] = b;
+        }
+        return new String(bytes, 0, len);
+    }
+
     /** Format a value as text.
+     *
+     *  <p>Byte arrays are treated as long strings.
      *
      *  TODO Add equivalent of org.csstudio.simplepv.FormatEnum
      *
@@ -52,6 +77,8 @@ public class VTypeUtil
             return ((VString)value).getValue();
         if (value instanceof VEnum)
             return ((VEnum)value).getValue();
+        if (value instanceof VByteArray)
+            return toString((VByteArray) value);
         if (value instanceof VNumberArray)
         {
             final VNumberArray cast = (VNumberArray)value;

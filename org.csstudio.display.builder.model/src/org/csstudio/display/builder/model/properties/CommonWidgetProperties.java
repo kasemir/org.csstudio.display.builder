@@ -29,9 +29,6 @@ import org.diirt.vtype.VType;
 @SuppressWarnings("nls")
 public class CommonWidgetProperties
 {
-    // All properties are described by
-    // Category and property name
-
     /** Constructor for string property
      *  @param category Widget property category
      *  @param name Internal name of the property
@@ -148,9 +145,12 @@ public class CommonWidgetProperties
         };
     }
 
+    // All properties are described by
+    // Category and property name
+
     /** Widget 'type': "label", "rectangle", "textupdate", .. */
     public static final WidgetPropertyDescriptor<String> widgetType = new WidgetPropertyDescriptor<String>(
-            WidgetPropertyCategory.WIDGET, "type", Messages.WidgetProperties_Type, true)
+        WidgetPropertyCategory.WIDGET, "type", Messages.WidgetProperties_Type, true)
     {
         @Override
         public WidgetProperty<String> createProperty(final Widget widget,
@@ -167,7 +167,7 @@ public class CommonWidgetProperties
      *  but lookup by name is then unpredictable.
      */
     public static final WidgetPropertyDescriptor<String> widgetName =
-            newStringPropertyDescriptor(WidgetPropertyCategory.WIDGET, "name", Messages.WidgetProperties_Name);
+        newStringPropertyDescriptor(WidgetPropertyCategory.WIDGET, "name", Messages.WidgetProperties_Name);
 
     /** Widget 'macros' */
     public static final WidgetPropertyDescriptor<Macros> widgetMacros =
