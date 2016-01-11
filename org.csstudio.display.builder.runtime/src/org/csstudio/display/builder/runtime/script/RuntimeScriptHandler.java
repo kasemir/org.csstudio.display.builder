@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,17 +40,20 @@ public class RuntimeScriptHandler implements PVListener
     /** 'pvs' is aligned with 'infos', i.e. pv[i] goes with infos.get(i) */
     private final PV[] pvs;
 
-    /** @param widget Widget on which the script is invoked
-     *  @param script_info Script to handle
+    /** Helper to compile script
+     *
+     *  <p>Resolves script path based on macros and display,
+     *  can be invoked by other code.
+     *
+     *  @param widget Widget on which the script is invoked
+     *  @param macros
+     *  @param script_info Script to compile
+     *  @return Compiled script
      *  @throws Exception on error
      */
-    public RuntimeScriptHandler(final Widget widget, final ScriptInfo script_info) throws Exception
+    public static Script compileScript(final Widget widget, final MacroValueProvider macros,
+                                       final ScriptInfo script_info) throws Exception
     {
-        this.widget = widget;
-        this.infos = script_info.getPVs();
-
-        final MacroValueProvider macros = widget.getEffectiveMacros();
-
         // Compile script
         final String script_name = MacroHandler.replace(macros, script_info.getPath());
         final ScriptSupport scripting = RuntimeUtil.getScriptSupport(widget);
@@ -67,7 +70,20 @@ public class RuntimeScriptHandler implements PVListener
         {   // Use script text that was embedded in display
             stream = new ByteArrayInputStream(script_info.getText().getBytes());
         }
-        script = scripting.compile(script_name, stream);
+        return scripting.compile(script_name, stream);
+    }
+
+    /** @param widget Widget on which the script is invoked
+     *  @param script_info Script to handle
+     *  @throws Exception on error
+     */
+    public RuntimeScriptHandler(final Widget widget, final ScriptInfo script_info) throws Exception
+    {
+        this.widget = widget;
+        this.infos = script_info.getPVs();
+
+        final MacroValueProvider macros = widget.getEffectiveMacros();
+        script = compileScript(widget, macros, script_info);
 
         // Create PVs
         pvs = new PV[infos.size()];

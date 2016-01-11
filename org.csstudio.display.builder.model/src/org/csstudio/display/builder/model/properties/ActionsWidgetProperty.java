@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.properties;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -36,6 +37,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
 {
     private static final String OPEN_DISPLAY = "open_display";
     private static final String WRITE_PV = "write_pv";
+    private static final String EXECUTE_PYTHONSCRIPT = "EXECUTE_PYTHONSCRIPT";
     private static final String EXECUTE_JAVASCRIPT = "EXECUTE_JAVASCRIPT";
 
     /** Constructor
@@ -169,16 +171,27 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 else
                     actions.add(new WritePVActionInfo(description, pv_name, value));
             }
-            else if (EXECUTE_JAVASCRIPT.equalsIgnoreCase(type)) // legacy used uppercase type name
+            else if (EXECUTE_PYTHONSCRIPT.equalsIgnoreCase(type)) // legacy used uppercase type name
             {
                 // Compare legacy XML:
-                // <action type="EXECUTE_JAVASCRIPT">
-                //     <path></path>
+                // <action type="EXECUTE_PYTHONSCRIPT">
+                //     <path>script.py</path>
                 //     <scriptText><![CDATA[ /* The script */ ]]></scriptText>
-                //     <embedded>true</embedded>
+                //     <embedded>false</embedded>
                 //     <description>A script</description>
                 // </action>
-                // TODO Read ScriptInfo, create ScriptAction
+
+                // TODO Write and then read new format
+
+                final boolean embed = Boolean.parseBoolean(XMLUtil.getChildString(action_xml, "embedded").orElse("false"));
+                final String path = XMLUtil.getChildString(action_xml, XMLTags.PATH).orElse("");
+                final String text = XMLUtil.getChildString(action_xml, "scriptText").orElse("");
+                final ScriptInfo info;
+                if (embed)
+                    info = new ScriptInfo(ScriptInfo.EMBEDDED_PYTHON, text, Collections.emptyList());
+                else
+                    info = new ScriptInfo(path, null, Collections.emptyList());
+                actions.add(new ExecuteScriptActionInfo(description, info));
             }
             else
                 Logger.getLogger(getClass().getName())
