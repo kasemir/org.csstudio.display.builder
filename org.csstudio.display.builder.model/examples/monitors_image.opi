@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="1.0.0">
+<display version="2.0.0">
   <name>Display</name>
   <x>-1</x>
   <y>-1</y>
-  <widget type="label" version="1.0.0">
+  <widget type="label" version="2.0.0">
     <name>Label</name>
     <width>181</width>
     <height>31</height>
@@ -13,7 +13,7 @@
       </font>
     </font>
   </widget>
-  <widget type="label" version="1.0.0">
+  <widget type="label" version="2.0.0">
     <name>Label_1</name>
     <y>41</y>
     <width>441</width>
@@ -24,7 +24,7 @@ For Channel Access, this needs to be a waveform that contains
 the pixel values starting with the top-left pixel,
 followed by the pixels of the top row, then the second row and so on.</text>
   </widget>
-  <widget type="image" version="1.0.0">
+  <widget type="image" version="2.0.0">
     <name>Image</name>
     <y>151</y>
     <width>471</width>
