@@ -38,13 +38,53 @@ Dependencies
  * Demos use EPICS `softIoc` for `org.csstudio.display.builder.runtime.test/examples/demo.db`
  * Install the "Liberation" fonts from https://fedorahosted.org/liberation-fonts.
    Mac OS X: Double-click each *.ttf to preview, then click "Install Font".
+
+
+Entry Points
+------------ 
+
+__Standalone 'main()'-type Java applications:__
+
+ * org.csstudio.display.builder.runtime.test/RuntimeDemoJavaFX
+ * org.csstudio.display.builder.runtime.test/RuntimeDemoSWT
+ * org.csstudio.display.builder.editor.EditorDemo
+
+These can be started from within the Eclipse IDE via `Run As`, `Java Application`.
+
+On Mac OS X, note that the `Use the -XstartOnFirstThread argument when launching with SWT` option
+in the `Arguments` tab of the `Run Configuration...` settings must be un-checked
+except for the SWT demo. 
+
+The runtime demos load a model, represent it in JavaFX respectively SWT,
+and start a runtime which connects to process variables.
+
+The editor demo loads a model into the editor.
+
+The path of the initial model is hardcoded unless a model path is provided on
+the command line, i.e. in the `Arguments` tab of the `Run Configuration...` settings.
+
+__Feature for a CS-Studio product:__
+
+ * org.csstudio.display.builder.feature
  
+Registers the Display Builder editor for *.opi files.
+Display files can be executed from within the editor,
+or via a `File`, `Top Displays` menu entry configured
+via `org.csstudio.display.builder.rcp/top_displays`.
+ 
+
+__Command-line build:__
+
+ * build/make.sh
+
+Allows compilation from command line, for example to automate a nightly build.
+
 
 Code Overview
 -------------
 
 `org.csstudio.display.builder.model`:
-Model of Widgets and Properties
+Describes a DisplayModel as a hierarchy of Widgets which each have Properties.
 
 `org.csstudio.display.builder.representation`, 
 `org.csstudio.display.builder.representation.javafx`,

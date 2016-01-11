@@ -2,6 +2,8 @@
 
 <!-- Ant file for building from the command line
 
+	 DEPRECATED, replaced by make.sh and pom.xml
+
      Required environment variables:
      
      JAVA_HOME must point to a 1.8 JDK,
