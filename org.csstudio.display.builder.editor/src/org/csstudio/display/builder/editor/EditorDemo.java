@@ -21,7 +21,7 @@ import javafx.stage.WindowEvent;
 @SuppressWarnings("nls")
 public class EditorDemo extends Application
 {
-    private final String display_file = "../org.csstudio.display.builder.runtime.test/examples/main.opi";
+    private static String display_file = "../org.csstudio.display.builder.runtime.test/examples/main.opi";
 //    private final String display_file = "../org.csstudio.display.builder.runtime.test/examples/legacy.opi";
     private EditorDemoGUI editor;
 
@@ -30,6 +30,9 @@ public class EditorDemo extends Application
      */
     public static void main(final String[] args) throws Exception
     {
+        if (args.length == 1)
+            display_file = args[0];
+
         LogManager.getLogManager().readConfiguration(new FileInputStream("../org.csstudio.display.builder.runtime.test/examples/logging.properties"));
 
         launch(args);
