@@ -8,6 +8,8 @@
 package org.csstudio.display.builder.model;
 
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.osgi.framework.Version;
@@ -60,8 +62,19 @@ public class WidgetConfigurator
             final String prop_name = prop_xml.getNodeName();
             // Skip unknown properties
             final Optional<WidgetProperty<?>> prop = widget.checkProperty(prop_name);
-            if (prop.isPresent())
+            if (! prop.isPresent())
+                continue;
+            try
+            {
                 prop.get().readFromXML(prop_xml);
+            }
+            catch (Exception ex)
+            {
+                Logger.getLogger(getClass().getName())
+                      .log(Level.SEVERE,
+                           "Error reading widget " + widget + " property " + prop.get().getName() +
+                           ", line " + XMLUtil.getLineInfo(prop_xml), ex);
+            }
         }
     }
 }
