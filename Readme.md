@@ -379,3 +379,53 @@ Java 8u60 may apply DPI scaling to all coordinates, which is OK
 because then fonts, rectangles, ... are all scaled consistently for high resolution screens.
 Alternatively, high resolution displays may require using a default zoom factor of for example 2.0
 for the global zoom.
+
+
+Scripts
+-------
+
+The legacy helper classes from `org.csstudio.opibuilder.scriptUtil` are being replaced with similar classes.
+For example, references to `org.csstudio.opibuilder.scriptUtil.PVUtil` need to be updated to
+`org.csstudio.display.builder.runtime.script.PVUtil`.
+
+__Jython__
+
+Basic Jython scripts similar to this one will work without changes because of compatibility classes:
+```
+from org.csstudio.opibuilder.scriptUtil import PVUtil
+widget.setPropertyValue("text", PVUtil.getString(pvs[0]))
+```
+
+For compatibility, classes with the original package name are included.
+When accessed the first time, an error is logged:
+
+`Script accessed deprecated org.csstudio.opibuilder.scriptUtil.PVUtil, update to org.csstudio.display.builder.runtime.script.PVUtil`.
+
+Such Jython scripts should be updated to
+```
+from org.csstudio.display.builder.runtime.script import PVUtil
+widget.setPropertyValue("text", PVUtil.getString(pvs[0]))
+```
+
+
+__Java Script__
+
+JavaScript execution is based on the Nashorn JS engine included in Java 8,
+while the legacy tool used the Rhino engine.
+
+Nashorn requires changes to Rhino scripts because 'importPackage' is no longer supported.
+Instead of `importPackage`, use the fully qualified name.
+
+Example:
+
+```
+importPackage(Packages.org.csstudio.opibuilder.scriptUtil);
+widget.setPropertyValue("text", PVUtil.getString(pvs[0]));
+```
+
+needs to change into the following, including use of the new package name:
+
+```
+PVUtil = org.csstudio.display.builder.runtime.script.PVUtil;
+widget.setPropertyValue("text", PVUtil.getString(pvs[0]));
+```

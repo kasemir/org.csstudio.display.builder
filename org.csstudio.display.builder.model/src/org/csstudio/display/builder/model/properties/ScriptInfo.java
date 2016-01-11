@@ -32,12 +32,31 @@ public class ScriptInfo
     /** Script 'path' used to indicate an embedded python script */
     public final static String EMBEDDED_PYTHON = "EmbeddedPy";
 
-    private final String file, text;
+    /** Script 'path' used to indicate an embedded java script */
+    public final static String EMBEDDED_JAVASCRIPT = "EmbeddedJs";
+
+    private final String path, text;
     private final List<ScriptPV> pvs;
 
-    public ScriptInfo(final String file, final String text, final List<ScriptPV> pvs)
+    /** @param path Path to the script.
+     *  @return <code>true</code> if Jython
+     */
+    public static boolean isJython(final String path)
     {
-        this.file = Objects.requireNonNull(file);
+        return path.endsWith(".py")  ||  EMBEDDED_PYTHON.equals(path);
+    }
+
+    /** @param path Path to the script.
+     *  @return <code>true</code> if JavaScript
+     */
+    public static boolean isJavaScript(final String path)
+    {
+        return path.endsWith(".js")  ||  EMBEDDED_JAVASCRIPT.equals(path);
+    }
+
+    public ScriptInfo(final String path, final String text, final List<ScriptPV> pvs)
+    {
+        this.path = Objects.requireNonNull(path);
         this.text = text;
         this.pvs = Collections.unmodifiableList(Objects.requireNonNull(pvs));
     }
@@ -47,12 +66,12 @@ public class ScriptInfo
         this(path, null, Arrays.asList(pvs));
     }
 
-    /** @return Path to the script. May be URL, or contain macros. File ending determines type of script */
-    public String getFile()
+    /** @return Path to the script. May be URL, or contain macros.
+     *          File ending or magic EMBEDDED_* name determines type of script
+     */
+    public String getPath()
     {
-        if (text != null)
-            return EMBEDDED_PYTHON;
-        return file;
+        return path;
     }
 
     /** @return Script text, may be <code>null</code> */
@@ -70,6 +89,6 @@ public class ScriptInfo
     @Override
     public String toString()
     {
-        return "ScriptInfo('" + file + "', " + pvs + ")";
+        return "ScriptInfo('" + path + "', " + pvs + ")";
     }
 }

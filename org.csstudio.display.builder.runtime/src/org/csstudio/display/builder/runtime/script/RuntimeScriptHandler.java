@@ -52,7 +52,7 @@ public class RuntimeScriptHandler implements PVListener
         final MacroValueProvider macros = widget.getEffectiveMacros();
 
         // Compile script
-        final String script_name = MacroHandler.replace(macros, script_info.getFile());
+        final String script_name = MacroHandler.replace(macros, script_info.getPath());
         final ScriptSupport scripting = RuntimeUtil.getScriptSupport(widget);
 
         final InputStream stream;

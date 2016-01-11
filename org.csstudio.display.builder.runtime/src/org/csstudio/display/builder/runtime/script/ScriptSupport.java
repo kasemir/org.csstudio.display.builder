@@ -41,29 +41,29 @@ public class ScriptSupport
 
     /** Parse and compile script file
      *
-     *  @param filename Full path to script file
+     *  @param path Full path to script file
      *  @return {@link Script}
      *  @throws Exception on error
      */
-    public Script compile(final String filename) throws Exception
+    public Script compile(final String path) throws Exception
     {
-        return compile(filename, new FileInputStream(filename));
+        return compile(path, new FileInputStream(path));
     }
 
     /** Parse and compile script file
      *
-     *  @param name Name of script (file name, URL)
+     *  @param path Name of script (file name, URL)
      *  @param stream Stream for the script content
      *  @return {@link Script}
      *  @throws Exception on error
      */
-    public Script compile(final String name, final InputStream stream) throws Exception
+    public Script compile(final String path, final InputStream stream) throws Exception
     {
-        if (name.endsWith(".py")  ||  ScriptInfo.EMBEDDED_PYTHON.equals(name))
-            return jython.compile(name, stream);
-        else if (name.endsWith(".js"))
-            return javascript.compile(name, stream);
-        throw new Exception("Cannot compile '" + name + "'");
+        if (ScriptInfo.isJython(path))
+            return jython.compile(path, stream);
+        else if (ScriptInfo.isJavaScript(path))
+            return javascript.compile(path, stream);
+        throw new Exception("Cannot compile '" + path + "'");
     }
 
     /** Release resources (interpreter, ...) */

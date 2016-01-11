@@ -61,7 +61,7 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
         for (final ScriptInfo info : value)
         {
             writer.writeStartElement(XMLTags.SCRIPT);
-            writer.writeAttribute(XMLTags.FILE, info.getFile());
+            writer.writeAttribute(XMLTags.FILE, info.getPath());
             final String text = info.getText();
             if (text != null)
             {

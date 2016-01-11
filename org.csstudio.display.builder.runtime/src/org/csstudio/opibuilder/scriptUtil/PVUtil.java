@@ -24,6 +24,10 @@ import java.util.logging.Logger;
  */
 public class PVUtil extends org.csstudio.display.builder.runtime.script.PVUtil
 {
+    // TODO Change PVUtil compatibility mechanism
+    // When both opibuilder and display.builder plugins are in product,
+    // unclear which one the script sees.
+    // If it sees this one, that will break scripts called by legacy runtime.
     static
     {
         Logger.getLogger(PVUtil.class.getName())

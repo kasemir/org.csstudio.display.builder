@@ -106,7 +106,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         {
             final List<PVItem> pvs = new ArrayList<>();
             info.getPVs().forEach(pv -> pvs.add(PVItem.forPV(pv)));
-            return new ScriptItem(info.getFile(), info.getText(), pvs);
+            return new ScriptItem(info.getPath(), info.getText(), pvs);
         }
 
         public ScriptInfo getScriptInfo()

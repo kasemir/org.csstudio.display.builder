@@ -36,6 +36,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
 {
     private static final String OPEN_DISPLAY = "open_display";
     private static final String WRITE_PV = "write_pv";
+    private static final String EXECUTE_JAVASCRIPT = "EXECUTE_JAVASCRIPT";
 
     /** Constructor
      *  @param descriptor Property descriptor
@@ -167,6 +168,17 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                           .log(Level.WARNING, "Ignoring <action type='" + WRITE_PV + "'> with empty <pv_name> and/or <value>");
                 else
                     actions.add(new WritePVActionInfo(description, pv_name, value));
+            }
+            else if (EXECUTE_JAVASCRIPT.equalsIgnoreCase(type)) // legacy used uppercase type name
+            {
+                // Compare legacy XML:
+                // <action type="EXECUTE_JAVASCRIPT">
+                //     <path></path>
+                //     <scriptText><![CDATA[ /* The script */ ]]></scriptText>
+                //     <embedded>true</embedded>
+                //     <description>A script</description>
+                // </action>
+                // TODO Read ScriptInfo, create ScriptAction
             }
             else
                 Logger.getLogger(getClass().getName())
