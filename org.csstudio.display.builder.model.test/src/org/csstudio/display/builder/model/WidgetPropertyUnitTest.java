@@ -10,12 +10,16 @@ package org.csstudio.display.builder.model;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.List;
 
+import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.junit.Test;
 
 /** JUnit test of widget properties
@@ -113,5 +117,76 @@ public class WidgetPropertyUnitTest
         assertThat(type.getValue(), equalTo("generic"));
         type.setValue("other type");
         assertThat(type.getValue(), equalTo("generic"));
+    }
+
+    /** Example enum with end-user labels */
+    enum Align
+    {
+        LEFT("Left"), CENTER("Center"), RIGHT("Right");
+
+        private final String label;
+
+        private Align(final String label)
+        {
+            this.label = label;
+        }
+
+        public String toString()
+        {
+            return label;
+        }
+    };
+
+    WidgetPropertyDescriptor<Align> alignHoriz =
+            new WidgetPropertyDescriptor<Align>(WidgetPropertyCategory.DISPLAY, "horiz_align", "Horizontal alignment")
+    {
+        @Override
+        public WidgetProperty<Align> createProperty(final Widget widget, final Align default_value)
+        {
+            return new EnumWidgetProperty<Align>(this, widget, default_value);
+        }
+    };
+
+    /* Test enumerated property read/write API */
+    @Test
+    public void testEnum() throws Exception
+    {
+        final EnumWidgetProperty<Align> prop = new EnumWidgetProperty<Align>(alignHoriz, null, Align.LEFT);
+        System.out.println(prop);
+        assertThat(prop.getValue(), equalTo(Align.LEFT));
+
+        // Set value as enum
+        prop.setValue(Align.RIGHT);
+        System.out.println(prop);
+        assertThat(prop.getValue(), equalTo(Align.RIGHT));
+
+        // Set value as object, using the enum
+        prop.setValueFromObject(Align.LEFT);
+        System.out.println(prop);
+        assertThat(prop.getValue(), equalTo(Align.LEFT));
+
+        // Set value from enum name
+        prop.setValueFromObject("CENTER");
+        System.out.println(prop);
+        assertThat(prop.getValue(), equalTo(Align.CENTER));
+
+        // Set value from ordinal
+        prop.setValueFromObject(2);
+        System.out.println(prop);
+        assertThat(prop.getValue(), equalTo(Align.RIGHT));
+
+        // Capture invalid ordinal
+        try
+        {
+            prop.setValueFromObject(20);
+            fail("Allowed invalid ordinal");
+        }
+        catch (Exception ex)
+        {
+            assertThat(ex.getMessage().toLowerCase(), containsString("invalid ordinal"));
+        }
+
+        System.out.println(Arrays.toString(prop.getLabels()));
+        assertThat(prop.getLabels(), equalTo(new String[] { "Left", "Center", "Right" } ));
     }
 }

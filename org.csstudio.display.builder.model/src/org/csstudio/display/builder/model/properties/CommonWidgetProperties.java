@@ -304,7 +304,7 @@ public class CommonWidgetProperties
 
     /** Behavior 'maximum': Maximum display range */
     public static final WidgetPropertyDescriptor<Double> behaviorMaximum =
-            newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "maximum", Messages.WidgetProperties_Maximum);
+        newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "maximum", Messages.WidgetProperties_Maximum);
 
     /** Runtime 'value': Typically read from primary PV */
     public static final WidgetPropertyDescriptor<VType> runtimeValue = newRuntimeValue("value", Messages.WidgetProperties_Value);
