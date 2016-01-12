@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -69,10 +68,13 @@ public class WidgetRuntime<MW extends Widget>
     /** Listener for <code>primary_pv</code> */
     private PVListener primary_pv_listener;
 
-    /** PVs used by actions */
+    /** PVs used by actions
+     *
+     *  <p>Lazily created if there are scripts.
+     */
     // This is empty for most widgets, or contains very few PVs,
     // so using List with linear lookup by name and not a HashMap
-    private final List<PV> pvs = new CopyOnWriteArrayList<>();
+    private volatile List<PV> pvs = null;
 
     /** Handlers for widget's behaviorScripts property,
      *  i.e. scripts that are triggered by PVs
@@ -190,14 +192,21 @@ public class WidgetRuntime<MW extends Widget>
         }
 
         // Prepare action-related PVs
-        for (final ActionInfo action : widget.behaviorActions().getValue())
+        final List<ActionInfo> actions = widget.behaviorActions().getValue();
+        if (actions.size() > 0)
         {
-            if (action instanceof WritePVActionInfo)
+            final List<PV> action_pvs = new ArrayList<>();
+            for (final ActionInfo action : actions)
             {
-                final String pv_name = ((WritePVActionInfo) action).getPV();
-                final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
-                pvs.add(PVPool.getPV(expanded));
+                if (action instanceof WritePVActionInfo)
+                {
+                    final String pv_name = ((WritePVActionInfo) action).getPV();
+                    final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
+                    action_pvs.add(PVPool.getPV(expanded));
+                }
             }
+            if (action_pvs.size() > 0)
+                this.pvs = action_pvs;
         }
 
         // Start scripts in pool because Jython setup is expensive
@@ -281,19 +290,21 @@ public class WidgetRuntime<MW extends Widget>
     public void writePV(final String pv_name, final Object value) throws Exception
     {
         final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
-        for (final PV pv : pvs)
-            if (pv.getName().equals(expanded))
-            {
-                try
+        final List<PV> safe_pvs = pvs;
+        if (safe_pvs != null)
+            for (final PV pv : safe_pvs)
+                if (pv.getName().equals(expanded))
                 {
-                    pv.write(value);
+                    try
+                    {
+                        pv.write(value);
+                    }
+                    catch (final Exception ex)
+                    {
+                        throw new Exception("Failed to write " + value + " to PV " + expanded, ex);
+                    }
+                    return;
                 }
-                catch (final Exception ex)
-                {
-                    throw new Exception("Failed to write " + value + " to PV " + expanded, ex);
-                }
-                return;
-            }
         throw new Exception("Unknown PV '" + pv_name + "' (expanded: '" + expanded + "')");
     }
 
@@ -329,8 +340,13 @@ public class WidgetRuntime<MW extends Widget>
     /** Stop: Disconnect PVs, ... */
     public void stop()
     {
-        for (final PV pv : pvs)
-            PVPool.releasePV(pv);
+        final List<PV> safe_pvs = pvs;
+        if (safe_pvs != null)
+        {
+            for (final PV pv : safe_pvs)
+                PVPool.releasePV(pv);
+            pvs = null;
+        }
 
         disconnectPV();
         if (pv_name_listener != null)
