@@ -22,7 +22,7 @@ public class SetMacroizedWidgetPropertyAction extends UndoableAction
     private final String text;
 
     public SetMacroizedWidgetPropertyAction(final MacroizedWidgetProperty<?> widget_property,
-                                      final String text)
+                                            final String text)
     {
         super(NLS.bind(Messages.SetPropertyFmt, widget_property.getDescription()));
         this.widget_property = widget_property;
