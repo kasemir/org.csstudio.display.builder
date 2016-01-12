@@ -47,6 +47,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Font;
     public static String WidgetProperties_ForegroundColor;
     public static String WidgetProperties_Height;
+    public static String WidgetProperties_HorizontalAlignment;
     public static String WidgetProperties_Insets;
     public static String WidgetProperties_LimitsFromPV;
     public static String WidgetProperties_LineColor;

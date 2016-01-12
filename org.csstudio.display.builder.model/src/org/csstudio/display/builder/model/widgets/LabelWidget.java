@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayHorizontalAlignment;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayTransparent;
 
@@ -25,6 +26,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.properties.HorizontalAlignment;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 
@@ -54,6 +56,7 @@ public class LabelWidget extends BaseWidget
     private WidgetProperty<WidgetColor> background;
     private WidgetProperty<Boolean> transparent;
     private WidgetProperty<WidgetFont> font;
+    private WidgetProperty<HorizontalAlignment> horizontal_alignment;
 
     public LabelWidget()
     {
@@ -69,6 +72,7 @@ public class LabelWidget extends BaseWidget
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(transparent = displayTransparent.createProperty(this, true));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(horizontal_alignment = displayHorizontalAlignment.createProperty(this, HorizontalAlignment.LEFT));
     }
 
     /** @return Display 'text' */
@@ -99,5 +103,11 @@ public class LabelWidget extends BaseWidget
     public WidgetProperty<WidgetFont> displayFont()
     {
         return font;
+    }
+
+    /** @return Display 'horizontal_alignment' */
+    public WidgetProperty<HorizontalAlignment> displayHorizontalAlignment()
+    {
+        return horizontal_alignment;
     }
 }

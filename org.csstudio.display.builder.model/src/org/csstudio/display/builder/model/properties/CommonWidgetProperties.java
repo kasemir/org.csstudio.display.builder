@@ -264,6 +264,19 @@ public class CommonWidgetProperties
         }
     };
 
+    /** Display 'horizontal_alignment' */
+    public static final WidgetPropertyDescriptor<HorizontalAlignment> displayHorizontalAlignment =
+        new WidgetPropertyDescriptor<HorizontalAlignment>(
+            WidgetPropertyCategory.DISPLAY, "horizontal_alignment", Messages.WidgetProperties_HorizontalAlignment)
+    {
+        @Override
+        public EnumWidgetProperty<HorizontalAlignment> createProperty(final Widget widget,
+                                                                      final HorizontalAlignment default_value)
+        {
+            return new EnumWidgetProperty<HorizontalAlignment>(this, widget, default_value);
+        }
+    };
+
     /** Behavior 'pv_name':Primary PV Name */
     public static final WidgetPropertyDescriptor<String> behaviorPVName =
         newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "pv_name", Messages.WidgetProperties_PVName);

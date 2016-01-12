@@ -80,6 +80,17 @@ public class EnumWidgetProperty<E extends Enum<E>> extends MacroizedWidgetProper
         throw new Exception("Enum property '" + getName() + "' received invalid value " + text);
     }
 
+    @Override
+    public void setValue(final E value)
+    {
+        if (isReadonly())
+            return;
+        specification = value.name();
+        final E old_value = this.value;
+        this.value = value;
+        firePropertyChange(this, old_value, value);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void setValueFromObject(final Object value) throws Exception
