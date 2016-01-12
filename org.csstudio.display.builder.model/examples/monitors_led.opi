@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="1.0.0">
+<display version="2.0.0">
   <name>Display</name>
   <x>-1</x>
   <y>-1</y>
-  <widget type="label" version="1.0.0">
+  <widget type="label" version="2.0.0">
     <name>Label</name>
     <width>181</width>
     <height>31</height>
@@ -13,14 +13,14 @@
       </font>
     </font>
   </widget>
-  <widget type="label" version="1.0.0">
+  <widget type="label" version="2.0.0">
     <name>Label_1</name>
     <y>41</y>
     <width>321</width>
     <height>30</height>
     <text>Displays if the value of a PV is zero or non-zero.</text>
   </widget>
-  <widget type="textupdate" version="1.0.0">
+  <widget type="textupdate" version="2.0.0">
     <name>Text Update</name>
     <x>181</x>
     <y>91</y>
@@ -28,7 +28,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
     <pv_name>sim://ramp(0, 1, 1, 1)</pv_name>
   </widget>
-  <widget type="label" version="1.0.0">
+  <widget type="label" version="2.0.0">
     <name>Label_2</name>
     <y>91</y>
     <width>111</width>
@@ -42,7 +42,7 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
     <pv_name>sim://ramp(0, 1, 1, 1)</pv_name>
   </widget>
-  <widget type="textupdate" version="1.0.0">
+  <widget type="textupdate" version="2.0.0">
     <name>Text Update_1</name>
     <x>181</x>
     <y>141</y>
@@ -58,13 +58,13 @@
     <border_alarm_sensitive>false</border_alarm_sensitive>
     <pv_name>sim://ramp(0, 3, 1, 1)</pv_name>
   </widget>
-  <widget type="label" version="1.0.0">
+  <widget type="label" version="2.0.0">
     <name>Label_3</name>
     <y>141</y>
     <width>111</width>
     <text>More Values:</text>
   </widget>
-  <widget type="label" version="1.0.0">
+  <widget type="label" version="2.0.0">
     <name>Label_4</name>
     <y>231</y>
     <width>111</width>

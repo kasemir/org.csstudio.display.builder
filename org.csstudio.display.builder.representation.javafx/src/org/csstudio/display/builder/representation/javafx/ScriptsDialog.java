@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,12 +24,13 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
@@ -42,7 +43,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
-import javafx.util.Callback;
 
 /** Dialog for editing {@link ScriptInfo}s
  *  @author Kay Kasemir
@@ -50,6 +50,11 @@ import javafx.util.Callback;
 @SuppressWarnings("nls")
 public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 {
+    // XXX Smoother script type change:
+    // If already "EmbeddedPy" and file is selected, prompt if embedded script should be deleted.
+    // If already "EmbeddedPy" and Embedded JS is selected, prompt if type should be changed from python to JS.
+    // If already "EmbeddedJS", ..
+
     /** ScriptPV info as property-based item for table */
     public static class PVItem
     {
@@ -92,7 +97,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         public ScriptItem()
         {
-            this("", null, new ArrayList<>());
+            this(Messages.ScriptsDialog_DefaultScriptFile, null, new ArrayList<>());
         }
 
         public ScriptItem(final String file, final String text, final List<PVItem> pvs)
@@ -122,77 +127,6 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         }
     };
 
-    /** Table cell with buttons to select file or edit the "embedded" script */
-    private static class ScriptButtonCell extends TableCell<ScriptItem, Boolean>
-    {
-        private final Button btn_file = new Button(Messages.ScriptsDialog_BtnFile, JFXUtil.getIcon("open_file.png"));
-        private final Button btn_embed = new Button(Messages.ScriptsDialog_BtnEmbed, JFXUtil.getIcon("embedded_script.png"));
-
-        private final HBox buttons = new HBox(10, btn_file, btn_embed);
-
-        public static Callback<TableColumn<ScriptItem, Boolean>, TableCell<ScriptItem, Boolean>> forTableColumn()
-        {
-            return col -> new ScriptButtonCell(col);
-        };
-
-        public ScriptButtonCell(TableColumn<ScriptItem, Boolean> col)
-        {
-            btn_file.setMinWidth(USE_PREF_SIZE);
-            btn_embed.setMinWidth(USE_PREF_SIZE);
-
-            btn_file.setOnAction(event ->
-            {
-                final ScriptItem item = getScriptItem();
-
-                final FileChooser dlg = new FileChooser();
-                dlg.setTitle(Messages.ScriptsDialog_FileBrowser_Title);
-                if (item.file.get().length() > 0)
-                {
-                    File file = new File(item.file.get());
-                    dlg.setInitialDirectory(file.getParentFile());
-                    dlg.setInitialFileName(file.getName());
-                }
-                dlg.getExtensionFilters().addAll(new ExtensionFilter(Messages.ScriptsDialog_FileType_Script, "*.py"),
-                                                 new ExtensionFilter(Messages.ScriptsDialog_FileType_All, "*.*"));
-                final Window window = col.getTableView().getScene().getWindow();
-                final File result = dlg.showOpenDialog(window);
-                if (result != null)
-                {
-                    item.file.set(result.getPath());
-                    item.text = null;
-                }
-            });
-            btn_embed.setOnAction(event ->
-            {
-                final ScriptItem item = getScriptItem();
-                if (item.text == null  ||  item.text.trim().isEmpty())
-                    item.text = Messages.ScriptsDialog_DefaultEmbeddedScript;
-
-                final MultiLineInputDialog dlg = new MultiLineInputDialog(getTableView(), item.text);
-                final Optional<String> result = dlg.showAndWait();
-                if (result.isPresent())
-                {
-                    item.file.set(ScriptInfo.EMBEDDED_PYTHON);
-                    item.text = result.get();
-                }
-            });
-        }
-
-        private ScriptItem getScriptItem()
-        {
-        	final TableView<ScriptItem> table = getTableView();
-        	return table.getItems().get(getTableRow().getIndex());
-        }
-
-        @Override
-        protected void updateItem(final Boolean item, final boolean empty)
-        {
-            setGraphic(empty ? null : buttons);
-        }
-    };
-
-
-
     /** Data that is linked to the scripts_table */
     private final ObservableList<ScriptItem> script_items = FXCollections.observableArrayList();
 
@@ -204,6 +138,10 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
     /** Table for PVs of currently selected script */
     private TableView<PVItem> pvs_table;
+
+    private Button btn_file, btn_embed_py, btn_embed_js;
+
+    private ScriptItem selected_script_item = null;
 
 
     /** @param scripts Scripts to show/edit in the dialog */
@@ -238,10 +176,19 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         // Display PVs of currently selected script
         scripts_table.getSelectionModel().selectedItemProperty().addListener((prop, old, selected) ->
         {
+            selected_script_item = selected;
             if (selected == null)
+            {
+                btn_file.setDisable(true);
+                btn_embed_py.setDisable(true);
+                btn_embed_js.setDisable(true);
                 pv_items.clear();
+            }
             else
             {
+                btn_file.setDisable(false);
+                btn_embed_py.setDisable(false);
+                btn_embed_js.setDisable(false);
                 pv_items.setAll(selected.pvs);
                 fixupPVs(0);
             }
@@ -277,18 +224,11 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             fixupScripts(row);
         });
 
-        // Table column w/ buttons to browse for file or set to ScriptInfo.EMBEDDED_PYTHON
-        final TableColumn<ScriptItem, Boolean> buttons_col = new TableColumn<>();
-        buttons_col.setStyle("-fx-background-color: -fx-color");
-        buttons_col.setCellFactory(ScriptButtonCell.forTableColumn());
-
         scripts_table = new TableView<>(script_items);
         scripts_table.getColumns().add(name_col);
-        scripts_table.getColumns().add(buttons_col);
         scripts_table.setEditable(true);
         scripts_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         scripts_table.setTooltip(new Tooltip(Messages.ScriptsDialog_ScriptsTT));
-        scripts_table.setMinWidth(400);
 
         // Buttons
         final Button add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
@@ -310,7 +250,68 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             }
         });
 
-        final VBox buttons = new VBox(10, add, remove);
+        btn_file = new Button(Messages.ScriptsDialog_BtnFile, JFXUtil.getIcon("open_file.png"));
+        btn_file.setMaxWidth(Double.MAX_VALUE);
+        btn_file.setDisable(true);
+        btn_file.setOnAction(event ->
+        {
+            final FileChooser dlg = new FileChooser();
+            dlg.setTitle(Messages.ScriptsDialog_FileBrowser_Title);
+            if (selected_script_item.file.get().length() > 0)
+            {
+                File file = new File(selected_script_item.file.get());
+                dlg.setInitialDirectory(file.getParentFile());
+                dlg.setInitialFileName(file.getName());
+            }
+            dlg.getExtensionFilters().addAll(new ExtensionFilter(Messages.ScriptsDialog_FileType_Py, "*.py"),
+                    new ExtensionFilter(Messages.ScriptsDialog_FileType_JS, "*.js"),
+                    new ExtensionFilter(Messages.ScriptsDialog_FileType_All, "*.*"));
+            final Window window = btn_file.getScene().getWindow();
+            final File result = dlg.showOpenDialog(window);
+            if (result != null)
+            {
+                selected_script_item.file.set(result.getPath());
+                selected_script_item.text = null;
+            }
+        });
+
+        btn_embed_py = new Button(Messages.ScriptsDialog_BtnEmbedPy, JFXUtil.getIcon("embedded_script.png"));
+        btn_embed_py.setMaxWidth(Double.MAX_VALUE);
+        btn_embed_py.setDisable(true);
+        btn_embed_py.setOnAction(event ->
+        {
+            if (selected_script_item.text == null  ||  selected_script_item.text.trim().isEmpty())
+                selected_script_item.text = Messages.ScriptsDialog_DefaultEmbeddedPython;
+
+            final MultiLineInputDialog dlg = new MultiLineInputDialog(scripts_table, selected_script_item.text);
+            final Optional<String> result = dlg.showAndWait();
+            if (result.isPresent())
+            {
+                selected_script_item.file.set(ScriptInfo.EMBEDDED_PYTHON);
+                selected_script_item.text = result.get();
+            }
+        });
+
+        btn_embed_js = new Button(Messages.ScriptsDialog_BtnEmbedJS, JFXUtil.getIcon("embedded_script.png"));
+        btn_embed_js.setMaxWidth(Double.MAX_VALUE);
+        btn_embed_js.setDisable(true);
+        btn_embed_js.setOnAction(event ->
+        {
+            if (selected_script_item.text == null  ||  selected_script_item.text.trim().isEmpty())
+                selected_script_item.text = Messages.ScriptsDialog_DefaultEmbeddedJavaScript;
+
+            final MultiLineInputDialog dlg = new MultiLineInputDialog(scripts_table, selected_script_item.text);
+            final Optional<String> result = dlg.showAndWait();
+            if (result.isPresent())
+            {
+                selected_script_item.file.set(ScriptInfo.EMBEDDED_JAVASCRIPT);
+                selected_script_item.text = result.get();
+            }
+        });
+
+        final VBox buttons = new VBox(10, add, remove,
+                                          new Separator(Orientation.HORIZONTAL),
+                                          btn_file, btn_embed_py, btn_embed_js);
         final HBox content = new HBox(10, scripts_table, buttons);
         HBox.setHgrow(scripts_table, Priority.ALWAYS);
         return content;

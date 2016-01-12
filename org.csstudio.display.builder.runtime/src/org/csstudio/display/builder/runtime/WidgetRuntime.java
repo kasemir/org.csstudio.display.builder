@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,9 +10,12 @@ package org.csstudio.display.builder.runtime;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,10 +23,13 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.MacroHandler;
+import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
 import org.csstudio.display.builder.runtime.script.RuntimeScriptHandler;
+import org.csstudio.display.builder.runtime.script.Script;
 import org.csstudio.vtype.pv.PV;
 import org.csstudio.vtype.pv.PVListener;
 import org.csstudio.vtype.pv.PVPool;
@@ -62,13 +68,26 @@ public class WidgetRuntime<MW extends Widget>
     /** Listener for <code>primary_pv</code> */
     private PVListener primary_pv_listener;
 
-    /** PVs used by actions */
+    /** PVs used by actions
+     *
+     *  <p>Lazily created if there are scripts.
+     */
     // This is empty for most widgets, or contains very few PVs,
     // so using List with linear lookup by name and not a HashMap
-    private final List<PV> pvs = new CopyOnWriteArrayList<>();
+    private volatile List<PV> pvs = null;
 
-    /** Handlers for widget's behaviorScripts property */
-    private final List<RuntimeScriptHandler> script_handlers = new CopyOnWriteArrayList<>();
+    /** Handlers for widget's behaviorScripts property,
+     *  i.e. scripts that are triggered by PVs
+     *
+     *  <p>Lazily created if there are scripts.
+     */
+    private volatile List<RuntimeScriptHandler> script_handlers = null;
+
+    /** Scripts invoked by actions, i.e. triggered by user
+     *
+     *  <p>Lazily created if there are scripts.
+     */
+    private volatile Map<ExecuteScriptActionInfo, Script> action_scripts = null;
 
     /** PVListener that updates 'value' property with received VType */
     protected static class PropertyUpdater implements PVListener
@@ -173,14 +192,21 @@ public class WidgetRuntime<MW extends Widget>
         }
 
         // Prepare action-related PVs
-        for (final ActionInfo action : widget.behaviorActions().getValue())
+        final List<ActionInfo> actions = widget.behaviorActions().getValue();
+        if (actions.size() > 0)
         {
-            if (action instanceof WritePVActionInfo)
+            final List<PV> action_pvs = new ArrayList<>();
+            for (final ActionInfo action : actions)
             {
-                final String pv_name = ((WritePVActionInfo) action).getPV();
-                final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
-                pvs.add(PVPool.getPV(expanded));
+                if (action instanceof WritePVActionInfo)
+                {
+                    final String pv_name = ((WritePVActionInfo) action).getPV();
+                    final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
+                    action_pvs.add(PVPool.getPV(expanded));
+                }
             }
+            if (action_pvs.size() > 0)
+                this.pvs = action_pvs;
         }
 
         // Start scripts in pool because Jython setup is expensive
@@ -190,17 +216,50 @@ public class WidgetRuntime<MW extends Widget>
     /** Start Scripts */
     private void startScripts()
     {
-        for (final ScriptInfo script_info : widget.behaviorScripts().getValue())
+        // Start scripts triggered by PVs
+        final List<ScriptInfo> script_infos = widget.behaviorScripts().getValue();
+        if (script_infos.size() > 0)
         {
-            try
+            final List<RuntimeScriptHandler> handlers = new ArrayList<>(script_infos.size());
+            for (final ScriptInfo script_info : script_infos)
             {
-                script_handlers.add(new RuntimeScriptHandler(widget, script_info));
+                try
+                {
+                    handlers.add(new RuntimeScriptHandler(widget, script_info));
+                }
+                catch (final Exception ex)
+                {
+                    logger.log(Level.WARNING,
+                        "Widget " + widget.getName() + " script " + script_info.getPath() + " failed to initialize", ex);
+                }
             }
-            catch (final Exception ex)
+            script_handlers = handlers;
+        }
+
+        // Compile scripts invoked by actions
+        final List<ActionInfo> actions = widget.behaviorActions().getValue();
+        if (actions.size() > 0)
+        {
+            final Map<ExecuteScriptActionInfo, Script> scripts = new HashMap<>();
+            for (ActionInfo action_info : actions)
             {
-                logger.log(Level.WARNING,
-                    "Widget " + widget.getName() + " script " + script_info.getPath() + " failed to initialize", ex);
+                if (! (action_info instanceof ExecuteScriptActionInfo))
+                    continue;
+                final ExecuteScriptActionInfo script_action = (ExecuteScriptActionInfo) action_info;
+                try
+                {
+                    final MacroValueProvider macros = widget.getEffectiveMacros();
+                    final Script script = RuntimeScriptHandler.compileScript(widget, macros, script_action.getInfo());
+                    scripts.put(script_action, script);
+                }
+                catch (final Exception ex)
+                {
+                    logger.log(Level.WARNING,
+                        "Widget " + widget.getName() + " script action " + script_action + " failed to initialize", ex);
+                }
             }
+            if (scripts.size() > 0)
+                action_scripts = scripts;
         }
     }
 
@@ -231,20 +290,33 @@ public class WidgetRuntime<MW extends Widget>
     public void writePV(final String pv_name, final Object value) throws Exception
     {
         final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
-        for (final PV pv : pvs)
-            if (pv.getName().equals(expanded))
-            {
-                try
+        final List<PV> safe_pvs = pvs;
+        if (safe_pvs != null)
+            for (final PV pv : safe_pvs)
+                if (pv.getName().equals(expanded))
                 {
-                    pv.write(value);
+                    try
+                    {
+                        pv.write(value);
+                    }
+                    catch (final Exception ex)
+                    {
+                        throw new Exception("Failed to write " + value + " to PV " + expanded, ex);
+                    }
+                    return;
                 }
-                catch (final Exception ex)
-                {
-                    throw new Exception("Failed to write " + value + " to PV " + expanded, ex);
-                }
-                return;
-            }
         throw new Exception("Unknown PV '" + pv_name + "' (expanded: '" + expanded + "')");
+    }
+
+    /** Execute script
+     *  @param action_info Which script-based action to execute
+     *  @throws NullPointerException if action_info is not valid, runtime not initialized
+     */
+    public void executeScriptAction(final ExecuteScriptActionInfo action_info) throws NullPointerException
+    {
+        final Map<ExecuteScriptActionInfo, Script> actions = Objects.requireNonNull(action_scripts);
+        final Script script = Objects.requireNonNull(actions.get(action_info));
+        script.submit(widget);
     }
 
     /** Disconnect the primary PV
@@ -268,8 +340,13 @@ public class WidgetRuntime<MW extends Widget>
     /** Stop: Disconnect PVs, ... */
     public void stop()
     {
-        for (final PV pv : pvs)
-            PVPool.releasePV(pv);
+        final List<PV> safe_pvs = pvs;
+        if (safe_pvs != null)
+        {
+            for (final PV pv : safe_pvs)
+                PVPool.releasePV(pv);
+            pvs = null;
+        }
 
         disconnectPV();
         if (pv_name_listener != null)
@@ -278,8 +355,20 @@ public class WidgetRuntime<MW extends Widget>
             pv_name_listener = null;
         }
 
-        for (final RuntimeScriptHandler handler : script_handlers)
-            handler.shutdown();
+        final Map<ExecuteScriptActionInfo, Script> actions = action_scripts;
+        if (actions != null)
+        {
+            actions.clear();
+            action_scripts = null;
+        }
+
+        final List<RuntimeScriptHandler> handlers = script_handlers;
+        if (handlers != null)
+        {
+            for (final RuntimeScriptHandler handler : handlers)
+                handler.shutdown();
+            script_handlers = null;
+        }
     }
 }
 

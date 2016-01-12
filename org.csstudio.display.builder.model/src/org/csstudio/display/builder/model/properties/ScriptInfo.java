@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,6 +54,10 @@ public class ScriptInfo
         return path.endsWith(".js")  ||  EMBEDDED_JAVASCRIPT.equals(path);
     }
 
+    /** @param path Script path. May be URL, contain macros, or use magic EMBEDDED_* name.
+     *  @param text Text or <code>null</code>
+     *  @param pvs PVs
+     */
     public ScriptInfo(final String path, final String text, final List<ScriptPV> pvs)
     {
         this.path = Objects.requireNonNull(path);

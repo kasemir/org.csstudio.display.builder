@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -39,20 +40,22 @@ public class ActionUtil
             RuntimeUtil.getExecutor().execute(() -> openDisplay(source_widget, (OpenDisplayActionInfo) action));
         else if (action instanceof WritePVActionInfo)
             RuntimeUtil.getExecutor().execute(() -> writePV(source_widget, (WritePVActionInfo) action));
+        else if (action instanceof ExecuteScriptActionInfo)
+            RuntimeUtil.getExecutor().execute(() -> executeScript(source_widget, (ExecuteScriptActionInfo) action));
         else
             logger.log(Level.WARNING, "Cannot handle unknown " + action);
     }
 
-    /** Open a display.
+    /** Open a display
      *
      *  <p>Depending on the target of the action,
      *  this will open a new display or replace
      *  an existing display
      *
-     *  @param source_widget Widget from which the action is invoked.
+     *  @param source_widget Widget from which the action is invoked
      *                       Used to resolve the potentially relative path of the
-     *                       display specified in the action.
-     *  @param action        Information on which display to open and how.
+     *                       display specified in the action
+     *  @param action        Information on which display to open and how
      */
     private static void openDisplay(final Widget source_widget,
                                     final OpenDisplayActionInfo action)
@@ -64,8 +67,6 @@ public class ActionUtil
         }
         try
         {
-
-
             // Path to resolve, after expanding macros of source widget and action
             final Macros macros = Macros.merge(source_widget.getEffectiveMacros(), action.getMacros());
             final String expanded_path = MacroHandler.replace(macros, action.getFile());
@@ -123,7 +124,7 @@ public class ActionUtil
 
     /** Passed to newly opened windows to handle runtime shutdown
      *  when window is closed
-     *  @param model Model for which runtime needs to be closed.
+     *  @param model Model for which runtime needs to be closed
      */
     public static void handleClose(final DisplayModel model)
     {
@@ -132,9 +133,9 @@ public class ActionUtil
         toolkit.disposeRepresentation(model);
     }
 
-    /** Write a PV.
-     *  @param source_widget Widget from which the action is invoked.
-     *  @param action        What to write to which PV.
+    /** Write a PV
+     *  @param source_widget Widget from which the action is invoked
+     *  @param action        What to write to which PV
      */
     private static void writePV(final Widget source_widget, final WritePVActionInfo action)
     {
@@ -144,6 +145,23 @@ public class ActionUtil
             runtime.writePV(action.getPV(), action.getValue());
         }
         catch (final Exception ex)
+        {
+            logger.log(Level.WARNING, action + " failed", ex);
+        }
+    }
+
+    /** Execute script
+     *  @param source_widget Widget from which the action is invoked
+     *  @param action        Script action to execute
+     */
+    private static void executeScript(final Widget source_widget, final ExecuteScriptActionInfo action)
+    {
+        final WidgetRuntime<Widget> runtime = RuntimeUtil.getRuntime(source_widget);
+        try
+        {
+            runtime.executeScriptAction(action);
+        }
+        catch (final Throwable ex)
         {
             logger.log(Level.WARNING, action + " failed", ex);
         }

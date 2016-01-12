@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.properties;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -36,7 +37,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
 {
     private static final String OPEN_DISPLAY = "open_display";
     private static final String WRITE_PV = "write_pv";
-    private static final String EXECUTE_JAVASCRIPT = "EXECUTE_JAVASCRIPT";
+    private static final String EXECUTE_SCRIPT = "execute";
 
     /** Constructor
      *  @param descriptor Property descriptor
@@ -64,13 +65,9 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
     @Override
     public void writeToXML(final XMLStreamWriter writer) throws Exception
     {
-        // <action type="..">
-        //   <path>some/display.opi</path>
-        //   <target>replace</target>
-        //   <description>some/display.opi</description>
-        // </action>
         for (final ActionInfo info : value)
         {
+            // <action type="..">
             writer.writeStartElement(XMLTags.ACTION);
             if (info instanceof OpenDisplayActionInfo)
             {
@@ -100,6 +97,22 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 writer.writeCharacters(action.getValue());
                 writer.writeEndElement();
             }
+            else if (info instanceof ExecuteScriptActionInfo)
+            {
+                final ExecuteScriptActionInfo action = (ExecuteScriptActionInfo) info;
+                final ScriptInfo script = action.getInfo();
+                writer.writeAttribute(XMLTags.TYPE, EXECUTE_SCRIPT);
+                writer.writeStartElement(XMLTags.SCRIPT);
+                writer.writeAttribute(XMLTags.FILE, script.getPath());
+                final String text = script.getText();
+                if (text != null)
+                {
+                    writer.writeStartElement(XMLTags.TEXT);
+                    writer.writeCData(text);
+                    writer.writeEndElement();
+                }
+                writer.writeEndElement();
+            }
             else
                 throw new Exception("Cannot write action of type " + info.getClass().getName());
             if (! info.getDescription().isEmpty())
@@ -108,6 +121,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 writer.writeCharacters(info.getDescription());
                 writer.writeEndElement();
             }
+            // </action>
             writer.writeEndElement();
         }
     }
@@ -169,16 +183,44 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 else
                     actions.add(new WritePVActionInfo(description, pv_name, value));
             }
-            else if (EXECUTE_JAVASCRIPT.equalsIgnoreCase(type)) // legacy used uppercase type name
+            else if (EXECUTE_SCRIPT.equals(type))
             {
-                // Compare legacy XML:
-                // <action type="EXECUTE_JAVASCRIPT">
-                //     <path></path>
+                // <script file="EmbeddedPy">
+                //   <text>  the embedded text  </text>
+                // </script>
+                final Element el = XMLUtil.getChildElement(action_xml, XMLTags.SCRIPT);
+                if (el == null)
+                    throw new Exception("Missing <script..>");
+                else
+                {
+                    final String path = el.getAttribute(XMLTags.FILE);
+                    final String text = XMLUtil.getChildString(el, XMLTags.TEXT).orElse(null);
+                    final ScriptInfo info = new ScriptInfo(path, text, Collections.emptyList());
+                    actions.add(new ExecuteScriptActionInfo(description, info));
+                }
+            }
+            else if (type.startsWith("EXECUTE_"))
+            {
+                // Legacy XML:
+                // <action type="EXECUTE_PYTHONSCRIPT"> .. or "EXECUTE_JAVASCRIPT"
+                //     <path>script.py</path>
                 //     <scriptText><![CDATA[ /* The script */ ]]></scriptText>
-                //     <embedded>true</embedded>
+                //     <embedded>false</embedded>
                 //     <description>A script</description>
                 // </action>
-                // TODO Read ScriptInfo, create ScriptAction
+                final boolean embed = Boolean.parseBoolean(XMLUtil.getChildString(action_xml, "embedded").orElse("false"));
+                final String path = XMLUtil.getChildString(action_xml, XMLTags.PATH).orElse("");
+                final String text = XMLUtil.getChildString(action_xml, "scriptText").orElse("");
+                final ScriptInfo info;
+                if (embed)
+                {
+                    final String dialect = type.contains("PYTHON")
+                                         ? ScriptInfo.EMBEDDED_PYTHON : ScriptInfo.EMBEDDED_JAVASCRIPT;
+                    info = new ScriptInfo(dialect, text, Collections.emptyList());
+                }
+                else
+                    info = new ScriptInfo(path, null, Collections.emptyList());
+                actions.add(new ExecuteScriptActionInfo(description, info));
             }
             else
                 Logger.getLogger(getClass().getName())

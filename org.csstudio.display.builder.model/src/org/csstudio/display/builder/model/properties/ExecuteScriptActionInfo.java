@@ -7,50 +7,43 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
-/** Information about an action that writes a PV
+/** Information about an action that executes a script
  *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class WritePVActionInfo extends ActionInfo
+public class ExecuteScriptActionInfo extends ActionInfo
 {
-    private final String pv;
-    private final String value;
+    private final ScriptInfo info;
 
     /** @param description Action description
      *  @param pv PV name
      *  @param value Value to write
      */
-    public WritePVActionInfo(final String description, final String pv, final String value)
+    public ExecuteScriptActionInfo(final String description, final ScriptInfo info)
     {
         super(description);
-        this.pv = pv;
-        this.value = value;
+        this.info = info;
     }
 
     @Override
     public ActionType getType()
     {
-        return ActionType.WRITE_PV;
+        return ActionType.EXECUTE_SCRIPT;
     }
 
-    /** @return PV name */
-    public String getPV()
+    /** @return Script info
+     */
+    public ScriptInfo getInfo()
     {
-        return pv;
-    }
-
-    /** @return Value to write */
-    public String getValue()
-    {
-        return value;
+        return info;
     }
 
     @Override
     public String toString()
     {
         if (getDescription().isEmpty())
-            return "Write " + pv + " = " + value;
+            return "Execute " + info.getPath();
         else
             return getDescription();
     }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="1.0.0">
+<display version="2.0.0">
   <name>Display</name>
   <x>-1</x>
   <y>-1</y>
-  <widget type="label" version="1.0.0">
+  <widget type="label" version="2.0.0">
     <name>Label</name>
     <width>181</width>
     <height>31</height>
@@ -13,7 +13,7 @@
       </font>
     </font>
   </widget>
-  <widget type="label" version="1.0.0">
+  <widget type="label" version="2.0.0">
     <name>Label_1</name>
     <y>41</y>
     <width>191</width>
@@ -21,7 +21,7 @@
     <text>Displays two waveform PVs,
 one for the "X" and one for the "Y" axis.</text>
   </widget>
-  <widget type="xyplot" version="1.0.0">
+  <widget type="xyplot" version="2.0.0">
     <name>X/Y Plot_1</name>
     <y>91</y>
     <show_legend>false</show_legend>
