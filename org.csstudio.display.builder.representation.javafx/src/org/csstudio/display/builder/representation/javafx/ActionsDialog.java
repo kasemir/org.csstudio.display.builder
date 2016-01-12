@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
+import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,8 +16,10 @@ import java.util.logging.Logger;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ActionInfo.ActionType;
+import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo.Target;
+import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
 
 import javafx.beans.InvalidationListener;
@@ -31,6 +35,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
@@ -41,6 +46,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Window;
 
 /** Dialog for editing {@link ActionInfo} list
  *  @author Kay Kasemir
@@ -48,6 +56,10 @@ import javafx.scene.layout.VBox;
 @SuppressWarnings("nls")
 public class ActionsDialog extends Dialog<List<ActionInfo>>
 {
+    // XXX: Smoother handling of script type changes
+    // Prompt if embedded text should be deleted when changing to external file
+    // Read existing file into embedded text when switching from file to embedded
+
     /** Actions edited by the dialog */
     private final ObservableList<ActionInfo> actions = FXCollections.observableArrayList();
 
@@ -65,8 +77,13 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
     // UI elements for WritePVAction
     private TextField write_pv_description, write_pv_name, write_pv_value;
 
+    // UI elements for ExecuteScriptAction
+    private TextField execute_script_description, execute_script_file;
+    private TextArea execute_script_text;
+
     /** Prevent circular updates */
     private boolean updating = false;
+
 
 
     /** ListView cell for ActionInfo, shows title if possible */
@@ -199,10 +216,12 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
 
         final GridPane open_display_details = createOpenDisplayDetails();
         final GridPane write_pv_details = createWritePVDetails();
+        final GridPane execute_script_details = createExecuteScriptDetails();
         open_display_details.setVisible(false);
         write_pv_details.setVisible(false);
+        execute_script_details.setVisible(false);
 
-        final StackPane details = new StackPane(open_display_details, write_pv_details);
+        final StackPane details = new StackPane(open_display_details, write_pv_details, execute_script_details);
         layout.add(details, 2, 1);
         GridPane.setHgrow(details, Priority.ALWAYS);
         GridPane.setVgrow(details, Priority.ALWAYS);
@@ -228,13 +247,29 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
             {
                 write_pv_details.setVisible(false);
                 open_display_details.setVisible(true);
+                execute_script_details.setVisible(false);
                 showOpenDisplayAction((OpenDisplayActionInfo) action);
             }
             else if (action instanceof WritePVActionInfo)
             {
                 open_display_details.setVisible(false);
                 write_pv_details.setVisible(true);
+                execute_script_details.setVisible(false);
                 showWritePVAction((WritePVActionInfo) action);
+            }
+            else if (action instanceof ExecuteScriptActionInfo)
+            {
+                open_display_details.setVisible(false);
+                write_pv_details.setVisible(false);
+                execute_script_details.setVisible(true);
+                showExecuteScriptAction((ExecuteScriptActionInfo)action);
+            }
+            else
+            {
+                write_pv_details.setVisible(false);
+                open_display_details.setVisible(false);
+                Logger.getLogger(getClass().getName())
+                      .log(Level.WARNING, "Unknown action type " + action);
             }
         });
 
@@ -270,7 +305,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         open_display_details.add(open_display_description, 1, 0);
         GridPane.setHgrow(open_display_description, Priority.ALWAYS);
 
-        open_display_details.add(new Label(Messages.ActionsDialog_Path), 0, 1);
+        open_display_details.add(new Label(Messages.ActionsDialog_DisplayPath), 0, 1);
         open_display_path = new TextField();
         open_display_path.textProperty().addListener(update);
         open_display_details.add(open_display_path, 1, 1);
@@ -386,5 +421,112 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         return new WritePVActionInfo(write_pv_description.getText(),
                                      write_pv_name.getText(),
                                      write_pv_value.getText());
+    }
+
+    /** @return Sub-pane for ExecuteScript action */
+    private GridPane createExecuteScriptDetails()
+    {
+        final InvalidationListener update = whatever ->
+        {
+            if (updating  ||  selected_action_index < 0)
+                return;
+            actions.set(selected_action_index, getExecuteScriptAction());
+        };
+
+        final GridPane execute_script_details = new GridPane();
+        execute_script_details.setHgap(10);
+        execute_script_details.setVgap(10);
+
+        execute_script_details.add(new Label(Messages.ActionsDialog_Description), 0, 0);
+        execute_script_description = new TextField();
+        execute_script_description.textProperty().addListener(update);
+        execute_script_details.add(execute_script_description, 1, 0);
+        GridPane.setHgrow(execute_script_description, Priority.ALWAYS);
+
+        execute_script_details.add(new Label(Messages.ActionsDialog_ScriptPath), 0, 1);
+        execute_script_file = new TextField();
+        execute_script_file.textProperty().addListener(update);
+        execute_script_details.add(execute_script_file, 1, 1);
+
+        final Button btn_file = new Button(Messages.ScriptsDialog_BtnFile, JFXUtil.getIcon("open_file.png"));
+        btn_file.setOnAction(event ->
+        {
+            final FileChooser dlg = new FileChooser();
+            dlg.setTitle(Messages.ScriptsDialog_FileBrowser_Title);
+            if (execute_script_file.getText().length() > 0)
+            {
+                File file = new File(execute_script_file.getText());
+                dlg.setInitialDirectory(file.getParentFile());
+                dlg.setInitialFileName(file.getName());
+            }
+            dlg.getExtensionFilters().addAll(
+                    new ExtensionFilter(Messages.ScriptsDialog_FileType_All, "*.*"),
+                    new ExtensionFilter(Messages.ScriptsDialog_FileType_Py, "*.py"),
+                    new ExtensionFilter(Messages.ScriptsDialog_FileType_JS, "*.js"));
+            final Window window = btn_file.getScene().getWindow();
+            final File result = dlg.showOpenDialog(window);
+            if (result != null)
+            {
+                execute_script_file.setText(result.getPath());
+                execute_script_text.setText(null);
+            }
+        });
+
+        final Button btn_embed_py = new Button(Messages.ScriptsDialog_BtnEmbedPy, JFXUtil.getIcon("embedded_script.png"));
+        btn_embed_py.setOnAction(event ->
+        {
+            execute_script_file.setText(ScriptInfo.EMBEDDED_PYTHON);
+            final String text = execute_script_text.getText();
+            if (text == null  ||  text.trim().isEmpty())
+                execute_script_text.setText(Messages.ScriptsDialog_DefaultEmbeddedPython);
+        });
+
+        final Button btn_embed_js = new Button(Messages.ScriptsDialog_BtnEmbedJS, JFXUtil.getIcon("embedded_script.png"));
+        btn_embed_js.setOnAction(event ->
+        {
+            execute_script_file.setText(ScriptInfo.EMBEDDED_JAVASCRIPT);
+            final String text = execute_script_text.getText();
+            if (text == null  ||  text.trim().isEmpty())
+                execute_script_text.setText(Messages.ScriptsDialog_DefaultEmbeddedJavaScript);
+        });
+
+        execute_script_details.add(new HBox(10, btn_file, btn_embed_py, btn_embed_js), 1, 2);
+
+        execute_script_details.add(new Label(Messages.ActionsDialog_ScriptText), 0, 3);
+        execute_script_text = new TextArea();
+        execute_script_text.setText(null);
+        execute_script_text.textProperty().addListener(update);
+        execute_script_details.add(execute_script_text, 0, 4, 2, 1);
+        GridPane.setVgrow(execute_script_text, Priority.ALWAYS);
+
+        return execute_script_details;
+    }
+
+    /** @param action {@link ExecuteScriptActionInfo} to show */
+    private void showExecuteScriptAction(final ExecuteScriptActionInfo action)
+    {
+        updating = true;
+        try
+        {
+            execute_script_description.setText(action.getDescription());
+            execute_script_file.setText(action.getInfo().getPath());
+            execute_script_text.setText(action.getInfo().getText());
+        }
+        finally
+        {
+            updating = false;
+        }
+    }
+
+    /** @return {@link ExecuteScriptActionInfo} from sub pane */
+    private ExecuteScriptActionInfo getExecuteScriptAction()
+    {
+        final String file = execute_script_file.getText();
+        final String text = (file.equals(ScriptInfo.EMBEDDED_PYTHON) ||
+                             file.equals(ScriptInfo.EMBEDDED_JAVASCRIPT))
+                            ? execute_script_text.getText()
+                            : null;
+        return new ExecuteScriptActionInfo(execute_script_description.getText(),
+                                           new ScriptInfo(file, text, Collections.emptyList()));
     }
 }

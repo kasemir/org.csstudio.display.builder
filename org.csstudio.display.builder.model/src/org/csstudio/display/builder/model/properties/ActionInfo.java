@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.properties;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -71,6 +72,10 @@ public abstract class ActionInfo
             return new OpenDisplayActionInfo(type.toString(), "", new Macros(), Target.REPLACE);
         case WRITE_PV:
             return new WritePVActionInfo(type.toString(), "$(pv_name)", "0");
+        case EXECUTE_SCRIPT:
+            return new ExecuteScriptActionInfo(type.toString(),
+                                               new ScriptInfo(ScriptInfo.EMBEDDED_PYTHON, "print 'Hello'",
+                                                              Collections.emptyList()));
         default:
             throw new IllegalStateException("Unknown type " + type);
         }

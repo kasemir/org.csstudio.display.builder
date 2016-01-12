@@ -43,7 +43,7 @@ public class ExecuteScriptActionInfo extends ActionInfo
     public String toString()
     {
         if (getDescription().isEmpty())
-            return "Execute " + info;
+            return "Execute " + info.getPath();
         else
             return getDescription();
     }
