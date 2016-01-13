@@ -9,6 +9,8 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.properties.HorizontalAlignment;
+import org.csstudio.display.builder.model.properties.VerticalAlignment;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
@@ -46,18 +48,17 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
         model_widget.displayTransparent().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayFont().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayHorizontalAlignment().addUntypedPropertyListener(this::styleChanged);
+        model_widget.displayVerticalAlignment().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayText().addUntypedPropertyListener(this::contentChanged);
     }
 
     private Pos computePos()
     {
-        switch (model_widget.displayHorizontalAlignment().getValue())
-        {
-        case CENTER: return Pos.TOP_CENTER;
-        case RIGHT:  return Pos.TOP_RIGHT;
-        default:
-        case LEFT:   return Pos.TOP_LEFT;
-        }
+        final HorizontalAlignment horiz = model_widget.displayHorizontalAlignment().getValue();
+        final VerticalAlignment vert = model_widget.displayVerticalAlignment().getValue();
+        // This depends on the order of 'Pos' and uses Pos.BOTTOM_*, not Pos.BASELINE_*.
+        // Could use if/switch orgy to be independent from 'Pos' ordinals.
+        return Pos.values()[vert.ordinal() * 3 + horiz.ordinal()];
     }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)

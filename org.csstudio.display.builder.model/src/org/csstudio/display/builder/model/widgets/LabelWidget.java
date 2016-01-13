@@ -13,6 +13,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayHorizontalAlignment;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayTransparent;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayVerticalAlignment;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.HorizontalAlignment;
+import org.csstudio.display.builder.model.properties.VerticalAlignment;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 
@@ -57,6 +59,7 @@ public class LabelWidget extends BaseWidget
     private WidgetProperty<Boolean> transparent;
     private WidgetProperty<WidgetFont> font;
     private WidgetProperty<HorizontalAlignment> horizontal_alignment;
+    private WidgetProperty<VerticalAlignment> vertical_alignment;
 
     public LabelWidget()
     {
@@ -73,6 +76,7 @@ public class LabelWidget extends BaseWidget
         properties.add(transparent = displayTransparent.createProperty(this, true));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(horizontal_alignment = displayHorizontalAlignment.createProperty(this, HorizontalAlignment.LEFT));
+        properties.add(vertical_alignment = displayVerticalAlignment.createProperty(this, VerticalAlignment.MIDDLE));
     }
 
     /** @return Display 'text' */
@@ -109,5 +113,11 @@ public class LabelWidget extends BaseWidget
     public WidgetProperty<HorizontalAlignment> displayHorizontalAlignment()
     {
         return horizontal_alignment;
+    }
+
+    /** @return Display 'vertical_alignment' */
+    public WidgetProperty<VerticalAlignment> displayVerticalAlignment()
+    {
+        return vertical_alignment;
     }
 }

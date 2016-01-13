@@ -277,6 +277,19 @@ public class CommonWidgetProperties
         }
     };
 
+    /** Display 'vertical_alignment' */
+    public static final WidgetPropertyDescriptor<VerticalAlignment> displayVerticalAlignment =
+        new WidgetPropertyDescriptor<VerticalAlignment>(
+            WidgetPropertyCategory.DISPLAY, "vertical_alignment", Messages.WidgetProperties_VerticalAlignment)
+    {
+        @Override
+        public EnumWidgetProperty<VerticalAlignment> createProperty(final Widget widget,
+                                                                    final VerticalAlignment default_value)
+        {
+            return new EnumWidgetProperty<VerticalAlignment>(this, widget, default_value);
+        }
+    };
+
     /** Behavior 'pv_name':Primary PV Name */
     public static final WidgetPropertyDescriptor<String> behaviorPVName =
         newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "pv_name", Messages.WidgetProperties_PVName);

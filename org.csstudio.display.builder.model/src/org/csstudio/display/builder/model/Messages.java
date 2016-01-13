@@ -18,6 +18,7 @@ public class Messages extends NLS
 
     public static String Actions_Zero;
     public static String Actions_N_Fmt;
+    public static String Bottom;
     public static String Center;
     public static String FontStyle_Bold;
     public static String FontStyle_BoldItalic;
@@ -27,10 +28,12 @@ public class Messages extends NLS
     public static String LEDWidget_OffColor;
     public static String LEDWidget_OnColor;
     public static String Left;
+    public static String Middle;
     public static String Right;
     public static String Target_Replace;
     public static String Target_Tab;
     public static String Target_Window;
+    public static String Top;
     public static String WidgetCategory_Controls;
     public static String WidgetCategory_Graphics;
     public static String WidgetCategory_Miscellaneous;
@@ -66,6 +69,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Transparent;
     public static String WidgetProperties_Type;
     public static String WidgetProperties_Value;
+    public static String WidgetProperties_VerticalAlignment;
     public static String WidgetProperties_Visible;
     public static String WidgetProperties_Width;
     public static String WidgetProperties_X;

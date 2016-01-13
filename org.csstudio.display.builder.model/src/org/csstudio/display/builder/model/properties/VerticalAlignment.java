@@ -9,15 +9,15 @@ package org.csstudio.display.builder.model.properties;
 
 import org.csstudio.display.builder.model.Messages;
 
-/** Horizontal alignment
+/** Vertical alignment
  *  @author Kay Kasemir
  */
-public enum HorizontalAlignment
+public enum VerticalAlignment
 {
-    LEFT(Messages.Left), CENTER(Messages.Center), RIGHT(Messages.Right);
+    TOP(Messages.Top), MIDDLE(Messages.Middle), BOTTOM(Messages.Bottom);
     private final String label;
 
-    private HorizontalAlignment(final String label)
+    private VerticalAlignment(final String label)
     {
         this.label = label;
     }
