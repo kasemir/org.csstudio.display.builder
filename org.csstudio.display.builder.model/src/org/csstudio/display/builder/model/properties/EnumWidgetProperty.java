@@ -26,16 +26,25 @@ import org.w3c.dom.Element;
  *  <p>Enums that are exposed to the user should
  *  have a localized string representation (Label)
  *  that is provided by the <code>toString()</code>
- *  method of the enum, while code uses the enum's
- *  <code>ordinal()</code> or <code>name()</code>.
+ *  method of the enum.
+ *  The user interface should present the value
+ *  as a label.
+ *  Internal code should use the ordinal or,
+ *  if exact type is known, the actual enum.
+ *
+ *  <p>The 'specification', i.e. the potentially
+ *  macro-based string for the property, must evaluate
+ *  to a number for a valid ordinal.
  *
  *  <p>Property offers helpers to obtain all 'Labels'
- *  and to set an unknown enum from its name or ordinal.
+ *  and to set an unknown enum from its ordinal.
  *
  *  <p>Note that there is no support to set the property
- *  from a 'Label'. User code should present the value
- *  as a label, but then set it as the ordinal or,
- *  if exact type is known, the actual enum.
+ *  from a 'Label' or 'Name' to avoid any ambiguity between
+ *  labels and names, or labels [ "1", "2", "3"] that could
+ *  be mistaken for ordinals [ 1, 2, 3 ] but actually correspond
+ *  to ordinals [ 0, 1, 2 ].
+ *
  *
  *  @author Kay Kasemir
  */
@@ -56,39 +65,54 @@ public class EnumWidgetProperty<E extends Enum<E>> extends MacroizedWidgetProper
         super(descriptor, widget, Objects.requireNonNull(default_value));
     }
 
-    /** @return Labels, i.e. String representations of all enum values */
+    /** Get labels, i.e. localized representations of all enum values
+     *
+     *  <p>Size of the array also provides the valid ordinal range
+     *  @return Labels
+     */
     public String[] getLabels()
     {
-        final Object[] values = default_value.getDeclaringClass().getEnumConstants();
+        final Enum<?>[] values = default_value.getDeclaringClass().getEnumConstants();
         final String[] labels = new String[values.length];
         for (int i=0; i<labels.length; ++i)
             labels[i] = values[i].toString();
         return labels;
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
+    protected String computeSpecification(final E value)
+    {   // Specification uses ordinal.
+        return Integer.toString(value.ordinal());
+    }
+
     @Override
     protected E parseExpandedSpecification(final String text) throws Exception
     {
         if (text == null  ||  text.isEmpty())
             return default_value;
-        // Locate matching enum name (not label!)
-        for (Enum<E> value : default_value.getDeclaringClass().getEnumConstants())
-            if (value.name().equals(text))
-                return (E)value;
-
-        throw new Exception("Enum property '" + getName() + "' received invalid value " + text);
+        // Parse ordinal from specification text
+        final int ordinal;
+        try
+        {
+            ordinal = Integer.parseInt(text);
+        }
+        catch (NumberFormatException ex)
+        {
+            throw new Exception("Enum property '" + getName() + "' expects ordinal but received " + text);
+        }
+        return getValueByOrdinal(ordinal);
     }
 
-    @Override
-    public void setValue(final E value)
+    /** @param ordinal Ordinal
+     *  @return Enum for that ordinal
+     *  @throws Exception if ordinal out of range
+     */
+    private E getValueByOrdinal(final int ordinal) throws Exception
     {
-        if (isReadonly())
-            return;
-        specification = value.name();
-        final E old_value = this.value;
-        this.value = value;
-        firePropertyChange(this, old_value, value);
+        final E[] values = default_value.getDeclaringClass().getEnumConstants();
+        if (ordinal < 0  ||  ordinal >= values.length)
+            throw new Exception("Invalid ordinal " + ordinal + " for " + getName());
+        return values[ordinal];
     }
 
     @SuppressWarnings("unchecked")
@@ -101,10 +125,7 @@ public class EnumWidgetProperty<E extends Enum<E>> extends MacroizedWidgetProper
         else if (value instanceof Number)
         {   // Use ordinal
             final int ordinal = ((Number)value).intValue();
-            final E[] values = default_value.getDeclaringClass().getEnumConstants();
-            if (ordinal < 0  ||  ordinal >= values.length)
-                throw new Exception("Invalid ordinal " + ordinal + " for " + getName());
-            setValue((E) values[ordinal]);
+            setValue(getValueByOrdinal(ordinal));
         }
         else // Use name
             setValue(parseExpandedSpecification(value.toString()));
@@ -120,5 +141,15 @@ public class EnumWidgetProperty<E extends Enum<E>> extends MacroizedWidgetProper
     public void readFromXML(final Element property_xml) throws Exception
     {
         setSpecification(XMLUtil.getString(property_xml));
+    }
+
+    @Override
+    public String toString()
+    {
+        final E safe_copy = value;
+        if (safe_copy == null)
+            return "'" + getName() + "' = \"" + specification + "\"";
+        else
+            return "'" + getName() + "' = " + value.name() + " (" + value.ordinal() + ", '" + value.toString() + "')";
     }
 }
