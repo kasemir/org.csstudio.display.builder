@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.csstudio.display.builder.model.widgets;
 
@@ -7,15 +7,19 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayLineColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayLineWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayTransparent;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.BaseWidget;
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 
 /**
@@ -41,18 +45,21 @@ public class ArcWidget extends BaseWidget {
             return new ArcWidget();
         }
     };
-    
+
+    private static final WidgetPropertyDescriptor<Double> displayAngle =
+            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "angle", Messages.WidgetProperties_Angle);
+
     // fill color
     private WidgetProperty<WidgetColor> background;
     // Do we need transparency for arc? It appears that existing displays have clear arcs, so I think yes
     private WidgetProperty<Boolean> transparent;
     // line color and width
     private WidgetProperty<WidgetColor> line_color;
-    private WidgetProperty<Integer> line_width;  
+    private WidgetProperty<Integer> line_width;
     // start/end degree of arc (0-365)
     private WidgetProperty<Double> arc_start;
-    private WidgetProperty<Double> arc_end;
-	
+    //private WidgetProperty<Double> arc_end;
+
 
 	public ArcWidget() {
 		super(WIDGET_DESCRIPTOR.getType());
@@ -67,9 +74,9 @@ public class ArcWidget extends BaseWidget {
         properties.add(transparent = displayTransparent.createProperty(this, false));
         properties.add(line_color = displayLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
         properties.add(line_width = displayLineWidth.createProperty(this, 3));
-        
-        //Looks like we need some new properties for displaying angles... 
-        //properties.add(arc_start) = 
+
+        //Looks like we need some new properties for displaying angles...
+        properties.add(arc_start = displayAngle.createProperty(this, 90.0));
     }
 
 
