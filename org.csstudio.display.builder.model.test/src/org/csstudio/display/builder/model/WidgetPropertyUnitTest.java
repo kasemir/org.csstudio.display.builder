@@ -33,7 +33,7 @@ public class WidgetPropertyUnitTest
     @Test
     public void testCommonWidgetProperty()
     {
-        final Widget widget = new BaseWidget("generic");
+        final Widget widget = new Widget("generic");
         System.out.println(widget);
         widget.setPropertyValue(widgetName, "test1");
         assertThat(widget.getName(), equalTo("test1"));

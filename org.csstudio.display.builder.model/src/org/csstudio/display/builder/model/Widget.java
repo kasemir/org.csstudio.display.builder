@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorActions;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorScripts;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionVisible;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
@@ -120,6 +121,7 @@ public class Widget
     private WidgetProperty<Integer> y;
     private WidgetProperty<Integer> width;
     private WidgetProperty<Integer> height;
+    private WidgetProperty<Boolean> visible;
     private WidgetProperty<List<ActionInfo>> actions;
     private WidgetProperty<List<ScriptInfo>> scripts;
 
@@ -151,6 +153,7 @@ public class Widget
         prelim_properties.add(y = positionY.createProperty(this, 0));
         prelim_properties.add(width = positionWidth.createProperty(this, default_width));
         prelim_properties.add(height = positionHeight.createProperty(this, default_height));
+        prelim_properties.add(visible = positionVisible.createProperty(this, true));
         prelim_properties.add(actions = behaviorActions.createProperty(this, Collections.emptyList()));
         prelim_properties.add(scripts = behaviorScripts.createProperty(this, Collections.emptyList()));
 
@@ -276,6 +279,12 @@ public class Widget
     public WidgetProperty<Integer> positionHeight()
     {
         return height;
+    }
+
+    /** @return Position 'visible' */
+    public WidgetProperty<Boolean> positionVisible()
+    {
+        return visible;
     }
 
     /** @return Behavior 'actions' */

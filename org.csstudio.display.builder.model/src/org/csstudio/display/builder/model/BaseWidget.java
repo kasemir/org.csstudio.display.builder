@@ -7,17 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionVisible;
-
-import java.util.List;
-
 /** Base class for most widgets.
  *  @author Kay Kasemir
+ *  @deprecated Use {@link Widget}. This class will be removed
  */
+@Deprecated
 public class BaseWidget extends Widget
 {
-    private WidgetProperty<Boolean> visible;
-
     public BaseWidget(final String type)
     {
         this(type, 100, 20);
@@ -27,24 +23,4 @@ public class BaseWidget extends Widget
     {
         super(type, default_width, default_height);
     }
-
-    /** Called on construction to define widget's properties.
-    *
-    *  <p>Mandatory properties have already been defined.
-    *  Derived class overrides to add its own properties.
-    *
-    *  @param properties List to which properties must be added
-    */
-   @Override
-   protected void defineProperties(final List<WidgetProperty<?>> properties)
-   {
-       super.defineProperties(properties);
-       properties.add(visible = positionVisible.createProperty(this, true));
-   }
-
-   /** @return Position 'visible' */
-   public WidgetProperty<Boolean> positionVisible()
-   {
-       return visible;
-   }
 }
