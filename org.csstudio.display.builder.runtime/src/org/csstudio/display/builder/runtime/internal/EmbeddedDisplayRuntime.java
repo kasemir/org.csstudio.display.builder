@@ -16,9 +16,9 @@ import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 
-/** Runtime for the EmbeddedDisplayWidget
+/** Runtime for the {@link EmbeddedDisplayWidget}
  *
- *  <p>Initializes display-wide facilities
+ *  <p>Loads, represents and runs the content of the embedded widget
  *
  *  @author Kay Kasemir
  */

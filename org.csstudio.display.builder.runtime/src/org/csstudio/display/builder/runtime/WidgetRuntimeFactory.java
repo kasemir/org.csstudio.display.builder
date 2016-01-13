@@ -23,6 +23,9 @@ import org.eclipse.core.runtime.RegistryFactory;
 
 /** Factory for runtimes
  *
+ *  <p>By default, creates a {@link WidgetRuntime}, but
+ *  widgets can register a specialized runtime for their type.
+ *
  *  @author Kay Kasemir
  */
 public class WidgetRuntimeFactory
