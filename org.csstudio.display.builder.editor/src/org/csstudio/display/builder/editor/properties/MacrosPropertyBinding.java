@@ -10,7 +10,7 @@ package org.csstudio.display.builder.editor.properties;
 import java.util.List;
 import java.util.Optional;
 
-import org.csstudio.display.builder.editor.undo.SetWidgetMacrosAction;
+import org.csstudio.display.builder.editor.undo.SetWidgetPropertyAction;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.Macros;
@@ -41,11 +41,11 @@ public class MacrosPropertyBinding
         final Optional<Macros> result = dialog.showAndWait();
         if (result.isPresent())
         {
-            undo.execute(new SetWidgetMacrosAction(widget_property, result.get()));
+            undo.execute(new SetWidgetPropertyAction<Macros>(widget_property, result.get()));
             for (Widget w : other)
             {
                 final MacrosWidgetProperty other_prop = (MacrosWidgetProperty) w.getProperty(widget_property.getName());
-                undo.execute(new SetWidgetMacrosAction(other_prop, result.get()));
+                undo.execute(new SetWidgetPropertyAction<Macros>(other_prop, result.get()));
             }
         }
     };
