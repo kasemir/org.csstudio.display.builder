@@ -46,8 +46,11 @@ public class ArcWidget extends BaseWidget {
         }
     };
 
-    private static final WidgetPropertyDescriptor<Double> displayAngle =
-            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "angle", Messages.WidgetProperties_Angle);
+    private static final WidgetPropertyDescriptor<Double> displayAngleStart =
+            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "angle_start", Messages.WidgetProperties_AngleStart);
+
+    private static final WidgetPropertyDescriptor<Double> displayAngleSize =
+            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "angle_size", Messages.WidgetProperties_AngleSize);
 
     // fill color
     private WidgetProperty<WidgetColor> background;
@@ -56,9 +59,9 @@ public class ArcWidget extends BaseWidget {
     // line color and width
     private WidgetProperty<WidgetColor> line_color;
     private WidgetProperty<Integer> line_width;
-    // start/end degree of arc (0-365)
+    // start/size degree of arc (0-365)
     private WidgetProperty<Double> arc_start;
-    //private WidgetProperty<Double> arc_end;
+    private WidgetProperty<Double> arc_size;
 
 
 	public ArcWidget() {
@@ -74,10 +77,43 @@ public class ArcWidget extends BaseWidget {
         properties.add(transparent = displayTransparent.createProperty(this, false));
         properties.add(line_color = displayLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
         properties.add(line_width = displayLineWidth.createProperty(this, 3));
-
-        //Looks like we need some new properties for displaying angles...
-        properties.add(arc_start = displayAngle.createProperty(this, 90.0));
+        properties.add(arc_start = displayAngleStart.createProperty(this, 0.0));
+        properties.add(arc_size = displayAngleSize.createProperty(this, 90.0));
     }
 
+    /** @return Display 'background_color' */
+    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    {
+        return background;
+    }
 
+    /** @return Display 'transparent' */
+    public WidgetProperty<Boolean> displayTransparent()
+    {
+        return transparent;
+    }
+
+    /** @return Display 'line_color' */
+    public WidgetProperty<WidgetColor> displayLineColor()
+    {
+        return line_color;
+    }
+
+    /** @return Display 'line_width' */
+    public WidgetProperty<Integer> displayLineWidth()
+    {
+        return line_width;
+    }
+
+    /** @return Display 'arc_start' */
+    public WidgetProperty<Double> displayArcStart()
+    {
+        return arc_start;
+    }
+
+    /** @return Display 'arc_size' */
+    public WidgetProperty<Double> displayArcSize()
+    {
+        return arc_size;
+    }
 }
