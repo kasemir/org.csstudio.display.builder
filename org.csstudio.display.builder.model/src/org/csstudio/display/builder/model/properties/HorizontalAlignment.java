@@ -7,12 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import org.csstudio.display.builder.model.Messages;
+
 /** Horizontal alignment
  *  @author Kay Kasemir
  */
 public enum HorizontalAlignment
 {
-    LEFT("Left"), CENTER("Center"),RIGHT("Right");
+    LEFT(Messages.Left), CENTER(Messages.Center),RIGHT(Messages.Right);
     private final String label;
 
     private HorizontalAlignment(final String label)

@@ -18,6 +18,7 @@ public class Messages extends NLS
 
     public static String Actions_Zero;
     public static String Actions_N_Fmt;
+    public static String Center;
     public static String FontStyle_Bold;
     public static String FontStyle_BoldItalic;
     public static String FontStyle_Italic;
@@ -25,6 +26,8 @@ public class Messages extends NLS
     public static String LabelWidget_Text;
     public static String LEDWidget_OffColor;
     public static String LEDWidget_OnColor;
+    public static String Left;
+    public static String Right;
     public static String Target_Replace;
     public static String Target_Tab;
     public static String Target_Window;
