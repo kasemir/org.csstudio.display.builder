@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.csstudio.display.builder.editor.Messages;
-import org.csstudio.display.builder.editor.undo.SetWidgetScriptsAction;
+import org.csstudio.display.builder.editor.undo.SetWidgetPropertyAction;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
@@ -43,11 +43,11 @@ public class ScriptsPropertyBinding
         final Optional<List<ScriptInfo>> result = dialog.showAndWait();
         if (result.isPresent())
         {
-            undo.execute(new SetWidgetScriptsAction(widget_property, result.get()));
+            undo.execute(new SetWidgetPropertyAction<List<ScriptInfo>>(widget_property, result.get()));
             for (Widget w : other)
             {
                 final ScriptsWidgetProperty other_prop = (ScriptsWidgetProperty) w.getProperty(widget_property.getName());
-                undo.execute(new SetWidgetScriptsAction(other_prop, result.get()));
+                undo.execute(new SetWidgetPropertyAction<List<ScriptInfo>>(other_prop, result.get()));
             }
         }
     };
