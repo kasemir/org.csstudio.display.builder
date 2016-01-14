@@ -8,37 +8,37 @@
 package org.csstudio.display.builder.editor.undo;
 
 import org.csstudio.display.builder.editor.Messages;
-import org.csstudio.display.builder.model.MacroizedWidgetProperty;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.util.undo.UndoableAction;
 import org.eclipse.osgi.util.NLS;
 
 /** Action to update widget property
  *  @author Kay Kasemir
+ *  @param <T> Type of the property's value
  */
-public class SetMacroizedWidgetPropertyAction extends UndoableAction
+public class SetWidgetPropertyAction<T extends Object> extends UndoableAction
 {
-    private final MacroizedWidgetProperty<?> widget_property;
-    private final String orig_text;
-    private final String text;
+    private final WidgetProperty<T> widget_property;
+    private final T orig_value, value;
 
-    public SetMacroizedWidgetPropertyAction(final MacroizedWidgetProperty<?> widget_property,
-                                            final String text)
+    public SetWidgetPropertyAction(final WidgetProperty<T> widget_property,
+                                   final T value)
     {
         super(NLS.bind(Messages.SetPropertyFmt, widget_property.getDescription()));
         this.widget_property = widget_property;
-        this.orig_text = widget_property.getSpecification();
-        this.text = text;
+        this.orig_value = widget_property.getValue();
+        this.value = value;
     }
 
     @Override
     public void run()
     {
-        widget_property.setSpecification(text);
+        widget_property.setValue(value);
     }
 
     @Override
     public void undo()
     {
-        widget_property.setSpecification(orig_text);
+        widget_property.setValue(orig_value);
     }
 }

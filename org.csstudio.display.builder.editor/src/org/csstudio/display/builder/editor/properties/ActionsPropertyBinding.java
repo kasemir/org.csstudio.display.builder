@@ -10,7 +10,7 @@ package org.csstudio.display.builder.editor.properties;
 import java.util.List;
 import java.util.Optional;
 
-import org.csstudio.display.builder.editor.undo.SetWidgetActionsAction;
+import org.csstudio.display.builder.editor.undo.SetWidgetPropertyAction;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ActionInfo;
@@ -41,11 +41,11 @@ public class ActionsPropertyBinding
         final Optional<List<ActionInfo>> result = dialog.showAndWait();
         if (result.isPresent())
         {
-            undo.execute(new SetWidgetActionsAction(widget_property, result.get()));
+            undo.execute(new SetWidgetPropertyAction<List<ActionInfo>>(widget_property, result.get()));
             for (Widget w : other)
             {
                 final ActionsWidgetProperty other_prop = (ActionsWidgetProperty) w.getProperty(widget_property.getName());
-                undo.execute(new SetWidgetActionsAction(other_prop, result.get()));
+                undo.execute(new SetWidgetPropertyAction<List<ActionInfo>>(other_prop, result.get()));
             }
         }
     };

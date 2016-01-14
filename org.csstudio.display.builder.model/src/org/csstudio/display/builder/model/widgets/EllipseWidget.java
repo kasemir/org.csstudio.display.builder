@@ -15,7 +15,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import java.util.Arrays;
 import java.util.List;
 
-import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
@@ -26,7 +25,7 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class EllipseWidget extends BaseWidget
+public class EllipseWidget extends Widget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =

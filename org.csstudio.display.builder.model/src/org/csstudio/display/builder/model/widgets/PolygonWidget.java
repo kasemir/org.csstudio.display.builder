@@ -15,7 +15,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import java.util.Arrays;
 import java.util.List;
 
-import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
@@ -31,7 +30,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class PolygonWidget extends BaseWidget
+public class PolygonWidget extends Widget
 {
     /** Legacy polygon used 1.0.0 */
     private static final Version version = new Version(2, 0, 0);

@@ -12,8 +12,8 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 
 import java.util.Optional;
 
-import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
@@ -39,7 +39,7 @@ import javafx.scene.shape.StrokeType;
  *
  *  @author Kay Kasemir
  */
-abstract public class RegionBaseRepresentation<JFX extends Region, MW extends BaseWidget> extends JFXBaseRepresentation<JFX, MW>
+abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Widget> extends JFXBaseRepresentation<JFX, MW>
 {
     /** Draw border OUTSIDE, so adding/removing border does not change the layout of the region's content
      *  (Like BorderStrokeStyle.SOLID except for OUTSIDE)

@@ -9,8 +9,8 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.util.Objects;
 
-import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 
@@ -22,7 +22,7 @@ import javafx.scene.Node;
  *  @param <MW> Model widget
  *  @author Kay Kasemir
  */
-abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWidget> extends WidgetRepresentation<Group, Node, MW>
+abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget> extends WidgetRepresentation<Group, Node, MW>
 {
     protected JFX jfx_node;
 

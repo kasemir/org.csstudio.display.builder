@@ -10,13 +10,14 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayHorizontalAlignment;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayTransparent;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayVerticalAlignment;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
@@ -25,6 +26,8 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.properties.HorizontalAlignment;
+import org.csstudio.display.builder.model.properties.VerticalAlignment;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 
@@ -32,7 +35,7 @@ import org.csstudio.display.builder.model.properties.WidgetFont;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class LabelWidget extends BaseWidget
+public class LabelWidget extends Widget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -54,6 +57,8 @@ public class LabelWidget extends BaseWidget
     private WidgetProperty<WidgetColor> background;
     private WidgetProperty<Boolean> transparent;
     private WidgetProperty<WidgetFont> font;
+    private WidgetProperty<HorizontalAlignment> horizontal_alignment;
+    private WidgetProperty<VerticalAlignment> vertical_alignment;
 
     public LabelWidget()
     {
@@ -69,6 +74,8 @@ public class LabelWidget extends BaseWidget
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(transparent = displayTransparent.createProperty(this, true));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(horizontal_alignment = displayHorizontalAlignment.createProperty(this, HorizontalAlignment.LEFT));
+        properties.add(vertical_alignment = displayVerticalAlignment.createProperty(this, VerticalAlignment.MIDDLE));
     }
 
     /** @return Display 'text' */
@@ -99,5 +106,17 @@ public class LabelWidget extends BaseWidget
     public WidgetProperty<WidgetFont> displayFont()
     {
         return font;
+    }
+
+    /** @return Display 'horizontal_alignment' */
+    public WidgetProperty<HorizontalAlignment> displayHorizontalAlignment()
+    {
+        return horizontal_alignment;
+    }
+
+    /** @return Display 'vertical_alignment' */
+    public WidgetProperty<VerticalAlignment> displayVerticalAlignment()
+    {
+        return vertical_alignment;
     }
 }

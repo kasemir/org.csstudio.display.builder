@@ -14,7 +14,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import java.util.Arrays;
 import java.util.List;
 
-import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
@@ -31,7 +30,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class PolylineWidget extends BaseWidget
+public class PolylineWidget extends Widget
 {
     // TODO Add Polyline Arrows
 

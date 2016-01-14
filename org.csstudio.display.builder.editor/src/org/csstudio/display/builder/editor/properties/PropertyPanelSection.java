@@ -23,6 +23,7 @@ import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
@@ -169,6 +170,18 @@ public class PropertyPanelSection extends GridPane
             bindings.add(binding);
             binding.bind();
             field = scripts_field;
+        }
+        else if (property instanceof EnumWidgetProperty<?>)
+        {
+            final EnumWidgetProperty<?> enum_prop = (EnumWidgetProperty<?>) property;
+            final ComboBox<String> check = new ComboBox<>();
+            check.setEditable(true);
+            check.getItems().addAll(enum_prop.getLabels());
+            final EnumWidgetPropertyBinding binding =
+                    new EnumWidgetPropertyBinding(undo, check, enum_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = check;
         }
         else if (property instanceof BooleanWidgetProperty)
         {

@@ -10,7 +10,7 @@ package org.csstudio.display.builder.editor.properties;
 import java.util.List;
 import java.util.Optional;
 
-import org.csstudio.display.builder.editor.undo.SetWidgetFontAction;
+import org.csstudio.display.builder.editor.undo.SetWidgetPropertyAction;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
@@ -41,11 +41,11 @@ public class WidgetFontPropertyBinding
         final Optional<WidgetFont> result = dialog.showAndWait();
         if (result.isPresent())
         {
-            undo.execute(new SetWidgetFontAction(widget_property, result.get()));
+            undo.execute(new SetWidgetPropertyAction<WidgetFont>(widget_property, result.get()));
             for (Widget w : other)
             {
                 final FontWidgetProperty other_prop = (FontWidgetProperty) w.getProperty(widget_property.getName());
-                undo.execute(new SetWidgetFontAction(other_prop, result.get()));
+                undo.execute(new SetWidgetPropertyAction<WidgetFont>(other_prop, result.get()));
             }
         }
     };

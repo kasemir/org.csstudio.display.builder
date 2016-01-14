@@ -15,7 +15,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import java.util.Arrays;
 import java.util.List;
 
-import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
@@ -30,7 +29,7 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class RectangleWidget extends BaseWidget
+public class RectangleWidget extends Widget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =

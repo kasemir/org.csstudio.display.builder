@@ -35,9 +35,12 @@ import org.csstudio.vtype.pv.PVListener;
 import org.csstudio.vtype.pv.PVPool;
 import org.diirt.vtype.VType;
 
-/** Runtime for a Widget.
+/** Common Widget runtime.
  *
  *  <p>Connects to scripts and PVs.
+ *
+ *  <p>Widgets with additional needs can implement
+ *  a derived runtime and register with {@link WidgetRuntimeFactory}
  *
  *  @author Kay Kasemir
  *  @param <MW> Model widget
