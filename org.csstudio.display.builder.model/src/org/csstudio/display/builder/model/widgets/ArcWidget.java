@@ -12,7 +12,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import java.util.Arrays;
 import java.util.List;
 
-import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
@@ -28,7 +27,7 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
  *
  */
 @SuppressWarnings("nls")
-public class ArcWidget extends BaseWidget {
+public class ArcWidget extends Widget {
 
     /** Widget descriptor */
 	//Does the opibuilder.widgets.Arc work? Guessed at the name...
