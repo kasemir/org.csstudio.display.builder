@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
-import org.csstudio.display.builder.model.BaseWidget;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.StructuredWidgetProperty.Descriptor;
 import org.csstudio.display.builder.model.Widget;
@@ -34,7 +33,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class XYPlotWidget extends BaseWidget
+public class XYPlotWidget extends Widget
 {
     private static final WidgetPropertyDescriptor<Boolean> behaviorLegend =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "show_legend", "Show Legend");
