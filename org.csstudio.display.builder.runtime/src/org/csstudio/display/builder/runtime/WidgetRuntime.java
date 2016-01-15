@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +29,7 @@ import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
+import org.csstudio.display.builder.runtime.internal.RuntimePVs;
 import org.csstudio.display.builder.runtime.script.RuntimeScriptHandler;
 import org.csstudio.display.builder.runtime.script.Script;
 import org.csstudio.vtype.pv.PV;
@@ -55,13 +57,8 @@ public class WidgetRuntime<MW extends Widget>
     /** The widget handled by this runtime */
     protected MW widget;
 
-    // TODO Handle indication of disconnected PVs
-    // The primary_pv may already be linked to alarm sensitive border,
-    // but the PVs used by actions or scripts could also be disconnected,
-    // and _any_ disconnected PV on a widget needs to be detected
-    // and somehow indicated in representation.
-
-    private WidgetPropertyListener<String> pv_name_listener = null;
+    /** If widget has 'pv_name' and 'value', this listener establishes the primary PV */
+    private PVNameListener pv_name_listener = null;
 
     /** Primary widget PV for behaviorPVName property
      *  <p>SYNC on this
@@ -71,13 +68,26 @@ public class WidgetRuntime<MW extends Widget>
     /** Listener for <code>primary_pv</code> */
     private PVListener primary_pv_listener;
 
-    /** PVs used by actions
+    // TODO Handle indication of disconnected PVs
+    // The primary_pv may already be linked to alarm sensitive border,
+    // but the PVs used by actions or scripts could also be disconnected,
+    // and _any_ disconnected PV on a widget needs to be detected
+    // and somehow indicated in representation.
+    /** List of _all_ PVs:
+     *  Primary PV,
+     *  PVs used by scripts,
+     *  PVs used by actions that write,
+     *  additional PVs for widgets that have more than just a primary PV.
+     */
+    private AtomicReference<RuntimePVs> pvs = new AtomicReference<>();
+
+    /** PVs used by write actions
      *
      *  <p>Lazily created if there are scripts.
      */
     // This is empty for most widgets, or contains very few PVs,
     // so using List with linear lookup by name and not a HashMap
-    private volatile List<PV> pvs = null;
+    private volatile List<PV> writable_pvs = null;
 
     /** Handlers for widget's behaviorScripts property,
      *  i.e. scripts that are triggered by PVs
@@ -125,15 +135,18 @@ public class WidgetRuntime<MW extends Widget>
         }
     };
 
-    /** Listener to "pv_name" property. Connects/re-connects PV */
+    /** Listener to "pv_name" property. Connects/re-connects primary PV */
     private class PVNameListener implements WidgetPropertyListener<String>
     {
         @Override
         public void propertyChanged(final WidgetProperty<String> name_property,
                                     final String old_name, String pv_name)
         {
+            if (Objects.equals(old_name, pv_name))
+                return;
+
             // In case already connected...
-            disconnectPV();
+            disconnectPrimaryPV();
 
             if (pv_name.isEmpty())
                 return;
@@ -156,6 +169,7 @@ public class WidgetRuntime<MW extends Widget>
                     primary_pv = Optional.of(pv);
                 }
                 pv.addListener(primary_pv_listener);
+                getPVsInfo().addPV(pv);
             }
             catch (Exception ex)
             {
@@ -177,6 +191,11 @@ public class WidgetRuntime<MW extends Widget>
         widget.setUserData(Widget.USER_DATA_RUNTIME, this);
     }
 
+    private RuntimePVs getPVsInfo()
+    {
+        return pvs.updateAndGet(x -> x==null?new RuntimePVs(widget) : x);
+    }
+
     /** Start: Connect to PVs, start scripts
      *  @throws Exception on error
      */
@@ -189,9 +208,13 @@ public class WidgetRuntime<MW extends Widget>
         if (name.isPresent() &&  value.isPresent())
         {
             pv_name_listener = new PVNameListener();
+            // Fetching the PV name will resolve macros,
+            // i.e. set the name property and thus notify listeners
+            // -> Do that once before registering listener
+            final String pv_name = name.get().getValue();
             name.get().addPropertyListener(pv_name_listener);
             // Initial connection
-            pv_name_listener.propertyChanged(name.get(), null, name.get().getValue());
+            pv_name_listener.propertyChanged(name.get(), null, pv_name);
         }
 
         // Prepare action-related PVs
@@ -205,11 +228,13 @@ public class WidgetRuntime<MW extends Widget>
                 {
                     final String pv_name = ((WritePVActionInfo) action).getPV();
                     final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
-                    action_pvs.add(PVPool.getPV(expanded));
+                    final PV pv = PVPool.getPV(expanded);
+                    action_pvs.add(pv);
+                    getPVsInfo().addPV(pv);
                 }
             }
             if (action_pvs.size() > 0)
-                this.pvs = action_pvs;
+                this.writable_pvs = action_pvs;
         }
 
         // Start scripts in pool because Jython setup is expensive
@@ -273,10 +298,14 @@ public class WidgetRuntime<MW extends Widget>
     {
         try
         {
-            final PV pv = primary_pv.orElse(null);
+            final PV pv;
+            synchronized (this)
+            {
+                pv = primary_pv.orElse(null);
+            }
             if (pv == null)
                 throw new Exception("No PV");
-            primary_pv.get().write(value);
+            pv.write(value);
         }
         catch (final Exception ex)
         {
@@ -293,7 +322,7 @@ public class WidgetRuntime<MW extends Widget>
     public void writePV(final String pv_name, final Object value) throws Exception
     {
         final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
-        final List<PV> safe_pvs = pvs;
+        final List<PV> safe_pvs = writable_pvs;
         if (safe_pvs != null)
             for (final PV pv : safe_pvs)
                 if (pv.getName().equals(expanded))
@@ -326,16 +355,17 @@ public class WidgetRuntime<MW extends Widget>
      *
      *  <p>OK to call when there was no PV
      */
-    private void disconnectPV()
+    private void disconnectPrimaryPV()
     {
         final PV pv;
         synchronized (this)
         {
             pv = primary_pv.orElse(null);
             primary_pv = Optional.empty();
-            if (pv == null)
-                return;
         }
+        if (pv == null)
+            return;
+        getPVsInfo().removePV(pv);
         pv.removeListener(primary_pv_listener);
         PVPool.releasePV(pv);
     }
@@ -343,15 +373,18 @@ public class WidgetRuntime<MW extends Widget>
     /** Stop: Disconnect PVs, ... */
     public void stop()
     {
-        final List<PV> safe_pvs = pvs;
+        final List<PV> safe_pvs = writable_pvs;
         if (safe_pvs != null)
         {
             for (final PV pv : safe_pvs)
+            {
+                getPVsInfo().removePV(pv);
                 PVPool.releasePV(pv);
-            pvs = null;
+            }
+            writable_pvs = null;
         }
 
-        disconnectPV();
+        disconnectPrimaryPV();
         if (pv_name_listener != null)
         {
             widget.getProperty(behaviorPVName).removePropertyListener(pv_name_listener);
