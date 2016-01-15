@@ -30,13 +30,12 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
 public class ArcWidget extends Widget {
 
     /** Widget descriptor */
-	//Does the opibuilder.widgets.Arc work? Guessed at the name...
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("arc", WidgetCategory.GRAPHIC,
             "Arc",
             "platform:/plugin/org.csstudio.display.builder.model/icons/arc.png",
             "An arc",
-            Arrays.asList("org.csstudio.opibuilder.widgets.Arc"))
+            Arrays.asList("org.csstudio.opibuilder.widgets.arc"))
     {
         @Override
         public Widget createWidget()
@@ -45,11 +44,12 @@ public class ArcWidget extends Widget {
         }
     };
 
+    //TODO: change start_anlge and total_angle to new terms. Setup input configurator to handle old terms
     private static final WidgetPropertyDescriptor<Double> displayAngleStart =
-            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "angle_start", Messages.WidgetProperties_AngleStart);
+            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "start_angle", Messages.WidgetProperties_AngleStart);
 
     private static final WidgetPropertyDescriptor<Double> displayAngleSize =
-            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "angle_size", Messages.WidgetProperties_AngleSize);
+            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "total_angle", Messages.WidgetProperties_AngleSize);
 
     // fill color
     private WidgetProperty<WidgetColor> background;

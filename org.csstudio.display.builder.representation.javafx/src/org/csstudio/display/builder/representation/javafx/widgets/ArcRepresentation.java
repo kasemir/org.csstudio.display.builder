@@ -25,12 +25,16 @@ public class ArcRepresentation extends JFXBaseRepresentation<Arc, ArcWidget>
     private final DirtyFlag dirty_position = new DirtyFlag();
     private final DirtyFlag dirty_look = new DirtyFlag();
     private Color background, line_color;
+    private Double arc_size;
+    private Double arc_start;
+    private ArcType arc_type;
 
     @Override
     public Arc createJFXNode() throws Exception
     {
         final Arc arc = new Arc();
         updateColors();
+        updateAngles();
         return arc;
     }
 
@@ -49,6 +53,8 @@ public class ArcRepresentation extends JFXBaseRepresentation<Arc, ArcWidget>
         model_widget.displayTransparent().addUntypedPropertyListener(this::lookChanged);
         model_widget.displayLineColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.displayLineWidth().addUntypedPropertyListener(this::lookChanged);
+        model_widget.displayArcSize().addUntypedPropertyListener(this::lookChanged);
+        model_widget.displayArcStart().addUntypedPropertyListener(this::lookChanged);
     }
 
     private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -60,6 +66,7 @@ public class ArcRepresentation extends JFXBaseRepresentation<Arc, ArcWidget>
     private void lookChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         updateColors();
+        updateAngles();
         dirty_look.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -69,7 +76,14 @@ public class ArcRepresentation extends JFXBaseRepresentation<Arc, ArcWidget>
         background = model_widget.displayTransparent().getValue()
                    ? Color.TRANSPARENT
                    : JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
+        arc_type = model_widget.displayTransparent().getValue() ? ArcType.OPEN : ArcType.ROUND;
         line_color = JFXUtil.convert(model_widget.displayLineColor().getValue());
+    }
+
+    private void updateAngles()
+    {
+        arc_size = model_widget.displayArcSize().getValue();
+        arc_start = model_widget.displayArcStart().getValue();
     }
 
     @Override
@@ -89,9 +103,6 @@ public class ArcRepresentation extends JFXBaseRepresentation<Arc, ArcWidget>
                 jfx_node.setCenterY(y + h/2);
                 jfx_node.setRadiusX(w/2);
                 jfx_node.setRadiusY(h/2);
-                jfx_node.setStartAngle(45.0f);
-                jfx_node.setLength(270.0f);
-                jfx_node.setType(ArcType.ROUND);
             }
             else
                 jfx_node.setVisible(false);
@@ -102,6 +113,9 @@ public class ArcRepresentation extends JFXBaseRepresentation<Arc, ArcWidget>
             jfx_node.setStroke(line_color);
             jfx_node.setStrokeWidth(model_widget.displayLineWidth().getValue());
             jfx_node.setStrokeType(StrokeType.INSIDE);
+            jfx_node.setStartAngle(arc_start);
+            jfx_node.setLength(arc_size);
+            jfx_node.setType(arc_type);
         }
     }
 }
