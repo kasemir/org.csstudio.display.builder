@@ -285,6 +285,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     public void fireAction(final Widget widget, final ActionInfo action)
     {
         for (final ToolkitListener listener : listeners)
+        {
             try
             {
                 listener.handleAction(widget, action);
@@ -293,6 +294,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
             {
                 logger.log(Level.WARNING, "Action failure when invoking " + action + " for " + widget, ex);
             }
+        }
     }
 
     /** Notify listeners that a widget has been clicked
@@ -302,13 +304,15 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     public void fireClick(final Widget widget, final boolean with_control)
     {
         for (final ToolkitListener listener : listeners)
-        try
         {
-            listener.handleClick(widget, with_control);
-        }
-        catch (final Throwable ex)
-        {
-            logger.log(Level.WARNING, "Click failure for " + widget, ex);
+            try
+            {
+                listener.handleClick(widget, with_control);
+            }
+            catch (final Throwable ex)
+            {
+                logger.log(Level.WARNING, "Click failure for " + widget, ex);
+            }
         }
     }
 
@@ -318,13 +322,15 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     public void fireContextMenu(final Widget widget)
     {
         for (final ToolkitListener listener : listeners)
-        try
         {
-            listener.handleContextMenu(widget);
-        }
-        catch (final Throwable ex)
-        {
-            logger.log(Level.WARNING, "Context menu failure for " + widget, ex);
+            try
+            {
+                listener.handleContextMenu(widget);
+            }
+            catch (final Throwable ex)
+            {
+                logger.log(Level.WARNING, "Context menu failure for " + widget, ex);
+            }
         }
     }
 
@@ -335,13 +341,15 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     public void fireWrite(final Widget widget, final Object value)
     {
         for (final ToolkitListener listener : listeners)
-        try
         {
-            listener.handleWrite(widget, value);
-        }
-        catch (final Throwable ex)
-        {
-            logger.log(Level.WARNING, "Failure when writing " + value + " for " + widget, ex);
+            try
+            {
+                listener.handleWrite(widget, value);
+            }
+            catch (final Throwable ex)
+            {
+                logger.log(Level.WARNING, "Failure when writing " + value + " for " + widget, ex);
+            }
         }
     }
 

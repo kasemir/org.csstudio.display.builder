@@ -111,11 +111,7 @@ public class RuntimePVs
         }
         // else: For sure not connected
 
-        // TODO Update a widget runtime property and show that in representation
-        if (all_connected)
-            System.out.println("Fully connected " + widget);
-        else
-            System.out.println(widget + " disconnected from " + getDisconnectedPVs());
+        widget.runtimeConnected().setValue(all_connected);
     }
 
     /** @return All PVs of this widget */

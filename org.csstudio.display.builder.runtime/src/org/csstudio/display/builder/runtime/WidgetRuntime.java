@@ -11,12 +11,13 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,8 +79,10 @@ public class WidgetRuntime<MW extends Widget>
      *  PVs used by scripts,
      *  PVs used by actions that write,
      *  additional PVs for widgets that have more than just a primary PV.
+     *
+     *  <p>Lazily created as the first PV is added
      */
-    private AtomicReference<RuntimePVs> pvs = new AtomicReference<>();
+    private volatile RuntimePVs runtime_pvs = null;
 
     /** PVs used by write actions
      *
@@ -169,7 +172,7 @@ public class WidgetRuntime<MW extends Widget>
                     primary_pv = Optional.of(pv);
                 }
                 pv.addListener(primary_pv_listener);
-                getPVsInfo().addPV(pv);
+                addPV(pv);
             }
             catch (Exception ex)
             {
@@ -177,6 +180,14 @@ public class WidgetRuntime<MW extends Widget>
             }
         }
     };
+
+    /** @param widget {@link Widget}
+     *  @return {@link WidgetRuntime} of that widget
+     */
+    public static WidgetRuntime<Widget> ofWidget(final Widget widget)
+    {
+        return widget.getUserData(Widget.USER_DATA_RUNTIME);
+    }
 
     // initialize() could be the constructor, but
     // instantiation from Eclipse registry requires
@@ -191,9 +202,29 @@ public class WidgetRuntime<MW extends Widget>
         widget.setUserData(Widget.USER_DATA_RUNTIME, this);
     }
 
-    private RuntimePVs getPVsInfo()
+    /** @param pv PV where widget should track the connection state */
+    public void addPV(final PV pv)
     {
-        return pvs.updateAndGet(x -> x==null?new RuntimePVs(widget) : x);
+        synchronized (this)
+        {
+            if (runtime_pvs == null)
+                runtime_pvs = new RuntimePVs(widget);
+        }
+        runtime_pvs.addPV(pv);
+    }
+
+    /** @param pv PV where widget should no longer track the connection state */
+    public void removePV(final PV pv)
+    {
+        runtime_pvs.removePV(pv);
+    }
+
+    /** @return All PVs that the widget uses */
+    public Collection<PV> getPVs()
+    {
+        if (runtime_pvs == null)
+            return Collections.emptyList();
+        return runtime_pvs.getPVs();
     }
 
     /** Start: Connect to PVs, start scripts
@@ -230,7 +261,7 @@ public class WidgetRuntime<MW extends Widget>
                     final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
                     final PV pv = PVPool.getPV(expanded);
                     action_pvs.add(pv);
-                    getPVsInfo().addPV(pv);
+                    addPV(pv);
                 }
             }
             if (action_pvs.size() > 0)
@@ -365,7 +396,7 @@ public class WidgetRuntime<MW extends Widget>
         }
         if (pv == null)
             return;
-        getPVsInfo().removePV(pv);
+        removePV(pv);
         pv.removeListener(primary_pv_listener);
         PVPool.releasePV(pv);
     }
@@ -378,7 +409,7 @@ public class WidgetRuntime<MW extends Widget>
         {
             for (final PV pv : safe_pvs)
             {
-                getPVsInfo().removePV(pv);
+                removePV(pv);
                 PVPool.releasePV(pv);
             }
             writable_pvs = null;
@@ -404,6 +435,13 @@ public class WidgetRuntime<MW extends Widget>
             for (final RuntimeScriptHandler handler : handlers)
                 handler.shutdown();
             script_handlers = null;
+        }
+
+        if (runtime_pvs != null)
+        {
+            final Collection<PV> pvs = runtime_pvs.getPVs();
+            if (!pvs.isEmpty())
+                logger.log(Level.SEVERE, widget + " has unreleased PVs: " + pvs);
         }
     }
 }

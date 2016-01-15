@@ -14,6 +14,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeConnected;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
 
@@ -124,6 +125,7 @@ public class Widget
     private WidgetProperty<Boolean> visible;
     private WidgetProperty<List<ActionInfo>> actions;
     private WidgetProperty<List<ScriptInfo>> scripts;
+    private WidgetProperty<Boolean> connected;
 
     /** Map of user data */
     protected final Map<String, Object> user_data = new HashMap<>(4); // Reserve room for "representation", "runtime"
@@ -156,6 +158,7 @@ public class Widget
         prelim_properties.add(visible = positionVisible.createProperty(this, true));
         prelim_properties.add(actions = behaviorActions.createProperty(this, Collections.emptyList()));
         prelim_properties.add(scripts = behaviorScripts.createProperty(this, Collections.emptyList()));
+        prelim_properties.add(connected = runtimeConnected.createProperty(this, false));
 
         // -- Widget-specific properties --
         defineProperties(prelim_properties);
@@ -297,6 +300,12 @@ public class Widget
     public WidgetProperty<List<ScriptInfo>> behaviorScripts()
     {
         return scripts;
+    }
+
+    /** @return Runtime 'connected' */
+    public WidgetProperty<Boolean> runtimeConnected()
+    {
+        return connected;
     }
 
     /** Obtain configurator.
@@ -518,6 +527,8 @@ public class Widget
     @Override
     public String toString()
     {
-        return "Widget '" + name.getDescription() + "' (" + getType() + ")";
+        // Show name's specification, not value, because otherwise
+        // a plain debug printout can trigger macro resolution for the name
+        return "Widget '" + ((MacroizedWidgetProperty<?>)name).getSpecification() + "' (" + getType() + ")";
     }
 }

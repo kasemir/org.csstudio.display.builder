@@ -57,6 +57,8 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Wi
     {
         super.registerListeners();
 
+        model_widget.runtimeConnected().addPropertyListener(this::connectionChanged);
+
         final Optional<WidgetProperty<Boolean>> border = model_widget.checkProperty(displayBorderAlarmSensitive);
         final Optional<WidgetProperty<VType>> value = model_widget.checkProperty(runtimeValue);
         if (border.isPresent()  &&  value.isPresent())
@@ -66,6 +68,15 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Wi
             computeBorder(AlarmSeverity.NONE);
             value.get().addPropertyListener(this::valueChanged);
         }
+    }
+
+    private void connectionChanged(final WidgetProperty<Boolean> property, final Boolean was_connected, final Boolean is_connected)
+    {
+        // TODO Show this in border
+        if (is_connected)
+            System.out.println(model_widget + " is connected");
+        else
+            System.out.println(model_widget + " is disconnected");
     }
 
     private void valueChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)

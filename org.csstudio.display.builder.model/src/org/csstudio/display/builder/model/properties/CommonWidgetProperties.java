@@ -333,7 +333,12 @@ public class CommonWidgetProperties
         newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "maximum", Messages.WidgetProperties_Maximum);
 
     /** Runtime 'value': Typically read from primary PV */
-    public static final WidgetPropertyDescriptor<VType> runtimeValue = newRuntimeValue("value", Messages.WidgetProperties_Value);
+    public static final WidgetPropertyDescriptor<VType> runtimeValue =
+        newRuntimeValue("value", Messages.WidgetProperties_Value);
+
+    /** Runtime 'connected': Are all PVs of the widget connected? */
+    public static final WidgetPropertyDescriptor<Boolean> runtimeConnected =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.RUNTIME, "connected", Messages.WidgetProperties_Connected);
 
     /** Runtime 'insets': Container widget representations may set these. */
     public static final WidgetPropertyDescriptor<int[]> runtimeInsets =
