@@ -8,10 +8,10 @@
 package org.csstudio.display.builder.editor.tree;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,7 +64,7 @@ public class WidgetTree
      *  <p>When model notifies about changed Widget,
      *  this map provides the corresponding TreeItem.
      */
-    private Map<Widget, TreeItem<Widget>> widget_items;
+    private volatile Map<Widget, TreeItem<Widget>> widget_items;
 
     /** Listener to changes in ContainerWidget's children */
     private final WidgetPropertyListener<List<Widget>> children_listener = (p, removed, added) ->
@@ -205,7 +205,7 @@ public class WidgetTree
         EditorUtil.getExecutor().execute(() ->
         {   // Using FJPool as plain executor, not dividing tree generation into sub-tasks
             final TreeItem<Widget> root = new TreeItem<Widget>(model);
-            final Map<Widget, TreeItem<Widget>> widget_items = new HashMap<>();
+            final Map<Widget, TreeItem<Widget>> widget_items = new ConcurrentHashMap<>();
             if (model != null)
             {
                 widget_items.put(model, root);
