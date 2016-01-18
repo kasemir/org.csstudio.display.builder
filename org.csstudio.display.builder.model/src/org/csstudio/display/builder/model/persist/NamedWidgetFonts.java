@@ -32,7 +32,7 @@ public class NamedWidgetFonts extends ConfigFileParser
     public static final NamedWidgetFont COMMENT = new NamedWidgetFont("Comment", DEFAULT.getFamily(), WidgetFontStyle.ITALIC, DEFAULT.getSize());
     public static final NamedWidgetFont FINE_PRINT = new NamedWidgetFont("Fine Print", DEFAULT.getFamily(), WidgetFontStyle.REGULAR, DEFAULT.getSize() - 2);
 
-    private final Map<String, NamedWidgetFont> fonts = new LinkedHashMap<>();
+    private final Map<String, NamedWidgetFont> fonts = Collections.synchronizedMap(new LinkedHashMap<>());
 
     protected NamedWidgetFonts()
     {
