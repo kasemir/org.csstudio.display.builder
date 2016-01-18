@@ -19,7 +19,6 @@ import javafx.scene.Group;
  *
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
 public class RCP_JFXRepresentation extends JFXRepresentation
 {
     // Similar to JFXRepresentation, but using RuntimeViewPart as 'Window'
