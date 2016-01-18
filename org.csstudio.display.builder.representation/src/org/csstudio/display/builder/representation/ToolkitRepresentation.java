@@ -7,12 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
@@ -50,7 +50,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     private final UpdateThrottle throttle = new UpdateThrottle(this);
 
     /** Factories for representations based on widget type */
-    private final Map<String, WidgetRepresentationFactory<TWP, TW>> factories = new HashMap<>();
+    private final Map<String, WidgetRepresentationFactory<TWP, TW>> factories = new ConcurrentHashMap<>();
 
     /** Listener list */
     private final List<ToolkitListener> listeners = new CopyOnWriteArrayList<>();
