@@ -354,7 +354,7 @@ public class CommonWidgetProperties
                 @Override
                 public void setValueFromObject(final Object value) throws Exception
                 {
-                    if (value instanceof int[])
+                    if (value instanceof int[]  &&  ((int[]) value).length == 2)
                         setValue((int[]) value);
                     else
                         throw new Exception("Need int[2], got " + value);
