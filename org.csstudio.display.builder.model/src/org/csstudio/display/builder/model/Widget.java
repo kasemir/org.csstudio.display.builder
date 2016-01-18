@@ -21,12 +21,12 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -113,6 +113,9 @@ public class Widget
     // getProperties(), getProperty(), getPropertyValue(), setPropertyValue()
 
     /** Map of property names to properties */
+    // Map is final, all properties are collected in widget constructor.
+    // Values of properties can change, but the list of properties itself
+    // is thread safe
     protected final Map<String, WidgetProperty<?>> property_map;
 
     // Actual properties
@@ -128,7 +131,7 @@ public class Widget
     private WidgetProperty<Boolean> connected;
 
     /** Map of user data */
-    protected final Map<String, Object> user_data = new HashMap<>(4); // Reserve room for "representation", "runtime"
+    protected final Map<String, Object> user_data = new ConcurrentHashMap<>(4); // Reserve room for "representation", "runtime"
 
     /** Widget constructor.
      *  @param type Widget type
