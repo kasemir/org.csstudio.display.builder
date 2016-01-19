@@ -42,7 +42,7 @@ public class DisplayModel extends ContainerWidget
      */
     public static final String USER_DATA_EMBEDDING_WIDGET = "_embedding_widget";
 
-    private WidgetProperty<Macros> macros;
+    private volatile WidgetProperty<Macros> macros;
 
     /** Create display model */
     public DisplayModel()

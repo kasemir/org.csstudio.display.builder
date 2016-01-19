@@ -45,12 +45,12 @@ public class ProgressBarWidget extends Widget
         }
     };
 
-    private WidgetProperty<String> pv_name;
-    private WidgetProperty<Boolean> limits_from_pv;
-    private WidgetProperty<Double> minimum;
-    private WidgetProperty<Double> maximum;
-    private WidgetProperty<WidgetColor> fill_color;
-    private WidgetProperty<VType> value;
+    private volatile WidgetProperty<String> pv_name;
+    private volatile WidgetProperty<Boolean> limits_from_pv;
+    private volatile WidgetProperty<Double> minimum;
+    private volatile WidgetProperty<Double> maximum;
+    private volatile WidgetProperty<WidgetColor> fill_color;
+    private volatile WidgetProperty<VType> value;
 
     public ProgressBarWidget()
     {

@@ -53,12 +53,12 @@ public class RectangleWidget extends Widget
         CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "corner_height", Messages.WidgetProperties_CornerHeight);
 
 
-    private WidgetProperty<WidgetColor> background;
-    private WidgetProperty<Boolean> transparent;
-    private WidgetProperty<WidgetColor> line_color;
-    private WidgetProperty<Integer> line_width;
-    private WidgetProperty<Integer> corner_width;
-    private WidgetProperty<Integer> corner_height;
+    private volatile WidgetProperty<WidgetColor> background;
+    private volatile WidgetProperty<Boolean> transparent;
+    private volatile WidgetProperty<WidgetColor> line_color;
+    private volatile WidgetProperty<Integer> line_width;
+    private volatile WidgetProperty<Integer> corner_width;
+    private volatile WidgetProperty<Integer> corner_height;
 
     public RectangleWidget()
     {

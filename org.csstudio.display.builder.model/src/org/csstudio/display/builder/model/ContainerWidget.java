@@ -74,7 +74,7 @@ public class ContainerWidget extends Widget
      */
     protected ChildrenWidgetsProperty children;
 
-    private WidgetProperty<int[]> insets;
+    private volatile WidgetProperty<int[]> insets;
 
     /** Widget constructor.
      *  @param type Widget type

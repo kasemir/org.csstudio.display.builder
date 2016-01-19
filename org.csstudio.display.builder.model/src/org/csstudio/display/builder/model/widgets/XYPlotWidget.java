@@ -209,10 +209,10 @@ public class XYPlotWidget extends Widget
         }
     };
 
-    private WidgetProperty<Boolean> show_legend;
-    private AxisWidgetProperty x_axis;
-    private ArrayWidgetProperty<AxisWidgetProperty> y_axes;
-    private TraceWidgetProperty trace;
+    private volatile WidgetProperty<Boolean> show_legend;
+    private volatile AxisWidgetProperty x_axis;
+    private volatile ArrayWidgetProperty<AxisWidgetProperty> y_axes;
+    private volatile TraceWidgetProperty trace;
 
     public XYPlotWidget()
     {

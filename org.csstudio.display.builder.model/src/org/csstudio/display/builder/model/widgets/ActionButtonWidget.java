@@ -41,8 +41,8 @@ public class ActionButtonWidget extends Widget
         }
     };
 
-    private WidgetProperty<Macros> macros;
-    private WidgetProperty<String> text;
+    private volatile WidgetProperty<Macros> macros;
+    private volatile WidgetProperty<String> text;
 
     public ActionButtonWidget()
     {

@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMinimum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.Arrays;
@@ -84,12 +85,12 @@ public class ImageWidget extends Widget
         }
     };
 
-    private WidgetProperty<String> pv_name;
-    private WidgetProperty<Integer> data_width;
-    private WidgetProperty<Integer> data_height;
-    private WidgetProperty<Double> data_minimum;
-    private WidgetProperty<Double> data_maximum;
-    private WidgetProperty<ColorMap> data_colormap;
+    private volatile WidgetProperty<String> pv_name;
+    private volatile WidgetProperty<Integer> data_width;
+    private volatile WidgetProperty<Integer> data_height;
+    private volatile WidgetProperty<Double> data_minimum;
+    private volatile WidgetProperty<Double> data_maximum;
+    private volatile WidgetProperty<ColorMap> data_colormap;
 
     private WidgetProperty<VType> value;
 
@@ -103,6 +104,7 @@ public class ImageWidget extends Widget
     {
         super.defineProperties(properties);
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
+        properties.add(displayBorderAlarmSensitive.createProperty(this, true));
         properties.add(data_width = dataWidth.createProperty(this, 100));
         properties.add(data_height = dataHeight.createProperty(this, 100));
         properties.add(data_minimum = behaviorMinimum.createProperty(this, 0.0));
