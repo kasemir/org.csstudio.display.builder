@@ -19,8 +19,9 @@ import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
+import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.vtype.pv.PV;
-import org.csstudio.vtype.pv.PVListener;
+import org.csstudio.vtype.pv.PVListenerAdapter;
 import org.csstudio.vtype.pv.PVPool;
 import org.diirt.vtype.VType;
 
@@ -31,7 +32,7 @@ import org.diirt.vtype.VType;
  *
  *  @author Kay Kasemir
  */
-public class RuntimeScriptHandler implements PVListener
+public class RuntimeScriptHandler extends PVListenerAdapter
 {
     private final Widget widget;
     private final List<ScriptPV> infos;
@@ -86,11 +87,13 @@ public class RuntimeScriptHandler implements PVListener
         script = compileScript(widget, macros, script_info);
 
         // Create PVs
+        final WidgetRuntime<Widget> runtime = WidgetRuntime.ofWidget(widget);
         pvs = new PV[infos.size()];
         for (int i=0; i<pvs.length; ++i)
         {
             final String pv_name = MacroHandler.replace(macros, infos.get(i).getName());
             pvs[i] = PVPool.getPV(pv_name);
+            runtime.addPV(pvs[i]);
         }
         // Subscribe to trigger PVs
         for (int i=0; i<pvs.length; ++i)
@@ -101,10 +104,12 @@ public class RuntimeScriptHandler implements PVListener
     /** Must be invoked to dispose PVs */
     public void shutdown()
     {
+        final WidgetRuntime<Widget> runtime = WidgetRuntime.ofWidget(widget);
         for (int i=0; i<pvs.length; ++i)
         {
             if (infos.get(i).isTrigger())
                 pvs[i].removeListener(this);
+            runtime.removePV(pvs[i]);
             PVPool.releasePV(pvs[i]);
         }
     }
@@ -114,17 +119,5 @@ public class RuntimeScriptHandler implements PVListener
     {
         // Request execution of script
         script.submit(widget, pvs);
-    }
-
-    @Override
-    public void disconnected(final PV pv)
-    {
-        // NOP
-    }
-
-    @Override
-    public void permissionsChanged(final PV pv, final boolean readonly)
-    {
-        // NOP
     }
 }

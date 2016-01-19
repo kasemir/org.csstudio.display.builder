@@ -24,6 +24,9 @@ import javafx.scene.Node;
  */
 abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget> extends WidgetRepresentation<Group, Node, MW>
 {
+    /** JFX node (or root of sub scene graph) that represents the widget
+     *  <p>Only accessed on the JFX thread
+     */
     protected JFX jfx_node;
 
     private final DirtyFlag dirty_position = new DirtyFlag();

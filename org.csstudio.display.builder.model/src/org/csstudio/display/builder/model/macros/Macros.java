@@ -10,9 +10,9 @@ package org.csstudio.display.builder.model.macros;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /** Macro information
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("nls")
 public class Macros implements MacroValueProvider
 {
-    private final Map<String, String> macros = new HashMap<>();
+    private final Map<String, String> macros = new ConcurrentHashMap<>();
 
     /** Create empty macro map */
     public Macros()

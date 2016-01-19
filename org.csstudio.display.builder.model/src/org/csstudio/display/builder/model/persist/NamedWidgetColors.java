@@ -46,7 +46,7 @@ public class NamedWidgetColors extends ConfigFileParser
     private static final NamedWidgetColor DEFAULT_READ_BACKGROUND = new NamedWidgetColor(READ_BACKGROUND, 240, 240, 240);
     private static final NamedWidgetColor DEFAULT_WRITE_BACKGROUND = new NamedWidgetColor(WRITE_BACKGROUND, 128, 255, 255);
 
-    private final Map<String, NamedWidgetColor> colors = new LinkedHashMap<>();
+    private final Map<String, NamedWidgetColor> colors = Collections.synchronizedMap(new LinkedHashMap<>());
 
     protected NamedWidgetColors()
     {

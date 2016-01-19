@@ -7,8 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.run;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -20,7 +20,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
  */
 public class RCPSelectionProvider implements ISelectionProvider
 {
-    private final List<ISelectionChangedListener> listeners = new ArrayList<>();
+    private final List<ISelectionChangedListener> listeners = new CopyOnWriteArrayList<>();
 
     private ISelection selection = null;
 

@@ -48,12 +48,12 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
 
     private void loadContent()
     {
+        final String display_file = widget.displayFile().getValue();
         try
         {
             // Load model for displayFile, allowing lookup relative to this widget's model
             final DisplayModel model = widget.getDisplayModel();
             final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-            final String display_file = widget.displayFile().getValue();
             content_model = RuntimeUtil.loadModel(parent_display, display_file);
             // Adjust model name to reflect source file
             content_model.widgetName().setValue("EmbeddedDisplay " + display_file);
@@ -69,8 +69,9 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         }
         catch (final Exception ex)
         {
+            // TODO Show "Failed to load embedded display" + display_file in representation
             Logger.getLogger(getClass().getName()).log(Level.WARNING,
-                    "Failed to load embedded display", ex);
+                    "Failed to load embedded display " + display_file, ex);
         }
     }
 

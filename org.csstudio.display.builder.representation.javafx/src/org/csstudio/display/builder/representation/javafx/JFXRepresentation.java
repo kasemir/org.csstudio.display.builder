@@ -79,6 +79,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
     public static final double ZOOM_HEIGHT = -2.0;
 
     /** Cached map of widget ID to representation factory */
+    // TODO Use a boolean is_initialized instead of keeping complete hash
     private static final Map<String, WidgetRepresentationFactory<Group, Node>> factories = new HashMap<>();
 
     /** Construct new JFX representation */

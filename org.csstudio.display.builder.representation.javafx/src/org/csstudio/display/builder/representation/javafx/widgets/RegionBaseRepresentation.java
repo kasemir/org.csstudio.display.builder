@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.Widget;
@@ -48,8 +49,9 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Wi
             new BorderStrokeStyle(StrokeType.OUTSIDE, StrokeLineJoin.MITER, StrokeLineCap.BUTT, 10, 0, null);
 
     private final DirtyFlag dirty_border = new DirtyFlag();
-    private WidgetProperty<Boolean> alarm_sensitive_border;
-    private volatile AlarmSeverity current_alarm;
+    private volatile WidgetProperty<VType> value_prop = null;
+    private volatile WidgetProperty<Boolean> alarm_sensitive_border_prop = null;
+    private final AtomicReference<AlarmSeverity> current_alarm = new AtomicReference<>(AlarmSeverity.NONE);
     private volatile Border border;
 
     @Override
@@ -61,38 +63,55 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Wi
         final Optional<WidgetProperty<VType>> value = model_widget.checkProperty(runtimeValue);
         if (border.isPresent()  &&  value.isPresent())
         {
-            alarm_sensitive_border = border.get();
+            value_prop = value.get();
+            alarm_sensitive_border_prop = border.get();
             // Start 'OK'
-            computeBorder(AlarmSeverity.NONE);
-            value.get().addPropertyListener(this::valueChanged);
+            computeAlarmBorder(AlarmSeverity.NONE);
+            value_prop.addPropertyListener(this::valueChanged);
         }
+
+        model_widget.runtimeConnected().addPropertyListener(this::connectionChanged);
+    }
+
+    private void connectionChanged(final WidgetProperty<Boolean> property, final Boolean was_connected, final Boolean is_connected)
+    {
+        if (is_connected)
+        {   // Reflect severity of primary PV's value
+            if (value_prop != null)
+                computeValueBorder(value_prop.getValue());
+            else // No PV: OK
+                computeAlarmBorder(AlarmSeverity.NONE);
+        }
+        else// Value of primary PV doesn't matter, show disconnected
+            computeAlarmBorder(AlarmSeverity.UNDEFINED);
     }
 
     private void valueChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
+        computeValueBorder(new_value);
+    }
+
+    private void computeValueBorder(final VType value)
+    {
         AlarmSeverity severity;
-        if (alarm_sensitive_border.getValue())
+        if (alarm_sensitive_border_prop.getValue())
         {
-            if (new_value instanceof Alarm)
-                severity = ((Alarm)new_value).getAlarmSeverity();
+            if (value instanceof Alarm)
+                severity = ((Alarm)value).getAlarmSeverity();
             else
                 severity = AlarmSeverity.UNDEFINED;
         }
         else
             severity = AlarmSeverity.NONE;
 
-        // Any change?
-        if (current_alarm == severity)
-            return;
-
-        computeBorder(severity);
-        dirty_border.mark();
-        toolkit.scheduleUpdate(this);
+        computeAlarmBorder(severity);
     }
 
-    private void computeBorder(final AlarmSeverity severity)
+    private void computeAlarmBorder(final AlarmSeverity severity)
     {
-        current_alarm = severity;
+        // Any change?
+        if (current_alarm.getAndSet(severity) == severity)
+            return;
         final Color color = getAlarmColor(severity);
         if (color == null)
             border = null;
@@ -101,6 +120,8 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Wi
             final int width = 2;
             border = new Border(new BorderStroke(color, border_stroke_style, CornerRadii.EMPTY, new BorderWidths(width)));
         }
+        dirty_border.mark();
+        toolkit.scheduleUpdate(this);
     }
 
     /** @param alarm {@link AlarmSeverity}

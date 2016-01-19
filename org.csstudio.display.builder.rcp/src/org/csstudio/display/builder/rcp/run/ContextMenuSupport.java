@@ -15,14 +15,13 @@ import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.representation.ToolkitListener;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
-import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IWorkbenchActionConstants;
@@ -58,16 +57,16 @@ public class ContextMenuSupport
         final MenuManager mm = new MenuManager();
         mm.setRemoveAllWhenShown(true);
         mm.addMenuListener((manager) ->
-        {
+        {   // Widget info
+            manager.add(new WidgetInfoAction(context_menu_widget));
+
             // TODO Eventually, widget's representation will want to
             // add widget-specific menu items.
-            // So representation will need to provide list of
+            // Representation will need to provide list of
             // { String label, String icon_url, Consumer<Widget> runnable }
-            // that can then be added to the menu
-            // For now just showing the widget name to demo that the menu manager
-            // has access to the widget
-            manager.add(new Action(context_menu_widget.getName()) {});
+            // that can then be added to the menu manager right here.
 
+            // Placeholder for ProcessVariable object contributions
             manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
         });
         site.registerContextMenu(mm, sel_provider);
@@ -83,28 +82,24 @@ public class ContextMenuSupport
             @Override
             public void handleContextMenu(final Widget widget)
             {
+                IStructuredSelection sel = StructuredSelection.EMPTY;
                 final Optional<WidgetProperty<String>> name_prop = widget.checkProperty(behaviorPVName);
-                if (! name_prop.isPresent())
-                    return;
-                final String pv_name = name_prop.get().getValue();
-                if (pv_name.isEmpty())
-                    return;
-                final ProcessVariable pv = new ProcessVariable(pv_name);
-                final IStructuredSelection sel = new StructuredSelection(pv);
+                if (name_prop.isPresent())
+                {
+                    final String pv_name = name_prop.get().getValue();
+                    if (!pv_name.isEmpty())
+                        sel = new StructuredSelection(new ProcessVariable(pv_name));
+                }
                 sel_provider.setSelection(sel);
+
                 // Show the menu
                 context_menu_widget = widget;
                 menu.setVisible(true);
             }
         });
         // Clear context_menu_widget reference when menu closed
-        menu.addMenuListener(new MenuListener()
+        menu.addMenuListener(new MenuAdapter()
         {
-            @Override
-            public void menuShown(MenuEvent e)
-            {
-            }
-
             @Override
             public void menuHidden(MenuEvent e)
             {

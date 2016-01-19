@@ -7,10 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.util;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,7 +27,7 @@ public class WidgetIcons
     private static final Logger logger = Logger.getLogger(WidgetIcons.class.getName());
 
     /** Cache of icon images by widget type */
-    private static final Map<String, Image> icons = Collections.synchronizedMap(new HashMap<>());
+    private static final Map<String, Image> icons = new ConcurrentHashMap<>();
 
     /** Get icon for widget type
      *  @param type Widget type
@@ -36,31 +35,26 @@ public class WidgetIcons
      */
     public static Image getIcon(final String type)
     {
-        // Favoring no locks over locking for each access.
-        // Keeping lock on 'icons' while in this method would prevent two threads
-        // from concurrently requesting a missing icon, both adding it to the map.
-        // -> Pity, but not fatal, and not observed in reality because 'Palette'
-        //    requests all icons once on startup.
-        Image icon = icons.get(type);
-        if (icon == null)
+        return icons.computeIfAbsent(type, WidgetIcons::loadIcon);
+    }
+
+    private static Image loadIcon(final String type)
+    {
+        final Optional<WidgetDescriptor> descriptor = WidgetFactory.getInstance().getWidgetDescriptor(type);
+        try
         {
-            final Optional<WidgetDescriptor> descriptor = WidgetFactory.getInstance().getWidgetDescriptor(type);
-            try
+            if (descriptor.isPresent())
             {
-                if (descriptor.isPresent())
-                {
-                    logger.log(Level.FINE, "Obtaining icon for widget type " + type);
-                    icon = new Image(descriptor.get().getIconStream());
-                    icons.put(type, icon);
-                }
-                else
-                    logger.log(Level.WARNING, "Unknown widget type " + type);
+                logger.log(Level.FINE, "Obtaining icon for widget type " + type);
+                return new Image(descriptor.get().getIconStream());
             }
-            catch (Exception ex)
-            {
-                logger.log(Level.WARNING, "Cannot obtain widget for " + type, ex);
-            }
+            else
+                logger.log(Level.WARNING, "Unknown widget type " + type);
         }
-        return icon;
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot obtain widget for " + type, ex);
+        }
+        return null;
     }
 }
