@@ -202,7 +202,7 @@ public class PropertyPanelSection extends GridPane
                     new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
             bindings.add(binding);
             binding.bind();
-            if (property.getName() == CommonWidgetProperties.displayText.getName())
+            if (CommonWidgetProperties.displayText.getName().equals(property.getName()))
             {   // Allow editing multi-line text in dialog
                 final Button open_editor = new Button("...");
                 open_editor.setOnAction(event ->
