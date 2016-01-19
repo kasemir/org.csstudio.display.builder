@@ -132,8 +132,10 @@ public class ContainerWidget extends Widget
         return null;
     }
 
-    /** @param child Widget to add as child in widget tree */
-    public void addChild(final Widget child)
+    /** @param index Index where to add child, or -1 to append at end
+     *  @param child Widget to add as child in widget tree
+     */
+    public void addChild(final int index, final Widget child)
     {
         final List<Widget> list = children.getValue();
         synchronized (list)
@@ -141,20 +143,38 @@ public class ContainerWidget extends Widget
             if (list.contains(child))
                 throw new IllegalArgumentException(this +
                         " already has child widget " + child);
-            list.add(child);
+            if (index < 0)
+                list.add(child);
+            else
+                list.add(index, child);
         }
         child.setParent(this);
         children.firePropertyChange(null, Arrays.asList(child));
     }
 
-    /** @param child Widget to remove as child from widget tree */
-    public void removeChild(final Widget child)
+    /** @param child Widget to add as child in widget tree */
+    public void addChild(final Widget child)
+    {
+        addChild(-1, child);
+    }
+
+    /** @param child Widget to remove as child from widget tree
+     *  @return Index of removed child in list of children
+     */
+    public int removeChild(final Widget child)
     {
         final List<Widget> list = children.getValue();
-        if (! list.remove(child))
-            throw new IllegalArgumentException("Widget hierarchy error: " + child + " is not known to " + this);
+        final int index;
+        synchronized (list)
+        {
+            index = list.indexOf(child);
+            if (index < 0)
+                throw new IllegalArgumentException("Widget hierarchy error: " + child + " is not known to " + this);
+            list.remove(index);
+        }
         child.setParent(null);
         children.firePropertyChange(Arrays.asList(child), null);
+        return index;
     }
 
     public WidgetProperty<int[]> runtimeInsets()
