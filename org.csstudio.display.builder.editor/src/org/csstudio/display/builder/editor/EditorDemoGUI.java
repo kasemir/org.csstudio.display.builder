@@ -127,8 +127,8 @@ public class EditorDemoGUI
             redo_button.setDisable(to_redo == null);
         });
 
-        final Button back_button = ActionGUIHelper.createButton(new ToBackAction(selection_handler));
-        final Button front_button = ActionGUIHelper.createButton(new ToFrontAction(selection_handler));
+        final Button back_button = ActionGUIHelper.createButton(new ToBackAction(undo, selection_handler));
+        final Button front_button = ActionGUIHelper.createButton(new ToFrontAction(undo, selection_handler));
 
         return new ToolBar(
                 ActionGUIHelper.createButton(new LoadModelAction(this)),
