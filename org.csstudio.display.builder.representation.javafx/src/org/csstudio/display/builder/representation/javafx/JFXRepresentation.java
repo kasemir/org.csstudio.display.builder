@@ -24,6 +24,7 @@ import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.model.widgets.ImageWidget;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
+import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.PolygonWidget;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
@@ -40,6 +41,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.EmbeddedDispla
 import org.csstudio.display.builder.representation.javafx.widgets.GroupRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LEDRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.PictureRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.PolygonRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.PolylineRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ProgressBarRepresentation;
@@ -120,6 +122,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
         factories.put(ImageWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ImageRepresentation());
         factories.put(LabelWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new LabelRepresentation());
         factories.put(LEDWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new LEDRepresentation());
+        factories.put(PictureWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new PictureRepresentation());
         factories.put(PolygonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new PolygonRepresentation());
         factories.put(PolylineWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new PolylineRepresentation());
         factories.put(ProgressBarWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ProgressBarRepresentation());

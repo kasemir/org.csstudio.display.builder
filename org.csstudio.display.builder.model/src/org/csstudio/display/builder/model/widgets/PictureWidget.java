@@ -54,7 +54,7 @@ public class PictureWidget extends Widget
     {
         super.defineProperties(properties);
         properties.add(filename = displayFile.createProperty(this, Messages.WidgetProperties_File));
-        properties.add(transparent = displayTransparent.createProperty(this, true));
+        properties.add(transparent = displayTransparent.createProperty(this, false));
     }
 
     /** @return Display 'text' */

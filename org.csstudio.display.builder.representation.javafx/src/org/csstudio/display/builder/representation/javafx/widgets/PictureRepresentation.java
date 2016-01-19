@@ -8,7 +8,10 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.macros.MacroHandler;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 
 import javafx.geometry.Pos;
@@ -29,12 +32,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<ImageView, Pict
     @Override
     public ImageView createJFXNode() throws Exception
     {
-        img = new Image("icons/add.png"); //$NON-NLS-1$
-        ImageView iv = new ImageView();
-        iv.setImage(img);
-        iv.setPreserveRatio(false);
-        iv.setCache(true);
-        return iv;
+        return new ImageView();
     }
 
     @Override
@@ -43,7 +41,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<ImageView, Pict
         super.registerListeners();
         model_widget.positionWidth().addUntypedPropertyListener(this::styleChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayTransparent().addUntypedPropertyListener(this::styleChanged);
+        model_widget.displayTransparent().addUntypedPropertyListener(this::contentChanged);
         model_widget.displayFile().addUntypedPropertyListener(this::contentChanged);
     }
 
@@ -68,17 +66,45 @@ public class PictureRepresentation extends JFXBaseRepresentation<ImageView, Pict
             jfx_node.setFitHeight(model_widget.positionHeight().getValue());
             jfx_node.setFitWidth(model_widget.positionWidth().getValue());
             jfx_node.setRotate(rotation);
+        }
+        if (dirty_content.checkAndClear())
+        {
+            String base_path = model_widget.displayFile().getValue();
+            //final String base_path = "platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif";  //$NON-NLS-1$
+            //final String base_path = "platform:/plugin/org.csstudio.display.representation.javafx/icons/add.png"; //$NON-NLS-1$
+
+            try
+            {
+                // expand macros in the file name
+                final String expanded_path = MacroHandler.replace(model_widget.getEffectiveMacros(), base_path);
+
+                // Resolve new image file relative to the source widget model (not 'top'!)
+                // Get the display model from the widget tied to this representation
+                final DisplayModel widget_model = model_widget.getDisplayModel();
+                // Get the parent file path from the display model
+                final String parent_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+                // Resolve the image path using the parent model file path
+                final String resolved_name = ModelResourceUtil.resolveResource(parent_file, expanded_path);
+
+                // Open the image from the stream created from the resource file
+                img = new Image(ModelResourceUtil.openResourceStream(resolved_name));
+                //img = new Image(ResourceUtil.openPlatformResource(expanded_path));
+            }
+            catch (Exception e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             if (model_widget.displayTransparent().getValue())
-            {   // No fill
+            {   // Image invisible
                 jfx_node.setImage(null);
             }
             else
-            {   // Fill background
+            {   // Image visible
                 jfx_node.setImage(img);
             }
-            //jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+            jfx_node.setPreserveRatio(false);
+            jfx_node.setCache(true);
         }
-        //if (dirty_content.checkAndClear())
-            //jfx_node.setText(model_widget.displayFile().getValue());
     }
 }
