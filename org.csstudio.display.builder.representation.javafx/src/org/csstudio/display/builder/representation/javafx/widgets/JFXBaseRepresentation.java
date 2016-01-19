@@ -8,7 +8,9 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.util.Objects;
+import java.util.Optional;
 
+import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -37,8 +39,19 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
     {
         jfx_node = createJFXNode();
         if (jfx_node != null)
-        {
-            parent.getChildren().add(jfx_node);
+        {   // Order JFX children same as model widgets within their container
+            final int index;
+            final Optional<ContainerWidget> container = model_widget.getParent();
+            if (container.isPresent())
+                index = container.get().getChildren().indexOf(model_widget);
+            else
+                index = -1;
+
+            if (index < 0)
+                parent.getChildren().add(jfx_node);
+            else
+                parent.getChildren().add(index, jfx_node);
+            
             // Any visible item can be 'clicked' to allow editor to 'select' it
             jfx_node.setOnMousePressed((event) ->
             {
