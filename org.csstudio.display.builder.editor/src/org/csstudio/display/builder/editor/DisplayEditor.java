@@ -98,9 +98,9 @@ public class DisplayEditor
 
     private final WidgetSelectionHandler selection = new WidgetSelectionHandler();
 
-    private GroupHandler group_handler;
+    private final GroupHandler group_handler;
 
-    private SelectedWidgetUITracker selection_tracker;
+    private final SelectedWidgetUITracker selection_tracker;
 
     private SplitPane root;
     private ScrollPane scroll;
@@ -112,6 +112,11 @@ public class DisplayEditor
     public DisplayEditor(final JFXRepresentation toolkit)
     {
         this.toolkit = toolkit;
+        group_handler = new GroupHandler(edit_tools, selection);
+
+        selection_tracker = new SelectedWidgetUITracker(toolkit, group_handler, selection, undo);
+        selection_tracker.enableSnap(true);
+        selection_tracker.enableGrid(true);
     }
 
     /** Create UI elements
@@ -119,12 +124,6 @@ public class DisplayEditor
      */
     public Parent create()
     {
-        group_handler = new GroupHandler(edit_tools, selection);
-
-        selection_tracker = new SelectedWidgetUITracker(toolkit, group_handler, selection, undo);
-        selection_tracker.enableSnap(true);
-        selection_tracker.enableGrid(true);
-
         scroll = new ScrollPane(editor_pane);
 
         final Palette palette = new Palette(selection);
