@@ -161,7 +161,8 @@ public class Widget
         prelim_properties.add(visible = positionVisible.createProperty(this, true));
         prelim_properties.add(actions = behaviorActions.createProperty(this, Collections.emptyList()));
         prelim_properties.add(scripts = behaviorScripts.createProperty(this, Collections.emptyList()));
-        prelim_properties.add(connected = runtimeConnected.createProperty(this, false));
+        // Start 'connected', assuming there are no PVs
+        prelim_properties.add(connected = runtimeConnected.createProperty(this, true));
 
         // -- Widget-specific properties --
         defineProperties(prelim_properties);

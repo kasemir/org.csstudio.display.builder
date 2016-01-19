@@ -78,7 +78,8 @@ public class RuntimePVs
             throw new IllegalStateException("Duplicate registration of " + pv);
         final PVInfo info = new PVInfo();
         pvs.put(pv, info);
-        System.out.println("Awaiting connections for " + widget + " " + pv.getName());
+        // Awaiting connections for at least one PV, so widget is for now disconnected
+        widget.runtimeConnected().setValue(false);
         pv.addListener(info);
     }
 

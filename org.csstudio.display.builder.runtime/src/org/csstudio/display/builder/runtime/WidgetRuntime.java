@@ -69,11 +69,6 @@ public class WidgetRuntime<MW extends Widget>
     /** Listener for <code>primary_pv</code> */
     private PVListener primary_pv_listener;
 
-    // TODO Handle indication of disconnected PVs
-    // The primary_pv may already be linked to alarm sensitive border,
-    // but the PVs used by actions or scripts could also be disconnected,
-    // and _any_ disconnected PV on a widget needs to be detected
-    // and somehow indicated in representation.
     /** List of _all_ PVs:
      *  Primary PV,
      *  PVs used by scripts,
