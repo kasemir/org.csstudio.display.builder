@@ -7,29 +7,20 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp.actions;
 
-import org.csstudio.display.builder.editor.rcp.DisplayEditorPart;
 import org.csstudio.display.builder.editor.rcp.Messages;
 import org.csstudio.display.builder.editor.rcp.Plugin;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.OpenDisplayAction;
-import org.eclipse.jface.action.Action;
 
 /** Action to execute currently edited display
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class ExecuteDisplayAction extends Action
+public class ExecuteDisplayAction extends EditorAction
 {
-    private DisplayEditorPart edit_part;
-
     public ExecuteDisplayAction()
     {
         super(Messages.ExecuteDisplay, Plugin.getIcon("execute.png"));
-    }
-
-    public void setActiveEditor(final DisplayEditorPart edit_part)
-    {
-        this.edit_part = edit_part;
     }
 
     @Override

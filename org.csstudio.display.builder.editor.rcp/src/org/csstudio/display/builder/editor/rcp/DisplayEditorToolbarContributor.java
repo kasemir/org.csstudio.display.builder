@@ -10,8 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayAction;
+import org.csstudio.display.builder.editor.rcp.actions.ToBackEditorAction;
+import org.csstudio.display.builder.editor.rcp.actions.ToFrontEditorAction;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -30,6 +33,8 @@ import org.eclipse.ui.part.EditorActionBarContributor;
  */
 public class DisplayEditorToolbarContributor extends EditorActionBarContributor
 {
+    private final ToBackEditorAction to_back_action = new ToBackEditorAction();
+    private final ToFrontEditorAction to_front_action = new ToFrontEditorAction();
     private final ExecuteDisplayAction execute_action = new ExecuteDisplayAction();
     private final List<IWorkbenchAction> global_actions = new ArrayList<>();
 
@@ -37,7 +42,10 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
     public void contributeToToolBar(final IToolBarManager manager)
     {
         final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        manager.add(new Separator());
         manager.add(execute_action);
+        manager.add(to_back_action);
+        manager.add(to_front_action);
         addGlobalAction(manager, ActionFactory.UNDO.create(window));
         addGlobalAction(manager, ActionFactory.REDO.create(window));
     }
@@ -60,6 +68,8 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
             return;
 
         execute_action.setActiveEditor(editor);
+        to_back_action.setActiveEditor(editor);
+        to_front_action.setActiveEditor(editor);
         for (IAction action : global_actions)
             bars.setGlobalActionHandler(action.getId(), editor.getAction(action.getId()));
 
@@ -69,6 +79,9 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
     @Override
     public void dispose()
     {
+        execute_action.setActiveEditor(null);
+        to_back_action.setActiveEditor(null);
+        to_front_action.setActiveEditor(null);
         for (IWorkbenchAction action : global_actions)
             action.dispose();
         global_actions.clear();

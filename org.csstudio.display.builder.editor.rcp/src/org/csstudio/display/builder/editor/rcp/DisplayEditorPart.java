@@ -175,6 +175,12 @@ public class DisplayEditorPart extends EditorPart
         actions.put(ActionFactory.REDO.getId(), new RedoAction(undo));
     }
 
+    /** @return {@link DisplayEditor} */
+    public DisplayEditor getDisplayEditor()
+    {
+        return editor;
+    }
+
     /** Get action resp. handler for retargetable actions
      *  @param id Action ID
      *  @return Action for that ID
