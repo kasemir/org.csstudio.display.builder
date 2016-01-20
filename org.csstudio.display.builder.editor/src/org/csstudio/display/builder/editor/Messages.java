@@ -24,6 +24,8 @@ public class Messages extends NLS
     public static String Grid;
     public static String LoadDisplay;
     public static String LoadDisplay_TT;
+    public static String MoveToBack;
+    public static String MoveToFront;
     public static String PointCount_Fmt;
     public static String Redo_TT;
     public static String RemoveElement;
@@ -36,6 +38,7 @@ public class Messages extends NLS
     public static String Snap;
     public static String Undo_TT;
     public static String UpdateWidgetLocation;
+    public static String UpdateWidgetOrder;
 
     static
     {

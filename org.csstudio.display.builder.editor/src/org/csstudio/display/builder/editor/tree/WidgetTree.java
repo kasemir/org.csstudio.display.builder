@@ -67,26 +67,7 @@ public class WidgetTree
     private volatile Map<Widget, TreeItem<Widget>> widget_items;
 
     /** Listener to changes in ContainerWidget's children */
-    private final WidgetPropertyListener<List<Widget>> children_listener = (p, removed, added) ->
-    {
-        // Update must be on UI thread.
-        // Even if already on UI thread, decouple.
-        Platform.runLater(() ->
-        {
-            if (removed != null)
-                for (Widget removed_widget : removed)
-                {
-                    logger.log(Level.FINE, "Removed {0}", removed_widget);
-                    removeWidget(removed_widget);
-                }
-            if (added != null)
-                for (Widget added_widget : added)
-            {
-                logger.log(Level.FINE, "Added {0}", added_widget);
-                addWidget(added_widget);
-            }
-        });
-    };
+    private final WidgetPropertyListener<List<Widget>> children_listener;
 
     /** Listener to changes in ContainerWidget's children */
     private final WidgetPropertyListener<String> name_listener = (property, old, new_name) ->
@@ -137,6 +118,33 @@ public class WidgetTree
     public WidgetTree(final WidgetSelectionHandler selection)
     {
         this.selection = selection;
+
+
+        children_listener = (p, removed, added) ->
+        {
+            // Update must be on UI thread.
+            // Even if already on UI thread, decouple.
+            Platform.runLater(() ->
+            {
+                active.set(true);
+                try
+                {
+                    if (removed != null)
+                        for (Widget removed_widget : removed)
+                            removeWidget(removed_widget);
+                    if (added != null)
+                        for (Widget added_widget : added)
+                            addWidget(added_widget);
+                }
+                finally
+                {
+                    active.set(false);
+                }
+                // Restore tree's selection to match model
+                // after removing/adding items may have changed it.
+                setSelectedWidgets(selection.getSelection());
+            });
+        };
     }
 
     /** Create UI components
@@ -281,12 +289,16 @@ public class WidgetTree
      *  @param added_widget
      */
     private void addWidget(final Widget added_widget)
-    {
-        final TreeItem<Widget> item_parent = widget_items.get(added_widget.getParent().get());
+    {   // Determine location of widget within parent of model
+        final ContainerWidget widget_parent = added_widget.getParent().get();
+        final int index = widget_parent.getChildren().indexOf(added_widget);
+
+        // Create Tree item, add at same index into Tree
+        final TreeItem<Widget> item_parent = widget_items.get(widget_parent);
         final TreeItem<Widget> item = new TreeItem<>(added_widget);
         widget_items.put(added_widget, item);
         item.setExpanded(true);
-        item_parent.getChildren().add(item);
+        item_parent.getChildren().add(index, item);
 
         added_widget.widgetName().addPropertyListener(name_listener);
 

@@ -9,20 +9,25 @@ package org.csstudio.display.builder.editor.actions;
 
 import java.util.List;
 
+import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.editor.undo.UpdateWidgetOrderAction;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
 /** Action to move widget to front
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class ToFrontAction extends ActionDescription
 {
+    private final UndoableActionManager undo;
     private final WidgetSelectionHandler selection_handler;
 
-    public ToFrontAction(final WidgetSelectionHandler selection_handler)
+    public ToFrontAction(final UndoableActionManager undo, final WidgetSelectionHandler selection_handler)
     {
-        super("platform:/plugin/org.csstudio.display.builder.editor/icons/tofront.png", "Move widget to front");
+        super("platform:/plugin/org.csstudio.display.builder.editor/icons/tofront.png", Messages.MoveToFront);
+        this.undo = undo;
         this.selection_handler = selection_handler;
     }
 
@@ -31,14 +36,6 @@ public class ToFrontAction extends ActionDescription
     {
         final List<Widget> widgets = selection_handler.getSelection();
         for (Widget widget : widgets)
-        {
-            final ContainerWidget parent = widget.getParent().orElse(null);
-            if (parent == null)
-                continue;
-
-            // TODO Use undo
-            parent.removeChild(widget);
-            parent.addChild(widget);
-        }
+            undo.execute(new UpdateWidgetOrderAction(widget, -1));
     }
 }

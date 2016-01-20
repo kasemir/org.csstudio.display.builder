@@ -42,6 +42,7 @@ import javafx.scene.shape.Rectangle;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class PointsEditor
 {
     private static ImageCursor cursor_add, cursor_remove;
