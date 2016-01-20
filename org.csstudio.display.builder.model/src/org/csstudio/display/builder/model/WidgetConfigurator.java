@@ -23,6 +23,7 @@ import org.w3c.dom.Element;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class WidgetConfigurator
 {
     /** Version of the XML.
