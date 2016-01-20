@@ -4,6 +4,10 @@
    <extension
          point="org.csstudio.display.builder.representation.widgets">
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.ArcRepresentation"
+            type="arc">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.ActionButtonRepresentation"
             type="action_button">
       </representation>
@@ -26,6 +30,10 @@
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.LEDRepresentation"
             type="led">
+      </representation>
+      <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.PictureRepresentation"
+            type="picture">
       </representation>
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.PolygonRepresentation"
