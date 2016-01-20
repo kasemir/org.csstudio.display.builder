@@ -23,10 +23,11 @@
   </widget>
   <widget type="picture" version="2.0.0">
     <name>Rose</name>
-    <x>21</x>
-    <y>291</y>
+    <x>61</x>
+    <y>331</y>
     <width>210</width>
     <height>170</height>
+    <rotation>90.0</rotation>
     <file>pic/Yellow-Rose.png</file>
   </widget>
 </display>

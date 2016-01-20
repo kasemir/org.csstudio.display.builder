@@ -15,7 +15,6 @@ import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 
-import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -26,17 +25,17 @@ import javafx.scene.image.ImageView;
 @SuppressWarnings("nls")
 public class PictureRepresentation extends JFXBaseRepresentation<ImageView, PictureWidget>
 {
-    // Change the image size
+    /** Change the image size */
     private final DirtyFlag dirty_size = new DirtyFlag();
-    // Change the image file
+    /** Change the image file */
     private final DirtyFlag dirty_content = new DirtyFlag();
-    // Change the image rotation or transparency
+    /** Change the image rotation or transparency */
     private final DirtyFlag dirty_style = new DirtyFlag();
-    private Pos pos;
+
     private volatile Image img_loaded;
     private volatile String img_path;
     private volatile Boolean visible;
-    private volatile double rotation;
+    //private volatile Double rotation;
 
     @Override
     public ImageView createJFXNode() throws Exception
@@ -51,17 +50,19 @@ public class PictureRepresentation extends JFXBaseRepresentation<ImageView, Pict
         model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::sizeChanged);
 
-        visibleChanged(null, null, model_widget.displayTransparent().getValue());
         model_widget.displayTransparent().addPropertyListener(this::visibleChanged);
+        visibleChanged(null, null, model_widget.displayTransparent().getValue());
 
-        // This will create a race condition with the Application thread, which calls registerListeners and then updateChanges
-        // Scheduling a thread to load images may execute contentChanged simultaneous with the updateChanges gets called from main thread
-        // which could *clear the dirty_content mark!!* after it is set in the contentChanged function, causing the image update never to happen.
-        //final String img_name = model_widget.displayFile().getValue();
-        //ModelThreadPool.getExecutor().execute(() -> contentChanged(null, null, img_name));
-        ModelThreadPool.getExecutor().execute(() -> contentChanged(null, null, model_widget.displayFile().getValue()));
-        //Do not add listener until after calling getValue (or it will trigger)
+        model_widget.positionRotation().addUntypedPropertyListener(this::styleChanged);
+        styleChanged(null, null, null);
+
+        // This is one of those weird cases where getValue calls setValue and fires the listener.
+        // So register listener after getValue called
+        final String img_name = model_widget.displayFile().getValue();
         model_widget.displayFile().addPropertyListener(this::contentChanged);
+        ModelThreadPool.getExecutor().execute(() -> contentChanged(null, null, img_name));
+        //ModelThreadPool.getExecutor().execute(() -> contentChanged(null, null, model_widget.displayFile().getValue()));
+
     }
 
     private void visibleChanged(final WidgetProperty<Boolean> property, final Boolean old_value, final Boolean new_value)
@@ -71,6 +72,11 @@ public class PictureRepresentation extends JFXBaseRepresentation<ImageView, Pict
         toolkit.scheduleUpdate(this);
     }
 
+    private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        dirty_style.mark();
+        toolkit.scheduleUpdate(this);
+    }
 
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
@@ -78,22 +84,19 @@ public class PictureRepresentation extends JFXBaseRepresentation<ImageView, Pict
         toolkit.scheduleUpdate(this);
     }
 
-    // Takes place in background thread
-    // Race condition exists if called simultaneous with updateChanges
     private void contentChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
+    //private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         //dirty_content.mark();
         // Imagine if updateChanges executes here. Mark is cleared and image updated before new image loaded.
         // Subsequent Scheduled image update would not happen.
 
         String base_path = new_value;
+        //String base_path = model_widget.displayFile().getValue();
         //System.out.println("Picture Representation content changes to " + base_path + " on " + Thread.currentThread().getName());
 
         try
         {
-            // DONT DO THIS! You will trigger the listener
-            //String base_path = model_widget.displayFile().getValue();
-
             // TODO: load this image if the given path fails
             //final String base_path = "platform:/plugin/org.csstudio.display.representation.javafx/icons/add.png"; //$NON-NLS-1$
 
@@ -110,18 +113,11 @@ public class PictureRepresentation extends JFXBaseRepresentation<ImageView, Pict
 
             // Open the image from the stream created from the resource file
             img_loaded = new Image(ModelResourceUtil.openResourceStream(img_path));
-            //img = new Image(ResourceUtil.openPlatformResource(expanded_path));
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
-
-        // Don't do this. You will trigger the listener that you are in
-        //if (model_widget.displayTransparent().getValue())
-        //{   // Image invisible
-         //   img = null;
-        //}
 
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
@@ -138,27 +134,13 @@ public class PictureRepresentation extends JFXBaseRepresentation<ImageView, Pict
         }
         if (dirty_style.checkAndClear())
         {
-            jfx_node.setRotate(rotation);
-            if (visible)
-            {
-                jfx_node.setImage(img_loaded);
-            }
-            else
-            {
-                jfx_node.setImage(null);
-            }
+            jfx_node.setRotate(model_widget.positionRotation().getValue());
+            jfx_node.setImage(visible ? img_loaded : null);
         }
         if (dirty_content.checkAndClear())
         {
-            //System.out.println("update change to img path at " + img_path + " on thread " + Thread.currentThread().getName());
-            if (visible)
-            {
-                jfx_node.setImage(img_loaded);
-            }
-            else
-            {
-                jfx_node.setImage(null);
-            }
+            //System.out.println("update change to img path at " + img_path + " on thread " + Thread.currentThread().getName());}
+            jfx_node.setImage(visible ? img_loaded : null);
             jfx_node.setPreserveRatio(false);
             jfx_node.setCache(true);
         }

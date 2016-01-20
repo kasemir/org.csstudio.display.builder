@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFile;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayTransparent;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +19,8 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 
 /** Widget that displays an image loaded from a file
  *  @author Megan Grodowitz
@@ -40,6 +43,11 @@ public class PictureWidget extends Widget
         }
     };
 
+    /** Position 'rotation': What is the rotation of the picture */
+    public static final WidgetPropertyDescriptor<Double> positionRotation =
+        newDoublePropertyDescriptor(WidgetPropertyCategory.POSITION, "rotation", Messages.WidgetProperties_Rotation);
+
+
     private volatile WidgetProperty<String> filename;
     private volatile WidgetProperty<Boolean> transparent;
     private volatile WidgetProperty<Double> rotation;
@@ -55,6 +63,13 @@ public class PictureWidget extends Widget
         super.defineProperties(properties);
         properties.add(filename = displayFile.createProperty(this, Messages.WidgetProperties_File));
         properties.add(transparent = displayTransparent.createProperty(this, false));
+        properties.add(rotation = positionRotation.createProperty(this, 0.0));
+    }
+
+    /** @return Position 'rotation' */
+    public WidgetProperty<Double> positionRotation()
+    {
+        return rotation;
     }
 
     /** @return Display 'text' */
