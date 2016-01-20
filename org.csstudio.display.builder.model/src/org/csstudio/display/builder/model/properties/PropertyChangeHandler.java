@@ -8,7 +8,6 @@
 package org.csstudio.display.builder.model.properties;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -122,7 +121,7 @@ public abstract class PropertyChangeHandler<T extends Object>
     *  _again_ by the time this executes.
     *
     *  <p>Suppresses notifications where old_value equals new_value,
-    *  unless the values are null, treating that as a "notify anyway"
+    *  unless both values are null, treating that as a "notify anyway"
     *  case.
     *
     *  @param property Property that changed, or <code>null</code> for "many"
@@ -139,7 +138,7 @@ public abstract class PropertyChangeHandler<T extends Object>
            return;
 
        // Any change at all?
-       if (Objects.equals(old_value, new_value))
+       if (new_value != null  &&  old_value != null  &&  new_value.equals(old_value))
            return;
 
        // If a property listener changes the property,
