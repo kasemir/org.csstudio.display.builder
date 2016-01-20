@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.representation.internal;
+package org.csstudio.display.builder.representation;
 
 import java.time.Instant;
 import java.util.LinkedHashSet;
@@ -15,8 +15,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.csstudio.display.builder.representation.WidgetRepresentation;
 
 /** Handle throttled updates on UI thread.
  *

@@ -26,7 +26,6 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ActionInfo;
-import org.csstudio.display.builder.representation.internal.UpdateThrottle;
 
 /** Representation for a toolkit.
  *
