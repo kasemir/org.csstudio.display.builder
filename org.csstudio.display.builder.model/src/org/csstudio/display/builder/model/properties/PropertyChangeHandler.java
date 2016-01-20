@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model.properties;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -74,6 +75,9 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 @SuppressWarnings("nls")
 public abstract class PropertyChangeHandler<T extends Object>
 {
+    /** Track recursions of calls to listener */
+    private final AtomicInteger recursions = new AtomicInteger();
+
     /** Lazily initialized list of listeners.
      *  Read-only access must make thread safe copy.
      */
@@ -138,6 +142,15 @@ public abstract class PropertyChangeHandler<T extends Object>
        if (Objects.equals(old_value, new_value))
            return;
 
+       // If a property listener changes the property,
+       // that triggers a recursive listener invocation.
+       // Not necessarily a problem, but likely better avoided.
+       final int recursion_level = recursions.incrementAndGet();
+       if (recursion_level > 1)
+           Logger.getLogger(getClass().getName())
+                 .log(Level.WARNING,
+                      "Recursive update of property " + property.getName() + ", " +
+                      recursion_level + " deep");
        // Notify listeners
        for (BaseWidgetPropertyListener listener : safe_copy)
        {
@@ -154,5 +167,6 @@ public abstract class PropertyChangeHandler<T extends Object>
                      .log(Level.WARNING, "Property update error for " +  property, ex);
            }
        }
+       recursions.decrementAndGet();
    }
 }
