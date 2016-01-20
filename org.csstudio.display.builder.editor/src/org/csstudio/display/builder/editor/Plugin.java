@@ -5,22 +5,14 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.model;
+package org.csstudio.display.builder.editor;
 
-/** Base class for most widgets.
+/** Plugin Info
  *  @author Kay Kasemir
- *  @deprecated Use {@link Widget}. This class will be removed
  */
-@Deprecated
-public class BaseWidget extends Widget
+@SuppressWarnings("nls")
+public class Plugin
 {
-    public BaseWidget(final String type)
-    {
-        this(type, 100, 20);
-    }
-
-    public BaseWidget(final String type, final int default_width, final int default_height)
-    {
-        super(type, default_width, default_height);
-    }
+    /** Plugin ID */
+    public final static String ID = "org.csstudio.display.builder.editor";
 }

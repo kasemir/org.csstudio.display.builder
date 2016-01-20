@@ -9,6 +9,7 @@ package org.csstudio.display.builder.editor.rcp;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -139,8 +140,11 @@ public class DisplayEditorPart extends EditorPart
     {
         try
         {
-            final ModelReader reader = new ModelReader(new FileInputStream(file.getLocation().toFile()));
-            return reader.readModel();
+            final File location = file.getLocation().toFile();
+            final ModelReader reader = new ModelReader(new FileInputStream(location));
+            final DisplayModel model = reader.readModel();
+            model.setUserData(DisplayModel.USER_DATA_INPUT_FILE, location.getCanonicalPath());
+            return model;
         }
         catch (Exception ex)
         {
@@ -173,6 +177,12 @@ public class DisplayEditorPart extends EditorPart
         final UndoableActionManager undo = editor.getUndoableActionManager();
         actions.put(ActionFactory.UNDO.getId(), new UndoAction(undo));
         actions.put(ActionFactory.REDO.getId(), new RedoAction(undo));
+    }
+
+    /** @return {@link DisplayEditor} */
+    public DisplayEditor getDisplayEditor()
+    {
+        return editor;
     }
 
     /** Get action resp. handler for retargetable actions

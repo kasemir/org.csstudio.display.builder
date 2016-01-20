@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.properties;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -134,7 +135,7 @@ public abstract class PropertyChangeHandler<T extends Object>
            return;
 
        // Any change at all?
-       if (new_value != null  &&  old_value != null  &&  new_value.equals(old_value))
+       if (Objects.equals(old_value, new_value))
            return;
 
        // Notify listeners

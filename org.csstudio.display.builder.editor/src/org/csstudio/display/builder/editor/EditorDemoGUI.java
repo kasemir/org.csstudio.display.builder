@@ -20,6 +20,8 @@ import org.csstudio.display.builder.editor.actions.EnableSnapAction;
 import org.csstudio.display.builder.editor.actions.LoadModelAction;
 import org.csstudio.display.builder.editor.actions.RedoAction;
 import org.csstudio.display.builder.editor.actions.SaveModelAction;
+import org.csstudio.display.builder.editor.actions.ToBackAction;
+import org.csstudio.display.builder.editor.actions.ToFrontAction;
 import org.csstudio.display.builder.editor.actions.UndoAction;
 import org.csstudio.display.builder.editor.properties.PropertyPanel;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
@@ -78,6 +80,7 @@ public class EditorDemoGUI
         editor = new DisplayEditor(toolkit);
 
         final ToolBar toolbar = createToolbar(editor.getSelectedWidgetUITracker(),
+                                              editor.getWidgetSelectionHandler(),
                                               editor.getUndoableActionManager());
 
         tree = new WidgetTree(editor.getWidgetSelectionHandler());
@@ -107,7 +110,9 @@ public class EditorDemoGUI
         stage.show();
     }
 
-    private ToolBar createToolbar(final SelectedWidgetUITracker selection_tracker, final UndoableActionManager undo)
+    private ToolBar createToolbar(final SelectedWidgetUITracker selection_tracker,
+                                  final WidgetSelectionHandler selection_handler,
+                                  final UndoableActionManager undo)
     {
         final Button debug = new Button("Debug");
         debug.setOnAction(event -> editor.debug());
@@ -122,12 +127,18 @@ public class EditorDemoGUI
             redo_button.setDisable(to_redo == null);
         });
 
+        final Button back_button = ActionGUIHelper.createButton(new ToBackAction(undo, selection_handler));
+        final Button front_button = ActionGUIHelper.createButton(new ToFrontAction(undo, selection_handler));
+
         return new ToolBar(
                 ActionGUIHelper.createButton(new LoadModelAction(this)),
                 ActionGUIHelper.createButton(new SaveModelAction(this)),
                 new Separator(),
                 ActionGUIHelper.createToggleButton(new EnableGridAction(selection_tracker)),
                 ActionGUIHelper.createToggleButton(new EnableSnapAction(selection_tracker)),
+                new Separator(),
+                back_button,
+                front_button,
                 new Separator(),
                 undo_button,
                 redo_button,
@@ -150,7 +161,7 @@ public class EditorDemoGUI
         {
             try
             {
-                doLoad(new FileInputStream(file));
+                doLoad(new FileInputStream(file), file.getCanonicalPath());
                 this.file = file;
             }
             catch (final Exception ex)
@@ -160,29 +171,11 @@ public class EditorDemoGUI
         });
     }
 
-    /** Load model from stream
-     *  @param stream Stream that contains the model
-     */
-    public void loadModel(final InputStream stream)
-    {
-        EditorUtil.getExecutor().execute(() ->
-        {
-            try
-            {
-                doLoad(stream);
-                this.file = null;
-            }
-            catch (final Exception ex)
-            {
-                logger.log(Level.SEVERE, "Cannot start", ex);
-            }
-        });
-    }
-
-    private void doLoad(final InputStream stream) throws Exception
+    private void doLoad(final InputStream stream, final String display_path) throws Exception
     {
         final ModelReader reader = new ModelReader(stream);
         final DisplayModel model = reader.readModel();
+        model.setUserData(DisplayModel.USER_DATA_INPUT_FILE, display_path);
         setModel(model);
     }
 

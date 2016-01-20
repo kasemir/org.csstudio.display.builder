@@ -48,10 +48,10 @@ public class TextEntryWidget extends Widget
         }
     };
 
-    private WidgetProperty<String> pv_name;
-    private WidgetProperty<WidgetColor> background;
-    private WidgetProperty<WidgetFont> font;
-    private WidgetProperty<VType> value;
+    private volatile WidgetProperty<String> pv_name;
+    private volatile WidgetProperty<WidgetColor> background;
+    private volatile WidgetProperty<WidgetFont> font;
+    private volatile WidgetProperty<VType> value;
 
     public TextEntryWidget()
     {

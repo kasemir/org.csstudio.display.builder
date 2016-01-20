@@ -30,10 +30,12 @@ abstract public class WidgetRepresentation<TWP, TW, MW extends Widget>
     protected final Logger logger = Logger.getLogger(getClass().getName());
 
     /** Toolkit helper */
-    protected ToolkitRepresentation<TWP, TW> toolkit;
+    protected volatile ToolkitRepresentation<TWP, TW> toolkit;
 
     /** Model widget that is represented in toolkit */
-    protected MW model_widget;
+    protected volatile MW model_widget;
+
+    //     ^^ volatile ^^ to assert all threads see it and not a stale null
 
     // initialize() could be a constructor, but for instantiation
     // from Eclipse registry we need a zero-argument constructor.

@@ -81,8 +81,8 @@ public class EmbeddedDisplayWidget extends Widget
         }
     }
 
-    private WidgetProperty<Macros> macros;
-    private WidgetProperty<String> file;
+    private volatile WidgetProperty<Macros> macros;
+    private volatile WidgetProperty<String> file;
 
     public EmbeddedDisplayWidget()
     {

@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
+import org.csstudio.display.builder.model.widgets.ArcWidget;
 import org.csstudio.display.builder.model.widgets.EllipseWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
@@ -85,6 +86,7 @@ public class WidgetFactory
     private void registerKnownWidgets()
     {
         addWidgetType(ActionButtonWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(ArcWidget.WIDGET_DESCRIPTOR);
         addWidgetType(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR);
         addWidgetType(EllipseWidget.WIDGET_DESCRIPTOR);
         addWidgetType(GroupWidget.WIDGET_DESCRIPTOR);

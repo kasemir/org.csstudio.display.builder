@@ -33,7 +33,7 @@ public class ContainerWidget extends Widget
      *  <p>Notifications are sent with a list of elements added or removed,
      *  <u>not</u> the complete old resp. new value.
      */
-    public static final WidgetPropertyDescriptor<List<Widget>> CHILDREN_PROPERTY_DESCRIPTOR =
+    private static final WidgetPropertyDescriptor<List<Widget>> CHILDREN_PROPERTY_DESCRIPTOR =
             new WidgetPropertyDescriptor<List<Widget>>(
                     WidgetPropertyCategory.RUNTIME, "children", "Child widgets")
     {
@@ -41,7 +41,7 @@ public class ContainerWidget extends Widget
         public WidgetProperty<List<Widget>> createProperty(final Widget widget,
                 final List<Widget> ignored)
         {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("Only created by ContainerWidget");
         }
     };
 
@@ -55,20 +55,26 @@ public class ContainerWidget extends Widget
         @Override
         public void setValueFromObject(final Object value) throws Exception
         {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("Use ContainerWidget#addChild()/removeChild()");
         }
 
         @Override
         public void setValue(final List<Widget> value)
         {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("Use ContainerWidget#addChild()/removeChild()");
         }
     }
 
-    /** Child Widgets */
+    /** Child Widgets
+     *
+     *  <p>Uses CopyOnWriteArrayList list for thread safe
+     *  get and iterate
+     *
+     *  SYNC on CopyOnWriteArrayList instance for atomic get-and-set
+     */
     protected ChildrenWidgetsProperty children;
 
-    private WidgetProperty<int[]> insets;
+    private volatile WidgetProperty<int[]> insets;
 
     /** Widget constructor.
      *  @param type Widget type
@@ -126,28 +132,49 @@ public class ContainerWidget extends Widget
         return null;
     }
 
-    /** @param child Widget to add as child in widget tree */
-    public void addChild(final Widget child)
+    /** @param index Index where to add child, or -1 to append at end
+     *  @param child Widget to add as child in widget tree
+     */
+    public void addChild(final int index, final Widget child)
     {
         final List<Widget> list = children.getValue();
         synchronized (list)
-        {
+        {   // Atomically check-then-add
             if (list.contains(child))
                 throw new IllegalArgumentException(this +
                         " already has child widget " + child);
-            list.add(child);
+            if (index < 0)
+                list.add(child);
+            else
+                list.add(index, child);
         }
         child.setParent(this);
         children.firePropertyChange(null, Arrays.asList(child));
     }
 
-    /** @param child Widget to remove as child from widget tree */
-    public void removeChild(final Widget child)
+    /** @param child Widget to add as child in widget tree */
+    public void addChild(final Widget child)
+    {
+        addChild(-1, child);
+    }
+
+    /** @param child Widget to remove as child from widget tree
+     *  @return Index of removed child in list of children
+     */
+    public int removeChild(final Widget child)
     {
         final List<Widget> list = children.getValue();
-        list.remove(child);
+        final int index;
+        synchronized (list)
+        {
+            index = list.indexOf(child);
+            if (index < 0)
+                throw new IllegalArgumentException("Widget hierarchy error: " + child + " is not known to " + this);
+            list.remove(index);
+        }
         child.setParent(null);
         children.firePropertyChange(Arrays.asList(child), null);
+        return index;
     }
 
     public WidgetProperty<int[]> runtimeInsets()

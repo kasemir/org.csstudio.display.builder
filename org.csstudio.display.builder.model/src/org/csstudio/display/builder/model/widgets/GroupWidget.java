@@ -59,9 +59,9 @@ public class GroupWidget extends ContainerWidget
         }
     };
 
-    private WidgetProperty<Macros> macros;
-    private WidgetProperty<WidgetColor> background;
-    private WidgetProperty<WidgetFont> font;
+    private volatile WidgetProperty<Macros> macros;
+    private volatile WidgetProperty<WidgetColor> background;
+    private volatile WidgetProperty<WidgetFont> font;
 
     public GroupWidget()
     {

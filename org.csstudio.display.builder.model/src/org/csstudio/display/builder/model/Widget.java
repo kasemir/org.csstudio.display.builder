@@ -14,18 +14,19 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeConnected;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -112,6 +113,9 @@ public class Widget
     // getProperties(), getProperty(), getPropertyValue(), setPropertyValue()
 
     /** Map of property names to properties */
+    // Map is final, all properties are collected in widget constructor.
+    // Values of properties can change, but the list of properties itself
+    // is thread safe
     protected final Map<String, WidgetProperty<?>> property_map;
 
     // Actual properties
@@ -124,9 +128,10 @@ public class Widget
     private WidgetProperty<Boolean> visible;
     private WidgetProperty<List<ActionInfo>> actions;
     private WidgetProperty<List<ScriptInfo>> scripts;
+    private WidgetProperty<Boolean> connected;
 
     /** Map of user data */
-    protected final Map<String, Object> user_data = new HashMap<>(4); // Reserve room for "representation", "runtime"
+    protected final Map<String, Object> user_data = new ConcurrentHashMap<>(4); // Reserve room for "representation", "runtime"
 
     /** Widget constructor.
      *  @param type Widget type
@@ -156,6 +161,8 @@ public class Widget
         prelim_properties.add(visible = positionVisible.createProperty(this, true));
         prelim_properties.add(actions = behaviorActions.createProperty(this, Collections.emptyList()));
         prelim_properties.add(scripts = behaviorScripts.createProperty(this, Collections.emptyList()));
+        // Start 'connected', assuming there are no PVs
+        prelim_properties.add(connected = runtimeConnected.createProperty(this, true));
 
         // -- Widget-specific properties --
         defineProperties(prelim_properties);
@@ -297,6 +304,12 @@ public class Widget
     public WidgetProperty<List<ScriptInfo>> behaviorScripts()
     {
         return scripts;
+    }
+
+    /** @return Runtime 'connected' */
+    public WidgetProperty<Boolean> runtimeConnected()
+    {
+        return connected;
     }
 
     /** Obtain configurator.
@@ -518,6 +531,8 @@ public class Widget
     @Override
     public String toString()
     {
-        return "Widget '" + name.getDescription() + "' (" + getType() + ")";
+        // Show name's specification, not value, because otherwise
+        // a plain debug printout can trigger macro resolution for the name
+        return "Widget '" + ((MacroizedWidgetProperty<?>)name).getSpecification() + "' (" + getType() + ")";
     }
 }

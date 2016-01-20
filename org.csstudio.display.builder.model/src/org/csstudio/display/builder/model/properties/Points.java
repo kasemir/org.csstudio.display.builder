@@ -14,7 +14,7 @@ import java.util.List;
 /** UI independent list of {@link Point}s
  *  @author Kay Kasemir
  */
-public class Points implements Iterable<Point>
+public class Points implements Iterable<Point>, Cloneable
 {
     private final List<Double> points = new ArrayList<>();
 

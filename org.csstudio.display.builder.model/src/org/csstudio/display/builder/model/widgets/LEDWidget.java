@@ -118,10 +118,10 @@ public class LEDWidget extends Widget
         }
     };
 
-    private WidgetProperty<String> pv_name;
-    private WidgetProperty<WidgetColor> off_color;
-    private WidgetProperty<WidgetColor> on_color;
-    private WidgetProperty<VType> value;
+    private volatile WidgetProperty<String> pv_name;
+    private volatile WidgetProperty<WidgetColor> off_color;
+    private volatile WidgetProperty<WidgetColor> on_color;
+    private volatile WidgetProperty<VType> value;
 
     public LEDWidget()
     {

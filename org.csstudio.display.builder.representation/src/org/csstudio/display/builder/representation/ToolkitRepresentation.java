@@ -7,12 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
@@ -26,7 +26,6 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ActionInfo;
-import org.csstudio.display.builder.representation.internal.UpdateThrottle;
 
 /** Representation for a toolkit.
  *
@@ -50,7 +49,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     private final UpdateThrottle throttle = new UpdateThrottle(this);
 
     /** Factories for representations based on widget type */
-    private final Map<String, WidgetRepresentationFactory<TWP, TW>> factories = new HashMap<>();
+    private final Map<String, WidgetRepresentationFactory<TWP, TW>> factories = new ConcurrentHashMap<>();
 
     /** Listener list */
     private final List<ToolkitListener> listeners = new CopyOnWriteArrayList<>();
@@ -285,6 +284,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     public void fireAction(final Widget widget, final ActionInfo action)
     {
         for (final ToolkitListener listener : listeners)
+        {
             try
             {
                 listener.handleAction(widget, action);
@@ -293,6 +293,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
             {
                 logger.log(Level.WARNING, "Action failure when invoking " + action + " for " + widget, ex);
             }
+        }
     }
 
     /** Notify listeners that a widget has been clicked
@@ -302,13 +303,15 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     public void fireClick(final Widget widget, final boolean with_control)
     {
         for (final ToolkitListener listener : listeners)
-        try
         {
-            listener.handleClick(widget, with_control);
-        }
-        catch (final Throwable ex)
-        {
-            logger.log(Level.WARNING, "Click failure for " + widget, ex);
+            try
+            {
+                listener.handleClick(widget, with_control);
+            }
+            catch (final Throwable ex)
+            {
+                logger.log(Level.WARNING, "Click failure for " + widget, ex);
+            }
         }
     }
 
@@ -318,13 +321,15 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     public void fireContextMenu(final Widget widget)
     {
         for (final ToolkitListener listener : listeners)
-        try
         {
-            listener.handleContextMenu(widget);
-        }
-        catch (final Throwable ex)
-        {
-            logger.log(Level.WARNING, "Context menu failure for " + widget, ex);
+            try
+            {
+                listener.handleContextMenu(widget);
+            }
+            catch (final Throwable ex)
+            {
+                logger.log(Level.WARNING, "Context menu failure for " + widget, ex);
+            }
         }
     }
 
@@ -335,13 +340,15 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     public void fireWrite(final Widget widget, final Object value)
     {
         for (final ToolkitListener listener : listeners)
-        try
         {
-            listener.handleWrite(widget, value);
-        }
-        catch (final Throwable ex)
-        {
-            logger.log(Level.WARNING, "Failure when writing " + value + " for " + widget, ex);
+            try
+            {
+                listener.handleWrite(widget, value);
+            }
+            catch (final Throwable ex)
+            {
+                logger.log(Level.WARNING, "Failure when writing " + value + " for " + widget, ex);
+            }
         }
     }
 

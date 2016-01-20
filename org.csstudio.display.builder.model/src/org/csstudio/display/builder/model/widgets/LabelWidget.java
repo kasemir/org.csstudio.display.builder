@@ -52,13 +52,13 @@ public class LabelWidget extends Widget
         }
     };
 
-    private WidgetProperty<String> text;
-    private WidgetProperty<WidgetColor> foreground;
-    private WidgetProperty<WidgetColor> background;
-    private WidgetProperty<Boolean> transparent;
-    private WidgetProperty<WidgetFont> font;
-    private WidgetProperty<HorizontalAlignment> horizontal_alignment;
-    private WidgetProperty<VerticalAlignment> vertical_alignment;
+    private volatile WidgetProperty<String> text;
+    private volatile WidgetProperty<WidgetColor> foreground;
+    private volatile WidgetProperty<WidgetColor> background;
+    private volatile WidgetProperty<Boolean> transparent;
+    private volatile WidgetProperty<WidgetFont> font;
+    private volatile WidgetProperty<HorizontalAlignment> horizontal_alignment;
+    private volatile WidgetProperty<VerticalAlignment> vertical_alignment;
 
     public LabelWidget()
     {

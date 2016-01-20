@@ -92,10 +92,10 @@ public class PolygonWidget extends Widget
         }
     };
 
-    private WidgetProperty<WidgetColor> background_color;
-    private WidgetProperty<WidgetColor> line_color;
-    private WidgetProperty<Integer> line_width;
-    private WidgetProperty<Points> points;
+    private volatile WidgetProperty<WidgetColor> background_color;
+    private volatile WidgetProperty<WidgetColor> line_color;
+    private volatile WidgetProperty<Integer> line_width;
+    private volatile WidgetProperty<Points> points;
 
     public PolygonWidget()
     {

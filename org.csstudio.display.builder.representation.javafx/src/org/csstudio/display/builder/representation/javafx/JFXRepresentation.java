@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
+import org.csstudio.display.builder.model.widgets.ArcWidget;
 import org.csstudio.display.builder.model.widgets.EllipseWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
@@ -36,6 +37,7 @@ import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 import org.csstudio.display.builder.representation.WidgetRepresentationFactory;
 import org.csstudio.display.builder.representation.javafx.widgets.ActionButtonRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.ArcRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.EllipseRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.EmbeddedDisplayRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.GroupRepresentation;
@@ -79,6 +81,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
     public static final double ZOOM_HEIGHT = -2.0;
 
     /** Cached map of widget ID to representation factory */
+    // TODO Use a boolean is_initialized instead of keeping complete hash
     private static final Map<String, WidgetRepresentationFactory<Group, Node>> factories = new HashMap<>();
 
     /** Construct new JFX representation */
@@ -116,6 +119,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
     private static void registerKnownRepresentations()
     {
         factories.put(ActionButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ActionButtonRepresentation());
+        factories.put(ArcWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ArcRepresentation());
         factories.put(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new EmbeddedDisplayRepresentation());
         factories.put(EllipseWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new EllipseRepresentation());
         factories.put(GroupWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new GroupRepresentation());
