@@ -233,6 +233,11 @@ public class DisplayEditor
      */
     public void setModel(final DisplayModel model)
     {
+        // Model in editor should have input file information
+        // to allow resolving images etc. relative to that file
+        if (model.getUserData(DisplayModel.USER_DATA_INPUT_FILE) == null)
+            logger.log(Level.SEVERE, "Model lacks input file information");
+
         widget_naming.clear();
         selection.clear();
         group_handler.setModel(model);
