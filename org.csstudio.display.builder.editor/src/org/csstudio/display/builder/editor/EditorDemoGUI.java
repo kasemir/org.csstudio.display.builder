@@ -161,7 +161,7 @@ public class EditorDemoGUI
         {
             try
             {
-                doLoad(new FileInputStream(file));
+                doLoad(new FileInputStream(file), file.getCanonicalPath());
                 this.file = file;
             }
             catch (final Exception ex)
@@ -171,29 +171,11 @@ public class EditorDemoGUI
         });
     }
 
-    /** Load model from stream
-     *  @param stream Stream that contains the model
-     */
-    public void loadModel(final InputStream stream)
-    {
-        EditorUtil.getExecutor().execute(() ->
-        {
-            try
-            {
-                doLoad(stream);
-                this.file = null;
-            }
-            catch (final Exception ex)
-            {
-                logger.log(Level.SEVERE, "Cannot start", ex);
-            }
-        });
-    }
-
-    private void doLoad(final InputStream stream) throws Exception
+    private void doLoad(final InputStream stream, final String display_path) throws Exception
     {
         final ModelReader reader = new ModelReader(stream);
         final DisplayModel model = reader.readModel();
+        model.setUserData(DisplayModel.USER_DATA_INPUT_FILE, display_path);
         setModel(model);
     }
 
