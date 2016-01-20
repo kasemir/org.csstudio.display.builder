@@ -7,13 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.WidgetProperty;
 import org.junit.Test;
 
 /** JUnit test of widget properties, their order, categories
@@ -38,6 +38,9 @@ public class WidgetPropertiesUnitTest
 
         // "quirk" was added last, but should appear before "x"
         // because it's in the WIDGET category, while "x" is a POSITION
+        assertThat(widget.getProperty("quirk").getCategory(), equalTo(WidgetPropertyCategory.WIDGET));
+        assertThat(widget.getProperty("x").getCategory(), equalTo(WidgetPropertyCategory.POSITION));
+        assertTrue(WidgetPropertyCategory.WIDGET.ordinal() < WidgetPropertyCategory.POSITION.ordinal());
         final int x_idx = prop_names.indexOf("x");
         final int quirk_idx = prop_names.indexOf("quirk");
         assertTrue(x_idx >= 0);
