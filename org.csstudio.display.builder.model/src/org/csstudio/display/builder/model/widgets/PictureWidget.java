@@ -40,9 +40,9 @@ public class PictureWidget extends Widget
         }
     };
 
-    private WidgetProperty<String> filename;
-    private WidgetProperty<Boolean> transparent;
-    private WidgetProperty<Double> rotation;
+    private volatile WidgetProperty<String> filename;
+    private volatile WidgetProperty<Boolean> transparent;
+    private volatile WidgetProperty<Double> rotation;
 
     public PictureWidget()
     {

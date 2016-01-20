@@ -13,69 +13,20 @@
       </font>
     </font>
   </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_1</name>
-    <x>21</x>
-    <y>391</y>
-    <width>191</width>
-    <height>30</height>
-    <text>Label widgets display text.</text>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_2</name>
-    <x>21</x>
-    <y>421</y>
-    <width>250</width>
-    <height>54</height>
-    <text>Test, font and color can be configured.</text>
-    <background_color>
-      <color name="Attention" red="255" green="160" blue="0">
-      </color>
-    </background_color>
-    <font>
-      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
-      </font>
-    </font>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_5</name>
-    <x>21</x>
-    <y>291</y>
-    <width>240</width>
-    <height>36</height>
-    <text>Test, font and color can be configured.</text>
-    <background_color>
-      <color name="Attention" red="255" green="160" blue="0">
-      </color>
-    </background_color>
-    <font>
-      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
-      </font>
-    </font>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_6</name>
-    <x>21</x>
-    <y>341</y>
-    <width>220</width>
-    <height>30</height>
-    <text>Test, font and color can be configured.</text>
-    <background_color>
-      <color name="Write_Background" red="128" green="255" blue="255">
-      </color>
-    </background_color>
-    <transparent>false</transparent>
-    <font>
-      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
-      </font>
-    </font>
+  <widget type="picture" version="2.0.0">
+    <name>Grasshopper</name>
+    <x>41</x>
+    <y>61</y>
+    <width>210</width>
+    <height>220</height>
+    <file>pic/grasshopper.jpg</file>
   </widget>
   <widget type="picture" version="2.0.0">
-    <name>Picture</name>
-    <x>116</x>
-    <y>94</y>
-    <width>165</width>
-    <height>157</height>
-    <file>pic/grasshopper.jpg</file>
+    <name>Rose</name>
+    <x>21</x>
+    <y>291</y>
+    <width>210</width>
+    <height>170</height>
+    <file>pic/Yellow-Rose.png</file>
   </widget>
 </display>
