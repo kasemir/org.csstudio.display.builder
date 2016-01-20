@@ -26,6 +26,7 @@ import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.model.widgets.ImageWidget;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
+import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.PolygonWidget;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
@@ -92,6 +93,7 @@ public class WidgetFactory
         addWidgetType(ImageWidget.WIDGET_DESCRIPTOR);
         addWidgetType(LabelWidget.WIDGET_DESCRIPTOR);
         addWidgetType(LEDWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(PictureWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PolygonWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PolylineWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ProgressBarWidget.WIDGET_DESCRIPTOR);

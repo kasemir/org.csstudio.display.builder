@@ -248,6 +248,7 @@ public class CommonWidgetProperties
     };
 
     /** Display 'file': File to display */
+    //TODO: Add editor support for filenames. Change from String to filename type
     public static final WidgetPropertyDescriptor<String> displayFile =
         newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "file", Messages.WidgetProperties_File);
 

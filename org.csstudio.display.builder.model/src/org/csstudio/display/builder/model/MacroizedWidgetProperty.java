@@ -131,6 +131,10 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
 
             try
             {
+                // This can cause odd behavior in threads. If property.getValue() is called within a listener
+                // And the listener is registered to fire when setValue() is called
+                // then listener -> getValue() -> setValue() -> schedule listener -> listener -> getValue() -> setValue() ...
+                // The only thing stopping a runaway is throttling...
                 super.setValue(parseExpandedSpecification(expanded));
             }
             catch (final Exception ex)
