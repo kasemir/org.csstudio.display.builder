@@ -19,6 +19,7 @@ import org.eclipse.osgi.util.NLS;
  *  @author Kay Kasemir
  *  @param <T> Type of the property's value
  */
+@SuppressWarnings("nls")
 public class SetWidgetEnumPropertyAction extends UndoableAction
 {
     private final EnumWidgetProperty<?> widget_property;
@@ -35,8 +36,6 @@ public class SetWidgetEnumPropertyAction extends UndoableAction
         this.widget_property = widget_property;
         this.orig_value = widget_property.getSpecification();
         this.value = value;
-
-System.out.println("Enum undo: " + orig_value + " -> " + value + " (" + value.getClass().getSimpleName() + ")");
     }
 
     @Override

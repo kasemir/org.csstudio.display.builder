@@ -21,6 +21,7 @@ import org.diirt.vtype.VType;
 /** Tracker for all PVs used by a widget.
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class RuntimePVs
 {
     // Similar to org.csstudio.opibuilder.editparts.ConnectionHandler by Xihui Chen

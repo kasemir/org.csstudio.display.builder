@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.RegistryFactory;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class WidgetRuntimeFactory
 {
     public static final WidgetRuntimeFactory INSTANCE = new WidgetRuntimeFactory();

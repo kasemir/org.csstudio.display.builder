@@ -23,6 +23,7 @@ import javafx.geometry.Rectangle2D;
 /** Helpers for handling geometry
  *  @author Kay Kasemri
  */
+@SuppressWarnings("nls")
 public class GeometryTools
 {
     /** Get offset of widget inside the display.
