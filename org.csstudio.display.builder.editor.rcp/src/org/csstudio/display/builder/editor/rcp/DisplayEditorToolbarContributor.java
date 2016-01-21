@@ -9,6 +9,8 @@ package org.csstudio.display.builder.editor.rcp;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.csstudio.display.builder.editor.rcp.actions.EnableGridEditorAction;
+import org.csstudio.display.builder.editor.rcp.actions.EnableSnapEditorAction;
 import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayAction;
 import org.csstudio.display.builder.editor.rcp.actions.ToBackEditorAction;
 import org.csstudio.display.builder.editor.rcp.actions.ToFrontEditorAction;
@@ -33,9 +35,11 @@ import org.eclipse.ui.part.EditorActionBarContributor;
  */
 public class DisplayEditorToolbarContributor extends EditorActionBarContributor
 {
+    private final ExecuteDisplayAction execute_action = new ExecuteDisplayAction();
+    private final EnableGridEditorAction enable_grid = new EnableGridEditorAction();
+    private final EnableSnapEditorAction enable_snap = new EnableSnapEditorAction();
     private final ToBackEditorAction to_back_action = new ToBackEditorAction();
     private final ToFrontEditorAction to_front_action = new ToFrontEditorAction();
-    private final ExecuteDisplayAction execute_action = new ExecuteDisplayAction();
     private final List<IWorkbenchAction> global_actions = new ArrayList<>();
 
     @Override
@@ -44,6 +48,8 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
         manager.add(new Separator());
         manager.add(execute_action);
+        manager.add(enable_grid);
+        manager.add(enable_snap);
         manager.add(to_back_action);
         manager.add(to_front_action);
         addGlobalAction(manager, ActionFactory.UNDO.create(window));
@@ -68,6 +74,8 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
             return;
 
         execute_action.setActiveEditor(editor);
+        enable_grid.setActiveEditor(editor);
+        enable_snap.setActiveEditor(editor);
         to_back_action.setActiveEditor(editor);
         to_front_action.setActiveEditor(editor);
         for (IAction action : global_actions)
@@ -80,6 +88,8 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
     public void dispose()
     {
         execute_action.setActiveEditor(null);
+        enable_grid.setActiveEditor(null);
+        enable_snap.setActiveEditor(null);
         to_back_action.setActiveEditor(null);
         to_front_action.setActiveEditor(null);
         for (IWorkbenchAction action : global_actions)

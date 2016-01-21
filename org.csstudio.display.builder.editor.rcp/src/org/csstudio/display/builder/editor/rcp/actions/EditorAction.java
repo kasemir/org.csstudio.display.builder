@@ -23,6 +23,12 @@ public class EditorAction extends Action
         super(name, icon);
     }
 
+    public EditorAction(final String name, final ImageDescriptor icon, final int style)
+    {
+        super(name, style);
+        setImageDescriptor(icon);
+    }
+
     public void setActiveEditor(final DisplayEditorPart edit_part)
     {
         this.edit_part = edit_part;
