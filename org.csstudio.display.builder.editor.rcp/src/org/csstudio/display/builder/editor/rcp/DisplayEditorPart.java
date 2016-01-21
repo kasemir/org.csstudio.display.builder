@@ -22,6 +22,7 @@ import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.rcp.actions.RedoAction;
 import org.csstudio.display.builder.editor.rcp.actions.UndoAction;
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
@@ -86,6 +87,11 @@ public class DisplayEditorPart extends EditorPart
         actions.get(ActionFactory.UNDO.getId()).setEnabled(undo != null);
         actions.get(ActionFactory.REDO.getId()).setEnabled(redo != null);
         firePropertyChange(IEditorPart.PROP_DIRTY);
+    };
+
+    private final WidgetPropertyListener<String> model_name_listener = (property, old_value, new_value) ->
+    {
+        toolkit.execute(() ->  setPartName(property.getValue()));
     };
 
 
@@ -160,6 +166,9 @@ public class DisplayEditorPart extends EditorPart
 
     private void setModel(final DisplayModel model)
     {
+        final DisplayModel old_model = editor.getModel();
+        if (old_model != null)
+            old_model.widgetName().removePropertyListener(model_name_listener);
         if (model == null)
             return;
         // In UI thread..
@@ -170,6 +179,7 @@ public class DisplayEditorPart extends EditorPart
             if (outline_page != null)
                 outline_page.setModel(model);
         });
+        model.widgetName().addPropertyListener(model_name_listener);
     }
 
     private void createActions()
@@ -338,8 +348,7 @@ public class DisplayEditorPart extends EditorPart
             return outline_page;
         }
         else if (adaptable == IPropertySheetPage.class)
-            return new PropertyPage(editor.getWidgetSelectionHandler(),
-                                           editor.getUndoableActionManager());
+            return new PropertyPage(editor);
         return super.getAdapter(adaptable);
     }
 

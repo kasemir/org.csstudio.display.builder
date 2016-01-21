@@ -8,14 +8,15 @@
 package org.csstudio.display.builder.editor.properties;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.csstudio.display.builder.editor.WidgetSelectionHandler;
+import org.csstudio.display.builder.editor.DisplayEditor;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -27,15 +28,15 @@ import javafx.scene.layout.VBox;
 @SuppressWarnings("nls")
 public class PropertyPanel extends ScrollPane
 {
-    private final UndoableActionManager undo;
+    private final DisplayEditor editor;
     private final PropertyPanelSection section = new PropertyPanelSection();
 
     /** @param selection Selection handler
      *  @param undo 'Undo' manager
      */
-    public PropertyPanel(final WidgetSelectionHandler selection, final UndoableActionManager undo)
+    public PropertyPanel(final DisplayEditor editor)
     {
-        this.undo = undo;
+        this.editor = editor;
 
         final Label header = new Label("Properties");
         header.setMaxWidth(Double.MAX_VALUE);
@@ -45,7 +46,7 @@ public class PropertyPanel extends ScrollPane
         setContent(box);
 
         // Track currently selected widgets
-        selection.addListener(this::setSelectedWidgets);
+        editor.getWidgetSelectionHandler().addListener(this::setSelectedWidgets);
     }
 
     /** Populate UI with properties of widgets
@@ -56,13 +57,18 @@ public class PropertyPanel extends ScrollPane
     	section.clear();
 
         if (widgets.size() < 1)
-            return;
-
-        // Determine common properties
-        final List<Widget> other = new ArrayList<>(widgets);
-        final Widget primary = other.remove(0);
-        final Set<WidgetProperty<?>> properties = commonProperties(primary, other);
-        section.fill(undo, properties, other, true);
+        {   // Use the DisplayModel
+            final DisplayModel model = editor.getModel();
+            if (model != null)
+                section.fill(editor.getUndoableActionManager(), model.getProperties(), Collections.emptyList(), true);
+        }
+        else
+        {   // Determine common properties
+            final List<Widget> other = new ArrayList<>(widgets);
+            final Widget primary = other.remove(0);
+            final Set<WidgetProperty<?>> properties = commonProperties(primary, other);
+            section.fill(editor.getUndoableActionManager(), properties, other, true);
+        }
     }
 
     /** Determine common properties
