@@ -209,6 +209,17 @@ public class TrackerSnapConstraint extends TrackerConstraint
         group.getChildren().addAll(horiz_guide, vert_guide);
     }
 
+    @Override
+    public void setEnabled(final boolean enabled)
+    {
+        super.setEnabled(enabled);
+        if (! enabled)
+        {
+            horiz_guide.setVisible(false);
+            vert_guide.setVisible(false);
+        }
+    }
+
     /** Configure tracker
      *  @param model Current model
      *  @param selected_widgets Selected widgets
