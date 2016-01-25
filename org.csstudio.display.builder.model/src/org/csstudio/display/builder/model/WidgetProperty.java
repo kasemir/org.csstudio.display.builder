@@ -130,6 +130,14 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
     /** @param value New value of the property */
     public void setValue(final T value)
     {
+        doSetValue(value, true);
+    }
+
+    /** @param value New value of the property
+     *  @param notify_listeners Send notification to listeners?
+     */
+    protected void doSetValue(final T value, final boolean notify_listeners)
+    {
         if (isReadonly())
             return;
 
@@ -137,7 +145,8 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
         // Check value
         final T new_value = restrictValue(value);
         this.value = new_value;
-        firePropertyChange(this, old_value, new_value);
+        if (notify_listeners)
+            firePropertyChange(this, old_value, new_value);
     }
 
     /** Set value from Object.
