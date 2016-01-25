@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFile;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayTransparent;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
 
 import java.util.Arrays;
@@ -47,9 +47,11 @@ public class PictureWidget extends Widget
     public static final WidgetPropertyDescriptor<Double> positionRotation =
         newDoublePropertyDescriptor(WidgetPropertyCategory.POSITION, "rotation", Messages.WidgetProperties_Rotation);
 
+    public static final WidgetPropertyDescriptor<Boolean> displayStretch =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "stretch_image", Messages.WidgetProperties_StretchToFit);
 
     private volatile WidgetProperty<String> filename;
-    private volatile WidgetProperty<Boolean> transparent;
+    private volatile WidgetProperty<Boolean> stretch_image;
     private volatile WidgetProperty<Double> rotation;
 
     public PictureWidget()
@@ -62,7 +64,7 @@ public class PictureWidget extends Widget
     {
         super.defineProperties(properties);
         properties.add(filename = displayFile.createProperty(this, Messages.WidgetProperties_File));
-        properties.add(transparent = displayTransparent.createProperty(this, false));
+        properties.add(stretch_image = displayStretch.createProperty(this, false));
         properties.add(rotation = positionRotation.createProperty(this, 0.0));
     }
 
@@ -79,9 +81,9 @@ public class PictureWidget extends Widget
     }
 
     /** @return Display 'transparent' */
-    public WidgetProperty<Boolean> displayTransparent()
+    public WidgetProperty<Boolean> displayStretch()
     {
-        return transparent;
+        return stretch_image;
     }
 
 }
