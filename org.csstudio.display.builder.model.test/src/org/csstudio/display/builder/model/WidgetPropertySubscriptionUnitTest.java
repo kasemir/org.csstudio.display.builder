@@ -127,17 +127,16 @@ public class WidgetPropertySubscriptionUnitTest
         // Fetching the value will resolve macros
         // and that triggers another update
         assertThat(name_prop.getValue(), equalTo("Fred"));
-        assertThat(updates.get(), equalTo(2));
-        assertThat(received_value.get(), equalTo("Fred"));
+        assertThat(updates.get(), equalTo(1));
 
         // Setting the value (not the description) to something
         // that doesn't contain macros will just set the value.
         name_prop.setValue("New Name");
-        assertThat(updates.get(), equalTo(3));
+        assertThat(updates.get(), equalTo(2));
         assertThat(received_value.get(), equalTo("New Name"));
         // Fetching that value does not trigger macro resolution
         // and another value update
         assertThat(name_prop.getValue(), equalTo("New Name"));
-        assertThat(updates.get(), equalTo(3));
+        assertThat(updates.get(), equalTo(2));
     }
 }
