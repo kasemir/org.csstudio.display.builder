@@ -15,46 +15,65 @@ import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 
+import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeType;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Translate;
 
 /** Creates JavaFX item for model widget
  *  @author Megan Grodowitz
  */
 
 @SuppressWarnings("nls")
-public class PictureRepresentation extends JFXBaseRepresentation<ImageView, PictureWidget>
+public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureWidget>
 {
-    /** Change the image size */
-    private final DirtyFlag dirty_size = new DirtyFlag();
+    /** Change the image border properties */
+    private final DirtyFlag dirty_border = new DirtyFlag();
     /** Change the image file */
     private final DirtyFlag dirty_content = new DirtyFlag();
-    /** Change the image rotation or transparency */
+    /** Change the image size, rotation or preserve_ratio */
     private final DirtyFlag dirty_style = new DirtyFlag();
 
     private volatile Image img_loaded;
+    private volatile ImageView iv;
     private volatile String img_path;
-    private volatile Boolean visible;
-    //private volatile Double rotation;
+    private volatile double native_ratio = 1.0;
+
+    private static final Color border_color = Color.GRAY;
+    private static final int inset = 0;
+    private static final int border_width = 1;
+    private volatile Rectangle border = new Rectangle();
+
+    private volatile Rotate rotation = new Rotate(0);
+    private volatile Translate translate = new Translate(0,0);
 
     @Override
-    public ImageView createJFXNode() throws Exception
+    public Group createJFXNode() throws Exception
     {
-        return new ImageView();
+        iv = new ImageView();
+
+        Group gr = new Group(border, iv);
+        gr.getTransforms().addAll(translate, rotation);
+        return gr;
     }
 
     @Override
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.positionWidth().addUntypedPropertyListener(this::styleChanged);
+        model_widget.positionHeight().addUntypedPropertyListener(this::styleChanged);
 
-        model_widget.displayTransparent().addPropertyListener(this::visibleChanged);
-        visibleChanged(null, null, model_widget.displayTransparent().getValue());
-
+        model_widget.displayStretch().addPropertyListener(this::styleChanged);
         model_widget.positionRotation().addUntypedPropertyListener(this::styleChanged);
         styleChanged(null, null, null);
+
+        //TODO: add way to disable border or remove permanently
+        borderChanged(null, null, null);
 
         // This is one of those weird cases where getValue calls setValue and fires the listener.
         // So register listener after getValue called
@@ -65,23 +84,16 @@ public class PictureRepresentation extends JFXBaseRepresentation<ImageView, Pict
 
     }
 
-    private void visibleChanged(final WidgetProperty<Boolean> property, final Boolean old_value, final Boolean new_value)
-    {
-        visible = !new_value;
-        dirty_style.mark();
-        toolkit.scheduleUpdate(this);
-    }
-
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    private void borderChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        dirty_size.mark();
-        toolkit.scheduleUpdate(this);
+       dirty_border.mark();
+       toolkit.scheduleUpdate(this);
     }
 
     private void contentChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
@@ -113,36 +125,101 @@ public class PictureRepresentation extends JFXBaseRepresentation<ImageView, Pict
 
             // Open the image from the stream created from the resource file
             img_loaded = new Image(ModelResourceUtil.openResourceStream(img_path));
+            native_ratio = img_loaded.getWidth() / img_loaded.getHeight();
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
 
+        // Resize/reorient in case we are preserving aspect ratio and changed native_ratio
+        dirty_style.mark();
+        // Switch to the new image
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
     }
+
 
     @Override
     public void updateChanges()
     {
         super.updateChanges();
-        if (dirty_size.checkAndClear())
+        if (dirty_border.checkAndClear())
         {
-            jfx_node.setFitHeight(model_widget.positionHeight().getValue());
-            jfx_node.setFitWidth(model_widget.positionWidth().getValue());
-        }
-        if (dirty_style.checkAndClear())
-        {
-            jfx_node.setRotate(model_widget.positionRotation().getValue());
-            jfx_node.setImage(visible ? img_loaded : null);
+            border.relocate(border_width, inset);
+            border.setFill(Color.TRANSPARENT);
+            border.setStroke(border_color);
+            border.setStrokeWidth(border_width);
+            border.setStrokeType(StrokeType.INSIDE);
         }
         if (dirty_content.checkAndClear())
         {
             //System.out.println("update change to img path at " + img_path + " on thread " + Thread.currentThread().getName());}
-            jfx_node.setImage(visible ? img_loaded : null);
-            jfx_node.setPreserveRatio(false);
+            iv.setImage(img_loaded);
+            // We handle ratio internally, do not let ImageView do that
+            iv.setPreserveRatio(false);
             jfx_node.setCache(true);
         }
+        if (dirty_style.checkAndClear())
+        {
+            Integer widg_w = model_widget.positionWidth().getValue();
+            Integer widg_h = model_widget.positionHeight().getValue();
+            Integer pic_w = widg_w;
+            Integer pic_h = widg_h;
+
+            // preserve aspect ratio
+            if (!model_widget.displayStretch().getValue())
+            {
+
+                double w_prime = pic_h * native_ratio;
+                double h_prime = pic_w / native_ratio;
+                if (w_prime < pic_w)
+                {
+                    pic_h = (int) Math.round(h_prime);
+                }
+                else if (h_prime < pic_h)
+                {
+                    pic_w = (int) Math.round(w_prime);
+                }
+            }
+
+            Integer final_pic_w, final_pic_h;
+
+            double cos_a = Math.cos(Math.toRadians(model_widget.positionRotation().getValue()));
+            double sin_a = Math.sin(Math.toRadians(model_widget.positionRotation().getValue()));
+            double pic_bb_w = pic_w * Math.abs(cos_a) + pic_h * Math.abs(sin_a);
+            double pic_bb_h = pic_w * Math.abs(sin_a) + pic_h * Math.abs(cos_a);
+
+            double scale_fac = Math.min(widg_w / pic_bb_w, widg_h / pic_bb_h);
+            if (scale_fac < 1.0)
+            {
+                final_pic_w = (int) Math.floor(scale_fac * pic_w);
+                final_pic_h = (int) Math.floor(scale_fac * pic_h);
+            }
+            else {
+                final_pic_w = pic_w;
+                final_pic_h = pic_h;
+            }
+
+            border.setWidth(final_pic_w - 2*inset);
+            border.setHeight(final_pic_h - 2*inset);
+
+            //iv.setImage(visible ? img_loaded : null);
+            iv.setFitHeight(final_pic_h);
+            iv.setFitWidth(final_pic_w);
+
+            //jfx_node.maxWidth(final_pic_w);
+            //jfx_node.maxHeight(final_pic_h);
+
+            // Rotate around the center of the resized image
+            rotation.setAngle(model_widget.positionRotation().getValue());
+            rotation.setPivotX(final_pic_w / 2.0);
+            rotation.setPivotY(final_pic_h / 2.0);
+
+            // translate to the center of the widget
+            translate.setX((widg_w - final_pic_w) / 2.0);
+            translate.setY((widg_h - final_pic_h) / 2.0);
+        }
+
     }
 }
