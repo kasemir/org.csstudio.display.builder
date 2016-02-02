@@ -90,8 +90,7 @@ public class EditorDemoGUI
 
         tree = new WidgetTree(editor.getWidgetSelectionHandler());
 
-        property_panel = new PropertyPanel(editor.getWidgetSelectionHandler(),
-                                           editor.getUndoableActionManager());
+        property_panel = new PropertyPanel(editor);
 
         final Label status = new Label("Status");
 

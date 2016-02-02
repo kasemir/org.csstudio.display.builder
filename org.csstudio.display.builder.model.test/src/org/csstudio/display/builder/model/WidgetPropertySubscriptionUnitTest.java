@@ -120,24 +120,19 @@ public class WidgetPropertySubscriptionUnitTest
         // was set, and the value has not been resolved
         assertThat(received_value.get(), nullValue());
 
-        // _IF_ the listener, triggered by the specification update,
-        // called name_prop.getValue(), that would resolve macros,
-        // and trigger another listener invocation.
-
-        // Fetching the value will resolve macros
-        // and that triggers another update
+        // Fetching the value will resolve macros,
+        // but that does _not_ trigger another update
         assertThat(name_prop.getValue(), equalTo("Fred"));
-        assertThat(updates.get(), equalTo(2));
-        assertThat(received_value.get(), equalTo("Fred"));
+        assertThat(updates.get(), equalTo(1));
 
         // Setting the value (not the description) to something
         // that doesn't contain macros will just set the value.
         name_prop.setValue("New Name");
-        assertThat(updates.get(), equalTo(3));
+        assertThat(updates.get(), equalTo(2));
         assertThat(received_value.get(), equalTo("New Name"));
         // Fetching that value does not trigger macro resolution
         // and another value update
         assertThat(name_prop.getValue(), equalTo("New Name"));
-        assertThat(updates.get(), equalTo(3));
+        assertThat(updates.get(), equalTo(2));
     }
 }

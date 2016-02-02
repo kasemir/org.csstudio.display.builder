@@ -7,10 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp;
 
+import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
-import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.properties.PropertyPanel;
-import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -29,10 +28,9 @@ public class PropertyPage extends Page implements IPropertySheetPage
 
     private FXCanvas canvas;
 
-    public PropertyPage(final WidgetSelectionHandler widget_selection,
-                               final UndoableActionManager undo)
+    public PropertyPage(final DisplayEditor editor)
     {
-        property_panel = new PropertyPanel(widget_selection, undo);
+        property_panel = new PropertyPanel(editor);
     }
 
     @Override

@@ -10,6 +10,8 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -23,6 +25,7 @@ import org.diirt.vtype.Alarm;
 import org.diirt.vtype.AlarmSeverity;
 import org.diirt.vtype.VType;
 
+import javafx.geometry.Insets;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
@@ -42,11 +45,57 @@ import javafx.scene.shape.StrokeType;
  */
 abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Widget> extends JFXBaseRepresentation<JFX, MW>
 {
-    /** Draw border OUTSIDE, so adding/removing border does not change the layout of the region's content
-     *  (Like BorderStrokeStyle.SOLID except for OUTSIDE)
+    /** Border for each {@link AlarmSeverity} */
+    private static Border[] alarm_borders = new Border[AlarmSeverity.values().length];
+
+    /** Prepare alarm_borders
+     *
+     *  <p>Alarm borders are distinguished by color as well as style in case of color vision deficiency.
+     *
+     *  <p>They are drawn OUTSIDE the widget, so adding/removing border does not change the layout
+     *  of the region's content.
      */
-    private static final BorderStrokeStyle border_stroke_style =
+    static
+    {
+        // Like BorderStrokeStyle.SOLID except for OUTSIDE
+        final BorderStrokeStyle solid =
             new BorderStrokeStyle(StrokeType.OUTSIDE, StrokeLineJoin.MITER, StrokeLineCap.BUTT, 10, 0, null);
+
+        final BorderStrokeStyle dashed =
+            new BorderStrokeStyle(StrokeType.OUTSIDE, StrokeLineJoin.MITER, StrokeLineCap.BUTT, 10, 0,
+                                  Collections.unmodifiableList(Arrays.asList(10.0, 8.0)));
+
+        final BorderStrokeStyle dash_dotted =
+                new BorderStrokeStyle(StrokeType.OUTSIDE, StrokeLineJoin.MITER, StrokeLineCap.BUTT, 10, 0,
+                                      Collections.unmodifiableList(Arrays.asList(8.0, 2.0, 2.0, 2.0)));
+
+        final BorderWidths thin = new BorderWidths(1);
+        final BorderWidths normal = new BorderWidths(2);
+
+        // No alarm -> no border
+        alarm_borders[AlarmSeverity.NONE.ordinal()] = null;
+
+        // Minor -> Simple border
+        Color color = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR));
+        alarm_borders[AlarmSeverity.MINOR.ordinal()] =
+            new Border(new BorderStroke(color, solid, CornerRadii.EMPTY, normal));
+
+        // Major -> Double border
+        color =  JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR));
+        alarm_borders[AlarmSeverity.MAJOR.ordinal()] =
+            new Border(new BorderStroke(color, solid, CornerRadii.EMPTY, thin),
+                       new BorderStroke(color, solid, CornerRadii.EMPTY, thin, new Insets(-2*thin.getTop())));
+
+        // Invalid -> Border is cleverly interrupted just like the communication to the control system
+        color =  JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_INVALID));
+        alarm_borders[AlarmSeverity.INVALID.ordinal()] =
+            new Border(new BorderStroke(color, dash_dotted, CornerRadii.EMPTY, normal));
+
+        // Disconnected -> Gaps in dashed style are even wider than dash_dotted
+        color =  JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_DISCONNECTED));
+        alarm_borders[AlarmSeverity.UNDEFINED.ordinal()] =
+            new Border(new BorderStroke(color, dashed, CornerRadii.EMPTY, normal));
+    }
 
     private final DirtyFlag dirty_border = new DirtyFlag();
     private volatile WidgetProperty<VType> value_prop = null;
@@ -112,36 +161,9 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Wi
         // Any change?
         if (current_alarm.getAndSet(severity) == severity)
             return;
-        final Color color = getAlarmColor(severity);
-        if (color == null)
-            border = null;
-        else
-        {
-            final int width = 2;
-            border = new Border(new BorderStroke(color, border_stroke_style, CornerRadii.EMPTY, new BorderWidths(width)));
-        }
+        border = alarm_borders[severity.ordinal()];
         dirty_border.mark();
         toolkit.scheduleUpdate(this);
-    }
-
-    /** @param alarm {@link AlarmSeverity}
-     *  @return Color for given alarm severity
-     */
-    private Color getAlarmColor(final AlarmSeverity alarm)
-    {
-        switch (alarm)
-        {
-        case MINOR:
-            return JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MINOR));
-        case MAJOR:
-            return JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR));
-        case INVALID:
-            return JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_INVALID));
-        case UNDEFINED:
-            return JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_DISCONNECTED));
-        default:
-            return null;
-        }
     }
 
     @Override

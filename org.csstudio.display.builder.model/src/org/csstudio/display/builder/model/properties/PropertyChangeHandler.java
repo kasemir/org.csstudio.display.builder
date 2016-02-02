@@ -111,7 +111,10 @@ public abstract class PropertyChangeHandler<T extends Object>
      */
     public void removePropertyListener(final BaseWidgetPropertyListener listener)
     {
-        getListeners().remove(listener);
+        final boolean removed = getListeners().remove(listener);
+        if (! removed)
+            Logger.getLogger(getClass().getName())
+                  .log(Level.SEVERE, "Unknown listener " + listener);
     }
 
     /** Notify listeners of property change.
