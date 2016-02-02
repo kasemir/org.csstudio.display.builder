@@ -53,4 +53,10 @@ class JavaScript implements Script
     {
         return support.submit(this, widget, pvs);
     }
+    
+    @Override
+    public String toString()
+    {
+        return "JavaScript " + name;
+    }
 }

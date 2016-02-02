@@ -10,8 +10,6 @@ package org.csstudio.display.builder.runtime.script;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,16 +27,14 @@ import org.csstudio.vtype.pv.PV;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-class JavaScriptSupport
+class JavaScriptSupport extends BaseScriptSupport
 {
-    private final ExecutorService executor;
     private final ScriptEngine engine;
     private final Bindings bindings;
 
     /** Create executor for java scripts */
     public JavaScriptSupport() throws Exception
     {
-        executor = Executors.newSingleThreadExecutor(ScriptSupport.POOL);
         engine = Objects.requireNonNull(new ScriptEngineManager().getEngineByName("nashorn"));
         bindings = engine.createBindings();
     }
@@ -65,7 +61,7 @@ class JavaScriptSupport
     public Future<Object> submit(final JavaScript script, final Widget widget, final PV[] pvs)
     {
         // TODO See comments in JythonScriptSupport
-        return executor.submit(() ->
+        return super.submit(() ->
         {
             // System.out.println("Execute on " + Thread.currentThread().getName());
             try
@@ -82,11 +78,5 @@ class JavaScriptSupport
             }
             return null;
         });
-    }
-
-    /** Release resources */
-    public void close()
-    {
-        executor.shutdown();
     }
 }
