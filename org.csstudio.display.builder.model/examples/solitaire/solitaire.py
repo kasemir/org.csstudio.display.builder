@@ -23,15 +23,19 @@ size = len(board)
 
 # ------------ Brute-force backtracking solver -------
 
-def show():
-    for row in board:
-        print "".join(c for c in row)
+# def show():
+#     for row in board:
+#         print "".join(c for c in row)
 
 def isDone():
     """Check if there is one piece in center,
        and that is the only piece left on the board"""
     if board[size/2][size/2] != 'o':
         return False
+    # Would be more efficient to track piece count
+    # when performing moves instead of counting
+    # each time isDone() is called, but good enough
+    # for demo
     count = 0
     for row in board:
         for piece in row:
@@ -46,27 +50,27 @@ def isDone():
 solution = []
 
 def check(r, c, dr, dc):
-   """Does move of piece at r,c in direction dr, dc?
-      lead to solution?
-      If yes, that move is added to solution.
-   """
-   r1 = r + dr
-   c1 = c + dc
-   r2 = r1 + dr
-   c2 = c1 + dc
-   if (0 <= r2 < size and
-       0 <= c2 < size and
-       board[r1][c1] == 'o' and
-       board[r2][c2] == '.'):
-          board[r][c] = '.'
-          board[r1][c1] = '.'
-          board[r2][c2] = 'o'
-          if solve():
-              solution.append([r, c, dr, dc])
-              return True
-          board[r][c] = 'o'
-          board[r1][c1] = 'o'
-          board[r2][c2] = '.'
+    """Does move of piece at r,c in direction dr, dc
+       lead to solution?
+       If yes, that move is added to solution.
+    """
+    r1 = r + dr
+    c1 = c + dc
+    r2 = r1 + dr
+    c2 = c1 + dc
+    if (0 <= r2 < size and
+        0 <= c2 < size and
+        board[r1][c1] == 'o' and
+        board[r2][c2] == '.'):
+        # Perform that move
+        board[r][c] = board[r1][c1] = '.'
+        board[r2][c2] = 'o'
+        if solve():
+            solution.append([r, c, dr, dc])
+            return True
+        # Un-do that move to backtrack
+        board[r][c] = board[r1][c1] = 'o'
+        board[r2][c2] = '.'
 
 def solve():
     if isDone():
@@ -100,7 +104,9 @@ from time import time, sleep
 TOP = 100
 SIZE = 50
 GAP = 5
+# Board made of Ellipse widgets
 pieces = None
+# Label widget
 info = None
 
 def createPiece(x, y, set):
@@ -117,14 +123,14 @@ def createPieces():
     display = widget.getDisplayModel()
     pieces = [ [ None for c in range(size) ] for r in range(size) ]
     for r in range(size):
-       for c in range(size):
-           p = board[r][c]
-           if p != ' ':
-               piece = createPiece(c * (SIZE+GAP),
-                                   TOP + r * (SIZE+GAP),
-                                   p == 'o')
-               display.addChild(piece)
-               pieces[r][c] = piece
+        for c in range(size):
+            p = board[r][c]
+            if p != ' ':
+                piece = createPiece(c * (SIZE+GAP),
+                                    TOP + r * (SIZE+GAP),
+                                    p == 'o')
+                display.addChild(piece)
+                pieces[r][c] = piece
     info = WidgetFactory.getInstance().createWidget("label")
     info.setPropertyValue("y", TOP + size * (SIZE+GAP))
     info.setPropertyValue("width", size * SIZE)
@@ -133,12 +139,11 @@ def createPieces():
    
 createPieces()
 start = time()
-ok = solve()
-end = time()
-if not ok:
+if not solve():
     raise Exception("No solution!")
+end = time()
 info.setPropertyValue("text", "Solved in %g sec" % (end - start))
-# Solition is populated last-move-first
+# Solution is populated last-move-first, change into move 1, move 2, ..
 solution.reverse()
 
 mark = WidgetColor(255, 0, 0)
