@@ -8,6 +8,10 @@
 package org.csstudio.display.builder.representation.javafx.sandbox;
 
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,12 +19,14 @@ import java.util.concurrent.atomic.AtomicLong;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -48,7 +54,7 @@ public class GaugeDemo extends Application
     //Text Field to output needle value
     private final Text NeedleRead = new Text("0");
 
-    //Some values to toggle
+    //Some values to toggle: Probably part of gauge model
     private final TextField inp_angle = new TextField();
     private final TextField inp_min = new TextField();
     private final TextField inp_max = new TextField();
@@ -59,7 +65,7 @@ public class GaugeDemo extends Application
     //physical length of the major hash mark lines
     final int gauge_major_len = gauge_diam / 10;
     //physical length of the minor hash mark lines
-    final int guage_minor_len = gauge_diam / 20;
+    final int gauge_minor_len = gauge_diam / 20;
     //total angle of the gauge in degrees (0 < ang < 360)
     Double gauge_total_ang = 220.0;
     //min and max value reading of the gauge
@@ -106,19 +112,20 @@ public class GaugeDemo extends Application
         needle.setFill(Color.RED);
         //needle.set
 
-        inp_angle.setPromptText("Total angle size of the gauge");
-        inp_angle.setText(Double.toString(gauge_total_ang));
+        GridPane grid = new GridPane();
+        grid.setPadding(new Insets(10, 10, 10, 10));
+        grid.setVgap(5);
+        grid.setHgap(5);
 
-        inp_min.setPromptText("Min reading on the gauge");
-        inp_min.setText(Double.toString(gauge_min));
+        addInputRow(grid, 0, "Total angle size of gauge", inp_angle, gauge_total_ang);
+        addInputRow(grid, 1, "Min reading on the gauge", inp_min, gauge_min);
+        addInputRow(grid, 2, "Max reading on the gauge", inp_max, gauge_max);
 
-        inp_max.setPromptText("Max reading the gauge");
-        inp_max.setText(Double.toString(gauge_max));
 
         StackPane pane = makeStackPane();
         //AnchorPane pane = makeAnchorPane();
 
-        final VBox root_jfxnode = new VBox(label1, pane, inp_angle, inp_min, inp_max,
+        final VBox root_jfxnode = new VBox(label1, pane, grid,
                                            label2, NeedleRead);
 
         final Scene scene = new Scene(root_jfxnode, 800, 600);
@@ -131,6 +138,17 @@ public class GaugeDemo extends Application
         thread.setName("Redraw");
         thread.setDaemon(true);
         thread.start();
+    }
+
+
+    private void addInputRow(GridPane grid, int row, String inp_angle_txt, TextField textField, Double default_val)
+    {
+        final Label inp_label = new Label(inp_angle_txt);
+        textField.setPromptText(inp_angle_txt);
+        textField.setText(Double.toString(default_val));
+        GridPane.setConstraints(textField, 1, row);
+        GridPane.setConstraints(inp_label, 0, row);
+        grid.getChildren().addAll(inp_label, textField);
     }
 
 
@@ -166,6 +184,10 @@ public class GaugeDemo extends Application
     private void draw_round_gauge(final BufferedImage buf)
     {
         Graphics2D gc = buf.createGraphics();
+
+        gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+
         final int width = buf.getWidth();
         final int height = buf.getHeight();
 
@@ -181,6 +203,127 @@ public class GaugeDemo extends Application
                                         gauge_green.floatValue(),
                                         gauge_blue.floatValue()));
 
+        final int size = gauge_diam;
+        final int x = (width / 2) - (size / 2);
+        final int y = (height / 2) - (size / 2);
+        //gc.fillOval(x, y, size, size);
+        final int start_awt_arc_ang = (int) (90 - (gauge_total_ang / 2));
+        gc.fillArc(x, y, size, size, start_awt_arc_ang, gauge_total_ang.intValue());
+
+        //addSomeText(gc, size, x, y);
+
+        gc.setColor(java.awt.Color.PINK);
+        java.awt.Font font = new java.awt.Font("Serif", java.awt.Font.PLAIN, 18);
+        gc.setFont(font);
+
+        int xc = x + (size / 2);
+        int yc = y + (size / 2);
+        int r_outer = size / 2;
+
+        int r_inner = r_outer - gauge_major_len;
+        int total_marks = (int) Math.floor((gauge_max - gauge_min) / gauge_major_interval);
+        makeGaugeMarks(gc, true, start_awt_arc_ang, xc, yc, r_outer, r_inner, total_marks);
+
+        r_inner = r_outer - gauge_minor_len;
+        total_marks = (int) Math.floor((gauge_max - gauge_min) / gauge_minor_interval);
+        makeGaugeMarks(gc, false, start_awt_arc_ang, xc, yc, r_outer, r_inner, total_marks);
+
+        String s = "Here goes a very long test string long long long long long long long test test.";
+        gc.setColor(java.awt.Color.CYAN);
+        font = new java.awt.Font("Serif", java.awt.Font.PLAIN, 24);
+        double start_angle = start_awt_arc_ang + 180;
+        double radius = size / 2.0;
+        //printTextCircle(gc, s, font, xc, yc, (int) radius, Math.toRadians(start_angle));
+
+
+        calcNeedleRotation(start_awt_arc_ang);
+    }
+
+
+    private void printTextCircle(Graphics2D gc, String s, java.awt.Font font,
+            int x_center, int y_center, int radius,
+            double start_angle_rad)
+    {
+        gc.setFont(font);
+        FontRenderContext frc = gc.getFontRenderContext();
+        GlyphVector gv = font.createGlyphVector(frc, s);
+        int length = gv.getNumGlyphs();
+        //double half_width = gv.getGlyphPosition(length-1).getX() / 2.0;
+        for (int i = 0; i < length; i++) {
+          java.awt.geom.Point2D p = gv.getGlyphPosition(i);
+          final double pwidth = p.getX();
+          //final double theta_deg = (pwidth * 360.0) / (2.0 * Math.PI * radius);
+          final double theta0 = pwidth / radius;
+          //final double theta = Math.toRadians(theta_deg + start_angle_deg);
+          final double theta = theta0 + start_angle_rad;
+          final double xcoord = x_center + (radius * Math.cos(theta));
+          final double ycoord = y_center + (radius * Math.sin(theta));
+          //gc.drawString(String.valueOf(s.charAt(i)), (int)xcoord, (int)ycoord);
+          AffineTransform trans0 = AffineTransform.getTranslateInstance(-p.getX(), -p.getY());
+          AffineTransform trans = AffineTransform.getTranslateInstance(xcoord, ycoord);
+          AffineTransform rot = AffineTransform.getRotateInstance(theta + (Math.PI / 2.0));
+          AffineTransform at = new AffineTransform();
+          at.concatenate(trans); // Third translate the letter into place on the circle
+          at.concatenate(rot); // Second rotate the letter
+          at.concatenate(trans0); // First translate to 0,0
+          java.awt.Shape glyph = gv.getGlyphOutline(i);
+          java.awt.Shape transformedGlyph = at.createTransformedShape(glyph);
+          gc.fill(transformedGlyph);
+        }
+    }
+
+
+    private void makeGaugeMarks(Graphics2D gc, Boolean doText, final int start_awt_arc_ang,
+            int x_center, int y_center, int r_outer,
+            int r_inner, int total_marks)
+    {
+        gc.setColor(java.awt.Color.CYAN);
+        java.awt.Font font = new java.awt.Font("Serif", java.awt.Font.PLAIN, 18);
+
+        double alpha_ang = Math.toRadians(gauge_total_ang / total_marks);
+        double start_ang = Math.toRadians(start_awt_arc_ang + 180);
+        for (int rdx = 0; rdx <= total_marks; rdx++)
+        {
+            final double ang = start_ang + (alpha_ang * rdx);
+            double cos_ang = Math.cos(ang);
+            double sin_ang = Math.sin(ang);
+            int xo = (int) (x_center + (r_outer * cos_ang));
+            int yo = (int) (y_center + (r_outer * sin_ang));
+            int xi = (int) (x_center + (r_inner * cos_ang));
+            int yi = (int) (y_center + (r_inner * sin_ang));
+            gc.drawLine(xo, yo, xi, yi);
+            if (doText)
+            {
+                final String txt = String.valueOf(gauge_min + rdx * gauge_major_interval);
+                //gc.drawString(String.valueOf(gauge_min + rdx * gauge_major_interval), xo, yo);
+                printTextCircle(gc, txt, font, x_center, y_center, r_outer + 2, ang);
+            }
+        }
+    }
+
+    private void calcNeedleRotation(final int start_awt_arc_ang)
+    {
+        needle_rotation = start_awt_arc_ang - 90
+                + ((needle_value - gauge_min) * (gauge_total_ang / (gauge_max - gauge_min)));
+    }
+
+    /*** These values should all come from the gauge model in the regular implementation
+     *
+     */
+    private void getModelValues()
+    {
+        needle_value = needle_value + needle_direction;
+
+        if (needle_value < gauge_min)
+        {
+            needle_value = gauge_min;
+            needle_direction = 1.0;
+        }
+        if (needle_value > gauge_max)
+        {
+            needle_value = gauge_max;
+            needle_direction = -1.0;
+        }
 
         try {
             gauge_total_ang = Double.valueOf(inp_angle.getText());
@@ -202,62 +345,6 @@ public class GaugeDemo extends Application
         catch(Exception ex) {
             gauge_max = 100.0;
         }
-
-
-        final int size = gauge_diam;
-        final int x = (width / 2) - (size / 2);
-        final int y = (height / 2) - (size / 2);
-        //gc.fillOval(x, y, size, size);
-        final int start_awt_arc_ang = (int) (90 - (gauge_total_ang / 2));
-        gc.fillArc(x, y, size, size, start_awt_arc_ang, gauge_total_ang.intValue());
-
-        //addSomeText(gc, size, x, y);
-
-        gc.setColor(java.awt.Color.PINK);
-        java.awt.Font font = new java.awt.Font("Serif", java.awt.Font.PLAIN, 18);
-        gc.setFont(font);
-
-        int xc = x + (size / 2);
-        int yc = y + (size / 2);
-        int r_outer = size / 2;
-        int r_inner = r_outer - gauge_major_len;
-        int total_major_marks = (int) Math.floor((gauge_max - gauge_min) / gauge_major_interval);
-        double alpha_ang = Math.toRadians(gauge_total_ang / total_major_marks);
-        double start_ang = Math.toRadians(start_awt_arc_ang + 180);
-        for (int rdx = 0; rdx <= total_major_marks; rdx++)
-        {
-            double cos_ang = Math.cos(start_ang + alpha_ang * rdx);
-            double sin_ang = Math.sin(start_ang + alpha_ang * rdx);
-            int xo = (int) (xc + (r_outer * cos_ang));
-            int yo = (int) (yc + (r_outer * sin_ang));
-            int xi = (int) (xc + (r_inner * cos_ang));
-            int yi = (int) (yc + (r_inner * sin_ang));
-            gc.drawLine(xo, yo, xi, yi);
-            gc.drawString(String.valueOf(gauge_min + rdx * gauge_major_interval), xo, yo);
-        }
-
-
-        needle_value = needle_value + needle_direction;
-
-        if (needle_value < gauge_min)
-        {
-            needle_value = gauge_min;
-            needle_direction = 1.0;
-        }
-        if (needle_value > gauge_max)
-        {
-            needle_value = gauge_max;
-            needle_direction = -1.0;
-        }
-
-        calcNeedleRotation(start_awt_arc_ang);
-    }
-
-
-    private void calcNeedleRotation(final int start_awt_arc_ang)
-    {
-        needle_rotation = start_awt_arc_ang - 90
-                + ((needle_value - gauge_min) * (gauge_total_ang / (gauge_max - gauge_min)));
     }
 
 
@@ -305,6 +392,8 @@ public class GaugeDemo extends Application
             final WritableImage image = new WritableImage((int)canvas.getWidth(), (int)canvas.getHeight());
             while (true)
             {
+                getModelValues();
+
                 // Prepare AWT image
                 long start = System.currentTimeMillis();
                 draw_round_gauge(buf);
