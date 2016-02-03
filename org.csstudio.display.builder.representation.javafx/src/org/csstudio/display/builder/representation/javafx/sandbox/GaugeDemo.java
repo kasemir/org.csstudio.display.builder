@@ -74,6 +74,10 @@ public class GaugeDemo extends Application
     Double gauge_major_interval = 10.0, gauge_minor_interval = 1.0;
     //Color of the gauge
     double[] needleRGB = new double[]{100.0, 100.0, 255.0};
+    //Alarm ranges
+    Double gauge_alarms[] = {5.0, 10.0, 70.0, 75.0};
+    java.awt.Color gauge_alarm_colors[] = { java.awt.Color.RED, java.awt.Color.YELLOW,
+            java.awt.Color.GREEN, java.awt.Color.YELLOW, java.awt.Color.RED };
 
     //Needle shape
     private final Polygon needle = new Polygon();
@@ -206,9 +210,39 @@ public class GaugeDemo extends Application
         final int size = gauge_diam;
         final int x = (width / 2) - (size / 2);
         final int y = (height / 2) - (size / 2);
-        //gc.fillOval(x, y, size, size);
         final int start_awt_arc_ang = (int) (90 - (gauge_total_ang / 2));
+        //gc.fillOval(x, y, size, size);
         gc.fillArc(x, y, size, size, start_awt_arc_ang, gauge_total_ang.intValue());
+
+        final int subsize = gauge_diam / 2;
+        final int subx = (width / 2) - (subsize / 2);
+        final int suby = (height / 2) - (subsize / 2);
+        double gauge_val = gauge_min;
+        int prev_angle = start_awt_arc_ang;
+        for (int cdx = 0; cdx < gauge_alarm_colors.length; cdx++)
+        {
+            gc.setColor(gauge_alarm_colors[cdx]);
+            gauge_val = (cdx < gauge_alarms.length) ? gauge_alarms[cdx] : gauge_max;
+            int next_angle = (int) (start_awt_arc_ang + ((gauge_val - gauge_min) * (gauge_total_ang / (gauge_max - gauge_min))));
+            gc.fillArc(subx, suby, subsize, subsize, prev_angle, next_angle - prev_angle);
+            prev_angle = next_angle;
+        }
+
+        int subsubsize = subsize - 50;
+        final int subsubx = (width / 2) - (subsubsize / 2);
+        final int subsuby = (height / 2) - (subsubsize / 2);
+        gc.setColor(new java.awt.Color( gauge_red.floatValue(),
+                gauge_green.floatValue(),
+                gauge_blue.floatValue()));
+        gc.fillArc(subsubx, subsuby, subsubsize, subsubsize, start_awt_arc_ang, gauge_total_ang.intValue());
+
+        /*
+        for (int i = 0; i < (gauge_total_ang.intValue() - 1); i++)
+        {
+            gc.setColor(java.awt.Color.getHSBColor((float)(i/360.0), 1, 1));
+            gc.fillArc(subx, suby, subsize, subsize, i + start_awt_arc_ang, 2);
+        }
+         */
 
         //addSomeText(gc, size, x, y);
 
@@ -228,15 +262,18 @@ public class GaugeDemo extends Application
         total_marks = (int) Math.floor((gauge_max - gauge_min) / gauge_minor_interval);
         makeGaugeMarks(gc, false, start_awt_arc_ang, xc, yc, r_outer, r_inner, total_marks);
 
+        calcNeedleRotation(start_awt_arc_ang);
+
+        /*
         String s = "Here goes a very long test string long long long long long long long test test.";
         gc.setColor(java.awt.Color.CYAN);
         font = new java.awt.Font("Serif", java.awt.Font.PLAIN, 24);
         double start_angle = start_awt_arc_ang + 180;
         double radius = size / 2.0;
-        //printTextCircle(gc, s, font, xc, yc, (int) radius, Math.toRadians(start_angle));
+        printTextCircle(gc, s, font, xc, yc, (int) radius, Math.toRadians(start_angle));
+         */
 
 
-        calcNeedleRotation(start_awt_arc_ang);
     }
 
 
