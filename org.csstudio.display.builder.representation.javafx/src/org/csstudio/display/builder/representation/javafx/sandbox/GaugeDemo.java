@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.sandbox;
 
+import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.font.FontRenderContext;
@@ -30,6 +31,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polygon;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
@@ -61,7 +63,7 @@ public class GaugeDemo extends Application
 
     //Gauge attributes:
     //diameter of the gauge
-    final int gauge_diam = 300;
+    final int gauge_diam = 200;
     //physical length of the major hash mark lines
     final int gauge_major_len = gauge_diam / 10;
     //physical length of the minor hash mark lines
@@ -80,8 +82,13 @@ public class GaugeDemo extends Application
             java.awt.Color.GREEN, java.awt.Color.YELLOW, java.awt.Color.RED };
 
     //Needle shape
+    private final double needle_center_diam = gauge_diam / 25.0;
+    private final Circle needle_center = new Circle(needle_center_diam);
+
     private final Polygon needle = new Polygon();
-    Double[] needle_pts = new Double[]{ -5.0, 0.0, 5.0, 0.0, 0.0, -(gauge_diam / 2.0) };
+    Double[] needle_pts = new Double[]{ -(gauge_diam / 50.0), 0.0,
+                                         (gauge_diam / 50.0), 0.0,
+                                         0.0, -(gauge_diam / 2.0) };
     //Current rotation of the needle (determined by needle_value)
     Double needle_rotation = 0.0;
     //Direction needle is moving (1 or -1)
@@ -114,7 +121,7 @@ public class GaugeDemo extends Application
         needle.getPoints().addAll(needle_pts);
         needle.getTransforms().addAll(xlateTransform, rotationTransform);
         needle.setFill(Color.RED);
-        //needle.set
+        needle_center.setFill(Color.RED);
 
         GridPane grid = new GridPane();
         grid.setPadding(new Insets(10, 10, 10, 10));
@@ -178,7 +185,7 @@ public class GaugeDemo extends Application
         StackPane pane = new StackPane();
         pane.setMaxWidth(canvas.getWidth());
         pane.setMaxHeight(canvas.getHeight());
-        pane.getChildren().addAll(canvas, needle);
+        pane.getChildren().addAll(canvas, needle, needle_center);
         return pane;
     }
 
@@ -258,6 +265,7 @@ public class GaugeDemo extends Application
         //int total_marks = (int) Math.floor((gauge_max - gauge_min) / gauge_major_interval);
         makeGaugeMarks(gc, true, start_awt_arc_ang, xc, yc, r_outer, r_inner, gauge_major_interval);
 
+        //TODO: These look crooked..
         r_inner = r_outer - gauge_minor_len;
         //total_marks = (int) Math.floor((gauge_max - gauge_min) / gauge_minor_interval);
         makeGaugeMarks(gc, false, start_awt_arc_ang, xc, yc, r_outer, r_inner, gauge_minor_interval);
@@ -319,6 +327,10 @@ public class GaugeDemo extends Application
             int x_center, int y_center, int r_outer,
             int r_inner, double interval)
     {
+        final BasicStroke mark_stroke =
+                new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+        gc.setStroke(mark_stroke);
+
         final double gauge_range = gauge_max - gauge_min;
         final int total_marks = (int) Math.floor((gauge_range) / interval);
         final double remove_frac = (gauge_range - (total_marks * interval)) / gauge_range;
@@ -326,7 +338,7 @@ public class GaugeDemo extends Application
         double effective_ang_rad = Math.toRadians(gauge_total_ang - (remove_frac * gauge_total_ang));
 
         gc.setColor(java.awt.Color.CYAN);
-        java.awt.Font font = new java.awt.Font("Serif", java.awt.Font.PLAIN, 18);
+        java.awt.Font font = new java.awt.Font("Serif", java.awt.Font.BOLD, gauge_diam / 10);
 
         //double alpha_ang_rad = Math.toRadians(gauge_total_ang / total_marks);
         final double alpha_ang_rad = effective_ang_rad / total_marks;
@@ -336,16 +348,17 @@ public class GaugeDemo extends Application
             final double ang = start_ang_rad + (alpha_ang_rad * rdx);
             double cos_ang = Math.cos(ang);
             double sin_ang = Math.sin(ang);
-            int xo = (int) (x_center + (r_outer * cos_ang));
-            int yo = (int) (y_center + (r_outer * sin_ang));
-            int xi = (int) (x_center + (r_inner * cos_ang));
-            int yi = (int) (y_center + (r_inner * sin_ang));
+            int xo = (int) Math.round(x_center + (r_outer * cos_ang));
+            int yo = (int) Math.round(y_center + (r_outer * sin_ang));
+            int xi = (int) Math.round(x_center + (r_inner * cos_ang));
+            int yi = (int) Math.round(y_center + (r_inner * sin_ang));
             gc.drawLine(xo, yo, xi, yi);
             if (doText)
             {
-                final String txt = String.valueOf(gauge_min + rdx * gauge_major_interval);
+                String s = String.valueOf(gauge_min + rdx * gauge_major_interval);
+                s = s.indexOf(".") < 0 ? s : s.replaceAll("0*$", "").replaceAll("\\.$", "");
                 //gc.drawString(String.valueOf(gauge_min + rdx * gauge_major_interval), xo, yo);
-                printTextCircle(gc, txt, font, x_center, y_center, r_outer + 2, ang, true);
+                printTextCircle(gc, s, font, x_center, y_center, r_outer + 2, ang, true);
             }
         }
     }
