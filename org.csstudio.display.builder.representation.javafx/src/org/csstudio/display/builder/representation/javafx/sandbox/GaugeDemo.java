@@ -255,12 +255,12 @@ public class GaugeDemo extends Application
         int r_outer = size / 2;
 
         int r_inner = r_outer - gauge_major_len;
-        int total_marks = (int) Math.floor((gauge_max - gauge_min) / gauge_major_interval);
-        makeGaugeMarks(gc, true, start_awt_arc_ang, xc, yc, r_outer, r_inner, total_marks);
+        //int total_marks = (int) Math.floor((gauge_max - gauge_min) / gauge_major_interval);
+        makeGaugeMarks(gc, true, start_awt_arc_ang, xc, yc, r_outer, r_inner, gauge_major_interval);
 
         r_inner = r_outer - gauge_minor_len;
-        total_marks = (int) Math.floor((gauge_max - gauge_min) / gauge_minor_interval);
-        makeGaugeMarks(gc, false, start_awt_arc_ang, xc, yc, r_outer, r_inner, total_marks);
+        //total_marks = (int) Math.floor((gauge_max - gauge_min) / gauge_minor_interval);
+        makeGaugeMarks(gc, false, start_awt_arc_ang, xc, yc, r_outer, r_inner, gauge_minor_interval);
 
         calcNeedleRotation(start_awt_arc_ang);
 
@@ -279,12 +279,17 @@ public class GaugeDemo extends Application
 
     private void printTextCircle(Graphics2D gc, String s, java.awt.Font font,
             int x_center, int y_center, int radius,
-            double start_angle_rad)
+            double start_angle_rad, Boolean center_txt)
     {
         gc.setFont(font);
         FontRenderContext frc = gc.getFontRenderContext();
         GlyphVector gv = font.createGlyphVector(frc, s);
         int length = gv.getNumGlyphs();
+
+        if (center_txt) {
+            final double total_ang_rad = gv.getGlyphPosition(length).getX() / radius;
+            start_angle_rad -= total_ang_rad / 2.0;
+        }
         //double half_width = gv.getGlyphPosition(length-1).getX() / 2.0;
         for (int i = 0; i < length; i++) {
           java.awt.geom.Point2D p = gv.getGlyphPosition(i);
@@ -312,16 +317,23 @@ public class GaugeDemo extends Application
 
     private void makeGaugeMarks(Graphics2D gc, Boolean doText, final int start_awt_arc_ang,
             int x_center, int y_center, int r_outer,
-            int r_inner, int total_marks)
+            int r_inner, double interval)
     {
+        final double gauge_range = gauge_max - gauge_min;
+        final int total_marks = (int) Math.floor((gauge_range) / interval);
+        final double remove_frac = (gauge_range - (total_marks * interval)) / gauge_range;
+
+        double effective_ang_rad = Math.toRadians(gauge_total_ang - (remove_frac * gauge_total_ang));
+
         gc.setColor(java.awt.Color.CYAN);
         java.awt.Font font = new java.awt.Font("Serif", java.awt.Font.PLAIN, 18);
 
-        double alpha_ang = Math.toRadians(gauge_total_ang / total_marks);
-        double start_ang = Math.toRadians(start_awt_arc_ang + 180);
+        //double alpha_ang_rad = Math.toRadians(gauge_total_ang / total_marks);
+        final double alpha_ang_rad = effective_ang_rad / total_marks;
+        double start_ang_rad = Math.toRadians(start_awt_arc_ang + 180);
         for (int rdx = 0; rdx <= total_marks; rdx++)
         {
-            final double ang = start_ang + (alpha_ang * rdx);
+            final double ang = start_ang_rad + (alpha_ang_rad * rdx);
             double cos_ang = Math.cos(ang);
             double sin_ang = Math.sin(ang);
             int xo = (int) (x_center + (r_outer * cos_ang));
@@ -333,7 +345,7 @@ public class GaugeDemo extends Application
             {
                 final String txt = String.valueOf(gauge_min + rdx * gauge_major_interval);
                 //gc.drawString(String.valueOf(gauge_min + rdx * gauge_major_interval), xo, yo);
-                printTextCircle(gc, txt, font, x_center, y_center, r_outer + 2, ang);
+                printTextCircle(gc, txt, font, x_center, y_center, r_outer + 2, ang, true);
             }
         }
     }
