@@ -33,6 +33,7 @@ import org.csstudio.display.builder.model.properties.WritePVActionInfo;
 import org.csstudio.display.builder.runtime.internal.RuntimePVs;
 import org.csstudio.display.builder.runtime.script.RuntimeScriptHandler;
 import org.csstudio.display.builder.runtime.script.Script;
+import org.csstudio.display.builder.runtime.script.ScriptSupport;
 import org.csstudio.vtype.pv.PV;
 import org.csstudio.vtype.pv.PVListener;
 import org.csstudio.vtype.pv.PVPool;
@@ -438,6 +439,12 @@ public class WidgetRuntime<MW extends Widget>
             if (!pvs.isEmpty())
                 logger.log(Level.SEVERE, widget + " has unreleased PVs: " + pvs);
         }
+        
+        // Close script support that might have been created
+        // by RuntimeScriptHandlers or action-invoked scripts
+        final ScriptSupport scripting = widget.getUserData(Widget.USER_DATA_SCRIPT_SUPPORT);
+        if (scripting != null)
+        	scripting.close();
     }
 }
 

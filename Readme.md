@@ -28,8 +28,10 @@ and similar "look", with improvements:
 Dependencies
 ------------
 
- * Java 8 SDK, must be 8u40 or later.
-   Older versions of Java 8 lack javafx.scene.control.Dialog.
+ * Java 8 SDK.
+   Needs at least 1.8.0_40 for javafx.scene.control.Dialog.
+   1.8.0_51 causes ComboBoxes in editor's property panel to hang on Windows,
+   OK with 1.8.0_71. 
  * In Eclipse Preferences, Java, Build Path, Classpath Variables: Set `JFXSWT` to `jre/lib/jfxswt.jar`
  * As Eclipse Preferences, Plugin Development, Target platform, use a CS-Studio target.
    For example, use the current IDE and add a "Directory" pointing to a CSS product's `plugins/` directory.
