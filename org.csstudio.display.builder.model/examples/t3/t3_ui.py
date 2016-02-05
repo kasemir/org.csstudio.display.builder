@@ -9,10 +9,7 @@
    @author Kay Kasemir
 """
 
-# "widget" is really the display model,
-# because script is attached to display
-display = widget
-
+display = widget.getDisplayModel()
 
 # TODO Should Runtime add directory of the *.opi to path?
 from java.io import File

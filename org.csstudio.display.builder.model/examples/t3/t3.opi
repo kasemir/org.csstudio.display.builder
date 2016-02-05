@@ -3,19 +3,20 @@
   <name>TTT</name>
   <width>600</width>
   <height>500</height>
-  <scripts>
-    <script file="t3_ui.py">
-      <pv_name>loc://pos("4")</pv_name>
-    </script>
-  </scripts>
   <widget type="label" version="2.0.0">
     <name>ttt0</name>
     <width>25</width>
     <height>25</height>
     <text>x</text>
-    <font><font family="Liberation Mono" style="BOLD" size="20.0"/></font>
+    <foreground_color>
+      <color red="0" green="0" blue="255">
+      </color>
+    </foreground_color>
+    <font>
+      <font family="Liberation Mono" style="BOLD" size="20.0">
+      </font>
+    </font>
     <horizontal_alignment>1</horizontal_alignment>
-    <foreground_color><color red="0" green="0" blue="255"/></foreground_color>
   </widget>
   <widget type="polyline" version="2.0.0">
     <name>Polyline</name>
@@ -68,10 +69,17 @@
   <widget type="textentry" version="2.0.0">
     <name>Text Entry</name>
     <y>90</y>
-    <width>100</width>
-    <height>40</height>    
+    <height>40</height>
+    <scripts>
+      <script file="t3_ui.py">
+        <pv_name>loc://pos("4")</pv_name>
+      </script>
+    </scripts>
+    <font>
+      <font family="Liberation Mono" style="BOLD" size="20.0">
+      </font>
+    </font>
     <pv_name>loc://pos("4")</pv_name>
-    <font><font family="Liberation Mono" style="BOLD" size="20.0"/></font>
   </widget>
   <widget type="label" version="2.0.0">
     <name>ttt1</name>
@@ -79,9 +87,15 @@
     <width>25</width>
     <height>25</height>
     <text>x</text>
+    <foreground_color>
+      <color red="0" green="0" blue="255">
+      </color>
+    </foreground_color>
+    <font>
+      <font family="Liberation Mono" style="BOLD" size="20.0">
+      </font>
+    </font>
     <horizontal_alignment>1</horizontal_alignment>
-    <font><font family="Liberation Mono" style="BOLD" size="20.0"/></font>
-    <foreground_color><color red="0" green="0" blue="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>ttt2</name>
@@ -89,9 +103,15 @@
     <width>25</width>
     <height>25</height>
     <text>x</text>
+    <foreground_color>
+      <color red="0" green="0" blue="255">
+      </color>
+    </foreground_color>
+    <font>
+      <font family="Liberation Mono" style="BOLD" size="20.0">
+      </font>
+    </font>
     <horizontal_alignment>1</horizontal_alignment>
-    <font><font family="Liberation Mono" style="BOLD" size="20.0"/></font>
-    <foreground_color><color red="0" green="0" blue="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>ttt3</name>
@@ -99,9 +119,15 @@
     <width>25</width>
     <height>25</height>
     <text>x</text>
+    <foreground_color>
+      <color red="0" green="0" blue="255">
+      </color>
+    </foreground_color>
+    <font>
+      <font family="Liberation Mono" style="BOLD" size="20.0">
+      </font>
+    </font>
     <horizontal_alignment>1</horizontal_alignment>
-    <font><font family="Liberation Mono" style="BOLD" size="20.0"/></font>
-    <foreground_color><color red="0" green="0" blue="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>ttt4</name>
@@ -110,9 +136,15 @@
     <width>25</width>
     <height>25</height>
     <text>x</text>
+    <foreground_color>
+      <color red="0" green="0" blue="255">
+      </color>
+    </foreground_color>
+    <font>
+      <font family="Liberation Mono" style="BOLD" size="20.0">
+      </font>
+    </font>
     <horizontal_alignment>1</horizontal_alignment>
-    <font><font family="Liberation Mono" style="BOLD" size="20.0"/></font>
-    <foreground_color><color red="0" green="0" blue="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>ttt5</name>
@@ -121,9 +153,15 @@
     <width>25</width>
     <height>25</height>
     <text>x</text>
+    <foreground_color>
+      <color red="0" green="0" blue="255">
+      </color>
+    </foreground_color>
+    <font>
+      <font family="Liberation Mono" style="BOLD" size="20.0">
+      </font>
+    </font>
     <horizontal_alignment>1</horizontal_alignment>
-    <font><font family="Liberation Mono" style="BOLD" size="20.0"/></font>
-    <foreground_color><color red="0" green="0" blue="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>ttt6</name>
@@ -131,9 +169,15 @@
     <width>25</width>
     <height>25</height>
     <text>x</text>
+    <foreground_color>
+      <color red="0" green="0" blue="255">
+      </color>
+    </foreground_color>
+    <font>
+      <font family="Liberation Mono" style="BOLD" size="20.0">
+      </font>
+    </font>
     <horizontal_alignment>1</horizontal_alignment>
-    <font><font family="Liberation Mono" style="BOLD" size="20.0"/></font>
-    <foreground_color><color red="0" green="0" blue="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>ttt7</name>
@@ -142,9 +186,15 @@
     <width>25</width>
     <height>25</height>
     <text>x</text>
+    <foreground_color>
+      <color red="0" green="0" blue="255">
+      </color>
+    </foreground_color>
+    <font>
+      <font family="Liberation Mono" style="BOLD" size="20.0">
+      </font>
+    </font>
     <horizontal_alignment>1</horizontal_alignment>
-    <font><font family="Liberation Mono" style="BOLD" size="20.0"/></font>
-    <foreground_color><color red="0" green="0" blue="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>ttt8</name>
@@ -153,17 +203,28 @@
     <width>25</width>
     <height>25</height>
     <text>x</text>
+    <foreground_color>
+      <color red="0" green="0" blue="255">
+      </color>
+    </foreground_color>
+    <font>
+      <font family="Liberation Mono" style="BOLD" size="20.0">
+      </font>
+    </font>
     <horizontal_alignment>1</horizontal_alignment>
-    <foreground_color><color red="0" green="0" blue="255"/></foreground_color>
-    <font><font family="Liberation Mono" style="BOLD" size="20.0"/></font>
-    <foreground_color><color red="0" green="0" blue="255"/></foreground_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>info</name>
     <y>130</y>
     <width>300</width>
     <text>Tic Tac Toe...</text>
-    <font><font family="Liberation Mono" style="BOLD" size="20.0"/></font>
-    <foreground_color><color red="150" green="0" blue="150"/></foreground_color>
+    <foreground_color>
+      <color red="150" green="0" blue="150">
+      </color>
+    </foreground_color>
+    <font>
+      <font family="Liberation Mono" style="BOLD" size="20.0">
+      </font>
+    </font>
   </widget>
 </display>
