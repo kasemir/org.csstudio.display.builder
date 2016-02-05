@@ -16,6 +16,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
@@ -121,6 +122,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<ButtonB
         model_widget.positionWidth().addUntypedPropertyListener(this::representationChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::representationChanged);
         model_widget.displayText().addUntypedPropertyListener(this::representationChanged);
+        model_widget.displayFont().addUntypedPropertyListener(this::representationChanged);
     }
 
     private void representationChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -138,6 +140,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<ButtonB
             jfx_node.setText(model_widget.displayText().getValue());
             jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
                                  model_widget.positionHeight().getValue());
+            jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
         }
     }
 }
