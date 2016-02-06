@@ -21,7 +21,7 @@ import javafx.scene.shape.StrokeType;
  */
 public class EmbeddedDisplayRepresentation extends JFXBaseRepresentation<Group, EmbeddedDisplayWidget>
 {
-    private final DirtyFlag dirty_border = new DirtyFlag();
+    private final DirtyFlag dirty_sizes = new DirtyFlag();
 
     private static final Color color = Color.CADETBLUE;
     private static final int border_width = 1;
@@ -44,11 +44,6 @@ public class EmbeddedDisplayRepresentation extends JFXBaseRepresentation<Group, 
         inner = new Group();
         // inner.relocate(inset, 2*inset);
 
-        // Would be easy to scale the content
-        // in case it needs to grow/shrink to fit
-        // double scale = 0.5;
-        // inner.setScaleX(scale);
-        // inner.setScaleY(scale);
         model_widget.setUserData(EmbeddedDisplayWidget.USER_DATA_EMBEDDED_DISPLAY_CONTAINER, inner);
 
         return new Group(border, inner);
@@ -64,13 +59,14 @@ public class EmbeddedDisplayRepresentation extends JFXBaseRepresentation<Group, 
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::borderChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::borderChanged);
+        model_widget.positionWidth().addUntypedPropertyListener(this::sizesChanged);
+        model_widget.positionHeight().addUntypedPropertyListener(this::sizesChanged);
+        model_widget.runtimeScale().addUntypedPropertyListener(this::sizesChanged);
     }
 
-    private void borderChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    private void sizesChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        dirty_border.mark();
+        dirty_sizes.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -78,10 +74,13 @@ public class EmbeddedDisplayRepresentation extends JFXBaseRepresentation<Group, 
     public void updateChanges()
     {
         super.updateChanges();
-        if (dirty_border.checkAndClear())
+        if (dirty_sizes.checkAndClear())
         {
             border.setWidth(model_widget.positionWidth().getValue());
             border.setHeight(model_widget.positionHeight().getValue());
+            final double zoom = model_widget.runtimeScale().getValue();
+            inner.setScaleX(zoom);
+            inner.setScaleY(zoom);
         }
     }
 }

@@ -14,13 +14,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.XMLUtil;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
 
@@ -57,6 +61,11 @@ public class EmbeddedDisplayWidget extends Widget
         }
     };
 
+    private static final WidgetPropertyDescriptor<Double> runtimeScale =
+        CommonWidgetProperties.newDoublePropertyDescriptor(
+            WidgetPropertyCategory.RUNTIME, "scale", Messages.WidgetProperties_ScaleFactor);
+
+    
     /** Custom configurator to read legacy *.opi files */
     private static class EmbeddedDisplayWidgetConfigurator extends WidgetConfigurator
     {
@@ -83,6 +92,8 @@ public class EmbeddedDisplayWidget extends Widget
 
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<String> file;
+    // TODO Add scale mode (none=scroll bars, resize content, size to content)
+    private volatile WidgetProperty<Double> scale;
 
     public EmbeddedDisplayWidget()
     {
@@ -95,6 +106,7 @@ public class EmbeddedDisplayWidget extends Widget
         super.defineProperties(properties);
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(file = displayFile.createProperty(this, ""));
+        properties.add(scale = runtimeScale.createProperty(this, 1.0));
 
         // Initial size
         positionWidth().setValue(300);
@@ -111,6 +123,12 @@ public class EmbeddedDisplayWidget extends Widget
     public WidgetProperty<String> displayFile()
     {
         return file;
+    }
+
+    /** @return Runtime 'scale' */
+    public WidgetProperty<Double> runtimeScale()
+    {
+        return scale;
     }
 
     @Override

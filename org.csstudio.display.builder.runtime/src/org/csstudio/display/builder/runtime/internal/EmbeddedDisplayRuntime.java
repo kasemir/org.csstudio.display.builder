@@ -43,6 +43,8 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         // Registering for changes after the initial load
         // prevents double-loading based on the change triggered in
         // the initial load
+        // TODO Handle changed embedded display file:
+        //      Stop runtime, dispose representation before loading/starting new one
         widget.displayFile().addPropertyListener((p, o, n) -> loadContent());
     }
 
@@ -80,6 +82,15 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         try
         {
             final Object parent = widget.getUserData(EmbeddedDisplayWidget.USER_DATA_EMBEDDED_DISPLAY_CONTAINER);
+
+            // TODO Check scale mode, for now always "resize content"
+            final double content_width = content_model.positionWidth().getValue();
+            final double content_height = content_model.positionHeight().getValue();
+            final double zoom_x = content_width  > 0 ? widget.positionWidth().getValue()  / content_width : 1.0;
+            final double zoom_y = content_height > 0 ? widget.positionHeight().getValue() / content_height : 1.0;
+            final double zoom = Math.min(zoom_x, zoom_y);
+            widget.runtimeScale().setValue(zoom);
+
             toolkit.representModel(parent, content_model);
 
             // Start runtimes of child widgets off the UI thread

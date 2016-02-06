@@ -68,6 +68,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Points;
     public static String WidgetProperties_PVName;
     public static String WidgetProperties_Rotation;
+    public static String WidgetProperties_ScaleFactor;
     public static String WidgetProperties_Scripts;
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Text;
