@@ -13,6 +13,8 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
@@ -25,6 +27,7 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
 
@@ -45,6 +48,48 @@ public class EmbeddedDisplayWidget extends Widget
      */
     public static final String USER_DATA_EMBEDDED_DISPLAY_CONTAINER = "_embedded_widget_container";
 
+    /** Resize behavior */
+    public enum Resize
+    {
+        /** No resize, add scroll bars if content too large for container */
+        None(Messages.Resize_None),
+
+        /** Size *.opi to fit the container */
+        ResizeContent(Messages.Resize_Content),
+
+        /** Size the container to fit the linked *.opi */
+        SizeToContent(Messages.Resize_Container);
+
+        private final String label;
+
+        private Resize(final String label)
+        {
+            this.label = label;
+        }
+
+        @Override
+        public String toString()
+        {
+            return label;
+        }
+    }
+
+    private static final WidgetPropertyDescriptor<Resize> displayResize =
+        new WidgetPropertyDescriptor<Resize>(
+            WidgetPropertyCategory.DISPLAY, "resize", Messages.WidgetProperties_ResizeBehavior)
+    {
+        @Override
+        public EnumWidgetProperty<Resize> createProperty(final Widget widget,
+                                                         final Resize default_value)
+        {
+            return new EnumWidgetProperty<Resize>(this, widget, default_value);
+        }
+    };
+
+    private static final WidgetPropertyDescriptor<Double> runtimeScale =
+    CommonWidgetProperties.newDoublePropertyDescriptor(
+        WidgetPropertyCategory.RUNTIME, "scale", Messages.WidgetProperties_ScaleFactor);
+
 
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -61,11 +106,6 @@ public class EmbeddedDisplayWidget extends Widget
         }
     };
 
-    private static final WidgetPropertyDescriptor<Double> runtimeScale =
-        CommonWidgetProperties.newDoublePropertyDescriptor(
-            WidgetPropertyCategory.RUNTIME, "scale", Messages.WidgetProperties_ScaleFactor);
-
-    
     /** Custom configurator to read legacy *.opi files */
     private static class EmbeddedDisplayWidgetConfigurator extends WidgetConfigurator
     {
@@ -80,19 +120,40 @@ public class EmbeddedDisplayWidget extends Widget
         {
             super.configureFromXML(widget, xml);
 
-            // Fall back to legacy opi_file for display file
+            // Fall back to legacy "opi_file" for display file
             if (XMLUtil.getChildElement(xml, displayFile.getName()) == null)
             {
                 final Optional<String> opi_file = XMLUtil.getChildString(xml, "opi_file");
                 if (opi_file.isPresent())
                     widget.setPropertyValue(displayFile, opi_file.get());
             }
+
+            // Transition legacy "resize_behaviour"
+            final Element element = XMLUtil.getChildElement(xml, "resize_behaviour");
+            if (element != null)
+            {
+                try
+                {   // 0=SIZE_OPI_TO_CONTAINER, 1=SIZE_CONTAINER_TO_OPI, 2=CROP_OPI, 3=SCROLL_OPI
+                    final int old_resize = Integer.parseInt(XMLUtil.getString(element));
+                    if (old_resize == 0)
+                        widget.setPropertyValue(displayResize, Resize.ResizeContent);
+                    else if (old_resize == 1)
+                        widget.setPropertyValue(displayResize, Resize.SizeToContent);
+                    else
+                        widget.setPropertyValue(displayResize, Resize.None);
+                }
+                catch (NumberFormatException ex)
+                {
+                    Logger.getLogger(EmbeddedDisplayWidget.class.getName())
+                          .log(Level.WARNING, "Cannot decode legacy resize_behavior");
+                }
+            }
         }
     }
 
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<String> file;
-    // TODO Add scale mode (none=scroll bars, resize content, size to content)
+    private volatile WidgetProperty<Resize> resize;
     private volatile WidgetProperty<Double> scale;
 
     public EmbeddedDisplayWidget()
@@ -106,6 +167,7 @@ public class EmbeddedDisplayWidget extends Widget
         super.defineProperties(properties);
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(file = displayFile.createProperty(this, ""));
+        properties.add(resize = displayResize.createProperty(this, Resize.None));
         properties.add(scale = runtimeScale.createProperty(this, 1.0));
 
         // Initial size
@@ -123,6 +185,12 @@ public class EmbeddedDisplayWidget extends Widget
     public WidgetProperty<String> displayFile()
     {
         return file;
+    }
+
+    /** @return Display 'resize' */
+    public WidgetProperty<Resize> displayResize()
+    {
+        return resize;
     }
 
     /** @return Runtime 'scale' */

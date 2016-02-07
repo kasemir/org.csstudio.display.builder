@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
@@ -83,14 +84,24 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         {
             final Object parent = widget.getUserData(EmbeddedDisplayWidget.USER_DATA_EMBEDDED_DISPLAY_CONTAINER);
 
-            // TODO Check scale mode, for now always "resize content"
-            final double content_width = content_model.positionWidth().getValue();
-            final double content_height = content_model.positionHeight().getValue();
-            final double zoom_x = content_width  > 0 ? widget.positionWidth().getValue()  / content_width : 1.0;
-            final double zoom_y = content_height > 0 ? widget.positionHeight().getValue() / content_height : 1.0;
-            final double zoom = Math.min(zoom_x, zoom_y);
-            widget.runtimeScale().setValue(zoom);
-
+            final Resize resize = widget.displayResize().getValue();
+            final int content_width = content_model.positionWidth().getValue();
+            final int content_height = content_model.positionHeight().getValue();
+            if (resize == Resize.ResizeContent)
+            {
+                final double zoom_x = content_width  > 0 ? (double)widget.positionWidth().getValue()  / content_width : 1.0;
+                final double zoom_y = content_height > 0 ? (double)widget.positionHeight().getValue() / content_height : 1.0;
+                final double zoom = Math.min(zoom_x, zoom_y);
+                widget.runtimeScale().setValue(zoom);
+            }
+            else if (resize == Resize.SizeToContent)
+            {
+                if (content_width > 0)
+                    widget.positionWidth().setValue(content_width);
+                if (content_height > 0)
+                    widget.positionHeight().setValue(content_height);
+            }
+            // TODO Scrollbars for Resize.None
             toolkit.representModel(parent, content_model);
 
             // Start runtimes of child widgets off the UI thread

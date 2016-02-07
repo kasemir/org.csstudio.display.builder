@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Display</name>
+  <x>-1</x>
+  <y>-1</y>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <width>181</width>
+    <height>31</height>
+    <text>Embedded Display Widget</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <y>41</y>
+    <width>421</width>
+    <height>30</height>
+    <text>Displays another *.opi file inside a widget.</text>
+  </widget>
+  <widget type="embedded" version="2.0.0">
+    <name>Embedded</name>
+    <x>1</x>
+    <y>101</y>
+    <width>140</width>
+    <height>140</height>
+    <file>embedded.opi</file>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <x>1</x>
+    <y>71</y>
+    <width>80</width>
+    <height>26</height>
+    <text>Scrollbars</text>
+    <foreground_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="255" green="255" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="embedded" version="2.0.0">
+    <name>Embedded</name>
+    <x>181</x>
+    <y>101</y>
+    <width>140</width>
+    <height>140</height>
+    <file>embedded.opi</file>
+    <resize>1</resize>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <x>181</x>
+    <y>71</y>
+    <width>103</width>
+    <height>26</height>
+    <text>Resize content</text>
+    <foreground_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="255" green="255" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="embedded" version="2.0.0">
+    <name>Embedded</name>
+    <x>361</x>
+    <y>101</y>
+    <width>140</width>
+    <height>140</height>
+    <file>embedded.opi</file>
+    <resize>2</resize>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_2</name>
+    <x>361</x>
+    <y>71</y>
+    <width>103</width>
+    <height>26</height>
+    <text>Size to content</text>
+    <foreground_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="255" green="255" blue="255">
+      </color>
+    </background_color>
+  </widget>
+</display>
