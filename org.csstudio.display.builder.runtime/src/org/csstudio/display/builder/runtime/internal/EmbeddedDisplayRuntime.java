@@ -101,7 +101,6 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
                 if (content_height > 0)
                     widget.positionHeight().setValue(content_height);
             }
-            // TODO Scrollbars for Resize.None
             toolkit.representModel(parent, content_model);
 
             // Start runtimes of child widgets off the UI thread

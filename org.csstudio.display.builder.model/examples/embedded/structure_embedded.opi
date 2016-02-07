@@ -25,10 +25,20 @@
     <macros>
       <X>No resize</X>
     </macros>
-    <x>11</x>
-    <y>97</y>
+    <x>1</x>
+    <y>101</y>
     <width>140</width>
     <height>140</height>
+    <file>embedded.opi</file>
+  </widget>
+  <widget type="embedded" version="2.0.0">
+    <name>Embedded</name>
+    <macros>
+      <X>No resize</X>
+    </macros>
+    <x>1</x>
+    <y>300</y>
+    <width>300</width>
     <file>embedded.opi</file>
   </widget>
   <widget type="label" version="2.0.0">
