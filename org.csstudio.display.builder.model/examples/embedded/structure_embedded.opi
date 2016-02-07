@@ -5,7 +5,7 @@
   <y>-1</y>
   <widget type="label" version="2.0.0">
     <name>Label</name>
-    <width>181</width>
+    <width>311</width>
     <height>31</height>
     <text>Embedded Display Widget</text>
     <font>
@@ -22,8 +22,11 @@
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded</name>
-    <x>1</x>
-    <y>101</y>
+    <macros>
+      <X>No resize</X>
+    </macros>
+    <x>11</x>
+    <y>97</y>
     <width>140</width>
     <height>140</height>
     <file>embedded.opi</file>
@@ -46,6 +49,9 @@
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded</name>
+    <macros>
+      <X>Content shrinks</X>
+    </macros>
     <x>181</x>
     <y>101</y>
     <width>140</width>
@@ -71,6 +77,9 @@
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded</name>
+    <macros>
+      <X>Widget grows</X>
+    </macros>
     <x>361</x>
     <y>101</y>
     <width>140</width>

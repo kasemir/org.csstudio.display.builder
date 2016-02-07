@@ -15,6 +15,7 @@ import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
+import javafx.scene.transform.Scale;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -31,6 +32,7 @@ public class EmbeddedDisplayRepresentation extends JFXBaseRepresentation<Group, 
 
     /** Inner group that holds child widgets */
     private Group inner;
+    private Scale zoom;
 
     @Override
     public Group createJFXNode() throws Exception
@@ -41,8 +43,13 @@ public class EmbeddedDisplayRepresentation extends JFXBaseRepresentation<Group, 
         border.setStrokeWidth(border_width);
         border.setStrokeType(StrokeType.INSIDE);
 
+        // inner.setScaleX() and setScaleY() zoom from the center
+        // and not the top-left edge, requiring adjustments to
+        // inner.setTranslateX() and ..Y() to compensate.
+        // Using a separate Scale transformation does not have that problem.
+        // See http://stackoverflow.com/questions/10707880/javafx-scale-and-translate-operation-results-in-anomaly
         inner = new Group();
-        // inner.relocate(inset, 2*inset);
+        inner.getTransforms().add(zoom = new Scale());
 
         model_widget.setUserData(EmbeddedDisplayWidget.USER_DATA_EMBEDDED_DISPLAY_CONTAINER, inner);
 
@@ -78,9 +85,9 @@ public class EmbeddedDisplayRepresentation extends JFXBaseRepresentation<Group, 
         {
             border.setWidth(model_widget.positionWidth().getValue());
             border.setHeight(model_widget.positionHeight().getValue());
-            final double zoom = model_widget.runtimeScale().getValue();
-            inner.setScaleX(zoom);
-            inner.setScaleY(zoom);
+            final double factor = model_widget.runtimeScale().getValue();
+            zoom.setX(factor);
+            zoom.setY(factor);
         }
     }
 }
