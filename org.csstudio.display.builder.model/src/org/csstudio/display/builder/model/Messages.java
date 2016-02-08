@@ -24,6 +24,7 @@ public class Messages extends NLS
     public static String FontStyle_BoldItalic;
     public static String FontStyle_Italic;
     public static String FontStyle_Regular;
+    public static String GaugeWidget_NeedleColor;
     public static String LabelWidget_Text;
     public static String LEDWidget_OffColor;
     public static String LEDWidget_OnColor;

@@ -22,6 +22,7 @@ import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.ArcWidget;
 import org.csstudio.display.builder.model.widgets.EllipseWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.GaugeWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.model.widgets.ImageWidget;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
@@ -89,6 +90,7 @@ public class WidgetFactory
         addWidgetType(ArcWidget.WIDGET_DESCRIPTOR);
         addWidgetType(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR);
         addWidgetType(EllipseWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(GaugeWidget.WIDGET_DESCRIPTOR);
         addWidgetType(GroupWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ImageWidget.WIDGET_DESCRIPTOR);
         addWidgetType(LabelWidget.WIDGET_DESCRIPTOR);
