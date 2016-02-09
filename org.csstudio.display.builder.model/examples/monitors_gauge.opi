@@ -22,46 +22,64 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update</name>
-    <x>181</x>
-    <y>91</y>
+    <x>11</x>
+    <y>121</y>
     <width>170</width>
     <border_alarm_sensitive>false</border_alarm_sensitive>
     <pv_name>sim://ramp(0, 100, 1, .1)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
-    <y>91</y>
+    <x>11</x>
+    <y>101</y>
     <width>111</width>
     <text>0 - 100:</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_1</name>
-    <x>191</x>
-    <y>201</y>
+    <x>11</x>
+    <y>351</y>
     <width>170</width>
     <border_alarm_sensitive>false</border_alarm_sensitive>
     <pv_name>sim://ramp(0.5, 210, 10, 1)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
-    <y>201</y>
+    <x>11</x>
+    <y>331</y>
     <width>111</width>
     <text>11.5 - 210:</text>
   </widget>
   <widget type="gauge" version="2.0.0">
     <name>GAUGE</name>
-    <x>81</x>
-    <y>91</y>
-    <width>90</width>
-    <height>80</height>
+    <x>191</x>
+    <y>131</y>
+    <width>150</width>
+    <height>150</height>
+    <background_color>
+      <color red="128" green="102" blue="204">
+      </color>
+    </background_color>
+    <needle_color>
+      <color name="Text" red="0" green="0" blue="0">
+      </color>
+    </needle_color>
     <pv_name>sim://ramp(0, 100, 1, .1)</pv_name>
   </widget>
   <widget type="gauge" version="2.0.0">
     <name>GAUGE_1</name>
-    <x>91</x>
-    <y>201</y>
-    <width>80</width>
-    <height>80</height>
+    <x>181</x>
+    <y>341</y>
+    <width>200</width>
+    <height>200</height>
+    <background_color>
+      <color red="102" green="128" blue="230">
+      </color>
+    </background_color>
+    <needle_color>
+      <color name="On" red="0" green="255" blue="0">
+      </color>
+    </needle_color>
     <pv_name>sim://ramp(0.5, 210, 10, 1)</pv_name>
   </widget>
 </display>

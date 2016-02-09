@@ -7,9 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -37,6 +39,8 @@ import javafx.scene.transform.Translate;
 @SuppressWarnings("nls")
 public class GaugeRepresentation extends RegionBaseRepresentation<Pane, GaugeWidget>
 {
+    protected final Logger logger = Logger.getLogger(getClass().getName());
+
     /** Mark when the static part of the gauge (background image) changes due to
      *  resize or change in colors or style
      */
@@ -51,6 +55,8 @@ public class GaugeRepresentation extends RegionBaseRepresentation<Pane, GaugeWid
     private volatile java.awt.Color bg_color;
     /** Angle size of gauge (30-360) */
     private volatile int gauge_ang_deg = 270;
+    /** Are we using text labels? */
+    private volatile boolean use_labels;
 
     // Following values will be set by examining PV Vtype
     /** Min and max displayed values on gauge */
@@ -62,6 +68,8 @@ public class GaugeRepresentation extends RegionBaseRepresentation<Pane, GaugeWid
 
     /** Current reading of the gauge (PV value) */
     private volatile double current_value;
+    /** Is the PV connected */
+    private volatile boolean connected = false;
     /** Current rotation of the needle based on value and gauge range */
     private volatile double needle_rot_ang;
 
@@ -149,6 +157,7 @@ public class GaugeRepresentation extends RegionBaseRepresentation<Pane, GaugeWid
      * rotation recalculated, since these are all dependent on the gauge ranges. */
     private void connectionChanged(final WidgetProperty<Boolean> property, final Boolean was_connected, final Boolean is_connected)
     {
+        connected = is_connected;
         if (is_connected) {
             collectPVMetaData(model_widget.runtimeValue().getValue());
         }
@@ -222,6 +231,14 @@ public class GaugeRepresentation extends RegionBaseRepresentation<Pane, GaugeWid
     /** The value that the needle is reading has changed. Calculate the new needle rotation. */
     private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
+        if (!connected && (new_value != null))
+        {
+            //This can happen when contentChanged and connectionChanged run in parallel
+            //logger.log(Level.FINE, "Gauge got value change when PV not connected");
+            connected = true;
+
+        }
+
         if (new_value instanceof VNumber) {
             VNumber vnum = (VNumber)new_value;
             current_value = vnum.getValue().doubleValue();
@@ -258,8 +275,12 @@ public class GaugeRepresentation extends RegionBaseRepresentation<Pane, GaugeWid
 
     private void calc_needle_rotation()
     {
-        needle_rot_ang = start_awt_arc_deg() - 90
-                + ((current_value - display_min) * (gauge_ang_deg / (display_max - display_min)));
+        needle_rot_ang = start_awt_arc_deg() - 90;
+
+        if (connected)
+        {
+            needle_rot_ang += ((current_value - display_min) * (gauge_ang_deg / (display_max - display_min)));
+        }
     }
 
     private void redraw_background()
@@ -277,21 +298,96 @@ public class GaugeRepresentation extends RegionBaseRepresentation<Pane, GaugeWid
     {
         Graphics2D gc = buf.createGraphics();
 
-        gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+        gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        gc.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        //gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 
         final int width = buf.getWidth();
         final int height = buf.getHeight();
+        final int start_awt_deg = start_awt_arc_deg();
 
         //gc.setColor(new java.awt.Color(0.0f, 0.0f, 1.0f, 0.0f));
         //gc.clearRect(0, 0, width, height);
         //gc.drawRect(0, 0, width, height);
 
         gc.setColor(bg_color);
-        final int arcx = (width / 2) - (gauge_diam / 2);
-        final int arcy = (height / 2) - (gauge_diam / 2);
-        gc.fillArc(arcx, arcy, gauge_diam, gauge_diam, start_awt_arc_deg(), gauge_ang_deg);
+        basicBGArc(gc, width, height, start_awt_deg, gauge_diam);
 
+        if (connected)
+        {
+            makeGaugeMarks(gc, use_labels, start_awt_arc_deg(), (width / 2), (height / 2), gauge_diam / 2 - 1, 10);
+            basicBGArc(gc, width, height, start_awt_deg, gauge_diam - 30);
+
+            //Alarm ranges
+            Double gauge_alarms[] = {lower_alarm, lower_warn, upper_warn, upper_alarm};
+            java.awt.Color gauge_alarm_colors[] = { color_alarm, color_warn, color_ok, color_warn, color_alarm };
+
+
+            final int subdiam = gauge_diam / 2;
+            final int subarcx = (width / 2) - (subdiam / 2);
+            final int subarcy = (height / 2) - (subdiam / 2);
+            double gauge_val = display_min;
+            int prev_angle = start_awt_deg;
+            for (int cdx = 0; cdx < gauge_alarm_colors.length; cdx++)
+            {
+                gc.setColor(gauge_alarm_colors[cdx]);
+                gauge_val = (cdx < gauge_alarms.length) ? gauge_alarms[cdx] : display_max;
+                int next_angle = (int) (start_awt_deg + ((gauge_val - display_min) * (gauge_ang_deg / (display_max - display_min))));
+                int final_angle = (next_angle - prev_angle) + ((next_angle < gauge_ang_deg) ? 1 : 0);
+                gc.fillArc(subarcx, subarcy, subdiam, subdiam, prev_angle, final_angle);
+                prev_angle = next_angle;
+            }
+
+            basicBGArc(gc, width, height, start_awt_deg, (int) (subdiam * 0.7));
+        }
+
+    }
+
+    /** Draw an arc for the round gauge, using the background color, at the given diameter */
+    private void basicBGArc(Graphics2D gc, final int width, final int height, final int start_awt_deg,
+            final int major_diam)
+    {
+        final int major_arcx = (width / 2) - (major_diam / 2);
+        final int major_arcy = (height / 2) - (major_diam / 2);
+        gc.setColor(bg_color);
+        gc.fillArc(major_arcx, major_arcy, major_diam, major_diam, start_awt_deg, gauge_ang_deg);
+    }
+
+    private void makeGaugeMarks(Graphics2D gc, Boolean doText, final int start_awt_arc_ang,
+            int x_center, int y_center, int r_outer, double interval)
+    {
+        final BasicStroke mark_stroke =
+                new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);
+        gc.setStroke(mark_stroke);
+
+        final double gauge_range = display_max - display_min;
+        final int total_marks = (int) Math.floor((gauge_range) / interval);
+        final double remove_frac = (gauge_range - (total_marks * interval)) / gauge_range;
+
+        double effective_ang_rad = Math.toRadians(gauge_ang_deg - (remove_frac * gauge_ang_deg));
+
+        gc.setColor(java.awt.Color.BLACK);
+        java.awt.Font font = new java.awt.Font("Serif", java.awt.Font.BOLD, gauge_diam / 10);
+
+        //double alpha_ang_rad = Math.toRadians(gauge_total_ang / total_marks);
+        final double alpha_ang_rad = effective_ang_rad / total_marks;
+        double start_ang_rad = Math.toRadians(start_awt_arc_ang + 180);
+        for (int rdx = 0; rdx <= total_marks; rdx++)
+        {
+            final double ang = start_ang_rad + (alpha_ang_rad * rdx);
+            double cos_ang = Math.cos(ang);
+            double sin_ang = Math.sin(ang);
+            int xo = (int) Math.round(x_center + (r_outer * cos_ang));
+            int yo = (int) Math.round(y_center + (r_outer * sin_ang));
+            gc.drawLine(xo, yo, x_center, y_center);
+            if (doText)
+            {
+                String s = String.valueOf(display_min + rdx * interval);
+                s = s.indexOf(".") < 0 ? s : s.replaceAll("0*$", "").replaceAll("\\.$", "");
+                gc.drawString(s, xo, yo);
+                //printTextCircle(gc, s, font, x_center, y_center, r_outer + 2, ang, true);
+            }
+        }
     }
 
     private void update_outline(final int w, final int h)
