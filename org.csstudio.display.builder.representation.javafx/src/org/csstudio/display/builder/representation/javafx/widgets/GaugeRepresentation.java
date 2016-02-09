@@ -9,6 +9,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.awt.BasicStroke;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.logging.Logger;
@@ -306,18 +307,39 @@ public class GaugeRepresentation extends RegionBaseRepresentation<Pane, GaugeWid
         final int height = buf.getHeight();
         final int start_awt_deg = start_awt_arc_deg();
 
-        //gc.setColor(new java.awt.Color(0.0f, 0.0f, 1.0f, 0.0f));
-        //gc.clearRect(0, 0, width, height);
-        //gc.drawRect(0, 0, width, height);
-
-        gc.setColor(bg_color);
-        basicBGArc(gc, width, height, start_awt_deg, gauge_diam);
+        drawBasicArc(gc, width, height, start_awt_deg, gauge_diam, bg_color);
 
         if (connected)
         {
             makeGaugeMarks(gc, use_labels, start_awt_arc_deg(), (width / 2), (height / 2), gauge_diam / 2 - 1, 10);
-            basicBGArc(gc, width, height, start_awt_deg, gauge_diam - 30);
+            drawBasicArc(gc, width, height, start_awt_deg, gauge_diam - 30, bg_color);
+            //drawBasicArc(gc, width, height, start_awt_deg, gauge_diam - 30, shadowp);
 
+        }
+
+        // Adds shadows at the top
+        final java.awt.Paint shadowp = new java.awt.GradientPaint(0.0f, 0.0f, new java.awt.Color(0.0f, 0.0f, 0.0f, 0.3f),
+                                       0.0f, gauge_diam, new java.awt.Color(0.0f, 0.0f, 0.0f, 0.0f));
+        drawBasicArc(gc, width, height, start_awt_deg, gauge_diam - 30, shadowp);
+
+        // Adds highlights at the bottom
+        final java.awt.Paint hilitep = new java.awt.GradientPaint(0, 0, new java.awt.Color(1.0f, 1.0f, 1.0f, 0.0f),
+                                                                  0, gauge_diam, new java.awt.Color(1.0f, 1.0f, 1.0f, 0.2f));
+        drawBasicArc(gc, width, height, start_awt_deg, gauge_diam, hilitep);
+
+        // Creates dark edges for 3D effect
+        /*
+        final java.awt.Paint dark3dp = new java.awt.RadialGradientPaint(
+                new java.awt.geom.Point2D.Double(gauge_diam / 2.0, gauge_diam / 2.0),
+                gauge_diam / 2.0f,
+                new float[] { 0.0f, 1.0f },
+                new java.awt.Color[] { new java.awt.Color(6, 76, 160, 127),
+                                       new java.awt.Color(0.0f, 0.0f, 0.0f, 0.3f) });
+        drawBasicArc(gc, width, height, start_awt_deg, gauge_diam, dark3dp);
+        */
+
+        if (connected)
+        {
             //Alarm ranges
             Double gauge_alarms[] = {lower_alarm, lower_warn, upper_warn, upper_alarm};
             java.awt.Color gauge_alarm_colors[] = { color_alarm, color_warn, color_ok, color_warn, color_alarm };
@@ -338,18 +360,23 @@ public class GaugeRepresentation extends RegionBaseRepresentation<Pane, GaugeWid
                 prev_angle = next_angle;
             }
 
-            basicBGArc(gc, width, height, start_awt_deg, (int) (subdiam * 0.7));
+            drawBasicArc(gc, width, height, start_awt_deg, (int) (subdiam * 0.7), bg_color);
+            drawBasicArc(gc, width, height, start_awt_deg, (int) (subdiam * 0.7), shadowp);
+            drawBasicArc(gc, width, height, start_awt_deg, (int) (subdiam * 0.7), hilitep);
         }
+
+
 
     }
 
-    /** Draw an arc for the round gauge, using the background color, at the given diameter */
-    private void basicBGArc(Graphics2D gc, final int width, final int height, final int start_awt_deg,
-            final int major_diam)
+    /** Draw an arc for the round gauge, using the background color, at the given diameter
+     * @param p TODO*/
+    private void drawBasicArc(Graphics2D gc, final int width, final int height, final int start_awt_deg,
+            final int major_diam, Paint p)
     {
         final int major_arcx = (width / 2) - (major_diam / 2);
         final int major_arcy = (height / 2) - (major_diam / 2);
-        gc.setColor(bg_color);
+        gc.setPaint(p);
         gc.fillArc(major_arcx, major_arcy, major_diam, major_diam, start_awt_deg, gauge_ang_deg);
     }
 
