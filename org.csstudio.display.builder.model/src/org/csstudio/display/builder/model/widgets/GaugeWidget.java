@@ -41,7 +41,7 @@ public class GaugeWidget extends Widget
             "GAUGE",
             "platform:/plugin/org.csstudio.display.builder.model/icons/gauge.png",
             "Gauge that displays value and alarm rnges of a PV",
-            Arrays.asList("org.csstudio.opibuilder.widgets.Gauge"))
+            Arrays.asList("org.csstudio.opibuilder.widgets.gauge", "org.csstudio.opibuilder.widgets.meter"))
     {
         @Override
         public Widget createWidget()
