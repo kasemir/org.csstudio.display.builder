@@ -207,13 +207,14 @@ public class RuntimeUtil
     // Actually stop runtimes from this widget down
     private static void stopRuntimeRecursively(final Widget widget)
     {
-        final WidgetRuntime<?> runtime = RuntimeUtil.getRuntime(widget);
-        if (runtime != null)
-            runtime.stop();
-
-        // Recurse into child widgets
+        // Mirror-image of startRuntimeRecursively:
+        // First recurse into child widgets, ..
         if (widget instanceof ContainerWidget)
             for (final Widget child : ((ContainerWidget) widget).getChildren())
                 stopRuntimeRecursively(child);
+        // .. then stop this runtime
+        final WidgetRuntime<?> runtime = RuntimeUtil.getRuntime(widget);
+        if (runtime != null)
+            runtime.stop();
     }
 }
