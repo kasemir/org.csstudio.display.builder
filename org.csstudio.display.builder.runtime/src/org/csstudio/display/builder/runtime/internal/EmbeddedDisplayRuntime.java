@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +29,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
 {
     /** Model for the embedded content */
     private volatile DisplayModel content_model;
+    private volatile Future<?> active_task;
 
     /** Start: Connect to PVs, ...
      *  @throws Exception on error
@@ -37,21 +39,43 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
     {
         super.start();
 
-        // Load initial content, then register for changes.
         // Loading the content reads the displayFile property,
         // which resolves macros and could trigger a property change.
-        loadContent();
+        // -> Resolve name & load initial content, _then_ register for changes.
+        final String display_file = widget.displayFile().getValue();
+        startDisplayUpdate(display_file);
+
         // Registering for changes after the initial load
         // prevents double-loading based on the change triggered in
         // the initial load
-        // TODO Handle changed embedded display file:
-        //      Stop runtime, dispose representation before loading/starting new one
-        widget.displayFile().addPropertyListener((p, o, n) -> loadContent());
+        widget.displayFile().addPropertyListener((p, o, n) -> startDisplayUpdate(widget.displayFile().getValue()));
     }
 
-    private void loadContent()
+    /** Start background task for display update
+     *  @param display_file Path to display
+     */
+    private void startDisplayUpdate(final String display_file)
     {
-        final String display_file = widget.displayFile().getValue();
+        // If there is already an ongoing load that has _not_ actually started,
+        // cancel it. Don't interrupt one that's being executed because that could
+        // result in partially created content.
+        // In case many updates arrive in a burst, the initial, ongoing update will run to completion.
+        // The intermediate updates will all cancel each other, and the final update will remain
+        // as the "active_task" that's actually executed in the end.
+        final Future<?> ongoing = active_task;
+        if (ongoing != null)
+            ongoing.cancel(false);
+        active_task = RuntimeUtil.getExecutor().submit(() -> loadDisplayFile(display_file));
+    }
+
+    /** Load display file and schedule representation
+     *  @param display_file Path to display
+     */
+    private void loadDisplayFile(final String display_file)
+    {
+        System.out.println("Loading " + display_file + " on " + Thread.currentThread().getName());
+        // TODO Handle changed embedded display file:
+        //      Stop runtime, dispose representation before loading/starting new one
         try
         {
             // Load model for displayFile, allowing lookup relative to this widget's model
@@ -70,7 +94,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
             // Represent on UI thread
             toolkit.execute(() -> representContent(toolkit));
         }
-        catch (final Exception ex)
+        catch (final Throwable ex)
         {
             // TODO Show "Failed to load embedded display" + display_file in representation
             Logger.getLogger(getClass().getName()).log(Level.WARNING,
@@ -111,6 +135,8 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
             Logger.getLogger(getClass().getName()).log(Level.WARNING,
                     "Failed to represent embedded display", ex);
         }
+        // Indicate that task completed
+        active_task = null;
     }
 
     @Override

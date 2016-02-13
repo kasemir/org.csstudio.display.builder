@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.runtime;
 
 import java.util.Objects;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,8 +17,8 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.properties.ActionInfo;
-import org.csstudio.display.builder.model.util.NamedDaemonPool;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.model.util.NamedDaemonPool;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -38,7 +38,7 @@ public class RuntimeUtil
 {
     private static final Logger logger = Logger.getLogger(RuntimeUtil.class.getName());
 
-    private static final Executor executor = NamedDaemonPool.createThreadPool("DisplayRuntime");
+    private static final ExecutorService executor = NamedDaemonPool.createThreadPool("DisplayRuntime");
 
     private static final ToolkitListener toolkit_listener = new ToolkitListener()
     {
@@ -67,9 +67,9 @@ public class RuntimeUtil
         toolkit.addListener(toolkit_listener);
     }
 
-    /** @return Executor that should be used for runtime-related background tasks
+    /** @return {@link ExecutorService} that should be used for runtime-related background tasks
      */
-    public static Executor getExecutor()
+    public static ExecutorService getExecutor()
     {
         return executor;
     }
