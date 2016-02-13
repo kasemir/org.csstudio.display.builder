@@ -65,6 +65,10 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         final Future<?> ongoing = active_task;
         if (ongoing != null)
             ongoing.cancel(false);
+
+        if (display_file.isEmpty())
+            return;
+
         active_task = RuntimeUtil.getExecutor().submit(() -> loadDisplayFile(display_file));
     }
 
