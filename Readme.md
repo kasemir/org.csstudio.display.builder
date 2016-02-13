@@ -14,7 +14,7 @@ and similar "look", with improvements:
    even if the display startup is delayed because of embedded displays
    or slow display file access over http.
  * Runtime handles PV updates and scripts in background threads,
-   again lessening the likelyhood of user interface freezeups.
+   again lessening the likelihood of user interface freezeups.
  * Separation of Model, Representation, Runtime and Editor
    to facilitate long term maintainability.
  * Model without reference to SWT/GEF (color, dimensions, ..)
@@ -32,7 +32,9 @@ Dependencies
    Needs at least 1.8.0_40 for javafx.scene.control.Dialog.
    1.8.0_51 causes ComboBoxes in editor's property panel to hang on Windows,
    OK with 1.8.0_71. 
- * In Eclipse Preferences, Java, Build Path, Classpath Variables: Set `JFXSWT` to `jre/lib/jfxswt.jar`
+ * In Eclipse Preferences, Java, Build Path, Classpath Variables:
+    Set `JFXSWT` to the `lib/jfxswt.jar` file within your JRE.
+    For example, on Mac OS X this could be `/Library/Java/JavaVirtualMachines/jdk1.8.0_71.jdk/Contents/Home/jre/lib/jfxswt.jar`.
  * As Eclipse Preferences, Plugin Development, Target platform, use a CS-Studio target.
    For example, use the current IDE and add a "Directory" pointing to a CSS product's `plugins/` directory.
  * In product start config, add VM options

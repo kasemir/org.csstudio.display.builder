@@ -16,9 +16,16 @@
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
     <y>41</y>
-    <width>421</width>
-    <height>30</height>
-    <text>Displays another *.opi file inside a widget.</text>
+    <width>521</width>
+    <height>146</height>
+    <text>Displays another *.opi file inside a widget.
+This widget is a 'container' that hosts another *.opi file as its 'content'.
+By default, both the container and its content remain their original size.
+The container provides scroll bars when the content is too large.
+Alternatively, the content can be resized to match the container,
+or the container can resize to match the content, but these options
+are always a compromise that often results in inconsistent widget sizes.</text>
+    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded</name>
@@ -26,25 +33,15 @@
       <X>No resize</X>
     </macros>
     <x>1</x>
-    <y>101</y>
+    <y>217</y>
     <width>140</width>
     <height>140</height>
-    <file>embedded.opi</file>
-  </widget>
-  <widget type="embedded" version="2.0.0">
-    <name>Embedded</name>
-    <macros>
-      <X>No resize</X>
-    </macros>
-    <x>1</x>
-    <y>300</y>
-    <width>300</width>
     <file>embedded.opi</file>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
     <x>1</x>
-    <y>71</y>
+    <y>187</y>
     <width>80</width>
     <height>26</height>
     <text>Scrollbars</text>
@@ -63,7 +60,7 @@
       <X>Content shrinks</X>
     </macros>
     <x>181</x>
-    <y>101</y>
+    <y>217</y>
     <width>140</width>
     <height>140</height>
     <file>embedded.opi</file>
@@ -72,7 +69,7 @@
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
     <x>181</x>
-    <y>71</y>
+    <y>187</y>
     <width>103</width>
     <height>26</height>
     <text>Resize content</text>
@@ -91,7 +88,7 @@
       <X>Widget grows</X>
     </macros>
     <x>361</x>
-    <y>101</y>
+    <y>217</y>
     <width>140</width>
     <height>140</height>
     <file>embedded.opi</file>
@@ -100,7 +97,7 @@
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
     <x>361</x>
-    <y>71</y>
+    <y>187</y>
     <width>103</width>
     <height>26</height>
     <text>Size to content</text>
@@ -112,5 +109,58 @@
       <color red="255" green="255" blue="255">
       </color>
     </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <y>431</y>
+    <width>511</width>
+    <height>50</height>
+    <text>A typical use case defines for example a macro-based "Motor" display,
+then shows several motors via the Embedded Display Widget:</text>
+    <vertical_alignment>0</vertical_alignment>
+  </widget>
+  <widget type="embedded" version="2.0.0">
+    <name>Embedded Display_1</name>
+    <macros>
+      <M>XPos</M>
+    </macros>
+    <y>481</y>
+    <width>300</width>
+    <height>200</height>
+    <file>motor.opi</file>
+  </widget>
+  <widget type="embedded" version="2.0.0">
+    <name>Embedded Display_1</name>
+    <macros>
+      <M>YPos</M>
+    </macros>
+    <x>310</x>
+    <y>481</y>
+    <width>300</width>
+    <height>200</height>
+    <file>motor.opi</file>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_4</name>
+    <y>701</y>
+    <width>431</width>
+    <height>100</height>
+    <text>The content of the embedded display widget,
+i.e. the file to display, can be modified at runtime.
+This example updates the display file name from a script,
+which is meant as a demonstration of the technical functionality
+and not likely to be useful in an operational display.</text>
+    <vertical_alignment>0</vertical_alignment>
+  </widget>
+  <widget type="embedded" version="2.0.0">
+    <name>Embedded Display</name>
+    <y>801</y>
+    <width>300</width>
+    <height>200</height>
+    <scripts>
+      <script file="update_display.py">
+        <pv_name>sim://ramp(0, 1, 2)</pv_name>
+      </script>
+    </scripts>
   </widget>
 </display>
