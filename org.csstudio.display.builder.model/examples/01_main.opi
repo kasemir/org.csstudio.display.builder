@@ -244,4 +244,31 @@
       </action>
     </actions>
   </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_7</name>
+    <x>471</x>
+    <y>91</y>
+    <width>110</width>
+    <height>30</height>
+    <text>Structure</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_11</name>
+    <x>471</x>
+    <y>121</y>
+    <width>110</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>embedded/structure_embedded.opi</file>
+        <target>replace</target>
+        <description>Embedded</description>
+      </action>
+    </actions>
+  </widget>
 </display>
