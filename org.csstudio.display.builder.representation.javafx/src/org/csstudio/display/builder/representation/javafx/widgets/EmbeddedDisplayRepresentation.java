@@ -21,7 +21,7 @@ import javafx.scene.transform.Scale;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class EmbeddedDisplayRepresentation extends JFXBaseRepresentation<ScrollPane, EmbeddedDisplayWidget>
+public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<ScrollPane, EmbeddedDisplayWidget>
 {
     private final DirtyFlag dirty_sizes = new DirtyFlag();
 

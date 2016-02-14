@@ -14,8 +14,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
+import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
@@ -100,6 +103,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
                 {
                     final DisplayModel model = widget.getDisplayModel();
                     final ToolkitRepresentation<Object, ?> toolkit = RuntimeUtil.getToolkit(model);
+                    // TODO Time out
                     toolkit.submit(() -> { toolkit.disposeRepresentation(content_model); return null; }).get();
                 }
                 catch (Exception ex)
@@ -118,18 +122,41 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
     /** Load display file, schedule representation (on toolkit), start runtimes
      *  @param display_file Path to display
      *  @return DisplayModel that was handled or null on error
+     *  @throws Exception on error
      */
-    private DisplayModel loadRepresentRun(final String display_file)
+    private DisplayModel loadRepresentRun(final String display_file) throws Exception
     {
+        final DisplayModel model = widget.getDisplayModel();
+        DisplayModel embedded_model;
+        try
+        {   // Load model for displayFile, allowing lookup relative to this widget's model
+            final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+            embedded_model = RuntimeUtil.loadModel(parent_display, display_file);
+            // Adjust model name to reflect source file
+            embedded_model.widgetName().setValue("EmbeddedDisplay " + display_file);
+            widget.runtimeConnected().setValue(true);
+        }
+        catch (final Throwable ex)
+        {   // Log error and show message in pseudo model
+            final String message = "Failed to load embedded display " + display_file;
+            Logger.getLogger(getClass().getName()).log(Level.WARNING, message, ex);
+            final LabelWidget info = new LabelWidget();
+            info.displayText().setValue(message);
+            info.displayForegroundColor().setValue(WidgetColorService.getColor(NamedWidgetColors.ALARM_DISCONNECTED));
+            final int wid = widget.positionWidth().getValue()-2;
+            final int hei = widget.positionHeight().getValue()-2;
+            info.positionWidth().setValue(wid);
+            info.positionHeight().setValue(hei);
+            embedded_model = new DisplayModel();
+            embedded_model.positionWidth().setValue(wid);
+            embedded_model.positionHeight().setValue(hei);
+            embedded_model.addChild(info);
+            widget.runtimeConnected().setValue(false);
+        }
+        final DisplayModel content_model = embedded_model;
+
         try
         {
-            // Load model for displayFile, allowing lookup relative to this widget's model
-            final DisplayModel model = widget.getDisplayModel();
-            final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-            final DisplayModel content_model = RuntimeUtil.loadModel(parent_display, display_file);
-            // Adjust model name to reflect source file
-            content_model.widgetName().setValue("EmbeddedDisplay " + display_file);
-
             // Attach toolkit to embedded model
             final ToolkitRepresentation<Object, ?> toolkit = RuntimeUtil.getToolkit(model);
 
@@ -143,6 +170,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
                 return null;
             });
             // Wait for completion
+            // TODO Time out
             represented.get();
 
             // Back in runtime pool thread, start runtimes of child widgets
@@ -152,9 +180,8 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         }
         catch (final Throwable ex)
         {
-            // TODO Show "Failed to load embedded display" + display_file in representation
             Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Failed to load embedded display " + display_file, ex);
+                  .log(Level.WARNING, "Failed to start embedded display " + display_file, ex);
         }
         return null;
     }
@@ -203,7 +230,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         try
         {
             if (content_future != null)
-            {
+            {   // TODO Hung here
                 final DisplayModel content_model = content_future.get();
                 if (content_model != null)
                 {

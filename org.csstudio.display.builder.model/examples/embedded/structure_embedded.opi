@@ -159,7 +159,7 @@ and not likely to be useful in an operational display.</text>
     <height>200</height>
     <scripts>
       <script file="update_display.py">
-        <pv_name>sim://ramp(0, 1, 2)</pv_name>
+        <pv_name>sim://ramp(0, 2, 2)</pv_name>
       </script>
     </scripts>
   </widget>

@@ -7,7 +7,10 @@
 # content in response to operator input.
 from org.csstudio.display.builder.runtime.script import PVUtil
 
-if PVUtil.getDouble(pvs[0]) > 0.5:
+sel = PVUtil.getDouble(pvs[0])
+if sel > 1.5:
+    widget.setPropertyValue("file", "missing.opi")
+elif sel > 0.5:
     widget.setPropertyValue("file", "b.opi")
 else:
     widget.setPropertyValue("file", "a.opi")
