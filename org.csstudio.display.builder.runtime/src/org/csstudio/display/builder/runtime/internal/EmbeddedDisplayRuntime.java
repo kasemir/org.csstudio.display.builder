@@ -7,8 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,24 +33,19 @@ import org.csstudio.display.builder.runtime.WidgetRuntime;
 @SuppressWarnings("nls")
 public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
 {
-    /** Future for the embedded model.
+    /** Timeout used to await UI thread operations to prevent deadlock */
+    private static final long TIMEOUT_MS = 5000;
+
+    /** Complete task chain for a new display file:
+     *  1) Load model for display file (Runtime executor)
+     *  2) Represent model in toolkit (Toolkit executor)
+     *  3) Start runtime for model (Runtime executor)
      *
-     *  Complete task chain for a display file:
-     *  1) Load content_model for display file (Runtime executor)
-     *  2) Represent content_model in toolkit (Toolkit executor)
-     *  3) Start runtime for content_model (Runtime executor)
-     *
-     *  A Future is created for the complete task chain,
-     *  returning the content_model on completion.
-     *
-     *  In principle, the future can be cancelled to prevent
-     *  a scheduled but not yet executing task chain from starting,
-     *  but interruption of an executing task chain is not permitted
-     *  because it is unclear how for example a partially constructed
-     *  representation would then be cleaned up.
-     *  A task chain thus must run to completion.
+     *  The active model is between steps 1 & 2,
+     *  where the old model is then disposed before
+     *  representing and starting the new one.
      */
-    private final AtomicReference<Future<DisplayModel>> active_content_model = new AtomicReference<>();
+    private final AtomicReference<DisplayModel> active_content_model = new AtomicReference<>();
 
     /** Start: Connect to PVs, ..., then start the task chain for the display file
      *  @throws Exception on error
@@ -60,18 +56,22 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         super.start();
 
         // Reading the displayFile property resolves macros and could trigger a property change.
-        // -> Resolve name & load initial content, _then_ register for changes.
+        // -> Resolve name, _then_ register for changes.
         final String display_file = widget.displayFile().getValue();
-        startDisplayUpdate(display_file);
 
-        // Registering for changes after the initial load
-        // prevents double-loading based on the change triggered in
-        // the initial load.
+        // Load embedded display in runtime thread
+        // so that start() returns quickly and allows the next widget to start up
+        RuntimeUtil.getExecutor().execute(() -> startDisplayUpdate(display_file));
+
+        // Even though display is still loading, file name has been resolved
+        // so can now register for changes
         widget.displayFile().addPropertyListener((p, o, n) ->
         {
             // Runtime changes to the displayFile are expected to set the value,
             // not the macroized specification, so this getValue() call is very
             // unlikely to trigger a nested property update
+
+            // Handle update of embedded display in the thread that triggered it
             startDisplayUpdate(widget.displayFile().getValue());
         });
     }
@@ -81,109 +81,128 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
      */
     private void startDisplayUpdate(final String display_file)
     {
-        // Create task chain for new file, which will wait for disposal of old content
-        final CountDownLatch wait_for_old_content_disposal = new CountDownLatch(1);
-        final Future<DisplayModel> new_chain = display_file.isEmpty()
-            ? null
-            : RuntimeUtil.getExecutor().submit(() ->
-            {
-                wait_for_old_content_disposal.await();
-                return loadRepresentRun(display_file);
-            });
-
-        // Atomically get future of existing content and submit task chain for new display_file
-        final Future<DisplayModel> old = active_content_model.getAndSet(new_chain);
-
-        if (old != null)
-        {   // Dispose old content
-            final DisplayModel content_model = stopActiveContentRuntime(old);
-            if (content_model != null)
-            {
-                try
-                {
-                    final DisplayModel model = widget.getDisplayModel();
-                    final ToolkitRepresentation<Object, ?> toolkit = RuntimeUtil.getToolkit(model);
-                    // TODO Time out
-                    toolkit.submit(() -> { toolkit.disposeRepresentation(content_model); return null; }).get();
-                }
-                catch (Exception ex)
-                {
-                    Logger.getLogger(getClass().getName())
-                          .log(Level.WARNING, "Failed to dispose representation for " + widget, ex);
-                }
-            }
-        }
-
-        // Allow submitted task chain to proceed
-        // after potential old content has been disposed
-        wait_for_old_content_disposal.countDown();
-    }
-
-    /** Load display file, schedule representation (on toolkit), start runtimes
-     *  @param display_file Path to display
-     *  @return DisplayModel that was handled or null on error
-     *  @throws Exception on error
-     */
-    private DisplayModel loadRepresentRun(final String display_file) throws Exception
-    {
-        final DisplayModel model = widget.getDisplayModel();
-        DisplayModel embedded_model;
-        try
-        {   // Load model for displayFile, allowing lookup relative to this widget's model
-            final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-            embedded_model = RuntimeUtil.loadModel(parent_display, display_file);
-            // Adjust model name to reflect source file
-            embedded_model.widgetName().setValue("EmbeddedDisplay " + display_file);
-            widget.runtimeConnected().setValue(true);
-        }
-        catch (final Throwable ex)
-        {   // Log error and show message in pseudo model
-            final String message = "Failed to load embedded display " + display_file;
-            Logger.getLogger(getClass().getName()).log(Level.WARNING, message, ex);
-            final LabelWidget info = new LabelWidget();
-            info.displayText().setValue(message);
-            info.displayForegroundColor().setValue(WidgetColorService.getColor(NamedWidgetColors.ALARM_DISCONNECTED));
-            final int wid = widget.positionWidth().getValue()-2;
-            final int hei = widget.positionHeight().getValue()-2;
-            info.positionWidth().setValue(wid);
-            info.positionHeight().setValue(hei);
-            embedded_model = new DisplayModel();
-            embedded_model.positionWidth().setValue(wid);
-            embedded_model.positionHeight().setValue(hei);
-            embedded_model.addChild(info);
-            widget.runtimeConnected().setValue(false);
-        }
-        final DisplayModel content_model = embedded_model;
-
         try
         {
-            // Attach toolkit to embedded model
-            final ToolkitRepresentation<Object, ?> toolkit = RuntimeUtil.getToolkit(model);
+            final DisplayModel display = widget.getDisplayModel();
+            final ToolkitRepresentation<Object, ?> toolkit = RuntimeUtil.getToolkit(display);
+            // Load new model (potentially slow)
+            final DisplayModel new_model = loadDisplayModel(display_file);
+            // Atomically update the 'active' model
+            final DisplayModel old_model = active_content_model.getAndSet(new_model);
 
-            // Tell embedded model that it is held by this widget
-            content_model.setUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET, widget);
+            if (old_model != null)
+            {   // Dispose old model
+                stopActiveContentRuntime(old_model);
+                final Future<Object> completion = toolkit.submit(() ->
+                {
+                    toolkit.disposeRepresentation(old_model);
+                    return null;
+                });
+                checkCompletion(completion, "timeout disposing old representation");
+            }
 
-            // Represent on UI thread
-            final Future<Object> represented = toolkit.submit(() ->
+            // Represent new model on UI thread
+            final Future<Object> completion = toolkit.submit(() ->
             {
-                representContent(toolkit, content_model);
+                representContent(toolkit, new_model);
                 return null;
             });
-            // Wait for completion
-            // TODO Time out
-            represented.get();
+            checkCompletion(completion, "timeout representing new content");
 
-            // Back in runtime pool thread, start runtimes of child widgets
-            RuntimeUtil.startRuntime(content_model);
-
-            return content_model;
+            // Back off UI thread, start runtimes of child widgets
+            RuntimeUtil.startRuntime(new_model);
         }
-        catch (final Throwable ex)
+        catch (Exception ex)
         {
             Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Failed to start embedded display " + display_file, ex);
+                  .log(Level.WARNING, "Failed to handle embedded display " + display_file, ex);
         }
-        return null;
+    }
+
+    /** Wait for future to complete
+     *
+     *  .. with timeout in case the UI thread cannot execute the submitted task right now.
+     *
+     *  <p>Intermediate versions of the embedded widget code
+     *  experienced a deadlock when the UI was shut down, i.e. UI tried to dispose content,
+     *  while at the same time a script was updating the content, also using the UI thread
+     *  to create the new representation.
+     *  The deadlock resulted from each were waiting on each other.
+     *  Using a timeout, then moving on without waiting for the submitted UI thread,
+     *  would resolve that deadlock.
+     *
+     *  @param completion
+     *  @param message
+     *  @throws Exception
+     */
+    private void checkCompletion(final Future<Object> completion, final String message) throws Exception
+    {
+        try
+        {
+            completion.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        }
+        catch (TimeoutException timeout)
+        {
+            Logger.getLogger(getClass().getName())
+                  .log(Level.WARNING, message + " for " + widget);
+        }
+    }
+
+    /** Load display file
+     *  @param display_file Path to display
+     *  @return DisplayModel that was loaded
+     *  @throws Exception on error
+     */
+    private DisplayModel loadDisplayModel(final String display_file) throws Exception
+    {
+        DisplayModel embedded_model;
+        if (display_file.isEmpty())
+        {   // Empty model for empty file name
+            embedded_model = new DisplayModel();
+            widget.runtimeConnected().setValue(true);
+        }
+        else
+        {
+            try
+            {   // Load model for displayFile, allowing lookup relative to this widget's model
+                final DisplayModel display = widget.getDisplayModel();
+                final String parent_display = display.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+                embedded_model = RuntimeUtil.loadModel(parent_display, display_file);
+                // Adjust model name to reflect source file
+                embedded_model.widgetName().setValue("EmbeddedDisplay " + display_file);
+                widget.runtimeConnected().setValue(true);
+            }
+            catch (final Throwable ex)
+            {   // Log error and show message in pseudo model
+                final String message = "Failed to load embedded display '" + display_file + "'";
+                Logger.getLogger(getClass().getName()).log(Level.WARNING, message, ex);
+                embedded_model = createErrorModel(message);
+                widget.runtimeConnected().setValue(false);
+            }
+        }
+        // Tell embedded model that it is held by this widget
+        embedded_model.setUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET, widget);
+        return embedded_model;
+    }
+
+    /** @param message Error message
+     *  @return DisplayModel that shows the message
+     */
+    private DisplayModel createErrorModel(final String message)
+    {
+        final LabelWidget info = new LabelWidget();
+        info.displayText().setValue(message);
+        info.displayForegroundColor().setValue(WidgetColorService.getColor(NamedWidgetColors.ALARM_DISCONNECTED));
+        // Size a little smaller than the widget to fill but not require scrollbars
+        final int wid = widget.positionWidth().getValue()-2;
+        final int hei = widget.positionHeight().getValue()-2;
+        info.positionWidth().setValue(wid);
+        info.positionHeight().setValue(hei);
+        final DisplayModel error_model = new DisplayModel();
+        error_model.positionWidth().setValue(wid);
+        error_model.positionHeight().setValue(hei);
+        error_model.addChild(info);
+        return error_model;
     }
 
     /** @param toolkit Toolkit to use for representation
@@ -222,29 +241,20 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         }
     }
 
-    /** @param content_future Future that may hold model to stop
-     *  @return Model that was stopped or <code>null</code>
-     */
-    private DisplayModel stopActiveContentRuntime(final Future<DisplayModel> content_future)
+    /** @param content_model Model where runtime needs to be stopped. May be <code>null</code> */
+    private void stopActiveContentRuntime(final DisplayModel content_model)
     {
+        if (content_model == null)
+            return;
         try
         {
-            if (content_future != null)
-            {   // TODO Hung here
-                final DisplayModel content_model = content_future.get();
-                if (content_model != null)
-                {
-                    RuntimeUtil.stopRuntime(content_model);
-                    return content_model;
-                }
-            }
+            RuntimeUtil.stopRuntime(content_model);
         }
         catch (Exception ex)
         {
             Logger.getLogger(getClass().getName())
                   .log(Level.WARNING, "Failed to stop embedded display runtime", ex);
         }
-        return null;
     }
 
     @Override
