@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeInsets;
-
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
@@ -60,7 +58,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
         inner = new Group();
         inner.relocate(inset, 2*inset);
 
-        model_widget.setPropertyValue(runtimeInsets, new int[] { inset, 2*inset });
+        model_widget.runtimeInsets().setValue(new int[] { inset, 2*inset });
 
         // Would be easy to scale the content
         // in case it needs to grow/shrink to fit

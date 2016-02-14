@@ -29,6 +29,9 @@ public class Messages extends NLS
     public static String LEDWidget_OnColor;
     public static String Left;
     public static String Middle;
+    public static String Resize_Container;
+    public static String Resize_Content;
+    public static String Resize_None;
     public static String Right;
     public static String Target_Replace;
     public static String Target_Tab;
@@ -67,7 +70,9 @@ public class Messages extends NLS
     public static String WidgetProperties_Name;
     public static String WidgetProperties_Points;
     public static String WidgetProperties_PVName;
+    public static String WidgetProperties_ResizeBehavior;
     public static String WidgetProperties_Rotation;
+    public static String WidgetProperties_ScaleFactor;
     public static String WidgetProperties_Scripts;
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Text;
