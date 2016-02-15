@@ -339,17 +339,17 @@ public class DisplayEditorPart extends EditorPart
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public Object getAdapter(final Class adaptable)
+    public Object getAdapter(final Class adapter)
     {
-        if (adaptable == IContentOutlinePage.class)
+        if (adapter == IContentOutlinePage.class)
         {
             outline_page = new OutlinePage(editor.getWidgetSelectionHandler());
             outline_page.setModel(editor.getModel());
             return outline_page;
         }
-        else if (adaptable == IPropertySheetPage.class)
+        else if (adapter == IPropertySheetPage.class)
             return new PropertyPage(editor);
-        return super.getAdapter(adaptable);
+        return super.getAdapter(adapter);
     }
 
     @Override
