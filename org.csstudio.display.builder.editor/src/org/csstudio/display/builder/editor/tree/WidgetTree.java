@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.editor.tree;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -64,7 +65,7 @@ public class WidgetTree
      *  <p>When model notifies about changed Widget,
      *  this map provides the corresponding TreeItem.
      */
-    private volatile Map<Widget, TreeItem<Widget>> widget_items;
+    private volatile Map<Widget, TreeItem<Widget>> widget_items = Collections.emptyMap();
 
     /** Listener to changes in ContainerWidget's children */
     private final WidgetPropertyListener<List<Widget>> children_listener;
