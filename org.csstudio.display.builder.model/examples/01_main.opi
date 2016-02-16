@@ -134,7 +134,7 @@
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
     <x>332</x>
-    <y>317</y>
+    <y>261</y>
     <width>120</width>
     <height>30</height>
     <text>Plots</text>
@@ -146,7 +146,7 @@
   <widget type="action_button" version="2.0.0">
     <name>Action Button_4</name>
     <x>332</x>
-    <y>347</y>
+    <y>291</y>
     <width>110</width>
     <height>26</height>
     <text>$(actions)</text>
@@ -244,20 +244,6 @@
       </action>
     </actions>
   </widget>
-<<<<<<< HEAD
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_11</name>
-    <x>332</x>
-    <y>241</y>
-    <width>110</width>
-    <height>26</height>
-    <text>$(actions)</text>
-    <actions>
-      <action type="open_display">
-        <file>monitors_gauge.opi</file>
-        <target>replace</target>
-        <description>Gauge</description>
-=======
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
     <x>471</x>
@@ -282,7 +268,6 @@
         <file>embedded/structure_embedded.opi</file>
         <target>replace</target>
         <description>Embedded</description>
->>>>>>> refs/remotes/origin/master
       </action>
     </actions>
   </widget>
