@@ -52,4 +52,10 @@ class JythonScript implements Script
     {
         return support.submit(this, widget, pvs);
     }
+    
+    @Override
+    public String toString()
+    {
+        return "JythonScript " + name;
+    }
 }

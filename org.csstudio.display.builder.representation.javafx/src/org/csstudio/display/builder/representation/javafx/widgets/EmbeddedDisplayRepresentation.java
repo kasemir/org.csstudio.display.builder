@@ -10,48 +10,49 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 
 import javafx.scene.Group;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.StrokeType;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.transform.Scale;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
  */
-public class EmbeddedDisplayRepresentation extends JFXBaseRepresentation<Group, EmbeddedDisplayWidget>
+@SuppressWarnings("nls")
+public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<ScrollPane, EmbeddedDisplayWidget>
 {
-    private final DirtyFlag dirty_border = new DirtyFlag();
-
-    private static final Color color = Color.CADETBLUE;
-    private static final int border_width = 1;
-
-    /** Border around the group */
-    private Rectangle border;
+    private final DirtyFlag dirty_sizes = new DirtyFlag();
 
     /** Inner group that holds child widgets */
     private Group inner;
+    private Scale zoom;
+    private ScrollPane scroll;
 
     @Override
-    public Group createJFXNode() throws Exception
+    public ScrollPane createJFXNode() throws Exception
     {
-        border = new Rectangle();
-        border.setFill(Color.TRANSPARENT);
-        border.setStroke(color);
-        border.setStrokeWidth(border_width);
-        border.setStrokeType(StrokeType.INSIDE);
-
+        // inner.setScaleX() and setScaleY() zoom from the center
+        // and not the top-left edge, requiring adjustments to
+        // inner.setTranslateX() and ..Y() to compensate.
+        // Using a separate Scale transformation does not have that problem.
+        // See http://stackoverflow.com/questions/10707880/javafx-scale-and-translate-operation-results-in-anomaly
         inner = new Group();
-        // inner.relocate(inset, 2*inset);
+        inner.getTransforms().add(zoom = new Scale());
 
-        // Would be easy to scale the content
-        // in case it needs to grow/shrink to fit
-        // double scale = 0.5;
-        // inner.setScaleX(scale);
-        // inner.setScaleY(scale);
+        scroll = new ScrollPane(inner);
+        // Panning tends to 'jerk' the content when clicked
+        // scroll.setPannable(true);
+
+        // Hide border around the ScrollPane
+        // Details changed w/ JFX versions, see
+        // http://stackoverflow.com/questions/17540137/javafx-scrollpane-border-and-background/17540428#17540428
+        scroll.setStyle("-fx-background-color:transparent;");
+
         model_widget.setUserData(EmbeddedDisplayWidget.USER_DATA_EMBEDDED_DISPLAY_CONTAINER, inner);
 
-        return new Group(border, inner);
+        return scroll;
     }
 
     @Override
@@ -64,13 +65,15 @@ public class EmbeddedDisplayRepresentation extends JFXBaseRepresentation<Group, 
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::borderChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::borderChanged);
+        model_widget.positionWidth().addUntypedPropertyListener(this::sizesChanged);
+        model_widget.positionHeight().addUntypedPropertyListener(this::sizesChanged);
+        model_widget.displayResize().addUntypedPropertyListener(this::sizesChanged);
+        model_widget.runtimeScale().addUntypedPropertyListener(this::sizesChanged);
     }
 
-    private void borderChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    private void sizesChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        dirty_border.mark();
+        dirty_sizes.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -78,10 +81,35 @@ public class EmbeddedDisplayRepresentation extends JFXBaseRepresentation<Group, 
     public void updateChanges()
     {
         super.updateChanges();
-        if (dirty_border.checkAndClear())
+        if (dirty_sizes.checkAndClear())
         {
-            border.setWidth(model_widget.positionWidth().getValue());
-            border.setHeight(model_widget.positionHeight().getValue());
+            final Integer width = model_widget.positionWidth().getValue();
+            final Integer height = model_widget.positionHeight().getValue();
+            scroll.setPrefSize(width, height);
+
+            final Resize resize = model_widget.displayResize().getValue();
+            if (resize == Resize.None)
+            {
+                zoom.setX(1.0);
+                zoom.setY(1.0);
+                scroll.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
+                scroll.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+            }
+            else if (resize == Resize.ResizeContent)
+            {
+                final double factor = model_widget.runtimeScale().getValue();
+                zoom.setX(factor);
+                zoom.setY(factor);
+                scroll.setHbarPolicy(ScrollBarPolicy.NEVER);
+                scroll.setVbarPolicy(ScrollBarPolicy.NEVER);
+            }
+            else // SizeToContent
+            {
+                zoom.setX(1.0);
+                zoom.setY(1.0);
+                scroll.setHbarPolicy(ScrollBarPolicy.NEVER);
+                scroll.setVbarPolicy(ScrollBarPolicy.NEVER);
+            }
         }
     }
 }

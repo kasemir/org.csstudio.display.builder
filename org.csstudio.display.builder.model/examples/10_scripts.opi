@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="2.0.0">
+<display version="1.0.0">
   <name>Display</name>
   <x>-1</x>
   <y>-1</y>
@@ -18,6 +18,7 @@
     <height>50</height>
     <text>Scripts allow modifications of the display at runtime
 that go beyond the usual PV-based update of a widget.</text>
+    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
@@ -29,6 +30,7 @@ that go beyond the usual PV-based update of a widget.</text>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
     </font>
+    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
@@ -39,6 +41,7 @@ that go beyond the usual PV-based update of a widget.</text>
 - Turn control system display into video game.
 - Perform automation of the control system in the display.
 - Handle interlocks for the control system in the display.</text>
+    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
@@ -50,6 +53,7 @@ that go beyond the usual PV-based update of a widget.</text>
 The script API cannot be guaranteed to remain available as the display builder
 evolves. Scripts may need to be updated as the API changes.
 </text>
+    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
@@ -63,6 +67,7 @@ evolves. Scripts may need to be updated as the API changes.
   a web service lookup, for a specific need that is not
   generic enough to create a new widget or
   PV data source.</text>
+    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update</name>
@@ -107,6 +112,7 @@ evolves. Scripts may need to be updated as the API changes.
     <height>50</height>
     <text>Script attached to label, triggered by the PV,
 updates the label's text to indicate positive or negative value.</text>
+    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
@@ -120,6 +126,7 @@ then using a plain Text Update widget to show the result...</text>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
+    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_1</name>
@@ -131,7 +138,7 @@ then using a plain Text Update widget to show the result...</text>
   <widget type="label" version="2.0.0">
     <name>Label_11</name>
     <y>641</y>
-    <width>180</width>
+    <width>281</width>
     <height>30</height>
     <text>Update Label Position</text>
     <font>
@@ -148,6 +155,7 @@ then using a plain Text Update widget to show the result...</text>
 updates the label's position based on that PV
 and some other local PVs which are used to pass in 
 constant configuration parameters.</text>
+    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_13</name>
@@ -160,6 +168,7 @@ Clearly a counterexample for the use of scripts.</text>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
+    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_10</name>
@@ -221,6 +230,7 @@ Clearly a counterexample for the use of scripts.</text>
     <width>330</width>
     <height>30</height>
     <text>Script will update the PV name of the Text Update:</text>
+    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_2</name>
@@ -245,8 +255,8 @@ Clearly a counterexample for the use of scripts.</text>
     <name>Label_18</name>
     <x>411</x>
     <y>581</y>
-    <width>360</width>
-    <height>80</height>
+    <width>470</width>
+    <height>90</height>
     <text>This could be useful to update the PVs of a display.
 On the other hand, the display structure may be easier to understand
 and long term maintenance is simplified when using buttons that open
@@ -255,6 +265,7 @@ new displays, passing macros for the PV names...</text>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
+    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_19</name>
@@ -325,5 +336,61 @@ would avoid scripts and maybe overall be better.</text>
     <height>40</height>
     <text>Similar: Enter mode values 0, 1, 2,
 and the "Active" label moves next to the selected mode.</text>
+    <vertical_alignment>0</vertical_alignment>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button</name>
+    <x>411</x>
+    <y>791</y>
+    <width>110</width>
+    <height>30</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>solitaire/solitaire.opi</file>
+        <target>replace</target>
+        <description>Soiltaire</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_1</name>
+    <x>551</x>
+    <y>791</y>
+    <width>110</width>
+    <height>30</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>t3/t3.opi</file>
+        <target>replace</target>
+        <description>TTT</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_25</name>
+    <x>411</x>
+    <y>671</y>
+    <width>270</width>
+    <height>30</height>
+    <text>Longer Examples</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_26</name>
+    <x>411</x>
+    <y>701</y>
+    <width>430</width>
+    <height>83</height>
+    <text>These examples include scripts that remains active
+as long as the display is open, continuously updating
+the widgets in the display,
+or use a script that performs a comparably lengthy computation
+before updating the display.</text>
+    <vertical_alignment>0</vertical_alignment>
   </widget>
 </display>

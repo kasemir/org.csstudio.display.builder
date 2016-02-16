@@ -41,6 +41,7 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
     protected void registerListeners()
     {
         super.registerListeners();
+        pos = computePos();
         model_widget.positionWidth().addUntypedPropertyListener(this::styleChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);

@@ -12,6 +12,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.vtype.pv.PV;
@@ -30,19 +32,32 @@ public class RuntimePVs
     /** PVs and their connection info
      *
      *  <p>PVs are tracked by PV instance.
-     *  This does allow for the same PV _name_ to appear multiple
-     *  times, for example when the primary widget PV is also registered
-     *  by a script as one of the script's inputs.
-     *
-     *  <p>Registering the very same PV instance multiple times,
-     *  however, is an error.
+     *  A widget may use the same PV name in the primary widget PV
+     *  and then again as a script PV.
+     *  The PV pool will provide the same PV instance,
+     *  and the PVInfo keeps a reference count to only
+     *  track the PV once.
      */
-    private final Map<PV, PVInfo> pvs = new ConcurrentHashMap<>();
+    private final ConcurrentMap<PV, PVInfo> pvs = new ConcurrentHashMap<>();
 
-    /** Listener for tracking connection state of individual PV */
+    /** Listener for tracking connection state of individual PV.
+     *  Reference counted because widget may use the same PV
+     *  multiple times, but connection state is only tracked once.
+     */
     private class PVInfo extends PVListenerAdapter
     {
+        private final AtomicInteger refs = new AtomicInteger();
         private volatile boolean connected = false;
+
+        public int addReference()
+        {
+            return refs.incrementAndGet();
+        }
+
+        public int removeReference()
+        {
+            return refs.decrementAndGet();
+        }
 
         public boolean isConnected()
         {
@@ -75,22 +90,26 @@ public class RuntimePVs
     /** @param pv PV to track */
     public void addPV(final PV pv)
     {
-        if (pvs.containsKey(pv))
-            throw new IllegalStateException("Duplicate registration of " + pv);
-        final PVInfo info = new PVInfo();
-        pvs.put(pv, info);
-        // Awaiting connections for at least one PV, so widget is for now disconnected
-        widget.runtimeConnected().setValue(false);
-        pv.addListener(info);
+        final PVInfo info = pvs.computeIfAbsent(pv, (p) -> new PVInfo());
+        if (info.addReference() == 1)
+        {
+            // Awaiting connections for at least one PV, so widget is for now disconnected
+            widget.runtimeConnected().setValue(false);
+            pv.addListener(info);
+        }
     }
 
     /** @param pv PV to no longer track */
     public void removePV(final PV pv)
     {
-        final PVInfo info = pvs.remove(pv);
+        final PVInfo info = pvs.get(pv);
         if (info == null)
             throw new IllegalStateException("Unknown PV " + pv);
-        pv.removeListener(info);
+        if (info.removeReference() == 0)
+        {
+            pvs.remove(pv, info);
+            pv.removeListener(info);
+        }
     }
 
     /** Update overall connection state of the widget

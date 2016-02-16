@@ -21,7 +21,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 
 /** Helpers for handling geometry
- *  @author Kay Kasemri
+ *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
 public class GeometryTools

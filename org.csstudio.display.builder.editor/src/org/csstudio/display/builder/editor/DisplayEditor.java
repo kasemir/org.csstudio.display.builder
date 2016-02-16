@@ -19,6 +19,7 @@ import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.editor.undo.AddWidgetAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.GroupHandler;
+import org.csstudio.display.builder.editor.util.JFXGeometryTools;
 import org.csstudio.display.builder.editor.util.Rubberband;
 import org.csstudio.display.builder.editor.util.WidgetNaming;
 import org.csstudio.display.builder.editor.util.WidgetTransfer;
@@ -206,8 +207,10 @@ public class DisplayEditor
             container = model;
         // Correct all dropped widget locations relative to container
         final Point2D offset = GeometryTools.getContainerOffset(container);
-        final int dx = (int)offset.getX();
-        final int dy = (int)offset.getY();
+        // Also account for scroll pane
+        final Point2D origin = JFXGeometryTools.getContentOrigin(scroll);
+        final int dx = (int) (offset.getX() - origin.getX());
+        final int dy = (int) (offset.getY() - origin.getY());
 
         // Add dropped widgets
         try

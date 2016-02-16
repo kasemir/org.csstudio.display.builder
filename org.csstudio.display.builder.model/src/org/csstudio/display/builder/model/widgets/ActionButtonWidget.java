@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
 
@@ -19,6 +20,8 @@ import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
+import org.csstudio.display.builder.model.properties.WidgetFont;
 
 /** Widget that provides button for invoking actions
  *  @author Kay Kasemir
@@ -43,6 +46,7 @@ public class ActionButtonWidget extends Widget
 
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<String> text;
+    private volatile WidgetProperty<WidgetFont> font;
 
     public ActionButtonWidget()
     {
@@ -56,6 +60,7 @@ public class ActionButtonWidget extends Widget
         properties.add(behaviorPVName.createProperty(this, ""));
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(text = displayText.createProperty(this, "$(actions)"));
+        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
     }
 
     /** @return Widget 'macros' */
@@ -68,6 +73,12 @@ public class ActionButtonWidget extends Widget
     public WidgetProperty<String> displayText()
     {
         return text;
+    }
+
+    /** @return Display 'font' */
+    public WidgetProperty<WidgetFont> displayFont()
+    {
+        return font;
     }
 
     /** Action button widget extends parent macros

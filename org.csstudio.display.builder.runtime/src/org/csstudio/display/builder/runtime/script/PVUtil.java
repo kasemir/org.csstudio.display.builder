@@ -7,10 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.script;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.vtype.pv.PV;
+import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 
 /** Utility for handling PVs and their values in scripts
@@ -53,5 +55,18 @@ public class PVUtil
     public static String getString(final PV pv)
     {
         return VTypeUtil.getValueString(getVType(pv), true);
+    }
+
+    /** Get labels for an enum value
+     *  @param pv the PV.
+     *  @return Enum labels or empty array if not enum
+     */
+    public final static String[] getLabels(final PV pv)
+    {
+        final VType value = getVType(pv);
+        if (! (value instanceof VEnum))
+            return new String[0];
+        final List<String> labels = ((VEnum) value).getLabels();
+        return labels.toArray(new String[labels.size()]);
     }
 }

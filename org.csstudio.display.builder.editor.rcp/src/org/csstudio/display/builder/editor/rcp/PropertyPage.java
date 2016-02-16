@@ -10,10 +10,13 @@ package org.csstudio.display.builder.editor.rcp;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.properties.PropertyPanel;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.properties.IPropertySheetPage;
@@ -22,8 +25,55 @@ import javafx.embed.swt.FXCanvas;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 
-public class PropertyPage extends Page implements IPropertySheetPage
+/** RCP property page wrapper of the editor's PropertyPanel
+ *  @author Kay Kasemir
+ */
+public class PropertyPage extends Page implements IPropertySheetPage, IAdaptable
 {
+    /** ISaveablePart that's clean, no need to save.
+     *
+     *  Eclipse adapts the property page to its editor.
+     *  If editor is 'dirty', the property page also appears 'dirty'
+     *  and cannot be closed.
+     *
+     *  https://bugs.eclipse.org/bugs/show_bug.cgi?id=372799,
+     *  https://github.com/ControlSystemStudio/cs-studio/issues/1619
+     *
+     *  Workaround:
+     *  Force adaptation of property page to clean_saveable.
+     */
+    private final static ISaveablePart clean_saveable = new ISaveablePart()
+    {
+        @Override
+        public boolean isSaveOnCloseNeeded()
+        {
+            return false;
+        }
+
+        @Override
+        public boolean isSaveAsAllowed()
+        {
+            return false;
+        }
+
+        @Override
+        public boolean isDirty()
+        {
+            return false;
+        }
+
+        @Override
+        public void doSaveAs()
+        {
+            // NOP
+        }
+
+        @Override
+        public void doSave(IProgressMonitor monitor)
+        {
+            // NOP
+        }
+    };
     private final PropertyPanel property_panel;
 
     private FXCanvas canvas;
@@ -60,7 +110,14 @@ public class PropertyPage extends Page implements IPropertySheetPage
     public void selectionChanged(IWorkbenchPart part, ISelection selection)
     {
         // NOP
-
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    public Object getAdapter(final Class adapter)
+    {
+        if (adapter == ISaveablePart.class)
+            return clean_saveable;
+        return null;
+    }
 }

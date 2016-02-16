@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeInsets;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -64,6 +62,30 @@ public class ContainerWidget extends Widget
             throw new UnsupportedOperationException("Use ContainerWidget#addChild()/removeChild()");
         }
     }
+
+    /** Runtime 'insets' */
+    private static final WidgetPropertyDescriptor<int[]> runtimeInsets =
+        new WidgetPropertyDescriptor<int[]>(
+            WidgetPropertyCategory.RUNTIME, "insets", Messages.WidgetProperties_Insets)
+    {
+        @Override
+        public WidgetProperty<int[]> createProperty(final Widget widget,
+                                                    final int[] value)
+        {
+            return new RuntimeWidgetProperty<int[]>(this, widget, value)
+            {
+                @Override
+                public void setValueFromObject(final Object value) throws Exception
+                {
+                    if (value instanceof int[]  &&  ((int[]) value).length == 2)
+                        setValue((int[]) value);
+                    else
+                        throw new Exception("Need int[2], got " + value);
+                }
+            };
+        }
+    };
+
 
     /** Child Widgets
      *
