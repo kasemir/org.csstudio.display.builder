@@ -253,7 +253,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>monitor_gauge.opi</file>
+        <file>monitors_gauge.opi</file>
         <target>replace</target>
         <description>Gauge</description>
       </action>
