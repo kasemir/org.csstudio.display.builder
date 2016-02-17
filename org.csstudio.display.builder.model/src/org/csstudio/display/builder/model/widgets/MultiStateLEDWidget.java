@@ -68,7 +68,30 @@ public class MultiStateLEDWidget extends BaseLEDWidget
 
             super.configureFromXML(widget, xml);
 
-            // TODO Handle legacy states and colors
+            // Handle legacy state_color_fallback
+            final MultiStateLEDWidget model_widget = (MultiStateLEDWidget) widget;
+            Element element = XMLUtil.getChildElement(xml, "state_color_fallback");
+            if (element != null)
+                model_widget.fallback.readFromXML(element);
+
+            // Handle legacy state_value_0, state_color_0, ..1, ..2, ..
+            final ArrayWidgetProperty<StateWidgetProperty> states = model_widget.states;
+            int state = 0;
+            while ((element = XMLUtil.getChildElement(xml, "state_color_" + state)) != null)
+            {
+                while (states.size() <= state)
+                    states.addElement();
+                states.getElement(state).color().readFromXML(element);
+
+                element = XMLUtil.getChildElement(xml, "state_value_" + state);
+                if (element != null)
+                    states.getElement(state).state().readFromXML(element);
+
+                ++state;
+            }
+            // Widget starts with 2 states. If legacy replaced those and added more: OK.
+            // If legacy contained only one state, we'll keep the second default state,
+            // but then a 1-state LED is really illdefined
 
             BaseLEDWidget.handle_legacy_position(widget, xml_version, xml);
             return true;
@@ -104,15 +127,13 @@ public class MultiStateLEDWidget extends BaseLEDWidget
 
     // Helper for obtaining initial color for each state
     private static WidgetColor getDefaultColor(final int state)
-    {   // TODO Handle these named colors which aren't defined
+    {
         if (state == 0)
-            return new NamedWidgetColor("Off", 60, 100, 60);
+            return WidgetColorService.resolve(new NamedWidgetColor("Off", 60, 100, 60));
         if (state == 1)
-            return new NamedWidgetColor("On", 0, 255, 0);
-        if (state == 2)
-            return new NamedWidgetColor("Error", 255, 0, 0);
+            return WidgetColorService.resolve(new NamedWidgetColor("On", 0, 255, 0));
         // Shade of blue for remaining states
-        return new NamedWidgetColor("State " + state, 0, 0, Math.max(0, 255 - 10*state));
+        return WidgetColorService.resolve(new NamedWidgetColor("State " + state, 10, 0, Math.min(255, 40*state)));
     }
 
     // 'states' array

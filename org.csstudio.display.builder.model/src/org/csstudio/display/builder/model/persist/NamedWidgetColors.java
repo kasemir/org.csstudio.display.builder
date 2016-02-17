@@ -83,6 +83,15 @@ public class NamedWidgetColors extends ConfigFileParser
         return Optional.ofNullable(colors.get(name));
     }
 
+    /** Resolve a named color
+     *  @param name Named color
+     *  @return Color as provided unless it was redefined
+     */
+    public NamedWidgetColor resolve(final NamedWidgetColor color)
+    {
+        return getColor(color.getName()).orElse(color);
+    }
+
     /** Get all named colors
      *  @return Collection of all named colors
      */
