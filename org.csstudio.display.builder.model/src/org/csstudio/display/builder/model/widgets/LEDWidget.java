@@ -7,13 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorBit;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +23,6 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.diirt.vtype.VType;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
 
@@ -37,14 +30,14 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class LEDWidget extends Widget
+public class LEDWidget extends BaseLEDWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("led", WidgetCategory.MONITOR,
             "LED",
             "platform:/plugin/org.csstudio.display.builder.model/icons/led.png",
-            "LED that represents on/off or multi-state enum",
+            "LED that represents on/off",
             Arrays.asList("org.csstudio.opibuilder.widgets.LED"))
     {
         @Override
@@ -63,34 +56,22 @@ public class LEDWidget extends Widget
         }
 
         @Override
-        public void configureFromXML(final Widget widget, final Element xml)
+        public boolean configureFromXML(final Widget widget, final Element xml)
                 throws Exception
         {
+            // Legacy XML with <state_count> other than 2 identifies MultiStateLEDWidget
+            final Element element = XMLUtil.getChildElement(xml, "state_count");
+            if (element != null)
+            {
+                final int count = Integer.parseInt(XMLUtil.getString(element));
+                if (count != 2)
+                    return false;
+            }
+
             super.configureFromXML(widget, xml);
 
-            if (xml_version.getMajor() < 2)
-            {   // Handle legacy LED sizing.
-                // Border was included in the size,
-                // so with the same nominal size an "alarm sensitive" LED
-                // was smaller than a non-a.s. LED
-                if (widget.getProperty(displayBorderAlarmSensitive).getValue())
-                {
-                    final int border = Integer.parseInt(XMLUtil.getChildString(xml, "border_width").orElse("1"));
-                    // In principle, border goes around the widget,
-                    // so X, Y get adjusted by 1*border
-                    // and Width, Height by 2*border.
-                    // But when comparing older files, border was 2* added to X, Y
-                    // as well as size?!
-                    WidgetProperty<Integer> prop = widget.getProperty(positionX);
-                    prop.setValue(prop.getValue() + 2*border);
-                    prop = widget.getProperty(positionY);
-                    prop.setValue(prop.getValue() + 2*border);
-                    prop = widget.getProperty(positionWidth);
-                    prop.setValue(prop.getValue() - 2*border);
-                    prop = widget.getProperty(positionHeight);
-                    prop.setValue(prop.getValue() - 2*border);
-                }
-            }
+            BaseLEDWidget.handle_legacy_position(widget, xml_version, xml);
+            return true;
         }
     }
 
@@ -118,10 +99,9 @@ public class LEDWidget extends Widget
         }
     };
 
-    private volatile WidgetProperty<String> pv_name;
+    private volatile WidgetProperty<Integer> bit;
     private volatile WidgetProperty<WidgetColor> off_color;
     private volatile WidgetProperty<WidgetColor> on_color;
-    private volatile WidgetProperty<VType> value;
 
     public LEDWidget()
     {
@@ -129,30 +109,18 @@ public class LEDWidget extends Widget
     }
 
     @Override
-    public Version getVersion()
-    {   // Legacy used 1.0.0
-        return new Version(2, 0, 0);
-    }
-
-    @Override
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
-        properties.add(displayBorderAlarmSensitive.createProperty(this, true));
+        properties.add(bit = behaviorBit.createProperty(this, -1));
         properties.add(off_color = displayOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
         properties.add(on_color = displayOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
-        properties.add(value = runtimeValue.createProperty(this, null));
-
-        // Initial size
-        positionWidth().setValue(20);
-        positionHeight().setValue(20);
     }
 
-    /** @return Behavior 'pv_name' */
-    public WidgetProperty<String> behaviorPVName()
+    /** @return 'bit' */
+    public WidgetProperty<Integer> bit()
     {
-        return pv_name;
+        return bit;
     }
 
     /** @return 'off_color' */
@@ -165,12 +133,6 @@ public class LEDWidget extends Widget
     public WidgetProperty<WidgetColor> onColor()
     {
         return on_color;
-    }
-
-    /** @return Runtime 'value' */
-    public WidgetProperty<VType> runtimeValue()
-    {
-        return value;
     }
 
     @Override

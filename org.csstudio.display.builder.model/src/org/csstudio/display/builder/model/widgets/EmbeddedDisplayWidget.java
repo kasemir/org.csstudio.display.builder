@@ -115,10 +115,11 @@ public class EmbeddedDisplayWidget extends Widget
         }
 
         @Override
-        public void configureFromXML(Widget widget, Element xml)
+        public boolean configureFromXML(Widget widget, Element xml)
                 throws Exception
         {
-            super.configureFromXML(widget, xml);
+            if (! super.configureFromXML(widget, xml))
+                return false;
 
             // Fall back to legacy "opi_file" for display file
             if (XMLUtil.getChildElement(xml, displayFile.getName()) == null)
@@ -148,6 +149,7 @@ public class EmbeddedDisplayWidget extends Widget
                           .log(Level.WARNING, "Cannot decode legacy resize_behavior");
                 }
             }
+            return true;
         }
     }
 

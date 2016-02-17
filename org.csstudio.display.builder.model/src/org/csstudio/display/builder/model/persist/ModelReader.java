@@ -183,8 +183,8 @@ public class ModelReader
         for (WidgetDescriptor desc : WidgetFactory.getInstance().getAllWidgetDescriptors(type))
         {
             final Widget widget = desc.createWidget();
-            widget.getConfigurator(xml_version).configureFromXML(widget, widget_xml);
-            return widget;
+            if (widget.getConfigurator(xml_version).configureFromXML(widget, widget_xml))
+                return widget;
         }
         throw new Exception("No suitable widget for " + type);
     }

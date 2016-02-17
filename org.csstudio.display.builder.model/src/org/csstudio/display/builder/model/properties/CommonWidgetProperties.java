@@ -291,9 +291,13 @@ public class CommonWidgetProperties
         }
     };
 
-    /** Behavior 'pv_name':Primary PV Name */
+    /** Behavior 'pv_name': Primary PV Name */
     public static final WidgetPropertyDescriptor<String> behaviorPVName =
         newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "pv_name", Messages.WidgetProperties_PVName);
+
+    /** Behavior 'bit': Bit to check in value */
+    public static final WidgetPropertyDescriptor<Integer> behaviorBit =
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "bit", Messages.WidgetProperties_Bit);
 
     /** Behavior 'actions': Actions that user can invoke */
     public static final WidgetPropertyDescriptor<List<ActionInfo>> behaviorActions =

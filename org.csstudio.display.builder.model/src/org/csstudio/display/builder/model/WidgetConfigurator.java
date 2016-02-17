@@ -46,13 +46,17 @@ public class WidgetConfigurator
     /** Configure widget based on data persisted in XML.
      *  @param widget Widget to configure
      *  @param xml XML for this widget
-     *  @throws Exception on error, including this widget not being suitable for provided XML
+     *  @return <code>true</code> if widget can be configured,
+     *          <code>false</code> if XML indicates that an alternate widget should be used
+     *  @throws Exception on error
+     *
      */
-    public void configureFromXML(final Widget widget,
+    public boolean configureFromXML(final Widget widget,
             final Element xml) throws Exception
     {
         // System.out.println("Reading " + widget + " from saved V" + xml_version);
         configureAllPropertiesFromMatchingXML(widget, xml);
+        return true;
     }
 
     /** For each XML element, locate a property of that name and configure it.
