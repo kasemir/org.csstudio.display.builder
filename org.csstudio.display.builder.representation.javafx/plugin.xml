@@ -32,6 +32,10 @@
             type="led">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.MultiStateLEDRepresentation"
+            type="multi_state_led">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.PictureRepresentation"
             type="picture">
       </representation>

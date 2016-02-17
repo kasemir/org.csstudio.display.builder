@@ -133,7 +133,7 @@ public class XYPlotWidget extends Widget
         }
 
         @Override
-        public void configureFromXML(final Widget widget, final Element xml)
+        public boolean configureFromXML(final Widget widget, final Element xml)
                 throws Exception
         {
             final XYPlotWidget plot = (XYPlotWidget) widget;
@@ -206,6 +206,7 @@ public class XYPlotWidget extends Widget
                 XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_auto_scale").ifPresent(txt ->
                     y_axis.autoscale().setValue(Boolean.parseBoolean(txt)) );
             }
+            return true;
         }
     };
 

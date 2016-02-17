@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
@@ -148,7 +149,6 @@ public class ModelReader
      */
     private Widget readWidget(final Element widget_xml) throws Exception
     {
-        final Version xml_version = readVersion(widget_xml);
         String type = widget_xml.getAttribute(XMLTags.TYPE);
         if (type.isEmpty())
         {
@@ -158,13 +158,35 @@ public class ModelReader
             if (type.isEmpty())
                 throw new Exception("Missing widget type");
         }
-        final Widget widget = WidgetFactory.getInstance().createWidget(type);
-        widget.getConfigurator(xml_version).configureFromXML(widget, widget_xml);
+        final Widget widget = createWidget(type, widget_xml);
 
         if (widget instanceof ContainerWidget)
             readChildWidgets((ContainerWidget) widget, widget_xml);
 
         return widget;
+    }
+
+    /** Create widget
+     *
+     *  <p>Cycles through available implementations,
+     *  primary and alternate,
+     *  returning the first one that accepts the XML.
+     *
+     *  @param type Widget type ID
+     *  @param widget_xml XML with widget configuration
+     *  @return Widget
+     *  @throws Exception on error
+     */
+    private Widget createWidget(final String type, final Element widget_xml) throws Exception
+    {
+        final Version xml_version = readVersion(widget_xml);
+        for (WidgetDescriptor desc : WidgetFactory.getInstance().getAllWidgetDescriptors(type))
+        {
+            final Widget widget = desc.createWidget();
+            if (widget.getConfigurator(xml_version).configureFromXML(widget, widget_xml))
+                return widget;
+        }
+        throw new Exception("No suitable widget for " + type);
     }
 
     /** @param element Element

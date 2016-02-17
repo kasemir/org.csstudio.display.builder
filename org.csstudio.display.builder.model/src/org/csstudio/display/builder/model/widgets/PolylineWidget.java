@@ -61,7 +61,7 @@ public class PolylineWidget extends Widget
         }
 
         @Override
-        public void configureFromXML(final Widget widget, final Element widget_xml) throws Exception
+        public boolean configureFromXML(final Widget widget, final Element widget_xml) throws Exception
         {
             PolygonWidget.adjustXMLPoints(widget_xml);
             // Legacy used background color for the line
@@ -76,7 +76,7 @@ public class PolylineWidget extends Widget
             }
 
             // Parse updated XML
-            super.configureFromXML(widget, widget_xml);
+            return super.configureFromXML(widget, widget_xml);
         }
     };
 

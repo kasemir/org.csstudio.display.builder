@@ -7,53 +7,22 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import org.csstudio.display.builder.model.DirtyFlag;
-import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
 
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.RadialGradient;
-import javafx.scene.paint.Stop;
-import javafx.scene.shape.Ellipse;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
-public class LEDRepresentation extends RegionBaseRepresentation<Pane, LEDWidget>
+public class LEDRepresentation extends BaseLEDRepresentation<LEDWidget>
 {
-    private final DirtyFlag dirty_size = new DirtyFlag();
-    private final DirtyFlag dirty_content = new DirtyFlag();
-
-    private volatile Color[] colors = new Color[0];
-
-    private volatile Color value_color;
-
-    /** Actual LED Ellipse inside {@link Pane} to allow for border */
-    private Ellipse led;
-
     @Override
-    public Pane createJFXNode() throws Exception
+    protected Color[] createColors()
     {
-        createColors();
-        value_color = colors[0];
-
-        led = new Ellipse();
-        led.getStyleClass().add("led");
-        final Pane pane = new Pane(led);
-        pane.setMinSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
-        pane.setMaxSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
-        return pane;
-    }
-
-    private void createColors()
-    {
-        colors = new Color[]
+        return new Color[]
         {
             JFXUtil.convert(model_widget.offColor().getValue()),
             JFXUtil.convert(model_widget.onColor().getValue())
@@ -61,63 +30,20 @@ public class LEDRepresentation extends RegionBaseRepresentation<Pane, LEDWidget>
     }
 
     @Override
-    protected void registerListeners()
+    protected int computeColorIndex(final VType value)
     {
-        super.registerListeners();
-        model_widget.positionWidth().addPropertyListener(this::sizeChanged);
-        model_widget.positionHeight().addPropertyListener(this::sizeChanged);
-        model_widget.offColor().addUntypedPropertyListener(this::configChanged);
-        model_widget.onColor().addUntypedPropertyListener(this::configChanged);
-        model_widget.runtimeValue().addPropertyListener(this::contentChanged);
-    }
-
-    private void sizeChanged(final WidgetProperty<Integer> property, final Integer old_value, final Integer new_value)
-    {
-        dirty_size.mark();
-        toolkit.scheduleUpdate(this);
-    }
-
-    private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
-    {
-        createColors();
-        dirty_content.mark();
-        toolkit.scheduleUpdate(this);
-    }
-
-    private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
-    {
-        int value_index = VTypeUtil.getValueNumber(new_value).intValue();
-        if (value_index < 0)
-            value_index = 0;
-        if (value_index >= colors.length)
-            value_index = colors.length-1;
-        value_color = colors[value_index];
-
-        dirty_content.mark();
-        toolkit.scheduleUpdate(this);
+        int number = VTypeUtil.getValueNumber(value).intValue();
+        final int bit = model_widget.bit().getValue();
+        if (bit >= 0)
+            number &= (1 << bit);
+        return number == 0 ? 0 : 1;
     }
 
     @Override
-    public void updateChanges()
+    protected void registerListeners()
     {
-        super.updateChanges();
-        if (dirty_size.checkAndClear())
-        {
-            final int w = model_widget.positionWidth().getValue();
-            final int h = model_widget.positionHeight().getValue();
-
-            jfx_node.setPrefSize(w, h);
-            led.setCenterX(w/2);
-            led.setCenterY(h/2);
-            led.setRadiusX(w/2);
-            led.setRadiusY(h/2);
-        }
-        if (dirty_content.checkAndClear())
-            led.setFill(
-                // Put highlight in top-left corner, about 0.2 wide,
-                // relative to actual size of LED
-                new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
-                                   new Stop(0, value_color.interpolate(Color.WHITESMOKE, 0.8)),
-                                   new Stop(1, value_color)));
+        super.registerListeners();
+        model_widget.offColor().addUntypedPropertyListener(this::configChanged);
+        model_widget.onColor().addUntypedPropertyListener(this::configChanged);
     }
 }

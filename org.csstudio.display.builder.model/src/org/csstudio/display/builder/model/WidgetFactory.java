@@ -7,14 +7,17 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,6 +29,7 @@ import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.model.widgets.ImageWidget;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
+import org.csstudio.display.builder.model.widgets.MultiStateLEDWidget;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.PolygonWidget;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
@@ -39,6 +43,13 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.RegistryFactory;
 
 /** Factory that creates widgets based on type
+ *
+ *  <p>Widgets register with their 'primary' type,
+ *  which needs to be unique.
+ *  In addition, they can provide alternate types
+ *  to list the legacy types which they handle.
+ *  More than one widget can register for the same
+ *  alternate type.
  *
  *  @author Kay Kasemir
  */
@@ -60,8 +71,11 @@ public class WidgetFactory
             Comparator.comparing(WidgetDescriptor::getCategory)
                       .thenComparing(WidgetDescriptor::getType));
 
-    /** Map of type IDs (current and alternate) to {@link WidgetDescriptor} */
+    /** Map of primary type IDs to {@link WidgetDescriptor} */
     private final Map<String, WidgetDescriptor> descriptor_by_type = new ConcurrentHashMap<>();
+
+    /** Map of alternate type IDs to {@link WidgetDescriptor}s */
+    private final Map<String, List<WidgetDescriptor>> alternates_by_type = new ConcurrentHashMap<>();
 
     // Prevent instantiation
     private WidgetFactory()
@@ -93,6 +107,7 @@ public class WidgetFactory
         addWidgetType(ImageWidget.WIDGET_DESCRIPTOR);
         addWidgetType(LabelWidget.WIDGET_DESCRIPTOR);
         addWidgetType(LEDWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(MultiStateLEDWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PictureWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PolygonWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PolylineWidget.WIDGET_DESCRIPTOR);
@@ -118,31 +133,16 @@ public class WidgetFactory
      */
     public void addWidgetType(final WidgetDescriptor descriptor)
     {
-        // descriptor_by_type contains type and all aliases,
-        // and new type must be unique
-        if (descriptor_by_type.containsKey(descriptor.getType()))
+        // Primary type must be unique
+        if (descriptor_by_type.putIfAbsent(descriptor.getType(), descriptor) != null)
             throw new Error(descriptor + " already defined");
 
         // descriptors sorts by category and type
         descriptors.add(descriptor);
 
-        descriptor_by_type.put(descriptor.getType(), descriptor);
         for (final String alternate : descriptor.getAlternateTypes())
-        {
-            // TODO Think about allowing multiple alternate types.
-            // Example:
-            // Legacy org.csstudio.opibuilder.widgets.xyGraph could be
-            // a) XYPlot if it has array PVs for X & Y
-            // b) Strip chart if it has scalar Y PVs and no X
-            //
-            // When ModelReader calls createWidget(..),
-            // that mechanism needs to figure out which of the alternates applies
-            // by looking at the XML DOM.
-            if (descriptor_by_type.containsKey(alternate))
-                throw new Error(alternate + " already defined by " +
-                                descriptor_by_type.get(alternate));
-            descriptor_by_type.put(alternate, descriptor);
-        }
+            alternates_by_type.computeIfAbsent(alternate, k -> new CopyOnWriteArrayList<>())
+                              .add(descriptor);
     }
 
     /** @return Descriptions of all currently known widget types */
@@ -160,16 +160,22 @@ public class WidgetFactory
         return Optional.ofNullable(descriptor_by_type.get(type));
     }
 
-    /** Create a widget
-     *  @param type Type ID of the widget to create
-     *  @return {@link Widget}
+    /** Get all widget descriptors
+     *  @param type Type ID of the widget or alternate type
+     *  @return {@link WidgetDescriptor}s, starting with primary followed by possible alternates
      *  @throws Exception on error
      */
-    public Widget createWidget(final String type) throws Exception
+    public List<WidgetDescriptor> getAllWidgetDescriptors(final String type) throws Exception
     {
+        final List<WidgetDescriptor> descs = new ArrayList<>();
         final WidgetDescriptor descriptor = descriptor_by_type.get(type);
-        if (descriptor == null)
+        if (descriptor != null)
+            descs.add(descriptor);
+        final List<WidgetDescriptor> alt = alternates_by_type.get(type);
+        if (alt != null)
+            descs.addAll(alt);
+        if (descs.isEmpty())
             throw new Exception("Unknown widget type '" + type + "'");
-        return descriptor.createWidget();
+        return descs;
     }
 }
