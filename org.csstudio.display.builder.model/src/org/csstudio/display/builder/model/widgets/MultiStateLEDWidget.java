@@ -127,15 +127,13 @@ public class MultiStateLEDWidget extends BaseLEDWidget
 
     // Helper for obtaining initial color for each state
     private static WidgetColor getDefaultColor(final int state)
-    {   // TODO Handle these named colors which aren't defined
+    {
         if (state == 0)
-            return new NamedWidgetColor("Off", 60, 100, 60);
+            return WidgetColorService.resolve(new NamedWidgetColor("Off", 60, 100, 60));
         if (state == 1)
-            return new NamedWidgetColor("On", 0, 255, 0);
-        if (state == 2)
-            return new NamedWidgetColor("Error", 255, 0, 0);
+            return WidgetColorService.resolve(new NamedWidgetColor("On", 0, 255, 0));
         // Shade of blue for remaining states
-        return new NamedWidgetColor("State " + state, 0, 0, Math.max(0, 255 - 10*state));
+        return WidgetColorService.resolve(new NamedWidgetColor("State " + state, 10, 0, Math.min(255, 40*state)));
     }
 
     // 'states' array
