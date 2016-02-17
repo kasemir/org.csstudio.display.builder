@@ -7,12 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorBit;
-
 import java.util.Arrays;
 import java.util.List;
 
-import org.csstudio.display.builder.model.Messages;
+import org.csstudio.display.builder.model.ArrayWidgetProperty;
+import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
@@ -21,7 +20,8 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.XMLUtil;
-import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.properties.NamedWidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
@@ -73,33 +73,46 @@ public class MultiStateLEDWidget extends BaseLEDWidget
         }
     }
 
-    /** Property for the 'off' color */
-    public static final WidgetPropertyDescriptor<WidgetColor> displayOffColor = new WidgetPropertyDescriptor<WidgetColor>(
-            WidgetPropertyCategory.DISPLAY, "off_color", Messages.LEDWidget_OffColor)
-    {
-        @Override
-        public WidgetProperty<WidgetColor> createProperty(final Widget widget,
-                final WidgetColor default_color)
-        {
-            return new ColorWidgetProperty(this, widget, default_color);
-        }
-    };
+    // Elements of the 'state' structure
+    private static final WidgetPropertyDescriptor<Integer> state_value =
+        CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "value", "Value");
 
-    /** Property for the 'on' color */
-    public static final WidgetPropertyDescriptor<WidgetColor> displayOnColor = new WidgetPropertyDescriptor<WidgetColor>(
-            WidgetPropertyCategory.DISPLAY, "on_color", Messages.LEDWidget_OnColor)
-    {
-        @Override
-        public WidgetProperty<WidgetColor> createProperty(final Widget widget,
-                final WidgetColor default_color)
-        {
-            return new ColorWidgetProperty(this, widget, default_color);
-        }
-    };
+    private static final WidgetPropertyDescriptor<WidgetColor> state_color =
+            CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "color", "Color");
 
-    private volatile WidgetProperty<Integer> bit;
-    private volatile WidgetProperty<WidgetColor> off_color;
-    private volatile WidgetProperty<WidgetColor> on_color;
+    private static WidgetColor getDefaultColor(final int state)
+    {
+        if (state == 0)
+            return new NamedWidgetColor("Off", 60, 100, 60);
+        if (state == 1)
+            return new NamedWidgetColor("On", 0, 255, 0);
+        // TODO Better default colors based on state index
+        return new NamedWidgetColor("State " + state, 0, 0, 255);
+    }
+
+    /** Property that describes one state of the LED */
+    public static class StateWidgetProperty extends StructuredWidgetProperty
+    {
+        public StateWidgetProperty(final StructuredWidgetProperty.Descriptor state_descriptor,
+                                   final Widget widget, final int state)
+        {
+            super(state_descriptor, widget,
+                  Arrays.asList(state_value.createProperty(widget, state),
+                                state_color.createProperty(widget, getDefaultColor(state))));
+        }
+        public WidgetProperty<Integer> state()      { return getElement(0); }
+        public WidgetProperty<WidgetColor> color()  { return getElement(1); }
+    };
+    private static final StructuredWidgetProperty.Descriptor behaviorState =
+            new StructuredWidgetProperty.Descriptor(WidgetPropertyCategory.BEHAVIOR, "state", "State");
+
+    /** 'states' array */
+    private static final ArrayWidgetProperty.Descriptor<StateWidgetProperty> behaviorStates =
+            new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.BEHAVIOR, "states", "States",
+                    (widget, state) -> new StateWidgetProperty(behaviorState, widget, state));
+
+
+    private volatile ArrayWidgetProperty<StateWidgetProperty> states;
 
     public MultiStateLEDWidget()
     {
@@ -110,27 +123,16 @@ public class MultiStateLEDWidget extends BaseLEDWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(bit = behaviorBit.createProperty(this, -1));
-        properties.add(off_color = displayOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
-        properties.add(on_color = displayOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
+        states = behaviorStates.createProperty(this, Arrays.asList(
+                new StateWidgetProperty(behaviorState, this, 0),
+                new StateWidgetProperty(behaviorState, this, 1)));
+        properties.add(states);
     }
 
-    /** @return 'bit' */
-    public WidgetProperty<Integer> bit()
+    /** @return 'states' */
+    public ArrayWidgetProperty<StateWidgetProperty> states()
     {
-        return bit;
-    }
-
-    /** @return 'off_color' */
-    public WidgetProperty<WidgetColor> offColor()
-    {
-        return off_color;
-    }
-
-    /** @return 'off_color' */
-    public WidgetProperty<WidgetColor> onColor()
-    {
-        return on_color;
+        return states;
     }
 
     @Override

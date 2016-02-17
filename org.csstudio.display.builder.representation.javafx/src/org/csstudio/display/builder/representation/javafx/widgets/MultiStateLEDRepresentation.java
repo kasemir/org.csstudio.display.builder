@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.MultiStateLEDWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -24,26 +25,24 @@ public class MultiStateLEDRepresentation extends BaseLEDRepresentation<MultiStat
     {
         return new Color[]
         {
-            JFXUtil.convert(model_widget.offColor().getValue()),
-            JFXUtil.convert(model_widget.onColor().getValue())
+            JFXUtil.convert(new WidgetColor(0, 0, 255)),
+            JFXUtil.convert(new WidgetColor(0, 255, 0)),
+            JFXUtil.convert(new WidgetColor(255, 0, 0)),
         };
     }
 
     @Override
     protected int computeColorIndex(final VType value)
     {
-        int number = VTypeUtil.getValueNumber(value).intValue();
-        final int bit = model_widget.bit().getValue();
-        if (bit >= 0)
-            number &= (1 << bit);
-        return number == 0 ? 0 : 1;
+        return VTypeUtil.getValueNumber(value).intValue();
     }
 
     @Override
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.offColor().addUntypedPropertyListener(this::configChanged);
-        model_widget.onColor().addUntypedPropertyListener(this::configChanged);
+// TODO
+//        model_widget.offColor().addUntypedPropertyListener(this::configChanged);
+//        model_widget.onColor().addUntypedPropertyListener(this::configChanged);
     }
 }
