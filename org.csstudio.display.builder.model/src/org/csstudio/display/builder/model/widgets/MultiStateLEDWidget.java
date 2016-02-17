@@ -68,7 +68,30 @@ public class MultiStateLEDWidget extends BaseLEDWidget
 
             super.configureFromXML(widget, xml);
 
-            // TODO Handle legacy states and colors
+            // Handle legacy state_color_fallback
+            final MultiStateLEDWidget model_widget = (MultiStateLEDWidget) widget;
+            Element element = XMLUtil.getChildElement(xml, "state_color_fallback");
+            if (element != null)
+                model_widget.fallback.readFromXML(element);
+
+            // Handle legacy state_value_0, state_color_0, ..1, ..2, ..
+            final ArrayWidgetProperty<StateWidgetProperty> states = model_widget.states;
+            int state = 0;
+            while ((element = XMLUtil.getChildElement(xml, "state_color_" + state)) != null)
+            {
+                while (states.size() <= state)
+                    states.addElement();
+                states.getElement(state).color().readFromXML(element);
+
+                element = XMLUtil.getChildElement(xml, "state_value_" + state);
+                if (element != null)
+                    states.getElement(state).state().readFromXML(element);
+
+                ++state;
+            }
+            // Widget starts with 2 states. If legacy replaced those and added more: OK.
+            // If legacy contained only one state, we'll keep the second default state,
+            // but then a 1-state LED is really illdefined
 
             BaseLEDWidget.handle_legacy_position(widget, xml_version, xml);
             return true;
