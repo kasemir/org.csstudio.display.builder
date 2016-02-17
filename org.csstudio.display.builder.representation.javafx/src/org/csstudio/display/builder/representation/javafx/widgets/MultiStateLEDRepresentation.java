@@ -7,9 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import org.csstudio.display.builder.model.properties.WidgetColor;
+import java.util.List;
+
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.MultiStateLEDWidget;
+import org.csstudio.display.builder.model.widgets.MultiStateLEDWidget.StateWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
 
@@ -23,26 +25,33 @@ public class MultiStateLEDRepresentation extends BaseLEDRepresentation<MultiStat
     @Override
     protected Color[] createColors()
     {
-        return new Color[]
-        {
-            JFXUtil.convert(new WidgetColor(0, 0, 255)),
-            JFXUtil.convert(new WidgetColor(0, 255, 0)),
-            JFXUtil.convert(new WidgetColor(255, 0, 0)),
-        };
+        final List<StateWidgetProperty> states = model_widget.states().getValue();
+        final int N = states.size();
+        final Color[] colors = new Color[N+1];
+        for (int i=0; i<N; ++i)
+            colors[i] = JFXUtil.convert(states.get(i).color().getValue());
+        colors[N] = JFXUtil.convert(model_widget.fallback().getValue());
+        return colors;
     }
 
     @Override
     protected int computeColorIndex(final VType value)
     {
-        return VTypeUtil.getValueNumber(value).intValue();
+        final int number = VTypeUtil.getValueNumber(value).intValue();
+        final List<StateWidgetProperty> states = model_widget.states().getValue();
+        final int N = states.size();
+        for (int i=0; i<N; ++i)
+            if (number == states.get(i).state().getValue())
+                return i;
+        // Use fallback color
+        return N;
     }
 
     @Override
     protected void registerListeners()
     {
         super.registerListeners();
-// TODO
-//        model_widget.offColor().addUntypedPropertyListener(this::configChanged);
-//        model_widget.onColor().addUntypedPropertyListener(this::configChanged);
+        // Not really listening to changes in any of the state's colors or state values
+        model_widget.states().addUntypedPropertyListener(this::configChanged);
     }
 }

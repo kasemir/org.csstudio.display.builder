@@ -19,6 +19,8 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.NamedWidgetColor;
@@ -78,41 +80,48 @@ public class MultiStateLEDWidget extends BaseLEDWidget
         CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "value", "Value");
 
     private static final WidgetPropertyDescriptor<WidgetColor> state_color =
-            CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "color", "Color");
+        CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "color", "Color");
 
-    private static WidgetColor getDefaultColor(final int state)
-    {
-        if (state == 0)
-            return new NamedWidgetColor("Off", 60, 100, 60);
-        if (state == 1)
-            return new NamedWidgetColor("On", 0, 255, 0);
-        // TODO Better default colors based on state index
-        return new NamedWidgetColor("State " + state, 0, 0, 255);
-    }
+    private static final WidgetPropertyDescriptor<WidgetColor> fallback_color =
+            CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "fallback", "Fallback Color");
+
+    // 'state' structure that describes one state
+    private static final StructuredWidgetProperty.Descriptor behaviorState =
+        new StructuredWidgetProperty.Descriptor(WidgetPropertyCategory.BEHAVIOR, "state", "State");
 
     /** Property that describes one state of the LED */
     public static class StateWidgetProperty extends StructuredWidgetProperty
     {
-        public StateWidgetProperty(final StructuredWidgetProperty.Descriptor state_descriptor,
-                                   final Widget widget, final int state)
+        public StateWidgetProperty(final Widget widget, final int state)
         {
-            super(state_descriptor, widget,
+            super(behaviorState, widget,
                   Arrays.asList(state_value.createProperty(widget, state),
                                 state_color.createProperty(widget, getDefaultColor(state))));
         }
         public WidgetProperty<Integer> state()      { return getElement(0); }
         public WidgetProperty<WidgetColor> color()  { return getElement(1); }
     };
-    private static final StructuredWidgetProperty.Descriptor behaviorState =
-            new StructuredWidgetProperty.Descriptor(WidgetPropertyCategory.BEHAVIOR, "state", "State");
 
-    /** 'states' array */
+    // Helper for obtaining initial color for each state
+    private static WidgetColor getDefaultColor(final int state)
+    {   // TODO Handle these named colors which aren't defined
+        if (state == 0)
+            return new NamedWidgetColor("Off", 60, 100, 60);
+        if (state == 1)
+            return new NamedWidgetColor("On", 0, 255, 0);
+        if (state == 2)
+            return new NamedWidgetColor("Error", 255, 0, 0);
+        // Shade of blue for remaining states
+        return new NamedWidgetColor("State " + state, 0, 0, Math.max(0, 255 - 10*state));
+    }
+
+    // 'states' array
     private static final ArrayWidgetProperty.Descriptor<StateWidgetProperty> behaviorStates =
             new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.BEHAVIOR, "states", "States",
-                    (widget, state) -> new StateWidgetProperty(behaviorState, widget, state));
-
+                    (widget, state) -> new StateWidgetProperty(widget, state));
 
     private volatile ArrayWidgetProperty<StateWidgetProperty> states;
+    private volatile WidgetProperty<WidgetColor> fallback;
 
     public MultiStateLEDWidget()
     {
@@ -123,16 +132,23 @@ public class MultiStateLEDWidget extends BaseLEDWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        states = behaviorStates.createProperty(this, Arrays.asList(
-                new StateWidgetProperty(behaviorState, this, 0),
-                new StateWidgetProperty(behaviorState, this, 1)));
-        properties.add(states);
+        properties.add(states = behaviorStates.createProperty(this,
+                                                              Arrays.asList(new StateWidgetProperty(this, 0),
+                                                                            new StateWidgetProperty(this, 1))));
+        properties.add(fallback = fallback_color.createProperty(this,
+                                                                WidgetColorService.getColor(NamedWidgetColors.ALARM_INVALID)));
     }
 
     /** @return 'states' */
     public ArrayWidgetProperty<StateWidgetProperty> states()
     {
         return states;
+    }
+
+    /** @return 'fallback' */
+    public WidgetProperty<WidgetColor> fallback()
+    {
+        return fallback;
     }
 
     @Override
