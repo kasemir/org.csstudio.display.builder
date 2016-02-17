@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -155,9 +155,9 @@ public class WidgetFactory
      *  @param type Widget type ID
      *  @return WidgetDescriptor
      */
-    public Optional<WidgetDescriptor> getWidgetDescriptor(final String type)
+    public WidgetDescriptor getWidgetDescriptor(final String type)
     {
-        return Optional.ofNullable(descriptor_by_type.get(type));
+        return Objects.requireNonNull(descriptor_by_type.get(type));
     }
 
     /** Get all widget descriptors

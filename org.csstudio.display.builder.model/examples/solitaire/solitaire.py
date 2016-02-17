@@ -109,8 +109,11 @@ pieces = None
 # Label widget
 info = None
 
+def createWidget(type):
+	return WidgetFactory.getInstance().getWidgetDescriptor(type).createWidget();
+
 def createPiece(x, y, set):
-    piece = WidgetFactory.getInstance().createWidget("ellipse")
+    piece = createWidget("ellipse");
     piece.setPropertyValue("x", x)
     piece.setPropertyValue("y", y)
     piece.setPropertyValue("width", SIZE)
@@ -131,7 +134,7 @@ def createPieces():
                                     p == 'o')
                 display.addChild(piece)
                 pieces[r][c] = piece
-    info = WidgetFactory.getInstance().createWidget("label")
+    info = createWidget("label")
     info.setPropertyValue("y", TOP + size * (SIZE+GAP))
     info.setPropertyValue("width", size * SIZE)
     info.setPropertyValue("text", "Solving...")

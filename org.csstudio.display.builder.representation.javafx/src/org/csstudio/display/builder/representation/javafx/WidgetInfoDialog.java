@@ -46,7 +46,7 @@ public class WidgetInfoDialog extends Dialog<Boolean>
         setTitle(Messages.WidgetInfoDialog_Title);
         setHeaderText(NLS.bind(Messages.WidgetInfoDialog_Info_Fmt, new Object[] { widget.getName(), widget.getType() }));
 
-        final WidgetDescriptor descriptor = WidgetFactory.getInstance().getWidgetDescriptor(widget.getType()).get();
+        final WidgetDescriptor descriptor = WidgetFactory.getInstance().getWidgetDescriptor(widget.getType());
         try
         {
             final InputStream icon = descriptor.getIconStream();
