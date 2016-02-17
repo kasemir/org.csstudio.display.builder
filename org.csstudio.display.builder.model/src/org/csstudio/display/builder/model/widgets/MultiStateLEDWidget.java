@@ -26,24 +26,24 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
 
-/** Widget that displays an LED which reflects the on/off state of a PV
+/** Widget that displays an LED which reflects the enumerated state of a PV
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class LEDWidget extends BaseLEDWidget
+public class MultiStateLEDWidget extends BaseLEDWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
-        new WidgetDescriptor("led", WidgetCategory.MONITOR,
-            "LED",
+        new WidgetDescriptor("multi_state_led", WidgetCategory.MONITOR,
+            "LED (Multi State)",
             "platform:/plugin/org.csstudio.display.builder.model/icons/led.png",
-            "LED that represents on/off",
+            "LED that represents multiple states",
             Arrays.asList("org.csstudio.opibuilder.widgets.LED"))
     {
         @Override
         public Widget createWidget()
         {
-            return new LEDWidget();
+            return new MultiStateLEDWidget();
         }
     };
 
@@ -59,12 +59,14 @@ public class LEDWidget extends BaseLEDWidget
         public boolean configureFromXML(final Widget widget, final Element xml)
                 throws Exception
         {
-            // Legacy XML with <state_count> identifies MultiStateLEDWidget
-            final Element element = XMLUtil.getChildElement(xml, "state_count");
-            if (element != null)
+            // Legacy XML with off_color, on_color identifies plain boolean LED
+            if (XMLUtil.getChildElement(xml, "off_color") != null ||
+                XMLUtil.getChildElement(xml, "on_color") != null)
                 return false;
 
             super.configureFromXML(widget, xml);
+
+            // TODO Handle legacy states and colors
 
             BaseLEDWidget.handle_legacy_position(widget, xml_version, xml);
             return true;
@@ -99,7 +101,7 @@ public class LEDWidget extends BaseLEDWidget
     private volatile WidgetProperty<WidgetColor> off_color;
     private volatile WidgetProperty<WidgetColor> on_color;
 
-    public LEDWidget()
+    public MultiStateLEDWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
     }
