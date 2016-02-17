@@ -87,17 +87,25 @@ public class WidgetFactoryUnitTest
         }
     }
 
+    private Widget createWidget(final String type) throws Exception
+    {
+        final List<WidgetDescriptor> descr = WidgetFactory.getInstance().getAllWidgetDescriptors(type);
+        if (descr.size() != 1)
+            throw new Exception("Got " + descr.size() + " widgets for " + type);
+        return descr.get(0).createWidget();
+    }
+
     /** Create widgets
      *  @throws Exception on error
      */
     @Test
     public void testWidgetCreation() throws Exception
     {
-        Widget widget = WidgetFactory.getInstance().createWidget("base");
+        Widget widget = createWidget("base");
         System.out.println(widget);
         assertThat(widget.getType(), equalTo("base"));
 
-        widget = WidgetFactory.getInstance().createWidget("custom");
+        widget = createWidget("custom");
         System.out.println(widget);
         assertThat(widget.getType(), equalTo("custom"));
     }
@@ -110,7 +118,7 @@ public class WidgetFactoryUnitTest
     {
         try
         {
-            WidgetFactory.getInstance().createWidget("bogus");
+            createWidget("bogus");
             fail("Created unknown widget?!");
         }
         catch (final Exception ex)
@@ -125,12 +133,12 @@ public class WidgetFactoryUnitTest
     @Test
     public void testAlternateWidgetTypes() throws Exception
     {
-        Widget widget = WidgetFactory.getInstance().createWidget("older_custom1");
+        Widget widget = createWidget("older_custom1");
         assertThat(widget, not(nullValue()));
         System.out.println(widget);
         assertThat(widget.getType(), equalTo("custom"));
 
-        widget = WidgetFactory.getInstance().createWidget("old_custom2");
+        widget = createWidget("old_custom2");
         assertThat(widget, not(nullValue()));
         System.out.println(widget);
         assertThat(widget.getType(), equalTo("custom"));

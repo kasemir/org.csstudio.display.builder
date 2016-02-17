@@ -21,6 +21,11 @@ import org.w3c.dom.Element;
  *  into widget properties of same name.
  *  Derived classes can translate older XML content.
  *
+ *  <p>If widget is registered for multiple alternate type IDs,
+ *  each widget will be created and its configurator invoked.
+ *  The first one which accepts the XML in
+ *  <code>configureFromXML</code> will be used.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -41,7 +46,7 @@ public class WidgetConfigurator
     /** Configure widget based on data persisted in XML.
      *  @param widget Widget to configure
      *  @param xml XML for this widget
-     *  @throws Exception on error
+     *  @throws Exception on error, including this widget not being suitable for provided XML
      */
     public void configureFromXML(final Widget widget,
             final Element xml) throws Exception
