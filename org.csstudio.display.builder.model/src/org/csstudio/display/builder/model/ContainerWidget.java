@@ -50,6 +50,20 @@ public class ContainerWidget extends Widget
             super(CHILDREN_PROPERTY_DESCRIPTOR, widget, new CopyOnWriteArrayList<>());
         }
 
+        /** @return Original, modifiable list of values,
+         *          only accessible within the ContainerWidget
+         */
+        public List<Widget> getList()
+        {
+            return super.getValue();
+        }
+
+        @Override
+        public List<Widget> getValue()
+        {   // Override normal access to value to read-only version of list
+            return Collections.unmodifiableList(super.getValue());
+        }
+
         @Override
         public void setValueFromObject(final Object value) throws Exception
         {
@@ -118,8 +132,8 @@ public class ContainerWidget extends Widget
 
     /** @return Child widgets in Widget tree */
     public List<Widget> getChildren()
-    {
-        return Collections.unmodifiableList(children.getValue());
+    {   // Result is read-only
+        return children.getValue();
     }
 
     /** Locate a child widget by name
@@ -140,7 +154,7 @@ public class ContainerWidget extends Widget
         // -> Must still find the first WidgetNamedFred,
         //    and thus need  Map<String, List<Widget>>
         // Update that map in addChild() and removeChild()
-        for (final Widget child : children.getValue())
+        for (final Widget child : children.getList())
         {
             if (child.getName().equals(name))
                 return child;
@@ -159,7 +173,7 @@ public class ContainerWidget extends Widget
      */
     public void addChild(final int index, final Widget child)
     {
-        final List<Widget> list = children.getValue();
+        final List<Widget> list = children.getList();
         synchronized (list)
         {   // Atomically check-then-add
             if (list.contains(child))
@@ -185,7 +199,7 @@ public class ContainerWidget extends Widget
      */
     public int removeChild(final Widget child)
     {
-        final List<Widget> list = children.getValue();
+        final List<Widget> list = children.getList();
         final int index;
         synchronized (list)
         {
@@ -204,7 +218,7 @@ public class ContainerWidget extends Widget
         return insets;
     }
 
-    /** @see #CHILDREN_PROPERTY_DESCRIPTOR */
+    /** @see ChildrenWidgetsProperty */
     public WidgetProperty<List<Widget>> runtimeChildren()
     {
         return children;
