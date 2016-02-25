@@ -35,7 +35,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class EmbeddedDisplayWidget extends Widget
+public class EmbeddedDisplayWidget extends VisibleWidget
 {
     /** Reserved widget user data key for representation container.
      *
@@ -160,7 +160,9 @@ public class EmbeddedDisplayWidget extends Widget
 
     public EmbeddedDisplayWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), 400, 300);
+        super(WIDGET_DESCRIPTOR.getType());
+        positionWidth().setValue(400);
+        positionHeight().setValue(300);
     }
 
     @Override

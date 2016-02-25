@@ -27,7 +27,7 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
  *
  */
 @SuppressWarnings("nls")
-public class ArcWidget extends Widget {
+public class ArcWidget extends VisibleWidget {
 
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =

@@ -26,7 +26,7 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
  *  @author Megan Grodowitz
  */
 @SuppressWarnings("nls")
-public class PictureWidget extends Widget
+public class PictureWidget extends VisibleWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =

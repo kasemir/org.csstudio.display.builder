@@ -33,7 +33,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class XYPlotWidget extends Widget
+public class XYPlotWidget extends VisibleWidget
 {
     private static final WidgetPropertyDescriptor<Boolean> behaviorLegend =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "show_legend", "Show Legend");
@@ -217,7 +217,9 @@ public class XYPlotWidget extends Widget
 
     public XYPlotWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), 400, 300);
+        super(WIDGET_DESCRIPTOR.getType());
+        positionWidth().setValue(400);
+        positionHeight().setValue(300);
     }
 
     @Override

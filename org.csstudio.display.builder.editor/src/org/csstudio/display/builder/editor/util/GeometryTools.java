@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.widgets.BaseWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 
 import javafx.geometry.Point2D;
@@ -45,9 +46,11 @@ public class GeometryTools
         while (widget.getParent().isPresent())
         {
             widget = widget.getParent().get();
-            dx += widget.positionX().getValue();
-            dy += widget.positionY().getValue();
-
+            if (widget instanceof BaseWidget)
+            {
+                dx += ((BaseWidget)widget).positionX().getValue();
+                dy += ((BaseWidget)widget).positionY().getValue();
+            }
             if (widget instanceof GroupWidget)
             {
                 final int[] insets = ((GroupWidget)widget).runtimeInsets().getValue();
@@ -79,8 +82,8 @@ public class GeometryTools
                 final int[] insets = group.runtimeInsets().getValue();
                 dx += insets[0];
                 dy += insets[1];
-                dx += container.positionX().getValue();
-                dy += container.positionY().getValue();
+                dx += group.positionX().getValue();
+                dy += group.positionY().getValue();
             }
 
             final Optional<Widget> parent = container.getParent();
@@ -99,10 +102,13 @@ public class GeometryTools
      */
     public static Rectangle2D getBounds(final Widget widget)
     {
-        return new Rectangle2D(widget.positionX().getValue(),
-                               widget.positionY().getValue(),
-                               widget.positionWidth().getValue(),
-                               widget.positionHeight().getValue());
+        if (! (widget instanceof BaseWidget))
+            throw new IllegalArgumentException("Need BaseWidget, got " + widget);
+        final BaseWidget base = (BaseWidget) widget;
+        return new Rectangle2D(base.positionX().getValue(),
+                               base.positionY().getValue(),
+                               base.positionWidth().getValue(),
+                               base.positionHeight().getValue());
     }
 
     /** Get bounds of widget relative to display model
@@ -111,20 +117,23 @@ public class GeometryTools
      */
     public static Rectangle2D getDisplayBounds(final Widget widget)
     {
+        if (! (widget instanceof BaseWidget))
+            throw new IllegalArgumentException("Need BaseWidget, got " + widget);
+        final BaseWidget base = (BaseWidget) widget;
         final Point2D offset = getDisplayOffset(widget);
         try
         {
-            return new Rectangle2D(offset.getX() + widget.positionX().getValue(),
-                                   offset.getY() + widget.positionY().getValue(),
-                                   widget.positionWidth().getValue(),
-                                   widget.positionHeight().getValue());
+            return new Rectangle2D(offset.getX() + base.positionX().getValue(),
+                                   offset.getY() + base.positionY().getValue(),
+                                   base.positionWidth().getValue(),
+                                   base.positionHeight().getValue());
         }
         catch (IllegalArgumentException ex)
         {
             Logger.getLogger(GeometryTools.class.getName())
                   .log(Level.WARNING, "Widget has invalid size " + widget, ex);
-            return new Rectangle2D(offset.getX() + widget.positionX().getValue(),
-                                   offset.getY() + widget.positionY().getValue(),
+            return new Rectangle2D(offset.getX() + base.positionX().getValue(),
+                                   offset.getY() + base.positionY().getValue(),
                                    1, 1);
         }
     }

@@ -29,6 +29,7 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
+import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -194,7 +195,7 @@ public class PersistenceUnitTest
         model.getProperty("width").setValueFromObject(400);
         model.getProperty("height").setValueFromObject(800);
 
-        final Widget widget = new Widget("base");
+        final Widget widget = new LabelWidget();
         widget.setPropertyValue(widgetName, "Test");
         widget.getProperty("x").setValueFromObject(42);
         model.runtimeChildren().addChild(widget);

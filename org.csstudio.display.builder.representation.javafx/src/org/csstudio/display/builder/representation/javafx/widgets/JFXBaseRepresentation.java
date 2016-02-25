@@ -14,6 +14,8 @@ import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.widgets.BaseWidget;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 
 import javafx.scene.Group;
@@ -24,12 +26,14 @@ import javafx.scene.Node;
  *  @param <MW> Model widget
  *  @author Kay Kasemir
  */
-abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget> extends WidgetRepresentation<Group, Node, MW>
+abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWidget> extends WidgetRepresentation<Group, Node, MW>
 {
     /** JFX node (or root of sub scene graph) that represents the widget
      *  <p>Only accessed on the JFX thread
      */
     protected JFX jfx_node;
+
+    private volatile WidgetProperty<Boolean> visible;
 
     private final DirtyFlag dirty_position = new DirtyFlag();
 
@@ -126,7 +130,9 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
      */
     protected void registerListeners()
     {
-        model_widget.positionVisible().addUntypedPropertyListener(this::positionChanged);
+        visible = model_widget.checkProperty(CommonWidgetProperties.positionVisible).orElse(null);
+        if (visible != null)
+            visible.addUntypedPropertyListener(this::positionChanged);
         model_widget.positionX().addUntypedPropertyListener(this::positionChanged);
         model_widget.positionY().addUntypedPropertyListener(this::positionChanged);
         // Would like to also listen to positionWidth & height,
@@ -150,7 +156,8 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
         {
             jfx_node.relocate(model_widget.positionX().getValue(),
                               model_widget.positionY().getValue());
-            jfx_node.setVisible(model_widget.positionVisible().getValue());
+            if (visible != null)
+                jfx_node.setVisible(visible.getValue());
         }
     }
 }

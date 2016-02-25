@@ -7,14 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorActions;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorScripts;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionVisible;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeConnected;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
 
@@ -34,8 +26,6 @@ import java.util.stream.Collectors;
 import org.csstudio.display.builder.model.macros.MacroOrPropertyProvider;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.macros.Macros;
-import org.csstudio.display.builder.model.properties.ActionInfo;
-import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.osgi.framework.Version;
 
@@ -46,7 +36,7 @@ import org.osgi.framework.Version;
  *
  *  <p>Widgets are part of a hierarchy.
  *  Their parent is either the {@link DisplayModel} or another
- *  {@link ContainerWidget}.
+ *  widget with a {@link ChildrenProperty}
  *
  *  @author Kay Kasemir
  */
@@ -126,14 +116,6 @@ public class Widget
     // Actual properties
     private WidgetProperty<String> type;
     private WidgetProperty<String> name;
-    private WidgetProperty<Integer> x;
-    private WidgetProperty<Integer> y;
-    private WidgetProperty<Integer> width;
-    private WidgetProperty<Integer> height;
-    private WidgetProperty<Boolean> visible;
-    private WidgetProperty<List<ActionInfo>> actions;
-    private WidgetProperty<List<ScriptInfo>> scripts;
-    private WidgetProperty<Boolean> connected;
 
     /** Map of user data */
     protected final Map<String, Object> user_data = new ConcurrentHashMap<>(4); // Reserve room for "representation", "runtime"
@@ -143,31 +125,12 @@ public class Widget
      */
     public Widget(final String type)
     {
-        this(type, 100, 20);
-    }
-
-    /** Widget constructor.
-     *  @param type Widget type
-     *  @param default_width Default width
-     *  @param default_height .. and height
-     */
-    public Widget(final String type, final int default_width, final int default_height)
-    {
         // Collect properties
         final List<WidgetProperty<?>> prelim_properties = new ArrayList<>();
 
         // -- Mandatory properties --
         prelim_properties.add(this.type = widgetType.createProperty(this, type));
         prelim_properties.add(name = widgetName.createProperty(this, ""));
-        prelim_properties.add(x = positionX.createProperty(this, 0));
-        prelim_properties.add(y = positionY.createProperty(this, 0));
-        prelim_properties.add(width = positionWidth.createProperty(this, default_width));
-        prelim_properties.add(height = positionHeight.createProperty(this, default_height));
-        prelim_properties.add(visible = positionVisible.createProperty(this, true));
-        prelim_properties.add(actions = behaviorActions.createProperty(this, Collections.emptyList()));
-        prelim_properties.add(scripts = behaviorScripts.createProperty(this, Collections.emptyList()));
-        // Start 'connected', assuming there are no PVs
-        prelim_properties.add(connected = runtimeConnected.createProperty(this, true));
 
         // -- Widget-specific properties --
         defineProperties(prelim_properties);
@@ -267,54 +230,6 @@ public class Widget
     public WidgetProperty<String> widgetName()
     {
         return name;
-    }
-
-    /** @return Position 'x' */
-    public WidgetProperty<Integer> positionX()
-    {
-        return x;
-    }
-
-    /** @return Position 'y' */
-    public WidgetProperty<Integer> positionY()
-    {
-        return y;
-    }
-
-    /** @return Position 'width' */
-    public WidgetProperty<Integer> positionWidth()
-    {
-        return width;
-    }
-
-    /** @return Position 'height' */
-    public WidgetProperty<Integer> positionHeight()
-    {
-        return height;
-    }
-
-    /** @return Position 'visible' */
-    public WidgetProperty<Boolean> positionVisible()
-    {
-        return visible;
-    }
-
-    /** @return Behavior 'actions' */
-    public WidgetProperty<List<ActionInfo>> behaviorActions()
-    {
-        return actions;
-    }
-
-    /** @return Behavior 'scripts' */
-    public WidgetProperty<List<ScriptInfo>> behaviorScripts()
-    {
-        return scripts;
-    }
-
-    /** @return Runtime 'connected' */
-    public WidgetProperty<Boolean> runtimeConnected()
-    {
-        return connected;
     }
 
     /** Obtain configurator.

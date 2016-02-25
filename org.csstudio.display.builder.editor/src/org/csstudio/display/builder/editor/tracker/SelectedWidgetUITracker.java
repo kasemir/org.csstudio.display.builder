@@ -23,6 +23,7 @@ import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.widgets.BaseWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
@@ -486,7 +487,10 @@ public class SelectedWidgetUITracker extends Group
             final int N = Math.min(widgets.size(), orig_position.size());
             for (int i=0; i<N; ++i)
             {
-                final Widget widget = widgets.get(i);
+                final Widget w = widgets.get(i);
+                if (! (w instanceof BaseWidget))
+                    continue;
+                final BaseWidget widget = (BaseWidget) w;
                 final Rectangle2D orig = orig_position.get(i);
 
                 final Widget orig_parent = widget.getParent().get();
@@ -598,23 +602,27 @@ public class SelectedWidgetUITracker extends Group
 
     private void bindToWidgets()
     {
-        for (final Widget widget : widgets)
-        {
-            widget.positionX().addPropertyListener(position_listener);
-            widget.positionY().addPropertyListener(position_listener);
-            widget.positionWidth().addPropertyListener(position_listener);
-            widget.positionHeight().addPropertyListener(position_listener);
-        }
+        for (final Widget w : widgets)
+            if (w instanceof BaseWidget)
+            {
+                final BaseWidget widget = (BaseWidget) w;
+                widget.positionX().addPropertyListener(position_listener);
+                widget.positionY().addPropertyListener(position_listener);
+                widget.positionWidth().addPropertyListener(position_listener);
+                widget.positionHeight().addPropertyListener(position_listener);
+            }
     }
 
     private void unbindFromWidgets()
     {
-        for (final Widget widget : widgets)
-        {
-            widget.positionX().removePropertyListener(position_listener);
-            widget.positionY().removePropertyListener(position_listener);
-            widget.positionWidth().removePropertyListener(position_listener);
-            widget.positionHeight().removePropertyListener(position_listener);
-        }
+        for (final Widget w : widgets)
+            if (w instanceof BaseWidget)
+            {
+                final BaseWidget widget = (BaseWidget) w;
+                widget.positionX().removePropertyListener(position_listener);
+                widget.positionY().removePropertyListener(position_listener);
+                widget.positionWidth().removePropertyListener(position_listener);
+                widget.positionHeight().removePropertyListener(position_listener);
+            }
     }
 }

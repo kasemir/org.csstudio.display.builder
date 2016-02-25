@@ -32,7 +32,7 @@ import org.diirt.vtype.VType;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class TextUpdateWidget extends Widget
+public class TextUpdateWidget extends VisibleWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =

@@ -46,7 +46,7 @@ import org.csstudio.display.builder.model.properties.WidgetFont;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class GroupWidget extends Widget
+public class GroupWidget extends VisibleWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -95,7 +95,9 @@ public class GroupWidget extends Widget
 
     public GroupWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), 400, 300);
+        super(WIDGET_DESCRIPTOR.getType());
+        positionWidth().setValue(300);
+        positionHeight().setValue(200);
     }
 
     @Override

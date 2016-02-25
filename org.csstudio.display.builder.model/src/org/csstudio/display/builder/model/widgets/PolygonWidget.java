@@ -30,7 +30,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class PolygonWidget extends Widget
+public class PolygonWidget extends VisibleWidget
 {
     /** Legacy polygon used 1.0.0 */
     private static final Version version = new Version(2, 0, 0);

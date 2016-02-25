@@ -34,7 +34,7 @@ import org.csstudio.display.builder.model.properties.WidgetFont;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class TabWidget extends Widget
+public class TabWidget extends VisibleWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -67,7 +67,9 @@ public class TabWidget extends Widget
 
     public TabWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), 400, 300);
+        super(WIDGET_DESCRIPTOR.getType());
+        positionWidth().setValue(400);
+        positionHeight().setValue(300);
     }
 
     @Override

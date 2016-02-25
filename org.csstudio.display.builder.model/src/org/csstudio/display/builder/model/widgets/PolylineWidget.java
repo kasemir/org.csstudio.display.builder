@@ -30,7 +30,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class PolylineWidget extends Widget
+public class PolylineWidget extends VisibleWidget
 {
     // TODO Add Polyline Arrows
 

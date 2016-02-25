@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
+import org.csstudio.display.builder.model.widgets.BaseWidget;
 
 /** Custom widget.
  *
@@ -20,7 +21,7 @@ import org.csstudio.display.builder.model.properties.StringWidgetProperty;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class CustomWidget extends Widget
+public class CustomWidget extends BaseWidget
 {
     /** Property: Category Misc, name "zero_ten", Integer 0..10 */
     final public static WidgetPropertyDescriptor<Integer> miscZeroTen =
