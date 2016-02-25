@@ -14,11 +14,15 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import java.util.Arrays;
 import java.util.List;
 
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
+import org.csstudio.display.builder.model.Messages;
+import org.csstudio.display.builder.model.RuntimeWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
@@ -42,7 +46,7 @@ import org.csstudio.display.builder.model.properties.WidgetFont;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class GroupWidget extends ContainerWidget
+public class GroupWidget extends Widget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -59,9 +63,35 @@ public class GroupWidget extends ContainerWidget
         }
     };
 
+    /** Runtime 'insets' */
+    private static final WidgetPropertyDescriptor<int[]> runtimeInsets =
+        new WidgetPropertyDescriptor<int[]>(
+            WidgetPropertyCategory.RUNTIME, "insets", Messages.WidgetProperties_Insets)
+    {
+        @Override
+        public WidgetProperty<int[]> createProperty(final Widget widget,
+                                                    final int[] value)
+        {
+            return new RuntimeWidgetProperty<int[]>(this, widget, value)
+            {
+                @Override
+                public void setValueFromObject(final Object value) throws Exception
+                {
+                    if (value instanceof int[]  &&  ((int[]) value).length == 2)
+                        setValue((int[]) value);
+                    else
+                        throw new Exception("Need int[2], got " + value);
+                }
+            };
+        }
+    };
+
+
     private volatile WidgetProperty<Macros> macros;
+    private volatile ChildrenProperty children;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
+    private volatile WidgetProperty<int[]> insets;
 
     public GroupWidget()
     {
@@ -73,8 +103,10 @@ public class GroupWidget extends ContainerWidget
     {
         super.defineProperties(properties);
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
+        properties.add(children = new ChildrenProperty(this));
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(insets = runtimeInsets.createProperty(this, new int[] { 0, 0 }));
 
         // Initial size
         positionWidth().setValue(300);
@@ -85,6 +117,12 @@ public class GroupWidget extends ContainerWidget
     public WidgetProperty<Macros> widgetMacros()
     {
         return macros;
+    }
+
+    /** @return Runtime 'children' */
+    public ChildrenProperty runtimeChildren()
+    {
+        return children;
     }
 
     /** @return Display 'background_color' */
@@ -108,5 +146,10 @@ public class GroupWidget extends ContainerWidget
     public WidgetProperty<WidgetFont> displayFont()
     {
         return font;
+    }
+
+    public WidgetProperty<int[]> runtimeInsets()
+    {
+        return insets;
     }
 }

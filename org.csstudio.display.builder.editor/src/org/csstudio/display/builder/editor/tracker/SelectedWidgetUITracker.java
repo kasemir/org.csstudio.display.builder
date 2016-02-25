@@ -19,7 +19,7 @@ import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.GroupHandler;
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.persist.ModelWriter;
@@ -489,8 +489,8 @@ public class SelectedWidgetUITracker extends Group
                 final Widget widget = widgets.get(i);
                 final Rectangle2D orig = orig_position.get(i);
 
-                final ContainerWidget orig_parent = widget.getParent().get();
-                ContainerWidget parent = group_handler.getActiveGroup();
+                final Widget orig_parent = widget.getParent().get();
+                Widget parent = group_handler.getActiveGroup();
                 if (parent == null)
                     parent = widget.getDisplayModel();
 
@@ -502,8 +502,8 @@ public class SelectedWidgetUITracker extends Group
                 else
                 {   // Update to new parent
                     final Point2D old_offset = GeometryTools.getDisplayOffset(widget);
-                    orig_parent.removeChild(widget);
-                    parent.addChild(widget);
+                    ChildrenProperty.getChildren(orig_parent).removeChild(widget);
+                    ChildrenProperty.getChildren(parent).addChild(widget);
                     final Point2D new_offset = GeometryTools.getDisplayOffset(widget);
 
                     logger.log(Level.FINE, "{0} moves from {1} ({2}) to {3} ({4})",

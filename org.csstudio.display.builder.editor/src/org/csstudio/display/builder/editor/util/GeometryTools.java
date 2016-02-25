@@ -9,13 +9,15 @@ package org.csstudio.display.builder.editor.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.RecursiveTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.widgets.GroupWidget;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -26,6 +28,8 @@ import javafx.geometry.Rectangle2D;
 @SuppressWarnings("nls")
 public class GeometryTools
 {
+    // TODO Change handling of 'insets' from instanceof GroupWidget to widget.checkProperty("insets")
+
     /** Get offset of widget inside the display.
      *
      *  <p>Widgets that are inside a {@link ContainerWidget}
@@ -44,9 +48,9 @@ public class GeometryTools
             dx += widget.positionX().getValue();
             dy += widget.positionY().getValue();
 
-            if (widget instanceof ContainerWidget)
+            if (widget instanceof GroupWidget)
             {
-                final int[] insets = ((ContainerWidget)widget).runtimeInsets().getValue();
+                final int[] insets = ((GroupWidget)widget).runtimeInsets().getValue();
                 dx += insets[0];
                 dy += insets[1];
             }
@@ -63,18 +67,27 @@ public class GeometryTools
      *  @param container Container, i.e. GroupWidget or DisplayModel root
      *  @return {@link Point2D} Offset of the widgets inside that container
      */
-    public static Point2D getContainerOffset(ContainerWidget container)
+    public static Point2D getContainerOffset(Widget container)
     {
         int dx = 0, dy = 0;
 
         while (container != null)
         {
-            final int[] insets = container.runtimeInsets().getValue();
-            dx += insets[0];
-            dy += insets[1];
-            dx += container.positionX().getValue();
-            dy += container.positionY().getValue();
-            container = container.getParent().orElse(null);
+            if (container instanceof GroupWidget)
+            {
+                final GroupWidget group = (GroupWidget) container;
+                final int[] insets = group.runtimeInsets().getValue();
+                dx += insets[0];
+                dy += insets[1];
+                dx += container.positionX().getValue();
+                dy += container.positionY().getValue();
+            }
+
+            final Optional<Widget> parent = container.getParent();
+            if (parent.isPresent()  &&  (parent.get() instanceof GroupWidget))
+                container = (GroupWidget) parent.get();
+            else
+                container = null;
         }
 
         return new Point2D(dx, dy);
@@ -176,10 +189,10 @@ public class GeometryTools
             {
                 if (region.contains(getDisplayBounds(widget)))
                     found.add(widget);
-                if (widget instanceof ContainerWidget)
+                final ChildrenProperty children = ChildrenProperty.getChildren(widget);
+                if (children != null)
                 {
-                    final WidgetSearch sub =
-                        new WidgetSearch(((ContainerWidget) widget).getChildren(), region);
+                    final WidgetSearch sub = new WidgetSearch(children.getValue(), region);
                     found.addAll(sub.compute());
                 }
             }

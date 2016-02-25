@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
 import org.csstudio.display.builder.editor.util.GeometryTools;
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 
@@ -162,8 +162,9 @@ public class TrackerSnapConstraint extends TrackerConstraint
             updateSnapResult(result, x, y, bounds.getMaxX(), bounds.getMaxY());
             updateSnapResult(result, x, y, bounds.getMinX(), bounds.getMaxY());
 
-            if (widget instanceof ContainerWidget)
-                result.updateFrom(checkWidgets(((ContainerWidget)widget).getChildren()));
+            final ChildrenProperty children = ChildrenProperty.getChildren(widget);
+            if (children != null)
+                result.updateFrom(checkWidgets(children.getValue()));
             return result;
         }
 

@@ -74,6 +74,11 @@ public class Widget
      */
     public static final String USER_DATA_REPRESENTATION = "_representation";
 
+    /** Reserved user data key for Widget that has 'children', i.e. is a parent,
+     *  to store the toolkit parent item
+     */
+    public static final String USER_DATA_TOOLKIT_PARENT = "_toolkit_parent";
+
     /** Reserved widget user data key for storing the runtime.
      *
      *  <p>The WidgetRuntime for each {@link Widget}
@@ -91,7 +96,7 @@ public class Widget
     public static final String USER_DATA_SCRIPT_SUPPORT = "_script_support";
 
     /** Parent widget */
-    private volatile ContainerWidget parent = null;
+    private volatile Widget parent = null;
 
     /** All properties, ordered by category, then sequence of definition */
     protected final Set<WidgetProperty<?>> properties;
@@ -212,7 +217,7 @@ public class Widget
     }
 
     /** @return Parent widget in Widget tree */
-    public Optional<ContainerWidget> getParent()
+    public Optional<Widget> getParent()
     {
         return Optional.ofNullable(parent);
     }
@@ -220,7 +225,7 @@ public class Widget
     /** Invoked by the parent widget
      *  @param parent Parent widget
      */
-    protected void setParent(final ContainerWidget parent)
+    protected void setParent(final Widget parent)
     {
         this.parent = parent;
     }
@@ -469,7 +474,7 @@ public class Widget
      */
     public Macros getEffectiveMacros()
     {
-        final Optional<ContainerWidget> the_parent = getParent();
+        final Optional<Widget> the_parent = getParent();
         if (! the_parent.isPresent())
             return null;
         return the_parent.get().getEffectiveMacros();

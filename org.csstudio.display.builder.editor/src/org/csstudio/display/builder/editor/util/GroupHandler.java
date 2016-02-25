@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
@@ -122,8 +122,9 @@ public class GroupHandler
                     if (found != null)
                         result.update(found, depth);
                 }
-                if (widget instanceof ContainerWidget)
-                    result.update(new SurroundingGroupSearch(bounds, ((ContainerWidget)widget).getChildren(), ignore, depth + 1).compute());
+                final ChildrenProperty grandkids = ChildrenProperty.getChildren(widget);
+                if (grandkids != null)
+                    result.update(new SurroundingGroupSearch(bounds, grandkids.getValue(), ignore, depth + 1).compute());
             }
             return result;
         }

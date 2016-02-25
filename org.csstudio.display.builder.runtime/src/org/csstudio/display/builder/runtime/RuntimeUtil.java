@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelReader;
@@ -191,8 +191,9 @@ public class RuntimeUtil
         }
 
         // Recurse into child widgets
-        if (widget instanceof ContainerWidget)
-            for (final Widget child : ((ContainerWidget) widget).getChildren())
+        final ChildrenProperty children = ChildrenProperty.getChildren(widget);
+        if (children != null)
+            for (final Widget child : children.getValue())
                 startRuntimeRecursively(child);
     }
 
@@ -209,8 +210,9 @@ public class RuntimeUtil
     {
         // Mirror-image of startRuntimeRecursively:
         // First recurse into child widgets, ..
-        if (widget instanceof ContainerWidget)
-            for (final Widget child : ((ContainerWidget) widget).getChildren())
+        final ChildrenProperty children = ChildrenProperty.getChildren(widget);
+        if (children != null)
+            for (final Widget child : children.getValue())
                 stopRuntimeRecursively(child);
         // .. then stop this runtime
         final WidgetRuntime<?> runtime = RuntimeUtil.getRuntime(widget);

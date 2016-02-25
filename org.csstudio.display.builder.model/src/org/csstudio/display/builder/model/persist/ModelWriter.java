@@ -16,7 +16,7 @@ import java.util.List;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -87,7 +87,7 @@ public class ModelWriter implements Closeable
         writeWidgetProperties(model);
 
         // Write each widget of the display
-        writeWidgets(model.getChildren());
+        writeWidgets(model.runtimeChildren().getValue());
     }
 
     /** Write widgets and their children
@@ -113,8 +113,9 @@ public class ModelWriter implements Closeable
 
         writeWidgetProperties(widget);
 
-        if (widget instanceof ContainerWidget)
-            writeWidgets(((ContainerWidget) widget).getChildren());
+        ChildrenProperty children = ChildrenProperty.getChildren(widget);
+        if (children != null)
+            writeWidgets(children.getValue());
 
         writer.writeEndElement();
     }

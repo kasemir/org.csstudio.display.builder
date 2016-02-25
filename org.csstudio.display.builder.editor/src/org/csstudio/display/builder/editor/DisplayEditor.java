@@ -23,7 +23,6 @@ import org.csstudio.display.builder.editor.util.JFXGeometryTools;
 import org.csstudio.display.builder.editor.util.Rubberband;
 import org.csstudio.display.builder.editor.util.WidgetNaming;
 import org.csstudio.display.builder.editor.util.WidgetTransfer;
-import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.representation.ToolkitListener;
@@ -202,7 +201,7 @@ public class DisplayEditor
     private void handleDroppedModel(final DisplayModel dropped_model)
     {
         // Dropped into a sub-group or the main display?
-        ContainerWidget container = group_handler.getActiveGroup();
+        Widget container = group_handler.getActiveGroup();
         if (container == null)
             container = model;
         // Correct all dropped widget locations relative to container

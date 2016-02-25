@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.editor.undo;
 
 import org.csstudio.display.builder.editor.Messages;
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.util.undo.UndoableAction;
 
@@ -28,7 +28,7 @@ public class UpdateWidgetOrderAction extends UndoableAction
     {
         super(Messages.UpdateWidgetOrder);
         this.widget = widget;
-        this.orig_index = widget.getParent().get().getChildren().indexOf(widget);
+        this.orig_index = ChildrenProperty.getChildren(widget.getParent().get()).getValue().indexOf(widget);
         this.desired_index = desired_index;
     }
 
@@ -46,11 +46,11 @@ public class UpdateWidgetOrderAction extends UndoableAction
 
     private void moveTo(final int index)
     {
-        final ContainerWidget parent = widget.getParent().get();
-        parent.removeChild(widget);
+        final Widget parent = widget.getParent().get();
+        ChildrenProperty.getChildren(parent).removeChild(widget);
         if (index < 0)
-            parent.addChild(widget);
+            ChildrenProperty.getChildren(parent).addChild(widget);
         else
-            parent.addChild(index, widget);
+            ChildrenProperty.getChildren(parent).addChild(index, widget);
     }
 }

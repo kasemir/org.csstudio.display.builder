@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetFactory;
@@ -102,7 +102,7 @@ public class WidgetNaming
                 name = base + "_" + number;
             }
             // Locate next available "SomeName_14"
-            while (model.getChildByName(name) != null)
+            while (model.runtimeChildren().getChildByName(name) != null)
             {
                 ++number;
                 name = base + "_" + number;
@@ -111,10 +111,10 @@ public class WidgetNaming
         }
         widget.setPropertyValue(CommonWidgetProperties.widgetName, name);
 
-        if (widget instanceof ContainerWidget)
+        final ChildrenProperty children = ChildrenProperty.getChildren(widget);
+        if (children != null)
         {
-            final ContainerWidget container = (ContainerWidget) widget;
-            for (Widget child : container.getChildren())
+            for (Widget child : children.getValue())
                 setDefaultName(model, child);
         }
     }

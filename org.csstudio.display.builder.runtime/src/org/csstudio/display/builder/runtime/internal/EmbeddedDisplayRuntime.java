@@ -201,7 +201,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         final DisplayModel error_model = new DisplayModel();
         error_model.positionWidth().setValue(wid);
         error_model.positionHeight().setValue(hei);
-        error_model.addChild(info);
+        error_model.runtimeChildren().addChild(info);
         return error_model;
     }
 

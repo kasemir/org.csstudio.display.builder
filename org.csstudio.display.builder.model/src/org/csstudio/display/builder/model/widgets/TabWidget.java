@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
-import org.csstudio.display.builder.model.ContainerWidget;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
@@ -35,7 +34,7 @@ import org.csstudio.display.builder.model.properties.WidgetFont;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class TabWidget extends ContainerWidget
+public class TabWidget extends Widget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =

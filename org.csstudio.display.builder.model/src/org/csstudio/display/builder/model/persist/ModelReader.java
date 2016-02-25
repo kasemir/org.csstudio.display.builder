@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetDescriptor;
@@ -103,7 +103,7 @@ public class ModelReader
         // Read display's own properties
         model.getConfigurator(version).configureFromXML(model, root);
         // Read widgets of model
-        readChildWidgets(model, root);
+        readChildWidgets(model, model.runtimeChildren(), root);
         return model;
     }
 
@@ -111,16 +111,17 @@ public class ModelReader
 
     /** Read all <widget>.. child entries
      *  @param parent_widget Parent widget
+     *  @param children 'children' property of the parent widget
      *  @param parent_xml XML of the parent widget from which child entries are read
      */
-    private void readChildWidgets(final ContainerWidget parent_widget, final Element parent_xml)
+    private void readChildWidgets(final Widget parent_widget, final ChildrenProperty children, final Element parent_xml)
     {
         for (final Element widget_xml : XMLUtil.getChildElements(parent_xml, XMLTags.WIDGET))
         {
             try
             {
                 final Widget widget = readWidget(widget_xml);
-                parent_widget.addChild(widget);
+                children.addChild(widget);
             }
             catch (final Throwable ex)
             {
@@ -160,8 +161,9 @@ public class ModelReader
         }
         final Widget widget = createWidget(type, widget_xml);
 
-        if (widget instanceof ContainerWidget)
-            readChildWidgets((ContainerWidget) widget, widget_xml);
+        final ChildrenProperty children = ChildrenProperty.getChildren(widget);
+        if (children != null)
+            readChildWidgets(widget, children, widget_xml);
 
         return widget;
     }
