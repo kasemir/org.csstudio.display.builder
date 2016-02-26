@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Example</name>
+  <macros>
+    <FILE>main_embedded.opi</FILE>
+    <INSET>10</INSET>
+    <SHOW>false</SHOW>
+    <TEXT>Hello from main display</TEXT>
+  </macros>
+  <width>600</width>
+  <height>500</height>
+  <widget type="rectangle" version="2.0.0">
+    <name>Rectangle</name>
+    <x>40</x>
+    <y>60</y>
+    <width>104</width>
+    <height>359</height>
+  </widget>
+  <widget type="tab" version="2.0.0">
+    <name>Tab</name>
+    <x>100</x>
+    <y>170</y>
+    <width>378</width>
+    <height>200</height>
+    <tabs>
+      <tab>
+        <name>One</name>
+      </tab>
+      <tab>
+        <name>Two</name>
+      </tab>
+      <tab>
+        <name>Drei!!</name>
+      </tab>
+      <tab>
+      </tab>
+      <tab>
+      </tab>
+    </tabs>
+  </widget>
+  <widget type="rectangle" version="2.0.0">
+    <name>Rectangle_1</name>
+    <x>350</x>
+    <y>160</y>
+    <width>148</width>
+    <height>267</height>
+  </widget>
+</display>

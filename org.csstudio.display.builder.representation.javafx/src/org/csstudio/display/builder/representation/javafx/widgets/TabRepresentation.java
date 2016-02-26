@@ -16,6 +16,8 @@ import org.csstudio.display.builder.model.widgets.TabWidget;
 import org.csstudio.display.builder.model.widgets.TabWidget.TabItemProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
+import com.sun.javafx.tk.Toolkit;
+
 import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -53,8 +55,10 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
     public TabPane createJFXNode() throws Exception
     {
         final TabPane tabs = new TabPane();
-
+//        tabs.setStyle("-fx-background-color: mediumaquamarine;");
         tabs.getStyleClass().add(TabPane.STYLE_CLASS_FLOATING);
+
+        tabs.setMinSize(TabPane.USE_PREF_SIZE, TabPane.USE_PREF_SIZE);
 
 //      model_widget.runtimeInsets().setValue(new int[] { inset, 2*inset });
 
@@ -95,6 +99,7 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
                              final List<TabItemProperty> removed,
                              final List<TabItemProperty> added)
     {
+        Toolkit.getToolkit().checkFxUserThread();
         // System.out.println("Tabs added: " + added + ", removed: " + removed);
         if (removed != null)
             for (TabItemProperty item : removed)
@@ -115,7 +120,8 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
 
             final int i = actual.size();
             final Tab tab = new Tab(null, content);
-            final Label label = new Label(desired.get(i).name().getValue());
+            final String name = desired.get(i).name().getValue();
+            final Label label = new Label(name);
             tab.setGraphic(label);
             tab.setClosable(false); // !!
             actual.add(tab);
@@ -125,7 +131,7 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
             rect.setFill(Color.BLUE);
             content.getChildren().add(rect);
 
-            System.out.println("TabRepresentation.tabsChanged() added tab");
+            System.out.println(Thread.currentThread().getName() + ": TabRepresentation.tabsChanged() added tab " + name);
         }
     }
 
@@ -150,10 +156,11 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
                 label.setFont(tab_font);
             }
 
-            jfx_node.setPrefWidth(model_widget.positionWidth().getValue());
-            jfx_node.setPrefHeight(model_widget.positionHeight().getValue());
+            final Integer width = model_widget.positionWidth().getValue();
+            final Integer height = model_widget.positionHeight().getValue();
+            jfx_node.setPrefSize(width, height);
 
-            System.out.println("TabRepresentation.updateChanges()");
+            System.out.println("TabRepresentation.updateChanges to " + width + " x " + height);
         }
     }
 }
