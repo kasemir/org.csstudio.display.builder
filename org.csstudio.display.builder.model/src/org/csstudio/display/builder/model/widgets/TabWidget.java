@@ -9,13 +9,14 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
+import org.csstudio.display.builder.model.ChildrenProperty;
+import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
@@ -25,7 +26,7 @@ import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
-import org.csstudio.display.builder.model.properties.StringWidgetProperty;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 
@@ -53,9 +54,34 @@ public class TabWidget extends VisibleWidget
 
     // TODO Custom WidgetConfigurator to load legacy file
 
-    private static final ArrayWidgetProperty.Descriptor<WidgetProperty<String>> displayTabs =
+    // Property that describes one tab item
+    private final static StructuredWidgetProperty.Descriptor displayTabItem =
+            new StructuredWidgetProperty.Descriptor(WidgetPropertyCategory.DISPLAY, "tab", "Tab Item");
+
+    public static class TabItemProperty extends StructuredWidgetProperty
+    {
+        protected TabItemProperty(final Widget widget, final int index)
+        {
+            super(displayTabItem, widget,
+                  Arrays.asList(CommonWidgetProperties.widgetName.createProperty(widget, createTabText(index)),
+                                new ChildrenProperty(widget)));
+        }
+
+        public WidgetProperty<String> name()
+        {
+            return getElement(0);
+        }
+
+        public ChildrenProperty children()
+        {
+            final WidgetProperty<List<Widget>> c = getElement(1);
+            return (ChildrenProperty)c;
+        }
+    };
+
+    private static final ArrayWidgetProperty.Descriptor<TabItemProperty> displayTabs =
             new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.DISPLAY, "tabs", "Tabs", // TODO Externalize
-                    (widget, index) -> ((TabWidget)widget).createTabText(index));
+                    (widget, index) -> new TabItemProperty(widget, index));
 
     // XXX Legacy Tab held a 'group' for each tab.
     // Editor only affected the selected tab's group.
@@ -63,7 +89,7 @@ public class TabWidget extends VisibleWidget
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
-    private volatile ArrayWidgetProperty<WidgetProperty<String>> tabs;
+    private volatile ArrayWidgetProperty<TabItemProperty> tabs;
 
     public TabWidget()
     {
@@ -77,16 +103,17 @@ public class TabWidget extends VisibleWidget
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        properties.add(tabs = displayTabs.createProperty(this, Arrays.asList(createTabText(0), createTabText(1))));
+        properties.add(tabs = displayTabs.createProperty(this, Arrays.asList(new TabItemProperty(this, 0),
+                                                                             new TabItemProperty(this, 1))));
 
         // Initial size
         positionWidth().setValue(300);
         positionHeight().setValue(200);
     }
 
-    private WidgetProperty<String> createTabText(final int index)
+    private static String createTabText(final int index)
     {
-        return new StringWidgetProperty(displayText, this, "Tab " + (index + 1));
+        return "Tab " + (index + 1);
     }
 
     /** @return Widget 'macros' */
@@ -119,7 +146,7 @@ public class TabWidget extends VisibleWidget
     }
 
     /** @return Display 'tabs' */
-    public ArrayWidgetProperty<WidgetProperty<String>> displayTabs()
+    public ArrayWidgetProperty<TabItemProperty> displayTabs()
     {
         return tabs;
     }

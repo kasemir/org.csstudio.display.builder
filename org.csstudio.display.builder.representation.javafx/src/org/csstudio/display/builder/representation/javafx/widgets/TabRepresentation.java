@@ -7,13 +7,16 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.util.List;
+
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.TabWidget;
+import org.csstudio.display.builder.model.widgets.TabWidget.TabItemProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
-import javafx.scene.Group;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -31,50 +34,29 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
 
     private static final int inset = 10;
 
-    /** Inner group that holds child widgets */
-    private Group inner;
-
     private volatile Font tab_font;
+
+    private final UntypedWidgetPropertyListener tab_title_listener = (property, old_value, new_value) ->
+    {
+        final List<TabItemProperty> desired = model_widget.displayTabs().getValue();
+        final ObservableList<Tab> actual = jfx_node.getTabs();
+        final int N = Math.min(desired.size(), actual.size());
+        for (int i=0; i<N; ++i)
+        {
+            final Tab tab = actual.get(i);
+            final Label label = (Label) tab.getGraphic();
+            label.setText(desired.get(i).name().getValue());
+        }
+    };
 
     @Override
     public TabPane createJFXNode() throws Exception
     {
         final TabPane tabs = new TabPane();
 
-        // TODO Remove dummy content
-        // Debug: Show tab area
-        tabs.setStyle("-fx-background-color: mediumaquamarine;");
-
-        final int N = 3;
-        final Pane[] content = new Pane[N];
-        for (int i=0; i<N; ++i)
-        {
-            content[i] = new Pane();
-            // Use Label as 'graphic' to allow setting its font
-            final Tab tab = new Tab("", content[i]);
-            final Label label = new Label("Tab " + (i+1));
-            tab.setGraphic(label);
-            tab.setClosable(false); // !!
-            tabs.getTabs().add(tab);
-        }
-
-        for (int i=0; i<N; ++i)
-        {
-            final Rectangle rect = new Rectangle(i*100, 100, 10+i*100, 20+i*80);
-            rect.setFill(Color.BLUE);
-            content[i].getChildren().add(rect);
-        }
-
-        tabs.getSelectionModel().selectedIndexProperty().addListener((t, o, selected) ->
-        {
-            System.out.println("Active Tab: " + selected);
-//            System.out.println("Active Tab: " + tabs.getSelectionModel().getSelectedIndex());
-        });
+        tabs.getStyleClass().add(TabPane.STYLE_CLASS_FLOATING);
 
 //      model_widget.runtimeInsets().setValue(new int[] { inset, 2*inset });
-
-        // Initial update of font, size
-        layoutChanged(null, null, null);
 
         return tabs;
     }
@@ -89,11 +71,62 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
     protected void registerListeners()
     {
         super.registerListeners();
+
         final UntypedWidgetPropertyListener listener = this::layoutChanged;
 //        model_widget.displayBackgroundColor().addUntypedPropertyListener(listener);
         model_widget.displayFont().addUntypedPropertyListener(listener);
         model_widget.positionWidth().addUntypedPropertyListener(listener);
         model_widget.positionHeight().addUntypedPropertyListener(listener);
+
+        tabsChanged(null, null, model_widget.displayTabs().getValue());
+        model_widget.displayTabs().addPropertyListener(this::tabsChanged);
+
+        jfx_node.getSelectionModel().selectedIndexProperty().addListener((t, o, selected) ->
+        {
+            System.out.println("Active Tab: " + selected);
+//            System.out.println("Active Tab: " + tabs.getSelectionModel().getSelectedIndex());
+        });
+
+        // Initial update of font, size
+        layoutChanged(null, null, null);
+    }
+
+    private void tabsChanged(final WidgetProperty<List<TabItemProperty>> property,
+                             final List<TabItemProperty> removed,
+                             final List<TabItemProperty> added)
+    {
+        // System.out.println("Tabs added: " + added + ", removed: " + removed);
+        if (removed != null)
+            for (TabItemProperty item : removed)
+                item.name().removePropertyListener(tab_title_listener);
+        if (added != null)
+            for (TabItemProperty item : added)
+                item.name().addUntypedPropertyListener(tab_title_listener);
+
+        final List<TabItemProperty> desired = model_widget.displayTabs().getValue();
+        final ObservableList<Tab> actual = jfx_node.getTabs();
+
+        while (actual.size() > desired.size())
+            actual.remove(actual.size()-1);
+
+        while (actual.size() < desired.size())
+        {
+            final Pane content = new Pane();
+
+            final int i = actual.size();
+            final Tab tab = new Tab(null, content);
+            final Label label = new Label(desired.get(i).name().getValue());
+            tab.setGraphic(label);
+            tab.setClosable(false); // !!
+            actual.add(tab);
+
+            // TODO Remove dummy content
+            final Rectangle rect = new Rectangle(i*100, 100, 10+i*100, 20+i*80);
+            rect.setFill(Color.BLUE);
+            content.getChildren().add(rect);
+
+            System.out.println("TabRepresentation.tabsChanged() added tab");
+        }
     }
 
     private void layoutChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -119,6 +152,8 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
 
             jfx_node.setPrefWidth(model_widget.positionWidth().getValue());
             jfx_node.setPrefHeight(model_widget.positionHeight().getValue());
+
+            System.out.println("TabRepresentation.updateChanges()");
         }
     }
 }
