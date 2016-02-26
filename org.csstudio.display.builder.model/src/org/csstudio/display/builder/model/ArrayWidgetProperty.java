@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -81,7 +82,7 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
         // Default's elements can be changed, they each track their own 'default',
         // but overall default_value List<> is not modifiable
         super(descriptor, widget, Collections.unmodifiableList(elements));
-        value = new ArrayList<>(elements);
+        value = new CopyOnWriteArrayList<>(elements);
     }
 
     @Override
@@ -91,6 +92,16 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
             if (! element.isDefaultValue())
                 return false;
         return true;
+    }
+
+    @Override
+    protected List<WPE> restrictValue(final List<WPE> requested_value)
+    {
+        if (requested_value instanceof CopyOnWriteArrayList)
+            return requested_value;
+        Logger.getLogger(getClass().getName())
+              .log(Level.WARNING, "Update value for " + getName() + " to CopyOnWriteArrayList");
+        return new CopyOnWriteArrayList<>(requested_value);
     }
 
     /** @return List<> of current array elements. List is not modifiable (elements, however, are).
