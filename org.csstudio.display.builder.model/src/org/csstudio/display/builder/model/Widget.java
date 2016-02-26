@@ -7,6 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorActions;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorScripts;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
 
@@ -26,6 +32,8 @@ import java.util.stream.Collectors;
 import org.csstudio.display.builder.model.macros.MacroOrPropertyProvider;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.osgi.framework.Version;
 
@@ -116,6 +124,12 @@ public class Widget
     // Actual properties
     private WidgetProperty<String> type;
     private WidgetProperty<String> name;
+    private WidgetProperty<Integer> x;
+    private WidgetProperty<Integer> y;
+    private WidgetProperty<Integer> width;
+    private WidgetProperty<Integer> height;
+    private WidgetProperty<List<ActionInfo>> actions;
+    private WidgetProperty<List<ScriptInfo>> scripts;
 
     /** Map of user data */
     protected final Map<String, Object> user_data = new ConcurrentHashMap<>(4); // Reserve room for "representation", "runtime"
@@ -125,12 +139,28 @@ public class Widget
      */
     public Widget(final String type)
     {
+        this(type, 100, 20);
+    }
+
+    /** Widget constructor.
+     *  @param type Widget type
+     *  @param default_width Default width
+     *  @param default_height .. and height
+     */
+    public Widget(final String type, final int default_width, final int default_height)
+    {
         // Collect properties
         final List<WidgetProperty<?>> prelim_properties = new ArrayList<>();
 
         // -- Mandatory properties --
         prelim_properties.add(this.type = widgetType.createProperty(this, type));
         prelim_properties.add(name = widgetName.createProperty(this, ""));
+        prelim_properties.add(x = positionX.createProperty(this, 0));
+        prelim_properties.add(y = positionY.createProperty(this, 0));
+        prelim_properties.add(width = positionWidth.createProperty(this, 100));
+        prelim_properties.add(height = positionHeight.createProperty(this, 20));
+        prelim_properties.add(actions = behaviorActions.createProperty(this, Collections.emptyList()));
+        prelim_properties.add(scripts = behaviorScripts.createProperty(this, Collections.emptyList()));
 
         // -- Widget-specific properties --
         defineProperties(prelim_properties);
@@ -230,6 +260,42 @@ public class Widget
     public WidgetProperty<String> widgetName()
     {
         return name;
+    }
+
+    /** @return Position 'x' */
+    public WidgetProperty<Integer> positionX()
+    {
+        return x;
+    }
+
+    /** @return Position 'y' */
+    public WidgetProperty<Integer> positionY()
+    {
+        return y;
+    }
+
+    /** @return Position 'width' */
+    public WidgetProperty<Integer> positionWidth()
+    {
+        return width;
+    }
+
+    /** @return Position 'height' */
+    public WidgetProperty<Integer> positionHeight()
+    {
+        return height;
+    }
+
+    /** @return Behavior 'actions' */
+    public WidgetProperty<List<ActionInfo>> behaviorActions()
+    {
+        return actions;
+    }
+
+    /** @return Behavior 'scripts' */
+    public WidgetProperty<List<ScriptInfo>> behaviorScripts()
+    {
+        return scripts;
     }
 
     /** Obtain configurator.

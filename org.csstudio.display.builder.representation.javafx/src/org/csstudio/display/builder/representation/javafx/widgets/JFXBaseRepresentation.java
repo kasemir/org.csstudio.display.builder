@@ -15,7 +15,6 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
-import org.csstudio.display.builder.model.widgets.BaseWidget;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 
 import javafx.scene.Group;
@@ -26,7 +25,7 @@ import javafx.scene.Node;
  *  @param <MW> Model widget
  *  @author Kay Kasemir
  */
-abstract public class JFXBaseRepresentation<JFX extends Node, MW extends BaseWidget> extends WidgetRepresentation<Group, Node, MW>
+abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget> extends WidgetRepresentation<Group, Node, MW>
 {
     /** JFX node (or root of sub scene graph) that represents the widget
      *  <p>Only accessed on the JFX thread

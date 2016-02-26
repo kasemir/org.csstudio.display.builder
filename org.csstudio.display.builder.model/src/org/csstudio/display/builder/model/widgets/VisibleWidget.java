@@ -12,21 +12,14 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 
 import java.util.List;
 
-import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 
-/** Base class for all widgets.
- *
- *  <p>A Widget has properties, supporting read access, subscription
- *  and for most properties also write access.
- *
- *  <p>Widgets are part of a hierarchy.
- *  Their parent is either the {@link DisplayModel} or another
- *  {@link ContainerWidget}.
+/** Base class for all visible widgets.
  *
  *  @author Kay Kasemir
  */
-public class VisibleWidget extends BaseWidget
+public class VisibleWidget extends Widget
 {
     private WidgetProperty<Boolean> visible;
     private WidgetProperty<Boolean> connected;
@@ -37,6 +30,16 @@ public class VisibleWidget extends BaseWidget
     public VisibleWidget(final String type)
     {
         super(type);
+    }
+
+    /** Widget constructor.
+     *  @param type Widget type
+     *  @param default_width Default width
+     *  @param default_height .. and height
+     */
+    public VisibleWidget(final String type, final int default_width, final int default_height)
+    {
+        super(type, default_width, default_height);
     }
 
     /** Called on construction to define widget's properties.

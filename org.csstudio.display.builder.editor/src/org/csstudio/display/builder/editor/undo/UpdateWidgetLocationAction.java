@@ -10,7 +10,6 @@ package org.csstudio.display.builder.editor.undo;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.widgets.BaseWidget;
 import org.csstudio.display.builder.util.undo.UndoableAction;
 
 /** Action to update widget location
@@ -18,7 +17,7 @@ import org.csstudio.display.builder.util.undo.UndoableAction;
  */
 public class UpdateWidgetLocationAction extends UndoableAction
 {
-    private final BaseWidget widget;
+    private final Widget widget;
     private final Widget orig_parent, parent;
     private final int orig_x, orig_y, orig_width, orig_height;
     private final int x, y, width, height;
@@ -30,7 +29,7 @@ public class UpdateWidgetLocationAction extends UndoableAction
      *  @param orig_width  .. and size
      *  @param orig_height
      */
-    public UpdateWidgetLocationAction(final BaseWidget widget,
+    public UpdateWidgetLocationAction(final Widget widget,
                                       final Widget orig_parent,
                                       final int orig_x, final int orig_y,
                                       final int orig_width, final int orig_height)

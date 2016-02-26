@@ -95,9 +95,7 @@ public class GroupWidget extends VisibleWidget
 
     public GroupWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType());
-        positionWidth().setValue(300);
-        positionHeight().setValue(200);
+        super(WIDGET_DESCRIPTOR.getType(), 400, 300);
     }
 
     @Override

@@ -30,7 +30,6 @@ import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
-import org.csstudio.display.builder.model.widgets.BaseWidget;
 import org.csstudio.display.builder.runtime.internal.RuntimePVs;
 import org.csstudio.display.builder.runtime.script.RuntimeScriptHandler;
 import org.csstudio.display.builder.runtime.script.Script;
@@ -246,35 +245,31 @@ public class WidgetRuntime<MW extends Widget>
         }
 
         // Prepare action-related PVs
-        if (widget instanceof BaseWidget)
+        final List<ActionInfo> actions = widget.behaviorActions().getValue();
+        if (actions.size() > 0)
         {
-            final BaseWidget base_widget = (BaseWidget)widget;
-            final List<ActionInfo> actions = base_widget.behaviorActions().getValue();
-            if (actions.size() > 0)
+            final List<PV> action_pvs = new ArrayList<>();
+            for (final ActionInfo action : actions)
             {
-                final List<PV> action_pvs = new ArrayList<>();
-                for (final ActionInfo action : actions)
+                if (action instanceof WritePVActionInfo)
                 {
-                    if (action instanceof WritePVActionInfo)
-                    {
-                        final String pv_name = ((WritePVActionInfo) action).getPV();
-                        final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
-                        final PV pv = PVPool.getPV(expanded);
-                        action_pvs.add(pv);
-                        addPV(pv);
-                    }
+                    final String pv_name = ((WritePVActionInfo) action).getPV();
+                    final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
+                    final PV pv = PVPool.getPV(expanded);
+                    action_pvs.add(pv);
+                    addPV(pv);
                 }
-                if (action_pvs.size() > 0)
-                    this.writable_pvs = action_pvs;
             }
-
-            // Start scripts in pool because Jython setup is expensive
-            RuntimeUtil.getExecutor().execute(() -> startScripts(base_widget));
+            if (action_pvs.size() > 0)
+                this.writable_pvs = action_pvs;
         }
+
+        // Start scripts in pool because Jython setup is expensive
+        RuntimeUtil.getExecutor().execute(this::startScripts);
     }
 
     /** Start Scripts */
-    private void startScripts(final BaseWidget widget)
+    private void startScripts()
     {
         // Start scripts triggered by PVs
         final List<ScriptInfo> script_infos = widget.behaviorScripts().getValue();

@@ -12,7 +12,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import java.util.List;
 
 import org.csstudio.display.builder.model.macros.Macros;
-import org.csstudio.display.builder.model.widgets.BaseWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 
 /** Display Model.
@@ -23,7 +22,7 @@ import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class DisplayModel extends BaseWidget
+public class DisplayModel extends Widget
 {
     public static final String WIDGET_TYPE = "display";
 
@@ -49,9 +48,7 @@ public class DisplayModel extends BaseWidget
     /** Create display model */
     public DisplayModel()
     {
-        super(WIDGET_TYPE);
-        positionWidth().setValue(800);
-        positionHeight().setValue(600);
+        super(WIDGET_TYPE, 800, 600);
     }
 
     @Override

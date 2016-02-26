@@ -8,8 +8,8 @@
 package org.csstudio.display.builder.representation.swt.widgets;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.widgets.BaseWidget;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.Control;
  *  @param <MW> Model Widget
  *  @author Kay Kasemir
  */
-abstract public class SWTBaseRepresentation<W extends Control, MW extends BaseWidget> extends WidgetRepresentation<Composite, Control, MW>
+abstract public class SWTBaseRepresentation<W extends Control, MW extends Widget> extends WidgetRepresentation<Composite, Control, MW>
 {
     protected W control;
 

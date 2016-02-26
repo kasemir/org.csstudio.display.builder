@@ -25,7 +25,6 @@ import org.csstudio.display.builder.editor.util.WidgetNaming;
 import org.csstudio.display.builder.editor.util.WidgetTransfer;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.widgets.BaseWidget;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
@@ -218,12 +217,8 @@ public class DisplayEditor
             final List<Widget> dropped = dropped_model.getChildren();
             for (Widget widget : dropped)
             {
-                if (widget instanceof BaseWidget)
-                {
-                    final BaseWidget base = (BaseWidget) widget;
-                    base.positionX().setValue(base.positionX().getValue() - dx);
-                    base.positionY().setValue(base.positionY().getValue() - dy);
-                }
+                widget.positionX().setValue(widget.positionX().getValue() - dx);
+                widget.positionY().setValue(widget.positionY().getValue() - dy);
                 widget_naming.setDefaultName(container.getDisplayModel(), widget);
                 undo.execute(new AddWidgetAction(container, widget));
             }

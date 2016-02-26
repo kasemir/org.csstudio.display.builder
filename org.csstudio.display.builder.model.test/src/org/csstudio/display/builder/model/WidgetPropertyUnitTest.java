@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
-import org.csstudio.display.builder.model.widgets.BaseWidget;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
 import org.junit.Test;
 
@@ -50,7 +49,7 @@ public class WidgetPropertyUnitTest
     @Test
     public void testPropertyWrite()
     {
-        final BaseWidget widget = new BaseWidget("generic");
+        final Widget widget = new Widget("generic");
         final WidgetProperty<Integer> property = widget.getProperty(positionX);
         assertThat(property.getValue(), equalTo(0));
         assertThat(property.isDefaultValue(), equalTo(true));
@@ -60,7 +59,7 @@ public class WidgetPropertyUnitTest
         assertThat(property.isDefaultValue(), equalTo(false));
     }
 
-    class TestWidget extends BaseWidget
+    class TestWidget extends Widget
     {
         TestWidget()
         {

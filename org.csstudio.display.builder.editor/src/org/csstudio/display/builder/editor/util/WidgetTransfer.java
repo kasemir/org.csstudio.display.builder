@@ -19,7 +19,6 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
-import org.csstudio.display.builder.model.widgets.BaseWidget;
 
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -109,22 +108,18 @@ public class WidgetTransfer
                     // Find upper left corner of dropped widgets
                     int min_x = Integer.MAX_VALUE, min_y = Integer.MAX_VALUE;
                     for (Widget widget : widgets)
-                        if (widget instanceof BaseWidget)
-                        {
-                            final BaseWidget base = (BaseWidget) widget;
-                            min_x = Math.min(base.positionX().getValue(), min_x);
-                            min_y = Math.min(base.positionY().getValue(), min_y);
-                        }
+                    {
+                        min_x = Math.min(widget.positionX().getValue(), min_x);
+                        min_y = Math.min(widget.positionY().getValue(), min_y);
+                    }
                     // Move upper left corner to mouse location
                     final int dx = (int)event.getX() - Math.max(0, min_x);
                     final int dy = (int)event.getY() - Math.max(0, min_y);
                     for (Widget widget : widgets)
-                        if (widget instanceof BaseWidget)
-                        {
-                            final BaseWidget base = (BaseWidget) widget;
-                            base.positionX().setValue(base.positionX().getValue() + dx);
-                            base.positionY().setValue(base.positionY().getValue() + dy);
-                        }
+                    {
+                        widget.positionX().setValue(widget.positionX().getValue() + dx);
+                        widget.positionY().setValue(widget.positionY().getValue() + dy);
+                    }
                     handleDroppedModel.accept(model);
                 }
                 catch (Exception ex)

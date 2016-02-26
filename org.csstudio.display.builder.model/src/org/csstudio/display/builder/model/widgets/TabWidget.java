@@ -67,9 +67,7 @@ public class TabWidget extends VisibleWidget
 
     public TabWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType());
-        positionWidth().setValue(400);
-        positionHeight().setValue(300);
+        super(WIDGET_DESCRIPTOR.getType(), 400, 300);
     }
 
     @Override

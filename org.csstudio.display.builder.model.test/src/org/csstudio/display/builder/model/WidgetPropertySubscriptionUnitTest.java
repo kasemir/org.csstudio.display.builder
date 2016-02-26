@@ -17,7 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.csstudio.display.builder.model.macros.Macros;
-import org.csstudio.display.builder.model.widgets.BaseWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.junit.Test;
 
@@ -32,7 +31,7 @@ public class WidgetPropertySubscriptionUnitTest
     public void testBasicSubscription()
     {
         final AtomicInteger updates = new AtomicInteger(0);
-        final BaseWidget widget = new BaseWidget("generic");
+        final Widget widget = new Widget("generic");
         final WidgetPropertyListener<Integer> listener = (property, old_value, new_value) ->
         {
             updates.incrementAndGet();
@@ -60,7 +59,7 @@ public class WidgetPropertySubscriptionUnitTest
     @Test
     public void testSpecificSubscription()
     {
-        final BaseWidget widget = new BaseWidget("generic");
+        final Widget widget = new Widget("generic");
 
         final AtomicInteger x_updates = new AtomicInteger(0);
         final AtomicInteger y_updates = new AtomicInteger(0);
