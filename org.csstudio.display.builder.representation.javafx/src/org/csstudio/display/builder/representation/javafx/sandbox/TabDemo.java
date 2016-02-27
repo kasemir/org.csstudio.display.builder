@@ -32,9 +32,9 @@ public class TabDemo extends Application
     @Override
     public void start(final Stage stage)
     {
+        // TabPane with some tabs, fixed size
         final TabPane tabs = new TabPane();
         tabs.setStyle("-fx-background-color: red;");
-
         for (int i=0; i<3; ++i)
         {
             final Rectangle rect = new Rectangle(i*100, 100, 10+i*100, 20+i*80);
@@ -44,7 +44,6 @@ public class TabDemo extends Application
             tab.setClosable(false);
             tabs.getTabs().add(tab);
         }
-
         tabs.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         tabs.setPrefSize(400, 300);
 
@@ -54,19 +53,23 @@ public class TabDemo extends Application
         // Otherwise scroll bars would enable/disable based on layout bounds,
         // regardless of zoom.
         final Group model_parent = new Group(tabs);
+        model_parent.setScaleX(0.8);
+        model_parent.setScaleY(0.8);
         final Group scroll_content = new Group(model_parent);
         final ScrollPane scroll = new ScrollPane(scroll_content);
         final Scene scene = new Scene(scroll);
         stage.setScene(scene);
         stage.show();
 
-        // Red background shows area occupied by TabPane,
-        // but Tabs are missing..
+        // Unfortunately, the setup of ScrollPane -> Group -> Group -> TabPane
+        // breaks the rendering of the TabPane.
+        // While the red background shows the area occupied by TabPane,
+        // the actual Tabs are missing..
         System.out.println("See anything?");
         new Thread(() ->
         {
             try
-            {   TimeUnit.SECONDS.sleep(3); }
+            {   TimeUnit.SECONDS.sleep(4); }
             catch (Exception e) {}
             Platform.runLater(() ->
             {   // .. until TabPane 'side' or tabMinWidth or .. properties
