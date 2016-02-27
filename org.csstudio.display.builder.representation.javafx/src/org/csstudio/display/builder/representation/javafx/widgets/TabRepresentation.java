@@ -18,13 +18,12 @@ import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import com.sun.javafx.tk.Toolkit;
 
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 
 /** Creates JavaFX item for model widget
@@ -111,28 +110,42 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
         final List<TabItemProperty> desired = model_widget.displayTabs().getValue();
         final ObservableList<Tab> actual = jfx_node.getTabs();
 
-        while (actual.size() > desired.size())
-            actual.remove(actual.size()-1);
+        final int N = desired.size();
+        for (int i=actual.size()-1; i >= N; --i)
+            actual.remove(i);
 
-        while (actual.size() < desired.size())
+        // TODO Understand bogus behavior of tabs.
+        // In 'edit' mode, everything is fine.
+        // In 'runtime' mode, the TabPane has the quirks
+        // noted below.
+        // Caused by location of TabPane in scene graph?
+        for (int i=actual.size(); i<N; ++i)
         {
+            final String name = desired.get(i).name().getValue();
             final Pane content = new Pane();
 
-            final int i = actual.size();
-            final Tab tab = new Tab(null, content);
-            final String name = desired.get(i).name().getValue();
+            // 'Tab's are added with a Label as 'graphic'
+            // because that label allows setting the font.
+
+            // XXX Quirk: Tabs will not show the label unless there's also a non-empty text
+            final Tab tab = new Tab(" ", content);
             final Label label = new Label(name);
             tab.setGraphic(label);
             tab.setClosable(false); // !!
             actual.add(tab);
-
-            // TODO Remove dummy content
-            final Rectangle rect = new Rectangle(i*100, 100, 10+i*100, 20+i*80);
-            rect.setFill(Color.BLUE);
-            content.getChildren().add(rect);
-
-            System.out.println(Thread.currentThread().getName() + ": TabRepresentation.tabsChanged() added tab " + name);
         }
+        // XXX Quirk: TabPane does not appear until
+        // some property is twiddled after the tabs have been
+        // defined.
+        // Setting tabs.setStyle("-fx-background-color: mediumaquamarine;");
+        // shows that the TabPane occupies the correct area,
+        // but shows no buttons bar nor content.
+        // Changing the 'side' or 'tabMinWidth' a little later
+        // causes them to appear.
+        Platform.runLater(() ->
+        {
+            jfx_node.setTabMinWidth(10.0 + actual.size());
+        });
     }
 
     private void layoutChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -148,8 +161,6 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
         super.updateChanges();
         if (dirty_layout.checkAndClear())
         {
-//            final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
-//            label.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
             for (Tab tab : jfx_node.getTabs())
             {   // Set the font of the 'graphic' that's used to represent the tab
                 final Label label = (Label) tab.getGraphic();
@@ -159,8 +170,6 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
             final Integer width = model_widget.positionWidth().getValue();
             final Integer height = model_widget.positionHeight().getValue();
             jfx_node.setPrefSize(width, height);
-
-            System.out.println("TabRepresentation.updateChanges to " + width + " x " + height);
         }
     }
 }
