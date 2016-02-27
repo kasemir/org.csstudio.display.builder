@@ -7,12 +7,18 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.sandbox;
 
+import java.util.concurrent.TimeUnit;
+
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.geometry.Side;
+import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
@@ -24,41 +30,52 @@ import javafx.stage.Stage;
 public class TabDemo extends Application
 {
     @Override
-    public void start(Stage primaryStage)
+    public void start(final Stage stage)
     {
         final TabPane tabs = new TabPane();
-        // Where tabs are shown
-        // tabs.setSide(Side.LEFT);
-        // Debug: Show tab area
-        tabs.setStyle("-fx-background-color: mediumaquamarine;");
+        tabs.setStyle("-fx-background-color: red;");
 
-        final int N = 3;
-        final Pane[] content = new Pane[N];
-        for (int i=0; i<N; ++i)
-        {
-            content[i] = new Pane();
-            final Tab tab = new Tab("Tab " + (i+1), content[i]);
-            tab.setClosable(false); // !!
-            tabs.getTabs().add(tab);
-        }
-
-        for (int i=0; i<N; ++i)
+        for (int i=0; i<3; ++i)
         {
             final Rectangle rect = new Rectangle(i*100, 100, 10+i*100, 20+i*80);
             rect.setFill(Color.BLUE);
-            content[i].getChildren().add(rect);
+            final Pane content = new Pane(rect);
+            final Tab tab = new Tab("Tab " + (i+1), content);
+            tab.setClosable(false);
+            tabs.getTabs().add(tab);
         }
 
-        tabs.getSelectionModel().selectedIndexProperty().addListener((t, o, selected) ->
-        {
-            System.out.println("Active Tab: " + selected);
-//            System.out.println("Active Tab: " + tabs.getSelectionModel().getSelectedIndex());
-        });
+        tabs.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        tabs.setPrefSize(400, 300);
 
-        final BorderPane pane = new BorderPane(tabs);
-        Scene scene = new Scene(pane, 800, 600);
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        // https://pixelduke.wordpress.com/2012/09/16/zooming-inside-a-scrollpane :
+        // To allow zooming of widgets in 'model_parent',
+        // it needs to be wrapped in another 'scroll_content' Group.
+        // Otherwise scroll bars would enable/disable based on layout bounds,
+        // regardless of zoom.
+        final Group model_parent = new Group(tabs);
+        final Group scroll_content = new Group(model_parent);
+        final ScrollPane scroll = new ScrollPane(scroll_content);
+        final Scene scene = new Scene(scroll);
+        stage.setScene(scene);
+        stage.show();
+
+        // Red background shows area occupied by TabPane,
+        // but Tabs are missing..
+        System.out.println("See anything?");
+        new Thread(() ->
+        {
+            try
+            {   TimeUnit.SECONDS.sleep(3); }
+            catch (Exception e) {}
+            Platform.runLater(() ->
+            {   // .. until TabPane 'side' or tabMinWidth or .. properties
+                // are twiddled to force a refresh
+                tabs.setSide(Side.BOTTOM);
+                tabs.setSide(Side.TOP);
+                System.out.println("See it now?");
+           });
+        }).start();
     }
 
     public static void main(String[] args)
