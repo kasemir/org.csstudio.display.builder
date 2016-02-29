@@ -18,7 +18,7 @@ import org.csstudio.display.builder.editor.poly.PointsBinding;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.editor.undo.AddWidgetAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
-import org.csstudio.display.builder.editor.util.GroupHandler;
+import org.csstudio.display.builder.editor.util.ParentHandler;
 import org.csstudio.display.builder.editor.util.JFXGeometryTools;
 import org.csstudio.display.builder.editor.util.Rubberband;
 import org.csstudio.display.builder.editor.util.WidgetNaming;
@@ -98,7 +98,7 @@ public class DisplayEditor
 
     private final WidgetSelectionHandler selection = new WidgetSelectionHandler();
 
-    private final GroupHandler group_handler;
+    private final ParentHandler group_handler;
 
     private final SelectedWidgetUITracker selection_tracker;
 
@@ -112,7 +112,7 @@ public class DisplayEditor
     public DisplayEditor(final JFXRepresentation toolkit)
     {
         this.toolkit = toolkit;
-        group_handler = new GroupHandler(edit_tools, selection);
+        group_handler = new ParentHandler(edit_tools, selection);
 
         selection_tracker = new SelectedWidgetUITracker(toolkit, group_handler, selection, undo);
         selection_tracker.enableSnap(true);
@@ -201,7 +201,7 @@ public class DisplayEditor
     private void handleDroppedModel(final DisplayModel dropped_model)
     {
         // Dropped into a sub-group or the main display?
-        Widget container = group_handler.getActiveGroup();
+        Widget container = group_handler.getActiveParent();
         if (container == null)
             container = model;
         // Correct all dropped widget locations relative to container

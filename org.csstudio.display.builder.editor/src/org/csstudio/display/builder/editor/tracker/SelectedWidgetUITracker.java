@@ -18,7 +18,7 @@ import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
-import org.csstudio.display.builder.editor.util.GroupHandler;
+import org.csstudio.display.builder.editor.util.ParentHandler;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
@@ -61,7 +61,7 @@ public class SelectedWidgetUITracker extends Group
     private static final int handle_size = 15;
 
     private final ToolkitRepresentation<Group, Node> toolkit;
-    private final GroupHandler group_handler;
+    private final ParentHandler group_handler;
     private final UndoableActionManager undo;
 
     private final TrackerGridConstraint grid_constraint = new TrackerGridConstraint(10);
@@ -107,7 +107,7 @@ public class SelectedWidgetUITracker extends Group
      *  @param undo 'Undo' manager
      */
     public SelectedWidgetUITracker(final ToolkitRepresentation<Group, Node> toolkit,
-                            final GroupHandler group_handler,
+                            final ParentHandler group_handler,
                             final WidgetSelectionHandler selection,
                             final UndoableActionManager undo)
     {
@@ -462,7 +462,7 @@ public class SelectedWidgetUITracker extends Group
         handle_left.setX(x - handle_size);
         handle_left.setY(y + (height - handle_size)/2);
 
-        group_handler.locateGroup(x, y, width, height);
+        group_handler.locateParent(x, y, width, height);
     }
 
     /** Updates widgets to current tracker location and size */
@@ -490,7 +490,9 @@ public class SelectedWidgetUITracker extends Group
                 final Rectangle2D orig = orig_position.get(i);
 
                 final Widget orig_parent = widget.getParent().get();
-                Widget parent = group_handler.getActiveGroup();
+
+
+                Widget parent = group_handler.getActiveParent();
                 if (parent == null)
                     parent = widget.getDisplayModel();
 
