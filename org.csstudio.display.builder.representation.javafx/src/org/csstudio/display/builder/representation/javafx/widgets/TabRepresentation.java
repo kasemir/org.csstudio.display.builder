@@ -8,10 +8,12 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.TabWidget;
 import org.csstudio.display.builder.model.widgets.TabWidget.TabItemProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -20,6 +22,7 @@ import com.sun.javafx.tk.Toolkit;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.geometry.Side;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -54,7 +57,7 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
     public TabPane createJFXNode() throws Exception
     {
         final TabPane tabs = new TabPane();
-//        tabs.setStyle("-fx-background-color: mediumaquamarine;");
+//      tabs.setStyle("-fx-background-color: mediumaquamarine;");
         tabs.getStyleClass().add(TabPane.STYLE_CLASS_FLOATING);
 
         tabs.setMinSize(TabPane.USE_PREF_SIZE, TabPane.USE_PREF_SIZE);
@@ -114,11 +117,6 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
         for (int i=actual.size()-1; i >= N; --i)
             actual.remove(i);
 
-        // TODO Understand bogus behavior of tabs.
-        // In 'edit' mode, everything is fine.
-        // In 'runtime' mode, the TabPane has the quirks
-        // noted below.
-        // Caused by location of TabPane in scene graph?
         for (int i=actual.size(); i<N; ++i)
         {
             final String name = desired.get(i).name().getValue();
@@ -133,19 +131,12 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
             tab.setGraphic(label);
             tab.setClosable(false); // !!
             actual.add(tab);
+
+            // XXX How to best set the background color?
+            // No API other than style sheet?
+            // tab.setStyle("-fx-background-color: green;");
+            // content.setStyle("-fx-background-color: green;");
         }
-        // XXX Quirk: TabPane does not appear until
-        // some property is twiddled after the tabs have been
-        // defined.
-        // Setting tabs.setStyle("-fx-background-color: mediumaquamarine;");
-        // shows that the TabPane occupies the correct area,
-        // but shows no buttons bar nor content.
-        // Changing the 'side' or 'tabMinWidth' a little later
-        // causes them to appear.
-        Platform.runLater(() ->
-        {
-            jfx_node.setTabMinWidth(10.0 + actual.size());
-        });
     }
 
     private void layoutChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -170,6 +161,20 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
             final Integer width = model_widget.positionWidth().getValue();
             final Integer height = model_widget.positionHeight().getValue();
             jfx_node.setPrefSize(width, height);
+
+            // XXX Force TabPane refresh
+            // See org.csstudio.display.builder.representation.javafx.sandbox.TabDemo
+            final Callable<Object> twiddle = () ->
+            {
+                Thread.sleep(500);
+                Platform.runLater(() ->
+                {
+                    jfx_node.setSide(Side.BOTTOM);
+                    jfx_node.setSide(Side.TOP);
+                });
+                return null;
+            };
+            ModelThreadPool.getExecutor().submit(twiddle);
         }
     }
 }
