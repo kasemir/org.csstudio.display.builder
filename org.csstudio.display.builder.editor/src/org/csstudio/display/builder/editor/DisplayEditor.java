@@ -18,11 +18,12 @@ import org.csstudio.display.builder.editor.poly.PointsBinding;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.editor.undo.AddWidgetAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
-import org.csstudio.display.builder.editor.util.ParentHandler;
 import org.csstudio.display.builder.editor.util.JFXGeometryTools;
+import org.csstudio.display.builder.editor.util.ParentHandler;
 import org.csstudio.display.builder.editor.util.Rubberband;
 import org.csstudio.display.builder.editor.util.WidgetNaming;
 import org.csstudio.display.builder.editor.util.WidgetTransfer;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.representation.ToolkitListener;
@@ -201,9 +202,10 @@ public class DisplayEditor
     private void handleDroppedModel(final DisplayModel dropped_model)
     {
         // Dropped into a sub-group or the main display?
-        Widget container = group_handler.getActiveParent();
-        if (container == null)
-            container = model;
+        ChildrenProperty target = group_handler.getActiveParentChildren();
+        if (target == null)
+            target = model.runtimeChildren();
+        final Widget container = target.getWidget();
         // Correct all dropped widget locations relative to container
         final Point2D offset = GeometryTools.getContainerOffset(container);
         // Also account for scroll pane
@@ -220,7 +222,7 @@ public class DisplayEditor
                 widget.positionX().setValue(widget.positionX().getValue() - dx);
                 widget.positionY().setValue(widget.positionY().getValue() - dy);
                 widget_naming.setDefaultName(container.getDisplayModel(), widget);
-                undo.execute(new AddWidgetAction(container, widget));
+                undo.execute(new AddWidgetAction(target, widget));
             }
             selection.setSelection(dropped);
         }

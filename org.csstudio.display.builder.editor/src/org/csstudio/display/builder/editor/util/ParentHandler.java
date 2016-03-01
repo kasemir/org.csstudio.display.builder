@@ -180,7 +180,7 @@ public class ParentHandler
      *  @param y
      *  @param width
      *  @param height
-     *  @see #getActiveParent()
+     *  @see #getActiveParentChildren()
      */
     public void locateParent(final double x, final double y, final double width, final double height)
     {
@@ -201,11 +201,10 @@ public class ParentHandler
         active_parent_children = parent;
     }
 
-    /** @return Active Widget, may be <code>null</code> */
-    public Widget getActiveParent()
+    /** @return Active Widget's 'children', may be <code>null</code> */
+    public ChildrenProperty getActiveParentChildren()
     {
-        final ChildrenProperty copy = active_parent_children;
-        return copy == null ? null : copy.getWidget();
+        return active_parent_children;
     }
 
     /** Hide the group highlight (in case it's visible) */

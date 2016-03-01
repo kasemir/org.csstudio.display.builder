@@ -490,13 +490,13 @@ public class SelectedWidgetUITracker extends Group
                 final Rectangle2D orig = orig_position.get(i);
 
                 final Widget orig_parent = widget.getParent().get();
+                final ChildrenProperty orig_parent_children = ChildrenProperty.getChildren(orig_parent);
 
+                ChildrenProperty parent_children = group_handler.getActiveParentChildren();
+                if (parent_children == null)
+                    parent_children = widget.getDisplayModel().runtimeChildren();
 
-                Widget parent = group_handler.getActiveParent();
-                if (parent == null)
-                    parent = widget.getDisplayModel();
-
-                if (parent == orig_parent)
+                if (parent_children.getWidget() == orig_parent)
                 {   // Slightly faster since parent stays the same
                     widget.positionX().setValue((int) (orig.getMinX() + dx));
                     widget.positionY().setValue((int) (orig.getMinY() + dy));
@@ -504,12 +504,12 @@ public class SelectedWidgetUITracker extends Group
                 else
                 {   // Update to new parent
                     final Point2D old_offset = GeometryTools.getDisplayOffset(widget);
-                    ChildrenProperty.getChildren(orig_parent).removeChild(widget);
-                    ChildrenProperty.getChildren(parent).addChild(widget);
+                    orig_parent_children.removeChild(widget);
+                    parent_children.addChild(widget);
                     final Point2D new_offset = GeometryTools.getDisplayOffset(widget);
 
                     logger.log(Level.FINE, "{0} moves from {1} ({2}) to {3} ({4})",
-                               new Object[] { widget, orig_parent, old_offset, parent, new_offset});
+                               new Object[] { widget, orig_parent, old_offset, parent_children.getWidget(), new_offset});
                     // Account for old and new display offset
                     widget.positionX().setValue((int) (orig.getMinX() + dx + old_offset.getX() - new_offset.getX()));
                     widget.positionY().setValue((int) (orig.getMinY() + dy + old_offset.getY() - new_offset.getY()));
@@ -517,7 +517,9 @@ public class SelectedWidgetUITracker extends Group
                 widget.positionWidth().setValue((int) (orig.getWidth() + dw));
                 widget.positionHeight().setValue((int) (orig.getHeight() + dh));
 
-                undo.add(new UpdateWidgetLocationAction(widget, orig_parent,
+                undo.add(new UpdateWidgetLocationAction(widget,
+                                                        orig_parent_children,
+                                                        parent_children,
                                                         (int) orig.getMinX(),  (int) orig.getMinY(),
                                                         (int) orig.getWidth(), (int) orig.getHeight()));
             }
