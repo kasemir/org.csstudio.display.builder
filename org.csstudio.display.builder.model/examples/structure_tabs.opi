@@ -3,19 +3,16 @@
   <name>Example</name>
   <width>600</width>
   <height>500</height>
-  <widget type="rectangle" version="2.0.0">
-    <name>Rectangle</name>
-    <x>63</x>
-    <y>81</y>
-    <width>87</width>
-    <height>269</height>
-  </widget>
   <widget type="tab" version="2.0.0">
     <name>Tab</name>
-    <x>63</x>
-    <y>100</y>
-    <width>400</width>
-    <height>330</height>
+    <x>60</x>
+    <y>190</y>
+    <width>420</width>
+    <height>320</height>
+    <font>
+      <font family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
     <tabs>
       <tab>
         <name>One</name>
@@ -27,15 +24,13 @@
         <name>Three</name>
       </tab>
       <tab>
-        <name>Four</name>
+        <name>Another</name>
       </tab>
     </tabs>
   </widget>
   <widget type="rectangle" version="2.0.0">
-    <name>Rectangle_1</name>
-    <x>274</x>
-    <y>52</y>
-    <width>66</width>
-    <height>318</height>
+    <name>Rectangle</name>
+    <x>105</x>
+    <y>72</y>
   </widget>
 </display>
