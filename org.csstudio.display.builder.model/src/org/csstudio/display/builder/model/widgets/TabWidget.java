@@ -22,6 +22,7 @@ import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
@@ -83,6 +84,9 @@ public class TabWidget extends VisibleWidget
             new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.DISPLAY, "tabs", "Tabs", // TODO Externalize
                     (widget, index) -> new TabItemProperty(widget, index));
 
+    private static final WidgetPropertyDescriptor<Integer> runtimeSelected =
+            CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.RUNTIME, "selected_tab", "Selected Tab");
+
     // XXX Legacy Tab held a 'group' for each tab.
     // Editor only affected the selected tab's group.
 
@@ -90,6 +94,7 @@ public class TabWidget extends VisibleWidget
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile ArrayWidgetProperty<TabItemProperty> tabs;
+    private volatile WidgetProperty<Integer> selected;
 
     public TabWidget()
     {
@@ -105,7 +110,7 @@ public class TabWidget extends VisibleWidget
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(tabs = displayTabs.createProperty(this, Arrays.asList(new TabItemProperty(this, 0),
                                                                              new TabItemProperty(this, 1))));
-
+        properties.add(selected = runtimeSelected.createProperty(this, 0));
         // Initial size
         positionWidth().setValue(300);
         positionHeight().setValue(200);
@@ -149,5 +154,11 @@ public class TabWidget extends VisibleWidget
     public ArrayWidgetProperty<TabItemProperty> displayTabs()
     {
         return tabs;
+    }
+
+    /** @return Runtime 'selected' */
+    public WidgetProperty<Integer> runtimeSelected()
+    {
+        return selected;
     }
 }

@@ -91,6 +91,7 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
         {
             System.out.println("Active Tab: " + selected);
 //            System.out.println("Active Tab: " + tabs.getSelectionModel().getSelectedIndex());
+            model_widget.runtimeSelected().setValue(selected.intValue());
         });
 
         // Initial update of font, size
