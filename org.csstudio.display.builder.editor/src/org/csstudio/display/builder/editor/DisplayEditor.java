@@ -242,6 +242,7 @@ public class DisplayEditor
         if (model.getUserData(DisplayModel.USER_DATA_INPUT_FILE) == null)
             logger.log(Level.SEVERE, "Model lacks input file information");
 
+        undo.clear();
         widget_naming.clear();
         selection.clear();
         group_handler.setModel(model);
