@@ -9,7 +9,7 @@
   </macros>
   <width>600</width>
   <height>500</height>
-  <widget type="group" version="2.0.0">
+  <widget type="group" version="1.0.0">
     <name>Group in Main Display</name>
     <macros>
       <SHOW>true</SHOW>
@@ -18,31 +18,29 @@
     <y>10</y>
     <width>500</width>
     <height>502</height>
-    <widget type="label" version="2.0.0">
+    <widget type="label" version="1.0.0">
       <name>Hello</name>
       <y>4</y>
       <height>15</height>
       <text>$(TEXT)</text>
     </widget>
-    <widget type="label" version="2.0.0">
+    <widget type="label" version="1.0.0">
       <name>Hello2</name>
       <x>200</x>
       <y>4</y>
       <height>15</height>
       <text>Some text</text>
     </widget>
-    <widget type="embedded" version="2.0.0">
+    <widget type="embedded" version="1.0.0">
       <name>Embed 1</name>
       <macros>
         <CONTAINER>Embedded Display</CONTAINER>
       </macros>
       <x>10</x>
       <y>30</y>
-      <width>300</width>
-      <height>200</height>
       <file>main_embedded.opi</file>
     </widget>
-    <widget type="action_button" version="2.0.0">
+    <widget type="action_button" version="1.0.0">
       <name>Action 1</name>
       <macros>
         <CONTAINER>Button</CONTAINER>
@@ -58,10 +56,11 @@
             <CONTAINER>Action</CONTAINER>
           </macros>
           <target>replace</target>
+          <description></description>
         </action>
       </actions>
     </widget>
-    <widget type="textentry" version="2.0.0">
+    <widget type="textentry" version="1.0.0">
       <name>Text 1</name>
       <x>10</x>
       <y>422</y>
@@ -69,7 +68,7 @@
       <height>26</height>
       <pv_name>ramp</pv_name>
     </widget>
-    <widget type="action_button" version="2.0.0">
+    <widget type="action_button" version="1.0.0">
       <name>Action 2</name>
       <x>146</x>
       <y>350</y>
@@ -79,15 +78,16 @@
         <action type="write_pv">
           <pv_name>ramp</pv_name>
           <value>0</value>
+          <description></description>
         </action>
       </actions>
     </widget>
-    <widget type="led" version="2.0.0">
+    <widget type="led" version="1.0.0">
       <name>LED</name>
-      <x>314</x>
-      <y>371</y>
-      <width>22</width>
-      <height>24</height>
+      <x>312</x>
+      <y>369</y>
+      <width>24</width>
+      <height>26</height>
       <off_color>
         <color name="Off" red="60" green="100" blue="60">
         </color>
@@ -97,12 +97,5 @@
         </color>
       </on_color>
     </widget>
-  </widget>
-  <widget type="tab" version="2.0.0">
-    <name>Tab</name>
-    <x>70</x>
-    <y>680</y>
-    <width>340</width>
-    <height>260</height>
   </widget>
 </display>
