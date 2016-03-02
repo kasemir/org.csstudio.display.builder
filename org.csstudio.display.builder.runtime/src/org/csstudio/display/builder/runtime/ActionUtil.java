@@ -86,7 +86,7 @@ public class ActionUtil
 
             // On UI thread...
             final DisplayModel top_model = RuntimeUtil.getTopDisplayModel(source_widget);
-            final ToolkitRepresentation<Object, Object> toolkit = RuntimeUtil.getToolkit(top_model);
+            final ToolkitRepresentation<Object, Object> toolkit = ToolkitRepresentation.getToolkit(top_model);
             if (action.getTarget() == OpenDisplayActionInfo.Target.REPLACE)
             {   // Replace the 'top'. Stop old runtime.
                 RuntimeUtil.stopRuntime(top_model);
@@ -128,7 +128,7 @@ public class ActionUtil
      */
     public static void handleClose(final DisplayModel model)
     {
-        final ToolkitRepresentation<Object, Object> toolkit = RuntimeUtil.getToolkit(model);
+        final ToolkitRepresentation<Object, Object> toolkit = ToolkitRepresentation.getToolkit(model);
         RuntimeUtil.stopRuntime(model);
         toolkit.disposeRepresentation(model);
     }

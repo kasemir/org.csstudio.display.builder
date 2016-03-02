@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime;
 
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -147,18 +146,6 @@ public class RuntimeUtil
             }
             return scripting;
         }
-    }
-
-    /** Obtain the toolkit used to represent widgets
-     *
-     *  @param model {@link DisplayModel}
-     *  @return
-     *  @throws NullPointerException if toolkit not set
-     */
-    public static <TWP, TW> ToolkitRepresentation<TWP, TW> getToolkit(final DisplayModel model) throws NullPointerException
-    {
-        final ToolkitRepresentation<TWP, TW> toolkit = model.getUserData(DisplayModel.USER_DATA_TOOLKIT);
-        return Objects.requireNonNull(toolkit, "Toolkit not set");
     }
 
     /** @param widget Widget

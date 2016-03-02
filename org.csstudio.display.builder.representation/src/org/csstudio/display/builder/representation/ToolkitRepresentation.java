@@ -85,6 +85,18 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         factories.put(widget_type, factory);
     }
 
+    /** Obtain the toolkit used to represent widgets
+    *
+    *  @param model {@link DisplayModel}
+    *  @return ToolkitRepresentation
+    *  @throws NullPointerException if toolkit not set
+    */
+    public static <TWP, TW> ToolkitRepresentation<TWP, TW> getToolkit(final DisplayModel model) throws NullPointerException
+    {
+        final ToolkitRepresentation<TWP, TW> toolkit = model.getUserData(DisplayModel.USER_DATA_TOOLKIT);
+        return Objects.requireNonNull(toolkit, "Toolkit not set");
+    }
+
     /** Open new top-level window
      *
      *  <p>Is invoked with the _initial_ model.
