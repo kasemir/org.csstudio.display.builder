@@ -55,7 +55,7 @@ public class WidgetTree
     /** Handler for setting and tracking the currently selected widgets */
     private final WidgetSelectionHandler selection;
 
-    private final TreeView<Widget> tree_view = new TreeView<>();
+    private final TreeView<WidgetOrTab> tree_view = new TreeView<>();
 
     private DisplayModel model = null;
 
@@ -64,52 +64,58 @@ public class WidgetTree
      *  <p>When model notifies about changed Widget,
      *  this map provides the corresponding TreeItem.
      */
-    private volatile Map<Widget, TreeItem<Widget>> widget_items = new ConcurrentHashMap<>();
+    private volatile Map<Widget, TreeItem<WidgetOrTab>> widget_items = new ConcurrentHashMap<>();
 
-    /** Listener to changes in ContainerWidget's children */
+    /** Listener to changes in Widget's children */
     private final WidgetPropertyListener<List<Widget>> children_listener;
 
-    /** Listener to changes in ContainerWidget's children */
+    /** Listener to changes in Widget's children */
     private final WidgetPropertyListener<String> name_listener = (property, old, new_name) ->
     {
         final Widget widget = property.getWidget();
         logger.log(Level.FINE, "{0} changed name", widget);
 
-        final TreeItem<Widget> item = Objects.requireNonNull(widget_items.get(widget));
+        final TreeItem<WidgetOrTab> item = Objects.requireNonNull(widget_items.get(widget));
         // 'setValue' triggers a refresh of the item,
         // but only if value is different..
         Platform.runLater(() ->
         {
             item.setValue(null);
-            item.setValue(widget);
+            item.setValue(WidgetOrTab.of(widget));
         });
     };
 
     /** Tree cell that displays {@link Widget} (name, icon, ..) */
-    private static class WidgetTreeCell extends TreeCell<Widget>
+    private static class WidgetTreeCell extends TreeCell<WidgetOrTab>
     {
         @Override
-        public void updateItem(final Widget widget, final boolean empty)
+        public void updateItem(final WidgetOrTab item, final boolean empty)
         {
-            super.updateItem(widget, empty);
-            if (empty || widget == null)
+            super.updateItem(item, empty);
+            if (empty || item == null)
             {
                 setText(null);
                 setGraphic(null);
             }
+            else if (item.isWidget())
+            {
+                final Widget widget = item.getWidget();
+                final String type = widget.getType();
+                setText(type + " '" + widget.getName() + "'");
+                final Image icon = WidgetIcons.getIcon(type);
+                if (icon != null)
+                    setGraphic(new ImageView(icon));
+            }
             else
             {
-                 final String type = widget.getType();
-                 setText(type + " '" + widget.getName() + "'");
-                 final Image icon = WidgetIcons.getIcon(type);
-                 if (icon != null)
-                     setGraphic(new ImageView(icon));
+                setText(item.getTab().name().getValue());
+                setGraphic(null);
             }
         }
     };
 
-    /** Cell factory that displays {@link Widget} info in tree cell */
-    private final Callback<TreeView<Widget>, TreeCell<Widget>> cell_factory = (final TreeView<Widget> param) ->  new WidgetTreeCell();
+    /** Cell factory that displays {@link WidgetOrTab} info in tree cell */
+    private final Callback<TreeView<WidgetOrTab>, TreeCell<WidgetOrTab>> cell_factory = cell ->  new WidgetTreeCell();
 
 
     /** Construct widget tree
@@ -174,7 +180,7 @@ public class WidgetTree
     private void bindSelections()
     {
         // Update selected widgets in model from selection in tree_view
-        final ObservableList<TreeItem<Widget>> tree_selection = tree_view.getSelectionModel().getSelectedItems();
+        final ObservableList<TreeItem<WidgetOrTab>> tree_selection = tree_view.getSelectionModel().getSelectedItems();
         InvalidationListener listener = (Observable observable) ->
         {
             if (! active.compareAndSet(false, true))
@@ -182,7 +188,16 @@ public class WidgetTree
             try
             {
                 final List<Widget> widgets = new ArrayList<>(tree_selection.size());
-                tree_selection.forEach(item -> widgets.add(item.getValue()));
+
+                for (TreeItem<WidgetOrTab> item : tree_selection)
+                {
+                    final WidgetOrTab wot = item.getValue();
+                    final Widget widget = wot.isWidget()
+                        ? wot.getWidget()
+                        : wot.getTab().getWidget();
+                    if (! widgets.contains(widget))
+                        widgets.add(widget);
+                };
                 logger.log(Level.FINE, "Selected in tree: {0}", widgets);
                 selection.setSelection(widgets);
             }
@@ -216,8 +231,8 @@ public class WidgetTree
         // Might be called on UI thread, move off
         EditorUtil.getExecutor().execute(() ->
         {
-            final TreeItem<Widget> root = new TreeItem<Widget>(model);
-            final Map<Widget, TreeItem<Widget>> widget_items = new ConcurrentHashMap<>();
+            final TreeItem<WidgetOrTab> root = new TreeItem<WidgetOrTab>(WidgetOrTab.of(model));
+            final Map<Widget, TreeItem<WidgetOrTab>> widget_items = new ConcurrentHashMap<>();
             if (model != null)
             {
                 widget_items.put(model, root);
@@ -245,7 +260,7 @@ public class WidgetTree
             return;
         try
         {
-            final MultipleSelectionModel<TreeItem<Widget>> selection = tree_view.getSelectionModel();
+            final MultipleSelectionModel<TreeItem<WidgetOrTab>> selection = tree_view.getSelectionModel();
             selection.clearSelection();
             for (Widget widget : widgets)
                 selection.select(widget_items.get(widget));
@@ -260,14 +275,14 @@ public class WidgetTree
      *  @param added_widget Widget to add
      *  @param widget_items Map of widget to tree item
      */
-    private void addWidget(final Widget added_widget, final Map<Widget, TreeItem<Widget>> widget_items)
+    private void addWidget(final Widget added_widget, final Map<Widget, TreeItem<WidgetOrTab>> widget_items)
     {   // Determine location of widget within parent of model
         final Widget widget_parent = added_widget.getParent().get();
         final int index = ChildrenProperty.getChildren(widget_parent).getValue().indexOf(added_widget);
 
         // Create Tree item, add at same index into Tree
-        final TreeItem<Widget> item_parent = widget_items.get(widget_parent);
-        final TreeItem<Widget> item = new TreeItem<>(added_widget);
+        final TreeItem<WidgetOrTab> item_parent = widget_items.get(widget_parent);
+        final TreeItem<WidgetOrTab> item = new TreeItem<>(WidgetOrTab.of(added_widget));
         widget_items.put(added_widget, item);
         item.setExpanded(true);
         item_parent.getChildren().add(index, item);
@@ -298,7 +313,7 @@ public class WidgetTree
                 removeWidget(child);
         }
 
-        final TreeItem<Widget> item = widget_items.get(removed_widget);
+        final TreeItem<WidgetOrTab> item = widget_items.get(removed_widget);
         item.getParent().getChildren().remove(item);
         widget_items.remove(removed_widget);
     }
