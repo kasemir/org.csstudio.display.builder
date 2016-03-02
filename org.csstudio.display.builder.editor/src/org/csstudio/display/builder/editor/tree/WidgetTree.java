@@ -92,8 +92,17 @@ public class WidgetTree
         });
     };
 
+    /** Listener to changes in a TabWidget's tabs */
+    private final WidgetPropertyListener<List<TabItemProperty>> tabs_property_listener = (tabs, removed, added) ->
+    {
+        if (added != null)
+            addTabs(added);
+        if (removed != null)
+            removeTabs(removed);
+    };
+
     /** Update the name of a tab item in the tree */
-    WidgetPropertyListener<String> tab_name_listener = (tab_name, old_name, new_name) ->
+    private final WidgetPropertyListener<String> tab_name_listener = (tab_name, old_name, new_name) ->
     {
         final TreeItem<WidgetOrTab> tab_item = Objects.requireNonNull(tab_name2tree.get(tab_name));
         final WidgetOrTab wot = tab_item.getValue();
@@ -314,24 +323,35 @@ public class WidgetTree
         if (added_widget instanceof TabWidget)
         {
             final ArrayWidgetProperty<TabItemProperty> tabs = ((TabWidget)added_widget).displayTabs();
-            for (TabItemProperty tab : tabs.getValue())
-            {
-                final TreeItem<WidgetOrTab> tab_item = new TreeItem<>(WidgetOrTab.of(tab));
-                item.getChildren().add(tab_item);
-                tab_name2tree.put(tab.name(), tab_item);
-                tab.name().addPropertyListener(tab_name_listener);
-
-                // TODO tab.children().addPropertyListener(tab_children_listener);
-            }
+            addTabs(tabs.getValue());
             tabs.addPropertyListener(tabs_property_listener);
         }
     }
 
-    WidgetPropertyListener<List<TabItemProperty>> tabs_property_listener = (tabs, removed, added) ->
+    private void addTabs(final List<TabItemProperty> added)
     {
-        // TODO Add/remove
-        System.out.println("Tabs '" + tabs.getWidget().getName() + "' added " + added + ", removed " + removed);
-    };
+        for (TabItemProperty tab : added)
+        {
+            final TreeItem<WidgetOrTab> widget_item = widget2tree.get(tab.getWidget());
+            final TreeItem<WidgetOrTab> tab_item = new TreeItem<>(WidgetOrTab.of(tab));
+            widget_item.getChildren().add(tab_item);
+            tab_name2tree.put(tab.name(), tab_item);
+            tab.name().addPropertyListener(tab_name_listener);
+
+            // TODO tab.children().addPropertyListener(tab_children_listener);
+        }
+    }
+
+    private void removeTabs(final List<TabItemProperty> removed)
+    {
+        for (TabItemProperty tab : removed)
+        {
+            // TODO tab.children().removePropertyListener(tab_children_listener);
+            tab.name().removePropertyListener(tab_name_listener);
+            final TreeItem<WidgetOrTab> tab_item = tab_name2tree.remove(tab.name());
+            tab_item.getParent().getChildren().remove(tab_item);
+        }
+    }
 
     /** Remove widget from existing model & tree
      *  @param removed_widget
@@ -342,13 +362,7 @@ public class WidgetTree
         {
             final ArrayWidgetProperty<TabItemProperty> tabs = ((TabWidget)removed_widget).displayTabs();
             tabs.removePropertyListener(tabs_property_listener);
-            for (TabItemProperty tab : tabs.getValue())
-            {
-                // TODO tab.children().removePropertyListener(tab_children_listener);
-                tab.name().removePropertyListener(tab_name_listener);
-                final TreeItem<WidgetOrTab> tab_item = tab_name2tree.remove(tab.name());
-                tab_item.getParent().getChildren().remove(tab_item);
-            }
+            removeTabs(tabs.getValue());
         }
 
         removed_widget.widgetName().removePropertyListener(name_listener);
