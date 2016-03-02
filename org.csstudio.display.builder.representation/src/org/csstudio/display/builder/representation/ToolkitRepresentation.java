@@ -162,7 +162,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *  @return Toolkit item that represents the widget
      *  @see #disposeWidget(Object, Widget)
      */
-    private void representWidget(final TWP parent, final Widget widget)
+    public void representWidget(final TWP parent, final Widget widget)
     {
         final WidgetRepresentationFactory<TWP, TW> factory = factories.get(widget.getType());
         if (factory == null)
@@ -230,7 +230,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     /** Remove toolkit widget for model widget
      *  @param widget Model widget that should no longer be represented
      */
-    private void disposeWidget(final Widget widget)
+    public void disposeWidget(final Widget widget)
     {
         final ChildrenProperty children = ChildrenProperty.getChildren(widget);
         if (children != null)

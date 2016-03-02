@@ -8,11 +8,14 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.TabWidget;
 import org.csstudio.display.builder.model.widgets.TabWidget.TabItemProperty;
@@ -21,12 +24,11 @@ import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import com.sun.javafx.tk.Toolkit;
 
 import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.geometry.Side;
+import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 
 /** Creates JavaFX item for model widget
@@ -40,17 +42,48 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
 
     private volatile Font tab_font;
 
-    private final UntypedWidgetPropertyListener tab_title_listener = (property, old_value, new_value) ->
+    private final WidgetPropertyListener<String> tab_title_listener = (property, old_value, new_value) ->
     {
-        final List<TabItemProperty> desired = model_widget.displayTabs().getValue();
-        final ObservableList<Tab> actual = jfx_node.getTabs();
-        final int N = Math.min(desired.size(), actual.size());
-        for (int i=0; i<N; ++i)
-        {
-            final Tab tab = actual.get(i);
-            final Label label = (Label) tab.getGraphic();
-            label.setText(desired.get(i).name().getValue());
-        }
+        final List<TabItemProperty> model_tabs = model_widget.displayTabs().getValue();
+        for (int i=0; i<model_tabs.size(); ++i)
+            if (model_tabs.get(i).name() == property)
+            {
+                final Tab tab = jfx_node.getTabs().get(i);
+                final Label label = (Label) tab.getGraphic();
+                label.setText(property.getValue());
+                break;
+            }
+    };
+
+    // TODO Extract 'added' code to add initial children
+    // TODO Fix positioning
+    // TODO Make child widgets selectable in editor
+    // TODO Show child widgets in tree
+    private final WidgetPropertyListener<List<Widget>> tab_children_listener = (property, removed, added) ->
+    {
+        final List<TabItemProperty> model_tabs = model_widget.displayTabs().getValue();
+        int index;
+        for (index = model_tabs.size() - 1;  index >= 0; --index)
+            if (model_tabs.get(index).children() == property)
+                break;
+        if (index < 0)
+            throw new IllegalStateException("Cannot locate tab children " + property + " in " + model_widget);
+
+        final Group parent_item = (Group) jfx_node.getTabs().get(index).getContent();
+        if (removed != null)
+            for (Widget removed_widget : removed)
+            {
+                toolkit.execute(() -> toolkit.disposeWidget(removed_widget));
+            }
+
+        if (added != null)
+            for (Widget added_widget : added)
+            {
+                final Optional<Widget> parent = added_widget.getParent();
+                if (! parent.isPresent())
+                    throw new IllegalStateException("Cannot locate parent widget for " + added_widget);
+                toolkit.execute(() -> toolkit.representWidget(parent_item, added_widget));
+            }
     };
 
     @Override
@@ -67,12 +100,6 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
         return tabs;
     }
 
-//    @Override
-//    protected Group getChildParent(final Group parent)
-//    {
-//        return inner;
-//    }
-
     @Override
     protected void registerListeners()
     {
@@ -84,7 +111,7 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
         model_widget.positionWidth().addUntypedPropertyListener(listener);
         model_widget.positionHeight().addUntypedPropertyListener(listener);
 
-        tabsChanged(null, null, model_widget.displayTabs().getValue());
+        addTabs(model_widget.displayTabs().getValue());
         model_widget.displayTabs().addPropertyListener(this::tabsChanged);
 
         jfx_node.getSelectionModel().selectedIndexProperty().addListener((t, o, selected) ->
@@ -103,25 +130,18 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
                              final List<TabItemProperty> added)
     {
         Toolkit.getToolkit().checkFxUserThread();
-        // System.out.println("Tabs added: " + added + ", removed: " + removed);
         if (removed != null)
-            for (TabItemProperty item : removed)
-                item.name().removePropertyListener(tab_title_listener);
+            removeTabs(removed);
         if (added != null)
-            for (TabItemProperty item : added)
-                item.name().addUntypedPropertyListener(tab_title_listener);
+            addTabs(added);
+    }
 
-        final List<TabItemProperty> desired = model_widget.displayTabs().getValue();
-        final ObservableList<Tab> actual = jfx_node.getTabs();
-
-        final int N = desired.size();
-        for (int i=actual.size()-1; i >= N; --i)
-            actual.remove(i);
-
-        for (int i=actual.size(); i<N; ++i)
+    private void addTabs(final List<TabItemProperty> added)
+    {
+        for (TabItemProperty item : added)
         {
-            final String name = desired.get(i).name().getValue();
-            final Pane content = new Pane();
+            final String name = item.name().getValue();
+            final Group content = new Group();
 
             // 'Tab's are added with a Label as 'graphic'
             // because that label allows setting the font.
@@ -131,12 +151,31 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
             final Label label = new Label(name);
             tab.setGraphic(label);
             tab.setClosable(false); // !!
-            actual.add(tab);
+            tab.setUserData(item);
+            jfx_node.getTabs().add(tab);
 
             // XXX How to best set the background color?
             // No API other than style sheet?
             // tab.setStyle("-fx-background-color: green;");
             // content.setStyle("-fx-background-color: green;");
+
+            item.name().addPropertyListener(tab_title_listener);
+            item.children().addPropertyListener(tab_children_listener);
+        }
+    }
+
+    private void removeTabs(final List<TabItemProperty> removed)
+    {
+        for (TabItemProperty item : removed)
+        {
+            item.children().removePropertyListener(tab_children_listener);
+            item.name().removePropertyListener(tab_title_listener);
+            for (Tab tab : jfx_node.getTabs())
+                if (tab.getUserData() == item)
+                {
+                    jfx_node.getTabs().remove(tab);
+                    break;
+                }
         }
     }
 
