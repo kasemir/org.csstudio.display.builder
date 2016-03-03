@@ -55,8 +55,7 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
             }
     };
 
-    // TODO Extract 'added' code to add initial children
-    // TODO Fix positioning
+    // TODO Fix positioning: Use Pane instead of Group (and change FX toolkit to use Parent as, well, parent instead of Group)
     // TODO Make child widgets selectable in editor
     // TODO Show child widgets in tree
     private final WidgetPropertyListener<List<Widget>> tab_children_listener = (property, removed, added) ->
@@ -77,13 +76,7 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
             }
 
         if (added != null)
-            for (Widget added_widget : added)
-            {
-                final Optional<Widget> parent = added_widget.getParent();
-                if (! parent.isPresent())
-                    throw new IllegalStateException("Cannot locate parent widget for " + added_widget);
-                toolkit.execute(() -> toolkit.representWidget(parent_item, added_widget));
-            }
+            addChildren(index, added);
     };
 
     @Override
@@ -105,13 +98,15 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
     {
         super.registerListeners();
 
+        // Create initial tabs and their children
+        addTabs(model_widget.displayTabs().getValue());
+
         final UntypedWidgetPropertyListener listener = this::layoutChanged;
 //        model_widget.displayBackgroundColor().addUntypedPropertyListener(listener);
         model_widget.displayFont().addUntypedPropertyListener(listener);
         model_widget.positionWidth().addUntypedPropertyListener(listener);
         model_widget.positionHeight().addUntypedPropertyListener(listener);
 
-        addTabs(model_widget.displayTabs().getValue());
         model_widget.displayTabs().addPropertyListener(this::tabsChanged);
 
         jfx_node.getSelectionModel().selectedIndexProperty().addListener((t, o, selected) ->
@@ -152,7 +147,11 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
             tab.setGraphic(label);
             tab.setClosable(false); // !!
             tab.setUserData(item);
+
+            final int index = jfx_node.getTabs().size();
             jfx_node.getTabs().add(tab);
+
+            addChildren(index, item.children().getValue());
 
             // XXX How to best set the background color?
             // No API other than style sheet?
@@ -176,6 +175,18 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
                     jfx_node.getTabs().remove(tab);
                     break;
                 }
+        }
+    }
+
+    private void addChildren(final int index, final List<Widget> added)
+    {
+        final Group parent_item = (Group) jfx_node.getTabs().get(index).getContent();
+        for (Widget added_widget : added)
+        {
+            final Optional<Widget> parent = added_widget.getParent();
+            if (! parent.isPresent())
+                throw new IllegalStateException("Cannot locate parent widget for " + added_widget);
+            toolkit.execute(() -> toolkit.representWidget(parent_item, added_widget));
         }
     }
 
