@@ -18,6 +18,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
@@ -83,7 +84,7 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
     }
 
     @Override
-    public void readFromXML(final Element property_xml) throws Exception
+    public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
         // Also handles legacy XML
         // <path pathString="test.py" checkConnect="true" sfe="false" seoe="false">

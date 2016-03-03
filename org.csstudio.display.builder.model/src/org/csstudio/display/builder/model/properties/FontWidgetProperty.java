@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.WidgetFontService;
 import org.csstudio.display.builder.model.persist.XMLTags;
@@ -85,7 +86,7 @@ public class FontWidgetProperty extends WidgetProperty<WidgetFont>
     }
 
     @Override
-    public void readFromXML(final Element property_xml) throws Exception
+    public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
         final String name, family;
         final WidgetFontStyle style;

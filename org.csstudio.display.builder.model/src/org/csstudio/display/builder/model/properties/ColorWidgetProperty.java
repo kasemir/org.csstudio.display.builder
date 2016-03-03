@@ -12,6 +12,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLTags;
@@ -72,7 +73,7 @@ public class ColorWidgetProperty extends WidgetProperty<WidgetColor>
     }
 
     @Override
-    public void readFromXML(final Element property_xml) throws Exception
+    public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
         final Element col_el = XMLUtil.getChildElement(property_xml, XMLTags.COLOR);
         if (col_el == null)

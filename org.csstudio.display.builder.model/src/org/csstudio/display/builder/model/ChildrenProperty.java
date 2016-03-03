@@ -15,6 +15,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.w3c.dom.Element;
 
@@ -169,8 +170,8 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
     }
 
     @Override
-    public void readFromXML(Element property_xml) throws Exception
+    public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
-        // TODO Read child widgets
+        model_reader.readWidgets(this, property_xml);
     }
 }

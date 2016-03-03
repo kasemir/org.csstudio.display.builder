@@ -25,6 +25,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
@@ -115,10 +116,10 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         }
 
         @Override
-        public boolean configureFromXML(Widget widget, Element xml)
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget, final Element xml)
                 throws Exception
         {
-            if (! super.configureFromXML(widget, xml))
+            if (! super.configureFromXML(model_reader, widget, xml))
                 return false;
 
             // Fall back to legacy "opi_file" for display file

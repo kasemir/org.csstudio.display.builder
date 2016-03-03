@@ -12,6 +12,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.w3c.dom.Element;
@@ -61,7 +62,7 @@ public class PointsWidgetProperty extends WidgetProperty<Points>
     }
 
     @Override
-    public void readFromXML(final Element property_xml) throws Exception
+    public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
         final Points points = new Points();
         for (Element p_xml : XMLUtil.getChildElements(property_xml, "point"))

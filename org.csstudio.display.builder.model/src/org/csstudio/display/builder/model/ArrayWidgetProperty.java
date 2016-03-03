@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -175,7 +176,7 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
     }
 
     @Override
-    public void readFromXML(final Element property_xml) throws Exception
+    public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
         // Loop over XML child elements.
         // The element names are unknown at this time, only once we create an element
@@ -191,7 +192,7 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
                     ((Descriptor<WPE>)descriptor).factory.newElement(widget, elements.size());
                 try
                 {
-                    element.readFromXML(child_xml);
+                    element.readFromXML(model_reader, child_xml);
                 }
                 catch (Exception ex)
                 {

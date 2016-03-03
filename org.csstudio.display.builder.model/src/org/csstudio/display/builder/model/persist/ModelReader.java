@@ -101,20 +101,19 @@ public class ModelReader
         final DisplayModel model = new DisplayModel();
 
         // Read display's own properties
-        model.getConfigurator(version).configureFromXML(model, root);
+        model.getConfigurator(version).configureFromXML(this, model, root);
         // Read widgets of model
-        readChildWidgets(model, model.runtimeChildren(), root);
+        readWidgets(model.runtimeChildren(), root);
         return model;
     }
 
     final private Set<String> unknown_widget_type = new HashSet<>();
 
     /** Read all <widget>.. child entries
-     *  @param parent_widget Parent widget
-     *  @param children 'children' property of the parent widget
+     *  @param children 'children' property where widgets are added
      *  @param parent_xml XML of the parent widget from which child entries are read
      */
-    private void readChildWidgets(final Widget parent_widget, final ChildrenProperty children, final Element parent_xml)
+    public void readWidgets(final ChildrenProperty children, final Element parent_xml)
     {
         for (final Element widget_xml : XMLUtil.getChildElements(parent_xml, XMLTags.WIDGET))
         {
@@ -163,7 +162,7 @@ public class ModelReader
 
         final ChildrenProperty children = ChildrenProperty.getChildren(widget);
         if (children != null)
-            readChildWidgets(widget, children, widget_xml);
+            readWidgets(children, widget_xml);
 
         return widget;
     }
@@ -185,7 +184,7 @@ public class ModelReader
         for (WidgetDescriptor desc : WidgetFactory.getInstance().getAllWidgetDescriptors(type))
         {
             final Widget widget = desc.createWidget();
-            if (widget.getConfigurator(xml_version).configureFromXML(widget, widget_xml))
+            if (widget.getConfigurator(xml_version).configureFromXML(this, widget, widget_xml))
                 return widget;
         }
         throw new Exception("No suitable widget for " + type);

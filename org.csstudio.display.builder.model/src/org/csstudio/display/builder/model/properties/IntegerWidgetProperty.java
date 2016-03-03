@@ -12,6 +12,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.w3c.dom.Element;
@@ -111,7 +112,7 @@ public class IntegerWidgetProperty extends MacroizedWidgetProperty<Integer>
     }
 
     @Override
-    public void readFromXML(final Element property_xml) throws Exception
+    public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
         setSpecification(XMLUtil.getString(property_xml));
     }

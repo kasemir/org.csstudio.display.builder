@@ -14,6 +14,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.MacroXMLUtil;
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.w3c.dom.Element;
 
@@ -54,7 +55,7 @@ public class MacrosWidgetProperty extends WidgetProperty<Macros>
     }
 
     @Override
-    public void readFromXML(final Element property_xml) throws Exception
+    public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
         setValue(MacroXMLUtil.readMacros(property_xml));
     }

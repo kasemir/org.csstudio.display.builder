@@ -11,6 +11,7 @@ import java.util.Objects;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.properties.PropertyChangeHandler;
 import org.w3c.dom.Element;
@@ -172,10 +173,11 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
     abstract public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception;
 
     /** Read value from persisted XML
+     *  @param model_reader {@link ModelReader}
      *  @param property_xml XML element
      *  @throws Exception on error
      */
-    abstract public void readFromXML(final Element property_xml) throws Exception;
+    abstract public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception;
 
     /** Notify listeners of property change.
      *
