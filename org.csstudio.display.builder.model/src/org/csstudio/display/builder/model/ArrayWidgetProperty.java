@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -165,14 +166,12 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
     }
 
     @Override
-    public void writeToXML(final XMLStreamWriter writer) throws Exception
-    {
+    public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
+    {   // Must always write each array element, even default,
+        // because otherwise an array with "new value, default, default, other value"
+        // would change from 4 into 2 elements
         for (WPE element : value)
-        {
-            writer.writeStartElement(element.getName());
-            element.writeToXML(writer);
-            writer.writeEndElement();
-        }
+            model_writer.writeProperty(element);
     }
 
     @Override

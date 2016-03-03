@@ -18,6 +18,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.w3c.dom.Element;
@@ -53,7 +54,7 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
     }
 
     @Override
-    public void writeToXML(final XMLStreamWriter writer) throws Exception
+    public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
     {
         // <script file="..">
         //   <pv trigger="true">pv_name</pv>

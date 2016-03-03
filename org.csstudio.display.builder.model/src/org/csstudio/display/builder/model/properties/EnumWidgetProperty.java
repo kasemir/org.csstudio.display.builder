@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.w3c.dom.Element;
 
@@ -132,7 +133,7 @@ public class EnumWidgetProperty<E extends Enum<E>> extends MacroizedWidgetProper
     }
 
     @Override
-    public void writeToXML(final XMLStreamWriter writer) throws Exception
+    public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
     {
         writer.writeCharacters(specification);
     }

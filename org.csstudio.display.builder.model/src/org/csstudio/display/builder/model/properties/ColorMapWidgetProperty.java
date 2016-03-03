@@ -12,6 +12,7 @@ import javax.xml.stream.XMLStreamWriter;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.w3c.dom.Element;
 
 /** Widget property with ColorMap as value.
@@ -44,7 +45,7 @@ public class ColorMapWidgetProperty extends WidgetProperty<ColorMap>
     }
 
     @Override
-    public void writeToXML(final XMLStreamWriter writer) throws Exception
+    public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
     {
         // TODO Write colormap
         writer.writeStartElement("color_map");

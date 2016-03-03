@@ -11,6 +11,7 @@ import java.util.Objects;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.properties.PropertyChangeHandler;
 import org.w3c.dom.Element;
 
@@ -164,10 +165,11 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
      *
      *  <p>Writer will be positioned inside the property.
      *  Implementation needs to write the property's value.
-     *  @param writer Writer
+     *  @param model_writer {@link ModelWriter}
+     *  @param writer Stream writer
      *  @throws Exception on error
      */
-    abstract public void writeToXML(final XMLStreamWriter writer) throws Exception;
+    abstract public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception;
 
     /** Read value from persisted XML
      *  @param property_xml XML element

@@ -13,6 +13,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.xml.stream.XMLStreamWriter;
+
+import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.w3c.dom.Element;
+
 /** Widget property that holds list of child widgets.
  *
  *  <p>A 'ContainerWidget' is a widget that has this 'children' property.
@@ -57,7 +62,8 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
 
     public ChildrenProperty(final Widget widget)
     {
-        super(DESCRIPTOR, widget, new CopyOnWriteArrayList<>());
+        super(DESCRIPTOR, widget, Collections.emptyList());
+        value = new CopyOnWriteArrayList<>();
     }
 
     @Override
@@ -154,5 +160,17 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
         child.setParent(null);
         firePropertyChange(Arrays.asList(child), null);
         return index;
+    }
+
+    @Override
+    public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
+    {
+        model_writer.writeWidgets(getValue());
+    }
+
+    @Override
+    public void readFromXML(Element property_xml) throws Exception
+    {
+        // TODO Read child widgets
     }
 }

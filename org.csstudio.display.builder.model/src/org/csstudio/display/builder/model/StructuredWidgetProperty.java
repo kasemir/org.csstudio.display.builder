@@ -116,10 +116,10 @@ public class StructuredWidgetProperty extends WidgetProperty<List<WidgetProperty
     }
 
     @Override
-    public void writeToXML(final XMLStreamWriter writer) throws Exception
+    public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
     {
         for (WidgetProperty<?> element : value)
-            ModelWriter.writeProperty(writer, element);
+            model_writer.writeProperty(element);
     }
 
     @Override
