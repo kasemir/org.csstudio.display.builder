@@ -31,6 +31,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
@@ -60,7 +61,7 @@ public class SelectedWidgetUITracker extends Group
 
     private static final int handle_size = 15;
 
-    private final ToolkitRepresentation<Group, Node> toolkit;
+    private final ToolkitRepresentation<Parent, Node> toolkit;
     private final ParentHandler group_handler;
     private final UndoableActionManager undo;
 
@@ -106,7 +107,7 @@ public class SelectedWidgetUITracker extends Group
      *  @param selection Selection handler
      *  @param undo 'Undo' manager
      */
-    public SelectedWidgetUITracker(final ToolkitRepresentation<Group, Node> toolkit,
+    public SelectedWidgetUITracker(final ToolkitRepresentation<Parent, Node> toolkit,
                             final ParentHandler group_handler,
                             final WidgetSelectionHandler selection,
                             final UndoableActionManager undo)

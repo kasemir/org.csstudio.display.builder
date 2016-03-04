@@ -17,16 +17,18 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.widgets.TabWidget;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
+import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 
 /** Base class for all JavaFX widget representations
  *  @param <JFX> JFX Widget
  *  @param <MW> Model widget
  *  @author Kay Kasemir
  */
-abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget> extends WidgetRepresentation<Group, Node, MW>
+abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget> extends WidgetRepresentation<Parent, Node, MW>
 {
     /** JFX node (or root of sub scene graph) that represents the widget
      *  <p>Only accessed on the JFX thread
@@ -39,7 +41,7 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
 
     /** {@inheritDoc} */
     @Override
-    public Group createComponents(final Group parent) throws Exception
+    public Parent createComponents(final Parent parent) throws Exception
     {
         jfx_node = createJFXNode();
         if (jfx_node != null)
@@ -59,9 +61,9 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
                 index = -1;
 
             if (index < 0)
-                parent.getChildren().add(jfx_node);
+                JFXRepresentation.getChildren(parent).add(jfx_node);
             else
-                parent.getChildren().add(index, jfx_node);
+                JFXRepresentation.getChildren(parent).add(index, jfx_node);
 
             // Any visible item can be 'clicked' to allow editor to 'select' it
             jfx_node.setOnMousePressed((event) ->
@@ -126,7 +128,7 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
      *  @param parent parent of this JavaFX representation
      *  @return Desired parent for child nodes
      */
-    protected Group getChildParent(final Group parent)
+    protected Parent getChildParent(final Parent parent)
     {
         return parent;
     }

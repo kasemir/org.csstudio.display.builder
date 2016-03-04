@@ -13,7 +13,7 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 
-import javafx.scene.Group;
+import javafx.scene.Parent;
 
 /** Represent display builder in JFX inside RCP Views
  *
@@ -29,7 +29,7 @@ public class RCP_JFXRepresentation extends JFXRepresentation
     }
 
     @Override
-    public Group openNewWindow(final DisplayModel model,
+    public Parent openNewWindow(final DisplayModel model,
                                final Consumer<DisplayModel> close_handler) throws Exception
     {
         final RuntimeViewPart part = RuntimeViewPart.open(close_handler);
@@ -37,7 +37,7 @@ public class RCP_JFXRepresentation extends JFXRepresentation
     }
 
     @Override
-    public void representModel(final Group parent, final DisplayModel model)
+    public void representModel(final Parent parent, final DisplayModel model)
             throws Exception
     {
         // Top-level Group of the part's Scene has pointer to RuntimeViewPart.

@@ -29,6 +29,7 @@ import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 
 /** Creates JavaFX item for model widget
@@ -55,8 +56,7 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
             }
     };
 
-    // TODO Fix positioning: Use Pane instead of Group (and change FX toolkit to use Parent as, well, parent instead of Group)
-    // TODO Make child widgets selectable in editor
+    // TODO Fix 'inset' positioning
     // TODO Show child widgets in tree
     private final WidgetPropertyListener<List<Widget>> tab_children_listener = (property, removed, added) ->
     {
@@ -136,7 +136,7 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
         for (TabItemProperty item : added)
         {
             final String name = item.name().getValue();
-            final Group content = new Group();
+            final Pane content = new Pane();
 
             // 'Tab's are added with a Label as 'graphic'
             // because that label allows setting the font.
@@ -180,7 +180,7 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
 
     private void addChildren(final int index, final List<Widget> added)
     {
-        final Group parent_item = (Group) jfx_node.getTabs().get(index).getContent();
+        final Pane parent_item = (Pane) jfx_node.getTabs().get(index).getContent();
         for (Widget added_widget : added)
         {
             final Optional<Widget> parent = added_widget.getParent();

@@ -61,17 +61,26 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.RegistryFactory;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Pane;
 
 /** Represent model items in JavaFX toolkit
+ *
+ *  <p>The parent of each widget is either a {@link Group} or
+ *  a {@link Pane}.
+ *  Common ancestor of both is {@link Parent}, but note that other
+ *  parent types (Region, ..) are not permitted.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
+public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
 {
     public static final String ACTIVE_MODEL = "_active_model";
 
@@ -86,13 +95,13 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
 
     /** Cached map of widget ID to representation factory */
     // TODO Use a boolean is_initialized instead of keeping complete hash
-    private static final Map<String, WidgetRepresentationFactory<Group, Node>> factories = new HashMap<>();
+    private static final Map<String, WidgetRepresentationFactory<Parent, Node>> factories = new HashMap<>();
 
     /** Construct new JFX representation */
     public JFXRepresentation()
     {
         // Parse registry only once, not for every instance of the JFX toolkit
-        final Set<Entry<String, WidgetRepresentationFactory<Group, Node>>> entries;
+        final Set<Entry<String, WidgetRepresentationFactory<Parent, Node>>> entries;
         synchronized (factories)
         {
             if (factories.isEmpty())
@@ -114,7 +123,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
             }
             entries = factories.entrySet();
         }
-        for (Map.Entry<String, WidgetRepresentationFactory<Group, Node>> entry : entries)
+        for (Map.Entry<String, WidgetRepresentationFactory<Parent, Node>> entry : entries)
             register(entry.getKey(), entry.getValue());
     }
 
@@ -143,9 +152,9 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
     }
 
     @SuppressWarnings("unchecked")
-    private WidgetRepresentationFactory<Group, Node> createFactory(final IConfigurationElement config)
+    private WidgetRepresentationFactory<Parent, Node> createFactory(final IConfigurationElement config)
     {
-        return () -> (WidgetRepresentation<Group, Node, Widget>) config.createExecutableExtension("class");
+        return () -> (WidgetRepresentation<Parent, Node, Widget>) config.createExecutableExtension("class");
     }
 
     // Scene support, meant for runtime, supporting scroll & zoom.
@@ -223,7 +232,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
      *  @param scene Scene created for model
      *  @return Root element
      */
-    final public Group getSceneRoot(final Scene scene)
+    final public Parent getSceneRoot(final Scene scene)
     {
         final ScrollPane scroll_pane = (ScrollPane)scene.getRoot();
         final Group content = (Group) scroll_pane.getContent();
@@ -231,23 +240,36 @@ public class JFXRepresentation extends ToolkitRepresentation<Group, Node>
         return model_parent;
     }
 
+    /** Obtain the 'children' of a Toolkit widget parent
+     *  @param parent Parent that's either Group or Pane
+     *  @return Children
+     */
+    public static ObservableList<Node> getChildren(final Parent parent)
+    {
+        if (parent instanceof Group)
+            return ((Group)parent).getChildren();
+        else if (parent instanceof Pane)
+            return ((Pane)parent).getChildren();
+        throw new IllegalArgumentException("Expecting Group or Pane, got " + parent);
+    }
+
     @Override
-    public Group openNewWindow(final DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception
+    public Parent openNewWindow(final DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception
     {   // Use JFXStageRepresentation or RCP-based implementation
         throw new IllegalStateException("Not implemented");
     }
 
     @Override
-    public void representModel(final Group root, final DisplayModel model) throws Exception
+    public void representModel(final Parent root, final DisplayModel model) throws Exception
     {
         root.getProperties().put(ACTIVE_MODEL, model);
         super.representModel(root, model);
     }
 
     @Override
-    public Group disposeRepresentation(final DisplayModel model)
+    public Parent disposeRepresentation(final DisplayModel model)
     {
-        final Group root = super.disposeRepresentation(model);
+        final Parent root = super.disposeRepresentation(model);
         root.getProperties().remove(ACTIVE_MODEL);
         return root;
     }

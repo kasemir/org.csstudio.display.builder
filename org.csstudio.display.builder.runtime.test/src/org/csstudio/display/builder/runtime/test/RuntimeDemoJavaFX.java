@@ -18,7 +18,7 @@ import org.csstudio.vtype.pv.PVPool;
 import org.csstudio.vtype.pv.RefCountMap;
 
 import javafx.application.Application;
-import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.stage.Stage;
 
 /** Runtime demo for JavaFX
@@ -71,7 +71,7 @@ public class RuntimeDemoJavaFX extends Application
         // Create representation for model items
         try
         {
-            final Group parent = toolkit.configureStage(stage, model, this::handleClose);
+            final Parent parent = toolkit.configureStage(stage, model, this::handleClose);
             toolkit.representModel(parent, model);
         }
         catch (final Exception ex)
