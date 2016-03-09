@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
-import java.util.Optional;
-
 import javax.xml.stream.XMLStreamWriter;
 
 import org.csstudio.display.builder.model.Widget;
@@ -89,15 +87,7 @@ public class ColorWidgetProperty extends WidgetProperty<WidgetColor>
             // Plain color
             color = new WidgetColor(red, green, blue);
         else
-        {
-            final Optional<NamedWidgetColor> known_color = WidgetColorService.getColors().getColor(name);
-            if (known_color.isPresent())
-                // Known named color
-                color = known_color.get();
-            else
-                // Unknown named color: Use name with RGB values from file, lacking own definition of that color
-                color = new NamedWidgetColor(name, red, green, blue);
-        }
+            color = WidgetColorService.getColors().resolve(new NamedWidgetColor(name, red, green, blue));
         setValue(color);
     }
 

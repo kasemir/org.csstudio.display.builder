@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.model.util;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -47,9 +47,10 @@ public class NamedDaemonPool implements ThreadFactory
         // to prevent erroneous creation of a gazillion threads.
         // Core pool size of 0 and timeout results in all threads being
         // closed when none are used for some time.
+        // Queue to hold submitted runnables while all threads are busy.
         return new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors()*10,
                 10L, TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>(),
+                new LinkedBlockingQueue<Runnable>(),
                 new NamedDaemonPool(name));
 
     }

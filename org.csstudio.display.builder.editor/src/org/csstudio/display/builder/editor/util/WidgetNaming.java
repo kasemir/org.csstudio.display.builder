@@ -75,7 +75,7 @@ public class WidgetNaming
 
         // Default to human-readable widget type
         if (name.isEmpty())
-            name = WidgetFactory.getInstance().getWidgetDescriptor(widget.getType()).get().getName();
+            name = WidgetFactory.getInstance().getWidgetDescriptor(widget.getType()).getName();
 
         // Does the name match "SomeName_14"?
         final Matcher matcher = pattern.matcher(name);

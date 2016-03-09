@@ -18,8 +18,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.properties.NamedWidgetColor;
-import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 
 /** Service that provides {@link NamedWidgetColors}
  *
@@ -146,5 +146,14 @@ public class WidgetColorService
             return color.get();
         logger.log(Level.WARNING, "Request for unknown named color {0}", name);
         return getColors().getColor(NamedWidgetColors.TEXT).get();
+    }
+
+    /** Resolve a named color
+     *  @param name Named color
+     *  @return Color as provided unless it was redefined
+     */
+    public static NamedWidgetColor resolve(final NamedWidgetColor color)
+    {
+        return getColors().resolve(color);
     }
 }

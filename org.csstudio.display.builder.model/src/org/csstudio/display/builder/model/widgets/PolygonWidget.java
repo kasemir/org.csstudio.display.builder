@@ -84,11 +84,11 @@ public class PolygonWidget extends Widget
         }
 
         @Override
-        public void configureFromXML(final Widget widget, final Element widget_xml) throws Exception
+        public boolean configureFromXML(final Widget widget, final Element widget_xml) throws Exception
         {
             adjustXMLPoints(widget_xml);
             // Parse updated XML
-            super.configureFromXML(widget, widget_xml);
+            return super.configureFromXML(widget, widget_xml);
         }
     };
 

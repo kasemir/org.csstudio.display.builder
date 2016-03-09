@@ -8,7 +8,6 @@
 package org.csstudio.display.builder.editor.util;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,16 +39,11 @@ public class WidgetIcons
 
     private static Image loadIcon(final String type)
     {
-        final Optional<WidgetDescriptor> descriptor = WidgetFactory.getInstance().getWidgetDescriptor(type);
+        final WidgetDescriptor descriptor = WidgetFactory.getInstance().getWidgetDescriptor(type);
         try
         {
-            if (descriptor.isPresent())
-            {
-                logger.log(Level.FINE, "Obtaining icon for widget type " + type);
-                return new Image(descriptor.get().getIconStream());
-            }
-            else
-                logger.log(Level.WARNING, "Unknown widget type " + type);
+            logger.log(Level.FINE, "Obtaining icon for widget type " + type);
+            return new Image(descriptor.getIconStream());
         }
         catch (Exception ex)
         {

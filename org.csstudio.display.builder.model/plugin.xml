@@ -108,6 +108,17 @@
       </widget>
       <widget
             category="MONITOR"
+            class="org.csstudio.display.builder.model.widgets.MultiStateLEDWidget"
+            description="%MultiStateLEDWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/led.png"
+            name="%MultiStateLEDWidget_Name"
+            type="multi_state_led">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.LED">
+         </alternates>
+      </widget>
+      <widget
+            category="MONITOR"
             class="org.csstudio.display.builder.model.widgets.ProgressBarWidget"
             description="%ProgressBar_Description"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/progressbar.png"
