@@ -7,10 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorBit;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +19,6 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 
@@ -31,11 +30,11 @@ public class BoolButtonWidget extends Widget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
-        new WidgetDescriptor("action_button", WidgetCategory.CONTROL,
-            "Action Button",
-            "platform:/plugin/org.csstudio.display.builder.model/icons/action_button.png",
-            "Button that can open related displays or write PVs",
-            Arrays.asList("org.csstudio.opibuilder.widgets.ActionButton"))
+        new WidgetDescriptor("bool_button", WidgetCategory.CONTROL,
+            "Boolean Button",
+            "platform:/plugin/org.csstudio.display.builder.model/icons/bool_button.gif",
+            "Button that can toggle one bit of a PV value between 1 and 0",
+            Arrays.asList("org.csstudio.opibuilder.widgets.BoolButton"))
     {
         @Override
         public Widget createWidget()
@@ -44,9 +43,9 @@ public class BoolButtonWidget extends Widget
         }
     };
 
-    private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<String> text;
     private volatile WidgetProperty<WidgetFont> font;
+    private volatile WidgetProperty<Integer> bit;
 
     public BoolButtonWidget()
     {
@@ -58,16 +57,11 @@ public class BoolButtonWidget extends Widget
     {
         super.defineProperties(properties);
         properties.add(behaviorPVName.createProperty(this, ""));
-        properties.add(macros = widgetMacros.createProperty(this, new Macros()));
-        properties.add(text = displayText.createProperty(this, "$(actions)"));
+        properties.add(bit = behaviorBit.createProperty(this, 0));
+        properties.add(text = displayText.createProperty(this, "toggle"));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
     }
 
-    /** @return Widget 'macros' */
-    public WidgetProperty<Macros> widgetMacros()
-    {
-        return macros;
-    }
 
     /** @return Display 'text' */
     public WidgetProperty<String> displayText()
@@ -81,14 +75,10 @@ public class BoolButtonWidget extends Widget
         return font;
     }
 
-    /** Action button widget extends parent macros
-     *  @return {@link Macros}
-     */
-    @Override
-    public Macros getEffectiveMacros()
+    /** @return Behavior 'bit' */
+    public WidgetProperty<Integer> behaviorBit()
     {
-        final Macros base = super.getEffectiveMacros();
-        final Macros my_macros = widgetMacros().getValue();
-        return Macros.merge(base, my_macros);
+        return bit;
     }
+
 }
