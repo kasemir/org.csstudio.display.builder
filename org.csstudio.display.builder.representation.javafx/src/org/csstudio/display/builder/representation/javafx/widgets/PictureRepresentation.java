@@ -106,6 +106,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
         String base_path = new_value;
         //String base_path = model_widget.displayFile().getValue();
         //System.out.println("Picture Representation content changes to " + base_path + " on " + Thread.currentThread().getName());
+        boolean load_failed = false;
 
         try
         {
@@ -122,14 +123,46 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
             final String parent_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
             // Resolve the image path using the parent model file path
             img_path = ModelResourceUtil.resolveResource(parent_file, expanded_path);
-
-            // Open the image from the stream created from the resource file
-            img_loaded = new Image(ModelResourceUtil.openResourceStream(img_path));
-            native_ratio = img_loaded.getWidth() / img_loaded.getHeight();
         }
         catch (Exception e)
         {
+            System.out.println("Failure resolving image path from base path: " + base_path);
             e.printStackTrace();
+            load_failed = true;
+        }
+
+        if (!load_failed)
+        {
+            try
+            {
+                // Open the image from the stream created from the resource file
+                img_loaded = new Image(ModelResourceUtil.openResourceStream(img_path));
+                native_ratio = img_loaded.getWidth() / img_loaded.getHeight();
+            }
+            catch (Exception e)
+            {
+                System.out.println("Failure loading image file:" + img_path);
+                e.printStackTrace();
+                load_failed = true;
+            }
+        }
+
+        if (load_failed)
+        {
+            final String dflt_img = PictureWidget.default_pic;
+            try
+            {
+                // Open the image from the stream created from the resource file
+                img_loaded = new Image(ModelResourceUtil.openResourceStream(dflt_img));
+                native_ratio = img_loaded.getWidth() / img_loaded.getHeight();
+            }
+            catch (Exception e)
+            {
+                System.out.println("Failure loading default image file:" + dflt_img);
+                e.printStackTrace();
+                load_failed = true;
+            }
+
         }
 
         // Resize/reorient in case we are preserving aspect ratio and changed native_ratio
