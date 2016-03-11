@@ -123,7 +123,7 @@ public class PictureWidget extends Widget
         return filename;
     }
 
-    /** @return Display 'transparent' */
+    /** @return Display 'stretch' */
     public WidgetProperty<Boolean> displayStretch()
     {
         return stretch_image;
