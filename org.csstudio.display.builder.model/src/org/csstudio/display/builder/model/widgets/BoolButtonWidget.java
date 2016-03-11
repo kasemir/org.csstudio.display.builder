@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.diirt.vtype.VType;
 
 /** Widget that provides button for making a binary change
  *  @author Megan Grodowitz
@@ -46,6 +48,7 @@ public class BoolButtonWidget extends Widget
     private volatile WidgetProperty<String> text;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<Integer> bit;
+    private volatile WidgetProperty<VType> value;
 
     public BoolButtonWidget()
     {
@@ -60,6 +63,7 @@ public class BoolButtonWidget extends Widget
         properties.add(bit = behaviorBit.createProperty(this, 0));
         properties.add(text = displayText.createProperty(this, "toggle"));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(value = runtimeValue.createProperty(this, null));
     }
 
 
@@ -79,6 +83,12 @@ public class BoolButtonWidget extends Widget
     public WidgetProperty<Integer> behaviorBit()
     {
         return bit;
+    }
+
+    /** @return Runtime 'value' */
+    public WidgetProperty<VType> runtimeValue()
+    {
+        return value;
     }
 
 }

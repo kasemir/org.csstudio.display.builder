@@ -271,4 +271,19 @@
       </action>
     </actions>
   </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_12</name>
+    <x>191</x>
+    <y>291</y>
+    <width>110</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>control_toggle_buttons.opi</file>
+        <target>replace</target>
+        <description>Toggle Buttons</description>
+      </action>
+    </actions>
+  </widget>
 </display>

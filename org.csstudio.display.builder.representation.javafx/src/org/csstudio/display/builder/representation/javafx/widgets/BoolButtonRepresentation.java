@@ -14,8 +14,10 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
+import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.diirt.vtype.VType;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
@@ -29,6 +31,10 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
 {
 
     private final DirtyFlag dirty_representation = new DirtyFlag();
+    private final DirtyFlag dirty_content = new DirtyFlag();
+    protected volatile Boolean on_state = true;
+    protected volatile int use_bit = 0;
+    protected volatile Integer rt_value = 0;
 
     /** Optional modifier of the open display 'target */
     private Optional<OpenDisplayActionInfo.Target> target_modifier = Optional.empty();
@@ -41,6 +47,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         final Button button = new Button();
         //final ActionInfo the_action = actions.get(0);
         //button.setOnAction(event -> handleAction(the_action));
+        button.setOnAction(event -> handlePress());
         base = button;
 
         // Model has width/height, but JFX widget has min, pref, max size.
@@ -74,6 +81,14 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         }
     }
 
+    /** @param respond to button press */
+    private void handlePress()
+    {
+        logger.log(Level.FINE, "{0} pressed", model_widget);
+        int new_val = (rt_value ^ ((use_bit < 0) ? 1 : (1 << use_bit)) );
+        toolkit.fireWrite(model_widget, new_val);
+    }
+
     /** @param action Action that the user invoked */
     private void handleAction(ActionInfo action)
     {
@@ -94,7 +109,36 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         model_widget.positionHeight().addUntypedPropertyListener(this::representationChanged);
         model_widget.displayText().addUntypedPropertyListener(this::representationChanged);
         model_widget.displayFont().addUntypedPropertyListener(this::representationChanged);
+
+        bitChanged(model_widget.behaviorBit(), null, model_widget.behaviorBit().getValue());
+        model_widget.behaviorBit().addPropertyListener(this::bitChanged);
+        model_widget.runtimeValue().addPropertyListener(this::contentChanged);
+
+        //representationChanged(null,null,null);
     }
+
+    private void stateChanged()
+    {
+        on_state = (use_bit < 0) ? (rt_value != 0) : (((rt_value >> use_bit) & 1) == 1);
+
+        dirty_content.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+    private void bitChanged(final WidgetProperty<Integer> property, final Integer old_value, final Integer new_value)
+    {
+        use_bit = new_value;
+
+        stateChanged();
+    }
+
+    private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
+    {
+        rt_value = VTypeUtil.getValueNumber(new_value).intValue();
+        stateChanged();
+    }
+
+
 
     private void representationChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
@@ -106,6 +150,11 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     public void updateChanges()
     {
         super.updateChanges();
+        if (dirty_content.checkAndClear())
+        {
+            model_widget.displayText().setValue(on_state.toString());
+            jfx_node.setText(model_widget.displayText().getValue());
+        }
         if (dirty_representation.checkAndClear())
         {
             jfx_node.setText(model_widget.displayText().getValue());
