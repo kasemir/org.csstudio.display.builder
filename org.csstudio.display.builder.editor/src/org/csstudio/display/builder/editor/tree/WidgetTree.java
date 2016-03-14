@@ -301,10 +301,30 @@ public class WidgetTree
     private void addWidget(final Widget added_widget)
     {   // Determine location of widget within parent of model
         final Widget widget_parent = added_widget.getParent().get();
-        final int index = ChildrenProperty.getChildren(widget_parent).getValue().indexOf(added_widget);
+        int index = -1;
+        TreeItem<WidgetOrTab> item_parent = null;
+        if (widget_parent instanceof TabWidget)
+        {
+            // TODO Track changes to the tabs & their children
+            for (TabItemProperty tab : ((TabWidget)widget_parent).displayTabs().getValue())
+            {
+                index = tab.children().getValue().indexOf(added_widget);
+                if (index >= 0)
+                {
+                    item_parent = tab_name2tree.get(tab.name());
+                    break;
+                }
+            }
+        }
+        else
+        {
+            index = ChildrenProperty.getChildren(widget_parent).getValue().indexOf(added_widget);
+            item_parent = widget2tree.get(widget_parent);
+        }
+
+        Objects.requireNonNull(item_parent, "Cannot obtain parent item for " + added_widget);
 
         // Create Tree item, add at same index into Tree
-        final TreeItem<WidgetOrTab> item_parent = widget2tree.get(widget_parent);
         final TreeItem<WidgetOrTab> item = new TreeItem<>(WidgetOrTab.of(added_widget));
         widget2tree.put(added_widget, item);
         item.setExpanded(true);
@@ -338,6 +358,8 @@ public class WidgetTree
             tab_name2tree.put(tab.name(), tab_item);
             tab.name().addPropertyListener(tab_name_listener);
 
+            for (Widget child : tab.children().getValue())
+                addWidget(child);
             // TODO tab.children().addPropertyListener(tab_children_listener);
         }
     }

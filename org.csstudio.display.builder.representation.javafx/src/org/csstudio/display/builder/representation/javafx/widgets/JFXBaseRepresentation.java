@@ -19,7 +19,6 @@ import org.csstudio.display.builder.model.widgets.TabWidget;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 
@@ -112,9 +111,7 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
     public void dispose()
     {
         Objects.requireNonNull(jfx_node);
-        final Group group = (Group) jfx_node.getParent();
-        Objects.requireNonNull(group);
-        group.getChildren().remove(jfx_node);
+        JFXRepresentation.getChildren(jfx_node.getParent()).remove(jfx_node);
     }
 
     /** Get parent that would be used for child-widgets.

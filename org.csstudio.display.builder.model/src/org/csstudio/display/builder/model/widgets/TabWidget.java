@@ -33,6 +33,12 @@ import org.csstudio.display.builder.model.properties.WidgetFont;
 
 /** A Widget that arranges child widgets in 'tabs'.
  *
+ *  <p>The widget has several tabs described by
+ *  the {@link TabItemProperty}, each of which
+ *  holds a list of child widgets.
+ *
+ *  <p>The 'parent' of those widgets is this Widget.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")

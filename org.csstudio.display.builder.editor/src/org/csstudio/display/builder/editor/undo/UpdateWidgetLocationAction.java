@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.display.builder.editor.undo;
 
+import java.util.Objects;
+
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
@@ -36,9 +38,9 @@ public class UpdateWidgetLocationAction extends UndoableAction
                                       final int orig_width, final int orig_height)
     {
         super(Messages.UpdateWidgetLocation);
-        this.widget = widget;
-        this.orig_parent_children = orig_parent_children;
-        this.parent_children = parent_children;
+        this.widget = Objects.requireNonNull(widget);
+        this.orig_parent_children = Objects.requireNonNull(orig_parent_children);
+        this.parent_children = Objects.requireNonNull(parent_children);
         this.orig_x = orig_x;
         this.orig_y = orig_y;
         this.orig_width = orig_width;

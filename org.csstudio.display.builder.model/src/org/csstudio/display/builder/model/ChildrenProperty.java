@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -17,6 +18,8 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.widgets.TabWidget;
+import org.csstudio.display.builder.model.widgets.TabWidget.TabItemProperty;
 import org.w3c.dom.Element;
 
 /** Widget property that holds list of child widgets.
@@ -59,6 +62,38 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
         if (children.isPresent())
             return (ChildrenProperty) children.get();
         return null;
+    }
+
+    /** Get the 'children' list of a widget's parent.
+     *
+     *  <p>This is either the children list of a plain parent,
+     *  or the children list inside a TabWidget's tab.
+     *
+     *  @param widget Widget where parent (plain or TabWidget) is checked for
+     *  @return {@link ChildrenProperty} that contains the widget
+     *  @throws NoSuchElementException if widget has no parent
+     *  @throws IllegalArgumentException If no tab of parent {@link TabWidget} contains the widget,
+     *  @throws IllegalStateException If parent has no children
+     */
+    public static ChildrenProperty getParentsChildren(final Widget widget)
+    {
+        final Widget parent = widget.getParent().get();
+        if (parent instanceof TabWidget)
+        {
+            final List<TabItemProperty> tabs = ((TabWidget)parent).displayTabs().getValue();
+            for (TabItemProperty tab : tabs)
+            {
+                final ChildrenProperty children = tab.children();
+                if (children.getValue().contains(widget))
+                    return children;
+            }
+            throw new IllegalArgumentException("Cannot locate " + widget + " in " + parent);
+        }
+
+        final Optional<WidgetProperty<List<Widget>>> children = parent.checkProperty(DESCRIPTOR);
+        if (children.isPresent())
+            return (ChildrenProperty) children.get();
+        throw new IllegalStateException("Parent of " + widget + " has no 'children': " + parent);
     }
 
     public ChildrenProperty(final Widget widget)

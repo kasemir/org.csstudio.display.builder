@@ -28,7 +28,9 @@ public class UpdateWidgetOrderAction extends UndoableAction
     {
         super(Messages.UpdateWidgetOrder);
         this.widget = widget;
-        this.orig_index = ChildrenProperty.getChildren(widget.getParent().get()).getValue().indexOf(widget);
+
+        final ChildrenProperty children = ChildrenProperty.getParentsChildren(widget);
+        this.orig_index = children.getValue().indexOf(widget);
         this.desired_index = desired_index;
     }
 
@@ -46,11 +48,12 @@ public class UpdateWidgetOrderAction extends UndoableAction
 
     private void moveTo(final int index)
     {
-        final Widget parent = widget.getParent().get();
-        ChildrenProperty.getChildren(parent).removeChild(widget);
+        final ChildrenProperty children = ChildrenProperty.getParentsChildren(widget);
+
+        children.removeChild(widget);
         if (index < 0)
-            ChildrenProperty.getChildren(parent).addChild(widget);
+            children.addChild(widget);
         else
-            ChildrenProperty.getChildren(parent).addChild(index, widget);
+            children.addChild(index, widget);
     }
 }

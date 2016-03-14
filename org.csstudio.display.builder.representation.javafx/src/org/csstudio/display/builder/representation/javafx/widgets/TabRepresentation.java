@@ -25,7 +25,6 @@ import com.sun.javafx.tk.Toolkit;
 
 import javafx.application.Platform;
 import javafx.geometry.Side;
-import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -68,7 +67,6 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
         if (index < 0)
             throw new IllegalStateException("Cannot locate tab children " + property + " in " + model_widget);
 
-        final Group parent_item = (Group) jfx_node.getTabs().get(index).getContent();
         if (removed != null)
             for (Widget removed_widget : removed)
             {
