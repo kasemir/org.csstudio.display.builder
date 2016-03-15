@@ -14,24 +14,24 @@ import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.util.undo.UndoableAction;
 
-/** Action to remove widget
+/** Action to remove widgets
  *  @author Kay Kasemir
  */
 public class RemoveWidgetsAction extends UndoableAction
 {
-    private final Widget[] containers;
+    private final ChildrenProperty[] containers;
     private final Widget[] widgets;
 
     public RemoveWidgetsAction(final List<Widget> widgets)
     {
         super(Messages.RemoveWidgets);
         final int N = widgets.size();
-        this.containers = new Widget[N];
+        this.containers = new ChildrenProperty[N];
         this.widgets = new Widget[N];
         for (int i=0; i<N; ++i)
         {
             this.widgets[i] = widgets.get(i);
-            containers[i] = this.widgets[i].getParent().get();
+            containers[i] = ChildrenProperty.getParentsChildren(this.widgets[i]);
         }
     }
 
@@ -41,13 +41,13 @@ public class RemoveWidgetsAction extends UndoableAction
         // add them back in the matching order:
         // Add the one removed last, ..
         for (int i=widgets.length-1; i>=0; --i)
-            ChildrenProperty.getChildren(containers[i]).removeChild(widgets[i]);
+            containers[i].removeChild(widgets[i]);
     }
 
     @Override
     public void undo()
     {
         for (int i=0; i<widgets.length; ++i)
-            ChildrenProperty.getChildren(containers[i]).addChild(widgets[i]);
+            containers[i].addChild(widgets[i]);
     }
 }
