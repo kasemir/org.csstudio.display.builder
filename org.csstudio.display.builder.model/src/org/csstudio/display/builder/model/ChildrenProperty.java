@@ -142,12 +142,24 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
         {
             if (child.getName().equals(name))
                 return child;
-            final ChildrenProperty grandkids = getChildren(child);
-            if (grandkids != null)
+            if (child instanceof TabWidget)
             {
-                final Widget maybe = grandkids.getChildByName(name);
-                if (maybe != null)
-                    return maybe;
+                for (TabItemProperty tab : ((TabWidget)child).displayTabs().getValue())
+                {
+                    final Widget maybe = tab.children().getChildByName(name);
+                    if (maybe != null)
+                        return maybe;
+                }
+            }
+            else
+            {
+                final ChildrenProperty grandkids = getChildren(child);
+                if (grandkids != null)
+                {
+                    final Widget maybe = grandkids.getChildByName(name);
+                    if (maybe != null)
+                        return maybe;
+                }
             }
         }
         return null;

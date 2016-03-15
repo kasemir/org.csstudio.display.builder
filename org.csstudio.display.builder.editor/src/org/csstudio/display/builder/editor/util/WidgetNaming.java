@@ -93,12 +93,13 @@ public class WidgetNaming
             number = 0;
         }
 
+        // Check for the next unused instance of this widget name
         synchronized (max_used_instance)
         {
             final Integer used = max_used_instance.get(base);
             if (used != null)
             {
-                number = used + 1;
+                number = Math.max(number,  used + 1);
                 name = base + "_" + number;
             }
             // Locate next available "SomeName_14"
