@@ -10,6 +10,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
@@ -34,9 +35,12 @@ import javafx.scene.text.Font;
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
 {
     private final DirtyFlag dirty_layout = new DirtyFlag();
+
+    private final AtomicBoolean changing_active_tab = new AtomicBoolean();
 
     private static final int inset = 10;
 
@@ -55,8 +59,8 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
             }
     };
 
-    // TODO Fix 'inset' positioning
-    // TODO Show child widgets in tree
+    // TODO Fix 'inset' positioning            changing_active_tab = false;
+
     private final WidgetPropertyListener<List<Widget>> tab_children_listener = (property, removed, added) ->
     {
         final List<TabItemProperty> model_tabs = model_widget.displayTabs().getValue();
@@ -107,11 +111,29 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
 
         model_widget.displayTabs().addPropertyListener(this::tabsChanged);
 
+        // Update UI when model selects a tab
+        final WidgetPropertyListener<Integer> track_active_model_tab = (p, old, value) ->
+        {
+            if (! changing_active_tab.compareAndSet(false, true))
+                return;
+            if (value == null)
+                value = p.getValue();
+            if (value >= jfx_node.getTabs().size())
+                value = jfx_node.getTabs().size() - 1;
+            jfx_node.getSelectionModel().select(value);
+            changing_active_tab.set(false);
+        };
+        // Select initial tab
+        track_active_model_tab.propertyChanged(model_widget.displayActiveTab(), null, null);
+        model_widget.displayActiveTab().addPropertyListener(track_active_model_tab);
+
+        // Update model when UI selects a tab
         jfx_node.getSelectionModel().selectedIndexProperty().addListener((t, o, selected) ->
         {
-            System.out.println("Active Tab: " + selected);
-//            System.out.println("Active Tab: " + tabs.getSelectionModel().getSelectedIndex());
-            model_widget.runtimeSelected().setValue(selected.intValue());
+            if (! changing_active_tab.compareAndSet(false, true))
+                return;
+            model_widget.displayActiveTab().setValue(selected.intValue());
+            changing_active_tab.set(false);
         });
 
         // Initial update of font, size

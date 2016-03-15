@@ -90,17 +90,14 @@ public class TabWidget extends VisibleWidget
             new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.DISPLAY, "tabs", "Tabs", // TODO Externalize
                     (widget, index) -> new TabItemProperty(widget, index));
 
-    private static final WidgetPropertyDescriptor<Integer> runtimeSelected =
-            CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.RUNTIME, "selected_tab", "Selected Tab");
-
-    // XXX Legacy Tab held a 'group' for each tab.
-    // Editor only affected the selected tab's group.
+    private static final WidgetPropertyDescriptor<Integer> activeTab =
+            CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "active_tab", "Active Tab");
 
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile ArrayWidgetProperty<TabItemProperty> tabs;
-    private volatile WidgetProperty<Integer> selected;
+    private volatile WidgetProperty<Integer> active;
 
     public TabWidget()
     {
@@ -116,7 +113,7 @@ public class TabWidget extends VisibleWidget
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(tabs = displayTabs.createProperty(this, Arrays.asList(new TabItemProperty(this, 0),
                                                                              new TabItemProperty(this, 1))));
-        properties.add(selected = runtimeSelected.createProperty(this, 0));
+        properties.add(active = activeTab.createProperty(this, 0));
         // Initial size
         positionWidth().setValue(300);
         positionHeight().setValue(200);
@@ -162,9 +159,9 @@ public class TabWidget extends VisibleWidget
         return tabs;
     }
 
-    /** @return Runtime 'selected' */
-    public WidgetProperty<Integer> runtimeSelected()
+    /** @return Display 'active_tab' */
+    public WidgetProperty<Integer> displayActiveTab()
     {
-        return selected;
+        return active;
     }
 }

@@ -131,8 +131,11 @@ public class ParentHandler
                 if (widget instanceof GroupWidget)
                     child_prop = ((GroupWidget) widget).runtimeChildren();
                 else if (widget instanceof TabWidget)
-                    // TODO Get children of selected Tab instead of first one
-                    child_prop = ((TabWidget)widget).displayTabs().getValue().get(0).children();
+                {   // Check children of _selected_ Tab
+                    final TabWidget tabwid = (TabWidget) widget;
+                    final int selected = tabwid.displayActiveTab().getValue();
+                    child_prop = tabwid.displayTabs().getValue().get(selected).children();
+                }
                 else
                     continue;
                 if (checkIfWidgetWithinBounds(widget))
