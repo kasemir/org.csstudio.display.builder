@@ -138,6 +138,9 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
 
         // Initial update of font, size
         layoutChanged(null, null, null);
+
+        // TODO Set correct insets
+        model_widget.runtimeInsets().setValue(new int[] { 2, 33 });
     }
 
     private void tabsChanged(final WidgetProperty<List<TabItemProperty>> property,

@@ -10,19 +10,16 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
+import static org.csstudio.display.builder.model.properties.InsetsWidgetProperty.runtimeInsets;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.ChildrenProperty;
-import org.csstudio.display.builder.model.Messages;
-import org.csstudio.display.builder.model.RuntimeWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.WidgetPropertyCategory;
-import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
@@ -62,30 +59,6 @@ public class GroupWidget extends VisibleWidget
             return new GroupWidget();
         }
     };
-
-    /** Runtime 'insets' */
-    private static final WidgetPropertyDescriptor<int[]> runtimeInsets =
-        new WidgetPropertyDescriptor<int[]>(
-            WidgetPropertyCategory.RUNTIME, "insets", Messages.WidgetProperties_Insets)
-    {
-        @Override
-        public WidgetProperty<int[]> createProperty(final Widget widget,
-                                                    final int[] value)
-        {
-            return new RuntimeWidgetProperty<int[]>(this, widget, value)
-            {
-                @Override
-                public void setValueFromObject(final Object value) throws Exception
-                {
-                    if (value instanceof int[]  &&  ((int[]) value).length == 2)
-                        setValue((int[]) value);
-                    else
-                        throw new Exception("Need int[2], got " + value);
-                }
-            };
-        }
-    };
-
 
     private volatile WidgetProperty<Macros> macros;
     private volatile ChildrenProperty children;
@@ -148,6 +121,7 @@ public class GroupWidget extends VisibleWidget
         return font;
     }
 
+    /** @return Runtime 'insets' */
     public WidgetProperty<int[]> runtimeInsets()
     {
         return insets;

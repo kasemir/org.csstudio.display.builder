@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
+import static org.csstudio.display.builder.model.properties.InsetsWidgetProperty.runtimeInsets;
 
 import java.util.Arrays;
 import java.util.List;
@@ -98,6 +99,7 @@ public class TabWidget extends VisibleWidget
     private volatile WidgetProperty<WidgetFont> font;
     private volatile ArrayWidgetProperty<TabItemProperty> tabs;
     private volatile WidgetProperty<Integer> active;
+    private volatile WidgetProperty<int[]> insets;
 
     public TabWidget()
     {
@@ -114,6 +116,8 @@ public class TabWidget extends VisibleWidget
         properties.add(tabs = displayTabs.createProperty(this, Arrays.asList(new TabItemProperty(this, 0),
                                                                              new TabItemProperty(this, 1))));
         properties.add(active = activeTab.createProperty(this, 0));
+        properties.add(insets = runtimeInsets.createProperty(this, new int[] { 0, 0 }));
+
         // Initial size
         positionWidth().setValue(300);
         positionHeight().setValue(200);
@@ -163,5 +167,11 @@ public class TabWidget extends VisibleWidget
     public WidgetProperty<Integer> displayActiveTab()
     {
         return active;
+    }
+
+    /** @return Runtime 'insets' */
+    public WidgetProperty<int[]> runtimeInsets()
+    {
+        return insets;
     }
 }
