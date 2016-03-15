@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -25,6 +26,7 @@ import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import com.sun.javafx.tk.Toolkit;
 
 import javafx.application.Platform;
+import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -59,8 +61,6 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
             }
     };
 
-    // TODO Fix 'inset' positioning            changing_active_tab = false;
-
     private final WidgetPropertyListener<List<Widget>> tab_children_listener = (property, removed, added) ->
     {
         final List<TabItemProperty> model_tabs = model_widget.displayTabs().getValue();
@@ -90,7 +90,9 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
 
         tabs.setMinSize(TabPane.USE_PREF_SIZE, TabPane.USE_PREF_SIZE);
 
-//      model_widget.runtimeInsets().setValue(new int[] { inset, 2*inset });
+        // TODO Allow configuration of tab height
+        //tabs.setTabMinHeight(50);
+        //tabs.setTabMaxHeight(50);
 
         return tabs;
     }
@@ -138,9 +140,6 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
 
         // Initial update of font, size
         layoutChanged(null, null, null);
-
-        // TODO Set correct insets
-        model_widget.runtimeInsets().setValue(new int[] { 2, 33 });
     }
 
     private void tabsChanged(final WidgetProperty<List<TabItemProperty>> property,
@@ -235,6 +234,18 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
             final Integer width = model_widget.positionWidth().getValue();
             final Integer height = model_widget.positionHeight().getValue();
             jfx_node.setPrefSize(width, height);
+
+            // Compute insets
+            // TODO Result is wrong until the tab is once resized?!
+            final Pane pane = (Pane)jfx_node.getTabs().get(0).getContent();
+            final Point2D tab_bounds = jfx_node.localToScene(0.0, 0.0);
+            final Point2D pane_bounds = pane.localToScene(0.0, 0.0);
+            System.out.println("Tab bounds : " + tab_bounds);
+            System.out.println("pane bounds : " + pane_bounds);
+            final int[] insets = new int[] { (int)(pane_bounds.getX() - tab_bounds.getX()),
+                                             (int)(pane_bounds.getY() - tab_bounds.getY()) };
+            System.out.println("Insets: " + Arrays.toString(insets));
+            model_widget.runtimeInsets().setValue(insets);
 
             // XXX Force TabPane refresh
             // See org.csstudio.display.builder.representation.javafx.sandbox.TabDemo
