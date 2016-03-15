@@ -18,7 +18,6 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
-import org.csstudio.display.builder.editor.util.WidgetIcons;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -39,8 +38,6 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
@@ -110,38 +107,8 @@ public class WidgetTree
         tab_item.setValue(wot);
     };
 
-    /** Tree cell that displays {@link Widget} (name, icon, ..) */
-    private static class WidgetTreeCell extends TreeCell<WidgetOrTab>
-    {
-        @Override
-        public void updateItem(final WidgetOrTab item, final boolean empty)
-        {
-            super.updateItem(item, empty);
-            if (empty || item == null)
-            {
-                setText(null);
-                setGraphic(null);
-            }
-            else if (item.isWidget())
-            {
-                final Widget widget = item.getWidget();
-                final String type = widget.getType();
-                setText(type + " '" + widget.getName() + "'");
-                final Image icon = WidgetIcons.getIcon(type);
-                if (icon != null)
-                    setGraphic(new ImageView(icon));
-            }
-            else
-            {
-                setText(item.getTab().name().getValue());
-                setGraphic(null);
-            }
-        }
-    };
-
     /** Cell factory that displays {@link WidgetOrTab} info in tree cell */
     private final Callback<TreeView<WidgetOrTab>, TreeCell<WidgetOrTab>> cell_factory = cell ->  new WidgetTreeCell();
-
 
     /** Construct widget tree
      *  @param selection Handler of selected widgets
@@ -305,7 +272,6 @@ public class WidgetTree
         TreeItem<WidgetOrTab> item_parent = null;
         if (widget_parent instanceof TabWidget)
         {
-            // TODO Track changes to the tabs & their children
             for (TabItemProperty tab : ((TabWidget)widget_parent).displayTabs().getValue())
             {
                 index = tab.children().getValue().indexOf(added_widget);
@@ -332,19 +298,21 @@ public class WidgetTree
 
         added_widget.widgetName().addPropertyListener(name_listener);
 
-        final ChildrenProperty children = ChildrenProperty.getChildren(added_widget);
-        if (children != null)
-        {
-            children.addPropertyListener(children_listener);
-            for (Widget child : children.getValue())
-                addWidget(child);
-        }
-
         if (added_widget instanceof TabWidget)
         {
             final ArrayWidgetProperty<TabItemProperty> tabs = ((TabWidget)added_widget).displayTabs();
             addTabs(tabs.getValue());
             tabs.addPropertyListener(tabs_property_listener);
+        }
+        else
+        {
+            final ChildrenProperty children = ChildrenProperty.getChildren(added_widget);
+            if (children != null)
+            {
+                children.addPropertyListener(children_listener);
+                for (Widget child : children.getValue())
+                    addWidget(child);
+            }
         }
     }
 
@@ -360,7 +328,8 @@ public class WidgetTree
 
             for (Widget child : tab.children().getValue())
                 addWidget(child);
-            // TODO tab.children().addPropertyListener(tab_children_listener);
+
+            tab.children().addPropertyListener(children_listener);
         }
     }
 
@@ -368,7 +337,8 @@ public class WidgetTree
     {
         for (TabItemProperty tab : removed)
         {
-            // TODO tab.children().removePropertyListener(tab_children_listener);
+            tab.children().removePropertyListener(children_listener);
+
             tab.name().removePropertyListener(tab_name_listener);
             final TreeItem<WidgetOrTab> tab_item = tab_name2tree.remove(tab.name());
             tab_item.getParent().getChildren().remove(tab_item);
@@ -412,7 +382,7 @@ public class WidgetTree
             tabs.removePropertyListener(tabs_property_listener);
             for (TabItemProperty tab : tabs.getValue())
             {
-                // TODO tab.children().removePropertyListener(tab_children_listener);
+                tab.children().removePropertyListener(children_listener);
                 tab.name().removePropertyListener(tab_name_listener);
             }
         }

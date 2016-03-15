@@ -10,7 +10,7 @@ package org.csstudio.display.builder.editor.tree;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.widgets.TabWidget.TabItemProperty;
 
-/** One item in the model outline: Either a Widget or a TabItemProperty
+/** One item in the model outline: Either a {@link Widget} or a {@link TabItemProperty}
  *  @author Kay Kasemir
  */
 class WidgetOrTab
