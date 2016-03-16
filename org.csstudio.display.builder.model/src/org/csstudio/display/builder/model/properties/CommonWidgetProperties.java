@@ -265,6 +265,19 @@ public class CommonWidgetProperties
         }
     };
 
+    /** Display 'direction' */
+    public static final WidgetPropertyDescriptor<Direction> displayDirection =
+        new WidgetPropertyDescriptor<Direction>(
+            WidgetPropertyCategory.DISPLAY, "direction", Messages.WidgetProperties_Direction)
+    {
+        @Override
+        public EnumWidgetProperty<Direction> createProperty(final Widget widget,
+                                                            final Direction default_value)
+        {
+            return new EnumWidgetProperty<Direction>(this, widget, default_value);
+        }
+    };
+
     /** Display 'horizontal_alignment' */
     public static final WidgetPropertyDescriptor<HorizontalAlignment> displayHorizontalAlignment =
         new WidgetPropertyDescriptor<HorizontalAlignment>(

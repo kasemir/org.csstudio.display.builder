@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -18,6 +19,7 @@ import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
+import org.csstudio.display.builder.model.properties.Direction;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
@@ -87,10 +89,7 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
         tabs.getStyleClass().add(TabPane.STYLE_CLASS_FLOATING);
 
         tabs.setMinSize(TabPane.USE_PREF_SIZE, TabPane.USE_PREF_SIZE);
-
-        // TODO Allow configuration of tab height
-        //tabs.setTabMinHeight(50);
-        //tabs.setTabMaxHeight(50);
+        tabs.setTabMinHeight(model_widget.displayTabHeight().getValue());
 
         return tabs;
     }
@@ -104,12 +103,13 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
         addTabs(model_widget.displayTabs().getValue());
 
         final UntypedWidgetPropertyListener listener = this::layoutChanged;
-//        model_widget.displayBackgroundColor().addUntypedPropertyListener(listener);
-        model_widget.displayFont().addUntypedPropertyListener(listener);
         model_widget.positionWidth().addUntypedPropertyListener(listener);
         model_widget.positionHeight().addUntypedPropertyListener(listener);
-
+        model_widget.displayBackgroundColor().addUntypedPropertyListener(listener);
+        model_widget.displayFont().addUntypedPropertyListener(listener);
         model_widget.displayTabs().addPropertyListener(this::tabsChanged);
+        model_widget.displayDirection().addUntypedPropertyListener(listener);
+        model_widget.displayTabHeight().addUntypedPropertyListener(listener);
 
         // Update UI when model selects a tab
         final WidgetPropertyListener<Integer> track_active_model_tab = (p, old, value) ->
@@ -229,6 +229,7 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
         final Point2D pane_bounds = pane.localToScene(0.0, 0.0);
         final int[] insets = new int[] { (int)(pane_bounds.getX() - tabs_bounds.getX()),
                                          (int)(pane_bounds.getY() - tabs_bounds.getY()) };
+        logger.log(Level.WARNING, "Insets: " + Arrays.toString(insets));
         if (insets[0] < 0  ||  insets[1] < 0)
         {
             logger.log(Level.WARNING, "Inset computation failed: TabPane at " + tabs_bounds + ", content pane at " + pane_bounds);
@@ -252,8 +253,9 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
             final Integer width = model_widget.positionWidth().getValue();
             final Integer height = model_widget.positionHeight().getValue();
             jfx_node.setPrefSize(width, height);
+            jfx_node.setTabMinHeight(model_widget.displayTabHeight().getValue());
 
-            // XXX Force TabPane refresh
+            // XXX Force TabPane refresh. Imperfect; works most of the time.
             // See org.csstudio.display.builder.representation.javafx.sandbox.TabDemo
             final Callable<Object> twiddle = () ->
             {
@@ -261,9 +263,14 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
                 Platform.runLater(() ->
                 {
                     jfx_node.setSide(Side.BOTTOM);
-                    jfx_node.setSide(Side.TOP);
-
-                    // Insets computation only possible once TabPane is properly displayed.
+                    if (model_widget.displayDirection().getValue() == Direction.HORIZONTAL)
+                        jfx_node.setSide(Side.TOP);
+                    else
+                        jfx_node.setSide(Side.LEFT);
+                });
+                Thread.sleep(500);
+                Platform.runLater(() ->
+                {   // Insets computation only possible once TabPane is properly displayed.
                     // Until then, content Pane will report position as 0,0.
                     computeInsets();
                 });
