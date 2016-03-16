@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.Points;
 import org.csstudio.display.builder.model.properties.WidgetColor;
@@ -30,7 +31,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class PolygonWidget extends Widget
+public class PolygonWidget extends VisibleWidget
 {
     /** Legacy polygon used 1.0.0 */
     private static final Version version = new Version(2, 0, 0);
@@ -84,11 +85,11 @@ public class PolygonWidget extends Widget
         }
 
         @Override
-        public boolean configureFromXML(final Widget widget, final Element widget_xml) throws Exception
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget, final Element widget_xml) throws Exception
         {
             adjustXMLPoints(widget_xml);
             // Parse updated XML
-            return super.configureFromXML(widget, widget_xml);
+            return super.configureFromXML(model_reader, widget, widget_xml);
         }
     };
 

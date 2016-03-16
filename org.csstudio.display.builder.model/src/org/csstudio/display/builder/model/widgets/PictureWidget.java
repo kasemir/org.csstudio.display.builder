@@ -32,7 +32,7 @@ import org.w3c.dom.Text;
  *  @author Megan Grodowitz
  */
 @SuppressWarnings("nls")
-public class PictureWidget extends Widget
+public class PictureWidget extends VisibleWidget
 {
     public final static String default_pic = "platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif"; //$NON-NLS-1$
 

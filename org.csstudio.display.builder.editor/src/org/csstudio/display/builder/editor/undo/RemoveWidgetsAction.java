@@ -10,28 +10,28 @@ package org.csstudio.display.builder.editor.undo;
 import java.util.List;
 
 import org.csstudio.display.builder.editor.Messages;
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.util.undo.UndoableAction;
 
-/** Action to remove widget
+/** Action to remove widgets
  *  @author Kay Kasemir
  */
 public class RemoveWidgetsAction extends UndoableAction
 {
-    private final ContainerWidget[] containers;
+    private final ChildrenProperty[] containers;
     private final Widget[] widgets;
 
     public RemoveWidgetsAction(final List<Widget> widgets)
     {
         super(Messages.RemoveWidgets);
         final int N = widgets.size();
-        this.containers = new ContainerWidget[N];
+        this.containers = new ChildrenProperty[N];
         this.widgets = new Widget[N];
         for (int i=0; i<N; ++i)
         {
             this.widgets[i] = widgets.get(i);
-            containers[i] = this.widgets[i].getParent().get();
+            containers[i] = ChildrenProperty.getParentsChildren(this.widgets[i]);
         }
     }
 

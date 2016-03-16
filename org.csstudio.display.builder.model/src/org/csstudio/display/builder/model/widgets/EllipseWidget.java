@@ -25,7 +25,7 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class EllipseWidget extends Widget
+public class EllipseWidget extends VisibleWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =

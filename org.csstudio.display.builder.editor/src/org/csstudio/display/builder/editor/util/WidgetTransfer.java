@@ -81,7 +81,7 @@ public class WidgetTransfer
      *  @param handleDroppedModel Callback for handling the dropped widgets
      */
     public static void addDropSupport(final Node node,
-                                      final GroupHandler group_handler,
+                                      final ParentHandler group_handler,
                                       final Consumer<DisplayModel> handleDroppedModel)
     {
         node.setOnDragOver((DragEvent event) ->
@@ -89,7 +89,7 @@ public class WidgetTransfer
             if (event.getDragboard().hasString())
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
 
-            group_handler.locateGroup(event.getX(), event.getY(), 10, 10);
+            group_handler.locateParent(event.getX(), event.getY(), 10, 10);
             event.consume();
         });
 

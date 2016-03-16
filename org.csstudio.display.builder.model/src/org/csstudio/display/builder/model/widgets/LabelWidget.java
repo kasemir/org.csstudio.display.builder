@@ -35,7 +35,7 @@ import org.csstudio.display.builder.model.properties.WidgetFont;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class LabelWidget extends Widget
+public class LabelWidget extends VisibleWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =

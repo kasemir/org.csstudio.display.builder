@@ -24,7 +24,7 @@ from org.csstudio.display.builder.runtime.script import PVUtil
 
 def showBoard(t3):
     for pos in range(9):
-        w = display.getChildByName("ttt%d" % pos)
+        w = display.runtimeChildren().getChildByName("ttt%d" % pos)
         piece = t3.board[pos]
         if piece == ' ':
             w.setPropertyValue("text", str(pos))
@@ -33,7 +33,7 @@ def showBoard(t3):
 
 
 def showInfo(text):
-    w = display.getChildByName("info")
+    w = display.runtimeChildren().getChildByName("info")
     w.setPropertyValue("text", str(text))
 
 

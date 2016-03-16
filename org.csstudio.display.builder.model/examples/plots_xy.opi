@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="2.0.0">
+<display version="1.0.0">
   <name>Display</name>
   <x>-1</x>
   <y>-1</y>
@@ -16,14 +16,16 @@
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
     <y>41</y>
-    <width>191</width>
-    <height>30</height>
+    <width>371</width>
+    <height>40</height>
     <text>Displays two waveform PVs,
 one for the "X" and one for the "Y" axis.</text>
   </widget>
   <widget type="xyplot" version="2.0.0">
     <name>X/Y Plot_1</name>
     <y>91</y>
+    <width>511</width>
+    <height>340</height>
     <show_legend>false</show_legend>
     <trace>
       <x_pv>sim://sawtooth(0, 100, 100, 1, 0, 102)</x_pv>

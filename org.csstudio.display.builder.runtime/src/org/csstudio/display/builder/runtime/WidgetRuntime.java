@@ -439,7 +439,7 @@ public class WidgetRuntime<MW extends Widget>
             if (!pvs.isEmpty())
                 logger.log(Level.SEVERE, widget + " has unreleased PVs: " + pvs);
         }
-        
+
         // Close script support that might have been created
         // by RuntimeScriptHandlers or action-invoked scripts
         final ScriptSupport scripting = widget.getUserData(Widget.USER_DATA_SCRIPT_SUPPORT);

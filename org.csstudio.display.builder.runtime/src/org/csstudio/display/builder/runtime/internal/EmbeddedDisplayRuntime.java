@@ -84,7 +84,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         try
         {
             final DisplayModel display = widget.getDisplayModel();
-            final ToolkitRepresentation<Object, ?> toolkit = RuntimeUtil.getToolkit(display);
+            final ToolkitRepresentation<Object, ?> toolkit = ToolkitRepresentation.getToolkit(display);
             // Load new model (potentially slow)
             final DisplayModel new_model = loadDisplayModel(display_file);
             // Atomically update the 'active' model
@@ -201,7 +201,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         final DisplayModel error_model = new DisplayModel();
         error_model.positionWidth().setValue(wid);
         error_model.positionHeight().setValue(hei);
-        error_model.addChild(info);
+        error_model.runtimeChildren().addChild(info);
         return error_model;
     }
 

@@ -28,7 +28,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class BaseLEDWidget extends Widget
+public class BaseLEDWidget extends VisibleWidget
 {
     /** Helper for configurator to handle legacy LED sizing */
     protected static void handle_legacy_position(final Widget widget, final Version xml_version, final Element xml)

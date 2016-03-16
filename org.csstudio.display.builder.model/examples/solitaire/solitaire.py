@@ -132,13 +132,13 @@ def createPieces():
                 piece = createPiece(c * (SIZE+GAP),
                                     TOP + r * (SIZE+GAP),
                                     p == 'o')
-                display.addChild(piece)
+                display.runtimeChildren().addChild(piece)
                 pieces[r][c] = piece
     info = createWidget("label")
     info.setPropertyValue("y", TOP + size * (SIZE+GAP))
     info.setPropertyValue("width", size * SIZE)
     info.setPropertyValue("text", "Solving...")
-    display.addChild(info)
+    display.runtimeChildren().addChild(info)
    
 createPieces()
 start = time()

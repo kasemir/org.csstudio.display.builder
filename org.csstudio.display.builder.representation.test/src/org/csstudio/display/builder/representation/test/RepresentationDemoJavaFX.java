@@ -13,7 +13,7 @@ import org.csstudio.display.builder.representation.javafx.JFXStageRepresentation
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.stage.Stage;
 
 /** Java FX Demo
@@ -36,7 +36,7 @@ public class RepresentationDemoJavaFX extends Application
         {
             final DisplayModel model = ExampleModels.createModel();
             final JFXStageRepresentation toolkit = new JFXStageRepresentation();
-            final Group parent = toolkit.configureStage(stage, model, this::close);
+            final Parent parent = toolkit.configureStage(stage, model, this::close);
             toolkit.representModel(parent, model);
 
             runtime = new DummyRuntime(model);

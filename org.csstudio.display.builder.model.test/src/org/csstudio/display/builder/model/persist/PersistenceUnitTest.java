@@ -77,7 +77,7 @@ public class PersistenceUnitTest
 
             final Widget child = new Widget("base");
             child.setPropertyValue(widgetName, "Jänner");
-            group.addChild(child);
+            group.runtimeChildren().addChild(child);
 
             writer.writeWidget(group);
         }
@@ -114,7 +114,7 @@ public class PersistenceUnitTest
         assertThat(names, equalTo(Arrays.asList("Demo", "My Group")));
 
         assertThat(widgets.get(1), instanceOf(GroupWidget.class));
-        assertThat(((GroupWidget)widgets.get(1)).getChildren().get(0).getName(), equalTo("Jänner"));
+        assertThat(((GroupWidget)widgets.get(1)).runtimeChildren().getValue().get(0).getName(), equalTo("Jänner"));
    }
 
     /** Write and read multi-line string property
@@ -197,7 +197,7 @@ public class PersistenceUnitTest
         final Widget widget = new Widget("base");
         widget.setPropertyValue(widgetName, "Test");
         widget.getProperty("x").setValueFromObject(42);
-        model.addChild(widget);
+        model.runtimeChildren().addChild(widget);
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         try

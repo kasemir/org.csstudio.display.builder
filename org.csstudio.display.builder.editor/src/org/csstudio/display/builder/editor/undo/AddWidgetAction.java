@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.editor.undo;
 
 import org.csstudio.display.builder.editor.Messages;
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.util.undo.UndoableAction;
 
@@ -17,25 +17,25 @@ import org.csstudio.display.builder.util.undo.UndoableAction;
  */
 public class AddWidgetAction extends UndoableAction
 {
-    private final ContainerWidget container;
+    private final ChildrenProperty children;
     private final Widget widget;
 
-    public AddWidgetAction(final ContainerWidget container, final Widget widget)
+    public AddWidgetAction(final ChildrenProperty children, final Widget widget)
     {
         super(Messages.AddWidget);
-        this.container = container;
+        this.children = children;
         this.widget = widget;
     }
 
     @Override
     public void run()
     {
-        container.addChild(widget);
+        children.addChild(widget);
     }
 
     @Override
     public void undo()
     {
-        container.removeChild(widget);
+        children.removeChild(widget);
     }
 }

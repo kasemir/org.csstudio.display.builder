@@ -18,6 +18,7 @@ public class Messages extends NLS
 
     public static String Actions_Zero;
     public static String Actions_N_Fmt;
+    public static String ActiveTab;
     public static String Bottom;
     public static String Center;
     public static String FontStyle_Bold;
@@ -33,6 +34,10 @@ public class Messages extends NLS
     public static String Resize_Content;
     public static String Resize_None;
     public static String Right;
+    public static String Tab_Item;
+    public static String TabsWidget_Description;
+    public static String TabsWidget_Name;
+    public static String TabsWidget_TabNameFmt;
     public static String Target_Replace;
     public static String Target_Tab;
     public static String Target_Window;
