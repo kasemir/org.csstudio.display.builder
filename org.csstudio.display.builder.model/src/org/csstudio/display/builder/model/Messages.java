@@ -25,6 +25,7 @@ public class Messages extends NLS
     public static String FontStyle_BoldItalic;
     public static String FontStyle_Italic;
     public static String FontStyle_Regular;
+    public static String Horizontal;
     public static String LabelWidget_Text;
     public static String LEDWidget_OffColor;
     public static String LEDWidget_OnColor;
@@ -34,6 +35,7 @@ public class Messages extends NLS
     public static String Resize_Content;
     public static String Resize_None;
     public static String Right;
+    public static String Tab_Height;
     public static String Tab_Item;
     public static String TabsWidget_Description;
     public static String TabsWidget_Name;
@@ -42,6 +44,7 @@ public class Messages extends NLS
     public static String Target_Tab;
     public static String Target_Window;
     public static String Top;
+    public static String Vertical;
     public static String WidgetCategory_Controls;
     public static String WidgetCategory_Graphics;
     public static String WidgetCategory_Miscellaneous;
@@ -60,6 +63,7 @@ public class Messages extends NLS
     public static String WidgetProperties_CornerWidth;
     public static String WidgetProperties_DataHeight;
     public static String WidgetProperties_DataWidth;
+    public static String WidgetProperties_Direction;
     public static String WidgetProperties_File;
     public static String WidgetProperties_FillColor;
     public static String WidgetProperties_Font;

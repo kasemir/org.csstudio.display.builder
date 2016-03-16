@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayDirection;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
 import static org.csstudio.display.builder.model.properties.InsetsWidgetProperty.runtimeInsets;
@@ -36,6 +37,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.properties.Direction;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.eclipse.osgi.util.NLS;
@@ -100,6 +102,9 @@ public class TabsWidget extends VisibleWidget
             new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.DISPLAY, "tabs", Messages.TabsWidget_Name,
                     (widget, index) -> new TabItemProperty(widget, index));
 
+    private static final WidgetPropertyDescriptor<Integer> tabHeight =
+            CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "tab_height", Messages.Tab_Height);
+
     private static final WidgetPropertyDescriptor<Integer> activeTab =
             CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "active_tab", Messages.ActiveTab);
 
@@ -128,11 +133,21 @@ public class TabsWidget extends VisibleWidget
 
                 // Create matching number of tabs
                 final int count = Integer.parseInt(text.get());
-                final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)widget).displayTabs();
+                final TabsWidget tabs_widget = (TabsWidget)widget;
+                final ArrayWidgetProperty<TabItemProperty> tabs = tabs_widget.displayTabs();
                 while (count < tabs.size())
                     tabs.removeElement();
                 while (count > tabs.size())
                     tabs.addElement();
+
+                // Basics that apply to all tabs
+                text = XMLUtil.getChildString(xml, "minimum_tab_height");
+                if (text.isPresent())
+                    tabs_widget.displayTabHeight().setValue(Integer.parseInt(text.get()));
+
+                text = XMLUtil.getChildString(xml, "horizontal_tabs");
+                if (text.isPresent() && text.get().equals("false"))
+                    tabs_widget.displayDirection().setValue(Direction.VERTICAL);
 
                 // Configure each tab from <tab_0_title>, <tab_1_title>, ...
                 for (int i=0; i<count; ++i)
@@ -165,8 +180,10 @@ public class TabsWidget extends VisibleWidget
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
-    private volatile ArrayWidgetProperty<TabItemProperty> tabs;
     private volatile WidgetProperty<Integer> active;
+    private volatile ArrayWidgetProperty<TabItemProperty> tabs;
+    private volatile WidgetProperty<Direction> direction;
+    private volatile WidgetProperty<Integer> tab_height;
     private volatile WidgetProperty<int[]> insets;
 
     public TabsWidget()
@@ -181,9 +198,11 @@ public class TabsWidget extends VisibleWidget
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(active = activeTab.createProperty(this, 0));
         properties.add(tabs = displayTabs.createProperty(this, Arrays.asList(new TabItemProperty(this, 0),
                                                                              new TabItemProperty(this, 1))));
-        properties.add(active = activeTab.createProperty(this, 0));
+        properties.add(direction = displayDirection.createProperty(this, Direction.HORIZONTAL));
+        properties.add(tab_height = tabHeight.createProperty(this, 30));
         properties.add(insets = runtimeInsets.createProperty(this, new int[] { 0, 0 }));
 
         // Initial size
@@ -209,12 +228,6 @@ public class TabsWidget extends VisibleWidget
         return macros;
     }
 
-    /** @return Display 'background_color' */
-    public WidgetProperty<WidgetColor> displayBackgroundColor()
-    {
-        return background;
-    }
-
     /** Group widget extends parent macros
      *  @return {@link Macros}
      */
@@ -226,10 +239,22 @@ public class TabsWidget extends VisibleWidget
         return Macros.merge(base, my_macros);
     }
 
+    /** @return Display 'background_color' */
+    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    {
+        return background;
+    }
+
     /** @return Display 'font' */
     public WidgetProperty<WidgetFont> displayFont()
     {
         return font;
+    }
+
+    /** @return Display 'active_tab' */
+    public WidgetProperty<Integer> displayActiveTab()
+    {
+        return active;
     }
 
     /** @return Display 'tabs' */
@@ -238,10 +263,16 @@ public class TabsWidget extends VisibleWidget
         return tabs;
     }
 
-    /** @return Display 'active_tab' */
-    public WidgetProperty<Integer> displayActiveTab()
+    /** @return Display 'direction' */
+    public WidgetProperty<Direction> displayDirection()
     {
-        return active;
+        return direction;
+    }
+
+    /** @return Display 'tab_height' */
+    public WidgetProperty<Integer> displayTabHeight()
+    {
+        return tab_height;
     }
 
     /** @return Runtime 'insets' */

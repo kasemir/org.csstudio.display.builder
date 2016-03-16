@@ -26,7 +26,8 @@
     <x>11</x>
     <y>81</y>
     <width>571</width>
-    <height>260</height>
+    <height>250</height>
+    <active_tab>1</active_tab>
     <tabs>
       <tab>
         <name>System 1</name>
@@ -70,8 +71,8 @@
           </widget>
           <widget type="led" version="2.0.0">
             <name>BoolLED_1</name>
-            <x>169</x>
-            <y>56</y>
+            <x>160</x>
+            <y>58</y>
             <width>26</width>
             <height>26</height>
             <border_alarm_sensitive>false</border_alarm_sensitive>
@@ -208,10 +209,10 @@
           </widget>
           <widget type="tabs" version="2.0.0">
             <name>Tabs_1</name>
-            <x>249</x>
-            <y>16</y>
-            <width>300</width>
-            <height>190</height>
+            <x>248</x>
+            <y>20</y>
+            <width>290</width>
+            <height>170</height>
             <tabs>
               <tab>
                 <name>Summary</name>
@@ -248,11 +249,11 @@
                 </children>
               </tab>
             </tabs>
+            <direction>1</direction>
           </widget>
         </children>
       </tab>
     </tabs>
-    <active_tab>1</active_tab>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_18</name>
