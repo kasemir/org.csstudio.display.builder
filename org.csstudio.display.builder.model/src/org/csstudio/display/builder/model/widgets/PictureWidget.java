@@ -22,6 +22,7 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.osgi.framework.Version;
 import org.w3c.dom.Document;
@@ -60,7 +61,7 @@ public class PictureWidget extends VisibleWidget
         }
 
         @Override
-        public boolean configureFromXML(final Widget widget, final Element widget_xml)
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget, final Element widget_xml)
                 throws Exception
         {
             // Legacy used background color for the line
@@ -83,7 +84,7 @@ public class PictureWidget extends VisibleWidget
             }
 
             // Parse updated XML
-            return super.configureFromXML(widget, widget_xml);
+            return super.configureFromXML(model_reader, widget, widget_xml);
         }
     }
     /** Position 'rotation': What is the rotation of the picture */
