@@ -34,7 +34,7 @@ import org.diirt.vtype.VType;
  *  @author Megan Grodowitz
  */
 @SuppressWarnings("nls")
-public class BoolButtonWidget extends Widget
+public class BoolButtonWidget extends VisibleWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
