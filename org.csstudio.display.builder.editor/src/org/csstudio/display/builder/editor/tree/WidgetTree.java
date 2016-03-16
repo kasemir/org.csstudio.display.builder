@@ -24,8 +24,8 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
-import org.csstudio.display.builder.model.widgets.TabWidget;
-import org.csstudio.display.builder.model.widgets.TabWidget.TabItemProperty;
+import org.csstudio.display.builder.model.widgets.TabsWidget;
+import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -270,9 +270,9 @@ public class WidgetTree
         final Widget widget_parent = added_widget.getParent().get();
         int index = -1;
         TreeItem<WidgetOrTab> item_parent = null;
-        if (widget_parent instanceof TabWidget)
+        if (widget_parent instanceof TabsWidget)
         {
-            for (TabItemProperty tab : ((TabWidget)widget_parent).displayTabs().getValue())
+            for (TabItemProperty tab : ((TabsWidget)widget_parent).displayTabs().getValue())
             {
                 index = tab.children().getValue().indexOf(added_widget);
                 if (index >= 0)
@@ -298,9 +298,9 @@ public class WidgetTree
 
         added_widget.widgetName().addPropertyListener(name_listener);
 
-        if (added_widget instanceof TabWidget)
+        if (added_widget instanceof TabsWidget)
         {
-            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabWidget)added_widget).displayTabs();
+            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)added_widget).displayTabs();
             addTabs(tabs.getValue());
             tabs.addPropertyListener(tabs_property_listener);
         }
@@ -350,9 +350,9 @@ public class WidgetTree
      */
     private void removeWidget(final Widget removed_widget)
     {
-        if (removed_widget instanceof TabWidget)
+        if (removed_widget instanceof TabsWidget)
         {
-            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabWidget)removed_widget).displayTabs();
+            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)removed_widget).displayTabs();
             tabs.removePropertyListener(tabs_property_listener);
             removeTabs(tabs.getValue());
         }
@@ -376,9 +376,9 @@ public class WidgetTree
      */
     private void removeWidgetListeners(final Widget widget)
     {
-        if (widget instanceof TabWidget)
+        if (widget instanceof TabsWidget)
         {
-            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabWidget)widget).displayTabs();
+            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)widget).displayTabs();
             tabs.removePropertyListener(tabs_property_listener);
             for (TabItemProperty tab : tabs.getValue())
             {

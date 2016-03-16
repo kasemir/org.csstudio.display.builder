@@ -15,7 +15,7 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
-import org.csstudio.display.builder.model.widgets.TabWidget;
+import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 
@@ -49,7 +49,7 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
             final Optional<Widget> container = model_widget.getParent();
             if (container.isPresent())
             {
-                if (container.get() instanceof TabWidget)
+                if (container.get() instanceof TabsWidget)
                 {   // TODO Locate model_widget inside one of the Tab's children
                     index = -1;
                 }

@@ -15,7 +15,7 @@ import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
-import org.csstudio.display.builder.model.widgets.TabWidget;
+import org.csstudio.display.builder.model.widgets.TabsWidget;
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
@@ -130,9 +130,9 @@ public class ParentHandler
                 final ChildrenProperty child_prop;
                 if (widget instanceof GroupWidget)
                     child_prop = ((GroupWidget) widget).runtimeChildren();
-                else if (widget instanceof TabWidget)
+                else if (widget instanceof TabsWidget)
                 {   // Check children of _selected_ Tab
-                    final TabWidget tabwid = (TabWidget) widget;
+                    final TabsWidget tabwid = (TabsWidget) widget;
                     final int selected = tabwid.displayActiveTab().getValue();
                     child_prop = tabwid.displayTabs().getValue().get(selected).children();
                 }

@@ -196,11 +196,11 @@
       </widget>
       <widget
             category="STRUCTURE"
-            class="org.csstudio.display.builder.model.widgets.TabWidget"
-            description="%TabWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/tab.png"
-            name="%TabWidget_Name"
-            type="tab">
+            class="org.csstudio.display.builder.model.widgets.TabsWidget"
+            description="%TabsWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/tabs.png"
+            name="%TabsWidget_Name"
+            type="tabs">
          <alternates
                type="org.csstudio.opibuilder.widgets.tab">
          </alternates>

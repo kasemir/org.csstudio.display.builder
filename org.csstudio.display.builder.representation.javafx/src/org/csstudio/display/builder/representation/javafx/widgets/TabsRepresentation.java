@@ -7,11 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
@@ -19,8 +19,8 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
-import org.csstudio.display.builder.model.widgets.TabWidget;
-import org.csstudio.display.builder.model.widgets.TabWidget.TabItemProperty;
+import org.csstudio.display.builder.model.widgets.TabsWidget;
+import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import com.sun.javafx.tk.Toolkit;
@@ -38,13 +38,11 @@ import javafx.scene.text.Font;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
+public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidget>
 {
     private final DirtyFlag dirty_layout = new DirtyFlag();
 
     private final AtomicBoolean changing_active_tab = new AtomicBoolean();
-
-    private static final int inset = 10;
 
     private volatile Font tab_font;
 
@@ -219,6 +217,26 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
         toolkit.scheduleUpdate(this);
     }
 
+    /** Compute 'insets'
+     *
+     *  <p>Determines where the tabs' content Pane
+     *  is located relative to the bounds of the TabPane
+     */
+    private void computeInsets()
+    {   // There is always at least one tab. All tabs have the same size.
+        final Pane pane = (Pane)jfx_node.getTabs().get(0).getContent();
+        final Point2D tabs_bounds = jfx_node.localToScene(0.0, 0.0);
+        final Point2D pane_bounds = pane.localToScene(0.0, 0.0);
+        final int[] insets = new int[] { (int)(pane_bounds.getX() - tabs_bounds.getX()),
+                                         (int)(pane_bounds.getY() - tabs_bounds.getY()) };
+        if (insets[0] < 0  ||  insets[1] < 0)
+        {
+            logger.log(Level.WARNING, "Inset computation failed: TabPane at " + tabs_bounds + ", content pane at " + pane_bounds);
+            insets[0] = insets[1] = 0;
+        }
+        model_widget.runtimeInsets().setValue(insets);
+    }
+
     @Override
     public void updateChanges()
     {
@@ -235,18 +253,6 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
             final Integer height = model_widget.positionHeight().getValue();
             jfx_node.setPrefSize(width, height);
 
-            // Compute insets
-            // TODO Result is wrong until the tab is once resized?!
-            final Pane pane = (Pane)jfx_node.getTabs().get(0).getContent();
-            final Point2D tab_bounds = jfx_node.localToScene(0.0, 0.0);
-            final Point2D pane_bounds = pane.localToScene(0.0, 0.0);
-            System.out.println("Tab bounds : " + tab_bounds);
-            System.out.println("pane bounds : " + pane_bounds);
-            final int[] insets = new int[] { (int)(pane_bounds.getX() - tab_bounds.getX()),
-                                             (int)(pane_bounds.getY() - tab_bounds.getY()) };
-            System.out.println("Insets: " + Arrays.toString(insets));
-            model_widget.runtimeInsets().setValue(insets);
-
             // XXX Force TabPane refresh
             // See org.csstudio.display.builder.representation.javafx.sandbox.TabDemo
             final Callable<Object> twiddle = () ->
@@ -256,6 +262,10 @@ public class TabRepresentation extends JFXBaseRepresentation<TabPane, TabWidget>
                 {
                     jfx_node.setSide(Side.BOTTOM);
                     jfx_node.setSide(Side.TOP);
+
+                    // Insets computation only possible once TabPane is properly displayed.
+                    // Until then, content Pane will report position as 0,0.
+                    computeInsets();
                 });
                 return null;
             };

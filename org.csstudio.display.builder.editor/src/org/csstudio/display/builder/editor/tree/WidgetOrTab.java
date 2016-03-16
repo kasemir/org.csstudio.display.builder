@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.editor.tree;
 
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.widgets.TabWidget.TabItemProperty;
+import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
 
 /** One item in the model outline: Either a {@link Widget} or a {@link TabItemProperty}
  *  @author Kay Kasemir

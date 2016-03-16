@@ -18,8 +18,8 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
-import org.csstudio.display.builder.model.widgets.TabWidget;
-import org.csstudio.display.builder.model.widgets.TabWidget.TabItemProperty;
+import org.csstudio.display.builder.model.widgets.TabsWidget;
+import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
 import org.w3c.dom.Element;
 
 /** Widget property that holds list of child widgets.
@@ -78,9 +78,9 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
     public static ChildrenProperty getParentsChildren(final Widget widget)
     {
         final Widget parent = widget.getParent().get();
-        if (parent instanceof TabWidget)
+        if (parent instanceof TabsWidget)
         {
-            final List<TabItemProperty> tabs = ((TabWidget)parent).displayTabs().getValue();
+            final List<TabItemProperty> tabs = ((TabsWidget)parent).displayTabs().getValue();
             for (TabItemProperty tab : tabs)
             {
                 final ChildrenProperty children = tab.children();
@@ -142,9 +142,9 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
         {
             if (child.getName().equals(name))
                 return child;
-            if (child instanceof TabWidget)
+            if (child instanceof TabsWidget)
             {
-                for (TabItemProperty tab : ((TabWidget)child).displayTabs().getValue())
+                for (TabItemProperty tab : ((TabsWidget)child).displayTabs().getValue())
                 {
                     final Widget maybe = tab.children().getChildByName(name);
                     if (maybe != null)

@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.ChildrenProperty;
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
@@ -31,6 +32,7 @@ import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.eclipse.osgi.util.NLS;
 
 /** A Widget that arranges child widgets in 'tabs'.
  *
@@ -43,20 +45,20 @@ import org.csstudio.display.builder.model.properties.WidgetFont;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class TabWidget extends VisibleWidget
+public class TabsWidget extends VisibleWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
-        new WidgetDescriptor("tab", WidgetCategory.STRUCTURE,
-            "Tab",
-            "platform:/plugin/org.csstudio.display.builder.model/icons/tab.png",
-            "Group of tabs",
+        new WidgetDescriptor("tabs", WidgetCategory.STRUCTURE,
+            Messages.TabsWidget_Name,
+            "platform:/plugin/org.csstudio.display.builder.model/icons/tabs.png",
+            Messages.TabsWidget_Description,
             Arrays.asList("org.csstudio.opibuilder.widgets.tab"))
     {
         @Override
         public Widget createWidget()
         {
-            return new TabWidget();
+            return new TabsWidget();
         }
     };
 
@@ -64,7 +66,7 @@ public class TabWidget extends VisibleWidget
 
     // Property that describes one tab item
     private final static StructuredWidgetProperty.Descriptor displayTabItem =
-            new StructuredWidgetProperty.Descriptor(WidgetPropertyCategory.DISPLAY, "tab", "Tab Item");
+            new StructuredWidgetProperty.Descriptor(WidgetPropertyCategory.DISPLAY, "tab", Messages.Tab_Item);
 
     public static class TabItemProperty extends StructuredWidgetProperty
     {
@@ -88,11 +90,11 @@ public class TabWidget extends VisibleWidget
     };
 
     private static final ArrayWidgetProperty.Descriptor<TabItemProperty> displayTabs =
-            new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.DISPLAY, "tabs", "Tabs", // TODO Externalize
+            new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.DISPLAY, "tabs", Messages.TabsWidget_Name,
                     (widget, index) -> new TabItemProperty(widget, index));
 
     private static final WidgetPropertyDescriptor<Integer> activeTab =
-            CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "active_tab", "Active Tab");
+            CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "active_tab", Messages.ActiveTab);
 
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<WidgetColor> background;
@@ -101,7 +103,7 @@ public class TabWidget extends VisibleWidget
     private volatile WidgetProperty<Integer> active;
     private volatile WidgetProperty<int[]> insets;
 
-    public TabWidget()
+    public TabsWidget()
     {
         super(WIDGET_DESCRIPTOR.getType(), 400, 300);
     }
@@ -125,7 +127,7 @@ public class TabWidget extends VisibleWidget
 
     private static String createTabText(final int index)
     {
-        return "Tab " + (index + 1);
+        return NLS.bind(Messages.TabsWidget_TabNameFmt, index + 1);
     }
 
     /** @return Widget 'macros' */

@@ -35,7 +35,7 @@ import org.csstudio.display.builder.model.widgets.PolygonWidget;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
-import org.csstudio.display.builder.model.widgets.TabWidget;
+import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget;
@@ -114,7 +114,7 @@ public class WidgetFactory
         addWidgetType(PolylineWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ProgressBarWidget.WIDGET_DESCRIPTOR);
         addWidgetType(RectangleWidget.WIDGET_DESCRIPTOR);
-        addWidgetType(TabWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(TabsWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextEntryWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextUpdateWidget.WIDGET_DESCRIPTOR);
         addWidgetType(XYPlotWidget.WIDGET_DESCRIPTOR);

@@ -56,7 +56,7 @@
             type="rectangle">
       </representation>
       <representation
-            class="org.csstudio.display.builder.representation.javafx.widgets.TabRepresentation"
+            class="org.csstudio.display.builder.representation.javafx.widgets.TabsRepresentation"
             type="tab">
       </representation>
       <representation
