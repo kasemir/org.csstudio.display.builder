@@ -14,6 +14,9 @@ import static org.csstudio.display.builder.model.properties.InsetsWidgetProperty
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.ChildrenProperty;
@@ -21,18 +24,23 @@ import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
 
 /** A Widget that arranges child widgets in 'tabs'.
  *
@@ -62,12 +70,11 @@ public class TabsWidget extends VisibleWidget
         }
     };
 
-    // TODO Custom WidgetConfigurator to load legacy file
-
     // Property that describes one tab item
     private final static StructuredWidgetProperty.Descriptor displayTabItem =
             new StructuredWidgetProperty.Descriptor(WidgetPropertyCategory.DISPLAY, "tab", Messages.Tab_Item);
 
+    /** Name, children of one tab */
     public static class TabItemProperty extends StructuredWidgetProperty
     {
         protected TabItemProperty(final Widget widget, final int index)
@@ -95,6 +102,65 @@ public class TabsWidget extends VisibleWidget
 
     private static final WidgetPropertyDescriptor<Integer> activeTab =
             CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "active_tab", Messages.ActiveTab);
+
+
+    /** Custom WidgetConfigurator to load legacy file */
+    private static class TabsWidgetConfigurator extends WidgetConfigurator
+    {
+        public TabsWidgetConfigurator(final Version xml_version)
+        {
+            super(xml_version);
+        }
+
+        @Override
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget,
+                                        final Element xml) throws Exception
+        {
+            if (! super.configureFromXML(model_reader, widget, xml))
+                return false;
+
+            if (xml_version.getMajor() < 2)
+            {
+                // Legacy org.csstudio.opibuilder.widgets.tab used <tab_count>,
+                Optional<String> text = XMLUtil.getChildString(xml, "tab_count");
+                if (! text.isPresent())
+                    return true;
+
+                // Create matching number of tabs
+                final int count = Integer.parseInt(text.get());
+                final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)widget).displayTabs();
+                while (count < tabs.size())
+                    tabs.removeElement();
+                while (count > tabs.size())
+                    tabs.addElement();
+
+                // Configure each tab from <tab_0_title>, <tab_1_title>, ...
+                for (int i=0; i<count; ++i)
+                {
+                    text = XMLUtil.getChildString(xml, "tab_" + i + "_title");
+                    if (text.isPresent())
+                        tabs.getValue().get(i).name().setValue(text.get());
+                }
+
+                // Tab content was in sequence of
+                // <widget typeId="org.csstudio.opibuilder.widgets.groupingContainer">
+                // where detail was ignored except for the children of each group.
+                int i = 0;
+                for (Element content_xml : XMLUtil.getChildElements(xml, "widget"))
+                {
+                    if (! content_xml.getAttribute("typeId").contains("group"))
+                    {
+                        Logger.getLogger(getClass().getName())
+                              .log(Level.WARNING, "Legacy 'tab' widget misses content of tab " + i);
+                        break;
+                    }
+                    model_reader.readWidgets(tabs.getValue().get(i).children(), content_xml);
+                    ++i;
+                }
+            }
+            return true;
+        }
+    }
 
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<WidgetColor> background;
@@ -128,6 +194,13 @@ public class TabsWidget extends VisibleWidget
     private static String createTabText(final int index)
     {
         return NLS.bind(Messages.TabsWidget_TabNameFmt, index + 1);
+    }
+
+    @Override
+    public WidgetConfigurator getConfigurator(final Version persisted_version)
+            throws Exception
+    {
+        return new TabsWidgetConfigurator(persisted_version);
     }
 
     /** @return Widget 'macros' */
