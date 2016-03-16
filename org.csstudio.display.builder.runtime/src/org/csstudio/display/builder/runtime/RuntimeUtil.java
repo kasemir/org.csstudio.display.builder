@@ -19,6 +19,8 @@ import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.NamedDaemonPool;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.TabsWidget;
+import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.runtime.script.ScriptSupport;
@@ -177,6 +179,11 @@ public class RuntimeUtil
             logger.log(Level.SEVERE, "Cannot start widget runtime", ex);
         }
 
+        if (widget instanceof TabsWidget)
+            for (TabItemProperty tab : ((TabsWidget)widget).displayTabs().getValue())
+                for (final Widget child : tab.children().getValue())
+                    startRuntimeRecursively(child);
+
         // Recurse into child widgets
         final ChildrenProperty children = ChildrenProperty.getChildren(widget);
         if (children != null)
@@ -201,6 +208,12 @@ public class RuntimeUtil
         if (children != null)
             for (final Widget child : children.getValue())
                 stopRuntimeRecursively(child);
+
+        if (widget instanceof TabsWidget)
+            for (TabItemProperty tab : ((TabsWidget)widget).displayTabs().getValue())
+                for (final Widget child : tab.children().getValue())
+                    stopRuntimeRecursively(child);
+
         // .. then stop this runtime
         final WidgetRuntime<?> runtime = RuntimeUtil.getRuntime(widget);
         if (runtime != null)

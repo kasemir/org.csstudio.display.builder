@@ -23,7 +23,8 @@
   </widget>
   <widget type="tabs" version="2.0.0">
     <name>Tabs</name>
-    <y>91</y>
+    <x>11</x>
+    <y>81</y>
     <width>571</width>
     <height>260</height>
     <tabs>
@@ -53,10 +54,6 @@
               <color red="255" green="255" blue="255">
               </color>
             </background_color>
-            <font>
-              <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-              </font>
-            </font>
           </widget>
           <widget type="textupdate" version="2.0.0">
             <name>Text Update_2</name>
@@ -69,10 +66,6 @@
               <color red="0" green="0" blue="0">
               </color>
             </foreground_color>
-            <font>
-              <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-              </font>
-            </font>
             <pv_name>sim://ramp(0, 4, 1)</pv_name>
           </widget>
           <widget type="led" version="2.0.0">
@@ -121,10 +114,6 @@
               <color red="255" green="255" blue="255">
               </color>
             </background_color>
-            <font>
-              <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-              </font>
-            </font>
           </widget>
           <widget type="textupdate" version="2.0.0">
             <name>Text Update_3</name>
@@ -137,10 +126,6 @@
               <color red="0" green="0" blue="0">
               </color>
             </foreground_color>
-            <font>
-              <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-              </font>
-            </font>
             <pv_name>sim://ramp(0, 4, 1)</pv_name>
           </widget>
           <widget type="led" version="2.0.0">
@@ -189,10 +174,6 @@
               <color red="255" green="255" blue="255">
               </color>
             </background_color>
-            <font>
-              <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-              </font>
-            </font>
           </widget>
           <widget type="textupdate" version="2.0.0">
             <name>Text Update_1</name>
@@ -205,10 +186,6 @@
               <color red="0" green="0" blue="0">
               </color>
             </foreground_color>
-            <font>
-              <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-              </font>
-            </font>
             <pv_name>sim://ramp(0, 4, 1)</pv_name>
           </widget>
           <widget type="led" version="2.0.0">
@@ -279,20 +256,19 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_18</name>
-    <y>391</y>
+    <y>361</y>
     <width>491</width>
-    <height>220</height>
+    <height>210</height>
     <text>Tabs are useful when users need to quickly and frequently
-swtich between the content of related tabs.
-
-The widgets in all tabs are always 'active'.
-They remain connected to PVs, their scripts will continue to execute
+swtich between related content, because widgets in all tabs
+are always 'active'.
+They remain connected to PVs, their scripts will continue to execute,
 even while a tab is not visible.
 This allows them to reflect their current state right away when shown.
 
 If the content of tabs is not related, and users only infrequently switch
 between them, a setup with action buttons to change between separate
-displays is more suitable.</text>
+displays is more suitable and will preserve resources.</text>
     <font>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
