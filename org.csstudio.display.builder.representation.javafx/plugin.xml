@@ -12,6 +12,10 @@
             type="action_button">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.BoolButtonRepresentation"
+            type="bool_button">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.EllipseRepresentation"
             type="ellipse">
       </representation>

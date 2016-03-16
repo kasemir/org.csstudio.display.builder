@@ -150,6 +150,21 @@
                type="org.csstudio.opibuilder.widgets.ActionButton">
          </alternates>
       </widget>
+
+
+      <widget
+            category="CONTROL"
+            class="org.csstudio.display.builder.model.widgets.BoolButtonWidget"
+            description="%BoolButtonWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/bool_button.gif"
+            name="%BoolButtonWidget_Name"
+            type="bool_button">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.BoolButton">
+         </alternates>
+      </widget>
+
+
       <widget
             category="CONTROL"
             class="org.csstudio.display.builder.model.widgets.TextEntryWidget"
