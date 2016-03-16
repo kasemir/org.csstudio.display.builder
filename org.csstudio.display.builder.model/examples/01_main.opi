@@ -295,7 +295,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>embedded/structure_group.opi</file>
+        <file>structure_group.opi</file>
         <target>replace</target>
         <description>Group</description>
       </action>
