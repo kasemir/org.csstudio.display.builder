@@ -23,6 +23,8 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.MacroXMLUtil;
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.eclipse.osgi.util.NLS;
@@ -63,7 +65,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
     }
 
     @Override
-    public void writeToXML(final XMLStreamWriter writer) throws Exception
+    public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
     {
         for (final ActionInfo info : value)
         {
@@ -127,7 +129,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
     }
 
     @Override
-    public void readFromXML(final Element property_xml) throws Exception
+    public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
         final List<ActionInfo> actions = new ArrayList<>();
         for (final Element action_xml : XMLUtil.getChildElements(property_xml, XMLTags.ACTION))

@@ -16,10 +16,10 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.csstudio.display.builder.model.DirtyFlag;
-import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.widgets.VisibleWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.Alarm;
 import org.diirt.vtype.AlarmSeverity;
@@ -43,7 +43,7 @@ import javafx.scene.shape.StrokeType;
  *
  *  @author Kay Kasemir
  */
-abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Widget> extends JFXBaseRepresentation<JFX, MW>
+abstract public class RegionBaseRepresentation<JFX extends Region, MW extends VisibleWidget> extends JFXBaseRepresentation<JFX, MW>
 {
     /** Border for each {@link AlarmSeverity} */
     private static Border[] alarm_borders = new Border[AlarmSeverity.values().length];

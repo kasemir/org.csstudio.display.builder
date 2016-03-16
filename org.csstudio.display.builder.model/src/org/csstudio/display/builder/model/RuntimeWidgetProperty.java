@@ -9,6 +9,8 @@ package org.csstudio.display.builder.model;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.w3c.dom.Element;
 
 /** Helper for implementing Runtime properties.
@@ -34,13 +36,13 @@ abstract public class RuntimeWidgetProperty<T> extends WidgetProperty<T>
     }
 
     @Override
-    public void writeToXML(final XMLStreamWriter writer) throws Exception
+    public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
     {
         throw new Exception("Runtime property " + getName() + " is not persisted");
     }
 
     @Override
-    public void readFromXML(final Element property_xml) throws Exception
+    public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
         throw new Exception("Runtime property " + getName() + " is not persisted");
     }

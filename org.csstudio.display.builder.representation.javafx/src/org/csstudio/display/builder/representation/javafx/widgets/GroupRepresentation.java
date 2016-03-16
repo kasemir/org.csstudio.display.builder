@@ -14,6 +14,7 @@ import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import javafx.geometry.Insets;
 import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -70,7 +71,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
     }
 
     @Override
-    protected Group getChildParent(final Group parent)
+    protected Parent getChildParent(final Parent parent)
     {
         return inner;
     }

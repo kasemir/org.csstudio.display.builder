@@ -18,12 +18,12 @@ import org.csstudio.display.builder.editor.poly.PointsBinding;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.editor.undo.AddWidgetAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
-import org.csstudio.display.builder.editor.util.GroupHandler;
 import org.csstudio.display.builder.editor.util.JFXGeometryTools;
+import org.csstudio.display.builder.editor.util.ParentHandler;
 import org.csstudio.display.builder.editor.util.Rubberband;
 import org.csstudio.display.builder.editor.util.WidgetNaming;
 import org.csstudio.display.builder.editor.util.WidgetTransfer;
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.representation.ToolkitListener;
@@ -99,7 +99,7 @@ public class DisplayEditor
 
     private final WidgetSelectionHandler selection = new WidgetSelectionHandler();
 
-    private final GroupHandler group_handler;
+    private final ParentHandler group_handler;
 
     private final SelectedWidgetUITracker selection_tracker;
 
@@ -113,7 +113,7 @@ public class DisplayEditor
     public DisplayEditor(final JFXRepresentation toolkit)
     {
         this.toolkit = toolkit;
-        group_handler = new GroupHandler(edit_tools, selection);
+        group_handler = new ParentHandler(edit_tools, selection);
 
         selection_tracker = new SelectedWidgetUITracker(toolkit, group_handler, selection, undo);
         selection_tracker.enableSnap(true);
@@ -202,9 +202,10 @@ public class DisplayEditor
     private void handleDroppedModel(final DisplayModel dropped_model)
     {
         // Dropped into a sub-group or the main display?
-        ContainerWidget container = group_handler.getActiveGroup();
-        if (container == null)
-            container = model;
+        ChildrenProperty target = group_handler.getActiveParentChildren();
+        if (target == null)
+            target = model.runtimeChildren();
+        final Widget container = target.getWidget();
         // Correct all dropped widget locations relative to container
         final Point2D offset = GeometryTools.getContainerOffset(container);
         // Also account for scroll pane
@@ -221,7 +222,7 @@ public class DisplayEditor
                 widget.positionX().setValue(widget.positionX().getValue() - dx);
                 widget.positionY().setValue(widget.positionY().getValue() - dy);
                 widget_naming.setDefaultName(container.getDisplayModel(), widget);
-                undo.execute(new AddWidgetAction(container, widget));
+                undo.execute(new AddWidgetAction(target, widget));
             }
             selection.setSelection(dropped);
         }
@@ -241,6 +242,7 @@ public class DisplayEditor
         if (model.getUserData(DisplayModel.USER_DATA_INPUT_FILE) == null)
             logger.log(Level.SEVERE, "Model lacks input file information");
 
+        undo.clear();
         widget_naming.clear();
         selection.clear();
         group_handler.setModel(model);

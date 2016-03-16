@@ -21,6 +21,7 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
@@ -33,7 +34,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class XYPlotWidget extends Widget
+public class XYPlotWidget extends VisibleWidget
 {
     private static final WidgetPropertyDescriptor<Boolean> behaviorLegend =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "show_legend", "Show Legend");
@@ -133,11 +134,11 @@ public class XYPlotWidget extends Widget
         }
 
         @Override
-        public boolean configureFromXML(final Widget widget, final Element xml)
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget, final Element xml)
                 throws Exception
         {
             final XYPlotWidget plot = (XYPlotWidget) widget;
-            configureAllPropertiesFromMatchingXML(widget, xml);
+            configureAllPropertiesFromMatchingXML(model_reader, widget, xml);
 
             // Legacy widget had a "pv_name" property that was basically used as a macro within the widget
             final String pv_macro = XMLUtil.getChildString(xml, "pv_name").orElse("");
@@ -168,7 +169,7 @@ public class XYPlotWidget extends Widget
 
             final Element element = XMLUtil.getChildElement(xml, "trace_0_trace_color");
             if (element != null)
-                plot.trace.traceColor().readFromXML(element);
+                plot.trace.traceColor().readFromXML(model_reader, element);
 
             // "axis_1_*" was the Y axis, and higher axes could be either X or Y
             int y_count = 0; // Number of y axes found in legacy config

@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.osgi.framework.Version;
@@ -54,7 +55,7 @@ public class LEDWidget extends BaseLEDWidget
         }
 
         @Override
-        public boolean configureFromXML(final Widget widget, final Element xml)
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget, final Element xml)
                 throws Exception
         {
             // Legacy XML with <state_count> identifies MultiStateLEDWidget
@@ -62,7 +63,7 @@ public class LEDWidget extends BaseLEDWidget
             if (element != null)
                 return false;
 
-            super.configureFromXML(widget, xml);
+            super.configureFromXML(model_reader, widget, xml);
 
             BaseLEDWidget.handle_legacy_position(widget, xml_version, xml);
             return true;

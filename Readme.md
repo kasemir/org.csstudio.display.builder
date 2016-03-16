@@ -281,6 +281,13 @@ Linux: RuntimeDemo 10% CPU, CSS 20% CPU.
 JavaFX Issues
 -------------
 
+To debug the Scene Graph:
+* Download Scenic View 8 from http://fxexperience.com/scenic-view
+* Unpack
+* Add ScenicView.jar to the build path of org.csstudio.display.builder.representation.javafx
+* In JFXStageRepresentation:configureStage(), add
+   ScenicView.show(scene)
+
 What base class to use for all widget representations?
 
 * Node (Currently used)

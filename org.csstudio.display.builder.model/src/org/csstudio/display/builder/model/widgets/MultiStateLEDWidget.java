@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
@@ -58,7 +59,7 @@ public class MultiStateLEDWidget extends BaseLEDWidget
         }
 
         @Override
-        public boolean configureFromXML(final Widget widget, final Element xml)
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget, final Element xml)
                 throws Exception
         {
             // Legacy XML with off_color, on_color identifies plain boolean LED
@@ -66,13 +67,13 @@ public class MultiStateLEDWidget extends BaseLEDWidget
                 XMLUtil.getChildElement(xml, "on_color") != null)
                 return false;
 
-            super.configureFromXML(widget, xml);
+            super.configureFromXML(model_reader, widget, xml);
 
             // Handle legacy state_color_fallback
             final MultiStateLEDWidget model_widget = (MultiStateLEDWidget) widget;
             Element element = XMLUtil.getChildElement(xml, "state_color_fallback");
             if (element != null)
-                model_widget.fallback.readFromXML(element);
+                model_widget.fallback.readFromXML(model_reader, element);
 
             // Handle legacy state_value_0, state_color_0, ..1, ..2, ..
             final ArrayWidgetProperty<StateWidgetProperty> states = model_widget.states;
@@ -81,11 +82,11 @@ public class MultiStateLEDWidget extends BaseLEDWidget
             {
                 while (states.size() <= state)
                     states.addElement();
-                states.getElement(state).color().readFromXML(element);
+                states.getElement(state).color().readFromXML(model_reader, element);
 
                 element = XMLUtil.getChildElement(xml, "state_value_" + state);
                 if (element != null)
-                    states.getElement(state).state().readFromXML(element);
+                    states.getElement(state).state().readFromXML(model_reader, element);
 
                 ++state;
             }

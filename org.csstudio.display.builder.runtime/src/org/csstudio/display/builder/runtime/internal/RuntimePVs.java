@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.widgets.VisibleWidget;
 import org.csstudio.vtype.pv.PV;
 import org.csstudio.vtype.pv.PVListenerAdapter;
 import org.diirt.vtype.VType;
@@ -94,7 +95,8 @@ public class RuntimePVs
         if (info.addReference() == 1)
         {
             // Awaiting connections for at least one PV, so widget is for now disconnected
-            widget.runtimeConnected().setValue(false);
+            if (widget instanceof VisibleWidget)
+                ((VisibleWidget)widget).runtimeConnected().setValue(false);
             pv.addListener(info);
         }
     }
@@ -132,7 +134,8 @@ public class RuntimePVs
         }
         // else: For sure not connected
 
-        widget.runtimeConnected().setValue(all_connected);
+        if (widget instanceof VisibleWidget)
+            ((VisibleWidget)widget).runtimeConnected().setValue(all_connected);
     }
 
     /** @return All PVs of this widget */

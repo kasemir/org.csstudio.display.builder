@@ -10,48 +10,60 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
+import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 
-import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 
 /** Base class for all JavaFX widget representations
  *  @param <JFX> JFX Widget
  *  @param <MW> Model widget
  *  @author Kay Kasemir
  */
-abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget> extends WidgetRepresentation<Group, Node, MW>
+abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget> extends WidgetRepresentation<Parent, Node, MW>
 {
     /** JFX node (or root of sub scene graph) that represents the widget
      *  <p>Only accessed on the JFX thread
      */
     protected JFX jfx_node;
 
+    private volatile WidgetProperty<Boolean> visible;
+
     private final DirtyFlag dirty_position = new DirtyFlag();
 
     /** {@inheritDoc} */
     @Override
-    public Group createComponents(final Group parent) throws Exception
+    public Parent createComponents(final Parent parent) throws Exception
     {
         jfx_node = createJFXNode();
         if (jfx_node != null)
         {   // Order JFX children same as model widgets within their container
             final int index;
-            final Optional<ContainerWidget> container = model_widget.getParent();
+            final Optional<Widget> container = model_widget.getParent();
             if (container.isPresent())
-                index = container.get().getChildren().indexOf(model_widget);
+            {
+                if (container.get() instanceof TabsWidget)
+                {   // TODO Locate model_widget inside one of the Tab's children
+                    index = -1;
+                }
+                else
+                    index = container.get().getProperty(ChildrenProperty.DESCRIPTOR).getValue().indexOf(model_widget);
+            }
             else
                 index = -1;
 
             if (index < 0)
-                parent.getChildren().add(jfx_node);
+                JFXRepresentation.getChildren(parent).add(jfx_node);
             else
-                parent.getChildren().add(index, jfx_node);
-            
+                JFXRepresentation.getChildren(parent).add(index, jfx_node);
+
             // Any visible item can be 'clicked' to allow editor to 'select' it
             jfx_node.setOnMousePressed((event) ->
             {
@@ -99,9 +111,7 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
     public void dispose()
     {
         Objects.requireNonNull(jfx_node);
-        final Group group = (Group) jfx_node.getParent();
-        Objects.requireNonNull(group);
-        group.getChildren().remove(jfx_node);
+        JFXRepresentation.getChildren(jfx_node.getParent()).remove(jfx_node);
     }
 
     /** Get parent that would be used for child-widgets.
@@ -115,7 +125,7 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
      *  @param parent parent of this JavaFX representation
      *  @return Desired parent for child nodes
      */
-    protected Group getChildParent(final Group parent)
+    protected Parent getChildParent(final Parent parent)
     {
         return parent;
     }
@@ -126,7 +136,9 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
      */
     protected void registerListeners()
     {
-        model_widget.positionVisible().addUntypedPropertyListener(this::positionChanged);
+        visible = model_widget.checkProperty(CommonWidgetProperties.positionVisible).orElse(null);
+        if (visible != null)
+            visible.addUntypedPropertyListener(this::positionChanged);
         model_widget.positionX().addUntypedPropertyListener(this::positionChanged);
         model_widget.positionY().addUntypedPropertyListener(this::positionChanged);
         // Would like to also listen to positionWidth & height,
@@ -150,7 +162,8 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
         {
             jfx_node.relocate(model_widget.positionX().getValue(),
                               model_widget.positionY().getValue());
-            jfx_node.setVisible(model_widget.positionVisible().getValue());
+            if (visible != null)
+                jfx_node.setVisible(visible.getValue());
         }
     }
 }

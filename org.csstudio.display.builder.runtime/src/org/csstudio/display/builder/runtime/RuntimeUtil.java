@@ -7,12 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime;
 
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelReader;
@@ -20,6 +19,8 @@ import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.NamedDaemonPool;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.TabsWidget;
+import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.runtime.script.ScriptSupport;
@@ -149,18 +150,6 @@ public class RuntimeUtil
         }
     }
 
-    /** Obtain the toolkit used to represent widgets
-     *
-     *  @param model {@link DisplayModel}
-     *  @return
-     *  @throws NullPointerException if toolkit not set
-     */
-    public static <TWP, TW> ToolkitRepresentation<TWP, TW> getToolkit(final DisplayModel model) throws NullPointerException
-    {
-        final ToolkitRepresentation<TWP, TW> toolkit = model.getUserData(DisplayModel.USER_DATA_TOOLKIT);
-        return Objects.requireNonNull(toolkit, "Toolkit not set");
-    }
-
     /** @param widget Widget
      *  @return {@link WidgetRuntime} of the widget or <code>null</code>
      */
@@ -190,9 +179,15 @@ public class RuntimeUtil
             logger.log(Level.SEVERE, "Cannot start widget runtime", ex);
         }
 
+        if (widget instanceof TabsWidget)
+            for (TabItemProperty tab : ((TabsWidget)widget).displayTabs().getValue())
+                for (final Widget child : tab.children().getValue())
+                    startRuntimeRecursively(child);
+
         // Recurse into child widgets
-        if (widget instanceof ContainerWidget)
-            for (final Widget child : ((ContainerWidget) widget).getChildren())
+        final ChildrenProperty children = ChildrenProperty.getChildren(widget);
+        if (children != null)
+            for (final Widget child : children.getValue())
                 startRuntimeRecursively(child);
     }
 
@@ -209,9 +204,16 @@ public class RuntimeUtil
     {
         // Mirror-image of startRuntimeRecursively:
         // First recurse into child widgets, ..
-        if (widget instanceof ContainerWidget)
-            for (final Widget child : ((ContainerWidget) widget).getChildren())
+        final ChildrenProperty children = ChildrenProperty.getChildren(widget);
+        if (children != null)
+            for (final Widget child : children.getValue())
                 stopRuntimeRecursively(child);
+
+        if (widget instanceof TabsWidget)
+            for (TabItemProperty tab : ((TabsWidget)widget).displayTabs().getValue())
+                for (final Widget child : tab.children().getValue())
+                    stopRuntimeRecursively(child);
+
         // .. then stop this runtime
         final WidgetRuntime<?> runtime = RuntimeUtil.getRuntime(widget);
         if (runtime != null)

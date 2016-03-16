@@ -16,7 +16,7 @@ import java.util.List;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -87,7 +87,7 @@ public class ModelWriter implements Closeable
         writeWidgetProperties(model);
 
         // Write each widget of the display
-        writeWidgets(model.getChildren());
+        writeWidgets(model.runtimeChildren().getValue());
     }
 
     /** Write widgets and their children
@@ -95,7 +95,7 @@ public class ModelWriter implements Closeable
      *  @param widgets Widgets to write
      *  @throws Exception on error
      */
-    private void writeWidgets(final List<Widget> widgets) throws Exception
+    public void writeWidgets(final List<Widget> widgets) throws Exception
     {
         for (Widget widget : widgets)
             writeWidget(widget);
@@ -113,38 +113,40 @@ public class ModelWriter implements Closeable
 
         writeWidgetProperties(widget);
 
-        if (widget instanceof ContainerWidget)
-            writeWidgets(((ContainerWidget) widget).getChildren());
+        ChildrenProperty children = ChildrenProperty.getChildren(widget);
+        if (children != null)
+            children.writeToXML(this, writer);
 
         writer.writeEndElement();
     }
 
-    /** @param widget All properties of this widget, except for 'type', are written
+    /** @param widget All properties of this widget, except for runtime and default props, are written
      *  @throws Exception on error
      */
     private void writeWidgetProperties(final Widget widget) throws Exception
     {
         for (final WidgetProperty<?> property : widget.getProperties())
-            writeProperty(writer, property);
+        {   // Skip runtime properties
+            if (property.getCategory() == WidgetPropertyCategory.RUNTIME)
+                continue;
+            // Skip read-only properties
+            if (property.isReadonly())
+                continue;
+            // Skip writing default values for certain properties
+            if (skip_defaults && property.isDefaultValue())
+                continue;
+
+            writeProperty(property);
+        }
     }
 
-    /** @param writer
-     *  @param property Single property to write
+    /** @param property Single property to write
      *  @throws Exception on error
      */
-    public static void writeProperty(XMLStreamWriter writer, final WidgetProperty<?> property) throws Exception
+    public void writeProperty(final WidgetProperty<?> property) throws Exception
     {
-        // Skip runtime properties
-        if (property.getCategory() == WidgetPropertyCategory.RUNTIME)
-            return;
-        // Skip read-only properties
-        if (property.isReadonly())
-            return;
-        // Skip writing default values for certain properties
-        if (skip_defaults && property.isDefaultValue())
-            return;
         writer.writeStartElement(property.getName());
-        property.writeToXML(writer);
+        property.writeToXML(this, writer);
         writer.writeEndElement();
     }
 

@@ -17,17 +17,26 @@ import java.util.List;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.XMLUtil;
+import org.osgi.framework.Version;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 
 /** Widget that displays an image loaded from a file
  *  @author Megan Grodowitz
  */
 @SuppressWarnings("nls")
-public class PictureWidget extends Widget
+public class PictureWidget extends VisibleWidget
 {
+    public final static String default_pic = "platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif"; //$NON-NLS-1$
+
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("picture", WidgetCategory.GRAPHIC,
@@ -43,6 +52,41 @@ public class PictureWidget extends Widget
         }
     };
 
+    /** Custom configurator to read legacy *.opi files */
+    private static class LEDConfigurator extends WidgetConfigurator
+    {
+        public LEDConfigurator(final Version xml_version)
+        {
+            super(xml_version);
+        }
+
+        @Override
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget, final Element widget_xml)
+                throws Exception
+        {
+            // Legacy used background color for the line
+            Element xml = XMLUtil.getChildElement(widget_xml, "image_file");
+            if (xml != null)
+            {
+                final Document doc = widget_xml.getOwnerDocument();
+                Element fname = doc.createElement(displayFile.getName());
+
+                if (xml.getFirstChild() != null)
+                {
+                    fname.appendChild(xml.getFirstChild().cloneNode(true));
+                }
+                else
+                {
+                    Text fpath = doc.createTextNode(default_pic);
+                    fname.appendChild(fpath);
+                }
+                widget_xml.appendChild(fname);
+            }
+
+            // Parse updated XML
+            return super.configureFromXML(model_reader, widget, widget_xml);
+        }
+    }
     /** Position 'rotation': What is the rotation of the picture */
     public static final WidgetPropertyDescriptor<Double> positionRotation =
         newDoublePropertyDescriptor(WidgetPropertyCategory.POSITION, "rotation", Messages.WidgetProperties_Rotation);
@@ -63,7 +107,7 @@ public class PictureWidget extends Widget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(filename = displayFile.createProperty(this, Messages.WidgetProperties_File));
+        properties.add(filename = displayFile.createProperty(this, default_pic));
         properties.add(stretch_image = displayStretch.createProperty(this, false));
         properties.add(rotation = positionRotation.createProperty(this, 0.0));
     }
@@ -80,10 +124,17 @@ public class PictureWidget extends Widget
         return filename;
     }
 
-    /** @return Display 'transparent' */
+    /** @return Display 'stretch' */
     public WidgetProperty<Boolean> displayStretch()
     {
         return stretch_image;
+    }
+
+    @Override
+    public WidgetConfigurator getConfigurator(final Version persisted_version)
+            throws Exception
+    {
+        return new LEDConfigurator(persisted_version);
     }
 
 }

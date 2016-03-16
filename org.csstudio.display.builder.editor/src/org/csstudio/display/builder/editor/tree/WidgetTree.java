@@ -8,7 +8,6 @@
 package org.csstudio.display.builder.editor.tree;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -19,11 +18,14 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
-import org.csstudio.display.builder.editor.util.WidgetIcons;
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ArrayWidgetProperty;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
+import org.csstudio.display.builder.model.widgets.TabsWidget;
+import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -36,8 +38,6 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
@@ -56,7 +56,7 @@ public class WidgetTree
     /** Handler for setting and tracking the currently selected widgets */
     private final WidgetSelectionHandler selection;
 
-    private final TreeView<Widget> tree_view = new TreeView<>();
+    private final TreeView<WidgetOrTab> tree_view = new TreeView<>();
 
     private DisplayModel model = null;
 
@@ -65,53 +65,50 @@ public class WidgetTree
      *  <p>When model notifies about changed Widget,
      *  this map provides the corresponding TreeItem.
      */
-    private volatile Map<Widget, TreeItem<Widget>> widget_items = Collections.emptyMap();
+    private final Map<Widget, TreeItem<WidgetOrTab>> widget2tree = new ConcurrentHashMap<>();
 
-    /** Listener to changes in ContainerWidget's children */
+    /** Map of tab's name.. to TreeItem */
+    private final Map<WidgetProperty<String>, TreeItem<WidgetOrTab>> tab_name2tree = new ConcurrentHashMap<>();
+
+    /** Listener to changes in Widget's children */
     private final WidgetPropertyListener<List<Widget>> children_listener;
 
-    /** Listener to changes in ContainerWidget's children */
+    /** Listener to changes in Widget's children */
     private final WidgetPropertyListener<String> name_listener = (property, old, new_name) ->
     {
         final Widget widget = property.getWidget();
         logger.log(Level.FINE, "{0} changed name", widget);
 
-        final TreeItem<Widget> item = Objects.requireNonNull(widget_items.get(widget));
+        final TreeItem<WidgetOrTab> item = Objects.requireNonNull(widget2tree.get(widget));
         // 'setValue' triggers a refresh of the item,
         // but only if value is different..
         Platform.runLater(() ->
         {
             item.setValue(null);
-            item.setValue(widget);
+            item.setValue(WidgetOrTab.of(widget));
         });
     };
 
-    /** Tree cell that displays {@link Widget} (name, icon, ..) */
-    private static class WidgetTreeCell extends TreeCell<Widget>
+    /** Listener to changes in a TabWidget's tabs */
+    private final WidgetPropertyListener<List<TabItemProperty>> tabs_property_listener = (tabs, removed, added) ->
     {
-        @Override
-        public void updateItem(final Widget widget, final boolean empty)
-        {
-            super.updateItem(widget, empty);
-            if (empty || widget == null)
-            {
-                setText(null);
-                setGraphic(null);
-            }
-            else
-            {
-                 final String type = widget.getType();
-                 setText(type + " '" + widget.getName() + "'");
-                 final Image icon = WidgetIcons.getIcon(type);
-                 if (icon != null)
-                     setGraphic(new ImageView(icon));
-            }
-        }
+        if (added != null)
+            addTabs(added);
+        if (removed != null)
+            removeTabs(removed);
     };
 
-    /** Cell factory that displays {@link Widget} info in tree cell */
-    private final Callback<TreeView<Widget>, TreeCell<Widget>> cell_factory = (final TreeView<Widget> param) ->  new WidgetTreeCell();
+    /** Update the name of a tab item in the tree */
+    private final WidgetPropertyListener<String> tab_name_listener = (tab_name, old_name, new_name) ->
+    {
+        final TreeItem<WidgetOrTab> tab_item = Objects.requireNonNull(tab_name2tree.get(tab_name));
+        final WidgetOrTab wot = tab_item.getValue();
+        tab_item.setValue(null);
+        tab_item.setValue(wot);
+    };
 
+    /** Cell factory that displays {@link WidgetOrTab} info in tree cell */
+    private final Callback<TreeView<WidgetOrTab>, TreeCell<WidgetOrTab>> cell_factory = cell ->  new WidgetTreeCell();
 
     /** Construct widget tree
      *  @param selection Handler of selected widgets
@@ -119,7 +116,6 @@ public class WidgetTree
     public WidgetTree(final WidgetSelectionHandler selection)
     {
         this.selection = selection;
-
 
         children_listener = (p, removed, added) ->
         {
@@ -175,7 +171,7 @@ public class WidgetTree
     private void bindSelections()
     {
         // Update selected widgets in model from selection in tree_view
-        final ObservableList<TreeItem<Widget>> tree_selection = tree_view.getSelectionModel().getSelectedItems();
+        final ObservableList<TreeItem<WidgetOrTab>> tree_selection = tree_view.getSelectionModel().getSelectedItems();
         InvalidationListener listener = (Observable observable) ->
         {
             if (! active.compareAndSet(false, true))
@@ -183,7 +179,16 @@ public class WidgetTree
             try
             {
                 final List<Widget> widgets = new ArrayList<>(tree_selection.size());
-                tree_selection.forEach(item -> widgets.add(item.getValue()));
+
+                for (TreeItem<WidgetOrTab> item : tree_selection)
+                {
+                    final WidgetOrTab wot = item.getValue();
+                    final Widget widget = wot.isWidget()
+                        ? wot.getWidget()
+                        : wot.getTab().getWidget();
+                    if (! widgets.contains(widget))
+                        widgets.add(widget);
+                };
                 logger.log(Level.FINE, "Selected in tree: {0}", widgets);
                 selection.setSelection(widgets);
             }
@@ -207,21 +212,26 @@ public class WidgetTree
         // tree model which was created in background.
         final DisplayModel old_model = this.model;
         if (old_model != null)
-            removeWidgetListeners(old_model);
+        {
+            old_model.runtimeChildren().removePropertyListener(children_listener);
+            for (Widget widget : old_model.runtimeChildren().getValue())
+                removeWidgetListeners(widget);
+            widget2tree.clear();
+            tab_name2tree.clear();
+        }
         this.model = model;
 
         // Might be called on UI thread, move off
         EditorUtil.getExecutor().execute(() ->
-        {   // Using FJPool as plain executor, not dividing tree generation into sub-tasks
-            final TreeItem<Widget> root = new TreeItem<Widget>(model);
-            final Map<Widget, TreeItem<Widget>> widget_items = new ConcurrentHashMap<>();
+        {
+            final TreeItem<WidgetOrTab> root = new TreeItem<WidgetOrTab>(WidgetOrTab.of(model));
             if (model != null)
             {
-                widget_items.put(model, root);
-                createTree(root, model, widget_items);
+                widget2tree.put(model, root);
+                for (Widget widget : model.runtimeChildren().getValue())
+                    addWidget(widget);
                 root.setExpanded(true);
-                this.widget_items = widget_items;
-                addWidgetListeners(model);
+                model.runtimeChildren().addPropertyListener(children_listener);
             }
             logger.log(Level.FINE, "Computed new tree on {0}, updating UI", Thread.currentThread().getName());
             Platform.runLater(() ->
@@ -241,10 +251,10 @@ public class WidgetTree
             return;
         try
         {
-            final MultipleSelectionModel<TreeItem<Widget>> selection = tree_view.getSelectionModel();
+            final MultipleSelectionModel<TreeItem<WidgetOrTab>> selection = tree_view.getSelectionModel();
             selection.clearSelection();
             for (Widget widget : widgets)
-                selection.select(widget_items.get(widget));
+                selection.select(widget2tree.get(widget));
         }
         finally
         {
@@ -252,63 +262,86 @@ public class WidgetTree
         }
     }
 
-    /** Recursively create initial JavaFX {@link TreeItem}s for model widgets
-     *  @param parent Parent tree item
-     *  @param container Widgets to add
-     *  @param widget_items Map for storing TreeItem for each Widget
-     */
-    private void createTree(final TreeItem<Widget> parent, final ContainerWidget container, final Map<Widget, TreeItem<Widget>> widget_items)
-    {
-        for (Widget widget : container.getChildren())
-        {
-            final TreeItem<Widget> item = new TreeItem<>(widget);
-            widget_items.put(widget, item);
-            item.setExpanded(false);
-            parent.getChildren().add(item);
-
-            if (widget instanceof ContainerWidget)
-                createTree(item, (ContainerWidget) widget, widget_items);
-        }
-    }
-
-    /** Recursively add model widget listeners
-     *  @param container Widgets to link
-     */
-    private void addWidgetListeners(final ContainerWidget container)
-    {
-        container.runtimeChildren().addPropertyListener(children_listener);
-        container.widgetName().addPropertyListener(name_listener);
-        for (Widget widget : container.getChildren())
-        {
-            widget.widgetName().addPropertyListener(name_listener);
-            if (widget instanceof ContainerWidget)
-                addWidgetListeners((ContainerWidget) widget);
-        }
-    }
-
     /** Add widget to existing model & tree
-     *  @param added_widget
+     *  @param added_widget Widget to add
      */
     private void addWidget(final Widget added_widget)
     {   // Determine location of widget within parent of model
-        final ContainerWidget widget_parent = added_widget.getParent().get();
-        final int index = widget_parent.getChildren().indexOf(added_widget);
+        final Widget widget_parent = added_widget.getParent().get();
+        int index = -1;
+        TreeItem<WidgetOrTab> item_parent = null;
+        if (widget_parent instanceof TabsWidget)
+        {
+            for (TabItemProperty tab : ((TabsWidget)widget_parent).displayTabs().getValue())
+            {
+                index = tab.children().getValue().indexOf(added_widget);
+                if (index >= 0)
+                {
+                    item_parent = tab_name2tree.get(tab.name());
+                    break;
+                }
+            }
+        }
+        else
+        {
+            index = ChildrenProperty.getChildren(widget_parent).getValue().indexOf(added_widget);
+            item_parent = widget2tree.get(widget_parent);
+        }
+
+        Objects.requireNonNull(item_parent, "Cannot obtain parent item for " + added_widget);
 
         // Create Tree item, add at same index into Tree
-        final TreeItem<Widget> item_parent = widget_items.get(widget_parent);
-        final TreeItem<Widget> item = new TreeItem<>(added_widget);
-        widget_items.put(added_widget, item);
+        final TreeItem<WidgetOrTab> item = new TreeItem<>(WidgetOrTab.of(added_widget));
+        widget2tree.put(added_widget, item);
         item.setExpanded(true);
         item_parent.getChildren().add(index, item);
 
         added_widget.widgetName().addPropertyListener(name_listener);
 
-        if (added_widget instanceof ContainerWidget)
+        if (added_widget instanceof TabsWidget)
         {
-            final ContainerWidget container = (ContainerWidget) added_widget;
-            container.runtimeChildren().addPropertyListener(children_listener);
-            for (Widget child : container.getChildren())
+            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)added_widget).displayTabs();
+            addTabs(tabs.getValue());
+            tabs.addPropertyListener(tabs_property_listener);
+        }
+        else
+        {
+            final ChildrenProperty children = ChildrenProperty.getChildren(added_widget);
+            if (children != null)
+            {
+                children.addPropertyListener(children_listener);
+                for (Widget child : children.getValue())
+                    addWidget(child);
+            }
+        }
+    }
+
+    private void addTabs(final List<TabItemProperty> added)
+    {
+        for (TabItemProperty tab : added)
+        {
+            final TreeItem<WidgetOrTab> widget_item = widget2tree.get(tab.getWidget());
+            final TreeItem<WidgetOrTab> tab_item = new TreeItem<>(WidgetOrTab.of(tab));
+            widget_item.getChildren().add(tab_item);
+            tab_name2tree.put(tab.name(), tab_item);
+            tab.name().addPropertyListener(tab_name_listener);
+
+            for (Widget child : tab.children().getValue())
                 addWidget(child);
+
+            tab.children().addPropertyListener(children_listener);
+        }
+    }
+
+    private void removeTabs(final List<TabItemProperty> removed)
+    {
+        for (TabItemProperty tab : removed)
+        {
+            tab.children().removePropertyListener(children_listener);
+
+            tab.name().removePropertyListener(tab_name_listener);
+            final TreeItem<WidgetOrTab> tab_item = tab_name2tree.remove(tab.name());
+            tab_item.getParent().getChildren().remove(tab_item);
         }
     }
 
@@ -317,33 +350,50 @@ public class WidgetTree
      */
     private void removeWidget(final Widget removed_widget)
     {
-        removed_widget.widgetName().removePropertyListener(name_listener);
-        if (removed_widget instanceof ContainerWidget)
+        if (removed_widget instanceof TabsWidget)
         {
-            final ContainerWidget container = (ContainerWidget) removed_widget;
-            container.runtimeChildren().removePropertyListener(children_listener);
-            for (Widget child : container.getChildren())
+            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)removed_widget).displayTabs();
+            tabs.removePropertyListener(tabs_property_listener);
+            removeTabs(tabs.getValue());
+        }
+
+        removed_widget.widgetName().removePropertyListener(name_listener);
+
+        final ChildrenProperty children = ChildrenProperty.getChildren(removed_widget);
+        if (children != null)
+        {
+            children.removePropertyListener(children_listener);
+            for (Widget child : children.getValue())
                 removeWidget(child);
         }
 
-        final TreeItem<Widget> item = widget_items.get(removed_widget);
+        final TreeItem<WidgetOrTab> item = widget2tree.remove(removed_widget);
         item.getParent().getChildren().remove(item);
-        widget_items.remove(removed_widget);
-
     }
 
     /** Recursively remove model widget listeners
      *  @param container Widgets to unlink
      */
-    private void removeWidgetListeners(final ContainerWidget container)
+    private void removeWidgetListeners(final Widget widget)
     {
-        container.runtimeChildren().removePropertyListener(children_listener);
-        container.widgetName().removePropertyListener(name_listener);
-        for (Widget widget : container.getChildren())
+        if (widget instanceof TabsWidget)
         {
-            widget.widgetName().removePropertyListener(name_listener);
-            if (widget instanceof ContainerWidget)
-                removeWidgetListeners((ContainerWidget) widget);
+            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)widget).displayTabs();
+            tabs.removePropertyListener(tabs_property_listener);
+            for (TabItemProperty tab : tabs.getValue())
+            {
+                tab.children().removePropertyListener(children_listener);
+                tab.name().removePropertyListener(tab_name_listener);
+            }
+        }
+
+        widget.widgetName().removePropertyListener(name_listener);
+        final ChildrenProperty children = ChildrenProperty.getChildren(widget);
+        if (children != null)
+        {
+            children.removePropertyListener(children_listener);
+            for (Widget child : children.getValue())
+                removeWidgetListeners(child);
         }
     }
 }

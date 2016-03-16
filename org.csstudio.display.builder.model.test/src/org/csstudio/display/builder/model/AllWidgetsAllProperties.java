@@ -47,7 +47,7 @@ public class AllWidgetsAllProperties
                     new OpenDisplayActionInfo("Display", "other.opi", macros2, Target.REPLACE)));
             }
 
-            model.addChild(widget);
+            model.runtimeChildren().addChild(widget);
         }
         ModelWriter.skip_defaults = false;
         try

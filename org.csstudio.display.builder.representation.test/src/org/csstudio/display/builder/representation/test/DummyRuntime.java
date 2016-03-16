@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.util.NamedDaemonPool;
@@ -37,8 +37,9 @@ class DummyRuntime
         else if (widget.getType().equals("rectangle"))
             timer.scheduleWithFixedDelay(new DummyPositionUpdater(widget), 100, 100, TimeUnit.MILLISECONDS);
 
-        if (widget instanceof ContainerWidget)
-            for (final Widget child : ((ContainerWidget)widget).getChildren())
+        final ChildrenProperty children = ChildrenProperty.getChildren(widget);
+        if (children != null)
+            for (final Widget child : children.getValue())
                 startWidgetRuntime(child);
     }
 

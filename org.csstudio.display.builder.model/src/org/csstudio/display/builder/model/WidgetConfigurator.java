@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
@@ -44,6 +45,7 @@ public class WidgetConfigurator
     }
 
     /** Configure widget based on data persisted in XML.
+     *  @param model_reader {@link ModelReader}
      *  @param widget Widget to configure
      *  @param xml XML for this widget
      *  @return <code>true</code> if widget can be configured,
@@ -51,20 +53,21 @@ public class WidgetConfigurator
      *  @throws Exception on error
      *
      */
-    public boolean configureFromXML(final Widget widget,
+    public boolean configureFromXML(final ModelReader model_reader, final Widget widget,
             final Element xml) throws Exception
     {
         // System.out.println("Reading " + widget + " from saved V" + xml_version);
-        configureAllPropertiesFromMatchingXML(widget, xml);
+        configureAllPropertiesFromMatchingXML(model_reader, widget, xml);
         return true;
     }
 
     /** For each XML element, locate a property of that name and configure it.
+     *  @param model_reader {@link ModelReader}
      *  @param widget Widget to configure
      *  @param xml XML for this widget
      *  @throws Exception on error
      */
-    protected void configureAllPropertiesFromMatchingXML(final Widget widget,
+    protected void configureAllPropertiesFromMatchingXML(final ModelReader model_reader, final Widget widget,
             final Element xml) throws Exception
     {
         for (final Element prop_xml : XMLUtil.getChildElements(xml))
@@ -76,7 +79,7 @@ public class WidgetConfigurator
                 continue;
             try
             {
-                prop.get().readFromXML(prop_xml);
+                prop.get().readFromXML(model_reader, prop_xml);
             }
             catch (Exception ex)
             {

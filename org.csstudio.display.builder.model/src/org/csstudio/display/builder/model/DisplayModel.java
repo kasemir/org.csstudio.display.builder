@@ -22,7 +22,7 @@ import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class DisplayModel extends ContainerWidget
+public class DisplayModel extends Widget
 {
     public static final String WIDGET_TYPE = "display";
 
@@ -43,6 +43,7 @@ public class DisplayModel extends ContainerWidget
     public static final String USER_DATA_EMBEDDING_WIDGET = "_embedding_widget";
 
     private volatile WidgetProperty<Macros> macros;
+    private volatile ChildrenProperty children;
 
     /** Create display model */
     public DisplayModel()
@@ -55,6 +56,7 @@ public class DisplayModel extends ContainerWidget
     {
         super.defineProperties(properties);
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
+        properties.add(children = new ChildrenProperty(this));
     }
 
     /** @return Widget 'macros' */
@@ -63,10 +65,22 @@ public class DisplayModel extends ContainerWidget
         return macros;
     }
 
-    @Override
-    protected void setParent(final ContainerWidget parent)
+    /** @return Runtime 'children' */
+    public ChildrenProperty runtimeChildren()
     {
-        throw new IllegalStateException("Display widget cannot have parent widget " + parent);
+        return children;
+    }
+
+    /** @return Child widgets */
+    public List<Widget> getChildren()
+    {
+        return children.getValue();
+    }
+
+    @Override
+    protected void setParent(final Widget parent)
+    {
+        throw new IllegalStateException("Display cannot have parent widget " + parent);
     }
 
     /** Display model provides macros for all its widgets.

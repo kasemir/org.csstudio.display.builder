@@ -10,11 +10,9 @@ package org.csstudio.display.builder.model;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorActions;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorScripts;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionVisible;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeConnected;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
 
@@ -46,7 +44,7 @@ import org.osgi.framework.Version;
  *
  *  <p>Widgets are part of a hierarchy.
  *  Their parent is either the {@link DisplayModel} or another
- *  {@link ContainerWidget}.
+ *  widget with a {@link ChildrenProperty}
  *
  *  @author Kay Kasemir
  */
@@ -74,6 +72,11 @@ public class Widget
      */
     public static final String USER_DATA_REPRESENTATION = "_representation";
 
+    /** Reserved user data key for Widget that has 'children', i.e. is a parent,
+     *  to store the toolkit parent item
+     */
+    public static final String USER_DATA_TOOLKIT_PARENT = "_toolkit_parent";
+
     /** Reserved widget user data key for storing the runtime.
      *
      *  <p>The WidgetRuntime for each {@link Widget}
@@ -91,7 +94,7 @@ public class Widget
     public static final String USER_DATA_SCRIPT_SUPPORT = "_script_support";
 
     /** Parent widget */
-    private volatile ContainerWidget parent = null;
+    private volatile Widget parent = null;
 
     /** All properties, ordered by category, then sequence of definition */
     protected final Set<WidgetProperty<?>> properties;
@@ -125,10 +128,8 @@ public class Widget
     private WidgetProperty<Integer> y;
     private WidgetProperty<Integer> width;
     private WidgetProperty<Integer> height;
-    private WidgetProperty<Boolean> visible;
     private WidgetProperty<List<ActionInfo>> actions;
     private WidgetProperty<List<ScriptInfo>> scripts;
-    private WidgetProperty<Boolean> connected;
 
     /** Map of user data */
     protected final Map<String, Object> user_data = new ConcurrentHashMap<>(4); // Reserve room for "representation", "runtime"
@@ -156,13 +157,10 @@ public class Widget
         prelim_properties.add(name = widgetName.createProperty(this, ""));
         prelim_properties.add(x = positionX.createProperty(this, 0));
         prelim_properties.add(y = positionY.createProperty(this, 0));
-        prelim_properties.add(width = positionWidth.createProperty(this, default_width));
-        prelim_properties.add(height = positionHeight.createProperty(this, default_height));
-        prelim_properties.add(visible = positionVisible.createProperty(this, true));
+        prelim_properties.add(width = positionWidth.createProperty(this, 100));
+        prelim_properties.add(height = positionHeight.createProperty(this, 20));
         prelim_properties.add(actions = behaviorActions.createProperty(this, Collections.emptyList()));
         prelim_properties.add(scripts = behaviorScripts.createProperty(this, Collections.emptyList()));
-        // Start 'connected', assuming there are no PVs
-        prelim_properties.add(connected = runtimeConnected.createProperty(this, true));
 
         // -- Widget-specific properties --
         defineProperties(prelim_properties);
@@ -212,7 +210,7 @@ public class Widget
     }
 
     /** @return Parent widget in Widget tree */
-    public Optional<ContainerWidget> getParent()
+    public Optional<Widget> getParent()
     {
         return Optional.ofNullable(parent);
     }
@@ -220,7 +218,7 @@ public class Widget
     /** Invoked by the parent widget
      *  @param parent Parent widget
      */
-    protected void setParent(final ContainerWidget parent)
+    protected void setParent(final Widget parent)
     {
         this.parent = parent;
     }
@@ -288,12 +286,6 @@ public class Widget
         return height;
     }
 
-    /** @return Position 'visible' */
-    public WidgetProperty<Boolean> positionVisible()
-    {
-        return visible;
-    }
-
     /** @return Behavior 'actions' */
     public WidgetProperty<List<ActionInfo>> behaviorActions()
     {
@@ -304,12 +296,6 @@ public class Widget
     public WidgetProperty<List<ScriptInfo>> behaviorScripts()
     {
         return scripts;
-    }
-
-    /** @return Runtime 'connected' */
-    public WidgetProperty<Boolean> runtimeConnected()
-    {
-        return connected;
     }
 
     /** Obtain configurator.
@@ -469,7 +455,7 @@ public class Widget
      */
     public Macros getEffectiveMacros()
     {
-        final Optional<ContainerWidget> the_parent = getParent();
+        final Optional<Widget> the_parent = getParent();
         if (! the_parent.isPresent())
             return null;
         return the_parent.get().getEffectiveMacros();

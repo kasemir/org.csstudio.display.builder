@@ -18,8 +18,8 @@ import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
-import org.csstudio.display.builder.editor.util.GroupHandler;
-import org.csstudio.display.builder.model.ContainerWidget;
+import org.csstudio.display.builder.editor.util.ParentHandler;
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.persist.ModelWriter;
@@ -31,6 +31,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
@@ -60,8 +61,8 @@ public class SelectedWidgetUITracker extends Group
 
     private static final int handle_size = 15;
 
-    private final ToolkitRepresentation<Group, Node> toolkit;
-    private final GroupHandler group_handler;
+    private final ToolkitRepresentation<Parent, Node> toolkit;
+    private final ParentHandler group_handler;
     private final UndoableActionManager undo;
 
     private final TrackerGridConstraint grid_constraint = new TrackerGridConstraint(10);
@@ -106,8 +107,8 @@ public class SelectedWidgetUITracker extends Group
      *  @param selection Selection handler
      *  @param undo 'Undo' manager
      */
-    public SelectedWidgetUITracker(final ToolkitRepresentation<Group, Node> toolkit,
-                            final GroupHandler group_handler,
+    public SelectedWidgetUITracker(final ToolkitRepresentation<Parent, Node> toolkit,
+                            final ParentHandler group_handler,
                             final WidgetSelectionHandler selection,
                             final UndoableActionManager undo)
     {
@@ -462,7 +463,7 @@ public class SelectedWidgetUITracker extends Group
         handle_left.setX(x - handle_size);
         handle_left.setY(y + (height - handle_size)/2);
 
-        group_handler.locateGroup(x, y, width, height);
+        group_handler.locateParent(x, y, width, height);
     }
 
     /** Updates widgets to current tracker location and size */
@@ -489,12 +490,12 @@ public class SelectedWidgetUITracker extends Group
                 final Widget widget = widgets.get(i);
                 final Rectangle2D orig = orig_position.get(i);
 
-                final ContainerWidget orig_parent = widget.getParent().get();
-                ContainerWidget parent = group_handler.getActiveGroup();
-                if (parent == null)
-                    parent = widget.getDisplayModel();
+                final ChildrenProperty orig_parent_children = ChildrenProperty.getParentsChildren(widget);
+                ChildrenProperty parent_children = group_handler.getActiveParentChildren();
+                if (parent_children == null)
+                    parent_children = widget.getDisplayModel().runtimeChildren();
 
-                if (parent == orig_parent)
+                if (orig_parent_children == parent_children)
                 {   // Slightly faster since parent stays the same
                     widget.positionX().setValue((int) (orig.getMinX() + dx));
                     widget.positionY().setValue((int) (orig.getMinY() + dy));
@@ -502,12 +503,13 @@ public class SelectedWidgetUITracker extends Group
                 else
                 {   // Update to new parent
                     final Point2D old_offset = GeometryTools.getDisplayOffset(widget);
-                    orig_parent.removeChild(widget);
-                    parent.addChild(widget);
+                    orig_parent_children.removeChild(widget);
+                    parent_children.addChild(widget);
                     final Point2D new_offset = GeometryTools.getDisplayOffset(widget);
 
                     logger.log(Level.FINE, "{0} moves from {1} ({2}) to {3} ({4})",
-                               new Object[] { widget, orig_parent, old_offset, parent, new_offset});
+                               new Object[] { widget, orig_parent_children.getWidget(), old_offset,
+                                                      parent_children.getWidget(), new_offset});
                     // Account for old and new display offset
                     widget.positionX().setValue((int) (orig.getMinX() + dx + old_offset.getX() - new_offset.getX()));
                     widget.positionY().setValue((int) (orig.getMinY() + dy + old_offset.getY() - new_offset.getY()));
@@ -515,7 +517,9 @@ public class SelectedWidgetUITracker extends Group
                 widget.positionWidth().setValue((int) (orig.getWidth() + dw));
                 widget.positionHeight().setValue((int) (orig.getHeight() + dh));
 
-                undo.add(new UpdateWidgetLocationAction(widget, orig_parent,
+                undo.add(new UpdateWidgetLocationAction(widget,
+                                                        orig_parent_children,
+                                                        parent_children,
                                                         (int) orig.getMinX(),  (int) orig.getMinY(),
                                                         (int) orig.getWidth(), (int) orig.getHeight()));
             }

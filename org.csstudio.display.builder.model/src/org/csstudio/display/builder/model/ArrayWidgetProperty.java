@@ -11,11 +11,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -81,7 +84,7 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
         // Default's elements can be changed, they each track their own 'default',
         // but overall default_value List<> is not modifiable
         super(descriptor, widget, Collections.unmodifiableList(elements));
-        value = new ArrayList<>(elements);
+        value = new CopyOnWriteArrayList<>(elements);
     }
 
     @Override
@@ -91,6 +94,16 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
             if (! element.isDefaultValue())
                 return false;
         return true;
+    }
+
+    @Override
+    protected List<WPE> restrictValue(final List<WPE> requested_value)
+    {
+        if (requested_value instanceof CopyOnWriteArrayList)
+            return requested_value;
+        Logger.getLogger(getClass().getName())
+              .log(Level.WARNING, "Update value for " + getName() + " to CopyOnWriteArrayList");
+        return new CopyOnWriteArrayList<>(requested_value);
     }
 
     /** @return List<> of current array elements. List is not modifiable (elements, however, are).
@@ -154,18 +167,16 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
     }
 
     @Override
-    public void writeToXML(final XMLStreamWriter writer) throws Exception
-    {
+    public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
+    {   // Must always write each array element, even default,
+        // because otherwise an array with "new value, default, default, other value"
+        // would change from 4 into 2 elements
         for (WPE element : value)
-        {
-            writer.writeStartElement(element.getName());
-            element.writeToXML(writer);
-            writer.writeEndElement();
-        }
+            model_writer.writeProperty(element);
     }
 
     @Override
-    public void readFromXML(final Element property_xml) throws Exception
+    public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
         // Loop over XML child elements.
         // The element names are unknown at this time, only once we create an element
@@ -181,7 +192,7 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
                     ((Descriptor<WPE>)descriptor).factory.newElement(widget, elements.size());
                 try
                 {
-                    element.readFromXML(child_xml);
+                    element.readFromXML(model_reader, child_xml);
                 }
                 catch (Exception ex)
                 {

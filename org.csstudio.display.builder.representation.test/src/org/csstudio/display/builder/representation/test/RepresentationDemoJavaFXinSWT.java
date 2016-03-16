@@ -18,7 +18,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import javafx.embed.swt.FXCanvas;
-import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 
 /** JavaFX inside SWT Demo
@@ -54,7 +54,7 @@ public class RepresentationDemoJavaFXinSWT
 
         final JFXRepresentation toolkit = new JFXRepresentation();
         final Scene scene = toolkit.createScene();
-        final Group parent = toolkit.getSceneRoot(scene);
+        final Parent parent = toolkit.getSceneRoot(scene);
         toolkit.representModel(parent, model);
 
         final DummyRuntime runtime = new DummyRuntime(model);

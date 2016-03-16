@@ -12,7 +12,7 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
 
-import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -27,9 +27,9 @@ public class JFXStageRepresentation extends JFXRepresentation
      *  @param stage Stage to configure
      *  @param model Model that provides stage size
      *  @param close_request_handler Close request handler that will be hooked to stage's close handler
-     *  @return Top-level Group
+     *  @return Top-level Parent
      */
-    public Group configureStage(final Stage stage, final DisplayModel model, final Consumer<DisplayModel> close_request_handler)
+    public Parent configureStage(final Stage stage, final DisplayModel model, final Consumer<DisplayModel> close_request_handler)
     {
         stage.setTitle(model.widgetName().getValue());
         stage.setWidth(model.positionWidth().getValue());
@@ -46,7 +46,7 @@ public class JFXStageRepresentation extends JFXRepresentation
     }
 
     @Override
-    public Group openNewWindow(final DisplayModel model, final Consumer<DisplayModel> close_request_handler) throws Exception
+    public Parent openNewWindow(final DisplayModel model, final Consumer<DisplayModel> close_request_handler) throws Exception
     {
         final Stage stage = new Stage();
         return configureStage(stage, model, close_request_handler);
@@ -55,7 +55,7 @@ public class JFXStageRepresentation extends JFXRepresentation
     private void handleCloseRequest(final Scene scene,
                                     final Consumer<DisplayModel> close_request_handler)
     {
-        final Group root = getSceneRoot(scene);
+        final Parent root = getSceneRoot(scene);
         final DisplayModel model = (DisplayModel) root.getProperties().get(ACTIVE_MODEL);
 
         try

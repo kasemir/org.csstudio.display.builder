@@ -13,6 +13,7 @@ import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 
 import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.transform.Scale;
@@ -56,7 +57,7 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
     }
 
     @Override
-    protected Group getChildParent(final Group parent)
+    protected Parent getChildParent(final Parent parent)
     {
         return inner;
     }

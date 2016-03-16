@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
+import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.eclipse.jface.action.IToolBarManager;
@@ -34,7 +35,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import javafx.embed.swt.FXCanvas;
-import javafx.scene.Group;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 
@@ -71,7 +72,7 @@ public class RuntimeViewPart extends ViewPart
 
     private RCP_JFXRepresentation representation;
 
-    private Group root;
+    private Parent root;
 
     private Consumer<DisplayModel> close_handler = ActionUtil::handleClose;
 
@@ -91,7 +92,7 @@ public class RuntimeViewPart extends ViewPart
         return part;
     }
 
-    public Group getRoot()
+    public Parent getRoot()
     {
         return root;
     }
@@ -194,7 +195,7 @@ public class RuntimeViewPart extends ViewPart
             text.setEditable(false);
             text.setPrefSize(bounds.width, bounds.height);
 
-            root.getChildren().setAll(text);
+            JFXRepresentation.getChildren(root).setAll(text);
         });
     }
 
@@ -258,7 +259,7 @@ public class RuntimeViewPart extends ViewPart
     {
         try
         {
-            root.getChildren().clear();
+            JFXRepresentation.getChildren(root).clear();
             representation.representModel(root, model);
         }
         catch (Exception ex)
