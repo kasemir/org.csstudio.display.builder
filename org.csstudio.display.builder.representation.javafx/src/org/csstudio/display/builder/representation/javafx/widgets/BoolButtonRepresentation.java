@@ -22,6 +22,11 @@ import org.diirt.vtype.VType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
+import javafx.scene.shape.Ellipse;
 
 /** Creates JavaFX item for model widget
  *  @author Megan Grodowitz
@@ -32,19 +37,28 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
 
     private final DirtyFlag dirty_representation = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
-    protected volatile Boolean on_state = true;
+    protected volatile int on_state = 1;
     protected volatile int use_bit = 0;
     protected volatile Integer rt_value = 0;
 
     /** Optional modifier of the open display 'target */
     private Optional<OpenDisplayActionInfo.Target> target_modifier = Optional.empty();
 
+    private volatile Button button;
+    private volatile Ellipse led;
+
+    protected volatile Color[] state_colors;
+    protected volatile Color value_color;
+    protected volatile String[] state_labels;
+    protected volatile String value_label;
+
     @Override
     public ButtonBase createJFXNode() throws Exception
     {
         //final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
         final ButtonBase base;
-        final Button button = new Button();
+        led = new Ellipse();
+        button = new Button("BoolButton", led);
         //final ActionInfo the_action = actions.get(0);
         //button.setOnAction(event -> handleAction(the_action));
         button.setOnAction(event -> handlePress());
@@ -105,9 +119,13 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     protected void registerListeners()
     {
         super.registerListeners();
+        representationChanged(null,null,null);
         model_widget.positionWidth().addUntypedPropertyListener(this::representationChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::representationChanged);
-        model_widget.displayText().addUntypedPropertyListener(this::representationChanged);
+        model_widget.displayOnLabel().addUntypedPropertyListener(this::representationChanged);
+        model_widget.displayOnColor().addUntypedPropertyListener(this::representationChanged);
+        model_widget.displayOffLabel().addUntypedPropertyListener(this::representationChanged);
+        model_widget.displayOffColor().addUntypedPropertyListener(this::representationChanged);
         model_widget.displayFont().addUntypedPropertyListener(this::representationChanged);
 
         bitChanged(model_widget.behaviorBit(), null, model_widget.behaviorBit().getValue());
@@ -117,9 +135,20 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         //representationChanged(null,null,null);
     }
 
+    protected Color[] createColors()
+    {
+        return new Color[]
+        {
+            JFXUtil.convert(model_widget.displayOffColor().getValue()),
+            JFXUtil.convert(model_widget.displayOnColor().getValue())
+        };
+    }
+
     private void stateChanged()
     {
-        on_state = (use_bit < 0) ? (rt_value != 0) : (((rt_value >> use_bit) & 1) == 1);
+        on_state = ((use_bit < 0) ? (rt_value != 0) : (((rt_value >> use_bit) & 1) == 1)) ? 1 : 0;
+        value_color = state_colors[on_state];
+        value_label = state_labels[on_state];
 
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
@@ -139,9 +168,12 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     }
 
 
-
     private void representationChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        state_colors = createColors();
+        state_labels = new String[] { model_widget.displayOffLabel().getValue(), model_widget.displayOnLabel().getValue() };
+        value_color = state_colors[on_state];
+        value_label = state_labels[on_state];
         dirty_representation.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -152,15 +184,32 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         super.updateChanges();
         if (dirty_content.checkAndClear())
         {
-            model_widget.displayText().setValue(on_state.toString());
-            jfx_node.setText(model_widget.displayText().getValue());
+            jfx_node.setText(value_label);
+
+            led.setFill(
+                    // Put highlight in top-left corner, about 0.2 wide,
+                    // relative to actual size of LED
+                    new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
+                                       new Stop(0, value_color.interpolate(Color.WHITESMOKE, 0.8)),
+                                       new Stop(1, value_color)));
         }
         if (dirty_representation.checkAndClear())
         {
-            jfx_node.setText(model_widget.displayText().getValue());
+            jfx_node.setText(value_label);
+
             jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
                                  model_widget.positionHeight().getValue());
             jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+
+            led.setFill(
+                    // Put highlight in top-left corner, about 0.2 wide,
+                    // relative to actual size of LED
+                    new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
+                                       new Stop(0, value_color.interpolate(Color.WHITESMOKE, 0.8)),
+                                       new Stop(1, value_color)));
+
+            led.setRadiusX(model_widget.positionWidth().getValue() / 15.0);
+            led.setRadiusY(model_widget.positionWidth().getValue() / 10.0);
         }
     }
 }

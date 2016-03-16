@@ -10,17 +10,23 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorBit;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayOffColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayOnColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.Arrays;
 import java.util.List;
 
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.diirt.vtype.VType;
 
@@ -45,10 +51,22 @@ public class BoolButtonWidget extends Widget
         }
     };
 
-    private volatile WidgetProperty<String> text;
+    /** Display 'on label': Text to display when state is on */
+    public static final WidgetPropertyDescriptor<String> displayOnLabel =
+        newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "on_label", Messages.BoolWidget_OnLabel);
+
+    /** Display 'off label': Text to display */
+    public static final WidgetPropertyDescriptor<String> displayOffLabel =
+        newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "off_label", Messages.BoolWidget_OffLabel);
+
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<Integer> bit;
     private volatile WidgetProperty<VType> value;
+    private volatile WidgetProperty<WidgetColor> off_color;
+    private volatile WidgetProperty<WidgetColor> on_color;
+    private volatile WidgetProperty<String> off_label;
+    private volatile WidgetProperty<String> on_label;
+
 
     public BoolButtonWidget()
     {
@@ -61,16 +79,25 @@ public class BoolButtonWidget extends Widget
         super.defineProperties(properties);
         properties.add(behaviorPVName.createProperty(this, ""));
         properties.add(bit = behaviorBit.createProperty(this, 0));
-        properties.add(text = displayText.createProperty(this, "toggle"));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(value = runtimeValue.createProperty(this, null));
+        properties.add(off_color = displayOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
+        properties.add(on_color = displayOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
+        properties.add(off_label = displayOffLabel.createProperty(this, Messages.BoolWidget_OffLabel));
+        properties.add(on_label = displayOnLabel.createProperty(this, Messages.BoolWidget_OnLabel));
     }
 
 
-    /** @return Display 'text' */
-    public WidgetProperty<String> displayText()
+    /** @return Display 'off_label' */
+    public WidgetProperty<String> displayOffLabel()
     {
-        return text;
+        return off_label;
+    }
+
+    /** @return Display 'on_label' */
+    public WidgetProperty<String> displayOnLabel()
+    {
+        return on_label;
     }
 
     /** @return Display 'font' */
@@ -89,6 +116,18 @@ public class BoolButtonWidget extends Widget
     public WidgetProperty<VType> runtimeValue()
     {
         return value;
+    }
+
+    /** @return 'off_color' */
+    public WidgetProperty<WidgetColor> displayOffColor()
+    {
+        return off_color;
+    }
+
+    /** @return 'on_color' */
+    public WidgetProperty<WidgetColor> displayOnColor()
+    {
+        return on_color;
     }
 
 }

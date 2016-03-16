@@ -291,6 +291,32 @@ public class CommonWidgetProperties
         }
     };
 
+    /** Property for the 'off' color */
+    public static final WidgetPropertyDescriptor<WidgetColor> displayOffColor = new WidgetPropertyDescriptor<WidgetColor>(
+            WidgetPropertyCategory.DISPLAY, "off_color", Messages.WidgetProperties_OffColor)
+    {
+        @Override
+        public WidgetProperty<WidgetColor> createProperty(final Widget widget,
+                final WidgetColor default_color)
+        {
+            return new ColorWidgetProperty(this, widget, default_color);
+        }
+    };
+
+    /** Property for the 'on' color */
+    public static final WidgetPropertyDescriptor<WidgetColor> displayOnColor = new WidgetPropertyDescriptor<WidgetColor>(
+            WidgetPropertyCategory.DISPLAY, "on_color", Messages.WidgetProperties_OnColor)
+    {
+        @Override
+        public WidgetProperty<WidgetColor> createProperty(final Widget widget,
+                final WidgetColor default_color)
+        {
+            return new ColorWidgetProperty(this, widget, default_color);
+        }
+    };
+
+
+
     /** Behavior 'pv_name': Primary PV Name */
     public static final WidgetPropertyDescriptor<String> behaviorPVName =
         newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "pv_name", Messages.WidgetProperties_PVName);

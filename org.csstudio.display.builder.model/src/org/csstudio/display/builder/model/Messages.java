@@ -18,6 +18,8 @@ public class Messages extends NLS
 
     public static String Actions_Zero;
     public static String Actions_N_Fmt;
+    public static String BoolWidget_OffLabel;
+    public static String BoolWidget_OnLabel;
     public static String Bottom;
     public static String Center;
     public static String FontStyle_Bold;
@@ -25,8 +27,6 @@ public class Messages extends NLS
     public static String FontStyle_Italic;
     public static String FontStyle_Regular;
     public static String LabelWidget_Text;
-    public static String LEDWidget_OffColor;
-    public static String LEDWidget_OnColor;
     public static String Left;
     public static String Middle;
     public static String Resize_Container;
@@ -69,6 +69,8 @@ public class Messages extends NLS
     public static String WidgetProperties_Maximum;
     public static String WidgetProperties_Minimum;
     public static String WidgetProperties_Name;
+    public static String WidgetProperties_OffColor;
+    public static String WidgetProperties_OnColor;
     public static String WidgetProperties_Points;
     public static String WidgetProperties_PVName;
     public static String WidgetProperties_ResizeBehavior;
