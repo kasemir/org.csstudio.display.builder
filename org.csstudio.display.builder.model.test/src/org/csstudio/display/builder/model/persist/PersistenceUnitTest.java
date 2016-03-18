@@ -12,11 +12,11 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,8 +44,12 @@ public class PersistenceUnitTest
 {
     private String getExampleFile() throws Exception
     {
-        return new String(Files.readAllBytes(
-                Paths.get(getClass().getResource("../persist_example.xml").toURI()))).replace("\r", "");
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("../persist_example.xml")));
+        final StringBuilder buf = new StringBuilder();
+        String line;
+        while ( (line = reader.readLine()) != null)
+            buf.append(line).append("\n");
+        return buf.toString();
     }
 
     /** Initialize factory for tests */
