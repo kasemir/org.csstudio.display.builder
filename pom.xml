@@ -78,10 +78,7 @@
     <module>org.csstudio.display.builder.util</module>
     <module>org.csstudio.javafx</module>
     <module>org.csstudio.javafx.rtplot</module>
-
-<!--
     <module>org.csstudio.javafx.rtplot.test</module>
--->
 
     <!-- Features -->
     <module>org.csstudio.display.builder.feature</module>
