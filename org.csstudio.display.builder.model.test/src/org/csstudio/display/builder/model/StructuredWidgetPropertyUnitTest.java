@@ -9,7 +9,6 @@ package org.csstudio.display.builder.model;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -80,13 +79,13 @@ public class StructuredWidgetPropertyUnitTest
         for (WidgetProperty<?> trace_element : widget.getPropertyValue(behaviorTrace))
             System.out.println(trace_element);
 
-        // Structure elements appear in XML once they have non-default values
+        // Structure elements are always in XML, even with default value
         widget.behaviorTrace().getValue().get(0).setValueFromObject("position");
         String xml = ModelWriter.getXML(Arrays.asList(widget));
         System.out.println(xml);
         assertThat(xml, containsString("<trace>"));
         assertThat(xml, containsString("position"));
-        assertThat(xml, not(containsString("color")));
+        assertThat(xml, containsString("color"));
 
         final WidgetProperty<WidgetColor> color = widget.behaviorTrace().getElement(1);
         color.setValue(new WidgetColor(255, 255, 0));
