@@ -27,7 +27,7 @@ class JythonScriptSupport extends BaseScriptSupport
 {
     private final PySystemState state;
     private final PythonInterpreter python;
-    
+
     /** Create executor for jython scripts */
     public JythonScriptSupport() throws Exception
     {
@@ -36,6 +36,7 @@ class JythonScriptSupport extends BaseScriptSupport
         // TODO Figure out how to best handle this.
         // Setting this options prevents
         // "ImportError: Cannot import site module and its dependencies: No module named site"
+        // But has to be set _before_ we enter this code.
         System.setProperty("python.import.site", "false");
 
         python = new PythonInterpreter(null, state);

@@ -74,12 +74,12 @@
     <module>org.csstudio.display.builder.representation.swt</module>
     <module>org.csstudio.display.builder.representation.test</module>
     <module>org.csstudio.display.builder.runtime</module>
+    <module>org.csstudio.display.builder.runtime.test</module>
     <module>org.csstudio.display.builder.util</module>
     <module>org.csstudio.javafx</module>
     <module>org.csstudio.javafx.rtplot</module>
 
 <!--
-    <module>org.csstudio.display.builder.runtime.test</module>
     <module>org.csstudio.javafx.rtplot.test</module>
 -->
 
