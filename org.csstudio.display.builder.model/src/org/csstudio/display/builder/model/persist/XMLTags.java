@@ -23,6 +23,7 @@ public interface XMLTags
     public static final String NAME = "name";
     public static final String PATH = "path";
     public static final String PV_NAME = "pv_name";
+    public static final String RULE = "rule";
     public static final String SCRIPT = "script";
     public static final String TARGET = "target";
     public static final String TEXT = "text";
