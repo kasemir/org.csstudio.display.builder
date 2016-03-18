@@ -1,4 +1,7 @@
-if [ -d $HOME/Eclipse/jdk1.8.0_60 ]
+if [ -d $HOME/Eclipse/jdk1.8.0_73 ]
+then
+    export JAVA_HOME=$HOME/Eclipse/jdk1.8.0_73
+elif [ -d $HOME/Eclipse/jdk1.8.0_60 ]
 then
     export JAVA_HOME=$HOME/Eclipse/jdk1.8.0_60
 else
