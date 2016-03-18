@@ -27,6 +27,7 @@ import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
+import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.MultiLineInputDialog;
@@ -170,6 +171,16 @@ public class PropertyPanelSection extends GridPane
             bindings.add(binding);
             binding.bind();
             field = scripts_field;
+        }
+        else if (property instanceof RulesWidgetProperty)
+        {
+            final RulesWidgetProperty rules_prop = (RulesWidgetProperty) property;
+            final Button rules_field = new Button();
+            rules_field.setMaxWidth(Double.MAX_VALUE);
+            final RulesPropertyBinding binding = new RulesPropertyBinding(undo, rules_field, rules_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = rules_field;
         }
         else if (property instanceof EnumWidgetProperty<?>)
         {

@@ -30,6 +30,7 @@ public class Messages extends NLS
     public static String Redo_TT;
     public static String RemoveElement;
     public static String RemoveWidgets;
+    public static String RuleCountFMT;
     public static String SaveDisplay;
     public static String SaveDisplay_TT;
     public static String ScriptCountFMT;
