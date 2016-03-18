@@ -85,7 +85,9 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
     public TabPane createJFXNode() throws Exception
     {
         final TabPane tabs = new TabPane();
-//      tabs.setStyle("-fx-background-color: mediumaquamarine;");
+
+        // See 'twiddle' below
+        tabs.setStyle("-fx-background-color: lightgray;");
         tabs.getStyleClass().add(TabPane.STYLE_CLASS_FLOATING);
 
         tabs.setMinSize(TabPane.USE_PREF_SIZE, TabPane.USE_PREF_SIZE);
@@ -229,7 +231,7 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
         final Point2D pane_bounds = pane.localToScene(0.0, 0.0);
         final int[] insets = new int[] { (int)(pane_bounds.getX() - tabs_bounds.getX()),
                                          (int)(pane_bounds.getY() - tabs_bounds.getY()) };
-        logger.log(Level.WARNING, "Insets: " + Arrays.toString(insets));
+        logger.log(Level.INFO, "Insets: " + Arrays.toString(insets));
         if (insets[0] < 0  ||  insets[1] < 0)
         {
             logger.log(Level.WARNING, "Inset computation failed: TabPane at " + tabs_bounds + ", content pane at " + pane_bounds);
@@ -257,11 +259,16 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
 
             // XXX Force TabPane refresh. Imperfect; works most of the time.
             // See org.csstudio.display.builder.representation.javafx.sandbox.TabDemo
+            // for the setSide hack.
+            // In addition, if TabPane is the _only_ widget, it will not show
+            // unless the background style is initially set to something.
+            // OK to then clear the style later, i.e. in here.
             final Callable<Object> twiddle = () ->
             {
                 Thread.sleep(500);
                 Platform.runLater(() ->
                 {
+                    jfx_node.setStyle("");
                     jfx_node.setSide(Side.BOTTOM);
                     if (model_widget.displayDirection().getValue() == Direction.HORIZONTAL)
                         jfx_node.setSide(Side.TOP);
