@@ -16,53 +16,47 @@ import org.csstudio.display.builder.model.widgets.GroupWidget.Style;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import javafx.geometry.Insets;
-import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.StrokeType;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
  */
-public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidget>
+public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget>
 {
     private final DirtyFlag dirty_border = new DirtyFlag();
 
     private static final int border_width = 1;
 
-    /** Border around the group */
-    private Rectangle border;
+    // top-level 'Pane' provides background color and border
 
-    /** Label on top of border */
+    /** Label on top of background */
     private Label label;
 
-    /** Inner group that holds child widgets */
+    /** Inner pane that holds child widgets */
     private Pane inner;
 
     private volatile int inset = 10;
     private volatile Color foreground_color, background_color;
 
     @Override
-    public Group createJFXNode() throws Exception
+    public Pane createJFXNode() throws Exception
     {
-        border = new Rectangle();
-        border.setFill(Color.TRANSPARENT);
-        border.setStrokeWidth(border_width);
-        border.setStrokeType(StrokeType.INSIDE);
-
         label = new Label();
-
         inner = new Pane();
 
         computeColors();
 
-        return new Group(border, label, inner);
+        return new Pane(label, inner);
     }
 
     @Override
@@ -82,7 +76,6 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
         model_widget.displayFont().addUntypedPropertyListener(listener);
         model_widget.positionWidth().addUntypedPropertyListener(listener);
         model_widget.positionHeight().addUntypedPropertyListener(listener);
-
     }
 
     private void borderChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -106,6 +99,10 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
         {
             final int width = model_widget.positionWidth().getValue();
             final int height = model_widget.positionHeight().getValue();
+
+            jfx_node.setPrefSize(width, height);
+            jfx_node.setBackground(new Background(new BackgroundFill(background_color, null, null)));
+
             final WidgetFont font = model_widget.displayFont().getValue();
             label.setFont(JFXUtil.convert(font));
             label.setText(model_widget.widgetName().getValue());
@@ -114,10 +111,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
             if (style == Style.NONE)
             {
                 inset = 0;
-                border.relocate(0, 0);
-                border.setWidth(width);
-                border.setHeight(height);
-                border.setStroke(null);
+                jfx_node.setBorder(null);
 
                 label.setVisible(false);
 
@@ -127,10 +121,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
             else if (style == Style.TITLE)
             {
                 inset = (int) (1.2*font.getSize());
-                border.relocate(0, inset);
-                border.setWidth(width);
-                border.setHeight(height - inset);
-                border.setStroke(foreground_color);
+                jfx_node.setBorder(new Border(new BorderStroke(foreground_color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
                 label.setVisible(true);
                 label.relocate(0, 0);
@@ -144,10 +135,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
             else if (style == Style.LINE)
             {
                 inset = 0;
-                border.relocate(0, 0);
-                border.setWidth(width);
-                border.setHeight(height);
-                border.setStroke(foreground_color);
+                jfx_node.setBorder(new Border(new BorderStroke(foreground_color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
                 label.setVisible(false);
 
@@ -157,17 +145,11 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
             else // GROUP
             {
                 inset = (int) (1.2*font.getSize());
-                final int hi = (inset+1)/2; // round up
-                border.relocate(hi, hi);
-                border.setWidth(width - inset);
-                border.setHeight(height - inset);
-                border.setStroke(foreground_color);
-                border.setStrokeWidth(border_width);
-                border.setStrokeType(StrokeType.INSIDE);
-
+                jfx_node.setBorder(new Border(new BorderStroke(foreground_color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,
+                                                               new Insets(inset/2))));
                 label.setVisible(true);
                 label.relocate(inset, 0);
-                label.setPrefWidth(Label.USE_COMPUTED_SIZE);
+                label.setPrefSize(Label.USE_COMPUTED_SIZE, Label.USE_COMPUTED_SIZE);
                 label.setTextFill(foreground_color);
                 label.setBackground(new Background(new BackgroundFill(background_color, CornerRadii.EMPTY, Insets.EMPTY)));
 
