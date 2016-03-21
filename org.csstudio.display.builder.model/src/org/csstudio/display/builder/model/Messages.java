@@ -27,6 +27,8 @@ public class Messages extends NLS
     public static String FontStyle_BoldItalic;
     public static String FontStyle_Italic;
     public static String FontStyle_Regular;
+    public static String GroupWidget_Description;
+    public static String GroupWidget_Name;
     public static String Horizontal;
     public static String LabelWidget_Text;
     public static String Left;
@@ -35,6 +37,11 @@ public class Messages extends NLS
     public static String Resize_Content;
     public static String Resize_None;
     public static String Right;
+    public static String Style;
+    public static String Style_Group;
+    public static String Style_Line;
+    public static String Style_None;
+    public static String Style_Title;
     public static String Tab_Height;
     public static String Tab_Item;
     public static String TabsWidget_Description;

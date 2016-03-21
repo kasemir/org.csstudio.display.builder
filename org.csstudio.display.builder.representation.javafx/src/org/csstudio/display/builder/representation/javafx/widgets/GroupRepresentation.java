@@ -8,66 +8,55 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
+import org.csstudio.display.builder.model.widgets.GroupWidget.Style;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import javafx.geometry.Insets;
-import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.StrokeType;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
  */
-public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidget>
+public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget>
 {
     private final DirtyFlag dirty_border = new DirtyFlag();
 
-    private static final Color border_color = Color.GRAY;
-    private static final int inset = 10;
     private static final int border_width = 1;
 
-    /** Border around the group */
-    private Rectangle border;
+    // top-level 'Pane' provides background color and border
 
-    /** Label on top of border */
+    /** Label on top of background */
     private Label label;
 
-    /** Inner group that holds child widgets */
-    private Group inner;
+    /** Inner pane that holds child widgets */
+    private Pane inner;
+
+    private volatile int inset = 10;
+    private volatile Color foreground_color, background_color;
 
     @Override
-    public Group createJFXNode() throws Exception
+    public Pane createJFXNode() throws Exception
     {
-        border = new Rectangle();
-        border.relocate(border_width, inset);
-        border.setFill(Color.TRANSPARENT);
-        border.setStroke(border_color);
-        border.setStrokeWidth(border_width);
-        border.setStrokeType(StrokeType.INSIDE);
-
         label = new Label();
-        label.relocate(inset, 0);
+        inner = new Pane();
 
-        inner = new Group();
-        inner.relocate(inset, 2*inset);
+        computeColors();
 
-        model_widget.runtimeInsets().setValue(new int[] { inset, 2*inset });
-
-        // Would be easy to scale the content
-        // in case it needs to grow/shrink to fit
-        // double scale = 0.5;
-        // inner.setScaleX(scale);
-        // inner.setScaleY(scale);
-
-        return new Group(border, label, inner);
+        return new Pane(label, inner);
     }
 
     @Override
@@ -80,18 +69,26 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::borderChanged);
-        model_widget.widgetName().addUntypedPropertyListener(this::borderChanged);
-        model_widget.displayFont().addUntypedPropertyListener(this::borderChanged);
-        model_widget.positionWidth().addUntypedPropertyListener(this::borderChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::borderChanged);
-
+        final UntypedWidgetPropertyListener listener = this::borderChanged;
+        model_widget.displayBackgroundColor().addUntypedPropertyListener(listener);
+        model_widget.widgetName().addUntypedPropertyListener(listener);
+        model_widget.displayStyle().addUntypedPropertyListener(listener);
+        model_widget.displayFont().addUntypedPropertyListener(listener);
+        model_widget.positionWidth().addUntypedPropertyListener(listener);
+        model_widget.positionHeight().addUntypedPropertyListener(listener);
     }
 
     private void borderChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        computeColors();
         dirty_border.mark();
         toolkit.scheduleUpdate(this);
+    }
+
+    private void computeColors()
+    {
+        foreground_color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
+        background_color = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
     }
 
     @Override
@@ -100,12 +97,65 @@ public class GroupRepresentation extends JFXBaseRepresentation<Group, GroupWidge
         super.updateChanges();
         if (dirty_border.checkAndClear())
         {
-            final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
-            label.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
-            label.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+            final int width = model_widget.positionWidth().getValue();
+            final int height = model_widget.positionHeight().getValue();
+
+            jfx_node.setPrefSize(width, height);
+            jfx_node.setBackground(new Background(new BackgroundFill(background_color, null, null)));
+
+            final WidgetFont font = model_widget.displayFont().getValue();
+            label.setFont(JFXUtil.convert(font));
             label.setText(model_widget.widgetName().getValue());
-            border.setWidth(model_widget.positionWidth().getValue() - 2*inset);
-            border.setHeight(model_widget.positionHeight().getValue() - 2*inset);
+
+            final Style style = model_widget.displayStyle().getValue();
+            if (style == Style.NONE)
+            {
+                inset = 0;
+                jfx_node.setBorder(null);
+
+                label.setVisible(false);
+
+                inner.relocate(0, 0);
+                model_widget.runtimeInsets().setValue(new int[] { 0, 0 });
+            }
+            else if (style == Style.TITLE)
+            {
+                inset = (int) (1.2*font.getSize());
+                jfx_node.setBorder(new Border(new BorderStroke(foreground_color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+
+                label.setVisible(true);
+                label.relocate(0, 0);
+                label.setPrefSize(width, inset);
+                label.setTextFill(background_color);
+                label.setBackground(new Background(new BackgroundFill(foreground_color, CornerRadii.EMPTY, Insets.EMPTY)));
+
+                inner.relocate(border_width, inset+border_width);
+                model_widget.runtimeInsets().setValue(new int[] { border_width, inset+border_width });
+            }
+            else if (style == Style.LINE)
+            {
+                inset = 0;
+                jfx_node.setBorder(new Border(new BorderStroke(foreground_color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+
+                label.setVisible(false);
+
+                inner.relocate(border_width, border_width);
+                model_widget.runtimeInsets().setValue(new int[] { border_width, border_width });
+            }
+            else // GROUP
+            {
+                inset = (int) (1.2*font.getSize());
+                jfx_node.setBorder(new Border(new BorderStroke(foreground_color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,
+                                                               new Insets(inset/2))));
+                label.setVisible(true);
+                label.relocate(inset, 0);
+                label.setPrefSize(Label.USE_COMPUTED_SIZE, Label.USE_COMPUTED_SIZE);
+                label.setTextFill(foreground_color);
+                label.setBackground(new Background(new BackgroundFill(background_color, CornerRadii.EMPTY, Insets.EMPTY)));
+
+                inner.relocate(inset, inset);
+                model_widget.runtimeInsets().setValue(new int[] { inset, inset });
+            }
         }
     }
 }
