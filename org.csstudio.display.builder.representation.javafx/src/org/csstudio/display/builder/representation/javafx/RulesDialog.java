@@ -82,41 +82,37 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         }
     };
 
+
     /** Expression info as property-based item for table */
-    public static class ExpressionItem
+    public static class ExprItem
     {
-        private final StringProperty bool_exp = new SimpleStringProperty();
-        private final StringProperty val_exp = new SimpleStringProperty();
+        public StringProperty boolExp = new SimpleStringProperty();
+        public StringProperty valExp = new SimpleStringProperty();
 
-        public ExpressionItem(final String bool_e, final String val_e)
+        public ExprItem(final String boolE, final String valE)
         {
-            this.bool_exp.set(bool_e);
-            this.val_exp.set(val_e);
+            this.boolExp.set(boolE);
+            this.valExp.set(valE);
         }
 
-        public ExpressionItem()
+        public static ExprItem forExp(final Pair<String,String> exp )
         {
-            this("X",null);
-        }
-
-        public static ExpressionItem forExp(final Pair<String,String> exp )
-        {
-            return new ExpressionItem(exp.getKey(), exp.getValue());
+          return new ExprItem(exp.getKey(), exp.getValue());
         }
 
         public Pair<String,String> toExp()
         {
-            return new Pair<String,String>(bool_exp.get(), val_exp.get());
+            return new Pair<String,String>(boolExp.get(), valExp.get());
         }
 
         public StringProperty boolExpProperty()
         {
-            return bool_exp;
+            return boolExp;
         }
 
         public StringProperty valExpProperty()
         {
-            return val_exp;
+            return valExp;
         }
     };
 
@@ -124,7 +120,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     /** Modifiable RuleInfo */
     public static class RuleItem
     {
-        public List<ExpressionItem> expressions;
+        public List<ExprItem> expressions;
         public List<PVItem> pvs;
         public StringProperty name = new SimpleStringProperty();
         public StringProperty prop_id = new SimpleStringProperty();
@@ -136,7 +132,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                  Messages.RulesDialog_DefaultRuleName, null, false);
         }
 
-        public RuleItem(final List<ExpressionItem> exprs,
+        public RuleItem(final List<ExprItem> exprs,
                         final List<PVItem> pvs,
                         final String name,
                         final String prop_id,
@@ -153,8 +149,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         {
             final List<PVItem> pvs = new ArrayList<>();
             info.getPVs().forEach(pv -> pvs.add(PVItem.forPV(pv)));
-            final List<ExpressionItem> exprs = new ArrayList<>();
-            info.getExpressions().forEach(expr -> exprs.add(ExpressionItem.forExp(expr)));
+            final List<ExprItem> exprs = new ArrayList<>();
+            info.getExpressions().forEach(expr -> exprs.add(ExprItem.forExp(expr)));
             return new RuleItem(exprs, pvs, info.getName(), info.getPropID(), info.getOutputExprFlag());
         }
 
@@ -191,10 +187,10 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     private TableView<PVItem> pvs_table;
 
     /** Data that is linked to the expressions_table */
-    private final ObservableList<ExpressionItem> expression_items = FXCollections.observableArrayList();
+    private final ObservableList<ExprItem> expression_items = FXCollections.observableArrayList();
 
     /** Table for PVs of currently selected rule */
-    private TableView<ExpressionItem> expressions_table;
+    private TableView<ExprItem> expressions_table;
 
     // MG: How to generate a full list of all possible options? Maybe CommonWidgetProperties?
     /** Property options for target of expression **/
@@ -206,6 +202,9 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             );
 
     private Button btn_remove_rule, btn_move_rule_up, btn_move_rule_down;
+    private Button btn_add_pv, btn_rm_pv, btn_add_exp, btn_rm_exp;
+
+    private ComboBox<String> propComboBox;
 
     private RuleItem selected_rule_item = null;
 
@@ -249,6 +248,12 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 btn_remove_rule.setDisable(true);
                 btn_move_rule_up.setDisable(true);
                 btn_move_rule_down.setDisable(true);
+                btn_add_pv.setDisable(true);
+                btn_rm_pv.setDisable(true);
+                btn_add_exp.setDisable(true);
+                btn_rm_exp.setDisable(true);
+                propComboBox.setDisable(true);
+                propComboBox.getSelectionModel().select(null);
                 pv_items.clear();
                 expression_items.clear();
             }
@@ -257,6 +262,12 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 btn_remove_rule.setDisable(false);
                 btn_move_rule_up.setDisable(false);
                 btn_move_rule_down.setDisable(false);
+                btn_add_pv.setDisable(false);
+                btn_rm_pv.setDisable(false);
+                btn_add_exp.setDisable(false);
+                btn_rm_exp.setDisable(false);
+                propComboBox.setDisable(false);
+                propComboBox.getSelectionModel().select(selected.prop_id.getValue());
                 pv_items.setAll(selected.pvs);
                 expression_items.setAll(selected.expressions);
                 fixupPVs(0);
@@ -272,7 +283,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         pv_items.addListener(pll);
 
         // Update Expressions of selected rule from Expressions table
-        final ListChangeListener<ExpressionItem> ell = change ->
+        final ListChangeListener<ExprItem> ell = change ->
         {
             final RuleItem selected = rules_table.getSelectionModel().getSelectedItem();
             if (selected != null)
@@ -284,6 +295,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         final HBox box = new HBox(10, rules, pvs, exprs);
         HBox.setHgrow(rules, Priority.ALWAYS);
         HBox.setHgrow(pvs, Priority.ALWAYS);
+        HBox.setHgrow(exprs, Priority.ALWAYS);
 
         // box.setStyle("-fx-background-color: rgb(255, 100, 0, 0.2);"); // For debugging
         return box;
@@ -367,9 +379,11 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     /** @return Node for UI elements that edit the expressions */
     private Node createExpressionsTable()
     {
+
         //What is the property id option we are using?
         final Label propLabel = new Label("Property ID:");
-        final ComboBox<String> propComboBox = new ComboBox<String>(prop_id_opts);
+        propComboBox = new ComboBox<String>(prop_id_opts);
+        propComboBox.setDisable(true);
 
         propComboBox.valueProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -378,34 +392,51 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             }
         });
 
-        // Create table with editable rule 'name' column
-        final TableColumn<ExpressionItem, String> bool_exp_col = new TableColumn<>(Messages.RulesDialog_ColBoolExp);
-        bool_exp_col.setCellValueFactory(new PropertyValueFactory<ExpressionItem, String>("boolean expression"));
-        bool_exp_col.setCellFactory(TextFieldTableCell.<ExpressionItem>forTableColumn());
+
+        // Create table with editable rule 'bool expression' column
+        final TableColumn<ExprItem, String> bool_exp_col = new TableColumn<>(Messages.RulesDialog_ColBoolExp);
+        bool_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem, String>("boolExp"));
+        bool_exp_col.setCellFactory(TextFieldTableCell.forTableColumn());
         bool_exp_col.setOnEditCommit(event ->
         {
             final int row = event.getTablePosition().getRow();
-            expression_items.get(row).bool_exp.set(event.getNewValue());
+            expression_items.get(row).boolExpProperty().set(event.getNewValue());
             fixupExpressions(row);
         });
 
+        // Create table with editable rule 'value expression' column
+        final TableColumn<ExprItem, String> val_exp_col = new TableColumn<>(Messages.RulesDialog_ColValExp);
+        val_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem, String>("valExp"));
+        val_exp_col.setCellFactory(TextFieldTableCell.forTableColumn());
+        val_exp_col.setOnEditCommit(event ->
+        {
+            final int row = event.getTablePosition().getRow();
+            expression_items.get(row).valExpProperty().set(event.getNewValue());
+            fixupExpressions(row);
+        });
+
+
         expressions_table = new TableView<>(expression_items);
         expressions_table.getColumns().add(bool_exp_col);
+        expressions_table.getColumns().add(val_exp_col);
         expressions_table.setEditable(true);
         expressions_table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         expressions_table.setTooltip(new Tooltip(Messages.RulesDialog_ExpressionsTT));
+        expressions_table.setPlaceholder(new Label(Messages.RulesDialog_SelectRule));
 
         // Buttons
-        final Button add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
-        add.setMaxWidth(Double.MAX_VALUE);
-        add.setOnAction(event ->
+        btn_add_exp = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
+        btn_add_exp.setMaxWidth(Double.MAX_VALUE);
+        btn_add_exp.setDisable(true);
+        btn_add_exp.setOnAction(event ->
         {
-            expression_items.add(new ExpressionItem());
+            expression_items.add(new ExprItem("new expr", "new val"));
         });
 
-        final Button remove = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
-        remove.setMaxWidth(Double.MAX_VALUE);
-        remove.setOnAction(event ->
+        btn_rm_exp = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
+        btn_rm_exp.setMaxWidth(Double.MAX_VALUE);
+        btn_rm_exp.setDisable(true);
+        btn_rm_exp.setOnAction(event ->
         {
             final int sel = expressions_table.getSelectionModel().getSelectedIndex();
             if (sel >= 0)
@@ -415,9 +446,9 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             }
         });
 
-        final VBox buttons = new VBox(10, add, remove,
-                                          new Separator(Orientation.HORIZONTAL));
-        final VBox tab = new VBox(10, propLabel, propComboBox, expressions_table);
+        final VBox buttons = new VBox(10, btn_add_exp, btn_rm_exp);
+        final HBox props = new HBox(10, propLabel, propComboBox);
+        final VBox tab = new VBox(10, props, expressions_table);
         final HBox content = new HBox(10, tab, buttons);
         HBox.setHgrow(expressions_table, Priority.ALWAYS);
         return content;
@@ -431,9 +462,9 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         // Check if edited row is now empty and should be deleted
         if (changed_row < expression_items.size())
         {
-            final ExpressionItem item = expression_items.get(changed_row);
-            if (item.boolExpProperty().get().trim().isEmpty())
-                expression_items.remove(changed_row);
+            //final ExpressionItem item = expression_items.get(changed_row);
+            //if (item.boolExpProperty().get().trim().isEmpty())
+              //  expression_items.remove(changed_row);
         }
     }
 
@@ -464,17 +495,23 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         pvs_table.setTooltip(new Tooltip(Messages.RulesDialog_PVsTT));
         pvs_table.setPlaceholder(new Label(Messages.RulesDialog_SelectRule));
 
+        //name_col.prefWidthProperty().bind(pvs_table.widthProperty().multiply(0.8));
+        //trigger_col.prefWidthProperty().bind(pvs_table.widthProperty().multiply(0.2));
+
+
         // Buttons
-        final Button add = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
-        add.setMaxWidth(Double.MAX_VALUE);
-        add.setOnAction(event ->
+        btn_add_pv = new Button(Messages.Add, JFXUtil.getIcon("add.png"));
+        btn_add_pv.setMaxWidth(Double.MAX_VALUE);
+        btn_add_pv.setDisable(true);
+        btn_add_pv.setOnAction(event ->
         {
-            pv_items.add(new PVItem("", true));
+            pv_items.add(new PVItem("newpv", true));
         });
 
-        final Button remove = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
-        remove.setMaxWidth(Double.MAX_VALUE);
-        remove.setOnAction(event ->
+        btn_rm_pv = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
+        btn_rm_pv.setMaxWidth(Double.MAX_VALUE);
+        btn_rm_pv.setDisable(true);
+        btn_rm_pv.setOnAction(event ->
         {
             final int sel = pvs_table.getSelectionModel().getSelectedIndex();
             if (sel >= 0)
@@ -484,7 +521,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             }
         });
 
-        final VBox buttons = new VBox(10, add, remove);
+        final VBox buttons = new VBox(10, btn_add_pv, btn_rm_pv);
         final HBox content = new HBox(10, pvs_table, buttons);
         HBox.setHgrow(pvs_table, Priority.ALWAYS);
         return content;

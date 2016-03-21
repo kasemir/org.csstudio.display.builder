@@ -60,6 +60,7 @@ public class Messages extends NLS
     public static String Remove;
     public static String RulesDialog_ColName;
     public static String RulesDialog_ColBoolExp;
+    public static String RulesDialog_ColValExp;
     public static String RulesDialog_DefaultRuleName;
     public static String RulesDialog_ExpressionsTT;
     public static String RulesDialog_Info;
