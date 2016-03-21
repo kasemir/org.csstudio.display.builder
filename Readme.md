@@ -281,12 +281,20 @@ Linux: RuntimeDemo 10% CPU, CSS 20% CPU.
 JavaFX Issues
 -------------
 
+The default style sheet for JavaFX applications is modena.css, which is found in the JavaFX runtime JAR file, jfxrt.jar.
+This style sheet defines styles for the root node and the UI controls.
+To view this file, go to /jre/lib/ext directory of the Java Development Kit (JDK)
+and extract the style sheet from the JAR file:
+
+    jar xf jfxrt.jar com/sun/javafx/scene/control/skin/modena/modena.css
+
 To debug the Scene Graph:
 * Download Scenic View 8 from http://fxexperience.com/scenic-view
 * Unpack
 * Add ScenicView.jar to the build path of org.csstudio.display.builder.representation.javafx
 * In JFXStageRepresentation:configureStage(), add
    ScenicView.show(scene)
+
 
 What base class to use for all widget representations?
 
