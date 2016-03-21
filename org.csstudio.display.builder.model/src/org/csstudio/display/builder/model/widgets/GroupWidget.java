@@ -16,16 +16,25 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.ChildrenProperty;
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.persist.XMLUtil;
+import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
 
 /** A Group Widget contains child widgets.
  *
@@ -48,9 +57,9 @@ public class GroupWidget extends VisibleWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("group", WidgetCategory.STRUCTURE,
-            "Group",
+            Messages.GroupWidget_Name,
             "platform:/plugin/org.csstudio.display.builder.model/icons/group.png",
-            "Group of widgets",
+            Messages.GroupWidget_Description,
             Arrays.asList("org.csstudio.opibuilder.widgets.groupingContainer"))
     {
         @Override
@@ -60,8 +69,76 @@ public class GroupWidget extends VisibleWidget
         }
     };
 
+    /** Group widget style */
+    public enum Style
+    {
+        GROUP(Messages.Style_Group),
+        TITLE(Messages.Style_Title),
+        LINE(Messages.Style_Line),
+        NONE(Messages.Style_None);
+
+        private final String name;
+
+        private Style(final String name)
+        {
+            this.name = name;
+        }
+
+        @Override
+        public String toString()
+        {
+            return name;
+        }
+    }
+
+    /** Display 'style' */
+    private static final WidgetPropertyDescriptor<Style> displayStyle =
+        new WidgetPropertyDescriptor<Style>(
+            WidgetPropertyCategory.DISPLAY, "style", Messages.Style)
+    {
+        @Override
+        public EnumWidgetProperty<Style> createProperty(final Widget widget,
+                                                        final Style default_value)
+        {
+            return new EnumWidgetProperty<Style>(this, widget, default_value);
+        }
+    };
+
+    /** Custom WidgetConfigurator to load legacy file */
+    private static class GroupWidgetConfigurator extends WidgetConfigurator
+    {
+        public GroupWidgetConfigurator(final Version xml_version)
+        {
+            super(xml_version);
+        }
+
+        @Override
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget,
+                                        final Element xml) throws Exception
+        {
+            if (! super.configureFromXML(model_reader, widget, xml))
+                return false;
+
+            if (xml_version.getMajor() < 2)
+            {
+                final GroupWidget group_widget = (GroupWidget) widget;
+                final int old_spec = Integer.parseInt(XMLUtil.getChildString(xml, "border_style").orElse("13"));
+                if (old_spec == 0  ||  old_spec == 15)     // NONE, Empty
+                    group_widget.style.setValue(Style.NONE);
+                else if (old_spec >= 1  && old_spec <= 11) // Line, dash, raised, ..
+                    group_widget.style.setValue(Style.LINE);
+                else if (old_spec == 12)                   // Title Bar
+                    group_widget.style.setValue(Style.TITLE);
+                // else leave at default 13 = GROUP_BOX
+            }
+
+            return true;
+        }
+    }
+
     private volatile WidgetProperty<Macros> macros;
     private volatile ChildrenProperty children;
+    private volatile WidgetProperty<Style> style;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<int[]> insets;
@@ -77,6 +154,7 @@ public class GroupWidget extends VisibleWidget
         super.defineProperties(properties);
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(children = new ChildrenProperty(this));
+        properties.add(style = displayStyle.createProperty(this, Style.GROUP));
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(insets = runtimeInsets.createProperty(this, new int[] { 0, 0 }));
@@ -84,6 +162,13 @@ public class GroupWidget extends VisibleWidget
         // Initial size
         positionWidth().setValue(300);
         positionHeight().setValue(200);
+    }
+
+    @Override
+    public WidgetConfigurator getConfigurator(final Version persisted_version)
+            throws Exception
+    {
+        return new GroupWidgetConfigurator(persisted_version);
     }
 
     /** @return Widget 'macros' */
@@ -96,6 +181,12 @@ public class GroupWidget extends VisibleWidget
     public ChildrenProperty runtimeChildren()
     {
         return children;
+    }
+
+    /** @return Display 'style' */
+    public WidgetProperty<Style> displayStyle()
+    {
+        return style;
     }
 
     /** @return Display 'background_color' */
