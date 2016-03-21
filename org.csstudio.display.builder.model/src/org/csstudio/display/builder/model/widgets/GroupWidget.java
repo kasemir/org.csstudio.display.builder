@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
 import static org.csstudio.display.builder.model.properties.InsetsWidgetProperty.runtimeInsets;
 
@@ -122,6 +123,7 @@ public class GroupWidget extends VisibleWidget
             if (xml_version.getMajor() < 2)
             {
                 final GroupWidget group_widget = (GroupWidget) widget;
+                // Translate border styles
                 final int old_spec = Integer.parseInt(XMLUtil.getChildString(xml, "border_style").orElse("13"));
                 if (old_spec == 0  ||  old_spec == 15)     // NONE, Empty
                     group_widget.style.setValue(Style.NONE);
@@ -130,6 +132,14 @@ public class GroupWidget extends VisibleWidget
                 else if (old_spec == 12)                   // Title Bar
                     group_widget.style.setValue(Style.TITLE);
                 // else leave at default 13 = GROUP_BOX
+
+                // Legacy had 'border_color'.
+                // It wasn't used by Group Box style, which had built-in gray,
+                // but was used by the label and other lines
+                // -> Use as 'foreground_color'
+                final Element text = XMLUtil.getChildElement(xml, "border_color");
+                if (text != null)
+                    group_widget.foreground.readFromXML(model_reader, text);
             }
 
             return true;
@@ -139,6 +149,7 @@ public class GroupWidget extends VisibleWidget
     private volatile WidgetProperty<Macros> macros;
     private volatile ChildrenProperty children;
     private volatile WidgetProperty<Style> style;
+    private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<int[]> insets;
@@ -155,6 +166,7 @@ public class GroupWidget extends VisibleWidget
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(children = new ChildrenProperty(this));
         properties.add(style = displayStyle.createProperty(this, Style.GROUP));
+        properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(insets = runtimeInsets.createProperty(this, new int[] { 0, 0 }));
@@ -187,6 +199,12 @@ public class GroupWidget extends VisibleWidget
     public WidgetProperty<Style> displayStyle()
     {
         return style;
+    }
+
+    /** @return Display 'foreground_color' */
+    public WidgetProperty<WidgetColor> displayForegroundColor()
+    {
+        return foreground;
     }
 
     /** @return Display 'background_color' */
