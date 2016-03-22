@@ -9,25 +9,32 @@ package org.csstudio.display.builder.model.util;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.csstudio.display.builder.model.properties.FormatOption;
+import org.diirt.util.array.ListNumber;
+import org.diirt.vtype.Display;
+import org.diirt.vtype.VEnum;
+import org.diirt.vtype.VEnumArray;
 import org.diirt.vtype.VNumber;
+import org.diirt.vtype.VNumberArray;
+import org.diirt.vtype.VString;
 import org.diirt.vtype.VType;
 
-/** Utility for displaying VType data.
+/** Utility for formatting data as string.
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
 public class FormatOptionHandler
 {
-    /** Idea of caching the formats similar to DIIRT NumberFormats,
-     *  but thread-safe and extended beyond decimal formats
-     */
+    /** Cached formats for DECIMAL by precision */
     private final static ConcurrentHashMap<Integer, NumberFormat> decimal_formats = new ConcurrentHashMap<>();
 
+    /** Cached formats for EXPONENTIAL by precision */
     private final static ConcurrentHashMap<Integer, NumberFormat> exponential_formats = new ConcurrentHashMap<>();
 
+    /** Cached formats for ENGINEERING by precision */
     private final static ConcurrentHashMap<Integer, NumberFormat> engineering_formats = new ConcurrentHashMap<>();
 
     /** Format value as string
@@ -39,19 +46,57 @@ public class FormatOptionHandler
      *  @return Formatted value
      */
     public static String format(final VType value, final FormatOption option,
-                                 final int precision, final boolean show_units)
+                                final int precision, final boolean show_units)
     {
+        if (value == null)
+            return "<null>";
         if (value instanceof VNumber)
         {
-            final VNumber cast = (VNumber) value;
-            final NumberFormat format = cast.getFormat();
-            final String text;
-            text = formatNumber(cast, format, option, precision);
-            if (show_units  &&  !cast.getUnits().isEmpty())
-                return text + " " + cast.getUnits();
+            final VNumber number = (VNumber) value;
+            final String text = formatNumber(number.getValue(), number, option, precision);
+            if (show_units  &&  !number.getUnits().isEmpty())
+                return text + " " + number.getUnits();
             return text;
         }
-        return null;
+        else if (value instanceof VString)
+            return ((VString)value).getValue();
+        else if (value instanceof VEnum)
+            return formatEnum((VEnum) value, option);
+        else if (value instanceof VNumberArray)
+        {
+            final VNumberArray array = (VNumberArray) value;
+            if (option == FormatOption.STRING)
+                return getLongString(array);
+            final ListNumber data = array.getData();
+            if (data.size() <= 0)
+                return "[]";
+            final StringBuilder buf = new StringBuilder("[");
+            buf.append(formatNumber(data.getDouble(0), array, option, precision));
+            for (int i=1; i<data.size(); ++i)
+            {
+                buf.append(", ");
+                buf.append(formatNumber(data.getDouble(i), array, option, precision));
+            }
+            buf.append("]");
+            if (show_units  &&  !array.getUnits().isEmpty())
+                buf.append(" ").append(array.getUnits());
+            return buf.toString();
+        }
+        else if (value instanceof VEnumArray)
+        {
+            final List<String> labels = ((VEnumArray)value).getLabels();
+            final StringBuilder buf = new StringBuilder("[");
+            for (int i=0; i<labels.size(); ++i)
+            {
+                if (i > 0)
+                    buf.append(", ");
+                buf.append(labels.get(i));
+            }
+            buf.append("]");
+            return buf.toString();
+        }
+
+        return "<" + value.getClass().getName() + ">";
     }
 
     private static NumberFormat getDecimalFormat(final int precision)
@@ -109,10 +154,9 @@ public class FormatOptionHandler
         return new DecimalFormat(pattern.toString());
     }
 
-    private static String formatNumber(final VNumber number, final NumberFormat format,
+    private static String formatNumber(final Number value, final Display display,
                                        final FormatOption option, final int precision)
     {
-        final Number value = number.getValue();
         // Handle invalid numbers
         if (Double.isNaN(value.doubleValue()))
             return "NaN";
@@ -143,15 +187,40 @@ public class FormatOptionHandler
         {
             final double criteria = Math.abs(value.doubleValue());
             if (criteria > 0.0001  &&  criteria < 10000)
-                return formatNumber(number, format, FormatOption.DECIMAL, precision);
+                return formatNumber(value, display, FormatOption.DECIMAL, precision);
             else
-                return formatNumber(number, format, FormatOption.EXPONENTIAL, precision);
+                return formatNumber(value, display, FormatOption.EXPONENTIAL, precision);
         }
 
         // DEFAULT
+        final NumberFormat format = display.getFormat();
         if (format != null)
             return format.format(value);
         else
             return value.toString();
+    }
+
+    private static String formatEnum(final VEnum value, final FormatOption option)
+    {
+        if (option == FormatOption.DEFAULT  ||  option == FormatOption.STRING)
+            return value.getValue();
+        return Integer.toString(value.getIndex());
+    }
+
+    private static String getLongString(final VNumberArray value)
+    {
+        final ListNumber data = value.getData();
+        final byte[] bytes = new byte[data.size()];
+        // Copy bytes until end or '\0'
+        int len = 0;
+        while (len<bytes.length)
+        {
+            final byte b = data.getByte(len);
+            if (b == 0)
+                break;
+            else
+                bytes[len++] = b;
+        }
+        return new String(bytes, 0, len);
     }
 }

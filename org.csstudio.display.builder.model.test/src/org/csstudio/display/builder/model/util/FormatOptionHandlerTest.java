@@ -12,9 +12,14 @@ import static org.junit.Assert.assertThat;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Arrays;
 
 import org.csstudio.display.builder.model.properties.FormatOption;
+import org.diirt.util.array.ArrayByte;
+import org.diirt.util.array.ArrayDouble;
+import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.Display;
+import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueFactory;
 import org.junit.Test;
@@ -74,6 +79,19 @@ public class FormatOptionHandlerTest
         text = FormatOptionHandler.format(number, FormatOption.DECIMAL, 4, true);
         System.out.println(text);
         assertThat(text, equalTo("3.1600 V"));
+    }
+
+    @Test
+    public void testEnum() throws Exception
+    {
+        final VEnum value = ValueFactory.newVEnum(1, Arrays.asList("One", "Two"), ValueFactory.alarmNone(), ValueFactory.timeNow());
+        String text = FormatOptionHandler.format(value, FormatOption.DECIMAL, 4, true);
+        System.out.println(text);
+        assertThat(text, equalTo("1"));
+
+        text = FormatOptionHandler.format(value, FormatOption.DEFAULT, -4, true);
+        System.out.println(text);
+        assertThat(text, equalTo("Two"));
     }
 
     @Test
@@ -151,12 +169,33 @@ public class FormatOptionHandlerTest
 
     @Test
     public void testString() throws Exception
-    {
-        VType number = ValueFactory.newVDouble(65.0, display);
+    {   // Actual String
+        VType value = ValueFactory.newVString("Test1", ValueFactory.alarmNone(), ValueFactory.timeNow());
+        String text = FormatOptionHandler.format(value, FormatOption.DEFAULT, -1, true);
+        System.out.println(text);
+        assertThat(text, equalTo("Test1"));
 
-        String text = FormatOptionHandler.format(number, FormatOption.STRING, -1, true);
+        text = FormatOptionHandler.format(value, FormatOption.STRING, -1, true);
+        System.out.println(text);
+        assertThat(text, equalTo("Test1"));
+
+        text = FormatOptionHandler.format(value, FormatOption.EXPONENTIAL, -1, true);
+        System.out.println(text);
+        assertThat(text, equalTo("Test1"));
+
+        // Number interpreted as char
+        value = ValueFactory.newVDouble(65.0, display);
+        text = FormatOptionHandler.format(value, FormatOption.STRING, -1, true);
         System.out.println(text);
         assertThat(text, equalTo("A V"));
+
+        // Number array interpreted as long string
+        final ListNumber data = new ArrayByte("Test2".getBytes());
+        value = ValueFactory.newVNumberArray(data, ValueFactory.alarmNone(), ValueFactory.timeNow(), display);
+        System.out.println(value);
+        text = FormatOptionHandler.format(value, FormatOption.STRING, -1, true);
+        System.out.println(text);
+        assertThat(text, equalTo("Test2"));
     }
 
     @Test
@@ -174,4 +213,19 @@ public class FormatOptionHandlerTest
         System.out.println(text);
         assertThat(text, equalTo("6.54E7 V"));
     }
+
+    @Test
+    public void testArray() throws Exception
+    {
+        final ListNumber data = new ArrayDouble(1.0, 2.0, 3.0, 4.0);
+        VType value = ValueFactory.newVNumberArray(data, ValueFactory.alarmNone(), ValueFactory.timeNow(), display);
+        System.out.println(value);
+        String text = FormatOptionHandler.format(value, FormatOption.DEFAULT, -1, true);
+        System.out.println(text);
+        assertThat(text, equalTo("[1, 2, 3, 4] V"));
+
+        text = FormatOptionHandler.format(value, FormatOption.DECIMAL, 2, true);
+        System.out.println(text);
+        assertThat(text, equalTo("[1.00, 2.00, 3.00, 4.00] V"));
+}
 }

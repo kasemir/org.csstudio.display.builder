@@ -10,6 +10,8 @@ package org.csstudio.display.builder.runtime.script;
 import java.util.List;
 import java.util.Objects;
 
+import org.csstudio.display.builder.model.properties.FormatOption;
+import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.vtype.pv.PV;
 import org.diirt.vtype.VEnum;
@@ -54,7 +56,7 @@ public class PVUtil
      */
     public static String getString(final PV pv)
     {
-        return VTypeUtil.getValueString(getVType(pv), true);
+        return FormatOptionHandler.format(getVType(pv), FormatOption.DEFAULT, 0, true);
     }
 
     /** Get labels for an enum value
