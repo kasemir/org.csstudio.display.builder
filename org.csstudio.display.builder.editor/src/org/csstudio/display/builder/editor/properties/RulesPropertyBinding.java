@@ -39,7 +39,7 @@ public class RulesPropertyBinding
     /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event ->
     {
-        final RulesDialog dialog = new RulesDialog(widget_property.getValue());
+        final RulesDialog dialog = new RulesDialog(widget_property.getValue(), widget_property.attachedWidget());
         final Optional<List<RuleInfo>> result = dialog.showAndWait();
         if (result.isPresent())
         {

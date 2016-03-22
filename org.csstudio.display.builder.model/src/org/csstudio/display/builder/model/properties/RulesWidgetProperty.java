@@ -33,6 +33,8 @@ import javafx.util.Pair;
 @SuppressWarnings("nls")
 public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
 {
+    private Widget my_widget;
+
     /** Constructor
      *  @param descriptor Property descriptor
      *  @param widget Widget that holds the property and handles listeners
@@ -44,6 +46,12 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
             final List<RuleInfo> default_value)
     {
         super(descriptor, widget, default_value);
+        this.my_widget = widget;
+    }
+
+    public Widget attachedWidget()
+    {
+        return my_widget;
     }
 
     /** @param value Must be ScriptInfo array(!), not List */

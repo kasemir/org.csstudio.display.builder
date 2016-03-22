@@ -7,9 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
+import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
 
 import javafx.util.Pair;
 
@@ -48,8 +53,41 @@ public class RuleInfo
         this.pvs = Collections.unmodifiableList(Objects.requireNonNull(pvs));
     }
 
-    /** @return Path to the script. May be URL, or contain macros.
-     *          File ending or magic EMBEDDED_* name determines type of script
+    /** Some properties cannot be the target of rules. This function takes a widget and returns a list of
+     * valid targets for expressions
+     * @param attached_widget
+     * @return List of all properties of a widget that a rule can target
+     */
+    static public List<WidgetProperty<?>> getTargettableProperties (Widget attached_widget)
+    {
+        List<WidgetProperty<?>> propls = new ArrayList<>();
+
+        attached_widget.getProperties().forEach(prop ->
+        {
+            // Do not include properties from categories: WIDGET or RUNTIME
+            // Do not include properties with names: actions, scripts, rules
+            WidgetPropertyCategory pcat = prop.getCategory();
+            switch(pcat)
+            {
+            case WIDGET:
+            case RUNTIME:
+                break;
+            default:
+            {
+                String pname = prop.getName();
+                if ((pname != "actions") && (pname != "scripts") && (pname != "rules"))
+                {
+                    propls.add(prop);
+                }
+            }
+            }
+        });
+
+        return propls;
+    }
+
+
+    /** @return Expressions consisting of (bool expression, target) pairs
      */
     public List<Pair<String,String>> getExpressions()
     {

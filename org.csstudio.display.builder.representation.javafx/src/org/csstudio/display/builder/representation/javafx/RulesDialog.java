@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.RuleInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 
@@ -194,26 +196,32 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
     // MG: How to generate a full list of all possible options? Maybe CommonWidgetProperties?
     /** Property options for target of expression **/
-    ObservableList<String> prop_id_opts =
-            FXCollections.observableArrayList(
-                "file",
-                "background_color",
-                "pv_value"
-            );
+    ObservableList<String> prop_id_opts = FXCollections.observableArrayList();
 
     private Button btn_remove_rule, btn_move_rule_up, btn_move_rule_down;
     private Button btn_add_pv, btn_rm_pv, btn_add_exp, btn_rm_exp;
 
     private ComboBox<String> propComboBox;
 
+    private String widgetType, widgetName;
+
     private RuleItem selected_rule_item = null;
 
 
     /** @param rules Rules to show/edit in the dialog */
-    public RulesDialog(final List<RuleInfo> rules)
+    public RulesDialog(final List<RuleInfo> rules, final Widget attached_widget)
     {
         setTitle(Messages.RulesDialog_Title);
-        setHeaderText(Messages.RulesDialog_Info);
+
+        List<WidgetProperty<?>> propls = RuleInfo.getTargettableProperties(attached_widget);
+        propls.forEach(prop ->
+        {
+            prop_id_opts.add( prop.getDescription() +" (" + prop.getName() + ") = " + prop.getValue() );
+        });
+
+        widgetType = (String) attached_widget.getProperty("type").getValue();
+        widgetName = (String) attached_widget.getProperty("name").getValue();
+        setHeaderText(Messages.RulesDialog_Info + ": " + widgetType + " " + widgetName);
 
         rules.forEach(rule -> rule_items.add(RuleItem.forInfo(rule)));
         fixupRules(0);
@@ -291,11 +299,31 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         };
         expression_items.addListener(ell);
 
+        //What is the property id option we are using?
+        final Label propLabel = new Label("Property ID:");
+        propComboBox = new ComboBox<String>(prop_id_opts);
+        propComboBox.setDisable(true);
 
-        final HBox box = new HBox(10, rules, pvs, exprs);
+        propComboBox.valueProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue ov, String t, String t1) {
+                selected_rule_item.prop_id.set(t1);
+            }
+        });
+
+        final HBox props = new HBox(10, propLabel, propComboBox);
+        final HBox subtabs = new HBox(10, pvs, exprs);
+        final VBox subitems = new VBox(10, props, new Separator(Orientation.HORIZONTAL), subtabs);
+        final HBox box = new HBox(10, rules, new Separator(Orientation.VERTICAL), subitems);
         HBox.setHgrow(rules, Priority.ALWAYS);
         HBox.setHgrow(pvs, Priority.ALWAYS);
         HBox.setHgrow(exprs, Priority.ALWAYS);
+        HBox.setHgrow(subitems, Priority.ALWAYS);
+        VBox.setVgrow(subtabs, Priority.ALWAYS);
+
+
+        //final Label mainLabel = new Label("Editting rules for widget type " + widgetType);
+        //final VBox box = new VBox(10, mainLabel, hbox);
 
         // box.setStyle("-fx-background-color: rgb(255, 100, 0, 0.2);"); // For debugging
         return box;
@@ -379,20 +407,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     /** @return Node for UI elements that edit the expressions */
     private Node createExpressionsTable()
     {
-
-        //What is the property id option we are using?
-        final Label propLabel = new Label("Property ID:");
-        propComboBox = new ComboBox<String>(prop_id_opts);
-        propComboBox.setDisable(true);
-
-        propComboBox.valueProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue ov, String t, String t1) {
-                selected_rule_item.prop_id.set(t1);
-            }
-        });
-
-
         // Create table with editable rule 'bool expression' column
         final TableColumn<ExprItem, String> bool_exp_col = new TableColumn<>(Messages.RulesDialog_ColBoolExp);
         bool_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem, String>("boolExp"));
@@ -447,9 +461,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         });
 
         final VBox buttons = new VBox(10, btn_add_exp, btn_rm_exp);
-        final HBox props = new HBox(10, propLabel, propComboBox);
-        final VBox tab = new VBox(10, props, expressions_table);
-        final HBox content = new HBox(10, tab, buttons);
+        final HBox content = new HBox(10, expressions_table, buttons);
         HBox.setHgrow(expressions_table, Priority.ALWAYS);
         return content;
     }
