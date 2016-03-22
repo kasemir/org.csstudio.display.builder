@@ -12,6 +12,9 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFormat;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayPrecision;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayShowUnits;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.Arrays;
@@ -19,14 +22,20 @@ import java.util.List;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.persist.XMLUtil;
+import org.csstudio.display.builder.model.properties.FormatOption;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.diirt.vtype.VType;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
 
 /** Widget that displays a changing text
  *  @author Kay Kasemir
@@ -49,15 +58,81 @@ public class TextUpdateWidget extends VisibleWidget
         }
     };
 
+    private static class CustomWidgetConfigurator extends WidgetConfigurator
+    {
+        public CustomWidgetConfigurator(final Version xml_version)
+        {
+            super(xml_version);
+        }
+
+        @Override
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget,
+                                        final Element xml) throws Exception
+        {
+            if (! super.configureFromXML(model_reader, widget, xml))
+                return false;
+            if (xml_version.getMajor() < 2)
+            {
+                TextUpdateWidget text_widget = (TextUpdateWidget)widget;
+                TextUpdateWidget.readLegacyFormat(xml, text_widget.format, text_widget.precision);
+            }
+            return true;
+        }
+    }
+
+    public static void readLegacyFormat(final Element xml, final WidgetProperty<FormatOption> format,
+                                        final WidgetProperty<Integer> precision)
+    {
+        Element element = XMLUtil.getChildElement(xml, "format_type");
+        if (element != null)
+        {
+            final int legacy_format = Integer.parseInt(XMLUtil.getString(element));
+            switch (legacy_format)
+            {
+            case 1: // DECIMAL
+                format.setValue(FormatOption.DECIMAL);
+                break;
+            case 2: // EXP
+                format.setValue(FormatOption.EXPONENTIAL);
+                break;
+            case 3: // HEX (32)
+                format.setValue(FormatOption.HEX);
+                precision.setValue(8);
+                break;
+            case 4: // STRING
+                format.setValue(FormatOption.STRING);
+                break;
+            case 5: // HEX64
+                format.setValue(FormatOption.HEX);
+                precision.setValue(16);
+                break;
+            case 6: // COMPACT
+                format.setValue(FormatOption.COMPACT);
+                break;
+            default:
+                format.setValue(FormatOption.DEFAULT);
+            }
+        }
+    }
+
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
+    private volatile WidgetProperty<FormatOption> format;
+    private volatile WidgetProperty<Integer> precision;
+    private volatile WidgetProperty<Boolean> show_units;
     private volatile WidgetProperty<VType> value;
 
     public TextUpdateWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
+    }
+
+    @Override
+    public WidgetConfigurator getConfigurator(Version persisted_version) throws Exception
+    {
+        return new CustomWidgetConfigurator(persisted_version);
     }
 
     @Override
@@ -69,6 +144,9 @@ public class TextUpdateWidget extends VisibleWidget
         properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.READ_BACKGROUND)));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(format = displayFormat.createProperty(this, FormatOption.DEFAULT));
+        properties.add(precision = displayPrecision.createProperty(this, 2));
+        properties.add(show_units = displayShowUnits.createProperty(this, true));
         properties.add(value = runtimeValue.createProperty(this, null));
     }
 
@@ -94,6 +172,24 @@ public class TextUpdateWidget extends VisibleWidget
     public WidgetProperty<WidgetFont> displayFont()
     {
         return font;
+    }
+
+    /** @return Display 'format' */
+    public WidgetProperty<FormatOption> displayFormat()
+    {
+        return format;
+    }
+
+    /** @return Display 'precision' */
+    public WidgetProperty<Integer> displayPrecision()
+    {
+        return precision;
+    }
+
+    /** @return Display 'show_units' */
+    public WidgetProperty<Boolean> displayShowUnits()
+    {
+        return show_units;
     }
 
     /** @return Runtime 'value' */

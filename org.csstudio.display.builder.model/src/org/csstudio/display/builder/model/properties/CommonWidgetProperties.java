@@ -234,6 +234,27 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<String> displayText =
         newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "text", Messages.WidgetProperties_Text);
 
+    /** Display 'format' */
+    public static final WidgetPropertyDescriptor<FormatOption> displayFormat =
+        new WidgetPropertyDescriptor<FormatOption>(
+            WidgetPropertyCategory.DISPLAY, "format", Messages.WidgetProperties_Format)
+    {
+        @Override
+        public EnumWidgetProperty<FormatOption> createProperty(final Widget widget,
+                                                               final FormatOption default_value)
+        {
+            return new EnumWidgetProperty<FormatOption>(this, widget, default_value);
+        }
+    };
+
+    /** Display 'precision' */
+    public static final WidgetPropertyDescriptor<Integer> displayPrecision =
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "precision", Messages.WidgetProperties_Precision);
+
+    /** Display 'show_units' */
+    public static final WidgetPropertyDescriptor<Boolean> displayShowUnits =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_units", Messages.WidgetProperties_ShowUnits);
+
     /** Display 'font': Font for display */
     public static final WidgetPropertyDescriptor<WidgetFont> displayFont =
         new WidgetPropertyDescriptor<WidgetFont>(

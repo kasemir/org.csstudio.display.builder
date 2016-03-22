@@ -9,7 +9,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.util.VTypeUtil;
+import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
@@ -41,7 +41,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
     @Override
     public TextField createJFXNode() throws Exception
     {
-    	value_text = "<" + model_widget.behaviorPVName().getValue() + ">";
+    	value_text = computeText(null);
         final TextField text = new TextField();
         text.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
@@ -140,7 +140,11 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
         model_widget.positionHeight().addUntypedPropertyListener(this::sizeChanged);
         model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayFont().addUntypedPropertyListener(this::styleChanged);
-        model_widget.runtimeValue().addPropertyListener(this::contentChanged);
+
+        model_widget.displayFormat().addUntypedPropertyListener(this::contentChanged);
+        model_widget.displayPrecision().addUntypedPropertyListener(this::contentChanged);
+        model_widget.displayShowUnits().addUntypedPropertyListener(this::contentChanged);
+        model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
     }
 
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -155,9 +159,22 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
         toolkit.scheduleUpdate(this);
     }
 
-    private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
+    /** @param value Current value of PV
+     *  @return Text to show, "<pv name>" if disconnected (no value)
+     */
+    private String computeText(final VType value)
     {
-        value_text = VTypeUtil.getValueString(new_value, true);
+        if (value == null)
+            return "<" + model_widget.behaviorPVName().getValue() + ">";
+        return FormatOptionHandler.format(value,
+                                          model_widget.displayFormat().getValue(),
+                                          model_widget.displayPrecision().getValue(),
+                                          model_widget.displayShowUnits().getValue());
+    }
+
+    private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        value_text = computeText(model_widget.runtimeValue().getValue());
         dirty_content.mark();
         if (! active)
             toolkit.scheduleUpdate(this);

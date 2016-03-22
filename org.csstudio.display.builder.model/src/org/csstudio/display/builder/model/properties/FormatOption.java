@@ -7,31 +7,33 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import org.csstudio.display.builder.model.Messages;
+
 /** Options for formatting a value
  *  @author Kay Kasemir
  */
 public enum FormatOption
 {
     /** Use default settings from PV */
-    DEFAULT("Default"),
+    DEFAULT(Messages.Format_Default),
 
     /** Use decimal representation, precision determines number of decimals */
-    DECIMAL("Decimal"),
+    DECIMAL(Messages.Format_Decimal),
 
     /** Use exponential representation, precision determines number of decimals */
-    EXPONENTIAL("Exponential"),
+    EXPONENTIAL(Messages.Format_Exponential),
 
     /** Use exponential representation where exponent is multiple of 3, precision determines number of decimals */
-    ENGINEERING("Engineering"),
+    ENGINEERING(Messages.Format_Engineering),
 
     /** Use hexadecimal representation, precision determines number of hex digits. 8 for 32 bits */
-    HEX("Hexadecimal"),
+    HEX(Messages.Format_Hexadecimal),
 
     /** Decimal for values in 0.0001 <= |value| <= 10000, else exponential, precision determines number of of decimals */
-    COMPACT("Compact"),
+    COMPACT(Messages.Format_Compact),
 
     /** Force string, most important for array-of-bytes */
-    STRING("String");
+    STRING(Messages.Format_String);
 
     private final String label;
 

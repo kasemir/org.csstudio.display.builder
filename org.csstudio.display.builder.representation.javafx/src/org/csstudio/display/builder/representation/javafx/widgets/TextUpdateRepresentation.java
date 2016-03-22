@@ -9,7 +9,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.util.VTypeUtil;
+import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
@@ -47,7 +47,12 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
         model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayFont().addUntypedPropertyListener(this::styleChanged);
-        model_widget.runtimeValue().addPropertyListener(this::contentChanged);
+
+        model_widget.displayFormat().addUntypedPropertyListener(this::contentChanged);
+        model_widget.displayPrecision().addUntypedPropertyListener(this::contentChanged);
+        model_widget.displayShowUnits().addUntypedPropertyListener(this::contentChanged);
+        model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
+
         model_widget.behaviorPVName().addPropertyListener(this::pvnameChanged);
     }
 
@@ -64,7 +69,10 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
     {
         if (value == null)
             return "<" + model_widget.behaviorPVName().getValue() + ">";
-        return VTypeUtil.getValueString(value, true);
+        return FormatOptionHandler.format(value,
+                                          model_widget.displayFormat().getValue(),
+                                          model_widget.displayPrecision().getValue(),
+                                          model_widget.displayShowUnits().getValue());
     }
 
     private void pvnameChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
@@ -78,9 +86,9 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
         toolkit.scheduleUpdate(this);
     }
 
-    private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
+    private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        value_text = computeText(new_value);
+        value_text = computeText(model_widget.runtimeValue().getValue());
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
     }

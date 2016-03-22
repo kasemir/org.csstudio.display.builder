@@ -27,6 +27,13 @@ public class Messages extends NLS
     public static String FontStyle_BoldItalic;
     public static String FontStyle_Italic;
     public static String FontStyle_Regular;
+    public static String Format_Compact;
+    public static String Format_Decimal;
+    public static String Format_Default;
+    public static String Format_Engineering;
+    public static String Format_Exponential;
+    public static String Format_Hexadecimal;
+    public static String Format_String;
     public static String GroupWidget_Description;
     public static String GroupWidget_Name;
     public static String Horizontal;
@@ -75,6 +82,7 @@ public class Messages extends NLS
     public static String WidgetProperties_FillColor;
     public static String WidgetProperties_Font;
     public static String WidgetProperties_ForegroundColor;
+    public static String WidgetProperties_Format;
     public static String WidgetProperties_Height;
     public static String WidgetProperties_HorizontalAlignment;
     public static String WidgetProperties_Insets;
@@ -88,11 +96,13 @@ public class Messages extends NLS
     public static String WidgetProperties_OffColor;
     public static String WidgetProperties_OnColor;
     public static String WidgetProperties_Points;
+    public static String WidgetProperties_Precision;
     public static String WidgetProperties_PVName;
     public static String WidgetProperties_ResizeBehavior;
     public static String WidgetProperties_Rotation;
     public static String WidgetProperties_ScaleFactor;
     public static String WidgetProperties_Scripts;
+    public static String WidgetProperties_ShowUnits;
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Text;
     public static String WidgetProperties_Transparent;
