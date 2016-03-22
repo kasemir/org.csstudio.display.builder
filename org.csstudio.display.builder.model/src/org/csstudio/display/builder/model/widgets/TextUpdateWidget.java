@@ -80,8 +80,14 @@ public class TextUpdateWidget extends VisibleWidget
         }
     }
 
-    public static void readLegacyFormat(final Element xml, final WidgetProperty<FormatOption> format,
-                                        final WidgetProperty<Integer> precision)
+    /** Read legacy widget's format
+     *  @param xml Widget XML
+     *  @param format Format property to update
+     *  @param precision Precision property to update
+     */
+    // package-level access for TextEntryWidget
+    static void readLegacyFormat(final Element xml, final WidgetProperty<FormatOption> format,
+                                 final WidgetProperty<Integer> precision)
     {
         Element element = XMLUtil.getChildElement(xml, "format_type");
         if (element != null)

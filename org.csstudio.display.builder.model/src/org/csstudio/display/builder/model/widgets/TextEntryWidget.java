@@ -69,7 +69,7 @@ public class TextEntryWidget extends VisibleWidget
         {
             if (! super.configureFromXML(model_reader, widget, xml))
                 return false;
-            if (xml_version.getMajor() < 2)
+            if (xml_version.getMajor() < 3)
             {
                 TextEntryWidget text_widget = (TextEntryWidget)widget;
                 TextUpdateWidget.readLegacyFormat(xml, text_widget.format, text_widget.precision);
@@ -89,6 +89,12 @@ public class TextEntryWidget extends VisibleWidget
     public TextEntryWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
+    }
+
+    @Override
+    public Version getVersion()
+    {   // Legacy used 2.0.0 for text input
+        return new Version(3, 0, 0);
     }
 
     @Override
