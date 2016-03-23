@@ -9,11 +9,13 @@ package org.csstudio.display.builder.representation.javafx;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.RuleInfo;
+import org.csstudio.display.builder.model.properties.RuleInfo.ExpressionInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 
 import javafx.beans.property.BooleanProperty;
@@ -42,7 +44,6 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.util.Pair;
 
 /** Dialog for editing {@link RuleInfo}s
  *  @author Megan Grodowitz
@@ -50,6 +51,7 @@ import javafx.util.Pair;
 @SuppressWarnings("nls")
 public class RulesDialog extends Dialog<List<RuleInfo>>
 {
+
 
     /** ScriptPV info as property-based item for table */
     public static class PVItem
@@ -86,25 +88,34 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
 
     /** Expression info as property-based item for table */
-    public static class ExprItem
+    public static class ExprItem<T>
     {
         public StringProperty boolExp = new SimpleStringProperty();
+        public T valExpObj;
         public StringProperty valExp = new SimpleStringProperty();
 
-        public ExprItem(final String boolE, final String valE)
+        public ExprItem(final String boolE, final T valE)
         {
             this.boolExp.set(boolE);
-            this.valExp.set(valE);
+            this.valExpObj = valE;
+            if (valE instanceof String)
+            {
+                valExp.set((String)valE);
+            }
+            else if (valE instanceof WidgetProperty<?>)
+            {
+                WidgetProperty<?> prop = (WidgetProperty<?>)valE;
+                valExp.set( prop.getName() + " : " + prop.getValue() );
+            }
+            else
+            {
+                valExp.set("ValExp class error" + valExp.getClass().getName());
+            }
         }
 
-        public static ExprItem forExp(final Pair<String,String> exp )
+        public ExpressionInfo<T> toExp()
         {
-          return new ExprItem(exp.getKey(), exp.getValue());
-        }
-
-        public Pair<String,String> toExp()
-        {
-            return new Pair<String,String>(boolExp.get(), valExp.get());
+            return new ExpressionInfo<T>(boolExp.get(), valExpObj);
         }
 
         public StringProperty boolExpProperty()
@@ -118,15 +129,22 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         }
     };
 
+    public static <T> ExprItem<T> forExp(final ExpressionInfo<T> exp)
+    {
+      return new ExprItem<T>(exp.getBoolExp(), exp.getValExp());
+    }
 
     /** Modifiable RuleInfo */
     public static class RuleItem
     {
-        public List<ExprItem> expressions;
+        private final Logger logger = Logger.getLogger(getClass().getName());
+
+        public List<ExprItem<?>> expressions;
         public List<PVItem> pvs;
         public StringProperty name = new SimpleStringProperty();
         public StringProperty prop_id = new SimpleStringProperty();
         public BooleanProperty out_exp = new SimpleBooleanProperty(false);
+
 
         public RuleItem()
         {
@@ -134,7 +152,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                  Messages.RulesDialog_DefaultRuleName, null, false);
         }
 
-        public RuleItem(final List<ExprItem> exprs,
+        public RuleItem(final List<ExprItem<?>> exprs,
                         final List<PVItem> pvs,
                         final String name,
                         final String prop_id,
@@ -147,12 +165,12 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             this.out_exp.set(out_exp);
         }
 
-        public static RuleItem forInfo(final RuleInfo info)
+        public static RuleItem forInfo(final Widget attached_widget, final RuleInfo info)
         {
             final List<PVItem> pvs = new ArrayList<>();
             info.getPVs().forEach(pv -> pvs.add(PVItem.forPV(pv)));
-            final List<ExprItem> exprs = new ArrayList<>();
-            info.getExpressions().forEach(expr -> exprs.add(ExprItem.forExp(expr)));
+            final List<ExprItem<?>> exprs = new ArrayList<>();
+            info.getExpressions().forEach(expr -> exprs.add(RulesDialog.forExp(expr)));
             return new RuleItem(exprs, pvs, info.getName(), info.getPropID(), info.getOutputExprFlag());
         }
 
@@ -160,7 +178,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         {
             final List<ScriptPV> spvs = new ArrayList<>();
             pvs.forEach(pv -> spvs.add(pv.toScriptPV()));
-            final List<Pair<String,String>> exps = new ArrayList<>();
+            final List<ExpressionInfo<?>> exps = new ArrayList<>();
             expressions.forEach(exp -> exps.add(exp.toExp()));
             return new RuleInfo(name.get(), prop_id.get(), out_exp.get(), exps, spvs);
         }
@@ -189,10 +207,10 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     private TableView<PVItem> pvs_table;
 
     /** Data that is linked to the expressions_table */
-    private final ObservableList<ExprItem> expression_items = FXCollections.observableArrayList();
+    private final ObservableList<ExprItem<?>> expression_items = FXCollections.observableArrayList();
 
     /** Table for PVs of currently selected rule */
-    private TableView<ExprItem> expressions_table;
+    private TableView<ExprItem<?>> expressions_table;
 
     // MG: How to generate a full list of all possible options? Maybe CommonWidgetProperties?
     /** Property options for target of expression **/
@@ -223,7 +241,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         widgetName = (String) attached_widget.getProperty("name").getValue();
         setHeaderText(Messages.RulesDialog_Info + ": " + widgetType + " " + widgetName);
 
-        rules.forEach(rule -> rule_items.add(RuleItem.forInfo(rule)));
+        rules.forEach(rule -> rule_items.add(RuleItem.forInfo(attached_widget, rule)));
         fixupRules(0);
 
         getDialogPane().setContent(createContent());
@@ -291,7 +309,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         pv_items.addListener(pll);
 
         // Update Expressions of selected rule from Expressions table
-        final ListChangeListener<ExprItem> ell = change ->
+        final ListChangeListener<ExprItem<?>> ell = change ->
         {
             final RuleItem selected = rules_table.getSelectionModel().getSelectedItem();
             if (selected != null)
@@ -408,8 +426,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     private Node createExpressionsTable()
     {
         // Create table with editable rule 'bool expression' column
-        final TableColumn<ExprItem, String> bool_exp_col = new TableColumn<>(Messages.RulesDialog_ColBoolExp);
-        bool_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem, String>("boolExp"));
+        final TableColumn<ExprItem<?>, String> bool_exp_col = new TableColumn<>(Messages.RulesDialog_ColBoolExp);
+        bool_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem<?>, String>("boolExp"));
         bool_exp_col.setCellFactory(TextFieldTableCell.forTableColumn());
         bool_exp_col.setOnEditCommit(event ->
         {
@@ -419,8 +437,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         });
 
         // Create table with editable rule 'value expression' column
-        final TableColumn<ExprItem, String> val_exp_col = new TableColumn<>(Messages.RulesDialog_ColValExp);
-        val_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem, String>("valExp"));
+        final TableColumn<ExprItem<?>, String> val_exp_col = new TableColumn<>(Messages.RulesDialog_ColValExp);
+        val_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem<?>, String>("valExp"));
         val_exp_col.setCellFactory(TextFieldTableCell.forTableColumn());
         val_exp_col.setOnEditCommit(event ->
         {

@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
 import javax.xml.stream.XMLStreamWriter;
@@ -59,6 +61,41 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
         this.descriptor = Objects.requireNonNull(descriptor);
         this.default_value = default_value;
         this.value = this.default_value;
+    }
+
+    @Override
+    public WidgetProperty<T> clone()
+    {
+        Class<?>[] cArg = new Class[3];
+        cArg[0] = descriptor.getClass();
+        cArg[1] = widget.getClass();
+        cArg[2] = default_value.getClass();
+
+        WidgetProperty<T> ret = null;
+
+        //ret = this.getClass().getDeclaredConstructor(cArg).newInstance(descriptor, widget, default_value);
+        Constructor<?>[] constructors = this.getClass().getDeclaredConstructors();
+        for (Constructor<?> constructor : constructors) {
+            Class<?>[] params = constructor.getParameterTypes();
+            if ( (params.length == 3) &&
+                 params[0].isInstance(descriptor) &&
+                 params[1].isInstance(widget) &&
+                 params[2].isInstance(default_value) )
+            {
+                try
+                {
+                    ret = (WidgetProperty<T>) constructor.newInstance(descriptor, widget, default_value);
+                    ret.setValue(value);
+                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                        | InvocationTargetException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                return ret;
+            }
+        }
+        return ret;
     }
 
     /** @return Widget that has this property */

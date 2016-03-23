@@ -16,8 +16,6 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 
-import javafx.util.Pair;
-
 /** Information about a rule
  *
  *
@@ -31,7 +29,30 @@ import javafx.util.Pair;
 @SuppressWarnings("nls")
 public class RuleInfo
 {
-    private final List<Pair<String,String>> expressions;
+
+    public static class ExpressionInfo<T>
+    {
+        private final String bool_exp;
+        private final T val_exp;
+
+        public ExpressionInfo(final String bool_exp, final T val_exp)
+        {
+            this.bool_exp = bool_exp;
+            this.val_exp = val_exp;
+        }
+
+        public String getBoolExp()
+        {
+            return bool_exp;
+        }
+
+        public T getValExp()
+        {
+            return val_exp;
+        }
+    };
+
+    private final List<ExpressionInfo<?>> expressions;
     private final List<ScriptPV> pvs;
     private final String name;
     private final String prop_id;
@@ -44,7 +65,7 @@ public class RuleInfo
      *  @param pvs PVs
      */
     public RuleInfo(final String name, final String prop_id, final boolean out_expr,
-            final List<Pair<String,String>> exprs, final List<ScriptPV> pvs)
+            final List<ExpressionInfo<?>> exprs, final List<ScriptPV> pvs)
     {
         this.name = name;
         this.output_expression = out_expr;
@@ -89,7 +110,7 @@ public class RuleInfo
 
     /** @return Expressions consisting of (bool expression, target) pairs
      */
-    public List<Pair<String,String>> getExpressions()
+    public List<ExpressionInfo<?>> getExpressions()
     {
         return expressions;
     }
