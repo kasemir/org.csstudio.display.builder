@@ -31,6 +31,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.FormatOption;
+import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.diirt.vtype.VType;
@@ -74,7 +75,7 @@ public class TextUpdateWidget extends VisibleWidget
             if (xml_version.getMajor() < 2)
             {
                 TextUpdateWidget text_widget = (TextUpdateWidget)widget;
-                TextUpdateWidget.readLegacyFormat(xml, text_widget.format, text_widget.precision);
+                TextUpdateWidget.readLegacyFormat(xml, text_widget.format, text_widget.precision, text_widget.pv_name);
             }
             return true;
         }
@@ -84,10 +85,12 @@ public class TextUpdateWidget extends VisibleWidget
      *  @param xml Widget XML
      *  @param format Format property to update
      *  @param precision Precision property to update
+     *  @param pv_name PV name property to update
      */
     // package-level access for TextEntryWidget
     static void readLegacyFormat(final Element xml, final WidgetProperty<FormatOption> format,
-                                 final WidgetProperty<Integer> precision)
+                                 final WidgetProperty<Integer> precision,
+                                 final WidgetProperty<String> pv_name)
     {
         Element element = XMLUtil.getChildElement(xml, "format_type");
         if (element != null)
@@ -118,6 +121,16 @@ public class TextUpdateWidget extends VisibleWidget
             default:
                 format.setValue(FormatOption.DEFAULT);
             }
+        }
+
+        // Remove legacy longString attribute from PV,
+        // instead use STRING formatting
+        String pv = ((StringWidgetProperty)pv_name).getSpecification();
+        if (pv.endsWith(" {\"longString\":true}"))
+        {
+            pv = pv.substring(0, pv.length() - 20);
+            ((StringWidgetProperty)pv_name).setSpecification(pv);
+            format.setValue(FormatOption.STRING);
         }
     }
 

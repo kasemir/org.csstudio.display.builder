@@ -72,7 +72,7 @@ public class TextEntryWidget extends VisibleWidget
             if (xml_version.getMajor() < 3)
             {
                 TextEntryWidget text_widget = (TextEntryWidget)widget;
-                TextUpdateWidget.readLegacyFormat(xml, text_widget.format, text_widget.precision);
+                TextUpdateWidget.readLegacyFormat(xml, text_widget.format, text_widget.precision, text_widget.pv_name);
             }
             return true;
         }
