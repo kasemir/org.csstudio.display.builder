@@ -139,7 +139,7 @@ public class WidgetRuntime<MW extends Widget>
     {
         @Override
         public void propertyChanged(final WidgetProperty<String> name_property,
-                                    final String old_name, String pv_name)
+                                    final String old_name, final String pv_name)
         {
             if (Objects.equals(old_name, pv_name))
                 return;
@@ -151,10 +151,6 @@ public class WidgetRuntime<MW extends Widget>
                 return;
 
             logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, pv_name });
-
-            // Remove legacy longString attribute
-            if (pv_name.endsWith(" {\"longString\":true}"))
-                pv_name = pv_name.substring(0, pv_name.length() - 20);
 
             // Create listener, which marks the value as disconnected
             primary_pv_listener = new PropertyUpdater(widget.getProperty(runtimeValue));

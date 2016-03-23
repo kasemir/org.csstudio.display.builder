@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="2.0.0">
+<display version="1.0.0">
   <name>Display</name>
   <x>-1</x>
   <y>-1</y>
   <widget type="label" version="2.0.0">
     <name>Label</name>
-    <width>181</width>
+    <width>241</width>
     <height>31</height>
     <text>Text Update Widget</text>
     <font>
@@ -57,25 +57,25 @@
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
     <y>91</y>
-    <width>111</width>
+    <width>181</width>
     <text>Basic Number:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
     <y>121</y>
-    <width>161</width>
+    <width>171</width>
     <text>Disconnecting channel:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
     <y>221</y>
-    <width>111</width>
+    <width>201</width>
     <text>Can be configured to be ugly:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
     <y>151</y>
-    <width>111</width>
+    <width>171</width>
     <text>Basic Text:</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
@@ -84,5 +84,70 @@
     <y>151</y>
     <width>170</width>
     <pv_name>sim://strings</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_6</name>
+    <y>351</y>
+    <width>111</width>
+    <text>Default:</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_4</name>
+    <x>191</x>
+    <y>351</y>
+    <width>170</width>
+    <pv_name>sim://sine</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_7</name>
+    <y>321</y>
+    <width>201</width>
+    <text>Formatting options:</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_5</name>
+    <x>191</x>
+    <y>381</y>
+    <width>170</width>
+    <show_units>false</show_units>
+    <pv_name>sim://sine</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_8</name>
+    <y>381</y>
+    <width>161</width>
+    <text>Don't show units:</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_6</name>
+    <x>191</x>
+    <y>411</y>
+    <width>170</width>
+    <format>1</format>
+    <pv_name>sim://sine</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_9</name>
+    <y>411</y>
+    <width>191</width>
+    <text>Decimal w/ 2 digits:</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_7</name>
+    <x>191</x>
+    <y>441</y>
+    <width>170</width>
+    <format>2</format>
+    <pv_name>sim://sine</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_10</name>
+    <y>441</y>
+    <width>191</width>
+    <text>Exponential Notation:</text>
   </widget>
 </display>
