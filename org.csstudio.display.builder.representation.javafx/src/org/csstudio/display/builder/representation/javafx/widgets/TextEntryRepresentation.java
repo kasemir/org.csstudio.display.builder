@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.util.logging.Level;
+
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
@@ -107,8 +109,12 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
     /** Submit value entered by user */
     private void submit()
     {
+        // Strip 'units' etc. from text
         final String text = jfx_node.getText();
-        toolkit.fireWrite(model_widget, text);
+        final Object value = FormatOptionHandler.parse(model_widget.runtimeValue().getValue(), text);
+        logger.log(Level.FINE, "Writing '" + text + "' as " + value + " (" + value.getClass().getName() + ")");
+        toolkit.fireWrite(model_widget, value);
+
         // Wrote value. Expected is either
         // a) PV receives that value, PV updates to
         //    submitted value or maybe a 'clamped' value

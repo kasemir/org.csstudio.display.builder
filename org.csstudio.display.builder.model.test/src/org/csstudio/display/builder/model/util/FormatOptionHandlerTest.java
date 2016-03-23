@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.util;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 
 import java.text.DecimalFormat;
@@ -227,5 +228,58 @@ public class FormatOptionHandlerTest
         text = FormatOptionHandler.format(value, FormatOption.DECIMAL, 2, true);
         System.out.println(text);
         assertThat(text, equalTo("[1.00, 2.00, 3.00, 4.00] V"));
-}
+    }
+
+    @Test
+    public void testNumberParsing() throws Exception
+    {
+        VType value = ValueFactory.newVDouble(3.16, display);
+
+        Object parsed = FormatOptionHandler.parse(value, "42.5 Socks");
+        assertThat(parsed, instanceOf(Number.class));
+        assertThat(((Number)parsed).doubleValue(), equalTo(42.5));
+    }
+
+    @Test
+    public void testNumberArrayParsing() throws Exception
+    {
+        final ListNumber data = new ArrayDouble(1.0, 2.0, 3.0, 4.0);
+        final VType value = ValueFactory.newVNumberArray(data, ValueFactory.alarmNone(), ValueFactory.timeNow(), display);
+
+        Object parsed = FormatOptionHandler.parse(value, " [  1, 2.5  ,  3 ] ");
+        assertThat(parsed, instanceOf(double[].class));
+        final double[] numbers = (double[]) parsed;
+        assertThat(numbers, equalTo(new double[] { 1.0, 2.5, 3.0 }));
+    }
+
+
+    @Test
+    public void testStringArrayParsing() throws Exception
+    {
+        final VType value = ValueFactory.newVStringArray(Arrays.asList("Flintstone, \"Al\" Fred", "Jane"), ValueFactory.alarmNone(), ValueFactory.timeNow());
+
+        final String text = FormatOptionHandler.format(value, FormatOption.DEFAULT, 0, true);
+        System.out.println(text);
+
+        Object parsed = FormatOptionHandler.parse(value, text);
+        System.out.println(Arrays.toString((String[])parsed));
+        assertThat(parsed, equalTo(new String[] { "Flintstone, \"Al\" Fred", "Jane" }));
+
+        parsed = FormatOptionHandler.parse(value, "[ \"Freddy\", \"Janet\" ] ");
+        assertThat(parsed, instanceOf(String[].class));
+        assertThat(parsed, equalTo(new String[] { "Freddy", "Janet" }));
+
+        parsed = FormatOptionHandler.parse(value, "[ Freddy, Janet ] ");
+        assertThat(parsed, equalTo(new String[] { "Freddy", "Janet" }));
+
+        parsed = FormatOptionHandler.parse(value, "Freddy, Janet");
+        assertThat(parsed, equalTo(new String[] { "Freddy", "Janet" }));
+
+        parsed = FormatOptionHandler.parse(value, " [ \"Flintstone, Fred\", Janet");
+        assertThat(parsed, equalTo(new String[] { "Flintstone, Fred", "Janet" }));
+
+        parsed = FormatOptionHandler.parse(value, " \"Al \\\"Ed\\\" Stone\", Jane");
+        System.out.println(Arrays.toString((String[])parsed));
+        assertThat(parsed, equalTo(new String[] { "Al \"Ed\" Stone", "Jane" }));
+    }
 }

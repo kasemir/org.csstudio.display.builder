@@ -11,15 +11,19 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.properties.FormatOption;
 import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.Display;
+import org.diirt.vtype.VDouble;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VEnumArray;
 import org.diirt.vtype.VNumber;
 import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VString;
+import org.diirt.vtype.VStringArray;
 import org.diirt.vtype.VType;
 
 /** Utility for formatting data as string.
@@ -95,6 +99,8 @@ public class FormatOptionHandler
             buf.append("]");
             return buf.toString();
         }
+        else if (value instanceof VStringArray)
+            return StringList.join(((VStringArray)value).getData());
 
         return "<" + value.getClass().getName() + ">";
     }
@@ -207,6 +213,9 @@ public class FormatOptionHandler
         return Integer.toString(value.getIndex());
     }
 
+    /** @param value Array of numbers
+     *  @return String based on character for each array element
+     */
     private static String getLongString(final VNumberArray value)
     {
         final ListNumber data = value.getData();
@@ -222,5 +231,63 @@ public class FormatOptionHandler
                 bytes[len++] = b;
         }
         return new String(bytes, 0, len);
+    }
+
+    /** Parse a string, presumably as formatted by this class,
+     *  into a value suitable for writing back to the PV
+     *
+     *  @param value Last known value of the PV
+     *  @param text Formatted text
+     *  @return Object to write to PV for the 'text'
+     */
+    public static Object parse(final VType value, String text)
+    {
+        try
+        {
+            if (value instanceof VNumber)
+            {   // Remove trailing text (units or part of units)
+                text = text.trim();
+                final int sep = text.lastIndexOf(' ');
+                if (sep > 0)
+                    text = text.substring(0, sep).trim();
+                if (value instanceof VDouble)
+                    return Double.parseDouble(text);
+                return Long.parseLong(text);
+            }
+            if (value instanceof VEnum)
+            {   // Send index for valid enumeration string
+                final List<String> labels = ((VEnum)value).getLabels();
+                text = text.trim();
+                for (int i=0; i<labels.size(); ++i)
+                    if (labels.get(i).equals(text))
+                        return i;
+                // Otherwise write the string
+                return text;
+            }
+            if (value instanceof VNumberArray)
+            {
+                text = text.trim();
+                if (text.startsWith("["))
+                    text = text.substring(1);
+                if (text.endsWith("]"))
+                    text = text.substring(0, text.length()-1);
+                final String[] items = text.split(" *, *");
+                final double[] array = new double[items.length];
+                for (int i=0; i<array.length; ++i)
+                    array[i] = Double.parseDouble(items[i].trim());
+                return array;
+            }
+            if (value instanceof VStringArray)
+            {
+                final List<String> items = StringList.split(text);
+                return items.toArray(new String[items.size()]);
+            }
+        }
+        catch (Throwable ex)
+        {
+            Logger.getLogger(FormatOptionHandler.class.getName())
+                  .log(Level.WARNING, "Error parsing value from '" +  text + "', will use as is", ex);
+        }
+        return text;
     }
 }
