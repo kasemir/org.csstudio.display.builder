@@ -7,39 +7,137 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.script;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.vtype.pv.PV;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.osgi.framework.Bundle;
 import org.python.core.PyCode;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
 /** Jython script support
+ *
+ *  <p>To debug, see python.verbose which can also be set
+ *  as VM property.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
 class JythonScriptSupport extends BaseScriptSupport
 {
+    final static boolean initialized = init();
+
     private final PySystemState state;
     private final PythonInterpreter python;
+
+    /** Perform static, one-time initialization */
+    private static boolean init()
+    {
+        try
+        {
+            final Properties pre_props = System.getProperties();
+            final Properties props = new Properties();
+
+            // Locate the jython plugin for 'home' to allow use of /Lib in there
+            final String home = getPluginPath("org.python.jython", "/");
+            if (home == null)
+                throw new Exception("Cannot locate jython bundle");
+
+            // Jython 2.7(b3) needs these to set sys.prefix and sys.executable.
+            // If left undefined, initialization of Lib/site.py fails with
+            // posixpath.py", line 394, in normpath AttributeError:
+            // 'NoneType' object has no attribute 'startswith'
+            props.setProperty("python.home", home);
+            props.setProperty("python.executable", "css");
+
+            // Disable cachedir to avoid creation of cachedir folder.
+            // See http://www.jython.org/jythonbook/en/1.0/ModulesPackages.html#java-package-scanning
+            // and http://wiki.python.org/jython/PackageScanning
+            props.setProperty(PySystemState.PYTHON_CACHEDIR_SKIP, "true");
+
+            // With python.home defined, there is no more
+            // "ImportError: Cannot import site module and its dependencies: No module named site"
+            // Skipping the site import still results in faster startup
+            props.setProperty("python.import.site", "false");
+
+            // Prevent: console: Failed to install '': java.nio.charset.UnsupportedCharsetException: cp0.
+            props.setProperty("python.console.encoding", "UTF-8");
+
+            // Options: error, warning, message (default), comment, debug
+            // props.setProperty("python.verbose", "debug");
+
+            PythonInterpreter.initialize(pre_props, props, new String[0]);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Logger.getLogger(JythonScriptSupport.class.getName())
+                  .log(Level.SEVERE, "Once this worked OK, but now the Jython initialization failed. Don't you hate computers?", ex);
+        }
+        return false;
+    }
+
+    /** Locate a path inside a bundle.
+     *
+     *  <p>If the bundle is JAR-ed up, the {@link FileLocator} will
+     *  return a location with "file:" and "..jar!/path".
+     *  This method patches the location such that it can be used
+     *  on the Jython path.
+     *
+     *  @param bundle_name Name of bundle
+     *  @param path_in_bundle Path within bundle
+     *  @return Location of that path within bundle, or <code>null</code> if not found or no bundle support
+     *  @throws IOException on error
+     */
+    private static String getPluginPath(final String bundle_name, final String path_in_bundle) throws IOException
+    {
+        final Bundle bundle = Platform.getBundle(bundle_name);
+        if (bundle == null)
+            return null;
+        final URL url = FileLocator.find(bundle, new Path(path_in_bundle), null);
+        if (url == null)
+            return null;
+        String path = FileLocator.resolve(url).getPath();
+
+        // Turn politically correct URL into path digestible by jython
+        if (path.startsWith("file:/"))
+           path = path.substring(5);
+        path = path.replace(".jar!", ".jar");
+
+        return path;
+    }
+
 
     /** Create executor for jython scripts */
     public JythonScriptSupport() throws Exception
     {
         state = new PySystemState();
 
-        // TODO Figure out how to best handle this.
-        // Setting this options prevents
-        // "ImportError: Cannot import site module and its dependencies: No module named site"
-        // But has to be set _before_ we enter this code.
-        System.setProperty("python.import.site", "false");
-
-        python = new PythonInterpreter(null, state);
+        // Creating a PythonInterpreter is very slow.
+        //
+        // In addition, concurrent creation is not supported, resulting in
+        //     Lib/site.py", line 571, in <module> ..
+        //     Lib/sysconfig.py", line 159, in _subst_vars AttributeError: {'userbase'}
+        // or  Lib/site.py", line 122, in removeduppaths java.util.ConcurrentModificationException
+        //
+        // Sync. on JythonScriptSupport to serialize the interpreter creation and avoid above errors.
+        // Curiously, this speeds the interpreter creation up,
+        // presumably because they're not concurrently trying to access the same resources?
+        synchronized (JythonScriptSupport.class)
+        {
+            python = new PythonInterpreter(null, state);
+        }
     }
 
     /** Parse and compile script file
