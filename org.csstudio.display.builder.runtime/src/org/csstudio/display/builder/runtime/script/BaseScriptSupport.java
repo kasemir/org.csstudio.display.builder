@@ -15,16 +15,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /** Base for JavaScript and Jython script support
- * 
+ *
  *  <p>Tracks running scripts to cancel them on shutdown.
- *  
+ *
  *  @author Kay Kasemir
  */
 class BaseScriptSupport
 {
     private final ExecutorService executor = Executors.newSingleThreadExecutor(ScriptSupport.POOL);
     private final Queue<Future<Object>> active_scripts = new ConcurrentLinkedQueue<>();
-    
+
     /** Request that a script gets executed
      *  @param callable {@link Callable} for executing the script
      *  @return Future for script that was just started

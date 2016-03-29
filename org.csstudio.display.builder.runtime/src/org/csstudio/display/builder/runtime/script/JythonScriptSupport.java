@@ -38,7 +38,6 @@ class JythonScriptSupport extends BaseScriptSupport
 {
     final static boolean initialized = init();
 
-    private final PySystemState state;
     private final PythonInterpreter python;
 
     /** Perform static, one-time initialization */
@@ -59,7 +58,7 @@ class JythonScriptSupport extends BaseScriptSupport
             // posixpath.py", line 394, in normpath AttributeError:
             // 'NoneType' object has no attribute 'startswith'
             props.setProperty("python.home", home);
-            props.setProperty("python.executable", "css");
+            props.setProperty("python.executable", "None");
 
             // Disable cachedir to avoid creation of cachedir folder.
             // See http://www.jython.org/jythonbook/en/1.0/ModulesPackages.html#java-package-scanning
@@ -74,8 +73,13 @@ class JythonScriptSupport extends BaseScriptSupport
             // Prevent: console: Failed to install '': java.nio.charset.UnsupportedCharsetException: cp0.
             props.setProperty("python.console.encoding", "UTF-8");
 
+            // TODO Set search path to list of path elements separated by java.io.File.pathSeparator
+            // This will replace entries found on JYTHONPATH
+            // props.setProperty("python.path", search_path);
+
             // Options: error, warning, message (default), comment, debug
             // props.setProperty("python.verbose", "debug");
+            // Options.verbose = Py.DEBUG;
 
             PythonInterpreter.initialize(pre_props, props, new String[0]);
             return true;
@@ -122,8 +126,6 @@ class JythonScriptSupport extends BaseScriptSupport
     /** Create executor for jython scripts */
     public JythonScriptSupport() throws Exception
     {
-        state = new PySystemState();
-
         // Creating a PythonInterpreter is very slow.
         //
         // In addition, concurrent creation is not supported, resulting in
@@ -136,7 +138,7 @@ class JythonScriptSupport extends BaseScriptSupport
         // presumably because they're not concurrently trying to access the same resources?
         synchronized (JythonScriptSupport.class)
         {
-            python = new PythonInterpreter(null, state);
+             python = new PythonInterpreter(null, null);
         }
     }
 
@@ -175,6 +177,10 @@ class JythonScriptSupport extends BaseScriptSupport
             // System.out.println("Executing " + script + " on " + Thread.currentThread().getName());
             try
             {
+                // Executor is single-threaded.
+                // OK to set 'widget' etc.
+                // of the shared python interpreter
+                // because only one script will execute at a time.
                 python.set("widget", widget);
                 python.set("pvs", pvs);
                 python.exec(script.getCode());

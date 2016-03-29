@@ -17,6 +17,7 @@ import org.csstudio.vtype.pv.PV;
 /** Compiled Java script
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 class JavaScript implements Script
 {
     private final JavaScriptSupport support;
@@ -53,7 +54,7 @@ class JavaScript implements Script
     {
         return support.submit(this, widget, pvs);
     }
-    
+
     @Override
     public String toString()
     {

@@ -16,6 +16,7 @@ import org.python.core.PyCode;
 /** Compiled Jython script
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 class JythonScript implements Script
 {
     private final JythonScriptSupport support;
@@ -52,7 +53,7 @@ class JythonScript implements Script
     {
         return support.submit(this, widget, pvs);
     }
-    
+
     @Override
     public String toString()
     {
