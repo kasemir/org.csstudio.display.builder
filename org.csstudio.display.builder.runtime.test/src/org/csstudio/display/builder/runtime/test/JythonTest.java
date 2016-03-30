@@ -32,7 +32,7 @@ import org.python.util.PythonInterpreter;
 @SuppressWarnings("nls")
 public class JythonTest
 {
-    private final static int RUNTIME_SECONDS = 5;
+    private final static int RUNTIME_SECONDS = 5000;
 
     // Meant to check for https://github.com/ControlSystemStudio/cs-studio/issues/1687,
     // where presumably the following happened:

@@ -17,13 +17,15 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 @SuppressWarnings("nls")
 public class Preferences
 {
+    public static final String READ_TIMEOUT = "read_timeout";
+
     /** @return Read timeout [ms] */
     public static int getReadTimeout()
     {
         int timeout = 10000;
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs != null)
-            timeout = prefs.getInt(ModelPlugin.ID, "read_timeout", timeout, null);
+            timeout = prefs.getInt(ModelPlugin.ID, READ_TIMEOUT, timeout, null);
         return timeout;
     }
 }
