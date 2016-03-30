@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.runtime.Preferences;
 import org.csstudio.vtype.pv.PV;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
@@ -75,9 +76,10 @@ class JythonScriptSupport extends BaseScriptSupport
             // Prevent: console: Failed to install '': java.nio.charset.UnsupportedCharsetException: cp0.
             props.setProperty("python.console.encoding", "UTF-8");
 
-            // TODO Set search path to list of path elements separated by java.io.File.pathSeparator
             // This will replace entries found on JYTHONPATH
-            // props.setProperty("python.path", search_path);
+            final String python_path = Preferences.getPythonPath();
+            if (! python_path.isEmpty())
+                props.setProperty("python.path", python_path);
 
             // Options: error, warning, message (default), comment, debug
             // props.setProperty("python.verbose", "debug");
