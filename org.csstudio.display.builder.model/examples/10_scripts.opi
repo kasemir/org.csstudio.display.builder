@@ -197,7 +197,7 @@ Clearly a counterexample for the use of scripts.</text>
       </script>
     </scripts>
   </widget>
-  <widget type="textentry" version="2.0.0">
+  <widget type="textentry" version="3.0.0">
     <name>Text Entry</name>
     <x>541</x>
     <y>481</y>
@@ -289,7 +289,7 @@ new displays, passing macros for the PV names...</text>
       </script>
     </scripts>
   </widget>
-  <widget type="textentry" version="2.0.0">
+  <widget type="textentry" version="3.0.0">
     <name>Text Entry_1</name>
     <x>11</x>
     <y>831</y>
@@ -349,7 +349,7 @@ and the "Active" label moves next to the selected mode.</text>
       <action type="open_display">
         <file>solitaire/solitaire.opi</file>
         <target>replace</target>
-        <description>Soiltaire</description>
+        <description>Solitaire</description>
       </action>
     </actions>
   </widget>
