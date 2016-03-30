@@ -58,7 +58,7 @@ class JavaScriptSupport extends BaseScriptSupport
      *  @param pvs PVs that are available to the script
      *  @return
      */
-    public Future<Object> submit(final JavaScript script, final Widget widget, final PV[] pvs)
+    public Future<Object> submit(final JavaScript script, final Widget widget, final PV... pvs)
     {
         // TODO See comments in JythonScriptSupport
         return super.submit(() ->
