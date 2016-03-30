@@ -36,6 +36,8 @@ import org.python.util.PythonInterpreter;
 @SuppressWarnings("nls")
 class JythonScriptSupport extends BaseScriptSupport
 {
+    private final static Logger logger = Logger.getLogger(JythonScriptSupport.class.getName());
+
     final static boolean initialized = init();
 
     private final PythonInterpreter python;
@@ -86,8 +88,7 @@ class JythonScriptSupport extends BaseScriptSupport
         }
         catch (Exception ex)
         {
-            Logger.getLogger(JythonScriptSupport.class.getName())
-                  .log(Level.SEVERE, "Once this worked OK, but now the Jython initialization failed. Don't you hate computers?", ex);
+            logger.log(Level.SEVERE, "Once this worked OK, but now the Jython initialization failed. Don't you hate computers?", ex);
         }
         return false;
     }
@@ -126,9 +127,7 @@ class JythonScriptSupport extends BaseScriptSupport
     /** Create executor for jython scripts */
     public JythonScriptSupport() throws Exception
     {
-        // Creating a PythonInterpreter is very slow.
-        //
-        // In addition, concurrent creation is not supported, resulting in
+        // Concurrent of python interpreters has in past resulted in
         //     Lib/site.py", line 571, in <module> ..
         //     Lib/sysconfig.py", line 159, in _subst_vars AttributeError: {'userbase'}
         // or  Lib/site.py", line 122, in removeduppaths java.util.ConcurrentModificationException
@@ -136,10 +135,14 @@ class JythonScriptSupport extends BaseScriptSupport
         // Sync. on JythonScriptSupport to serialize the interpreter creation and avoid above errors.
         // Curiously, this speeds the interpreter creation up,
         // presumably because they're not concurrently trying to access the same resources?
+
+        final long start = System.currentTimeMillis();
         synchronized (JythonScriptSupport.class)
         {
              python = new PythonInterpreter(null, null);
         }
+        final long end = System.currentTimeMillis();
+        logger.log(Level.FINE, "Time to create jython: {0} ms", (end - start));
     }
 
     /** Parse and compile script file
@@ -151,7 +154,10 @@ class JythonScriptSupport extends BaseScriptSupport
      */
     public Script compile(final String name, final InputStream stream) throws Exception
     {
+        final long start = System.currentTimeMillis();
         final PyCode code = python.compile(new InputStreamReader(stream), name);
+        final long end = System.currentTimeMillis();
+        logger.log(Level.FINE, "Time to compile {0}: {1} ms", new Object[] { name, (end - start) });
         return new JythonScript(this, name, code);
     }
 
@@ -187,9 +193,7 @@ class JythonScriptSupport extends BaseScriptSupport
             }
             catch (final Throwable ex)
             {
-                Logger.getLogger(JythonScriptSupport.class.getName())
-                    .log(Level.WARNING,
-                         "Execution of '" + script.getName() + "' failed", ex);
+                logger.log(Level.WARNING, "Execution of '" + script.getName() + "' failed", ex);
             }
             // System.out.println("Finished " + script);
             return null;
