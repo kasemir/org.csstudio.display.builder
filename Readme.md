@@ -38,7 +38,7 @@ Dependencies
  * As Eclipse Preferences, Plugin Development, Target platform, use a CS-Studio target.
    For example, use the current IDE and add a "Directory" pointing to a CSS product's `plugins/` directory.
  * In product start config, add VM options
-   `-Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi  -Dpython.import.site=false`
+   `-Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`
  * Demos use EPICS `softIoc` for `org.csstudio.display.builder.runtime.test/examples/demo.db`
  * Install the "Liberation" fonts from https://fedorahosted.org/liberation-fonts.
    Mac OS X: Double-click each *.ttf to preview, then click "Install Font".
