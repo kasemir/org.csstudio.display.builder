@@ -98,6 +98,11 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
                 break;
             }
         }
+        
+        if (found_rule == null)
+        {
+        	return "No such rule: " + rulename;
+        }
 
         return generateJS(this.getWidget(), found_rule);
     }
@@ -234,7 +239,7 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
                  if (!prop.isPresent())
                  {
                      Logger.getLogger(getClass().getName())
-                     .log(Level.SEVERE, "Widget " + this.getWidget().getClass().getName()
+                     .log(Level.WARNING, "Widget " + this.getWidget().getClass().getName()
                              + " rule indicates unknown property id " + prop_id);
                      val_prop = miscUnkownPropID.createProperty(null, prop_id + " : " + val_str);
                  }

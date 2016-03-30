@@ -332,8 +332,9 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         final HBox props = new HBox(10, propLabel, propComboBox);
         final HBox subtabs = new HBox(10, pvs, exprs);
         final VBox subitems = new VBox(10, props, new Separator(Orientation.HORIZONTAL), subtabs);
-        final HBox box = new HBox(10, rules, new Separator(Orientation.VERTICAL), subitems);
-        HBox.setHgrow(rules, Priority.ALWAYS);
+        final VBox rulebox = new VBox(10, rules);
+        final HBox box = new HBox(10, rulebox, new Separator(Orientation.VERTICAL), subitems);
+        VBox.setVgrow(rules, Priority.ALWAYS);
         HBox.setHgrow(pvs, Priority.ALWAYS);
         HBox.setHgrow(exprs, Priority.ALWAYS);
         HBox.setHgrow(subitems, Priority.ALWAYS);
