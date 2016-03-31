@@ -35,8 +35,9 @@ import org.python.util.PythonInterpreter;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-class JythonScriptSupport extends BaseScriptSupport
+class JythonScriptSupport implements AutoCloseable
 {
+    private final ScriptSupport support;
     private final static Logger logger = Logger.getLogger(JythonScriptSupport.class.getName());
 
     final static boolean initialized = init();
@@ -126,9 +127,12 @@ class JythonScriptSupport extends BaseScriptSupport
     }
 
 
-    /** Create executor for jython scripts */
-    public JythonScriptSupport() throws Exception
+    /** Create executor for jython scripts
+     *  @param support {@link ScriptSupport}
+     */
+    public JythonScriptSupport(final ScriptSupport support) throws Exception
     {
+        this.support = support;
         // Concurrent of python interpreters has in past resulted in
         //     Lib/site.py", line 571, in <module> ..
         //     Lib/sysconfig.py", line 159, in _subst_vars AttributeError: {'userbase'}
@@ -171,16 +175,8 @@ class JythonScriptSupport extends BaseScriptSupport
      */
     public Future<Object> submit(final JythonScript script, final Widget widget, final PV... pvs)
     {
-        // TODO Add script throttle/check
-        // Instead of simply submitting for execution,
-        // submit to a queue off which a thread executes items.
-        // If the queue already contains this script/widget/pvs,
-        // skip adding another one.
-        // That way, if one widget & PV generates many submissions,
-        // it does not flood the queue but only maintains one active request.
-
         // System.out.println("Submit on " + Thread.currentThread().getName());
-        return super.submit(() ->
+        return support.submit(() ->
         {
             // System.out.println("Executing " + script + " on " + Thread.currentThread().getName());
             try
@@ -203,9 +199,9 @@ class JythonScriptSupport extends BaseScriptSupport
     }
 
     /** Release resources (interpreter, ...) */
+    @Override
     public void close()
     {
         python.close();
-        super.close();
     }
 }

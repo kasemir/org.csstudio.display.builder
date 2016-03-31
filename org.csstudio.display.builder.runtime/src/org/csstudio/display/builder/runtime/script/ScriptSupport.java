@@ -12,7 +12,12 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.concurrent.ThreadFactory;
+import java.util.Queue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,16 +37,23 @@ import org.csstudio.display.builder.model.util.NamedDaemonPool;
 @SuppressWarnings("nls")
 public class ScriptSupport
 {
-    /** Pool for script related executors */
-    static final ThreadFactory POOL = new NamedDaemonPool("ScriptSupport");
+    /** Single thread script executor, shared by Jython and Javascript */
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedDaemonPool("ScriptSupport"));
 
+    /** Futures of submitted scripts to allow cancellation */
+    private final Queue<Future<Object>> active_scripts = new ConcurrentLinkedQueue<>();
+
+    // Script supports.
+    // Could provide two executors, one for jython and one for javascript,
+    // but each one needs to be single-threaded because there's only one interpreter
+    // with only one global variable for 'window' etc.
     private final JythonScriptSupport jython;
     private final JavaScriptSupport javascript;
 
     public ScriptSupport() throws Exception
     {
-        jython = new JythonScriptSupport();
-        javascript = new JavaScriptSupport();
+        jython = new JythonScriptSupport(this);
+        javascript = new JavaScriptSupport(this);
     }
 
     /** Parse and compile script file
@@ -106,10 +118,29 @@ public class ScriptSupport
         return new ByteArrayInputStream(buf.toString().getBytes());
     }
 
+    /** Request that a script gets executed
+     *  @param callable {@link Callable} for executing the script
+     *  @return Future for script that was just submitted
+     */
+    Future<Object> submit(final Callable<Object> callable)
+    {
+        final Future<Object> running = executor.submit(callable);
+        // No longer track scripts that have finished
+        active_scripts.removeIf(f -> f.isDone());
+        active_scripts.add(running);
+        return running;
+    }
+
     /** Release resources (interpreter, ...) */
     public void close()
     {
-        javascript.close();
+        // Prevent new scripts from starting
+        executor.shutdown();
+        // Interrupt scripts which are still running
+        // (OK to cancel() if script already finished)
+        for (Future<Object> running : active_scripts)
+            running.cancel(true);
+
         jython.close();
     }
 }

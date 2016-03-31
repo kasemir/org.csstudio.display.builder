@@ -27,14 +27,18 @@ import org.csstudio.vtype.pv.PV;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-class JavaScriptSupport extends BaseScriptSupport
+class JavaScriptSupport
 {
+    private final ScriptSupport support;
     private final ScriptEngine engine;
     private final Bindings bindings;
 
-    /** Create executor for java scripts */
-    public JavaScriptSupport() throws Exception
+    /** Create executor for java scripts
+     *  @param support {@link ScriptSupport}
+     */
+    public JavaScriptSupport(final ScriptSupport support) throws Exception
     {
+        this.support = support;
         engine = Objects.requireNonNull(new ScriptEngineManager().getEngineByName("nashorn"));
         bindings = engine.createBindings();
     }
@@ -60,8 +64,7 @@ class JavaScriptSupport extends BaseScriptSupport
      */
     public Future<Object> submit(final JavaScript script, final Widget widget, final PV... pvs)
     {
-        // TODO See comments in JythonScriptSupport
-        return super.submit(() ->
+        return support.submit(() ->
         {
             // System.out.println("Execute on " + Thread.currentThread().getName());
             try
