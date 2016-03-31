@@ -11,7 +11,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,6 +44,13 @@ class JythonScriptSupport implements AutoCloseable
     private final static Logger logger = Logger.getLogger(JythonScriptSupport.class.getName());
 
     final static boolean initialized = init();
+
+    /** Scripts that have been submitted, awaiting execution, to avoid queuing them again.
+     *
+     *  <p>Relies on the fact that each script is unique identified by the script itself,
+     *  they're not submitted with different widget and pvs parameters.
+     */
+    private final Set<JythonScript> queued_scripts = Collections.newSetFromMap(new ConcurrentHashMap<JythonScript, Boolean>());
 
     private final PythonInterpreter python;
 
@@ -175,10 +185,22 @@ class JythonScriptSupport implements AutoCloseable
      */
     public Future<Object> submit(final JythonScript script, final Widget widget, final PV... pvs)
     {
+        // Skip script that's already in the queue.
+        // Check-then-set, no atomic submit-unless-queued logic.
+        // Might still add some scripts twice, but good enough.
+        if (queued_scripts.contains(script))
+        {
+            logger.log(Level.FINE, "Skipping script {0}, already queued for execution", script);
+            return null;
+        }
+        queued_scripts.add(script);
+
         // System.out.println("Submit on " + Thread.currentThread().getName());
         return support.submit(() ->
         {
             // System.out.println("Executing " + script + " on " + Thread.currentThread().getName());
+            // Script may be queued again
+            queued_scripts.remove(script);
             try
             {
                 // Executor is single-threaded.
@@ -191,7 +213,7 @@ class JythonScriptSupport implements AutoCloseable
             }
             catch (final Throwable ex)
             {
-                logger.log(Level.WARNING, "Execution of '" + script.getName() + "' failed", ex);
+                logger.log(Level.WARNING, "Execution of '" + script + "' failed", ex);
             }
             // System.out.println("Finished " + script);
             return null;

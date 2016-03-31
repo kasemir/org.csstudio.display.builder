@@ -9,7 +9,10 @@ package org.csstudio.display.builder.runtime.script;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,6 +32,11 @@ import org.csstudio.vtype.pv.PV;
 @SuppressWarnings("nls")
 class JavaScriptSupport
 {
+    private final static Logger logger = Logger.getLogger(JavaScriptSupport.class.getName());
+
+    // See comments on queued_scripts in JythonScriptSupport
+    private final Set<JavaScript> queued_scripts = Collections.newSetFromMap(new ConcurrentHashMap<JavaScript, Boolean>());
+
     private final ScriptSupport support;
     private final ScriptEngine engine;
     private final Bindings bindings;
@@ -64,9 +72,16 @@ class JavaScriptSupport
      */
     public Future<Object> submit(final JavaScript script, final Widget widget, final PV... pvs)
     {
+        if (queued_scripts.contains(script))
+        {
+            logger.log(Level.FINE, "Skipping script {0}, already queued for execution", script);
+            return null;
+        }
+        queued_scripts.add(script);
+
         return support.submit(() ->
         {
-            // System.out.println("Execute on " + Thread.currentThread().getName());
+            queued_scripts.remove(script);
             try
             {
                 bindings.put("widget", widget);
@@ -75,9 +90,7 @@ class JavaScriptSupport
             }
             catch (final Throwable ex)
             {
-                Logger.getLogger(JythonScriptSupport.class.getName())
-                    .log(Level.WARNING,
-                         "Execution of '" + script.getName() + "' failed", ex);
+                logger.log(Level.WARNING, "Execution of '" + script + "' failed", ex);
             }
             return null;
         });
