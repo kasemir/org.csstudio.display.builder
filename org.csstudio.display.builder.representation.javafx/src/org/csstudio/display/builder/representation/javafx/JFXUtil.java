@@ -58,7 +58,7 @@ public class JFXUtil
      */
     public static String webRGB(final WidgetColor color)
     {
-        return String.format("#%02X%02X%02X",  color.getRed(), color.getGreen(), color.getBlue());
+        return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
     }
 
     /** Convert JFX color into model color

@@ -16,7 +16,7 @@ import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
 import org.csstudio.display.builder.rcp.Messages;
 import org.csstudio.display.builder.rcp.OpenDisplayAction;
-import org.csstudio.display.builder.rcp.Plugin;
+import org.csstudio.display.builder.rcp.Preferences;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
@@ -31,7 +31,7 @@ public class TopDisplaysMenu extends CompoundContributionItem
 {
     private static List<IAction> createDisplayActions() throws Exception
     {
-        final String setting = Plugin.getPreference("top_displays", "");
+        final String setting = Preferences.getTopDisplays();
         final List<DisplayInfo> displays = DisplayInfoXMLUtil.fromDisplaysXML(setting);
         final List<IAction> actions = new ArrayList<>(displays.size());
         displays.forEach(info -> actions.add(new OpenDisplayAction(info)));

@@ -38,7 +38,7 @@ Dependencies
  * As Eclipse Preferences, Plugin Development, Target platform, use a CS-Studio target.
    For example, use the current IDE and add a "Directory" pointing to a CSS product's `plugins/` directory.
  * In product start config, add VM options
-   `-Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi  -Dpython.import.site=false`
+   `-Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`
  * Demos use EPICS `softIoc` for `org.csstudio.display.builder.runtime.test/examples/demo.db`
  * Install the "Liberation" fonts from https://fedorahosted.org/liberation-fonts.
    Mac OS X: Double-click each *.ttf to preview, then click "Install Font".
@@ -281,12 +281,20 @@ Linux: RuntimeDemo 10% CPU, CSS 20% CPU.
 JavaFX Issues
 -------------
 
+The default style sheet for JavaFX applications is modena.css, which is found in the JavaFX runtime JAR file, jfxrt.jar.
+This style sheet defines styles for the root node and the UI controls.
+To view this file, go to /jre/lib/ext directory of the Java Development Kit (JDK)
+and extract the style sheet from the JAR file:
+
+    jar xf jfxrt.jar com/sun/javafx/scene/control/skin/modena/modena.css
+
 To debug the Scene Graph:
 * Download Scenic View 8 from http://fxexperience.com/scenic-view
 * Unpack
 * Add ScenicView.jar to the build path of org.csstudio.display.builder.representation.javafx
 * In JFXStageRepresentation:configureStage(), add
    ScenicView.show(scene)
+
 
 What base class to use for all widget representations?
 

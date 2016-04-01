@@ -7,14 +7,15 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.util.logging.Level;
+
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.util.VTypeUtil;
+import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
 
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
@@ -41,46 +42,23 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
     @Override
     public TextField createJFXNode() throws Exception
     {
-    	value_text = "<" + model_widget.behaviorPVName().getValue() + ">";
+    	value_text = computeText(null);
         final TextField text = new TextField();
         text.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
-        // TODO: Improve handling of 'active' and focus
-        // When a display is opened, one of the text fields likely has the focus.
+        // Initially used 'focus' to activate the widget, but
+        // when a display is opened, one of the text fields likely has the focus.
         // That widget will then NOT show any value, because we're active as if the
         // user just navigated into the field to edit it.
-        //
-        // Idea: Turn 'active' as soon as user types anything, including use of cursor keys.
-        // Just clicking into the field does not stop updates.
-
-        // Determine 'active' state (gain focus, entered first character)
-        text.focusedProperty().addListener((final ObservableValue<? extends Boolean> observable,
-                                            final Boolean old_value, final Boolean focus) ->
-        {
-            // Gain focus -> active. Loose focus -> restore
-            active = focus;
-            // This will restore the JFX control to the current value
-            // regardless if user 'entered' a new value, then looses
-            // focus, or just looses focus.
-            if (! focus)
-                restore();
-        });
+        // Now requiring key press, including use of cursor keys, to activate.
         text.setOnKeyPressed((final KeyEvent event) ->
         {
             switch (event.getCode())
             {
-            case SHIFT:
-            case ALT:
-            case CONTROL:
-                // Ignore modifier keys
-                break;
             case ESCAPE:
                 // Revert original value, leave active state
-                if (active)
-                {
-                    restore();
-                    active = false;
-                }
+                restore();
+                active = false;
                 break;
             case ENTER:
                 // Submit value, leave active state
@@ -107,8 +85,12 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
     /** Submit value entered by user */
     private void submit()
     {
+        // Strip 'units' etc. from text
         final String text = jfx_node.getText();
-        toolkit.fireWrite(model_widget, text);
+        final Object value = FormatOptionHandler.parse(model_widget.runtimeValue().getValue(), text);
+        logger.log(Level.FINE, "Writing '" + text + "' as " + value + " (" + value.getClass().getName() + ")");
+        toolkit.fireWrite(model_widget, value);
+
         // Wrote value. Expected is either
         // a) PV receives that value, PV updates to
         //    submitted value or maybe a 'clamped' value
@@ -140,7 +122,11 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
         model_widget.positionHeight().addUntypedPropertyListener(this::sizeChanged);
         model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayFont().addUntypedPropertyListener(this::styleChanged);
-        model_widget.runtimeValue().addPropertyListener(this::contentChanged);
+
+        model_widget.displayFormat().addUntypedPropertyListener(this::contentChanged);
+        model_widget.displayPrecision().addUntypedPropertyListener(this::contentChanged);
+        model_widget.displayShowUnits().addUntypedPropertyListener(this::contentChanged);
+        model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
     }
 
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -155,9 +141,22 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
         toolkit.scheduleUpdate(this);
     }
 
-    private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
+    /** @param value Current value of PV
+     *  @return Text to show, "<pv name>" if disconnected (no value)
+     */
+    private String computeText(final VType value)
     {
-        value_text = VTypeUtil.getValueString(new_value, true);
+        if (value == null)
+            return "<" + model_widget.behaviorPVName().getValue() + ">";
+        return FormatOptionHandler.format(value,
+                                          model_widget.displayFormat().getValue(),
+                                          model_widget.displayPrecision().getValue(),
+                                          model_widget.displayShowUnits().getValue());
+    }
+
+    private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        value_text = computeText(model_widget.runtimeValue().getValue());
         dirty_content.mark();
         if (! active)
             toolkit.scheduleUpdate(this);

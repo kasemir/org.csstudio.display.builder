@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Text Entry</name>
+  <x>-1</x>
+  <y>-1</y>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <width>241</width>
+    <height>31</height>
+    <text>Text Entry Widget</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <y>41</y>
+    <width>481</width>
+    <height>30</height>
+    <text>Displays the value of a PV as text and allows entering a new value.</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_2</name>
+    <y>91</y>
+    <width>181</width>
+    <text>Example:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_4</name>
+    <y>131</y>
+    <width>201</width>
+    <text>Can be configured to be ugly:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_6</name>
+    <y>261</y>
+    <width>111</width>
+    <text>Default:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_7</name>
+    <y>231</y>
+    <width>201</width>
+    <text>Formatting options:</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_8</name>
+    <y>291</y>
+    <width>161</width>
+    <text>Don't show units:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_9</name>
+    <y>321</y>
+    <width>191</width>
+    <text>Decimal w/ 2 digits:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_10</name>
+    <y>351</y>
+    <width>191</width>
+    <text>Exponential Notation:</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry</name>
+    <x>201</x>
+    <y>261</y>
+    <width>210</width>
+    <pv_name>sim://sine</pv_name>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_1</name>
+    <x>201</x>
+    <y>291</y>
+    <width>210</width>
+    <show_units>false</show_units>
+    <pv_name>sim://sine</pv_name>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_2</name>
+    <x>201</x>
+    <y>321</y>
+    <width>210</width>
+    <format>1</format>
+    <pv_name>sim://sine</pv_name>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_3</name>
+    <x>201</x>
+    <y>351</y>
+    <width>210</width>
+    <format>2</format>
+    <pv_name>sim://sine</pv_name>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_4</name>
+    <x>201</x>
+    <y>91</y>
+    <pv_name>loc://number(3.14)</pv_name>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_5</name>
+    <x>201</x>
+    <y>131</y>
+    <width>250</width>
+    <height>70</height>
+    <background_color>
+      <color red="255" green="255" blue="77">
+      </color>
+    </background_color>
+    <font>
+      <font name="Oddball" family="PakTypeNaqsh" style="REGULAR" size="40.0">
+      </font>
+    </font>
+    <pv_name>loc://number(3.14)</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_11</name>
+    <y>391</y>
+    <width>451</width>
+    <height>210</height>
+    <text>The text entry widget updates whenever the value of the
+associated PV changes.
+
+To permit editing, updates are suppressed as soon as one presses
+any key, including for example 'Alt', 'Control' or cursor keys, within
+the widget.
+
+Pressing 'Escape' or selecting a different widget aborts editing
+and restores the original value of the PV.
+
+Pressing 'Enter' confirms editing and writes the entered value to the PV.</text>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+  </widget>
+</display>

@@ -42,6 +42,9 @@ public class JFXStageRepresentation extends JFXRepresentation
         stage.setOnCloseRequest((WindowEvent event) -> handleCloseRequest(scene, close_request_handler));
         stage.show();
 
+        // If ScenicView.jar is added to classpath, open it here
+        // ScenicView.show(scene);
+
         return getSceneRoot(scene);
     }
 

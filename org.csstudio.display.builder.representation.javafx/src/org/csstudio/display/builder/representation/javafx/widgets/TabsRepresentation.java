@@ -33,6 +33,8 @@ import javafx.geometry.Side;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 
@@ -85,7 +87,9 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
     public TabPane createJFXNode() throws Exception
     {
         final TabPane tabs = new TabPane();
-//      tabs.setStyle("-fx-background-color: mediumaquamarine;");
+
+        // See 'twiddle' below
+        tabs.setStyle("-fx-background-color: lightgray;");
         tabs.getStyleClass().add(TabPane.STYLE_CLASS_FLOATING);
 
         tabs.setMinSize(TabPane.USE_PREF_SIZE, TabPane.USE_PREF_SIZE);
@@ -161,7 +165,7 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
             // 'Tab's are added with a Label as 'graphic'
             // because that label allows setting the font.
 
-            // XXX Quirk: Tabs will not show the label unless there's also a non-empty text
+            // Quirk: Tabs will not show the label unless there's also a non-empty text
             final Tab tab = new Tab(" ", content);
             final Label label = new Label(name);
             tab.setGraphic(label);
@@ -172,11 +176,6 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
             jfx_node.getTabs().add(tab);
 
             addChildren(index, item.children().getValue());
-
-            // XXX How to best set the background color?
-            // No API other than style sheet?
-            // tab.setStyle("-fx-background-color: green;");
-            // content.setStyle("-fx-background-color: green;");
 
             item.name().addPropertyListener(tab_title_listener);
             item.children().addPropertyListener(tab_children_listener);
@@ -229,7 +228,7 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
         final Point2D pane_bounds = pane.localToScene(0.0, 0.0);
         final int[] insets = new int[] { (int)(pane_bounds.getX() - tabs_bounds.getX()),
                                          (int)(pane_bounds.getY() - tabs_bounds.getY()) };
-        logger.log(Level.WARNING, "Insets: " + Arrays.toString(insets));
+        logger.log(Level.INFO, "Insets: " + Arrays.toString(insets));
         if (insets[0] < 0  ||  insets[1] < 0)
         {
             logger.log(Level.WARNING, "Inset computation failed: TabPane at " + tabs_bounds + ", content pane at " + pane_bounds);
@@ -242,12 +241,51 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
     public void updateChanges()
     {
         super.updateChanges();
+
         if (dirty_layout.checkAndClear())
         {
+            // How to best set colors?
+            // Content Pane can be set in API, but Tab has no usable 'set color' API.
+            // TabPane has setBackground(), but in "floating" style that would be
+            // the background behind the tabs, which is usually transparent.
+            // modena.css of JDK8 reveals a structure of sub-items which are shaded with gradients based
+            // on  -fx-color for the inactive tabs,
+            //     -fx-outer-border and -fx-inner-border for the, well, border,
+            // and -fx-background for the selected tab,
+            // so re-define those.
+            final String bg = JFXUtil.webRGB(model_widget.displayBackgroundColor().getValue());
+            final String style = "-fx-color: derive(" + bg + ", 50%);" +
+                                 "-fx-outer-border: derive(" + bg + ", -23%);" +
+                                 "-fx-inner-border: linear-gradient(to bottom," +
+                                 "ladder(" + bg + "," +
+                                 "       derive(" + bg + ",30%) 0%," +
+                                 "       derive(" + bg + ",20%) 40%," +
+                                 "       derive(" + bg + ",25%) 60%," +
+                                 "       derive(" + bg + ",55%) 80%," +
+                                 "       derive(" + bg + ",55%) 90%," +
+                                 "       derive(" + bg + ",75%) 100%" +
+                                 ")," +
+                                 "ladder(" + bg + "," +
+                                 "       derive(" + bg + ",20%) 0%," +
+                                 "       derive(" + bg + ",10%) 20%," +
+                                 "       derive(" + bg + ",5%) 40%," +
+                                 "       derive(" + bg + ",-2%) 60%," +
+                                 "       derive(" + bg + ",-5%) 100%" +
+                                 "));" +
+                                 "-fx-background: " + bg + ";";
+
+            final Background background = new Background(new BackgroundFill(JFXUtil.convert(model_widget.displayBackgroundColor().getValue()), null, null));
+
             for (Tab tab : jfx_node.getTabs())
             {   // Set the font of the 'graphic' that's used to represent the tab
                 final Label label = (Label) tab.getGraphic();
                 label.setFont(tab_font);
+
+                // Set colors
+                tab.setStyle(style);
+
+                final Pane content  = (Pane) tab.getContent();
+                content.setBackground(background);
             }
 
             final Integer width = model_widget.positionWidth().getValue();
@@ -255,28 +293,39 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
             jfx_node.setPrefSize(width, height);
             jfx_node.setTabMinHeight(model_widget.displayTabHeight().getValue());
 
-            // XXX Force TabPane refresh. Imperfect; works most of the time.
-            // See org.csstudio.display.builder.representation.javafx.sandbox.TabDemo
-            final Callable<Object> twiddle = () ->
-            {
-                Thread.sleep(500);
-                Platform.runLater(() ->
-                {
-                    jfx_node.setSide(Side.BOTTOM);
-                    if (model_widget.displayDirection().getValue() == Direction.HORIZONTAL)
-                        jfx_node.setSide(Side.TOP);
-                    else
-                        jfx_node.setSide(Side.LEFT);
-                });
-                Thread.sleep(500);
-                Platform.runLater(() ->
-                {   // Insets computation only possible once TabPane is properly displayed.
-                    // Until then, content Pane will report position as 0,0.
-                    computeInsets();
-                });
-                return null;
-            };
-            ModelThreadPool.getExecutor().submit(twiddle);
+            refreshHack();
         }
+    }
+
+    /** Force TabPane refresh */
+    private void refreshHack()
+    {
+        // Imperfect; works most of the time.
+        // See org.csstudio.display.builder.representation.javafx.sandbox.TabDemo
+        // for the setSide hack.
+        // In addition, if TabPane is the _only_ widget, it will not show
+        // unless the background style is initially set to something.
+        // OK to then clear the style later, i.e. in here.
+        final Callable<Object> twiddle = () ->
+        {
+            Thread.sleep(500);
+            Platform.runLater(() ->
+            {
+                jfx_node.setStyle("");
+                jfx_node.setSide(Side.BOTTOM);
+                if (model_widget.displayDirection().getValue() == Direction.HORIZONTAL)
+                    jfx_node.setSide(Side.TOP);
+                else
+                    jfx_node.setSide(Side.LEFT);
+            });
+            Thread.sleep(500);
+            Platform.runLater(() ->
+            {   // Insets computation only possible once TabPane is properly displayed.
+                // Until then, content Pane will report position as 0,0.
+                computeInsets();
+            });
+            return null;
+        };
+        ModelThreadPool.getExecutor().submit(twiddle);
     }
 }

@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.model;
+package org.csstudio.display.builder.runtime;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
@@ -17,15 +17,15 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 @SuppressWarnings("nls")
 public class Preferences
 {
-    public static final String READ_TIMEOUT = "read_timeout";
+    public static final String PYTHON_PATH = "python_path";
 
-    /** @return Read timeout [ms] */
-    public static int getReadTimeout()
+    /** @return Python path */
+    public static String getPythonPath()
     {
-        int timeout = 10000;
+        String path = "";
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs != null)
-            timeout = prefs.getInt(ModelPlugin.ID, READ_TIMEOUT, timeout, null);
-        return timeout;
+            path = prefs.getString(RuntimePlugin.ID, PYTHON_PATH, path, null);
+        return path;
     }
 }

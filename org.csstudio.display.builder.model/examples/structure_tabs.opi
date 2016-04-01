@@ -261,7 +261,7 @@
     <width>491</width>
     <height>210</height>
     <text>Tabs are useful when users need to quickly and frequently
-swtich between related content, because widgets in all tabs
+switch between related content, because widgets in all tabs
 are always 'active'.
 They remain connected to PVs, their scripts will continue to execute,
 even while a tab is not visible.
