@@ -43,12 +43,14 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     private static final String ACTIVE_MODEL = "_active_model";
     private final Display display;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public SWTRepresentation(final Display display)
     {
         this.display = display;
+    }
 
-        // TODO Load available widget representation from registry
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    protected void initialize()
+    {
         register(ActionButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new ActionButtonRepresentation());
         register(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new EmbeddedDisplayRepresentation());
         register(GroupWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new GroupRepresentation());

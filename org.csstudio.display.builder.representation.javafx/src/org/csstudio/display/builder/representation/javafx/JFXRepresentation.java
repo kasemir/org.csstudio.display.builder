@@ -9,8 +9,6 @@ package org.csstudio.display.builder.representation.javafx;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -119,43 +117,30 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     /** Zoom to fit display's height */
     public static final double ZOOM_HEIGHT = -2.0;
 
-    /** Cached map of widget ID to representation factory */
-    // TODO Use a boolean is_initialized instead of keeping complete hash
-    private static final Map<String, WidgetRepresentationFactory<Parent, Node>> factories = new HashMap<>();
-
-    /** Construct new JFX representation */
-    public JFXRepresentation()
+    protected void initialize()
     {
-        // Parse registry only once, not for every instance of the JFX toolkit
-        final Set<Entry<String, WidgetRepresentationFactory<Parent, Node>>> entries;
-        synchronized (factories)
-        {
-            if (factories.isEmpty())
+        final Map<String, WidgetRepresentationFactory<Parent, Node>> factories = new HashMap<>();
+        registerKnownRepresentations(factories);
+        final IExtensionRegistry registry = RegistryFactory.getRegistry();
+        if (registry != null)
+        {   // Load available representations from registry,
+            // which allows other plugins to contribute new widgets.
+            final Logger logger = Logger.getLogger(getClass().getName());
+            for (IConfigurationElement config : registry.getConfigurationElementsFor(WidgetRepresentation.EXTENSION_POINT))
             {
-                registerKnownRepresentations();
-                final IExtensionRegistry registry = RegistryFactory.getRegistry();
-                if (registry != null)
-                {   // Load available representations from registry,
-                    // which allows other plugins to contribute new widgets.
-                    final Logger logger = Logger.getLogger(getClass().getName());
-                    for (IConfigurationElement config : registry.getConfigurationElementsFor(WidgetRepresentation.EXTENSION_POINT))
-                    {
-                        final String type = config.getAttribute("type");
-                        final String clazz = config.getAttribute("class");
-                        logger.log(Level.CONFIG, "{0} contributes {1}", new Object[] { config.getContributor().getName(), clazz });
-                        factories.put(type, createFactory(config));
-                    }
-                }
+                final String type = config.getAttribute("type");
+                final String clazz = config.getAttribute("class");
+                logger.log(Level.CONFIG, "{0} contributes {1}", new Object[] { config.getContributor().getName(), clazz });
+                factories.put(type, createFactory(config));
             }
-            entries = factories.entrySet();
         }
-        for (Map.Entry<String, WidgetRepresentationFactory<Parent, Node>> entry : entries)
+        for (Map.Entry<String, WidgetRepresentationFactory<Parent, Node>> entry : factories.entrySet())
             register(entry.getKey(), entry.getValue());
     }
 
     /** Add known representations as fallback in absence of registry information */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static void registerKnownRepresentations()
+    private static void registerKnownRepresentations(Map<String, WidgetRepresentationFactory<Parent, Node>> factories)
     {
         factories.put(ActionButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ActionButtonRepresentation());
         factories.put(ArcWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ArcRepresentation());
