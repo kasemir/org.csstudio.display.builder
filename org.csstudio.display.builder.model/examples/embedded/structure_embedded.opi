@@ -125,8 +125,8 @@ then shows several motors via the Embedded Display Widget:</text>
       <M>XPos</M>
     </macros>
     <y>481</y>
-    <width>300</width>
-    <height>200</height>
+    <width>320</width>
+    <height>210</height>
     <file>motor.opi</file>
   </widget>
   <widget type="embedded" version="2.0.0">
@@ -136,8 +136,8 @@ then shows several motors via the Embedded Display Widget:</text>
     </macros>
     <x>310</x>
     <y>481</y>
-    <width>300</width>
-    <height>200</height>
+    <width>320</width>
+    <height>210</height>
     <file>motor.opi</file>
   </widget>
   <widget type="label" version="2.0.0">
@@ -155,8 +155,8 @@ and not likely to be useful in an operational display.</text>
   <widget type="embedded" version="2.0.0">
     <name>Embedded Display</name>
     <y>801</y>
-    <width>300</width>
-    <height>200</height>
+    <width>320</width>
+    <height>210</height>
     <scripts>
       <script file="update_display.py">
         <pv_name>sim://ramp(0, 2, 2)</pv_name>
