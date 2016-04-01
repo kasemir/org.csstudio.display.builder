@@ -7,11 +7,15 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
 
 import java.util.List;
 
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 
 /** Display Model.
@@ -43,6 +47,7 @@ public class DisplayModel extends Widget
     public static final String USER_DATA_EMBEDDING_WIDGET = "_embedding_widget";
 
     private volatile WidgetProperty<Macros> macros;
+    private volatile WidgetProperty<WidgetColor> background;
     private volatile ChildrenProperty children;
 
     /** Create display model */
@@ -56,6 +61,7 @@ public class DisplayModel extends Widget
     {
         super.defineProperties(properties);
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
+        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(children = new ChildrenProperty(this));
     }
 
@@ -99,5 +105,11 @@ public class DisplayModel extends Widget
             // return Macros.merge(Preferences.getMacros(), my_macros);
             return my_macros;
         }
+    }
+
+    /** @return Display 'background_color' */
+    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    {
+        return background;
     }
 }

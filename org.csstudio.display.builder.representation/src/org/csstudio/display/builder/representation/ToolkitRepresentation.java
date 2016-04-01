@@ -26,10 +26,15 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 
 /** Representation for a toolkit.
  *
- *  <p>Creates toolkit items for model widgets.
+ *  <p>Each 'window' or related display part that represents
+ *  a display model holds one instance of the toolkit.
+ *
+ *  <p>The toolkit maintains information about the part
+ *  and creates toolkit items for model widgets within the part.
  *
  *  <p>Some toolkits (SWT) require a parent for each item,
  *  while others (JavaFX) can create items which are later
@@ -44,12 +49,18 @@ import org.csstudio.display.builder.model.properties.ActionInfo;
 @SuppressWarnings("nls")
 abstract public class ToolkitRepresentation<TWP extends Object, TW> implements Executor
 {
-    protected final Logger logger = Logger.getLogger(getClass().getName());
+    protected final static Logger logger = Logger.getLogger(ToolkitRepresentation.class.getName());
+
+    private static boolean initialized = false;
+
+    /** Factories for representations based on widget type.
+     *
+     *  Holding WidgetRepresentationFactory<TWP, TW>,
+     *  but static to prevent duplicates and thus loosing the type info
+     */
+    private final static Map<String, WidgetRepresentationFactory<?, ?>> factories = new ConcurrentHashMap<>();
 
     private final UpdateThrottle throttle = new UpdateThrottle(this);
-
-    /** Factories for representations based on widget type */
-    private final Map<String, WidgetRepresentationFactory<TWP, TW>> factories = new ConcurrentHashMap<>();
 
     /** Listener list */
     private final List<ToolkitListener> listeners = new CopyOnWriteArrayList<>();
@@ -74,6 +85,29 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
             }
     };
 
+    /** Update background color */
+    private WidgetPropertyListener<WidgetColor> back_color_listener = (property, old_color, new_color) ->
+    {
+        execute(() -> setBackground(new_color));
+    };
+
+
+    /** Constructor */
+    public ToolkitRepresentation()
+    {
+        synchronized (ToolkitRepresentation.class)
+        {
+            if (! initialized)
+            {
+                initialize();
+                initialized = true;
+            }
+        }
+    }
+
+    /** Register available representations */
+    abstract protected void initialize();
+
     /** Register the toolkit's representation of a model widget
      *
      *  @param widget_type {@link Widget} type ID
@@ -86,11 +120,11 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     }
 
     /** Obtain the toolkit used to represent widgets
-    *
-    *  @param model {@link DisplayModel}
-    *  @return ToolkitRepresentation
-    *  @throws NullPointerException if toolkit not set
-    */
+     *
+     *  @param model {@link DisplayModel}
+     *  @return ToolkitRepresentation
+     *  @throws NullPointerException if toolkit not set
+     */
     public static <TWP, TW> ToolkitRepresentation<TWP, TW> getToolkit(final DisplayModel model) throws NullPointerException
     {
         final ToolkitRepresentation<TWP, TW> toolkit = model.getUserData(DisplayModel.USER_DATA_TOOLKIT);
@@ -118,6 +152,9 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     abstract public TWP openNewWindow(DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception;
 
+    /** @param color Background color to use for the overall window */
+    abstract public void setBackground(WidgetColor color);
+
     /** Create toolkit widgets for a display model.
      *
      *  @param parent Toolkit parent (Pane, Container, ..)
@@ -132,12 +169,17 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         // Attach toolkit
         model.setUserData(DisplayModel.USER_DATA_TOOLKIT, this);
 
+        setBackground(model.displayBackgroundColor().getValue());
+
         // DisplayModel itself is _not_ represented,
         // but all its children, recursively
         representChildren(parent, model, model.runtimeChildren());
 
         logger.log(Level.FINE, "Tracking changes to children of {0}", model);
         model.runtimeChildren().addPropertyListener(container_children_listener);
+
+        // Listen to model background
+        model.displayBackgroundColor().addPropertyListener(back_color_listener);
     }
 
     /** Create representation for each child of a ContainerWidget
@@ -164,7 +206,8 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     public void representWidget(final TWP parent, final Widget widget)
     {
-        final WidgetRepresentationFactory<TWP, TW> factory = factories.get(widget.getType());
+        @SuppressWarnings("unchecked")
+        final WidgetRepresentationFactory<TWP, TW> factory = (WidgetRepresentationFactory<TWP, TW>) factories.get(widget.getType());
         if (factory == null)
         {
             logger.log(Level.SEVERE, "Lacking representation for " + widget.getType());
@@ -203,6 +246,8 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     {
         final TWP parent = disposeChildren(model, model.runtimeChildren());
         model.clearUserData(DisplayModel.USER_DATA_TOOLKIT);
+
+        model.displayBackgroundColor().removePropertyListener(back_color_listener);
 
         logger.log(Level.FINE, "No longer tracking changes to children of {0}", model);
         model.runtimeChildren().removePropertyListener(container_children_listener);

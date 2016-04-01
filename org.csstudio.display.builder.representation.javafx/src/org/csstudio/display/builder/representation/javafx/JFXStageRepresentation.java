@@ -37,7 +37,8 @@ public class JFXStageRepresentation extends JFXRepresentation
         stage.setX(model.positionX().getValue());
         stage.setY(model.positionY().getValue());
 
-        final Scene scene = createScene();
+        final Scene scene = new Scene(createModelRoot());
+        setSceneStyle(scene);
         stage.setScene(scene);
         stage.setOnCloseRequest((WindowEvent event) -> handleCloseRequest(scene, close_request_handler));
         stage.show();
@@ -45,7 +46,7 @@ public class JFXStageRepresentation extends JFXRepresentation
         // If ScenicView.jar is added to classpath, open it here
         // ScenicView.show(scene);
 
-        return getSceneRoot(scene);
+        return getModelParent();
     }
 
     @Override
@@ -58,7 +59,7 @@ public class JFXStageRepresentation extends JFXRepresentation
     private void handleCloseRequest(final Scene scene,
                                     final Consumer<DisplayModel> close_request_handler)
     {
-        final Parent root = getSceneRoot(scene);
+        final Parent root = getModelParent();
         final DisplayModel model = (DisplayModel) root.getProperties().get(ACTIVE_MODEL);
 
         try

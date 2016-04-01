@@ -137,8 +137,9 @@ public class RuntimeViewPart extends ViewPart
         fx_canvas = new FXCanvas(parent, SWT.NONE);
 
         representation = new RCP_JFXRepresentation();
-        final Scene scene = representation.createScene();
-        root = representation.getSceneRoot(scene);
+        final Scene scene = new Scene(representation.createModelRoot());
+        JFXRepresentation.setSceneStyle(scene);
+        root = representation.getModelParent();
         root.getProperties().put(ROOT_RUNTIME_VIEW_PART, this);
         fx_canvas.setScene(scene);
 
@@ -158,8 +159,7 @@ public class RuntimeViewPart extends ViewPart
 	 */
 	public double setZoom(final double zoom)
     {
-        final Scene scene = fx_canvas.getScene();
-        return representation.setSceneZoom(scene, zoom);
+        return representation.setZoom(zoom);
     }
 
     @Override
