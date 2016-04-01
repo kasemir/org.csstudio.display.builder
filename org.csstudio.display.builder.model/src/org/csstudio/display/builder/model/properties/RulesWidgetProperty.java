@@ -11,8 +11,11 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -64,7 +67,67 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
             throw new Exception("Need RuleInfo[], got " + value);
     }
 
-    public static String generateJS(final Widget attached_widget, final RuleInfo rule)
+
+    public static Map<String,String> pvNameOptions(String istr)
+    {
+    	Map<String,String> pvm = new HashMap<String,String>();
+    	
+    	pvm.put("pv" + istr, "PVUtil.getDouble(pvs["+istr+"])"  );
+    	pvm.put("pvReal" + istr, "PVUtil.getDouble(pvs["+istr+"])"  );
+    	pvm.put("pvInt" + istr, "PVUtil.getLong(pvs["+istr+"])"  );
+    	pvm.put("pvLong" + istr, "PVUtil.getLong(pvs["+istr+"])"  );
+    	pvm.put("pvStr" + istr, "PVUtil.getString(pvs["+istr+"])"  );
+    	//pvm.put("pvLabels" + istr, "PVUtil.getLabels(pvs["+istr+"])"  );
+    	
+    	return pvm;
+    }
+    
+    public static Map<String,String> pvNameOptions(int pvCount)
+    {
+        Map<String,String> pvm = new HashMap<String,String>();
+        
+        for (int idx = 0; idx < pvCount; idx++)
+        {
+        	String istr = String.valueOf(idx);
+        	pvm.putAll(pvNameOptions(istr));
+        }
+        
+        return pvm;
+    }
+
+    private enum PropFormat {
+        NUMERIC, BOOLEAN, STRING, COLOR
+    }
+    
+    private static String formatPropVal(WidgetProperty<?> prop, int exprIDX, PropFormat pform)
+    {
+    	String ret = null;
+    	
+    	switch(pform)
+    	{
+    	case NUMERIC:
+    		ret = String.valueOf(prop.getValue());
+    		break;
+    	case BOOLEAN:
+    		ret = (Boolean) prop.getValue() ? "True" : "False";
+    		break;
+    	case STRING:
+    		ret = "\"" + prop.getValue() + "\"";
+    		break;
+    	case COLOR:
+    		if (exprIDX >= 0) {
+    			ret = "colorVal" + String.valueOf(exprIDX);
+    		}
+    		else {
+    			ret = "colorCurrent";
+    		}
+    		break;
+    	}
+    	
+    	return ret;
+    }
+
+    public static String generatePy(final Widget attached_widget, final RuleInfo rule)
     {
         WidgetProperty<?> prop = attached_widget.getProperty(rule.getPropID());
         //Now we have a property. There is a big selection statement under PropertyPanelSection.createUI that shows
@@ -82,11 +145,92 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
         //Then, the only problem is getting the right WidgetProperty<?> object made when we read from XML
         //So just declare a prop like above, pull the property, copy it into the RuleInfo, then reset value from XML
 
-        String script_str = "";
+        PropFormat pform = PropFormat.STRING;
+
+        if (prop.getDefaultValue() instanceof Number)
+        {
+            pform = PropFormat.NUMERIC;
+        }
+        else if (prop.getDefaultValue() instanceof Boolean)
+        {
+            pform = PropFormat.BOOLEAN;
+        }
+        else if (prop.getDefaultValue() instanceof WidgetColor)
+        {
+            pform = PropFormat.COLOR;
+        }
+
+        String script_str = "## Script for Rule: " + rule.getName() + "\n\n";
+
+        script_str += "from org.csstudio.display.builder.runtime.script import PVUtil\n";
+        if (pform == PropFormat.COLOR)
+        {
+            script_str += "from org.csstudio.display.builder.model.properties import WidgetColor\n";
+        }
+        
+        script_str += "\n## Process variable extraction\n";
+        
+        Map<String,String> pvm = pvNameOptions(rule.getPVs().size());
+        for (ExpressionInfo<?> expr : rule.getExpressions())
+        {
+        	String[] toks = expr.getBoolExp().split("\\s");
+        	for (String tok : toks)
+        	{
+        		String mapping = pvm.get(tok);
+        		if (mapping != null)
+        		{
+        			script_str += tok + " = " + mapping + "\n";
+        		}
+        		
+        	}
+        }
+        
+        if (pform == PropFormat.COLOR)
+        {
+        	script_str += "\n## Define Colors\n";
+        	WidgetColor col = (WidgetColor) prop.getValue();
+        	script_str += "colorCurrent = "
+                       + "WidgetColor(" + String.valueOf(col.getRed()) 
+     			       + ", " + String.valueOf(col.getGreen())
+     			       + ", " + String.valueOf(col.getBlue()) + ")\n";
+        	
+        	int idx = 0;
+            for (ExpressionInfo<?> expr : rule.getExpressions())
+            {
+            	col = ((WidgetProperty<WidgetColor>) expr.getValExp()).getValue();
+            	script_str += "colorVal" + String.valueOf(idx) + " = "
+                           + "WidgetColor(" + String.valueOf(col.getRed()) 
+            			   + ", " + String.valueOf(col.getGreen())
+            			   + ", " + String.valueOf(col.getBlue()) + ")\n";
+            	idx++;
+            }
+        }
+        
+        script_str += "\n## Script Body\n";
+        
+        String setPropStr = "widget.setPropertyValue( \"" + rule.getPropID() + "\", ";
+        int idx = 0;
+        for (ExpressionInfo<?> expr : rule.getExpressions())
+        {
+        	script_str += (idx == 0) ? "if" : "elif";
+        	script_str += " (" + expr.getBoolExp() + "):\n";
+        	script_str += "    " + setPropStr;
+        	if (rule.getOutputExprFlag())
+        	{
+        		script_str += expr.getValExp() + " )\n";
+        	}
+        	else
+        	{
+        		script_str += formatPropVal((WidgetProperty<?>) expr.getValExp(), idx, pform) + " )\n";
+        	}
+        }
+        script_str += "else:\n";
+        script_str += setPropStr + formatPropVal(prop, -1, pform) + " )\n";
+
         return script_str;
     }
 
-    public String generateJS(String rulename)
+    public String generatePy(String rulename)
     {
         RuleInfo found_rule = null;
 
@@ -98,13 +242,13 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
                 break;
             }
         }
-        
+
         if (found_rule == null)
         {
         	return "No such rule: " + rulename;
         }
 
-        return generateJS(this.getWidget(), found_rule);
+        return generatePy(this.getWidget(), found_rule);
     }
 
     @Override

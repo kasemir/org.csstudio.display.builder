@@ -66,11 +66,6 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
     @Override
     public WidgetProperty<T> clone()
     {
-        Class<?>[] cArg = new Class[3];
-        cArg[0] = descriptor.getClass();
-        cArg[1] = widget.getClass();
-        cArg[2] = default_value.getClass();
-
         WidgetProperty<T> ret = null;
 
         //ret = this.getClass().getDeclaredConstructor(cArg).newInstance(descriptor, widget, default_value);

@@ -301,6 +301,12 @@ public class Widget
     {
         return scripts;
     }
+    
+    /** @return Behavior 'rules' */
+    public WidgetProperty<List<RuleInfo>> behaviorRules()
+    {
+        return rules;
+    }
 
     /** Obtain configurator.
      *

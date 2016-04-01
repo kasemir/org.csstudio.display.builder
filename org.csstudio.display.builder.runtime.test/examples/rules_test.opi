@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display typeId="org.csstudio.opibuilder.Display" version="1.0.0">
+  <actions hook="false" hook_all="false" />
+  <auto_scale_widgets>
+    <auto_scale_widgets>true</auto_scale_widgets>
+    <min_width>-1</min_width>
+    <min_height>-1</min_height>
+  </auto_scale_widgets>
+  <auto_zoom_to_fit_all>false</auto_zoom_to_fit_all>
+  <background_color>
+    <color red="240" green="240" blue="240" />
+  </background_color>
+  <boy_version>5.1.0.qualifier</boy_version>
+  <foreground_color>
+    <color red="192" green="192" blue="192" />
+  </foreground_color>
+  <grid_space>4</grid_space>
+  <height>600</height>
+  <macros>
+    <include_parent_macros>true</include_parent_macros>
+  </macros>
+  <name>Script</name>
+  <rules />
+  <scripts />
+  <show_close_button>true</show_close_button>
+  <show_edit_range>true</show_edit_range>
+  <show_grid>false</show_grid>
+  <show_ruler>false</show_ruler>
+  <snap_to_geometry>true</snap_to_geometry>
+  <widget_type>Display</widget_type>
+  <width>800</width>
+  <wuid>6cc102d7:13895a319f6:-7d55</wuid>
+  <x>-1</x>
+  <y>-1</y>
+  <widget typeId="org.csstudio.opibuilder.widgets.LED" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <alarm_pulsing>false</alarm_pulsing>
+    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
+    <background_color>
+      <color red="240" green="240" blue="240" />
+    </background_color>
+    <bit>0</bit>
+    <border_alarm_sensitive>true</border_alarm_sensitive>
+    <border_color>
+      <color red="0" green="128" blue="255" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <bulb_border>3</bulb_border>
+    <bulb_border_color>
+      <color red="150" green="150" blue="150" />
+    </bulb_border_color>
+    <data_type>0</data_type>
+    <effect_3d>true</effect_3d>
+    <enabled>true</enabled>
+    <font>
+      <opifont.name fontName=".Helvetica Neue DeskInterface" height="13" style="0">Default</opifont.name>
+    </font>
+    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
+    <foreground_color>
+      <color red="0" green="0" blue="0" />
+    </foreground_color>
+    <height>26</height>
+    <name>LED</name>
+    <off_color>
+      <color name="Off" red="60" green="100" blue="60" />
+    </off_color>
+    <off_label>OFF</off_label>
+    <on_color>
+      <color name="On" red="0" green="255" blue="0" />
+    </on_color>
+    <on_label>ON</on_label>
+    <pv_name></pv_name>
+    <pv_value />
+    <rules>
+      <rule name="LEDRule_OnColor" prop_id="on_color" out_exp="false">
+        <exp bool_exp="pv0 == 1">
+          <value>
+            <color red="0" green="255" blue="0" />
+          </value>
+        </exp>
+        <exp bool_exp="pv0 == 2">
+          <value>
+            <color name="Major" red="255" green="0" blue="0" />
+          </value>
+        </exp>
+        <exp bool_exp="pv1 == 3">
+          <value>
+            <color red="0" green="119" blue="255" />
+          </value>
+        </exp>
+        <pv trig="true">sim://ramp(1,3,1)</pv>
+      </rule>
+      <rule name="LEDRule_OutExp" prop_id="off_color" out_exp="true">
+        <exp bool_exp="pv0 == 1">
+          <value>doggy</value>
+        </exp>
+        <pv trig="true">loc://test1</pv>
+      </rule>
+    </rules>
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>true</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <show_boolean_label>false</show_boolean_label>
+    <square_led>false</square_led>
+    <tooltip>$(pv_name)
+$(pv_value)</tooltip>
+    <visible>true</visible>
+    <widget_type>LED</widget_type>
+    <width>26</width>
+    <wuid>53a9f159:1539f3bba09:-7f95</wuid>
+    <x>49</x>
+    <y>60</y>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Rectangle" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <alarm_pulsing>false</alarm_pulsing>
+    <alpha>255</alpha>
+    <anti_alias>true</anti_alias>
+    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
+    <background_color>
+      <color red="30" green="144" blue="255" />
+    </background_color>
+    <bg_gradient_color>
+      <color red="255" green="255" blue="255" />
+    </bg_gradient_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <border_color>
+      <color red="0" green="128" blue="255" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <fg_gradient_color>
+      <color red="255" green="255" blue="255" />
+    </fg_gradient_color>
+    <fill_level>0.0</fill_level>
+    <font>
+      <opifont.name fontName=".Helvetica Neue DeskInterface" height="13" style="0">Default</opifont.name>
+    </font>
+    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
+    <foreground_color>
+      <color red="255" green="0" blue="0" />
+    </foreground_color>
+    <gradient>false</gradient>
+    <height>46</height>
+    <horizontal_fill>true</horizontal_fill>
+    <line_color>
+      <color red="128" green="0" blue="255" />
+    </line_color>
+    <line_style>0</line_style>
+    <line_width>0</line_width>
+    <name>Rectangle</name>
+    <pv_name></pv_name>
+    <pv_value />
+    <rules>
+      <rule name="RectRule_Width" prop_id="width" out_exp="false">
+        <exp bool_exp="pv0 &lt; 20">
+          <value>20</value>
+        </exp>
+        <exp bool_exp="pv1 &gt; 100">
+          <value>100</value>
+        </exp>
+        <exp bool_exp="pvStr1 == &quot;Hello&quot;">
+          <value>75</value>
+        </exp>
+        <pv trig="false">loc://test1</pv>
+        <pv trig="true">loc://test2</pv>
+        <pv trig="true">loc://teststr</pv>
+      </rule>
+      <rule name="RectRule_Visible" prop_id="visible" out_exp="false">
+        <exp bool_exp="pv0 &gt; 0">
+          <value>true</value>
+        </exp>
+        <pv trig="true">loc://test1</pv>
+      </rule>
+      <rule name="RectRule_TT" prop_id="tooltip" out_exp="false">
+        <exp bool_exp="pv0 == 0">
+          <value>This is a tooltip</value>
+        </exp>
+        <pv trig="true">loc://test0</pv>
+      </rule>
+      <rule name="RectRule_Color" prop_id="background_color" out_exp="false">
+        <exp bool_exp="pv0 == 5">
+          <value>
+            <color red="196" green="112" blue="236" />
+          </value>
+        </exp>
+        <pv trig="true">loc://test1</pv>
+      </rule>
+      <rule name="RectRule_LineStyle" prop_id="line_style" out_exp="false">
+        <exp bool_exp="pv0 &gt; 5">
+          <value>2</value>
+        </exp>
+        <pv trig="true">loc://test0</pv>
+      </rule>
+      <rule name="RectRule_BGAlarm" prop_id="backcolor_alarm_sensitive" out_exp="false">
+        <exp bool_exp="pv0 &lt; 2">
+          <value>true</value>
+        </exp>
+        <pv trig="true">loc://test0</pv>
+      </rule>
+    </rules>
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <tooltip>$(pv_name)
+$(pv_value)</tooltip>
+    <transparent>false</transparent>
+    <visible>true</visible>
+    <widget_type>Rectangle</widget_type>
+    <width>53</width>
+    <wuid>53a9f159:1539f3bba09:-7f91</wuid>
+    <x>49</x>
+    <y>132</y>
+  </widget>
+</display>
