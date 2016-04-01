@@ -71,6 +71,12 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     }
 
     @Override
+    public void setBackground(final WidgetColor color)
+    {
+        // Not implemented
+    }
+
+    @Override
     public void representModel(final Composite shell, final DisplayModel model)
             throws Exception
     {

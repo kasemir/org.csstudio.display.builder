@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.ArcWidget;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
@@ -183,9 +184,33 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         return () -> (WidgetRepresentation<Parent, Node, Widget>) config.createExecutableExtension("class");
     }
 
-    // Following methods are final because they depend on the exact
-    // Scene/group setup, which must not be overridden.
+    private volatile ScrollPane model_root;
+    private volatile Group model_parent;
 
+    /** Create scrollpane etc. for hosting the model
+     *  @return ScrollPane
+     *  @throws IllegalStateException if had already been called
+     */
+    final public ScrollPane createModelRoot()
+    {
+        if (model_root != null)
+            throw new IllegalStateException("Already created model root");
+        model_parent = new Group();
+        final Pane scroll_body = new Pane(model_parent);
+        model_root = new ScrollPane(scroll_body);
+        return model_root;
+    }
+
+    /** @see JFXRepresentation#createScene(DisplayModel)
+     *  @param scene Scene created for model
+     *  @return Root element
+     */
+    final public Parent getModelParent()
+    {
+        return model_parent;
+    }
+
+    /** @param scene Scene where style sheet for display builder is added */
     public static void setSceneStyle(final Scene scene)
     {
         // Fetch css relative to JFXRepresentation, not derived class
@@ -193,41 +218,16 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         scene.getStylesheets().add(css);
     }
 
-    /** Create a Scene suitable for representing model
-     *  @return Scene
-     *  @see JFXRepresentation#getSceneRoot(Scene)
-     */
-    final public Scene createScene()
-    {
-        final ScrollPane model_root = createModelRoot();
-        final Scene scene = new Scene(model_root);
-        setSceneStyle(scene);
-        return scene;
-    }
 
-    /** Create scrollpane etc. for hosting the model
-     *  @return ScrollPane
-     */
-    final public ScrollPane createModelRoot()
-    {
-        final Group model_parent = new Group();
-        final Pane scroll_body = new Pane(model_parent);
-        return new ScrollPane(scroll_body);
-    }
-
-    /** @param scene Scene to zoom
+    /** Set zoom level
      *  @param zoom Zoom level: 1.0 for 100%, 0.5 for 50%, ZOOM_ALL, ZOOM_WIDTH, ZOOM_HEIGHT
      *  @return Zoom level actually used
      */
-    final public double setSceneZoom(final Scene scene, double zoom)
+    final public double setZoom(double zoom)
     {
-        final ScrollPane scroll_pane = (ScrollPane)scene.getRoot();
-        final Pane scroll_body = (Pane) scroll_pane.getContent();
-        final Group model_parent = (Group) scroll_body.getChildren().get(0);
-
         if (zoom <= 0.0)
         {   // Determine zoom to fit outline of display into available space
-            final Bounds available = scroll_pane.getLayoutBounds();
+            final Bounds available = model_root.getLayoutBounds();
             final Bounds outline = model_parent.getLayoutBounds();
             final double zoom_x = outline.getWidth()  > 0 ? available.getWidth()  / outline.getWidth() : 1.0;
             final double zoom_y = outline.getHeight() > 0 ? available.getHeight() / outline.getHeight() : 1.0;
@@ -244,18 +244,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         model_parent.setScaleY(zoom);
 
         return zoom;
-    }
-
-    /** @see JFXRepresentation#createScene(DisplayModel)
-     *  @param scene Scene created for model
-     *  @return Root element
-     */
-    final public Parent getSceneRoot(final Scene scene)
-    {
-        final ScrollPane scroll_pane = (ScrollPane)scene.getRoot();
-        final Pane scroll_body = (Pane) scroll_pane.getContent();
-        final Group model_parent = (Group) scroll_body.getChildren().get(0);
-        return model_parent;
     }
 
     /** Obtain the 'children' of a Toolkit widget parent
@@ -275,6 +263,12 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     public Parent openNewWindow(final DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception
     {   // Use JFXStageRepresentation or RCP-based implementation
         throw new IllegalStateException("Not implemented");
+    }
+
+    @Override
+    public void setBackground(final WidgetColor color)
+    {
+        model_root.setStyle("-fx-background: " + JFXUtil.webRGB(color));
     }
 
     @Override
