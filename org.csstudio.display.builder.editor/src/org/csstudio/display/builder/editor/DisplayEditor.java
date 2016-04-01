@@ -44,14 +44,15 @@ import javafx.scene.layout.Pane;
  *  <p>Shows DisplayModel, has Palette to add widgets.
  *  Allows interactive move/resize.
  *
+ *  <p>Extends the basic JFXRepresentation scene layout:
  *  <pre>
  *  root
  *   |
  *   +----------------------+
  *   |                      |
- *  scroll                palette
+ *  model_root           palette
  *   |
- *  editor_pane
+ *  scroll_body
  *   |
  *   +----------------------+
  *   |                      |
@@ -63,20 +64,20 @@ import javafx.scene.layout.Pane;
  *
  *  <p>edit_tools holds GroupHandler, SelectionTracker
  *
- *  <p>editor_pane automatically resizes to hold all widget representations.
+ *  <p>scroll_body automatically resizes to hold all widget representations.
  *  Shows 'rubberband'
  *
- *  <p>scroll is ScrollPane, drop target for new widgets, starts 'rubberband'.
+ *  <p>model_root is ScrollPane, drop target for new widgets, starts 'rubberband'.
  *
- *  <p>The editor_pane is initially empty.
+ *  <p>The scroll_body is initially empty.
  *  As widget representations are added in the model_parent,
- *  the editor_pane grows.
+ *  the scroll_body grows.
  *  The scroll bars of the editor automatically enable
- *  as the content of the editor_pane grows beyond the editor.
+ *  as the content of the scroll_body grows beyond the editor.
  *
  *  <p>The Rubberband hooks into editor mouse events to allow starting
  *  a rubberband anywhere in the visible region. Connecting the Rubberband
- *  to the editor_pane would limit selections to the region that bounds the
+ *  to the scroll_body would limit selections to the region that bounds the
  *  visible widgets, one could not rubberband starting from 'below' the bottommost widget.
  *  The Rubberband, however, cannot add itself as a child to the scroll, so
  *  it uses the edit_tools for that.
@@ -104,15 +105,15 @@ public class DisplayEditor
     private final SelectedWidgetUITracker selection_tracker;
 
     private SplitPane root;
-    private ScrollPane scroll;
-    private final Group model_parent = new Group();
+    private ScrollPane model_root;
+    private Group model_parent;
     private final Group edit_tools = new Group();
-    private final Pane editor_pane = new Pane(model_parent, edit_tools);
 
     /** @param toolkit JFX Toolkit */
     public DisplayEditor(final JFXRepresentation toolkit)
     {
         this.toolkit = toolkit;
+
         group_handler = new ParentHandler(edit_tools, selection);
 
         selection_tracker = new SelectedWidgetUITracker(toolkit, group_handler, selection, undo);
@@ -125,13 +126,16 @@ public class DisplayEditor
      */
     public Parent create()
     {
-        scroll = new ScrollPane(editor_pane);
+        model_root = toolkit.createModelRoot();
+        final Pane scroll_body = (Pane) model_root.getContent();
+        model_parent = (Group) scroll_body.getChildren().get(0);
+        scroll_body.getChildren().add(edit_tools);
 
         final Palette palette = new Palette(selection);
         final Node palette_node = palette.create();
 
         root = new SplitPane();
-        root.getItems().addAll(scroll, palette_node);
+        root.getItems().addAll(model_root, palette_node);
         SplitPane.setResizableWithParent(palette_node, false);
 
         edit_tools.getChildren().addAll(selection_tracker);
@@ -175,7 +179,7 @@ public class DisplayEditor
             }
         });
 
-        scroll.setOnMousePressed(event ->
+        model_root.setOnMousePressed(event ->
         {
             if (event.isControlDown())
                 return;
@@ -184,11 +188,11 @@ public class DisplayEditor
             selection.clear();
         });
 
-        new Rubberband(scroll, edit_tools, this::selectWidgetsInRegion);
+        new Rubberband(model_root, edit_tools, this::selectWidgetsInRegion);
 
         new PointsBinding(edit_tools, selection, undo);
 
-        WidgetTransfer.addDropSupport(scroll, group_handler, this::handleDroppedModel);
+        WidgetTransfer.addDropSupport(model_root, group_handler, this::handleDroppedModel);
     }
 
     private void selectWidgetsInRegion(final Rectangle2D region)
@@ -209,7 +213,7 @@ public class DisplayEditor
         // Correct all dropped widget locations relative to container
         final Point2D offset = GeometryTools.getContainerOffset(container);
         // Also account for scroll pane
-        final Point2D origin = JFXGeometryTools.getContentOrigin(scroll);
+        final Point2D origin = JFXGeometryTools.getContentOrigin(model_root);
         final int dx = (int) (offset.getX() - origin.getX());
         final int dy = (int) (offset.getY() - origin.getY());
 

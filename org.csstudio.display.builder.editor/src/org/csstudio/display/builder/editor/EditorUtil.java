@@ -16,6 +16,7 @@ import java.util.concurrent.Future;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.util.NamedDaemonPool;
+import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 
 import javafx.scene.Scene;
 
@@ -33,8 +34,9 @@ public class EditorUtil
         return executor;
     }
 
-    public static void setSceneStyle(Scene scene)
+    public static void setSceneStyle(final Scene scene)
     {
+        JFXRepresentation.setSceneStyle(scene);
         scene.getStylesheets().add(EditorUtil.class.getResource("opieditor.css").toExternalForm());
     }
 

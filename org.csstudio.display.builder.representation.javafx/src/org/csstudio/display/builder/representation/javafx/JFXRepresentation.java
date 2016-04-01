@@ -79,6 +79,29 @@ import javafx.scene.layout.Pane;
  *  Common ancestor of both is {@link Parent}, but note that other
  *  parent types (Region, ..) are not permitted.
  *
+ *  <p>General scene layout:
+ *  <pre>
+ *  model_root
+ *   |
+ *  scroll_body
+ *   |
+ *  model_parent
+ *  </pre>
+ *
+ *  <p>model_parent:
+ *  This is where the model items get represented.
+ *  Its scaling factors are used to zoom.
+ *
+ *  <p>scroll_body:
+ *  Needed for scroll pane to use visual bounds, i.e. be aware of zoom.
+ *  Otherwise scroll bars would enable/disable based on layout bounds,
+ *  regardless of zoom.
+ *  ( https://pixelduke.wordpress.com/2012/09/16/zooming-inside-a-scrollpane )
+ *
+ *  <p>model_root:
+ *  Scroll pane for viewing a subsection of larger display.
+ *  This is also the 'root' of the model-related scene.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -160,27 +183,15 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         return () -> (WidgetRepresentation<Parent, Node, Widget>) config.createExecutableExtension("class");
     }
 
-    // Scene support, meant for runtime, supporting scroll & zoom.
-    //
-    // Scene -> ScrollPane -> Group content -> Group model_parent (zoomed)
-    //
-    // model_parent:
-    // This is where the model items get represented.
-    // It's scaling factors are used to zoom
-    //
-    // content:
-    // Needed for scroll pane to use visual bounds, i.e. be aware of zoom.
-    // Otherwise scroll bars would enable/disable based on layout bounds,
-    // regardless of zoom.
-    // ( https://pixelduke.wordpress.com/2012/09/16/zooming-inside-a-scrollpane )
-    //
-    // Editor will _not_ use this scene.
-    // It adds its own overlay for selection/rubberband,
-    // which would get confused if the model's representation pans/zooms
-    // on its own.
-    //
-    // *Scene*() methods are final because they depend on the exact
+    // Following methods are final because they depend on the exact
     // Scene/group setup, which must not be overridden.
+
+    public static void setSceneStyle(final Scene scene)
+    {
+        // Fetch css relative to JFXRepresentation, not derived class
+        final String css = JFXRepresentation.class.getResource("opibuilder.css").toExternalForm();
+        scene.getStylesheets().add(css);
+    }
 
     /** Create a Scene suitable for representing model
      *  @return Scene
@@ -188,16 +199,20 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
      */
     final public Scene createScene()
     {
-        final Group model_parent = new Group();
-        final Group content = new Group(model_parent);
-        final ScrollPane scroll = new ScrollPane(content);
-        final Scene scene = new Scene(scroll);
-
-        // Fetch css relative to JFXRepresentation, not derived class
-        final String css = JFXRepresentation.class.getResource("opibuilder.css").toExternalForm();
-        scene.getStylesheets().add(css);
-
+        final ScrollPane model_root = createModelRoot();
+        final Scene scene = new Scene(model_root);
+        setSceneStyle(scene);
         return scene;
+    }
+
+    /** Create scrollpane etc. for hosting the model
+     *  @return ScrollPane
+     */
+    final public ScrollPane createModelRoot()
+    {
+        final Group model_parent = new Group();
+        final Pane scroll_body = new Pane(model_parent);
+        return new ScrollPane(scroll_body);
     }
 
     /** @param scene Scene to zoom
@@ -207,8 +222,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     final public double setSceneZoom(final Scene scene, double zoom)
     {
         final ScrollPane scroll_pane = (ScrollPane)scene.getRoot();
-        final Group content = (Group) scroll_pane.getContent();
-        final Group model_parent = (Group) content.getChildren().get(0);
+        final Pane scroll_body = (Pane) scroll_pane.getContent();
+        final Group model_parent = (Group) scroll_body.getChildren().get(0);
 
         if (zoom <= 0.0)
         {   // Determine zoom to fit outline of display into available space
@@ -238,8 +253,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     final public Parent getSceneRoot(final Scene scene)
     {
         final ScrollPane scroll_pane = (ScrollPane)scene.getRoot();
-        final Group content = (Group) scroll_pane.getContent();
-        final Group model_parent = (Group) content.getChildren().get(0);
+        final Pane scroll_body = (Pane) scroll_pane.getContent();
+        final Group model_parent = (Group) scroll_body.getChildren().get(0);
         return model_parent;
     }
 
