@@ -16,7 +16,6 @@ import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
 
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
@@ -47,42 +46,19 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
         final TextField text = new TextField();
         text.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
-        // TODO: Improve handling of 'active' and focus
-        // When a display is opened, one of the text fields likely has the focus.
+        // Initially used 'focus' to activate the widget, but
+        // when a display is opened, one of the text fields likely has the focus.
         // That widget will then NOT show any value, because we're active as if the
         // user just navigated into the field to edit it.
-        //
-        // Idea: Turn 'active' as soon as user types anything, including use of cursor keys.
-        // Just clicking into the field does not stop updates.
-
-        // Determine 'active' state (gain focus, entered first character)
-        text.focusedProperty().addListener((final ObservableValue<? extends Boolean> observable,
-                                            final Boolean old_value, final Boolean focus) ->
-        {
-            // Gain focus -> active. Loose focus -> restore
-            active = focus;
-            // This will restore the JFX control to the current value
-            // regardless if user 'entered' a new value, then looses
-            // focus, or just looses focus.
-            if (! focus)
-                restore();
-        });
+        // Now requiring key press, including use of cursor keys, to activate.
         text.setOnKeyPressed((final KeyEvent event) ->
         {
             switch (event.getCode())
             {
-            case SHIFT:
-            case ALT:
-            case CONTROL:
-                // Ignore modifier keys
-                break;
             case ESCAPE:
                 // Revert original value, leave active state
-                if (active)
-                {
-                    restore();
-                    active = false;
-                }
+                restore();
+                active = false;
                 break;
             case ENTER:
                 // Submit value, leave active state

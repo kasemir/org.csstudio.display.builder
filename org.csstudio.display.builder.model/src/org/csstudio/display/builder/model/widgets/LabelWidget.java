@@ -21,6 +21,7 @@ import java.util.List;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
@@ -30,6 +31,7 @@ import org.csstudio.display.builder.model.properties.HorizontalAlignment;
 import org.csstudio.display.builder.model.properties.VerticalAlignment;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.osgi.framework.Version;
 
 /** Widget that displays a static text
  *  @author Kay Kasemir
@@ -75,7 +77,18 @@ public class LabelWidget extends VisibleWidget
         properties.add(transparent = displayTransparent.createProperty(this, true));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(horizontal_alignment = displayHorizontalAlignment.createProperty(this, HorizontalAlignment.LEFT));
-        properties.add(vertical_alignment = displayVerticalAlignment.createProperty(this, VerticalAlignment.MIDDLE));
+        properties.add(vertical_alignment = displayVerticalAlignment.createProperty(this, VerticalAlignment.TOP));
+    }
+
+    @Override
+    public WidgetConfigurator getConfigurator(final Version persisted_version)
+            throws Exception
+    {
+        if (persisted_version.getMajor() < 2)
+        {   // Default used to be 'middle'
+            vertical_alignment.setValue(VerticalAlignment.MIDDLE);
+        }
+        return super.getConfigurator(persisted_version);
     }
 
     /** @return Display 'text' */
