@@ -197,7 +197,7 @@ Clearly a counterexample for the use of scripts.</text>
       </script>
     </scripts>
   </widget>
-  <widget type="textentry" version="2.0.0">
+  <widget type="textentry" version="3.0.0">
     <name>Text Entry</name>
     <x>541</x>
     <y>481</y>
@@ -289,7 +289,7 @@ new displays, passing macros for the PV names...</text>
       </script>
     </scripts>
   </widget>
-  <widget type="textentry" version="2.0.0">
+  <widget type="textentry" version="3.0.0">
     <name>Text Entry_1</name>
     <x>11</x>
     <y>831</y>
@@ -310,13 +310,6 @@ new displays, passing macros for the PV names...</text>
     <text>Mode 2</text>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Label_22</name>
-    <x>451</x>
-    <y>831</y>
-    <width>60</width>
-    <text>Mode 3</text>
-  </widget>
-  <widget type="label" version="2.0.0">
     <name>Label_23</name>
     <y>901</y>
     <width>391</width>
@@ -334,7 +327,7 @@ would avoid scripts and maybe overall be better.</text>
     <y>861</y>
     <width>361</width>
     <height>40</height>
-    <text>Similar: Enter mode values 0, 1, 2,
+    <text>Similar: Enter mode values 0 or 1,
 and the "Active" label moves next to the selected mode.</text>
     <vertical_alignment>0</vertical_alignment>
   </widget>
@@ -349,7 +342,7 @@ and the "Active" label moves next to the selected mode.</text>
       <action type="open_display">
         <file>solitaire/solitaire.opi</file>
         <target>replace</target>
-        <description>Soiltaire</description>
+        <description>Solitaire</description>
       </action>
     </actions>
   </widget>
@@ -392,5 +385,54 @@ the widgets in the display,
 or use a script that performs a comparably lengthy computation
 before updating the display.</text>
     <vertical_alignment>0</vertical_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_22</name>
+    <x>411</x>
+    <y>841</y>
+    <width>130</width>
+    <text>Search Path</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_27</name>
+    <x>411</x>
+    <y>881</y>
+    <width>452</width>
+    <height>53</height>
+    <text>The Jython search path is configured via a display builder preference.
+It's current value:</text>
+    <vertical_alignment>0</vertical_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_28</name>
+    <x>411</x>
+    <y>934</y>
+    <width>430</width>
+    <height>97</height>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+    <vertical_alignment>0</vertical_alignment>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[# Embedded python script
+
+import sys
+
+path = "\n".join(entry for entry in sys.path)
+
+widget.setPropertyValue("text", path)]]></text>
+        <pv_name>loc://trigger_path_script(1)</pv_name>
+      </script>
+    </scripts>
   </widget>
 </display>

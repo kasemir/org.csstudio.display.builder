@@ -9,7 +9,10 @@ package org.csstudio.display.builder.runtime.script;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,14 +30,23 @@ import org.csstudio.vtype.pv.PV;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-class JavaScriptSupport extends BaseScriptSupport
+class JavaScriptSupport
 {
+    private final static Logger logger = Logger.getLogger(JavaScriptSupport.class.getName());
+
+    // See comments on queued_scripts in JythonScriptSupport
+    private final Set<JavaScript> queued_scripts = Collections.newSetFromMap(new ConcurrentHashMap<JavaScript, Boolean>());
+
+    private final ScriptSupport support;
     private final ScriptEngine engine;
     private final Bindings bindings;
 
-    /** Create executor for java scripts */
-    public JavaScriptSupport() throws Exception
+    /** Create executor for java scripts
+     *  @param support {@link ScriptSupport}
+     */
+    public JavaScriptSupport(final ScriptSupport support) throws Exception
     {
+        this.support = support;
         engine = Objects.requireNonNull(new ScriptEngineManager().getEngineByName("nashorn"));
         bindings = engine.createBindings();
     }
@@ -58,12 +70,18 @@ class JavaScriptSupport extends BaseScriptSupport
      *  @param pvs PVs that are available to the script
      *  @return
      */
-    public Future<Object> submit(final JavaScript script, final Widget widget, final PV[] pvs)
+    public Future<Object> submit(final JavaScript script, final Widget widget, final PV... pvs)
     {
-        // TODO See comments in JythonScriptSupport
-        return super.submit(() ->
+        if (queued_scripts.contains(script))
         {
-            // System.out.println("Execute on " + Thread.currentThread().getName());
+            logger.log(Level.FINE, "Skipping script {0}, already queued for execution", script);
+            return null;
+        }
+        queued_scripts.add(script);
+
+        return support.submit(() ->
+        {
+            queued_scripts.remove(script);
             try
             {
                 bindings.put("widget", widget);
@@ -72,9 +90,7 @@ class JavaScriptSupport extends BaseScriptSupport
             }
             catch (final Throwable ex)
             {
-                Logger.getLogger(JythonScriptSupport.class.getName())
-                    .log(Level.WARNING,
-                         "Execution of '" + script.getName() + "' failed", ex);
+                logger.log(Level.WARNING, "Execution of '" + script + "' failed", ex);
             }
             return null;
         });
