@@ -16,7 +16,7 @@
   <widget type="action_button" version="2.0.0">
     <name>Action Button</name>
     <y>81</y>
-    <width>110</width>
+    <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
@@ -31,7 +31,7 @@
     <name>Action Button_1</name>
     <x>191</x>
     <y>121</y>
-    <width>110</width>
+    <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
@@ -46,7 +46,7 @@
     <name>Action Button_2</name>
     <x>332</x>
     <y>121</y>
-    <width>110</width>
+    <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
@@ -61,7 +61,7 @@
     <name>Action Button_3</name>
     <x>332</x>
     <y>161</y>
-    <width>110</width>
+    <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
@@ -147,7 +147,7 @@
     <name>Action Button_4</name>
     <x>332</x>
     <y>291</y>
-    <width>110</width>
+    <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
@@ -162,7 +162,7 @@
     <name>Action Button_5</name>
     <x>332</x>
     <y>201</y>
-    <width>110</width>
+    <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
@@ -176,7 +176,7 @@
   <widget type="action_button" version="2.0.0">
     <name>Action Button_6</name>
     <y>291</y>
-    <width>110</width>
+    <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
@@ -190,7 +190,7 @@
   <widget type="action_button" version="2.0.0">
     <name>Action Button_7</name>
     <y>121</y>
-    <width>110</width>
+    <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
@@ -204,7 +204,7 @@
   <widget type="action_button" version="2.0.0">
     <name>Action Button_9</name>
     <y>161</y>
-    <width>110</width>
+    <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
@@ -218,7 +218,7 @@
   <widget type="action_button" version="2.0.0">
     <name>Action Button_10</name>
     <y>201</y>
-    <width>110</width>
+    <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
@@ -233,7 +233,7 @@
     <name>Action Button_8</name>
     <x>191</x>
     <y>161</y>
-    <width>110</width>
+    <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
@@ -260,7 +260,7 @@
     <name>Action Button_11</name>
     <x>471</x>
     <y>161</y>
-    <width>110</width>
+    <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
@@ -275,7 +275,7 @@
     <name>Action Button_12</name>
     <x>471</x>
     <y>201</y>
-    <width>110</width>
+    <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
@@ -290,7 +290,7 @@
     <name>Action Button_13</name>
     <x>471</x>
     <y>121</y>
-    <width>110</width>
+    <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
@@ -305,7 +305,22 @@
     <name>Action Button_14</name>
     <x>191</x>
     <y>291</y>
-    <width>110</width>
+    <width>120</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>controls_textentry.opi</file>
+        <target>replace</target>
+        <description>Text Entry</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_15</name>
+    <x>191</x>
+    <y>331</y>
+    <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
