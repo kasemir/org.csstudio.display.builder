@@ -15,6 +15,7 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
+import org.csstudio.display.builder.model.properties.RuleInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
@@ -73,6 +74,29 @@ public class RuntimeScriptHandler extends PVListenerAdapter
         }
         return scripting.compile(script_name, stream);
     }
+    
+    
+    /** Helper to compile rules script
+    *
+    *  <p>Gets text of script from rules utility
+    *
+    *  @param widget Widget on which the rule is invoked
+    *  @param macros
+    *  @param rule_info Rule to compile
+    *  @return Compiled script
+    *  @throws Exception on error
+    */
+   public static Script compileScript(final Widget widget, final MacroValueProvider macros,
+                                      final RuleInfo rule_info) throws Exception
+   {
+       // Compile script
+       final ScriptSupport scripting = RuntimeUtil.getScriptSupport(widget);
+
+       final InputStream stream = new ByteArrayInputStream(rule_info.getTextPy(widget, macros).getBytes());
+       String dummy_name = widget.getName() + ":" + rule_info.getName() + ".rule.py";
+       return scripting.compile(dummy_name, stream);
+   }   
+    
 
     /** @param widget Widget on which the script is invoked
      *  @param script_info Script to handle
@@ -86,9 +110,30 @@ public class RuntimeScriptHandler extends PVListenerAdapter
         final MacroValueProvider macros = widget.getEffectiveMacros();
         script = compileScript(widget, macros, script_info);
 
-        // Create PVs
-        final WidgetRuntime<Widget> runtime = WidgetRuntime.ofWidget(widget);
         pvs = new PV[infos.size()];
+        createPVs(widget, macros);
+    }
+
+    /** @param widget Widget on which the script is invoked
+     *  @param rule_info Rule to handle
+     *  @throws Exception on error
+     */
+    public RuntimeScriptHandler(final Widget widget, final RuleInfo rule_info) throws Exception
+    {
+        this.widget = widget;
+        this.infos = rule_info.getPVs();
+
+        final MacroValueProvider macros = widget.getEffectiveMacros();
+        script = compileScript(widget, macros, rule_info);
+
+        pvs = new PV[infos.size()];
+        createPVs(widget, macros);
+    }  
+
+	protected void createPVs(final Widget widget, final MacroValueProvider macros) throws Exception {
+		// Create PVs
+        final WidgetRuntime<Widget> runtime = WidgetRuntime.ofWidget(widget);
+        
         for (int i=0; i<pvs.length; ++i)
         {
             final String pv_name = MacroHandler.replace(macros, infos.get(i).getName());
@@ -99,7 +144,8 @@ public class RuntimeScriptHandler extends PVListenerAdapter
         for (int i=0; i<pvs.length; ++i)
             if (infos.get(i).isTrigger())
                 pvs[i].addListener(this);
-    }
+	}
+    
 
     /** Must be invoked to dispose PVs */
     public void shutdown()

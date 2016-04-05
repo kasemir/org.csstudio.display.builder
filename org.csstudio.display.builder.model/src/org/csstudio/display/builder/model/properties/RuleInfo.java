@@ -15,6 +15,7 @@ import java.util.Objects;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.macros.MacroValueProvider;
 
 /** Information about a rule
  *
@@ -134,6 +135,13 @@ public class RuleInfo
     public boolean getOutputExprFlag()
     {
         return output_expression;
+    }
+    
+    public String getTextPy(final Widget attached_widget, final MacroValueProvider macros)
+    {
+    	String ret = RuleToScript.generatePy(attached_widget, macros, this);
+    	System.out.println(ret);
+    	return ret;
     }
 
     @Override
