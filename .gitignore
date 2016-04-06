@@ -5,3 +5,7 @@ org.csstudio.display.builder.runtime.test/cachedir/
 build.log
 *.class
 
+.project
+.classpath
+.settings
+
