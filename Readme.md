@@ -29,10 +29,10 @@ Dependencies
 ------------
 
  * Java 8 SDK, at least 1.8.0_7x.
-   Needs at least 1.8.0_40 for javafx.scene.control.Dialog.
-   1.8.0_51 causes ComboBoxes in editor's property panel to hang on Windows,
- * Eclipse IDE for RCP Development with `Tycho Configurator` installed via
-   `Preferences`, `Maven`, `Catalog`, search for "tycho" and install it.
+   Needs 1.8.0_40 for javafx.scene.control.Dialog.
+   1.8.0_51 causes ComboBoxes in editor's property panel to hang on Windows, fixed in later releases.
+ * Eclipse IDE for RCP Development with `Tycho Configurator`.
+   In `Preferences`, `Maven`, `Catalog`, search for "tycho" and install it.
  * In Eclipse Preferences, Java, Build Path, Classpath Variables:
    Set `JFXSWT` to the `lib/jfxswt.jar` file within your JRE.
    For example, on Mac OS X this could be `/Library/Java/JavaVirtualMachines/jdk1.8.0_71.jdk/Contents/Home/jre/lib/jfxswt.jar`.
@@ -43,6 +43,7 @@ Dependencies
  * Demos use EPICS `softIoc` for `org.csstudio.display.builder.runtime.test/examples/demo.db`
  * Install the "Liberation" fonts from https://fedorahosted.org/liberation-fonts.
    Mac OS X: Double-click each *.ttf to preview, then click "Install Font".
+
 
 Source Import into IDE
 ----------------------
