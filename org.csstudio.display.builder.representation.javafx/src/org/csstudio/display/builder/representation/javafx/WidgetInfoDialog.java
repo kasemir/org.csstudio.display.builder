@@ -16,7 +16,7 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
-import org.csstudio.vtype.pv.PV;
+import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.diirt.vtype.VType;
 import org.eclipse.osgi.util.NLS;
 
@@ -39,9 +39,9 @@ public class WidgetInfoDialog extends Dialog<Boolean>
 {
     /** Create dialog
      *  @param widget {@link Widget}
-     *  @param pvs {@link PV}s, may be empty
+     *  @param pvs {@link RuntimePV}s, may be empty
      */
-    public WidgetInfoDialog(final Widget widget, final Collection<PV> pvs)
+    public WidgetInfoDialog(final Widget widget, final Collection<RuntimePV> pvs)
     {
         setTitle(Messages.WidgetInfoDialog_Title);
         setHeaderText(NLS.bind(Messages.WidgetInfoDialog_Info_Fmt, new Object[] { widget.getName(), widget.getType() }));
@@ -67,14 +67,14 @@ public class WidgetInfoDialog extends Dialog<Boolean>
         setResultConverter(button -> true);
     }
 
-    private Tab createPVs(final Collection<PV> pvs)
+    private Tab createPVs(final Collection<RuntimePV> pvs)
     {
         // Use text field to allow users to copy the name, value to clipboard
-        final TableColumn<PV, String> name = new TableColumn<>(Messages.WidgetInfoDialog_Name);
+        final TableColumn<RuntimePV, String> name = new TableColumn<>(Messages.WidgetInfoDialog_Name);
         name.setCellFactory(TextFieldTableCell.forTableColumn());
         name.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getName()));
 
-        final TableColumn<PV, String> value = new TableColumn<>(Messages.WidgetInfoDialog_Value);
+        final TableColumn<RuntimePV, String> value = new TableColumn<>(Messages.WidgetInfoDialog_Value);
         value.setCellFactory(TextFieldTableCell.forTableColumn());
         value.setCellValueFactory(param ->
         {
@@ -87,7 +87,7 @@ public class WidgetInfoDialog extends Dialog<Boolean>
             return new ReadOnlyStringWrapper(text);
         });
 
-        final TableView<PV> table = new TableView<>(FXCollections.observableArrayList(pvs));
+        final TableView<RuntimePV> table = new TableView<>(FXCollections.observableArrayList(pvs));
         table.getColumns().add(name);
         table.getColumns().add(value);
         table.setEditable(true);

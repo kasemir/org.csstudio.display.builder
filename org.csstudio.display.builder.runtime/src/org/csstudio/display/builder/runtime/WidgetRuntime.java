@@ -31,12 +31,12 @@ import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
 import org.csstudio.display.builder.runtime.internal.RuntimePVs;
+import org.csstudio.display.builder.runtime.pv.PVFactory;
+import org.csstudio.display.builder.runtime.pv.RuntimePV;
+import org.csstudio.display.builder.runtime.pv.RuntimePVListener;
 import org.csstudio.display.builder.runtime.script.RuntimeScriptHandler;
 import org.csstudio.display.builder.runtime.script.Script;
 import org.csstudio.display.builder.runtime.script.ScriptSupport;
-import org.csstudio.vtype.pv.PV;
-import org.csstudio.vtype.pv.PVListener;
-import org.csstudio.vtype.pv.PVPool;
 import org.diirt.vtype.VType;
 
 /** Common Widget runtime.
@@ -65,10 +65,10 @@ public class WidgetRuntime<MW extends Widget>
     /** Primary widget PV for behaviorPVName property
      *  <p>SYNC on this
      */
-    private Optional<PV> primary_pv = Optional.empty();
+    private Optional<RuntimePV> primary_pv = Optional.empty();
 
     /** Listener for <code>primary_pv</code> */
-    private PVListener primary_pv_listener;
+    private RuntimePVListener primary_pv_listener;
 
     /** List of _all_ PVs:
      *  Primary PV,
@@ -86,7 +86,7 @@ public class WidgetRuntime<MW extends Widget>
      */
     // This is empty for most widgets, or contains very few PVs,
     // so using List with linear lookup by name and not a HashMap
-    private volatile List<PV> writable_pvs = null;
+    private volatile List<RuntimePV> writable_pvs = null;
 
     /** Handlers for widget's behaviorScripts property,
      *  i.e. scripts that are triggered by PVs
@@ -102,7 +102,7 @@ public class WidgetRuntime<MW extends Widget>
     private volatile Map<ExecuteScriptActionInfo, Script> action_scripts = null;
 
     /** PVListener that updates 'value' property with received VType */
-    protected static class PropertyUpdater implements PVListener
+    protected static class PropertyUpdater implements RuntimePVListener
     {
         private final WidgetProperty<VType> property;
 
@@ -116,19 +116,13 @@ public class WidgetRuntime<MW extends Widget>
         }
 
         @Override
-        public void valueChanged(final PV pv, final VType value)
+        public void valueChanged(final RuntimePV pv, final VType value)
         {
             property.setValue(value);
         }
 
         @Override
-        public void permissionsChanged(final PV pv, final boolean readonly)
-        {
-            // NOP
-        }
-
-        @Override
-        public void disconnected(final PV pv)
+        public void disconnected(final RuntimePV pv)
         {
             property.setValue(null);
         }
@@ -158,7 +152,7 @@ public class WidgetRuntime<MW extends Widget>
             // or may throw exception -> widget already shows disconnected
             try
             {
-                final PV pv = PVPool.getPV(pv_name);
+                final RuntimePV pv = PVFactory.getPV(pv_name);
                 synchronized (this)
                 {
                     primary_pv = Optional.of(pv);
@@ -195,7 +189,7 @@ public class WidgetRuntime<MW extends Widget>
     }
 
     /** @param pv PV where widget should track the connection state */
-    public void addPV(final PV pv)
+    public void addPV(final RuntimePV pv)
     {
         synchronized (this)
         {
@@ -206,13 +200,13 @@ public class WidgetRuntime<MW extends Widget>
     }
 
     /** @param pv PV where widget should no longer track the connection state */
-    public void removePV(final PV pv)
+    public void removePV(final RuntimePV pv)
     {
         runtime_pvs.removePV(pv);
     }
 
     /** @return All PVs that the widget uses */
-    public Collection<PV> getPVs()
+    public Collection<RuntimePV> getPVs()
     {
         if (runtime_pvs == null)
             return Collections.emptyList();
@@ -244,14 +238,14 @@ public class WidgetRuntime<MW extends Widget>
         final List<ActionInfo> actions = widget.behaviorActions().getValue();
         if (actions.size() > 0)
         {
-            final List<PV> action_pvs = new ArrayList<>();
+            final List<RuntimePV> action_pvs = new ArrayList<>();
             for (final ActionInfo action : actions)
             {
                 if (action instanceof WritePVActionInfo)
                 {
                     final String pv_name = ((WritePVActionInfo) action).getPV();
                     final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
-                    final PV pv = PVPool.getPV(expanded);
+                    final RuntimePV pv = PVFactory.getPV(expanded);
                     action_pvs.add(pv);
                     addPV(pv);
                 }
@@ -321,7 +315,7 @@ public class WidgetRuntime<MW extends Widget>
     {
         try
         {
-            final PV pv;
+            final RuntimePV pv;
             synchronized (this)
             {
                 pv = primary_pv.orElse(null);
@@ -345,9 +339,9 @@ public class WidgetRuntime<MW extends Widget>
     public void writePV(final String pv_name, final Object value) throws Exception
     {
         final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
-        final List<PV> safe_pvs = writable_pvs;
+        final List<RuntimePV> safe_pvs = writable_pvs;
         if (safe_pvs != null)
-            for (final PV pv : safe_pvs)
+            for (final RuntimePV pv : safe_pvs)
                 if (pv.getName().equals(expanded))
                 {
                     try
@@ -380,7 +374,7 @@ public class WidgetRuntime<MW extends Widget>
      */
     private void disconnectPrimaryPV()
     {
-        final PV pv;
+        final RuntimePV pv;
         synchronized (this)
         {
             pv = primary_pv.orElse(null);
@@ -390,19 +384,19 @@ public class WidgetRuntime<MW extends Widget>
             return;
         removePV(pv);
         pv.removeListener(primary_pv_listener);
-        PVPool.releasePV(pv);
+        PVFactory.releasePV(pv);
     }
 
     /** Stop: Disconnect PVs, ... */
     public void stop()
     {
-        final List<PV> safe_pvs = writable_pvs;
+        final List<RuntimePV> safe_pvs = writable_pvs;
         if (safe_pvs != null)
         {
-            for (final PV pv : safe_pvs)
+            for (final RuntimePV pv : safe_pvs)
             {
                 removePV(pv);
-                PVPool.releasePV(pv);
+                PVFactory.releasePV(pv);
             }
             writable_pvs = null;
         }
@@ -431,7 +425,7 @@ public class WidgetRuntime<MW extends Widget>
 
         if (runtime_pvs != null)
         {
-            final Collection<PV> pvs = runtime_pvs.getPVs();
+            final Collection<RuntimePV> pvs = runtime_pvs.getPVs();
             if (!pvs.isEmpty())
                 logger.log(Level.SEVERE, widget + " has unreleased PVs: " + pvs);
         }

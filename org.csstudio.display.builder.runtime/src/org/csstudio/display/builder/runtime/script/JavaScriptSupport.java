@@ -24,7 +24,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.vtype.pv.PV;
+import org.csstudio.display.builder.runtime.pv.RuntimePV;
 
 /** JavaScript support
  *  @author Kay Kasemir
@@ -70,7 +70,7 @@ class JavaScriptSupport
      *  @param pvs PVs that are available to the script
      *  @return
      */
-    public Future<Object> submit(final JavaScript script, final Widget widget, final PV... pvs)
+    public Future<Object> submit(final JavaScript script, final Widget widget, final RuntimePV... pvs)
     {
         if (queued_scripts.contains(script))
         {

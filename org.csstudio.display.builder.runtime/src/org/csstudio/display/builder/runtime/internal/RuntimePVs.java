@@ -17,8 +17,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
-import org.csstudio.vtype.pv.PV;
-import org.csstudio.vtype.pv.PVListenerAdapter;
+import org.csstudio.display.builder.runtime.pv.RuntimePV;
+import org.csstudio.display.builder.runtime.pv.RuntimePVListener;
 import org.diirt.vtype.VType;
 
 /** Tracker for all PVs used by a widget.
@@ -39,13 +39,13 @@ public class RuntimePVs
      *  and the PVInfo keeps a reference count to only
      *  track the PV once.
      */
-    private final ConcurrentMap<PV, PVInfo> pvs = new ConcurrentHashMap<>();
+    private final ConcurrentMap<RuntimePV, PVInfo> pvs = new ConcurrentHashMap<>();
 
     /** Listener for tracking connection state of individual PV.
      *  Reference counted because widget may use the same PV
      *  multiple times, but connection state is only tracked once.
      */
-    private class PVInfo extends PVListenerAdapter
+    private class PVInfo implements RuntimePVListener
     {
         private final AtomicInteger refs = new AtomicInteger();
         private volatile boolean connected = false;
@@ -66,7 +66,7 @@ public class RuntimePVs
         }
 
         @Override
-        public void valueChanged(final PV pv, final VType value)
+        public void valueChanged(final RuntimePV pv, final VType value)
         {
             if (connected)
                 return;
@@ -75,7 +75,7 @@ public class RuntimePVs
         }
 
         @Override
-        public void disconnected(final PV pv)
+        public void disconnected(final RuntimePV pv)
         {
             connected = false;
             updateConnections(false);
@@ -89,7 +89,7 @@ public class RuntimePVs
     }
 
     /** @param pv PV to track */
-    public void addPV(final PV pv)
+    public void addPV(final RuntimePV pv)
     {
         final PVInfo info = pvs.computeIfAbsent(pv, (p) -> new PVInfo());
         if (info.addReference() == 1)
@@ -102,7 +102,7 @@ public class RuntimePVs
     }
 
     /** @param pv PV to no longer track */
-    public void removePV(final PV pv)
+    public void removePV(final RuntimePV pv)
     {
         final PVInfo info = pvs.get(pv);
         if (info == null)
@@ -139,16 +139,16 @@ public class RuntimePVs
     }
 
     /** @return All PVs of this widget */
-    public Collection<PV> getPVs()
+    public Collection<RuntimePV> getPVs()
     {   // Create safe copy
         return new ArrayList<>(pvs.keySet());
     }
 
     /** @return Disconnected PVs of this widget */
-    public Collection<PV> getDisconnectedPVs()
+    public Collection<RuntimePV> getDisconnectedPVs()
     {
-        final List<PV> disconnected = new ArrayList<>();
-        for (Map.Entry<PV, PVInfo> entry : pvs.entrySet())
+        final List<RuntimePV> disconnected = new ArrayList<>();
+        for (Map.Entry<RuntimePV, PVInfo> entry : pvs.entrySet())
             if (! entry.getValue().isConnected())
                 disconnected.add(entry.getKey());
         return disconnected;

@@ -21,7 +21,7 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.runtime.Preferences;
-import org.csstudio.vtype.pv.PV;
+import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -183,7 +183,7 @@ class JythonScriptSupport implements AutoCloseable
      *  @param pvs PVs that are available to the script
      *  @return Future for script that was just started
      */
-    public Future<Object> submit(final JythonScript script, final Widget widget, final PV... pvs)
+    public Future<Object> submit(final JythonScript script, final Widget widget, final RuntimePV... pvs)
     {
         // Skip script that's already in the queue.
         // Check-then-set, no atomic submit-unless-queued logic.
