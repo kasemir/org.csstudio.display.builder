@@ -2,6 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="widgets" name="Widget Runtime" schema="schema/runtimes.exsd"/>
+   <extension-point id="pvs" name="Runtime PVs" schema="schema/pvs.exsd"/>
    <extension
          point="org.csstudio.display.builder.runtime.widgets">
       <runtime
@@ -17,5 +18,11 @@
             type="xyplot">
       </runtime>
    </extension>
-
+   <extension
+         point="org.csstudio.display.builder.runtime.pvs">
+      <pvfactory
+            class="org.csstudio.display.builder.runtime.pv.vtype_pv.VTypePVFactory"
+            id="vtype.pv">
+      </pvfactory>
+   </extension>
 </plugin>
