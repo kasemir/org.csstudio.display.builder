@@ -7,8 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp;
 
+import static org.csstudio.display.builder.rcp.Plugin.logger;
+
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.rcp.run.RuntimeViewPart;
@@ -49,8 +50,7 @@ public class OpenDisplayAction extends Action
         }
         catch (Exception ex)
         {
-            Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Failed to open " + info, ex);
+            logger.log(Level.WARNING, "Failed to open " + info, ex);
         }
     }
 }
