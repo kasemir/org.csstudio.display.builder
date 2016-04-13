@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.persist;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.io.InputStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -14,10 +16,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 
 /** Service that provides {@link NamedWidgetFonts}
  *
@@ -29,8 +30,6 @@ import org.csstudio.display.builder.model.util.ModelResourceUtil;
 @SuppressWarnings("nls")
 public class WidgetFontService
 {
-    private static final Logger logger = Logger.getLogger(WidgetFontService.class.getName());
-
     /** Time in seconds used to wait for a 'load' that's in progress
      *  before falling back to a default set of fonts
      */

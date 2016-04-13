@@ -49,7 +49,8 @@ Source Import into IDE
 ----------------------
 
 Use `File`, `Import`, `Maven`, `Existing Maven Projects` to import the `org.csstudio.display.builder` source folder into the IDE.
-The Tycho Configurator will adjust three `.classpath` files,
+
+__Note:__ The Tycho Configurator will adjust three `.classpath` files,
 the Team (git) support will indicate changes.
 Replace the changes with the HEAD version of the repository.
 

@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFile;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
 
@@ -14,7 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
@@ -146,8 +146,7 @@ public class EmbeddedDisplayWidget extends VisibleWidget
                 }
                 catch (NumberFormatException ex)
                 {
-                    Logger.getLogger(EmbeddedDisplayWidget.class.getName())
-                          .log(Level.WARNING, "Cannot decode legacy resize_behavior");
+                    logger.log(Level.WARNING, "Cannot decode legacy resize_behavior");
                 }
             }
             return true;

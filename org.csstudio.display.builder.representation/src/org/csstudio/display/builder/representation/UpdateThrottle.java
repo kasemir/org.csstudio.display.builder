@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation;
 
+import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
+
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -14,7 +16,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /** Handle throttled updates on UI thread.
  *
@@ -36,8 +37,6 @@ import java.util.logging.Logger;
 @SuppressWarnings("nls")
 public class UpdateThrottle
 {
-    private static final Logger logger = Logger.getLogger(UpdateThrottle.class.getName());
-
     /** Period in seconds for logging update performance */
     private static final int PERFORMANCE_LOG_PERIOD_SEC = 5;
 

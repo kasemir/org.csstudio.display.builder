@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.script;
 
+import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -19,7 +21,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.util.NamedDaemonPool;
@@ -103,8 +104,7 @@ public class ScriptSupport
             {
                 if (! warned)
                 {
-                    Logger.getLogger(getClass().getName())
-                          .log(Level.SEVERE,
+                    logger.log(Level.SEVERE,
                                "Script '" + path + "' accessed deprecated org.csstudio.opibuilder.scriptUtil, " +
                                "update to org.csstudio.display.builder.runtime.script.PVUtil");
                     warned = true;

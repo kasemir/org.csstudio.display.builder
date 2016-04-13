@@ -5,18 +5,25 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.model;
+package org.csstudio.display.builder.runtime.pv;
 
-import java.util.logging.Logger;
+import org.csstudio.vtype.pv.PV;
+import org.diirt.vtype.VType;
 
-/** Plugin information.
+/** Listener to a {@link PV}
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
-public class ModelPlugin
+public interface RuntimePVListener
 {
-    /** Plugin ID */
-    public final static String ID = "org.csstudio.display.builder.model";
+    default public void permissionsChanged(RuntimePV pv, boolean readonly)
+    {
+        // Ignore
+    }
 
-    public final static Logger logger = Logger.getLogger(ModelPlugin.class.getName());
+    public void valueChanged(RuntimePV pv, VType value);
+
+    default public void disconnected(RuntimePV pv)
+    {
+        // Ignore
+    }
 }

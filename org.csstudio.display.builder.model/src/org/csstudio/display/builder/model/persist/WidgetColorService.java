@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.persist;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.io.InputStream;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -15,7 +17,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.properties.NamedWidgetColor;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
@@ -31,8 +32,6 @@ import org.csstudio.display.builder.model.util.ModelThreadPool;
 @SuppressWarnings("nls")
 public class WidgetColorService
 {
-    private static final Logger logger = Logger.getLogger(WidgetColorService.class.getName());
-
     /** Time in seconds used to wait for a 'load' that's in progress
      *  before falling back to a default set of colors
      */

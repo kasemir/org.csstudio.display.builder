@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets.plots;
 
+import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
+
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;

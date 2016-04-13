@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.tree;
 
+import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +16,6 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
@@ -48,8 +49,6 @@ import javafx.util.Callback;
 @SuppressWarnings("nls")
 public class WidgetTree
 {
-    private final Logger logger = Logger.getLogger(getClass().getName());
-
     /** Is this class updating the selection of tree or model? */
     private final AtomicBoolean active = new AtomicBoolean();
 

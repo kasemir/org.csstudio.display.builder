@@ -10,7 +10,7 @@ package org.csstudio.display.builder.runtime.script;
 import java.util.concurrent.Future;
 
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.vtype.pv.PV;
+import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.python.core.PyCode;
 
 /** Compiled Jython script
@@ -49,7 +49,7 @@ class JythonScript implements Script
     }
 
     @Override
-    public Future<Object> submit(final Widget widget, final PV... pvs)
+    public Future<Object> submit(final Widget widget, final RuntimePV... pvs)
     {
         return support.submit(this, widget, pvs);
     }

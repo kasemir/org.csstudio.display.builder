@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayDirection;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
@@ -17,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.ChildrenProperty;
@@ -165,8 +165,7 @@ public class TabsWidget extends VisibleWidget
                 {
                     if (! content_xml.getAttribute("typeId").contains("group"))
                     {
-                        Logger.getLogger(getClass().getName())
-                              .log(Level.WARNING, "Legacy 'tab' widget misses content of tab " + i);
+                        logger.log(Level.WARNING, "Legacy 'tab' widget misses content of tab " + i);
                         break;
                     }
                     model_reader.readWidgets(tabs.getValue().get(i).children(), content_xml);

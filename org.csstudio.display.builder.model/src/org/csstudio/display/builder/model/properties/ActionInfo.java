@@ -7,11 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo.Target;
@@ -48,7 +49,7 @@ public abstract class ActionInfo
             }
             catch (Exception ex)
             {
-                Logger.getLogger(ActionInfo.class.getName()).log(Level.WARNING, "Cannot obtain icon", ex);
+                logger.log(Level.WARNING, "Cannot obtain icon", ex);
                 return null;
             }
         }

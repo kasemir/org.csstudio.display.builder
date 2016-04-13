@@ -7,11 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
+import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
+
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
@@ -108,8 +109,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
             }
             catch (Exception ex)
             {
-                Logger.getLogger(ActionsDialog.class.getName())
-                      .log(Level.WARNING, "Error displaying " + action, ex);
+                logger.log(Level.WARNING, "Error displaying " + action, ex);
             }
         }
     };
@@ -268,8 +268,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
             {
                 write_pv_details.setVisible(false);
                 open_display_details.setVisible(false);
-                Logger.getLogger(getClass().getName())
-                      .log(Level.WARNING, "Unknown action type " + action);
+                logger.log(Level.WARNING, "Unknown action type " + action);
             }
         });
 

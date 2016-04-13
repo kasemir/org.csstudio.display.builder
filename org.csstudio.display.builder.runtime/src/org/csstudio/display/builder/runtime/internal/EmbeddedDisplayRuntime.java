@@ -7,12 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
+import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
+
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
@@ -114,8 +115,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         }
         catch (Exception ex)
         {
-            Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Failed to handle embedded display " + display_file, ex);
+            logger.log(Level.WARNING, "Failed to handle embedded display " + display_file, ex);
         }
     }
 
@@ -143,8 +143,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         }
         catch (TimeoutException timeout)
         {
-            Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, message + " for " + widget);
+            logger.log(Level.WARNING, message + " for " + widget);
         }
     }
 
@@ -175,7 +174,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
             catch (final Throwable ex)
             {   // Log error and show message in pseudo model
                 final String message = "Failed to load embedded display '" + display_file + "'";
-                Logger.getLogger(getClass().getName()).log(Level.WARNING, message, ex);
+                logger.log(Level.WARNING, message, ex);
                 embedded_model = createErrorModel(message);
                 widget.runtimeConnected().setValue(false);
             }
@@ -236,8 +235,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         }
         catch (final Exception ex)
         {
-            Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Failed to represent embedded display", ex);
+            logger.log(Level.WARNING, "Failed to represent embedded display", ex);
         }
     }
 
@@ -252,8 +250,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         }
         catch (Exception ex)
         {
-            Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Failed to stop embedded display runtime", ex);
+            logger.log(Level.WARNING, "Failed to stop embedded display runtime", ex);
         }
     }
 

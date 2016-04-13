@@ -13,7 +13,7 @@ import java.util.Objects;
 import org.csstudio.display.builder.model.properties.FormatOption;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
-import org.csstudio.vtype.pv.PV;
+import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 
@@ -25,7 +25,7 @@ import org.diirt.vtype.VType;
 @SuppressWarnings("nls")
 public class PVUtil
 {
-    private static VType getVType(final PV pv)
+    private static VType getVType(final RuntimePV pv)
     {
         return Objects.requireNonNull(pv.read(), () -> "PV " + pv.getName() + " has no value");
     }
@@ -36,7 +36,7 @@ public class PVUtil
      *          <code>Double.NaN</code> in case the value type
      *          does not decode into a number.
      */
-    public static double getDouble(final PV pv)
+    public static double getDouble(final RuntimePV pv)
     {
         return VTypeUtil.getValueNumber(getVType(pv)).longValue();
     }
@@ -45,7 +45,7 @@ public class PVUtil
      *  @param pv PV
      *  @return Current value as long
      */
-    public static long getLong(final PV pv)
+    public static long getLong(final RuntimePV pv)
     {
         return VTypeUtil.getValueNumber(getVType(pv)).longValue();
     }
@@ -54,7 +54,7 @@ public class PVUtil
      *  @param pv PV
      *  @return Current value as string
      */
-    public static String getString(final PV pv)
+    public static String getString(final RuntimePV pv)
     {
         return FormatOptionHandler.format(getVType(pv), FormatOption.DEFAULT, 0, true);
     }
@@ -63,7 +63,7 @@ public class PVUtil
      *  @param pv the PV.
      *  @return Enum labels or empty array if not enum
      */
-    public final static String[] getLabels(final PV pv)
+    public final static String[] getLabels(final RuntimePV pv)
     {
         final VType value = getVType(pv);
         if (! (value instanceof VEnum))

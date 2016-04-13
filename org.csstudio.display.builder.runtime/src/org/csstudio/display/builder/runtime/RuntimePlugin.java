@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime;
 
+import java.util.logging.Logger;
+
 /** Plugin information.
  *  @author Kay Kasemir
  */
@@ -15,4 +17,7 @@ public class RuntimePlugin
 {
     /** Plugin ID */
     public final static String ID = "org.csstudio.display.builder.runtime";
+
+    /** Suggested logger for all runtime logging */
+    public final static Logger logger = Logger.getLogger(RuntimePlugin.class.getName());
 }

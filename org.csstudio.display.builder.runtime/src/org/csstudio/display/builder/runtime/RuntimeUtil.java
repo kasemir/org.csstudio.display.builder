@@ -7,9 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime;
 
+import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
+
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -37,8 +38,6 @@ import org.csstudio.display.builder.runtime.script.ScriptSupport;
 @SuppressWarnings("nls")
 public class RuntimeUtil
 {
-    private static final Logger logger = Logger.getLogger(RuntimeUtil.class.getName());
-
     private static final ExecutorService executor = NamedDaemonPool.createThreadPool("DisplayRuntime");
 
     private static final ToolkitListener toolkit_listener = new ToolkitListener()

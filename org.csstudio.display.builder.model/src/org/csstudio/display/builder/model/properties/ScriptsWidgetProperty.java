@@ -7,11 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamWriter;
 
@@ -104,8 +105,7 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
             if (file.isEmpty())
                 file = xml.getAttribute("pathString");
             if (file.isEmpty())
-                Logger.getLogger(getClass().getName())
-                      .log(Level.WARNING, "Missing script 'file'");
+                logger.log(Level.WARNING, "Missing script 'file'");
 
             // Script content embedded in XML?
             Element text_xml = XMLUtil.getChildElement(xml, XMLTags.TEXT);

@@ -87,7 +87,8 @@ import javafx.scene.layout.Pane;
 @SuppressWarnings("nls")
 public class DisplayEditor
 {
-    private final Logger logger = Logger.getLogger(getClass().getName());
+    /** Suggested logger for the editor */
+    public final static Logger logger = Logger.getLogger(DisplayEditor.class.getName());
 
     private final JFXRepresentation toolkit;
 

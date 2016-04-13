@@ -7,13 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.run;
 
+import static org.csstudio.display.builder.rcp.Plugin.logger;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.macros.Macros;
@@ -62,8 +63,6 @@ public class RuntimeViewPart extends ViewPart
 
     /** Back/forward navigation */
     private final DisplayNavigation navigation = new DisplayNavigation();
-
-    private final Logger logger = Logger.getLogger(getClass().getName());
 
     /** Display info that may have been received from memento */
     private Optional<DisplayInfo> display_info = Optional.empty();
