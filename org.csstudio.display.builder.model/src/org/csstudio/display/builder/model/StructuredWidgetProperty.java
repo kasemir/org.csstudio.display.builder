@@ -7,9 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamWriter;
 
@@ -137,8 +138,7 @@ public class StructuredWidgetProperty extends WidgetProperty<List<WidgetProperty
             }
             catch (Exception ex)
             {
-                Logger.getLogger(getClass().getName())
-                      .log(Level.WARNING, "Error reading " + getName() + " element " + element.getName(), ex);
+                logger.log(Level.WARNING, "Error reading " + getName() + " element " + element.getName(), ex);
             }
         }
     }

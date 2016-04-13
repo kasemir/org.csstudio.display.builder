@@ -7,12 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.persist;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -66,7 +67,6 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class ModelReader
 {
-    private final Logger logger = Logger.getLogger(getClass().getName());
     private final Element root;
     private final Version version;
 

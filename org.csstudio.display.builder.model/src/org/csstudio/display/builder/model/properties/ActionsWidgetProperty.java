@@ -7,13 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamWriter;
 
@@ -180,8 +181,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 final String pv_name = XMLUtil.getChildString(action_xml, XMLTags.PV_NAME).orElse("");
                 final String value = XMLUtil.getChildString(action_xml, XMLTags.VALUE).orElse("");
                 if (pv_name.isEmpty()  ||  value.isEmpty())
-                    Logger.getLogger(getClass().getName())
-                          .log(Level.WARNING, "Ignoring <action type='" + WRITE_PV + "'> with empty <pv_name> and/or <value>");
+                    logger.log(Level.WARNING, "Ignoring <action type='" + WRITE_PV + "'> with empty <pv_name> and/or <value>");
                 else
                     actions.add(new WritePVActionInfo(description, pv_name, value));
             }
@@ -225,8 +225,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 actions.add(new ExecuteScriptActionInfo(description, info));
             }
             else
-                Logger.getLogger(getClass().getName())
-                      .log(Level.WARNING, "Ignoring action of unknown type '" + type + "'");
+                logger.log(Level.WARNING, "Ignoring action of unknown type '" + type + "'");
         }
         setValue(actions);
     }

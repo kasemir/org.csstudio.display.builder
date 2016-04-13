@@ -7,13 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamWriter;
 
@@ -101,8 +102,7 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
     {
         if (requested_value instanceof CopyOnWriteArrayList)
             return requested_value;
-        Logger.getLogger(getClass().getName())
-              .log(Level.WARNING, "Update value for " + getName() + " to CopyOnWriteArrayList");
+        logger.log(Level.WARNING, "Update value for " + getName() + " to CopyOnWriteArrayList");
         return new CopyOnWriteArrayList<>(requested_value);
     }
 
@@ -196,8 +196,7 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
                 }
                 catch (Exception ex)
                 {
-                    Logger.getLogger(getClass().getName())
-                          .log(Level.WARNING, "Error reading " + getName() + " element " + element.getName(), ex);
+                    logger.log(Level.WARNING, "Error reading " + getName() + " element " + element.getName(), ex);
                 }
                 elements.add(element);
             }

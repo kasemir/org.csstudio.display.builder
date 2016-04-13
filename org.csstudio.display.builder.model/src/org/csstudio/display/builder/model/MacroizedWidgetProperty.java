@@ -7,8 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
@@ -119,15 +120,13 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
             }
             catch (final Exception ex)
             {
-                Logger.getLogger(getClass().getName())
-                      .log(Level.WARNING, widget + " property " + getName() + " cannot expand macros for " + specification, ex);
+                logger.log(Level.WARNING, widget + " property " + getName() + " cannot expand macros for " + specification, ex);
                 expanded = specification;
             }
 
             // TODO Do not allow this...
             if (MacroHandler.containsMacros(expanded))
-                Logger.getLogger(getClass().getName())
-                      .log(Level.WARNING, widget + " '" + getName() + "' is not fully resolved: " + expanded);
+                logger.log(Level.WARNING, widget + " '" + getName() + "' is not fully resolved: " + expanded);
 
             try
             {
@@ -139,8 +138,7 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
             }
             catch (final Exception ex)
             {
-                Logger.getLogger(getClass().getName())
-                      .log(Level.WARNING, widget + " property " + getName() + " cannot evaluate " + expanded, ex);
+                logger.log(Level.WARNING, widget + " property " + getName() + " cannot evaluate " + expanded, ex);
                 value = default_value;
             }
         }
