@@ -7,8 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
+import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
+
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
@@ -37,8 +38,7 @@ public class JFXUtil
         }
         catch (Exception ex)
         {
-            Logger.getLogger(JFXUtil.class.getName())
-                  .log(Level.SEVERE, "Cannot initialize Java FX", ex);
+            logger.log(Level.SEVERE, "Cannot initialize Java FX", ex);
             font_calibration = 1.0;
         }
     }
@@ -103,8 +103,7 @@ public class JFXUtil
         }
         catch (Exception ex)
         {
-            Logger.getLogger(JFXUtil.class.getName())
-                  .log(Level.WARNING, "Cannot load " + image_path, ex);
+            logger.log(Level.WARNING, "Cannot load " + image_path, ex);
         }
         return null;
     }

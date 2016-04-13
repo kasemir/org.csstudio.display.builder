@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
@@ -117,6 +116,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     /** Zoom to fit display's height */
     public static final double ZOOM_HEIGHT = -2.0;
 
+    @Override
     protected void initialize()
     {
         final Map<String, WidgetRepresentationFactory<Parent, Node>> factories = new HashMap<>();
@@ -125,7 +125,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         if (registry != null)
         {   // Load available representations from registry,
             // which allows other plugins to contribute new widgets.
-            final Logger logger = Logger.getLogger(getClass().getName());
             for (IConfigurationElement config : registry.getConfigurationElementsFor(WidgetRepresentation.EXTENSION_POINT))
             {
                 final String type = config.getAttribute("type");

@@ -49,7 +49,8 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
 @SuppressWarnings("nls")
 abstract public class ToolkitRepresentation<TWP extends Object, TW> implements Executor
 {
-    protected final static Logger logger = Logger.getLogger(ToolkitRepresentation.class.getName());
+    /** Logger suggested for all representation logging */
+    public final static Logger logger = Logger.getLogger(ToolkitRepresentation.class.getName());
 
     private static boolean initialized = false;
 
