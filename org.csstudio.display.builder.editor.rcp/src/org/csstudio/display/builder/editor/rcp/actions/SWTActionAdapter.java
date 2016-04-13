@@ -7,8 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp.actions;
 
+import static org.csstudio.display.builder.editor.rcp.Plugin.logger;
+
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.actions.ActionDescription;
 import org.eclipse.jface.action.Action;
@@ -32,7 +33,7 @@ public class SWTActionAdapter extends Action
         }
         catch (Exception ex)
         {
-            Logger.getLogger(getClass().getName()).log(Level.WARNING, "Cannot get icon for " + description, ex);
+            logger.log(Level.WARNING, "Cannot get icon for " + description, ex);
         }
     }
 
