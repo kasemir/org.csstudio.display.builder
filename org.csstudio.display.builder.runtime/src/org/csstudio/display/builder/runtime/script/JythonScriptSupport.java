@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.script;
 
+import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,7 +19,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.runtime.Preferences;
@@ -41,7 +42,6 @@ import org.python.util.PythonInterpreter;
 class JythonScriptSupport implements AutoCloseable
 {
     private final ScriptSupport support;
-    private final static Logger logger = Logger.getLogger(JythonScriptSupport.class.getName());
 
     final static boolean initialized = init();
 

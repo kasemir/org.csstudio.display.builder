@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.script;
 
+import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
@@ -15,7 +17,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.script.Bindings;
 import javax.script.Compilable;
@@ -32,8 +33,6 @@ import org.csstudio.display.builder.runtime.pv.RuntimePV;
 @SuppressWarnings("nls")
 class JavaScriptSupport
 {
-    private final static Logger logger = Logger.getLogger(JavaScriptSupport.class.getName());
-
     // See comments on queued_scripts in JythonScriptSupport
     private final Set<JavaScript> queued_scripts = Collections.newSetFromMap(new ConcurrentHashMap<JavaScript, Boolean>());
 

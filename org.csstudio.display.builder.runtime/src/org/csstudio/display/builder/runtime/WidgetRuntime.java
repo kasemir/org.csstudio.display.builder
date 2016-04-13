@@ -9,6 +9,7 @@ package org.csstudio.display.builder.runtime;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,7 +20,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -53,9 +53,6 @@ import org.diirt.vtype.VType;
 public class WidgetRuntime<MW extends Widget>
 {
     public static final String EXTENSION_POINT = "org.csstudio.display.builder.runtime.widgets";
-
-    protected static final Logger logger = Logger.getLogger(WidgetRuntime.class.getName());
-
     /** The widget handled by this runtime */
     protected MW widget;
 

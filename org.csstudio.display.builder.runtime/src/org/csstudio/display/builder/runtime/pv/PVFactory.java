@@ -7,10 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.pv;
 
+import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.runtime.Preferences;
 import org.csstudio.display.builder.runtime.pv.vtype_pv.VTypePVFactory;
@@ -31,8 +32,6 @@ public class PVFactory
 
     static
     {
-        final Logger logger = Logger.getLogger(PVFactory.class.getName());
-
         RuntimePVFactory the_factory = null;
 
         // Try to use extension point
