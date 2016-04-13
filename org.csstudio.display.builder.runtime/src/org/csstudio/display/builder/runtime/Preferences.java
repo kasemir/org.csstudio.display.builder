@@ -18,14 +18,26 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 public class Preferences
 {
     public static final String PYTHON_PATH = "python_path";
+    public static final String PV_FACTORY = "pv_factory";
 
     /** @return Python path */
     public static String getPythonPath()
     {
-        String path = "";
+        return get(PYTHON_PATH, "");
+    }
+
+    /** @return PV Factory */
+    public static String getPV_Factory()
+    {
+        return get(PV_FACTORY, "vtype.pv");
+    }
+
+    private static String get(final String setting, final String default_value)
+    {
+        String value = default_value;
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs != null)
-            path = prefs.getString(RuntimePlugin.ID, PYTHON_PATH, path, null);
-        return path;
+            value = prefs.getString(RuntimePlugin.ID, setting, value, null);
+        return value;
     }
 }

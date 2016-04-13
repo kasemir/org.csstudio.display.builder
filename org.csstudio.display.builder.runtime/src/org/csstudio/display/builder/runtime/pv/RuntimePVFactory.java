@@ -14,7 +14,18 @@ import org.csstudio.vtype.pv.PV;
  */
 public interface RuntimePVFactory
 {
+    /** ID of extension point for contributing PV factories */
+    public final static String EXTENSION_POINT = "org.csstudio.display.builder.runtime.pvs";
+
+    /** Get a PV
+     *  @param name Name of PV
+     *  @return {@link RuntimePV}
+     *  @throws Exception on error
+     */
     public RuntimePV getPV(String name) throws Exception;
 
+    /** Release a PV (close, dispose resources, ...)
+     *  @param pv {@link RuntimePV} to release
+     */
     public void releasePV(RuntimePV pv);
 }

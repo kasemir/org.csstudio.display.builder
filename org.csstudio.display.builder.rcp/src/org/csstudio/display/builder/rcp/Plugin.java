@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp;
 
+import java.util.logging.Logger;
+
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.WidgetFontService;
 import org.osgi.framework.BundleActivator;
@@ -20,6 +22,8 @@ public class Plugin implements BundleActivator
 {
     /** Plugin ID */
     public final static String ID = "org.csstudio.display.builder.rcp";
+
+    public final static Logger logger = Logger.getLogger(Plugin.class.getName());
 
     @Override
     public void start(final BundleContext context) throws Exception
