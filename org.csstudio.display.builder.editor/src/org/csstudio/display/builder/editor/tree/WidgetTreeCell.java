@@ -7,8 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.tree;
 
+import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.util.WidgetIcons;
 import org.csstudio.display.builder.model.Widget;
@@ -35,8 +36,7 @@ class WidgetTreeCell extends TreeCell<WidgetOrTab>
         catch (Exception ex)
         {
             tab_icon = null;
-            Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Cannot load tab icon", ex);
+            logger.log(Level.WARNING, "Cannot load tab icon", ex);
         }
     }
 

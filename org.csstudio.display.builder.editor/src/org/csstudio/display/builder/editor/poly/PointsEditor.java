@@ -7,8 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.poly;
 
+import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.properties.Points;
 import org.csstudio.display.builder.util.ResourceUtil;
@@ -26,7 +27,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
-
 /** Editor for interactively adding/moving/removing points
  *
  *  <p>In "APPEND" mode, each mouse click adds another point.
@@ -152,8 +152,7 @@ public class PointsEditor
         }
         catch (Exception ex)
         {
-            Logger.getLogger(PointsEditor.class.getName())
-                  .log(Level.WARNING, "Cannot load cursor images", ex);
+            logger.log(Level.WARNING, "Cannot load cursor images", ex);
         }
     }
 

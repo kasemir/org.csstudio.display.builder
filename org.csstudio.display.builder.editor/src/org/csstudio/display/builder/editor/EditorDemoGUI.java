@@ -7,12 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
+import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.actions.ActionDescription;
 import org.csstudio.display.builder.editor.actions.EnableGridAction;
@@ -62,8 +63,6 @@ import javafx.stage.Stage;
 @SuppressWarnings("nls")
 public class EditorDemoGUI
 {
-    private final Logger logger = Logger.getLogger(getClass().getName());
-
     private volatile File file = null;
 
     private final JFXRepresentation toolkit;

@@ -7,10 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.util;
 
+import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
@@ -23,8 +24,6 @@ import javafx.scene.image.Image;
 @SuppressWarnings("nls")
 public class WidgetIcons
 {
-    private static final Logger logger = Logger.getLogger(WidgetIcons.class.getName());
-
     /** Cache of icon images by widget type */
     private static final Map<String, Image> icons = new ConcurrentHashMap<>();
 
