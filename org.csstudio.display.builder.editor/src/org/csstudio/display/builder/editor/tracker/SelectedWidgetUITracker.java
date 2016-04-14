@@ -366,7 +366,8 @@ public class SelectedWidgetUITracker extends Group
         // Consume handled event to keep the key focus,
         // which is otherwise lost to the 'tab-order' traversal
         final KeyCode code = event.getCode();
-        if (code == KeyCode.DELETE)
+        // Mac OS X and rest differ on delete vs. backspace. Treat the same
+        if (code == KeyCode.DELETE  ||  code == KeyCode.BACK_SPACE)
         {
             undo.execute(new RemoveWidgetsAction(widgets));
             setSelectedWidgets(Collections.emptyList());
