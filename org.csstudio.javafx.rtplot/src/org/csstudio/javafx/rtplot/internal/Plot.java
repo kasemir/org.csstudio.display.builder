@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.AxisRange;
@@ -777,11 +778,10 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     }
 
     /** onMousePressed */
-    public void mouseDown(final MouseEvent e)
+    private void mouseDown(final MouseEvent e)
     {
         // Don't start mouse actions when user invokes context menu
-        if (! e.isPrimaryButtonDown()  ||
-        	 (e.isAltDown() || e.isControlDown()  ||  e.isMetaDown()))
+        if (! e.isPrimaryButtonDown()  ||  (PlatformInfo.is_mac_os_x && e.isControlDown()))
             return;
         final Point2D current = new Point2D(e.getX(), e.getY());
         mouse_start = mouse_current = Optional.of(current);
@@ -876,7 +876,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     }
 
     /** setOnMouseMoved */
-    public void mouseMove(final MouseEvent e)
+    private void mouseMove(final MouseEvent e)
     {
         final Point2D current = new Point2D(e.getX(), e.getY());
         mouse_current = Optional.of(current);
@@ -939,7 +939,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     }
 
     /** setOnMouseReleased */
-    public void mouseUp(final MouseEvent e)
+    private void mouseUp(final MouseEvent e)
     {
         deselectMouseAnnotation();
 
@@ -1033,7 +1033,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     }
 
     /** setOnMouseExited */
-    public void mouseExit(final MouseEvent e)
+    private void mouseExit(final MouseEvent e)
     {
         deselectMouseAnnotation();
         if (show_crosshair)

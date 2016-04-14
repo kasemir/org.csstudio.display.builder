@@ -34,7 +34,7 @@ import javafx.scene.image.ImageView;
 @SuppressWarnings("nls")
 public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
 {
-    private enum ToolIcons
+    public enum ToolIcons
     {
         ADD_ANNOTATION,
         EDIT_ANNOTATION,
@@ -245,6 +245,31 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
 
         toolbar.getItems().add(item);
         return item;
+    }
+
+    /** @param mode {@link MouseMode} ZOOM_IN, ZOOM_OUT, PAN or NONE */
+    public void selectMouseMode(final MouseMode mode)
+    {
+        if (mode == MouseMode.ZOOM_IN)
+        {
+            selectMouseMode(zoom_in);
+            plot.setMouseMode(mode);
+        }
+        else if (mode == MouseMode.ZOOM_OUT)
+        {
+            selectMouseMode(zoom_out);
+            plot.setMouseMode(mode);
+        }
+        else if (mode == MouseMode.PAN)
+        {
+            selectMouseMode(pan);
+            plot.setMouseMode(mode);
+        }
+        else
+        {
+            selectMouseMode(pointer);
+            plot.setMouseMode(MouseMode.NONE);
+        }
     }
 
     /** @param item Tool item to select, all others will be de-selected */
