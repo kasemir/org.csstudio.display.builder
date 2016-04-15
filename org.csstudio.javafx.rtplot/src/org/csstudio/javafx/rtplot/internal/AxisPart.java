@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -14,7 +16,6 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
-import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.RTPlot;
@@ -227,9 +228,8 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
             // Can axis handle this range?
             if (! ticks.isSupportedRange(low, high))
             {
-                Activator.getLogger().log(Level.WARNING,
-                        "Axis {0}: Bad value range {1} ... {2}",
-                        new Object[] { getName(), low, high });
+                logger.log(Level.WARNING, "Axis {0}: Bad value range {1} ... {2}",
+                                          new Object[] { getName(), low, high });
                 return false;
             }
             range = new AxisRange<T>(low, high);

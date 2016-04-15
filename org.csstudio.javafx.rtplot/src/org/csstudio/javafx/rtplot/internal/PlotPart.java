@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.awt.BasicStroke;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -14,7 +16,6 @@ import java.awt.Stroke;
 import java.util.Objects;
 import java.util.logging.Level;
 
-import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 
 import javafx.scene.paint.Color;
@@ -129,7 +130,7 @@ public class PlotPart
     public void setBounds(final int x, final int y, final int width, final int height)
     {
         bounds = new Rectangle(x, y, width, height);
-        Activator.getLogger().log(Level.FINER, "setBound({0}) to {1}", new Object[] { getName(), bounds });
+        logger.log(Level.FINER, "setBound({0}) to {1}", new Object[] { getName(), bounds });
     }
 
     /** @return Screen coordinates */

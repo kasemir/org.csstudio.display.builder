@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FontMetrics;
@@ -18,7 +20,6 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 
-import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.YAxis;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
@@ -183,7 +184,7 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
     @Override
     public int getDesiredPixelSize(final Rectangle region, final Graphics2D gc)
     {
-        Activator.getLogger().log(Level.FINE, "YAxis({0}) layout for {1}", new Object[] { getName(),  region });
+        logger.log(Level.FINE, "YAxis({0}) layout for {1}", new Object[] { getName(),  region });
 
         if (! isVisible())
             return 0;

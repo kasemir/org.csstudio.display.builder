@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -14,7 +16,6 @@ import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.util.logging.Level;
 
-import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 
 import javafx.scene.canvas.GraphicsContext;
@@ -39,7 +40,7 @@ public class HorizontalNumericAxis extends NumericAxis
     @Override
     public final int getDesiredPixelSize(final Rectangle region, final Graphics2D gc)
     {
-        Activator.getLogger().log(Level.FINE,  "XAxis layout");
+        logger.log(Level.FINE,  "XAxis layout");
         gc.setFont(label_font);
         final int label_size = gc.getFontMetrics().getHeight();
         gc.setFont(scale_font);

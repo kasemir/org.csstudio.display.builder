@@ -7,14 +7,14 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.util;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
-
-import org.csstudio.javafx.rtplot.Activator;
 
 /** Throttle for updates.
  *
@@ -63,7 +63,7 @@ public class UpdateThrottle
             }
             catch (Throwable ex)
             {
-                Activator.getLogger().log(Level.WARNING, "Update failed", ex);
+                logger.log(Level.WARNING, "Update failed", ex);
             }
             // Schedule wakeup
             scheduled_wakeup = timer.schedule(this::wakeUp, dormant_ms, TimeUnit.MILLISECONDS);

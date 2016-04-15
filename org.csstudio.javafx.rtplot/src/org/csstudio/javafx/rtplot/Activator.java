@@ -8,7 +8,9 @@
 package org.csstudio.javafx.rtplot;
 
 import java.util.logging.Logger;
+
 import org.csstudio.display.builder.util.ResourceUtil;
+
 import javafx.scene.image.Image;
 
 /** Not an actual Plugin Activator, but providing plugin-related helpers
@@ -20,12 +22,7 @@ public class Activator
     /** Plugin ID defined in MANIFEST.MF */
     final public static String ID = "org.csstudio.javafx.rtplot";
 
-    final private static Logger logger =  Logger.getLogger(ID);
-
-    public static Logger getLogger()
-    {
-        return logger;
-    }
+    final public static Logger logger =  Logger.getLogger(ID);
 
     /** @param base_name Icon base name (no path, no extension)
      *  @return Image
