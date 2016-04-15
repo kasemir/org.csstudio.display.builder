@@ -95,6 +95,10 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
             plot.getUndoableActionManager().redoLast();
         else if (event.getCode() == KeyCode.T)
             showToolbar(! isToolbarVisible());
+        else if (event.getCode() == KeyCode.C)
+            plot.showCrosshair(! plot.isCrosshairVisible());
+        else if (event.getCode() == KeyCode.L)
+            plot.showLegend(! plot.isLegendVisible());
         else if (event.isControlDown())
             toolbar.selectMouseMode(MouseMode.ZOOM_IN);
         else if (event.isAltDown())
