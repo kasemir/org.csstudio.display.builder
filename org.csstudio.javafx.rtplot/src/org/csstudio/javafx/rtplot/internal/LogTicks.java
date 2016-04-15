@@ -7,11 +7,12 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.util.logging.Level;
 
-import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.internal.util.Log10;
 
 /** Helper for creating tick marks.
@@ -39,8 +40,8 @@ public class LogTicks extends LinearTicks
     @Override
     public void compute(final Double low, final Double high, final Graphics2D gc, final int screen_width)
     {
-        Activator.getLogger().log(Level.FINE, "Compute log ticks, width {0}, for {1} - {2}",
-                new Object[] { screen_width, low, high });
+        logger.log(Level.FINE, "Compute log ticks, width {0}, for {1} - {2}",
+                               new Object[] { screen_width, low, high });
 
         // Determine range of values on axis
         if (! isSupportedRange(low, high))

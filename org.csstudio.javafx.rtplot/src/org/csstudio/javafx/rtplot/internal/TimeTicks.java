@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.awt.Graphics2D;
 import java.time.Duration;
 import java.time.Instant;
@@ -19,7 +21,6 @@ import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAmount;
 import java.util.logging.Level;
 
-import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.internal.util.TemporalRounding;
 
 /** Helper for creating tick marks.
@@ -187,8 +188,8 @@ public class TimeTicks implements Ticks<Instant>
         }
         start = low.with(config.rounding);
 
-        Activator.getLogger().log(Level.FINE, "Compute time ticks for {0}, {1} pixels: Tick distance {2}",
-                new Object[] { range, screen_width, config.distance });
+        logger.log(Level.FINE, "Compute time ticks for {0}, {1} pixels: Tick distance {2}",
+                               new Object[] { range, screen_width, config.distance });
     }
 
     /** {@inheritDoc} */

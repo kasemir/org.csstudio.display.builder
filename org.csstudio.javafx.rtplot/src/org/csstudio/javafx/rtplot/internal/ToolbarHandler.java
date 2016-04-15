@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
@@ -238,7 +240,7 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
 		}
 		catch (Exception ex)
 		{
-			Activator.getLogger().log(Level.WARNING, "Cannot get icon" + icon, ex);
+			logger.log(Level.WARNING, "Cannot get icon" + icon, ex);
 			item.setText(icon.toString());
 		}
         item.setTooltip(new Tooltip(tool_tip));

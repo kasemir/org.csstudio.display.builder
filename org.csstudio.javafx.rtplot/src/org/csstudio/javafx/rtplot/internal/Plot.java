@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -23,6 +25,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.PlatformInfo;
@@ -44,6 +47,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
+import javafx.scene.ImageCursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -80,6 +84,8 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     private volatile Color background = Color.WHITE;
 
     static final String FONT_FAMILY = "Liberation Sans";
+
+    private Cursor cursor_pan, cursor_zoom_in, cursor_zoom_out, cursor_zoom;
 
     /** Font to use for, well, title */
     private volatile Font title_font = new Font(FONT_FAMILY, Font.BOLD, 18);
@@ -120,7 +126,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
 
     final private Runnable redraw_runnable = () ->
     {
-    	Activator.getLogger().finer("redraw");
     	final GraphicsContext gc = getGraphicsContext2D();
     	final Image image = plot_image.orElse(null);
     	if (image != null)
@@ -207,6 +212,8 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         plot_area = new PlotPart("main", plot_part_listener);
         legend = new LegendPart<XTYPE>("legend", plot_part_listener);
 
+        initializeCursors();
+
         setMouseMode(MouseMode.PAN);
 
         // 50Hz default throttle
@@ -232,6 +239,25 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
 		setOnMouseReleased(this::mouseUp);
 		setOnMouseExited(this::mouseExit);
 		setOnScroll(this::wheelZoom);
+    }
+
+    private void initializeCursors()
+    {
+        try
+        {
+            cursor_pan = new ImageCursor(Activator.getIcon("cursor_pan"));
+            cursor_zoom_in = new ImageCursor(Activator.getIcon("cursor_zoom_in"));
+            cursor_zoom_out = new ImageCursor(Activator.getIcon("cursor_zoom_out"));
+            cursor_zoom = new ImageCursor(Activator.getIcon("cursor_zoom"));
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Error loading cursors", ex);
+            cursor_pan = Cursor.HAND;
+            cursor_zoom_in = Cursor.DEFAULT;
+            cursor_zoom_out = Cursor.DEFAULT;
+            cursor_zoom = Cursor.DEFAULT;
+        }
     }
 
     /** @param listener Listener to add */
@@ -657,7 +683,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         if (mouse_mode == MouseMode.ZOOM_IN  ||  mouse_mode == MouseMode.ZOOM_OUT)
         {   // Update mouse pointer in ready-to-zoom mode
             if (plot_bounds.contains(current.getX(), current.getY()))
-                setCursor(Cursor.MOVE);
+                setCursor(mouse_mode == MouseMode.ZOOM_IN ? cursor_zoom_in : cursor_zoom_out);
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
                 setCursor(Cursor.H_RESIZE);
             else
@@ -770,15 +796,16 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
             throw new IllegalArgumentException("Not permitted to set " + mode);
         mouse_mode = mode;
 
-        // Selecting system cursor.
-        // Custom cursors are not supported with RAP..
         switch (mode)
         {
         case PAN:
-        	setCursor(Cursor.HAND);
+        	setCursor(cursor_pan);
             break;
         case ZOOM_IN:
-        	setCursor(Cursor.CROSSHAIR);
+        	setCursor(cursor_zoom_in);
+            break;
+        case ZOOM_OUT:
+            setCursor(cursor_zoom_out);
             break;
         default:
         	setCursor(Cursor.DEFAULT);

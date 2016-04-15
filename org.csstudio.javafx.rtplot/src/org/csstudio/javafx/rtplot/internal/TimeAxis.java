@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -16,7 +18,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.logging.Level;
 
-import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.TimeScreenTransform;
@@ -55,7 +56,7 @@ public class TimeAxis extends AxisPart<Instant>
     @Override
     public final int getDesiredPixelSize(final Rectangle region, final Graphics2D gc)
     {
-        Activator.getLogger().log(Level.FINE, "TimeAxis({0}) layout for {1}", new Object[] { getName(),  region });
+        logger.log(Level.FINE, "TimeAxis({0}) layout for {1}", new Object[] { getName(),  region });
 
         gc.setFont(label_font);
         final int label_size = gc.getFontMetrics().getHeight();
