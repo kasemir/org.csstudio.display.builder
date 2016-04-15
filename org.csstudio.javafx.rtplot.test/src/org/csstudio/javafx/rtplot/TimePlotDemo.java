@@ -95,6 +95,8 @@ public class TimePlotDemo extends Application
 //        final Menu menu = mm.createContextMenu(menu_holder);
 //        menu_holder.setMenu(menu);
 
+        plot.showToolbar(true);
+
         plot.addListener(new RTPlotListener<Instant>()
         {
             @Override

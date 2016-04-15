@@ -27,6 +27,7 @@ import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -81,16 +82,20 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         showToolbar(true);
 
         addEventFilter(KeyEvent.KEY_PRESSED, this::keyPressed);
-
-//        toolbar.addContextMenu(toggle_toolbar);
+        // Need focus to receive key events. Get focus when mouse enters
+        setOnMouseEntered(event -> requestFocus());
     }
 
     /** onKeyPressed */
     private void keyPressed(final KeyEvent event)
     {
-        // TODO Only receives key presses when toolbar is visible?!
-        System.out.println("RTPlot.keyPressed: " + event);
-        if (event.isControlDown())
+        if (event.getCode() == KeyCode.Z)
+            plot.getUndoableActionManager().undoLast();
+        else if (event.getCode() == KeyCode.Y)
+            plot.getUndoableActionManager().redoLast();
+        else if (event.getCode() == KeyCode.T)
+            showToolbar(! isToolbarVisible());
+        else if (event.isControlDown())
             toolbar.selectMouseMode(MouseMode.ZOOM_IN);
         else if (event.isAltDown())
             toolbar.selectMouseMode(MouseMode.ZOOM_OUT);
