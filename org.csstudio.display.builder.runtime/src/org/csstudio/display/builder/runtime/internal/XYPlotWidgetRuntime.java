@@ -15,6 +15,7 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget;
+import org.csstudio.display.builder.model.widgets.XYPlotWidget.TraceWidgetProperty;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.display.builder.runtime.pv.PVFactory;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
@@ -45,13 +46,11 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
     {
         super.start();
 
-        WidgetProperty<String> name = widget.behaviorTrace().traceX();
-        WidgetProperty<VType> value = widget.behaviorTrace().xValue();
-        bind(name, value);
-
-        name = widget.behaviorTrace().traceY();
-        value = widget.behaviorTrace().yValue();
-        bind(name, value);
+        for (TraceWidgetProperty trace : widget.behaviorTraces().getValue())
+        {
+            bind(trace.traceX(), trace.xValue());
+            bind(trace.traceY(), trace.yValue());
+        }
     }
 
     private void bind(final WidgetProperty<String> name, final WidgetProperty<VType> value) throws Exception

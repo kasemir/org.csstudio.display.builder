@@ -65,8 +65,10 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         model_widget.behaviorXAxis().autoscale().addUntypedPropertyListener(this::configChanged);
         model_widget.positionWidth().addUntypedPropertyListener(this::positionChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
-        model_widget.behaviorTrace().xValue().addUntypedPropertyListener(this::valueChanged);
-        model_widget.behaviorTrace().yValue().addUntypedPropertyListener(this::valueChanged);
+
+        // TODO Handle multiple traces
+        model_widget.behaviorTraces().getElement(0).xValue().addUntypedPropertyListener(this::valueChanged);
+        model_widget.behaviorTraces().getElement(0).yValue().addUntypedPropertyListener(this::valueChanged);
     }
 
     private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -85,8 +87,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     {
         try
         {
-            final WidgetProperty<VType> x = model_widget.behaviorTrace().xValue();
-            final WidgetProperty<VType> y = model_widget.behaviorTrace().yValue();
+            final WidgetProperty<VType> x = model_widget.behaviorTraces().getElement(0).xValue();
+            final WidgetProperty<VType> y = model_widget.behaviorTraces().getElement(0).yValue();
             final VType x_value = x.getValue();
             final VType y_value = y.getValue();
             if (x_value instanceof VNumberArray  &&  y_value instanceof VNumberArray)
@@ -94,7 +96,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
                 // Create trace as value changes for the first time and thus sends units
                 if (trace0.get() == null)
                 {
-                    Trace<Double> old_trace = trace0.getAndSet(plot.addTrace(model_widget.behaviorTrace().traceY().getValue(),
+                    Trace<Double> old_trace = trace0.getAndSet(plot.addTrace(model_widget.behaviorTraces().getElement(0).traceY().getValue(),
                                                                ((VNumberArray)y_value).getUnits(),
                                                                data0, Color.BLUE, TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5, 0));
                     // Can race result in two value updates trying to add the same trace?
