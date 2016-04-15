@@ -99,6 +99,8 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
             plot.showCrosshair(! plot.isCrosshairVisible());
         else if (event.getCode() == KeyCode.L)
             plot.showLegend(! plot.isLegendVisible());
+        else if (event.getCode() == KeyCode.S)
+            plot.stagger();
         else if (event.isControlDown())
             toolbar.selectMouseMode(MouseMode.ZOOM_IN);
         else if (event.isAltDown())
