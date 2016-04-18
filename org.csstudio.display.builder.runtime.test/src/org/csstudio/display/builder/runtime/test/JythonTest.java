@@ -32,7 +32,7 @@ import org.python.util.PythonInterpreter;
 @SuppressWarnings("nls")
 public class JythonTest
 {
-    private final static int RUNTIME_SECONDS = 5000;
+    private final static int RUNTIME_SECONDS = 5;
 
     // Meant to check for https://github.com/ControlSystemStudio/cs-studio/issues/1687,
     // where presumably the following happened:
@@ -55,9 +55,11 @@ public class JythonTest
 
         String home = PythonInterpreter.class
                                        .getProtectionDomain().getCodeSource().getLocation().toString();
-        System.out.println("Jython JAR: " + home);
+        System.out.println("Jython home: " + home);
         assertThat(home, not(nullValue()));
-        assertThat(home, containsString(".jar"));
+
+        if (home.contains(".jar"))
+            System.out.println("Jython provided as JAR");
         home = home.replace("file:", "");
 
         props.setProperty("python.home", home);
