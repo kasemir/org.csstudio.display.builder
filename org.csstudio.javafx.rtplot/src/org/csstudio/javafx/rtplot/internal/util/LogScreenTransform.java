@@ -12,6 +12,7 @@ package org.csstudio.javafx.rtplot.internal.util;
  */
 public class LogScreenTransform implements ScreenTransform<Double>
 {
+    private double base;
     final private LinearScreenTransform linear;
 
     public LogScreenTransform()
@@ -28,6 +29,7 @@ public class LogScreenTransform implements ScreenTransform<Double>
     @Override
     public void config(final Double x1, final Double x2, final double y1, final double y2)
     {
+        base = y1;
         linear.config(Log10.log10(x1), Log10.log10(x2), y1, y2);
     }
 
@@ -35,6 +37,8 @@ public class LogScreenTransform implements ScreenTransform<Double>
     @Override
     public double transform(final Double x)
     {
+        if (x <= 0)
+            return base;
         return linear.transform(Log10.log10(x));
     }
 
