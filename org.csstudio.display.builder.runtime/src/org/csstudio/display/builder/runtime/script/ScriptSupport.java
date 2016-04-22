@@ -11,7 +11,6 @@ import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Queue;
@@ -59,30 +58,24 @@ public class ScriptSupport
 
     /** Parse and compile script file
      *
-     *  @param path Full path to script file
-     *  @return {@link Script}
-     *  @throws Exception on error
-     */
-    public Script compile(final String path) throws Exception
-    {
-        return compile(path, new FileInputStream(path));
-    }
-
-    /** Parse and compile script file
-     *
-     *  @param path Name of script (file name, URL)
+     *  @param path Path to the script. May be <code>null</null>.
+     *              Added to the script engine's search path
+     *              if not null to allow access to other scripts
+     *              in the same location.
+     *  @param name Name of script, used for messages
+     *              and to identify the type of script (*.py, *.js)
      *  @param stream Stream for the script content
      *  @return {@link Script}
      *  @throws Exception on error
      */
-    public Script compile(final String path, final InputStream stream) throws Exception
+    public Script compile(final String path, final String name, final InputStream stream) throws Exception
     {
-        final InputStream script_stream = patchScript(path, stream);
-        if (ScriptInfo.isJython(path))
-            return jython.compile(path, script_stream);
-        else if (ScriptInfo.isJavaScript(path))
-            return javascript.compile(path, script_stream);
-        throw new Exception("Cannot compile '" + path + "'");
+        final InputStream script_stream = patchScript(name, stream);
+        if (ScriptInfo.isJython(name))
+            return jython.compile(path, name, script_stream);
+        else if (ScriptInfo.isJavaScript(name))
+            return javascript.compile(name, script_stream);
+        throw new Exception("Cannot compile '" + name + "'");
     }
 
     /** Update legacy package names

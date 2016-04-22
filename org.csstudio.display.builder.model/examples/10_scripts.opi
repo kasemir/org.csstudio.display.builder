@@ -18,7 +18,6 @@
     <height>50</height>
     <text>Scripts allow modifications of the display at runtime
 that go beyond the usual PV-based update of a widget.</text>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
@@ -30,7 +29,6 @@ that go beyond the usual PV-based update of a widget.</text>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
     </font>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
@@ -41,7 +39,6 @@ that go beyond the usual PV-based update of a widget.</text>
 - Turn control system display into video game.
 - Perform automation of the control system in the display.
 - Handle interlocks for the control system in the display.</text>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
@@ -53,7 +50,6 @@ that go beyond the usual PV-based update of a widget.</text>
 The script API cannot be guaranteed to remain available as the display builder
 evolves. Scripts may need to be updated as the API changes.
 </text>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
@@ -67,7 +63,6 @@ evolves. Scripts may need to be updated as the API changes.
   a web service lookup, for a specific need that is not
   generic enough to create a new widget or
   PV data source.</text>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update</name>
@@ -112,7 +107,6 @@ evolves. Scripts may need to be updated as the API changes.
     <height>50</height>
     <text>Script attached to label, triggered by the PV,
 updates the label's text to indicate positive or negative value.</text>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
@@ -126,7 +120,6 @@ then using a plain Text Update widget to show the result...</text>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_1</name>
@@ -155,7 +148,6 @@ then using a plain Text Update widget to show the result...</text>
 updates the label's position based on that PV
 and some other local PVs which are used to pass in 
 constant configuration parameters.</text>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_13</name>
@@ -168,7 +160,6 @@ Clearly a counterexample for the use of scripts.</text>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_10</name>
@@ -230,7 +221,6 @@ Clearly a counterexample for the use of scripts.</text>
     <width>330</width>
     <height>30</height>
     <text>Script will update the PV name of the Text Update:</text>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_2</name>
@@ -265,7 +255,6 @@ new displays, passing macros for the PV names...</text>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_19</name>
@@ -329,7 +318,6 @@ would avoid scripts and maybe overall be better.</text>
     <height>40</height>
     <text>Similar: Enter mode values 0 or 1,
 and the "Active" label moves next to the selected mode.</text>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button</name>
@@ -384,7 +372,6 @@ as long as the display is open, continuously updating
 the widgets in the display,
 or use a script that performs a comparably lengthy computation
 before updating the display.</text>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_22</name>
@@ -400,39 +387,75 @@ before updating the display.</text>
   <widget type="label" version="2.0.0">
     <name>Label_27</name>
     <x>411</x>
-    <y>881</y>
+    <y>871</y>
     <width>452</width>
-    <height>53</height>
+    <height>70</height>
     <text>The Jython search path is configured via a display builder preference.
-It's current value:</text>
-    <vertical_alignment>0</vertical_alignment>
+In addition, the location of each invoked script is added to allow
+"import" from files in the same location of the script.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_28</name>
     <x>411</x>
-    <y>934</y>
-    <width>430</width>
-    <height>97</height>
+    <y>961</y>
+    <width>690</width>
+    <height>170</height>
     <background_color>
       <color name="Read_Background" red="240" green="240" blue="240">
       </color>
     </background_color>
+    <transparent>false</transparent>
     <font>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
-    <vertical_alignment>0</vertical_alignment>
     <scripts>
       <script file="EmbeddedPy">
         <text><![CDATA[# Embedded python script
-
 import sys
 
-path = "\n".join(entry for entry in sys.path)
+path = "\n".join(sys.path)
 
 widget.setPropertyValue("text", path)]]></text>
         <pv_name>loc://trigger_path_script(1)</pv_name>
       </script>
     </scripts>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_29</name>
+    <x>411</x>
+    <y>931</y>
+    <width>232</width>
+    <height>30</height>
+    <text>Current search path:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_30</name>
+    <x>411</x>
+    <y>1141</y>
+    <width>452</width>
+    <height>70</height>
+    <text>For performance reasons, the Jython state is shared, so the
+search path will grow over time as scripts are invoked
+from new locations.</text>
+    <font>
+      <font name="Fine Print" family="Liberation Sans" style="REGULAR" size="12.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_2</name>
+    <x>691</x>
+    <y>791</y>
+    <width>110</width>
+    <height>30</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>webservice/webservice.opi</file>
+        <target>replace</target>
+        <description>Web Service</description>
+      </action>
+    </actions>
   </widget>
 </display>

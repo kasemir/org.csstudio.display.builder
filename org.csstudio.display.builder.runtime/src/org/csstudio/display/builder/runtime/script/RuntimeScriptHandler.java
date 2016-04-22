@@ -58,20 +58,22 @@ public class RuntimeScriptHandler implements RuntimePVListener
         // Compile script
         final String script_name = MacroHandler.replace(macros, script_info.getPath());
         final ScriptSupport scripting = RuntimeUtil.getScriptSupport(widget);
-
         final InputStream stream;
+        final DisplayModel model = widget.getDisplayModel();
+        final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+        final String path;
         if (script_info.getText() == null)
         {   // Load external script
-            final DisplayModel model = widget.getDisplayModel();
-            final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
             final String resolved = ModelResourceUtil.resolveResource(parent_display, script_name);
             stream = ModelResourceUtil.openResourceStream(resolved);
+            path = ModelResourceUtil.getLocation(resolved);
         }
         else
         {   // Use script text that was embedded in display
             stream = new ByteArrayInputStream(script_info.getText().getBytes());
+            path = ModelResourceUtil.getLocation(parent_display);
         }
-        return scripting.compile(script_name, stream);
+        return scripting.compile(path, script_name, stream);
     }
 
     /** @param widget Widget on which the script is invoked

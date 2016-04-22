@@ -20,12 +20,33 @@ import org.junit.Test;
 public class PathTest
 {
     @Test
-    public void testPaths() throws Exception
+    public void testNormalize() throws Exception
     {
         String path;
 
         path = ModelResourceUtil.normalize("C:\\some path\\subdir\\file.opi");
         assertThat(path, equalTo("C:/some path/subdir/file.opi"));
+    }
+
+    @Test
+    public void testLocation() throws Exception
+    {
+        String loc;
+
+        loc = ModelResourceUtil.getLocation("https://webopi.sns.gov/webopi/opi/Instruments.opi");
+        assertThat(loc, equalTo("https://webopi.sns.gov/webopi/opi"));
+
+        loc = ModelResourceUtil.getLocation("/usr/local/opi/Instruments.opi");
+        assertThat(loc, equalTo("/usr/local/opi"));
+
+        loc = ModelResourceUtil.getLocation("Instruments.opi");
+        assertThat(loc, equalTo("."));
+    }
+
+    @Test
+    public void testCombine() throws Exception
+    {
+        String path;
 
         path = ModelResourceUtil.combineDisplayPaths(null, "example.opi");
         assertThat(path, equalTo("example.opi"));
