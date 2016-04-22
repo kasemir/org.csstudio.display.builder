@@ -10,6 +10,8 @@ package org.csstudio.display.builder.runtime.test;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+import java.io.FileInputStream;
+
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
@@ -36,7 +38,9 @@ public class JythonScriptTest
 
         // Set widget variable in script
         final ScriptSupport scripting = new ScriptSupport();
-        final Script script = scripting.compile("../org.csstudio.display.builder.runtime.test/examples/updateText.py");
+        final Script script = scripting.compile(".",
+                                                "updateText.py",
+                                                new FileInputStream("../org.csstudio.display.builder.runtime.test/examples/updateText.py"));
 
         for (int run=0; run<10; ++run)
         {

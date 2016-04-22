@@ -1,8 +1,8 @@
+"""Example for library that queries a site-specific web service
+"""
 import re
 import os
 import urllib
-
-print("I'm in " + __name__)
 
 # Hack for jython's urllib, see https://github.com/PythonScanClient/PyScanClient/issues/18
 if os.name == 'java':
@@ -21,18 +21,9 @@ else:
         # C-Python _socket.py needs no fix
         pass
 
+
 def read_html():
     checkSocketLib()
-    # Returns something like this:
-    # html="""
-    # <table class='styled'>
-    # <tbody>
-    #   <tr><th>Time</th><th>Title</th></tr>
-    #   <tr><td>2016-04-22 07:37</td><td><a href='logbook.jsp#522722' target='_top'>IHC Beamline 11B - MaNDi</a></td></tr>
-    #   <tr><td>2016-04-22 07:35</td><td><a href='logbook.jsp#522721' target='_top'>IHC Beamline 11A - PowGen</a></td></tr>
-    # </tbody>
-    # </table>
-    # """
     f = urllib.urlopen('http://status.sns.ornl.gov/logbook_titles.jsp')
     return f.read()
 
@@ -48,6 +39,6 @@ def format_html(html):
     return "\n".join(text)
 
 
-widget.setPropertyValue("text", "Fetching entries...")
-text = format_html(read_html())
-widget.setPropertyValue("text",  text)
+if __name__ == "__main__":
+    print("== Recent Logbook Entry Titles ==")
+    print(format_html(read_html()))

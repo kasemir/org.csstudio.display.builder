@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 import org.python.core.PyCode;
+import org.python.core.PyList;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
@@ -143,19 +144,27 @@ class JythonScriptSupport implements AutoCloseable
     public JythonScriptSupport(final ScriptSupport support) throws Exception
     {
         this.support = support;
-        // Concurrent of python interpreters has in past resulted in
+
+        // Concurrent creation of python interpreters has in past resulted in
         //     Lib/site.py", line 571, in <module> ..
         //     Lib/sysconfig.py", line 159, in _subst_vars AttributeError: {'userbase'}
         // or  Lib/site.py", line 122, in removeduppaths java.util.ConcurrentModificationException
-        //
         // Sync. on JythonScriptSupport to serialize the interpreter creation and avoid above errors.
-        // Curiously, this speeds the interpreter creation up,
-        // presumably because they're not concurrently trying to access the same resources?
-
         final long start = System.currentTimeMillis();
         synchronized (JythonScriptSupport.class)
         {
-             python = new PythonInterpreter(null, null);
+            // Could create a new 'state' for each interpreter
+            // ++ Seems 'correct' since each interpreter then has its own path etc.
+            // -- In scan server, some instances of the PythonInterpreter seemed
+            //    to fall back to the default PySystemState even though
+            //    a custom state was provided. Seemed related to thread local,
+            //    not fully understood.
+            // -- Using a new PySystemState adds about 3 second startup time,
+            //    while using the default state only incurs that 3 second delay
+            //    on very first access.
+            // ==> Not using state = new PySystemState();
+            final PySystemState state = null;
+            python = new PythonInterpreter(null, state);
         }
         final long end = System.currentTimeMillis();
         logger.log(Level.FINE, "Time to create jython: {0} ms", (end - start));
@@ -163,13 +172,21 @@ class JythonScriptSupport implements AutoCloseable
 
     /** Parse and compile script file
      *
+     *  @param path Path to add to search path
      *  @param name Name of script (file name, URL)
      *  @param stream Stream for the script content
      *  @return {@link Script}
      *  @throws Exception on error
      */
-    public Script compile(final String name, final InputStream stream) throws Exception
+    public Script compile(final String path, final String name, final InputStream stream) throws Exception
     {
+        // Since using default PySystemState (see above), check if already in paths
+        final PyList paths = python.getSystemState().path;
+        if (! paths.contains(path))
+        {
+            logger.log(Level.FINE, "Adding to jython path: {0}", path);
+            paths.add(0, path);
+        }
         final long start = System.currentTimeMillis();
         final PyCode code = python.compile(new InputStreamReader(stream), name);
         final long end = System.currentTimeMillis();
