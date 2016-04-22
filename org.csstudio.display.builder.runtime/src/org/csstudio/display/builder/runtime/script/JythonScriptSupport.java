@@ -172,7 +172,7 @@ class JythonScriptSupport implements AutoCloseable
 
     /** Parse and compile script file
      *
-     *  @param path Path to add to search path
+     *  @param path Path to add to search path, or <code>null</code>
      *  @param name Name of script (file name, URL)
      *  @param stream Stream for the script content
      *  @return {@link Script}
@@ -180,12 +180,14 @@ class JythonScriptSupport implements AutoCloseable
      */
     public Script compile(final String path, final String name, final InputStream stream) throws Exception
     {
-        // Since using default PySystemState (see above), check if already in paths
-        final PyList paths = python.getSystemState().path;
-        if (! paths.contains(path))
-        {
-            logger.log(Level.FINE, "Adding to jython path: {0}", path);
-            paths.add(0, path);
+        if (path != null)
+        {   // Since using default PySystemState (see above), check if already in paths
+            final PyList paths = python.getSystemState().path;
+            if (! paths.contains(path))
+            {
+                logger.log(Level.FINE, "Adding to jython path: {0}", path);
+                paths.add(0, path);
+            }
         }
         final long start = System.currentTimeMillis();
         final PyCode code = python.compile(new InputStreamReader(stream), name);
