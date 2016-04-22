@@ -11,14 +11,6 @@
 
 display = widget.getDisplayModel()
 
-# TODO Should Runtime add directory of the *.opi to path?
-from java.io import File
-file = File(display.getUserData("_input_file"))
-dir = file.getParent()
-import sys
-sys.path.append(dir)
-
-
 from t3 import T3
 from org.csstudio.display.builder.runtime.script import PVUtil
 

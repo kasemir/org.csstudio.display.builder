@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Web Service</name>
+  <x>-1</x>
+  <y>-1</y>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <width>491</width>
+    <height>31</height>
+    <text>Web Service Example</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <y>41</y>
+    <width>571</width>
+    <height>220</height>
+    <text>Script that fetches data from a web service.
+
+Example for integrating a site-specific web service,
+in this case for titles of recent SNS logbook entries,
+into a display.
+
+Cannot use ordinary widgets because the data is not available via Channel Access.
+
+Without scripts, this would require implementing a custom widget,
+an effort that is unlikely warranted for such a site-specific need.
+A script on the other hand is easy to implement,
+and its performance is "good enough".</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_2</name>
+    <y>281</y>
+    <width>341</width>
+    <text>Recent SNS Logbook Entry Titles</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <y>311</y>
+    <width>530</width>
+    <height>197</height>
+    <text>&lt;Script will fetch logbook entries..&gt;</text>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+    <transparent>false</transparent>
+    <scripts>
+      <script file="scripts/service_example.py">
+        <pv_name>loc://initial_trigger4565(1)</pv_name>
+      </script>
+    </scripts>
+  </widget>
+</display>
