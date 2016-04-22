@@ -5,3 +5,11 @@ org.csstudio.display.builder.runtime.test/cachedir/
 build.log
 *.class
 
+# Ignore files created by IDE on Maven import
+.project
+.settings
+# Ignore generated .classpath, except for those plugins that use FXCanvas
+.classpath
+!org.csstudio.display.builder.editor.rcp/.classpath
+!org.csstudio.display.builder.rcp/.classpath
+!org.csstudio.display.builder.representation.test/.classpath

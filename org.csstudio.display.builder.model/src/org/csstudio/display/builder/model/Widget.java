@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorActions;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorRules;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorScripts;
@@ -27,7 +28,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.macros.MacroOrPropertyProvider;
@@ -506,8 +506,7 @@ public class Widget
         {   // Debug gimmick:
             // null is not supported as valid key,
             // but triggers dump of all user properties
-            Logger.getLogger(getClass().getName())
-                .info(this + " user data: " + user_data.entrySet());
+            logger.info(this + " user data: " + user_data.entrySet());
             return null;
         }
         final Object data = user_data.get(key);

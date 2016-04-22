@@ -7,11 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.BaseWidgetPropertyListener;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
@@ -113,8 +114,7 @@ public abstract class PropertyChangeHandler<T extends Object>
     {
         final boolean removed = getListeners().remove(listener);
         if (! removed)
-            Logger.getLogger(getClass().getName())
-                  .log(Level.SEVERE, "Unknown listener " + listener);
+            logger.log(Level.SEVERE, "Unknown listener " + listener);
     }
 
     /** Notify listeners of property change.
@@ -149,8 +149,7 @@ public abstract class PropertyChangeHandler<T extends Object>
        // Not necessarily a problem, but likely better avoided.
        final int recursion_level = recursions.incrementAndGet();
        if (recursion_level > 1)
-           Logger.getLogger(getClass().getName())
-                 .log(Level.WARNING,
+           logger.log(Level.WARNING,
                       "Recursive update of property " + property.getName() + ", " +
                       recursion_level + " deep");
        // Notify listeners
@@ -165,8 +164,7 @@ public abstract class PropertyChangeHandler<T extends Object>
            }
            catch (Throwable ex)
            {   // Log error, then continue with next listener
-               Logger.getLogger(getClass().getName())
-                     .log(Level.WARNING, "Property update error for " +  property, ex);
+               logger.log(Level.WARNING, "Property update error for " +  property, ex);
            }
        }
        recursions.decrementAndGet();

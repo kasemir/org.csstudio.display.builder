@@ -7,11 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.util;
 
+import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -34,8 +35,6 @@ import javafx.scene.input.TransferMode;
 @SuppressWarnings("nls")
 public class WidgetTransfer
 {
-    private static final Logger logger = Logger.getLogger(WidgetTransfer.class.getName());
-
     // Could create custom data format, or use "application/xml".
     // Transferring as DataFormat("text/plain"), however, allows exchange
     // with basic text editor, which can be very convenient.

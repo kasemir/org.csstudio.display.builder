@@ -7,9 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime;
 
+import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
+
 import java.util.concurrent.Future;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
@@ -27,8 +28,6 @@ import org.csstudio.display.builder.representation.ToolkitRepresentation;
 @SuppressWarnings("nls")
 public class ActionUtil
 {
-    private static final Logger logger = Logger.getLogger(ActionUtil.class.getName());
-
     /** Handle an action
      *  @param source_widget Widget from which the action is invoked.
      *  @param action Information about the action to perform

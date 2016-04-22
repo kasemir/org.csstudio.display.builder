@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets.plots;
 
+import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.logging.Level;

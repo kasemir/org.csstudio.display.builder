@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,7 +21,6 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.ArcWidget;
@@ -88,7 +89,6 @@ public class WidgetFactory
         else
         {   // Load available widgets from registry, which allows
             // other plugins to contribute widgets
-            final Logger logger = Logger.getLogger(getClass().getName());
             for (IConfigurationElement config : registry.getConfigurationElementsFor(EXTENSION_POINT_ID))
             {
                 final WidgetDescriptor descriptor = WidgetDescriptor.fromRegistryEntry(config);

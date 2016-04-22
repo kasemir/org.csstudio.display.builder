@@ -28,13 +28,14 @@ and similar "look", with improvements:
 Dependencies
 ------------
 
- * Java 8 SDK.
-   Needs at least 1.8.0_40 for javafx.scene.control.Dialog.
-   1.8.0_51 causes ComboBoxes in editor's property panel to hang on Windows,
-   OK with 1.8.0_71. 
+ * Java 8 SDK, at least 1.8.0_7x.
+   Needs 1.8.0_40 for javafx.scene.control.Dialog.
+   1.8.0_51 causes ComboBoxes in editor's property panel to hang on Windows, fixed in later releases.
+ * Eclipse IDE for RCP Development with `Tycho Configurator`.
+   In `Preferences`, `Maven`, `Catalog`, search for "tycho" and install it.
  * In Eclipse Preferences, Java, Build Path, Classpath Variables:
-    Set `JFXSWT` to the `lib/jfxswt.jar` file within your JRE.
-    For example, on Mac OS X this could be `/Library/Java/JavaVirtualMachines/jdk1.8.0_71.jdk/Contents/Home/jre/lib/jfxswt.jar`.
+   Set `JFXSWT` to the `lib/jfxswt.jar` file within your JRE.
+   For example, on Mac OS X this could be `/Library/Java/JavaVirtualMachines/jdk1.8.0_71.jdk/Contents/Home/jre/lib/jfxswt.jar`.
  * As Eclipse Preferences, Plugin Development, Target platform, use a CS-Studio target.
    For example, use the current IDE and add a "Directory" pointing to a CSS product's `plugins/` directory.
  * In product start config, add VM options
@@ -42,6 +43,18 @@ Dependencies
  * Demos use EPICS `softIoc` for `org.csstudio.display.builder.runtime.test/examples/demo.db`
  * Install the "Liberation" fonts from https://fedorahosted.org/liberation-fonts.
    Mac OS X: Double-click each *.ttf to preview, then click "Install Font".
+
+
+Source Import into IDE
+----------------------
+
+Use `File`, `Import`, `Maven`, `Existing Maven Projects` to import the `org.csstudio.display.builder` source folder into the IDE.
+
+__Note:__ The Tycho Configurator will adjust three `.classpath` files,
+the Team (git) support will indicate changes.
+Replace the changes with the HEAD version of the repository.
+
+(These .classfiles add the `JFXSWT` variable defined above to the IDE classpath)
 
 
 Entry Points

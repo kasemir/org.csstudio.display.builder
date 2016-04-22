@@ -7,8 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.undo;
 
+import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
@@ -46,12 +47,11 @@ public class SetWidgetEnumPropertyAction extends UndoableAction
         else
             try
             {
-                widget_property.setValueFromObject((Integer) value);
+                widget_property.setValueFromObject(value);
             }
             catch (Throwable ex)
             {
-                Logger.getLogger(getClass().getName())
-                      .log(Level.WARNING, "Cannot set " + widget_property.getName() + " to " + value, ex);
+                logger.log(Level.WARNING, "Cannot set " + widget_property.getName() + " to " + value, ex);
             }
     }
 

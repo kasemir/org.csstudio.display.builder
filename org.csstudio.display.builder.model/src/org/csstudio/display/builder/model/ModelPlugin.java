@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import java.util.logging.Logger;
+
 /** Plugin information.
  *  @author Kay Kasemir
  */
@@ -15,4 +17,6 @@ public class ModelPlugin
 {
     /** Plugin ID */
     public final static String ID = "org.csstudio.display.builder.model";
+
+    public final static Logger logger = Logger.getLogger(ModelPlugin.class.getName());
 }

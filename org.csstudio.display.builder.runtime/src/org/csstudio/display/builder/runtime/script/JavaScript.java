@@ -12,7 +12,7 @@ import java.util.concurrent.Future;
 import javax.script.CompiledScript;
 
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.vtype.pv.PV;
+import org.csstudio.display.builder.runtime.pv.RuntimePV;
 
 /** Compiled Java script
  *  @author Kay Kasemir
@@ -50,7 +50,7 @@ class JavaScript implements Script
     }
 
     @Override
-    public Future<Object> submit(final Widget widget, final PV... pvs)
+    public Future<Object> submit(final Widget widget, final RuntimePV... pvs)
     {
         return support.submit(this, widget, pvs);
     }

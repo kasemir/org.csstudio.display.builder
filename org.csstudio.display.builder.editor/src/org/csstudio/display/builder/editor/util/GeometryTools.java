@@ -7,11 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.util;
 
+import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -96,8 +97,7 @@ public class GeometryTools
         }
         catch (IllegalArgumentException ex)
         {
-            Logger.getLogger(GeometryTools.class.getName())
-                  .log(Level.WARNING, "Widget has invalid size " + widget, ex);
+            logger.log(Level.WARNING, "Widget has invalid size " + widget, ex);
             return new Rectangle2D(offset.getX() + widget.positionX().getValue(),
                                    offset.getY() + widget.positionY().getValue(),
                                    1, 1);

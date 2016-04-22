@@ -7,11 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.tracker;
 
+import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
@@ -56,9 +57,6 @@ public class SelectedWidgetUITracker extends Group
     // resulting in very poor representation when 'moving' widgets.
     //
     // -> Only using drag/drop for a 'copy' drag.
-
-    private final Logger logger = Logger.getLogger(getClass().getName());
-
     private static final int handle_size = 15;
 
     private final ToolkitRepresentation<Parent, Node> toolkit;
@@ -368,7 +366,8 @@ public class SelectedWidgetUITracker extends Group
         // Consume handled event to keep the key focus,
         // which is otherwise lost to the 'tab-order' traversal
         final KeyCode code = event.getCode();
-        if (code == KeyCode.DELETE)
+        // Mac OS X and rest differ on delete vs. backspace. Treat the same
+        if (code == KeyCode.DELETE  ||  code == KeyCode.BACK_SPACE)
         {
             undo.execute(new RemoveWidgetsAction(widgets));
             setSelectedWidgets(Collections.emptyList());

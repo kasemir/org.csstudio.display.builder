@@ -7,10 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.top;
 
+import static org.csstudio.display.builder.rcp.Plugin.logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
@@ -49,8 +50,7 @@ public class TopDisplaysMenu extends CompoundContributionItem
         }
         catch (Exception ex)
         {
-            Logger.getLogger(getClass().getName())
-                  .log(Level.WARNING, "Cannot create 'top displays'", ex);
+            logger.log(Level.WARNING, "Cannot create 'top displays'", ex);
         }
 
         return new IContributionItem[] { items };

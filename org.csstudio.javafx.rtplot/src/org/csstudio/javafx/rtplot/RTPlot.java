@@ -27,18 +27,19 @@ import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-
 
 /** Real-time plot
  *
  *  @param <XTYPE> Data type used for the {@link PlotDataItem}
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
+@SuppressWarnings({ "nls", "restriction" })
 public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 {
     final protected Plot<XTYPE> plot;
@@ -80,7 +81,34 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         setCenter(center);
         showToolbar(true);
 
-//        toolbar.addContextMenu(toggle_toolbar);
+        addEventFilter(KeyEvent.KEY_PRESSED, this::keyPressed);
+        // Need focus to receive key events. Get focus when mouse enters
+        setOnMouseEntered(event -> requestFocus());
+    }
+
+    /** onKeyPressed */
+    private void keyPressed(final KeyEvent event)
+    {
+        if (event.getCode() == KeyCode.Z)
+            plot.getUndoableActionManager().undoLast();
+        else if (event.getCode() == KeyCode.Y)
+            plot.getUndoableActionManager().redoLast();
+        else if (event.getCode() == KeyCode.T)
+            showToolbar(! isToolbarVisible());
+        else if (event.getCode() == KeyCode.C)
+            plot.showCrosshair(! plot.isCrosshairVisible());
+        else if (event.getCode() == KeyCode.L)
+            plot.showLegend(! plot.isLegendVisible());
+        else if (event.getCode() == KeyCode.S)
+            plot.stagger();
+        else if (event.isControlDown())
+            toolbar.selectMouseMode(MouseMode.ZOOM_IN);
+        else if (event.isAltDown())
+            toolbar.selectMouseMode(MouseMode.ZOOM_OUT);
+        else if (event.isShiftDown())
+            toolbar.selectMouseMode(MouseMode.PAN);
+        else
+            toolbar.selectMouseMode(MouseMode.NONE);
     }
 
     /** @param listener Listener to add */

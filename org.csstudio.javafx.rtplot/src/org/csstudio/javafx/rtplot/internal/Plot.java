@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -23,8 +25,10 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.AxisRange;
@@ -43,10 +47,12 @@ import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
+import javafx.scene.ImageCursor;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 
 /** Plot with axes and area that displays the traces
  *
@@ -78,6 +84,8 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     private volatile Color background = Color.WHITE;
 
     static final String FONT_FAMILY = "Liberation Sans";
+
+    private Cursor cursor_pan, cursor_zoom_in, cursor_zoom_out, cursor_zoom;
 
     /** Font to use for, well, title */
     private volatile Font title_font = new Font(FONT_FAMILY, Font.BOLD, 18);
@@ -118,7 +126,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
 
     final private Runnable redraw_runnable = () ->
     {
-    	Activator.getLogger().finer("redraw");
     	final GraphicsContext gc = getGraphicsContext2D();
     	final Image image = plot_image.orElse(null);
     	if (image != null)
@@ -205,6 +212,8 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         plot_area = new PlotPart("main", plot_part_listener);
         legend = new LegendPart<XTYPE>("legend", plot_part_listener);
 
+        initializeCursors();
+
         setMouseMode(MouseMode.PAN);
 
         // 50Hz default throttle
@@ -229,6 +238,26 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
 		setOnMouseDragged(this::mouseMove);
 		setOnMouseReleased(this::mouseUp);
 		setOnMouseExited(this::mouseExit);
+		setOnScroll(this::wheelZoom);
+    }
+
+    private void initializeCursors()
+    {
+        try
+        {
+            cursor_pan = new ImageCursor(Activator.getIcon("cursor_pan"));
+            cursor_zoom_in = new ImageCursor(Activator.getIcon("cursor_zoom_in"));
+            cursor_zoom_out = new ImageCursor(Activator.getIcon("cursor_zoom_out"));
+            cursor_zoom = new ImageCursor(Activator.getIcon("cursor_zoom"));
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Error loading cursors", ex);
+            cursor_pan = Cursor.HAND;
+            cursor_zoom_in = Cursor.DEFAULT;
+            cursor_zoom_out = Cursor.DEFAULT;
+            cursor_zoom = Cursor.DEFAULT;
+        }
     }
 
     /** @param listener Listener to add */
@@ -654,7 +683,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         if (mouse_mode == MouseMode.ZOOM_IN  ||  mouse_mode == MouseMode.ZOOM_OUT)
         {   // Update mouse pointer in ready-to-zoom mode
             if (plot_bounds.contains(current.getX(), current.getY()))
-                setCursor(Cursor.MOVE);
+                setCursor(mouse_mode == MouseMode.ZOOM_IN ? cursor_zoom_in : cursor_zoom_out);
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
                 setCursor(Cursor.H_RESIZE);
             else
@@ -752,6 +781,12 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         show_crosshair = show;
     }
 
+    /** return Show the cross-hair cursor? */
+    public boolean isCrosshairVisible()
+    {
+        return show_crosshair;
+    }
+
     /** @param mode New {@link MouseMode}
      *  @throws IllegalArgumentException if mode is internal
      */
@@ -761,15 +796,16 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
             throw new IllegalArgumentException("Not permitted to set " + mode);
         mouse_mode = mode;
 
-        // Selecting system cursor.
-        // Custom cursors are not supported with RAP..
         switch (mode)
         {
         case PAN:
-        	setCursor(Cursor.HAND);
+        	setCursor(cursor_pan);
             break;
         case ZOOM_IN:
-        	setCursor(Cursor.CROSSHAIR);
+        	setCursor(cursor_zoom_in);
+            break;
+        case ZOOM_OUT:
+            setCursor(cursor_zoom_out);
             break;
         default:
         	setCursor(Cursor.DEFAULT);
@@ -777,11 +813,10 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     }
 
     /** onMousePressed */
-    public void mouseDown(final MouseEvent e)
+    private void mouseDown(final MouseEvent e)
     {
         // Don't start mouse actions when user invokes context menu
-        if (! e.isPrimaryButtonDown()  ||
-        	 (e.isAltDown() || e.isControlDown()  ||  e.isMetaDown()))
+        if (! e.isPrimaryButtonDown()  ||  (PlatformInfo.is_mac_os_x && e.isControlDown()))
             return;
         final Point2D current = new Point2D(e.getX(), e.getY());
         mouse_start = mouse_current = Optional.of(current);
@@ -831,52 +866,11 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
             }
         }
         else if (mouse_mode == MouseMode.ZOOM_OUT)
-        {   // Zoom 'out' from where the mouse was clicked
-            if (x_axis.getBounds().contains(current.getX(), current.getY()))
-            {   // Zoom out of X axis
-                final AxisRange<XTYPE> orig = x_axis.getValueRange();
-                x_axis.zoom((int)current.getX(), ZOOM_FACTOR);
-                undo.add(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_Out_X, x_axis, orig, x_axis.getValueRange()));
-                fireXAxisChange();
-            }
-            else if (plot_area.getBounds().contains(current.getX(), current.getY()))
-            {   // Zoom out of X..
-                final AxisRange<XTYPE> orig_x = x_axis.getValueRange();
-                x_axis.zoom((int)current.getX(), ZOOM_FACTOR);
-                fireXAxisChange();
-                // .. and Y axes
-                final List<AxisRange<Double>> old_range = new ArrayList<>(y_axes.size()),
-                                              new_range = new ArrayList<>(y_axes.size());
-                for (YAxisImpl<XTYPE> axis : y_axes)
-                {
-                      old_range.add(axis.getValueRange());
-                      axis.zoom((int)current.getY(), ZOOM_FACTOR);
-                      new_range.add(axis.getValueRange());
-                      fireYAxisChange(axis);
-                }
-                undo.execute(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_Out,
-                        x_axis, orig_x, x_axis.getValueRange(), y_axes, old_range, new_range));
-            }
-            else
-            {
-                for (YAxisImpl<XTYPE> axis : y_axes)
-                    if (axis.getBounds().contains(current.getX(), current.getY()))
-                    {
-                        final AxisRange<Double> orig = axis.getValueRange();
-                        axis.zoom((int)current.getY(), ZOOM_FACTOR);
-                        fireYAxisChange(axis);
-                        undo.add(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_Out_Y,
-                                Arrays.asList(axis),
-                                Arrays.asList(orig),
-                                Arrays.asList(axis.getValueRange())));
-                        break;
-                    }
-            }
-        }
+            zoomInOut(current.getX(), current.getY(), ZOOM_FACTOR);
     }
 
     /** setOnMouseMoved */
-    public void mouseMove(final MouseEvent e)
+    private void mouseMove(final MouseEvent e)
     {
         final Point2D current = new Point2D(e.getX(), e.getY());
         mouse_current = Optional.of(current);
@@ -939,7 +933,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     }
 
     /** setOnMouseReleased */
-    public void mouseUp(final MouseEvent e)
+    private void mouseUp(final MouseEvent e)
     {
         deselectMouseAnnotation();
 
@@ -1032,8 +1026,73 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         }
     }
 
+    /** Zoom in/out triggered by mouse wheel
+     *  @param event Scroll event
+     */
+    private void wheelZoom(final ScrollEvent event)
+    {
+        // Invoked by mouse scroll wheel.
+        // Only allow zoom (with control), not pan.
+        if (! event.isControlDown())
+            return;
+
+        if (event.getDeltaY() > 0)
+            zoomInOut(event.getX(), event.getY(), 1.0/ZOOM_FACTOR);
+        else if (event.getDeltaY() < 0)
+            zoomInOut(event.getX(), event.getY(), ZOOM_FACTOR);
+    }
+
+    /** Zoom 'in' or 'out' from where the mouse was clicked
+     *  @param x Mouse coordinate
+     *  @param y Mouse coordinate
+     *  @param factor Zoom factor, positive to zoom 'out'
+     */
+    private void zoomInOut(final double x, final double y, final double factor)
+    {
+        if (x_axis.getBounds().contains(x, y))
+        {   // Zoom X axis
+            final AxisRange<XTYPE> orig = x_axis.getValueRange();
+            x_axis.zoom((int)x, factor);
+            undo.add(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_Out_X, x_axis, orig, x_axis.getValueRange()));
+            fireXAxisChange();
+        }
+        else if (plot_area.getBounds().contains(x, y))
+        {   // Zoom X..
+            final AxisRange<XTYPE> orig_x = x_axis.getValueRange();
+            x_axis.zoom((int)x, factor);
+            fireXAxisChange();
+            // .. and Y axes
+            final List<AxisRange<Double>> old_range = new ArrayList<>(y_axes.size()),
+                                          new_range = new ArrayList<>(y_axes.size());
+            for (YAxisImpl<XTYPE> axis : y_axes)
+            {
+                  old_range.add(axis.getValueRange());
+                  axis.zoom((int)y, factor);
+                  new_range.add(axis.getValueRange());
+                  fireYAxisChange(axis);
+            }
+            undo.execute(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_Out,
+                    x_axis, orig_x, x_axis.getValueRange(), y_axes, old_range, new_range));
+        }
+        else
+        {   // Zoom specific Y axis
+            for (YAxisImpl<XTYPE> axis : y_axes)
+                if (axis.getBounds().contains(x, y))
+                {
+                    final AxisRange<Double> orig = axis.getValueRange();
+                    axis.zoom((int)y, factor);
+                    fireYAxisChange(axis);
+                    undo.add(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_Out_Y,
+                            Arrays.asList(axis),
+                            Arrays.asList(orig),
+                            Arrays.asList(axis.getValueRange())));
+                    break;
+                }
+        }
+    }
+
     /** setOnMouseExited */
-    public void mouseExit(final MouseEvent e)
+    private void mouseExit(final MouseEvent e)
     {
         deselectMouseAnnotation();
         if (show_crosshair)

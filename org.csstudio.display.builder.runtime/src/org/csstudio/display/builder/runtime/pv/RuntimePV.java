@@ -1,0 +1,63 @@
+/*******************************************************************************
+ * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
+package org.csstudio.display.builder.runtime.pv;
+
+import org.csstudio.vtype.pv.PVListener;
+import org.csstudio.vtype.pv.PVPool;
+import org.diirt.vtype.VType;
+
+/** Process Variable, API for accessing life control system data.
+ *
+ *  <p>PVs are to be fetched from the {@link PVPool}
+ *  and release to it when no longer used.
+ *
+ *  <p>The name of the PV is the name by which it was created.
+ *  The underlying implementation might use a slightly different name.
+ *
+ *  @author Kay Kasemir
+ */
+public interface RuntimePV
+{
+    /** @return PV name */
+    public String getName();
+
+    /** Request notifications of PV updates.
+     *
+     *  <p>Note that the PV is shared via the {@link PVPool}.
+     *  When updates are no longer desired, caller must
+     *  <code>removeListener()</code>.
+     *  Simply releasing the PV back to the {@link PVPool}
+     *  will <b>not</b> automatically remove listeners!
+     *
+     *  @param listener Listener that will receive value updates
+     *  @see #removeListener(PVListener)
+     */
+    public void addListener(final RuntimePVListener listener);
+
+    /** @param listener Listener that will no longer receive value updates */
+    public void removeListener(final RuntimePVListener listener);
+
+    /** Read current value
+     *
+     *  <p>Should return the most recent value
+     *  that listeners have received.
+     *
+     *  @return Most recent value of the PV. <code>null</code> if no known value.
+     */
+    public VType read();
+
+    /** @return <code>true</code> if PV is read-only */
+    public boolean isReadonly();
+
+    /** Write value, no confirmation
+     *  @param new_value Value to write to the PV
+     *  @see RuntimePV#write(Object, PVWriteListener)
+     *  @exception Exception on error
+     */
+    abstract public void write(final Object new_value) throws Exception;
+}

@@ -7,9 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamWriter;
 
@@ -120,7 +121,8 @@ public class StructuredWidgetProperty extends WidgetProperty<List<WidgetProperty
     public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
     {
         for (WidgetProperty<?> element : value)
-            model_writer.writeProperty(element);
+            if (element.getCategory() != WidgetPropertyCategory.RUNTIME)
+                model_writer.writeProperty(element);
     }
 
     @Override
@@ -128,6 +130,8 @@ public class StructuredWidgetProperty extends WidgetProperty<List<WidgetProperty
     {
         for (WidgetProperty<?> element : value)
         {
+            if (element.getCategory() == WidgetPropertyCategory.RUNTIME)
+                continue;
             final Element xml = XMLUtil.getChildElement(property_xml, element.getName());
             if (xml == null)
                 continue;
@@ -137,8 +141,7 @@ public class StructuredWidgetProperty extends WidgetProperty<List<WidgetProperty
             }
             catch (Exception ex)
             {
-                Logger.getLogger(getClass().getName())
-                      .log(Level.WARNING, "Error reading " + getName() + " element " + element.getName(), ex);
+                logger.log(Level.WARNING, "Error reading " + getName() + " element " + element.getName(), ex);
             }
         }
     }

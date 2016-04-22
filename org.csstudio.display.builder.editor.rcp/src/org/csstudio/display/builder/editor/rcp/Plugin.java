@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp;
 
+import java.util.logging.Logger;
+
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
@@ -18,6 +20,9 @@ public class Plugin
 {
     /** Plugin ID */
     public static final String ID = "org.csstudio.display.builder.editor.rcp";
+
+    /** Suggested logger for RCP Editor */
+    public final static Logger logger = Logger.getLogger(Plugin.class.getName());
 
     public static ImageDescriptor getIcon(final String name)
     {

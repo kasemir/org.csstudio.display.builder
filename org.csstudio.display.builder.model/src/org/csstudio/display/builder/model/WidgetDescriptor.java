@@ -7,12 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.util.ResourceUtil;
 import org.eclipse.core.runtime.CoreException;
@@ -75,8 +76,7 @@ public abstract class WidgetDescriptor
                 {   // This could fail if the extension point didn't include a 'class',
                     // or if the contributing plugin has been removed at runtime,
                     // so the extension point is no longer valid.
-                    Logger.getLogger(WidgetDescriptor.class.getName())
-                          .log(Level.SEVERE, "Cannot create " + this, ex);
+                    logger.log(Level.SEVERE, "Cannot create " + this, ex);
                 }
                 return null;
             }

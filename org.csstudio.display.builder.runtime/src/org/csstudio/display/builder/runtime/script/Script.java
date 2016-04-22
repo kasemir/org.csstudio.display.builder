@@ -10,7 +10,7 @@ package org.csstudio.display.builder.runtime.script;
 import java.util.concurrent.Future;
 
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.vtype.pv.PV;
+import org.csstudio.display.builder.runtime.pv.RuntimePV;
 
 /** Compiled script (Jython, JavaScript)
  *  @author Kay Kasemir
@@ -29,5 +29,5 @@ public interface Script
      *  @param pvs PVs for the script's context
      *  @return Future for awaiting end of execution
      */
-    public Future<Object> submit(Widget widget, PV... pvs);
+    public Future<Object> submit(Widget widget, RuntimePV... pvs);
 }

@@ -21,9 +21,9 @@ import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
-import org.csstudio.vtype.pv.PV;
-import org.csstudio.vtype.pv.PVListenerAdapter;
-import org.csstudio.vtype.pv.PVPool;
+import org.csstudio.display.builder.runtime.pv.PVFactory;
+import org.csstudio.display.builder.runtime.pv.RuntimePV;
+import org.csstudio.display.builder.runtime.pv.RuntimePVListener;
 import org.diirt.vtype.VType;
 
 /** Handler for one script of a widget.
@@ -33,14 +33,14 @@ import org.diirt.vtype.VType;
  *
  *  @author Kay Kasemir
  */
-public class RuntimeScriptHandler extends PVListenerAdapter
+public class RuntimeScriptHandler implements RuntimePVListener
 {
     private final Widget widget;
     private final List<ScriptPV> infos;
     private final Script script;
 
     /** 'pvs' is aligned with 'infos', i.e. pv[i] goes with infos.get(i) */
-    private final PV[] pvs;
+    private final RuntimePV[] pvs;
 
     /** Helper to compile script
      *
@@ -110,7 +110,7 @@ public class RuntimeScriptHandler extends PVListenerAdapter
         final MacroValueProvider macros = widget.getEffectiveMacros();
         script = compileScript(widget, macros, script_info);
 
-        pvs = new PV[infos.size()];
+        pvs = new RuntimePV[infos.size()];
         createPVs(widget, macros);
     }
 
@@ -126,7 +126,7 @@ public class RuntimeScriptHandler extends PVListenerAdapter
         final MacroValueProvider macros = widget.getEffectiveMacros();
         script = compileScript(widget, macros, rule_info);
 
-        pvs = new PV[infos.size()];
+        pvs = new RuntimePV[infos.size()];
         createPVs(widget, macros);
     }  
 
@@ -137,7 +137,7 @@ public class RuntimeScriptHandler extends PVListenerAdapter
         for (int i=0; i<pvs.length; ++i)
         {
             final String pv_name = MacroHandler.replace(macros, infos.get(i).getName());
-            pvs[i] = PVPool.getPV(pv_name);
+            pvs[i] = PVFactory.getPV(pv_name);
             runtime.addPV(pvs[i]);
         }
         // Subscribe to trigger PVs
@@ -156,12 +156,12 @@ public class RuntimeScriptHandler extends PVListenerAdapter
             if (infos.get(i).isTrigger())
                 pvs[i].removeListener(this);
             runtime.removePV(pvs[i]);
-            PVPool.releasePV(pvs[i]);
+            PVFactory.releasePV(pvs[i]);
         }
     }
 
     @Override
-    public void valueChanged(final PV pv, final VType value)
+    public void valueChanged(final RuntimePV pv, final VType value)
     {
         // Request execution of script
         script.submit(widget, pvs);

@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp;
 
+import static org.csstudio.display.builder.editor.rcp.Plugin.logger;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -15,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
@@ -70,8 +71,6 @@ public class DisplayEditorPart extends EditorPart
     final private static String FILE_EXTENSION = "opi";
 
     private final JFXRepresentation toolkit = new JFXRepresentation();
-
-    private final Logger logger = Logger.getLogger(getClass().getName());
 
     private FXCanvas fx_canvas;
 

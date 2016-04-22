@@ -9,14 +9,12 @@ package org.csstudio.display.builder.representation.javafx;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.ArcWidget;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
@@ -79,6 +77,29 @@ import javafx.scene.layout.Pane;
  *  Common ancestor of both is {@link Parent}, but note that other
  *  parent types (Region, ..) are not permitted.
  *
+ *  <p>General scene layout:
+ *  <pre>
+ *  model_root
+ *   |
+ *  scroll_body
+ *   |
+ *  model_parent
+ *  </pre>
+ *
+ *  <p>model_parent:
+ *  This is where the model items get represented.
+ *  Its scaling factors are used to zoom.
+ *
+ *  <p>scroll_body:
+ *  Needed for scroll pane to use visual bounds, i.e. be aware of zoom.
+ *  Otherwise scroll bars would enable/disable based on layout bounds,
+ *  regardless of zoom.
+ *  ( https://pixelduke.wordpress.com/2012/09/16/zooming-inside-a-scrollpane )
+ *
+ *  <p>model_root:
+ *  Scroll pane for viewing a subsection of larger display.
+ *  This is also the 'root' of the model-related scene.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -95,43 +116,30 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     /** Zoom to fit display's height */
     public static final double ZOOM_HEIGHT = -2.0;
 
-    /** Cached map of widget ID to representation factory */
-    // TODO Use a boolean is_initialized instead of keeping complete hash
-    private static final Map<String, WidgetRepresentationFactory<Parent, Node>> factories = new HashMap<>();
-
-    /** Construct new JFX representation */
-    public JFXRepresentation()
+    @Override
+    protected void initialize()
     {
-        // Parse registry only once, not for every instance of the JFX toolkit
-        final Set<Entry<String, WidgetRepresentationFactory<Parent, Node>>> entries;
-        synchronized (factories)
-        {
-            if (factories.isEmpty())
+        final Map<String, WidgetRepresentationFactory<Parent, Node>> factories = new HashMap<>();
+        registerKnownRepresentations(factories);
+        final IExtensionRegistry registry = RegistryFactory.getRegistry();
+        if (registry != null)
+        {   // Load available representations from registry,
+            // which allows other plugins to contribute new widgets.
+            for (IConfigurationElement config : registry.getConfigurationElementsFor(WidgetRepresentation.EXTENSION_POINT))
             {
-                registerKnownRepresentations();
-                final IExtensionRegistry registry = RegistryFactory.getRegistry();
-                if (registry != null)
-                {   // Load available representations from registry,
-                    // which allows other plugins to contribute new widgets.
-                    final Logger logger = Logger.getLogger(getClass().getName());
-                    for (IConfigurationElement config : registry.getConfigurationElementsFor(WidgetRepresentation.EXTENSION_POINT))
-                    {
-                        final String type = config.getAttribute("type");
-                        final String clazz = config.getAttribute("class");
-                        logger.log(Level.CONFIG, "{0} contributes {1}", new Object[] { config.getContributor().getName(), clazz });
-                        factories.put(type, createFactory(config));
-                    }
-                }
+                final String type = config.getAttribute("type");
+                final String clazz = config.getAttribute("class");
+                logger.log(Level.CONFIG, "{0} contributes {1}", new Object[] { config.getContributor().getName(), clazz });
+                factories.put(type, createFactory(config));
             }
-            entries = factories.entrySet();
         }
-        for (Map.Entry<String, WidgetRepresentationFactory<Parent, Node>> entry : entries)
+        for (Map.Entry<String, WidgetRepresentationFactory<Parent, Node>> entry : factories.entrySet())
             register(entry.getKey(), entry.getValue());
     }
 
     /** Add known representations as fallback in absence of registry information */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static void registerKnownRepresentations()
+    private static void registerKnownRepresentations(Map<String, WidgetRepresentationFactory<Parent, Node>> factories)
     {
         factories.put(ActionButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ActionButtonRepresentation());
         factories.put(ArcWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ArcRepresentation());
@@ -160,59 +168,50 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         return () -> (WidgetRepresentation<Parent, Node, Widget>) config.createExecutableExtension("class");
     }
 
-    // Scene support, meant for runtime, supporting scroll & zoom.
-    //
-    // Scene -> ScrollPane -> Group content -> Group model_parent (zoomed)
-    //
-    // model_parent:
-    // This is where the model items get represented.
-    // It's scaling factors are used to zoom
-    //
-    // content:
-    // Needed for scroll pane to use visual bounds, i.e. be aware of zoom.
-    // Otherwise scroll bars would enable/disable based on layout bounds,
-    // regardless of zoom.
-    // ( https://pixelduke.wordpress.com/2012/09/16/zooming-inside-a-scrollpane )
-    //
-    // Editor will _not_ use this scene.
-    // It adds its own overlay for selection/rubberband,
-    // which would get confused if the model's representation pans/zooms
-    // on its own.
-    //
-    // *Scene*() methods are final because they depend on the exact
-    // Scene/group setup, which must not be overridden.
+    private volatile ScrollPane model_root;
+    private volatile Group model_parent;
 
-    /** Create a Scene suitable for representing model
-     *  @return Scene
-     *  @see JFXRepresentation#getSceneRoot(Scene)
+    /** Create scrollpane etc. for hosting the model
+     *  @return ScrollPane
+     *  @throws IllegalStateException if had already been called
      */
-    final public Scene createScene()
+    final public ScrollPane createModelRoot()
     {
-        final Group model_parent = new Group();
-        final Group content = new Group(model_parent);
-        final ScrollPane scroll = new ScrollPane(content);
-        final Scene scene = new Scene(scroll);
+        if (model_root != null)
+            throw new IllegalStateException("Already created model root");
+        model_parent = new Group();
+        final Pane scroll_body = new Pane(model_parent);
+        model_root = new ScrollPane(scroll_body);
+        return model_root;
+    }
 
+    /** @see JFXRepresentation#createScene(DisplayModel)
+     *  @param scene Scene created for model
+     *  @return Root element
+     */
+    final public Parent getModelParent()
+    {
+        return model_parent;
+    }
+
+    /** @param scene Scene where style sheet for display builder is added */
+    public static void setSceneStyle(final Scene scene)
+    {
         // Fetch css relative to JFXRepresentation, not derived class
         final String css = JFXRepresentation.class.getResource("opibuilder.css").toExternalForm();
         scene.getStylesheets().add(css);
-
-        return scene;
     }
 
-    /** @param scene Scene to zoom
+
+    /** Set zoom level
      *  @param zoom Zoom level: 1.0 for 100%, 0.5 for 50%, ZOOM_ALL, ZOOM_WIDTH, ZOOM_HEIGHT
      *  @return Zoom level actually used
      */
-    final public double setSceneZoom(final Scene scene, double zoom)
+    final public double setZoom(double zoom)
     {
-        final ScrollPane scroll_pane = (ScrollPane)scene.getRoot();
-        final Group content = (Group) scroll_pane.getContent();
-        final Group model_parent = (Group) content.getChildren().get(0);
-
         if (zoom <= 0.0)
         {   // Determine zoom to fit outline of display into available space
-            final Bounds available = scroll_pane.getLayoutBounds();
+            final Bounds available = model_root.getLayoutBounds();
             final Bounds outline = model_parent.getLayoutBounds();
             final double zoom_x = outline.getWidth()  > 0 ? available.getWidth()  / outline.getWidth() : 1.0;
             final double zoom_y = outline.getHeight() > 0 ? available.getHeight() / outline.getHeight() : 1.0;
@@ -229,18 +228,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         model_parent.setScaleY(zoom);
 
         return zoom;
-    }
-
-    /** @see JFXRepresentation#createScene(DisplayModel)
-     *  @param scene Scene created for model
-     *  @return Root element
-     */
-    final public Parent getSceneRoot(final Scene scene)
-    {
-        final ScrollPane scroll_pane = (ScrollPane)scene.getRoot();
-        final Group content = (Group) scroll_pane.getContent();
-        final Group model_parent = (Group) content.getChildren().get(0);
-        return model_parent;
     }
 
     /** Obtain the 'children' of a Toolkit widget parent
@@ -260,6 +247,12 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     public Parent openNewWindow(final DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception
     {   // Use JFXStageRepresentation or RCP-based implementation
         throw new IllegalStateException("Not implemented");
+    }
+
+    @Override
+    public void setBackground(final WidgetColor color)
+    {
+        model_root.setStyle("-fx-background: " + JFXUtil.webRGB(color));
     }
 
     @Override

@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +19,7 @@ import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
-import org.csstudio.javafx.rtplot.Activator;
+import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.Messages;
 import org.csstudio.javafx.rtplot.Trace;
@@ -222,7 +224,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 // Does axis handle itself in another way?
                 if (axis.isAutoscale())
                    continue;
-                
+
                 // Fetch range of values on this axis
                 final ValueRange axis_range;
                 try
@@ -231,7 +233,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 }
                 catch (Exception ex)
                 {
-                    Activator.getLogger().log(Level.WARNING, "Axis stagger error", ex);
+                    logger.log(Level.WARNING, "Axis stagger error", ex);
                     continue;
                 }
 
@@ -280,7 +282,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 	final AxisRange<Double> orig = original_ranges.get(i);
                 	final boolean normal = orig.getLow() < orig.getHigh();
                 	new_ranges.set(i, normal ? new AxisRange<Double>(low, high)
-                			                 : new AxisRange<Double>(high, low));                		
+                			                 : new AxisRange<Double>(high, low));
                 }
             }
 
@@ -472,7 +474,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
             }
             catch (Exception ex)
             {
-                Activator.getLogger().log(Level.WARNING, "Axis autorange error for " + axis, ex);
+                logger.log(Level.WARNING, "Axis autorange error for " + axis, ex);
             }
         }
 
@@ -488,7 +490,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
         }
         catch (Exception ex)
         {
-            Activator.getLogger().log(Level.WARNING, "Axis autorange error for " + plot.getXAxis(), ex);
+            logger.log(Level.WARNING, "Axis autorange error for " + plot.getXAxis(), ex);
         }
     }
 }

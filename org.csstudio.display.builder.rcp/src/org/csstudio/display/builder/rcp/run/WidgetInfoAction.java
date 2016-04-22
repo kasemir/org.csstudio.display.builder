@@ -13,7 +13,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.rcp.Plugin;
 import org.csstudio.display.builder.representation.javafx.WidgetInfoDialog;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
-import org.csstudio.vtype.pv.PV;
+import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.eclipse.jface.action.Action;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
@@ -35,7 +35,7 @@ public class WidgetInfoAction extends Action
     public void run()
     {
         final WidgetRuntime<?> runtime = WidgetRuntime.ofWidget(widget);
-        final Collection<PV> pvs = runtime.getPVs();
+        final Collection<RuntimePV> pvs = runtime.getPVs();
         WidgetInfoDialog dialog = new WidgetInfoDialog(widget, pvs);
         dialog.show();
     }

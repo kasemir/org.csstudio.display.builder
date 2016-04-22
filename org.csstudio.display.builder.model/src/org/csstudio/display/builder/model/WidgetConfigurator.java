@@ -7,9 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.util.Optional;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.XMLUtil;
@@ -83,8 +84,7 @@ public class WidgetConfigurator
             }
             catch (Exception ex)
             {
-                Logger.getLogger(getClass().getName())
-                      .log(Level.SEVERE,
+                logger.log(Level.SEVERE,
                            "Error reading widget " + widget + " property " + prop.get().getName() +
                            ", line " + XMLUtil.getLineInfo(prop_xml), ex);
             }

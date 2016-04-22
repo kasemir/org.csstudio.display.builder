@@ -7,11 +7,18 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.preferences;
 
+import static org.csstudio.display.builder.rcp.Plugin.logger;
+
+import java.io.IOException;
+import java.util.logging.Level;
+
 import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.rcp.Plugin;
 import org.csstudio.display.builder.runtime.RuntimePlugin;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
+import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
@@ -26,8 +33,8 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 public class DisplayPreferencePage extends FieldEditorPreferencePage
         implements IWorkbenchPreferencePage
 {
-    private final IPreferenceStore model_prefs = new ScopedPreferenceStore(InstanceScope.INSTANCE, ModelPlugin.ID);
-    private final IPreferenceStore runtime_prefs = new ScopedPreferenceStore(InstanceScope.INSTANCE, RuntimePlugin.ID);
+    private final IPersistentPreferenceStore model_prefs = new ScopedPreferenceStore(InstanceScope.INSTANCE, ModelPlugin.ID);
+    private final IPersistentPreferenceStore runtime_prefs = new ScopedPreferenceStore(InstanceScope.INSTANCE, RuntimePlugin.ID);
     private final IPreferenceStore rcp_prefs = new ScopedPreferenceStore(InstanceScope.INSTANCE, Plugin.ID);
 
     public DisplayPreferencePage()
@@ -39,20 +46,28 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
         setDescription("After changes, a restart is required");
     }
 
+    @Override
     public void init(IWorkbench workbench)
     {
         // NOP
     }
 
+    @Override
     public void createFieldEditors()
     {
         addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.READ_TIMEOUT,
                                       "File Read Timeout [ms]:", getFieldEditorParent())
-        {
+        {   // Field uses pref. store that differs from the page's default store
             @Override
             public IPreferenceStore getPreferenceStore()
             {
                 return model_prefs;
+            }
+            // Need to force doStore() for pref store that differs from page default
+            @Override
+            public void store()
+            {
+                doStore();
             }
         });
 
@@ -70,10 +85,63 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
             {
                 return runtime_prefs;
             }
+
+            @Override
+            public void store()
+            {
+                doStore();
+            }
+        });
+
+        final String[][] pv_factories = new String[][]
+        {
+            new String[] { "vtype.pv", "vtype.pv" },
+            new String[] { "pvmanager", "pvmanager" },
+        };
+        addField(new ComboFieldEditor(org.csstudio.display.builder.runtime.Preferences.PV_FACTORY,
+                "PV Factory:", pv_factories, getFieldEditorParent())
+        {
+            @Override
+            public IPreferenceStore getPreferenceStore()
+            {
+                return runtime_prefs;
+            }
+
+            @Override
+            public void store()
+            {
+                doStore();
+            }
         });
 
         // TODO Custom table editor for display Name, path, macros
         addField(new TextAreaFieldEditor(org.csstudio.display.builder.rcp.Preferences.TOP_DISPLAYS,
                                          "Top Displays:", getFieldEditorParent(), 50, 10));
+    }
+
+    @Override
+    public boolean performOk()
+    {
+        if (! super.performOk())
+            return false;
+        // Page is associated with rcp_prefs and saves them,
+        // but need to directly save the other 2 pref stores
+        try
+        {
+            model_prefs.save();
+        }
+        catch (IOException ex)
+        {
+            logger.log(Level.WARNING, "Cannot write model preferences", ex);
+        }
+        try
+        {
+            runtime_prefs.save();
+        }
+        catch (IOException ex)
+        {
+            logger.log(Level.WARNING, "Cannot write runtime preferences", ex);
+        }
+        return true;
     }
 }

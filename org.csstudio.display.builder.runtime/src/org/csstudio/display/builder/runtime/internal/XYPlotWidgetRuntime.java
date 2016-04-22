@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
+import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -14,9 +16,9 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
-import org.csstudio.vtype.pv.PV;
-import org.csstudio.vtype.pv.PVListener;
-import org.csstudio.vtype.pv.PVPool;
+import org.csstudio.display.builder.runtime.pv.PVFactory;
+import org.csstudio.display.builder.runtime.pv.RuntimePV;
+import org.csstudio.display.builder.runtime.pv.RuntimePVListener;
 import org.diirt.vtype.VType;
 
 /** Runtime for the XYPlotWidget
@@ -28,9 +30,9 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
 {
     private static class Subscription
     {
-        final PV pv;
-        final PVListener listener;
-        Subscription(final PV pv, final PVListener listener)
+        final RuntimePV pv;
+        final RuntimePVListener listener;
+        Subscription(final RuntimePV pv, final RuntimePVListener listener)
         {
             this.pv = pv;
             this.listener = listener;
@@ -58,8 +60,8 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
         if (pv_name.isEmpty())
             return;
         logger.log(Level.FINER,  "Connecting {0} to {1}", new Object[] { widget, pv_name });
-        final PV pv = PVPool.getPV(pv_name);
-        final PVListener listener = new PropertyUpdater(value);
+        final RuntimePV pv = PVFactory.getPV(pv_name);
+        final RuntimePVListener listener = new PropertyUpdater(value);
         pv.addListener(listener);
         subscriptions.add(new Subscription(pv, listener));
     }
@@ -72,7 +74,7 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
         for (Subscription sub : subscriptions)
         {
             sub.pv.removeListener(sub.listener);
-            PVPool.releasePV(sub.pv);
+            PVFactory.releasePV(sub.pv);
         }
     }
 }

@@ -7,12 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.util;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.properties.FormatOption;
 import org.diirt.util.array.ListNumber;
@@ -285,8 +286,7 @@ public class FormatOptionHandler
         }
         catch (Throwable ex)
         {
-            Logger.getLogger(FormatOptionHandler.class.getName())
-                  .log(Level.WARNING, "Error parsing value from '" +  text + "', will use as is", ex);
+            logger.log(Level.WARNING, "Error parsing value from '" +  text + "', will use as is", ex);
         }
         return text;
     }
