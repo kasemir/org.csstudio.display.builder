@@ -35,6 +35,7 @@ import javafx.stage.Stage;
 public class ValuePlotDemo extends Application
 {
     final private static int MAX_SIZE = 10000;
+    final private static boolean USE_LOG = false;
 
     static class DemoData implements PlotDataProvider<Double>
     {
@@ -66,11 +67,29 @@ public class ValuePlotDemo extends Application
             try
             {
                 data.clear();
-                final double amp = 10.0*Math.cos(2*Math.PI * (++calls) / 1000.0);
-                for (int i=0; i<MAX_SIZE; ++i)
+
+                if (USE_LOG)
                 {
-                    final double value = amp*(Math.sin(2*Math.PI * i / (MAX_SIZE/3)) + Math.random()*0.1);
-                    data.add(new SimpleDataItem<Double>(Double.valueOf(i), value));
+                    int i;
+                    for (i=0; i<MAX_SIZE/2; ++i)
+                    {
+                        final double value = MAX_SIZE/2-i;
+                        data.add(new SimpleDataItem<Double>(Double.valueOf(i), value));
+                    }
+                    for (/* */; i<MAX_SIZE; ++i)
+                    {
+                        final double value = i-MAX_SIZE/2;
+                        data.add(new SimpleDataItem<Double>(Double.valueOf(i), value));
+                    }
+                }
+                else
+                {
+                    final double amp = 10.0*Math.cos(2*Math.PI * (++calls) / 1000.0);
+                    for (int i=0; i<MAX_SIZE; ++i)
+                    {
+                        final double value = amp*(Math.sin(2*Math.PI * i / (MAX_SIZE/3)) + Math.random()*0.1);
+                        data.add(new SimpleDataItem<Double>(Double.valueOf(i), value));
+                    }
                 }
             }
             finally
@@ -94,8 +113,18 @@ public class ValuePlotDemo extends Application
         plot.getXAxis().setGridVisible(true);
         plot.getYAxes().get(0).setGridVisible(true);
 
-        plot.getYAxes().get(0).setValueRange(12.0, -12.0);
-        plot.getYAxes().get(0).setAutoscale(false);
+        if (USE_LOG)
+        {
+            plot.getYAxes().get(0).setLogarithmic(true);
+            plot.getYAxes().get(0).setValueRange(0.001, 20.0);
+            plot.getYAxes().get(0).setAutoscale(true);
+        }
+        else
+        {
+            plot.getYAxes().get(0).setValueRange(12.0, -12.0);
+            plot.getYAxes().get(0).setAutoscale(false);
+        }
+
 
         plot.setUpdateThrottle(20, TimeUnit.MILLISECONDS);
 
