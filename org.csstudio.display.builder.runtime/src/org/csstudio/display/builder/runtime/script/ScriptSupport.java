@@ -58,10 +58,10 @@ public class ScriptSupport
 
     /** Parse and compile script file
      *
-     *  @param path Path to the script.
+     *  @param path Path to the script. May be <code>null</null>.
      *              Added to the script engine's search path
-     *              to allow access to other scripts in the
-     *              same location.
+     *              if not null to allow access to other scripts
+     *              in the same location.
      *  @param name Name of script, used for messages
      *              and to identify the type of script (*.py, *.js)
      *  @param stream Stream for the script content
