@@ -11,7 +11,6 @@ import static org.csstudio.display.builder.representation.ToolkitRepresentation.
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -52,21 +51,41 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
     /** Handler for one trace of the plot
      *
-     *  <p>Updates the plot when the X or Y value in the model changes.
+     *  <p>Updates the plot when the configuration of a trace
+     *  or the associated X or Y value in the model changes.
      */
     private class TraceHandler
     {
         private final TraceWidgetProperty model_trace;
         private final XYVTypeDataProvider data = new XYVTypeDataProvider();
-        private final UntypedWidgetPropertyListener value_listener = this::valueChanged;
-        private AtomicReference<Trace<Double>> trace = new AtomicReference<>();
+        private final UntypedWidgetPropertyListener trace_listener = this::traceChanged, value_listener = this::valueChanged;
+        private final Trace<Double> trace;
 
-        TraceHandler(final int index)
+        TraceHandler(final TraceWidgetProperty model_trace)
         {
-            model_trace = model_widget.behaviorTraces().getElement(index);
+            this.model_trace = model_trace;
+
+            // TODO Trace axis property
+            int axis = 0;
+
+            // TODO trace name property (instead of Y PV)
+            trace = plot.addTrace(model_trace.traceY().getValue(), "", data,
+                                  JFXUtil.convert(model_trace.traceColor().getValue()),
+                                  TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5, axis);
+
+            model_trace.traceY().addUntypedPropertyListener(trace_listener);
+            model_trace.traceColor().addUntypedPropertyListener(trace_listener);
+
             model_trace.xValue().addUntypedPropertyListener(value_listener);
             model_trace.yValue().addUntypedPropertyListener(value_listener);
         }
+
+        private void traceChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+        {
+            trace.setName(model_trace.traceY().getValue());
+            trace.setColor(JFXUtil.convert(model_trace.traceColor().getValue()));
+            plot.requestUpdate();
+        };
 
         private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
         {
@@ -74,30 +93,12 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             {
                 final VType x_value = model_trace.xValue().getValue();
                 final VType y_value = model_trace.yValue().getValue();
-                if (x_value instanceof VNumberArray  &&  y_value instanceof VNumberArray)
-                {
-                    // Create trace as value changes for the first time and thus sends units
-                    if (trace.get() == null)
-                    {
-                        // TODO Add or update existing trace
-                        Trace<Double> old_trace = trace.getAndSet(plot.addTrace(model_trace.traceY().getValue(),
-                                                                  ((VNumberArray)y_value).getUnits(),
-                                                                  data,
-                                                                  JFXUtil.convert(model_trace.traceColor().getValue()),
-                                                                  TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5, 0));
+                if (! (x_value instanceof VNumberArray  &&  y_value instanceof VNumberArray))
+                    return;
 
-                        // TODO Update existing trace
-                        trace.get().setUnits(((VNumberArray)y_value).getUnits());
-                        trace.get().setColor(JFXUtil.convert(model_trace.traceColor().getValue()));
-
-                        // Can race result in two value updates trying to add the same trace?
-                        // --> Remove the previous one
-                        if (old_trace != null)
-                            plot.removeTrace(old_trace);
-                    }
-                    data.setData( ((VNumberArray)x_value).getData(), ((VNumberArray)y_value).getData());
-                    plot.requestUpdate();
-                }
+                trace.setUnits(((VNumberArray)y_value).getUnits());
+                data.setData( ((VNumberArray)x_value).getData(), ((VNumberArray)y_value).getData());
+                plot.requestUpdate();
             }
             catch (Exception ex)
             {
@@ -107,8 +108,11 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
         void dispose()
         {
+            model_trace.traceY().removePropertyListener(trace_listener);
+            model_trace.traceColor().removePropertyListener(trace_listener);
             model_trace.xValue().removePropertyListener(value_listener);
             model_trace.yValue().removePropertyListener(value_listener);
+            plot.removeTrace(trace);
         }
     };
 
@@ -141,10 +145,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         model_widget.positionWidth().addUntypedPropertyListener(position_listener);
         model_widget.positionHeight().addUntypedPropertyListener(position_listener);
 
-        // TODO Handle multiple traces
-        int index = 0;
         for (TraceWidgetProperty trace : model_widget.behaviorTraces().getValue())
-            trace_handlers.add(new TraceHandler(index++));
+            trace_handlers.add(new TraceHandler(trace));
         model_widget.behaviorTraces().addPropertyListener(this::tracesChanged);
     }
 
@@ -195,7 +197,22 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     {
         System.out.println("Removed trace " + removed);
 
+        final List<TraceWidgetProperty> model_traces = property.getValue();
+        int count = trace_handlers.size();
+        while (count > model_traces.size())
+        {
+            trace_handlers.remove(--count).dispose();
+            System.out.println("Removed trace handler");
+        }
+
         System.out.println("Added trace " + added);
+
+        count = trace_handlers.size();
+        while (count < model_traces.size())
+        {
+            trace_handlers.add(new TraceHandler(model_traces.get(count++)));
+            System.out.println("Added trace handler");
+        }
     }
 
     @Override
