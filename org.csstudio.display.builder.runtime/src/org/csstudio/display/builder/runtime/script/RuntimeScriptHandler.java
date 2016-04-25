@@ -65,18 +65,21 @@ public class RuntimeScriptHandler implements RuntimePVListener
 		final ScriptSupport scripting = RuntimeUtil.getScriptSupport(widget);
 
 		final InputStream stream;
+		final DisplayModel model = widget.getDisplayModel();
+        final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+        final String path;
 		if (script_info.getText() == null)
 		{   // Load external script
-			final DisplayModel model = widget.getDisplayModel();
-			final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
 			final String resolved = ModelResourceUtil.resolveResource(parent_display, script_name);
 			stream = ModelResourceUtil.openResourceStream(resolved);
+			path = ModelResourceUtil.getLocation(resolved);
 		}
 		else
 		{   // Use script text that was embedded in display
 			stream = new ByteArrayInputStream(script_info.getText().getBytes());
+			path = ModelResourceUtil.getLocation(parent_display);
 		}
-		return scripting.compile(script_name, stream);
+		return scripting.compile(path, script_name, stream);
 	}
 
 
@@ -101,7 +104,7 @@ public class RuntimeScriptHandler implements RuntimePVListener
 
 		logger.log(Level.WARNING, "Compiling rule script for " + dummy_name + "\n" + rule_info.getNumberedTextPy(widget, macros));
 
-		return scripting.compile(dummy_name, stream);
+		return scripting.compile(null, dummy_name, stream);
 	}
 
 

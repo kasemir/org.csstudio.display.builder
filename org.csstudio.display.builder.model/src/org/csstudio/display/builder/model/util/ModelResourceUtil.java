@@ -50,6 +50,19 @@ public class ModelResourceUtil extends ResourceUtil
         return path.replaceAll("\\\\(?!\\\\)", "/");
     }
 
+    /** Obtain location, i.e. directory of file or URL up to the last element
+     *  @param path Complete path, i.e. "/some/location/resource"
+     *  @return Location, i.e. "/some/location" without trailing "/", or "."
+     */
+    public static String getLocation(final String path)
+    {
+        // Remove last segment from parent_display to get path
+        int sep = path.lastIndexOf('/');
+        if (sep >= 0)
+            return path.substring(0, sep);
+        return ".";
+    }
+
     /** Combine display paths
      *  @param parent_display Path to a 'parent' file, may be <code>null</code>
      *  @param display_path Display file. If relative, it is resolved relative to the parent display
@@ -70,20 +83,15 @@ public class ModelResourceUtil extends ResourceUtil
         parent_display = normalize(parent_display);
 
         // Remove last segment from parent_display to get path
-        int sep = parent_display.lastIndexOf('/');
-        if (sep >= 0)
-            parent_display = parent_display.substring(0, sep);
-
-        String result = parent_display + "/" + display_path;
+        String result = getLocation(parent_display) + "/" + display_path;
 
         // Collapse  "some/path/remove/../else/file.opi"
         int up = result.indexOf("/../");
         while (up >= 0)
-        {
-            sep = result.lastIndexOf('/', up-1);
+        {   // Locate start of path segment before "/../"
+            final int sep = result.lastIndexOf('/', up-1);
             if (sep < 0)
                 return result;
-
             result = result.substring(0, sep) + result.substring(up + 3);
             up = result.indexOf("/../");
         }
@@ -104,7 +112,8 @@ public class ModelResourceUtil extends ResourceUtil
             return file.getAbsolutePath();
 
         // .. relative to parent?
-        file = new File(combineDisplayPaths(parent_display, resource_name));
+        final String combined = combineDisplayPaths(parent_display, resource_name);
+        file = new File(combined);
         if (file.exists())
             return file.getAbsolutePath();
 
@@ -113,7 +122,6 @@ public class ModelResourceUtil extends ResourceUtil
             return resource_name;
 
         // .. relative to parent?
-        final String combined = combineDisplayPaths(parent_display, resource_name);
         if (isURL(combined))
             return combined;
 
