@@ -17,6 +17,10 @@ import org.csstudio.javafx.rtplot.data.SimpleDataItem;
 import org.diirt.util.array.ListNumber;
 
 /** Data provider for RTPlot
+ *
+ *  <p>Adapts two waveforms received from PV
+ *  into samples for a trace in the RTPlot.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")

@@ -10,6 +10,7 @@ package org.csstudio.display.builder.representation.javafx.widgets.plots;
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
@@ -18,6 +19,8 @@ import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget.AxisWidgetProperty;
+import org.csstudio.display.builder.model.widgets.XYPlotWidget.TraceWidgetProperty;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.PointType;
 import org.csstudio.javafx.rtplot.RTValuePlot;
@@ -28,7 +31,6 @@ import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -45,12 +47,73 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         toolkit.scheduleUpdate(this);
     };
 
-    /** Canvas that displays the image. */
+    /** Plot */
     private RTValuePlot plot;
 
-    // TODO Support 0..N traces, not 1
-    private AtomicReference<Trace<Double>> trace0 = new AtomicReference<>();
-    final private XYVTypeDataProvider data0 = new XYVTypeDataProvider();
+    /** Handler for one trace of the plot
+     *
+     *  <p>Updates the plot when the X or Y value in the model changes.
+     */
+    private class TraceHandler
+    {
+        private final TraceWidgetProperty model_trace;
+        private final XYVTypeDataProvider data = new XYVTypeDataProvider();
+        private final UntypedWidgetPropertyListener value_listener = this::valueChanged;
+        private AtomicReference<Trace<Double>> trace = new AtomicReference<>();
+
+        TraceHandler(final int index)
+        {
+            model_trace = model_widget.behaviorTraces().getElement(index);
+            model_trace.xValue().addUntypedPropertyListener(value_listener);
+            model_trace.yValue().addUntypedPropertyListener(value_listener);
+        }
+
+        private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+        {
+            try
+            {
+                final VType x_value = model_trace.xValue().getValue();
+                final VType y_value = model_trace.yValue().getValue();
+                if (x_value instanceof VNumberArray  &&  y_value instanceof VNumberArray)
+                {
+                    // Create trace as value changes for the first time and thus sends units
+                    if (trace.get() == null)
+                    {
+                        // TODO Add or update existing trace
+                        Trace<Double> old_trace = trace.getAndSet(plot.addTrace(model_trace.traceY().getValue(),
+                                                                  ((VNumberArray)y_value).getUnits(),
+                                                                  data,
+                                                                  JFXUtil.convert(model_trace.traceColor().getValue()),
+                                                                  TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5, 0));
+
+                        // TODO Update existing trace
+                        trace.get().setUnits(((VNumberArray)y_value).getUnits());
+                        trace.get().setColor(JFXUtil.convert(model_trace.traceColor().getValue()));
+
+                        // Can race result in two value updates trying to add the same trace?
+                        // --> Remove the previous one
+                        if (old_trace != null)
+                            plot.removeTrace(old_trace);
+                    }
+                    data.setData( ((VNumberArray)x_value).getData(), ((VNumberArray)y_value).getData());
+                    plot.requestUpdate();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "XYGraph data error", ex);
+            }
+        }
+
+        void dispose()
+        {
+            model_trace.xValue().removePropertyListener(value_listener);
+            model_trace.yValue().removePropertyListener(value_listener);
+        }
+    };
+
+    private final List<TraceHandler> trace_handlers = new CopyOnWriteArrayList<>();
+
 
     @Override
     public Pane createJFXNode() throws Exception
@@ -79,9 +142,10 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         model_widget.positionHeight().addUntypedPropertyListener(position_listener);
 
         // TODO Handle multiple traces
-        // TODO model_widget.behaviorTraces().addPropertyListener(this::tracesChanged);
-        model_widget.behaviorTraces().getElement(0).xValue().addUntypedPropertyListener(this::valueChanged);
-        model_widget.behaviorTraces().getElement(0).yValue().addUntypedPropertyListener(this::valueChanged);
+        int index = 0;
+        for (TraceWidgetProperty trace : model_widget.behaviorTraces().getValue())
+            trace_handlers.add(new TraceHandler(index++));
+        model_widget.behaviorTraces().addPropertyListener(this::tracesChanged);
     }
 
     /** Listen to changed axis properties
@@ -106,7 +170,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         axis.autoscale().removePropertyListener(config_listener);
     }
 
-    private void yAxesChanged(final WidgetProperty<List<AxisWidgetProperty>> property, final List<AxisWidgetProperty> removed, final List<AxisWidgetProperty> added)
+    private void yAxesChanged(final WidgetProperty<List<AxisWidgetProperty>> property,
+                              final List<AxisWidgetProperty> removed, final List<AxisWidgetProperty> added)
     {
         if (removed != null)
             for (AxisWidgetProperty axis : removed)
@@ -125,35 +190,12 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         toolkit.scheduleUpdate(this);
     }
 
-    private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    private void tracesChanged(final WidgetProperty<List<TraceWidgetProperty>> property,
+                               final List<TraceWidgetProperty> removed, final List<TraceWidgetProperty> added)
     {
-        try
-        {
-            final WidgetProperty<VType> x = model_widget.behaviorTraces().getElement(0).xValue();
-            final WidgetProperty<VType> y = model_widget.behaviorTraces().getElement(0).yValue();
-            final VType x_value = x.getValue();
-            final VType y_value = y.getValue();
-            if (x_value instanceof VNumberArray  &&  y_value instanceof VNumberArray)
-            {
-                // Create trace as value changes for the first time and thus sends units
-                if (trace0.get() == null)
-                {
-                    Trace<Double> old_trace = trace0.getAndSet(plot.addTrace(model_widget.behaviorTraces().getElement(0).traceY().getValue(),
-                                                               ((VNumberArray)y_value).getUnits(),
-                                                               data0, Color.BLUE, TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5, 0));
-                    // Can race result in two value updates trying to add the same trace?
-                    // --> Remove the previous one
-                    if (old_trace != null)
-                        plot.removeTrace(old_trace);
-                }
-                data0.setData( ((VNumberArray)x_value).getData(), ((VNumberArray)y_value).getData());
-                plot.requestUpdate();
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.log(Level.WARNING, "XYGraph data error", ex);
-        }
+        System.out.println("Removed trace " + removed);
+
+        System.out.println("Added trace " + added);
     }
 
     @Override
