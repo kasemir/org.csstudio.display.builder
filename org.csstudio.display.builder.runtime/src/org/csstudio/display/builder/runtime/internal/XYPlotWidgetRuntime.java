@@ -63,17 +63,18 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
         final RuntimePVListener listener = new PropertyUpdater(value);
         pv.addListener(listener);
         subscriptions.add(new Subscription(pv, listener));
+        addPV(pv);
     }
 
     @Override
     public void stop()
     {
-        super.stop();
-
         for (Subscription sub : subscriptions)
         {
             sub.pv.removeListener(sub.listener);
             PVFactory.releasePV(sub.pv);
+            removePV(sub.pv);
         }
+        super.stop();
     }
 }

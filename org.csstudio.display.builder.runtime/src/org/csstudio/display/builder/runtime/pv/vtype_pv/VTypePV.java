@@ -97,4 +97,10 @@ public class VTypePV implements RuntimePV, PVListener
     {
         return pv;
     }
+
+    @Override
+    public String toString()
+    {
+        return getName();
+    }
 }
