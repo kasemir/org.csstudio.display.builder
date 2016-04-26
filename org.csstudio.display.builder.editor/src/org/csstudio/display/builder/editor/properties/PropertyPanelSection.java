@@ -49,7 +49,9 @@ import javafx.scene.layout.Priority;
 public class PropertyPanelSection extends GridPane
 {
 	private final List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
-	private int next_row = 0;
+	private int next_row = -1;
+	Collection<WidgetProperty<?>> properties = new ArrayList();
+	private boolean show_categories;
 
 	public PropertyPanelSection()
 	{
@@ -62,6 +64,8 @@ public class PropertyPanelSection extends GridPane
 			final boolean show_categories)
 	{
 		clear();
+		this.properties = properties;
+		this.show_categories = show_categories;
 		// Add UI items for each property
 		WidgetPropertyCategory category = null;
 		for (final WidgetProperty<?> property : properties)
@@ -86,20 +90,27 @@ public class PropertyPanelSection extends GridPane
 		}
 	}
 
+	public void refill(final UndoableActionManager undo,
+			final List<Widget> other)
+	{
+		fill(undo, this.properties, other, this.show_categories);
+	}
+
 	/** @return Next row in grid layout, i.e. row that is not populated */
 	private int getNextGridRow()
 	{
-
+		next_row++;
+		return next_row;
 
 		// Goal was to avoid a separate 'row' counter.
 		// Depends on nodes being added by rows,
 		// so last node reflects index of last populated row.
-		final List<Node> nodes = getChildren();
-		final int n = nodes.size();
-		if (n <= 0)
-			return 0;
-		final Integer row = GridPane.getRowIndex(nodes.get(n-1));
-		return row == null ? 0 : row.intValue() + 1;
+		//final List<Node> nodes = getChildren();
+		//final int n = nodes.size();
+		//if (n <= 0)
+		//	return 0;
+		//final Integer row = GridPane.getRowIndex(nodes.get(n-1));
+		//return row == null ? 0 : row.intValue() + 1;
 	}
 
 
@@ -284,21 +295,28 @@ public class PropertyPanelSection extends GridPane
 
 			// UI for changing array size
 			final Spinner<Integer> spinner = new Spinner<>(1, 100, 0);
-			final HBox header = new HBox(label, spinner);
-			HBox.setHgrow(label, Priority.ALWAYS);
-			header.getStyleClass().add("array_property_name");
-
-			// Sub-panel for array elements
-			final PropertyPanelSection array_section = new PropertyPanelSection();
-			array_section.getStyleClass().add("array_property_elements");
-			final ArraySizePropertyBinding count_binding = new ArraySizePropertyBinding(array_section, undo, spinner, array, other);
+			final ArraySizePropertyBinding count_binding = new ArraySizePropertyBinding(this, undo, spinner, array, other);
 			bindings.add(count_binding);
 			count_binding.bind();
 
-			int row = getNextGridRow();
-			add(header, 0, row++, 2, 1);
-			add(array_section, 0, row, 2, 1);
-			GridPane.setHgrow(array_section, Priority.ALWAYS);
+			// set size of array
+			final int row = getNextGridRow();
+			label.getStyleClass().add("array_property_name");
+			spinner.getStyleClass().add("array_property_value");
+			add(label, 0, row);
+			add(spinner, 1, row);
+
+			// array elements
+			for (WidgetProperty<?> elem : array.getValue())
+				this.createPropertyUI(undo, elem, other);
+
+			// mark end of array
+			final Label endlabel = new Label();
+			endlabel.setMaxWidth(Double.MAX_VALUE);
+			GridPane.setHgrow(endlabel, Priority.ALWAYS);
+			endlabel.getStyleClass().add("array_property_name");
+			add(endlabel, 0, getNextGridRow(), 2, 1);
+
 			return;
 		}
 		// As new property types are added, they might need to be handled:
