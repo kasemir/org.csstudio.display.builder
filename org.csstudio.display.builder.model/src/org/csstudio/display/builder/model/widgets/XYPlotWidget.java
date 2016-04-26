@@ -164,6 +164,15 @@ public class XYPlotWidget extends VisibleWidget
             XMLUtil.getChildString(xml, "axis_0_auto_scale").ifPresent(txt ->
                 plot.x_axis.autoscale().setValue(Boolean.parseBoolean(txt)) );
 
+            handleLegacyValueAxes(widget, xml, pv_macro);
+
+            return handleLegacyTraces(model_reader, widget, xml, pv_macro);
+        }
+
+        private void handleLegacyValueAxes(final Widget widget, final Element xml, final String pv_macro)
+        {
+            final XYPlotWidget plot = (XYPlotWidget) widget;
+
             // "axis_1_*" was the Y axis, and higher axes could be either X or Y
             int y_count = 0; // Number of y axes found in legacy config
             for (int legacy_axis=1; /**/; ++legacy_axis)
@@ -200,10 +209,21 @@ public class XYPlotWidget extends VisibleWidget
                 XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_auto_scale").ifPresent(txt ->
                     y_axis.autoscale().setValue(Boolean.parseBoolean(txt)) );
             }
+        }
+
+        private boolean handleLegacyTraces(final ModelReader model_reader,
+                                           final Widget widget, final Element xml, final String pv_macro) throws Exception
+        {
+            final XYPlotWidget plot = (XYPlotWidget) widget;
 
             // "trace_0_x_pv", ".._y_pv", ".._trace_color" held the traces
             for (int legacy_trace=0; /**/; ++legacy_trace)
             {
+                // Was legacy widget used with scalar data, concatenated into waveform?
+                final Optional<String> concat = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_concatenate_data");
+                if (concat.isPresent()  &&  concat.get().equals("true"))
+                    return false;
+
                 final Optional<String> pv_name = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_y_pv");
                 if (! pv_name.isPresent())
                     break;
@@ -218,11 +238,13 @@ public class XYPlotWidget extends VisibleWidget
                 {
                     ((StringWidgetProperty)trace.traceX()).setSpecification(pv.replace("$(pv_name)", pv_macro));
                 });
-                final Element element = XMLUtil.getChildElement(xml, "trace_0_trace_color");
+                final Element element = XMLUtil.getChildElement(xml, "trace_" + legacy_trace + "_trace_color");
                 if (element != null)
                     trace.traceColor().readFromXML(model_reader, element);
-            }
 
+                final Optional<String> axis_index = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_y_axis_index");
+                // TODO Assign value axis
+            }
             return true;
         }
     };
