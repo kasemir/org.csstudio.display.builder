@@ -63,200 +63,203 @@ import javafx.stage.Stage;
 @SuppressWarnings("nls")
 public class EditorDemoGUI
 {
-    private volatile File file = null;
+	private volatile File file = null;
 
-    private final JFXRepresentation toolkit;
+	private final JFXRepresentation toolkit;
 
-    private DisplayEditor editor;
+	private DisplayEditor editor;
 
-    private WidgetTree tree;
+	private WidgetTree tree;
 
-    private PropertyPanel property_panel;
+	private PropertyPanel property_panel;
 
-    public EditorDemoGUI(final Stage stage)
-    {
-        toolkit = new JFXRepresentation();
-        createElements(stage);
-    }
+	public EditorDemoGUI(final Stage stage)
+	{
+		toolkit = new JFXRepresentation();
+		createElements(stage);
+	}
 
-    private void createElements(final Stage stage)
-    {
-        editor = new DisplayEditor(toolkit);
+	private void createElements(final Stage stage)
+	{
+		editor = new DisplayEditor(toolkit);
 
-        final ToolBar toolbar = createToolbar(editor.getSelectedWidgetUITracker(),
-                                              editor.getWidgetSelectionHandler(),
-                                              editor.getUndoableActionManager());
+		final ToolBar toolbar = createToolbar(editor.getSelectedWidgetUITracker(),
+				editor.getWidgetSelectionHandler(),
+				editor.getUndoableActionManager());
 
-        tree = new WidgetTree(editor.getWidgetSelectionHandler());
+		tree = new WidgetTree(editor.getWidgetSelectionHandler());
 
-        property_panel = new PropertyPanel(editor);
+		property_panel = new PropertyPanel(editor);
 
-        final Label status = new Label("Status");
+		final Label status = new Label("Status");
 
-        final SplitPane center = new SplitPane();
-        center.getItems().addAll(tree.create(), editor.create(), property_panel);
-        center.setDividerPositions(0.2, 0.8);
+		final SplitPane center = new SplitPane();
+		center.getItems().addAll(tree.create(), editor.create(), property_panel);
+		center.setDividerPositions(0.2, 0.8);
 
-        final BorderPane toolbar_center_status = new BorderPane();
-        toolbar_center_status.setTop(toolbar);
-        toolbar_center_status.setCenter(center);
-        toolbar_center_status.setBottom(status);
-        BorderPane.setAlignment(center, Pos.TOP_LEFT);
+		final BorderPane toolbar_center_status = new BorderPane();
+		toolbar_center_status.setTop(toolbar);
+		toolbar_center_status.setCenter(center);
+		toolbar_center_status.setBottom(status);
+		BorderPane.setAlignment(center, Pos.TOP_LEFT);
 
-        stage.setTitle("Editor");
-        stage.setWidth(1200);
-        stage.setHeight(600);
-        final Scene scene = new Scene(toolbar_center_status, 1200, 600);
-        stage.setScene(scene);
-        EditorUtil.setSceneStyle(scene);
+		stage.setTitle("Editor");
+		stage.setWidth(1200);
+		stage.setHeight(600);
+		final Scene scene = new Scene(toolbar_center_status, 1200, 600);
+		stage.setScene(scene);
+		EditorUtil.setSceneStyle(scene);
 
-        stage.show();
-    }
+		// If ScenicView.jar is added to classpath, open it here
+		//ScenicView.show(scene);
 
-    private ToolBar createToolbar(final SelectedWidgetUITracker selection_tracker,
-                                  final WidgetSelectionHandler selection_handler,
-                                  final UndoableActionManager undo)
-    {
-        final Button debug = new Button("Debug");
-        debug.setOnAction(event -> editor.debug());
+		stage.show();
+	}
 
-        final Button undo_button = createButton(new UndoAction(undo));
-        final Button redo_button = createButton(new RedoAction(undo));
-        undo_button.setDisable(true);
-        redo_button.setDisable(true);
-        undo.addListener((to_undo, to_redo) ->
-        {
-            undo_button.setDisable(to_undo == null);
-            redo_button.setDisable(to_redo == null);
-        });
+	private ToolBar createToolbar(final SelectedWidgetUITracker selection_tracker,
+			final WidgetSelectionHandler selection_handler,
+			final UndoableActionManager undo)
+	{
+		final Button debug = new Button("Debug");
+		debug.setOnAction(event -> editor.debug());
 
-        final Button back_button = createButton(new ToBackAction(undo, selection_handler));
-        final Button front_button = createButton(new ToFrontAction(undo, selection_handler));
+		final Button undo_button = createButton(new UndoAction(undo));
+		final Button redo_button = createButton(new RedoAction(undo));
+		undo_button.setDisable(true);
+		redo_button.setDisable(true);
+		undo.addListener((to_undo, to_redo) ->
+		{
+			undo_button.setDisable(to_undo == null);
+			redo_button.setDisable(to_redo == null);
+		});
 
-        return new ToolBar(
-                createButton(new LoadModelAction(this)),
-                createButton(new SaveModelAction(this)),
-                new Separator(),
-                createToggleButton(new EnableGridAction(selection_tracker)),
-                createToggleButton(new EnableSnapAction(selection_tracker)),
-                new Separator(),
-                back_button,
-                front_button,
-                new Separator(),
-                undo_button,
-                redo_button,
-                new Separator(),
-                debug);
-    }
+		final Button back_button = createButton(new ToBackAction(undo, selection_handler));
+		final Button front_button = createButton(new ToFrontAction(undo, selection_handler));
 
-
-    private Button createButton(final ActionDescription action)
-    {
-        final Button button = new Button();
-        try
-        {
-            button.setGraphic(new ImageView(new Image(action.getIconStream())));
-        }
-        catch (final Exception ex)
-        {
-            logger.log(Level.WARNING, "Cannot load action icon", ex);
-        }
-        button.setTooltip(new Tooltip(action.getToolTip()));
-        button.setOnAction(event -> action.run(true));
-        return button;
-    }
-
-    private ToggleButton createToggleButton(final ActionDescription action)
-    {
-        final ToggleButton button = new ToggleButton();
-        try
-        {
-            button.setGraphic(new ImageView(new Image(action.getIconStream())));
-        }
-        catch (final Exception ex)
-        {
-            logger.log(Level.WARNING, "Cannot load action icon", ex);
-        }
-        button.setTooltip(new Tooltip(action.getToolTip()));
-        button.setSelected(true);
-        button.selectedProperty()
-              .addListener((final ObservableValue<? extends Boolean> observable,
-                            final Boolean old_value, final Boolean enabled) ->
-        {
-            action.run(enabled);
-        });
-        return button;
-    }
+		return new ToolBar(
+				createButton(new LoadModelAction(this)),
+				createButton(new SaveModelAction(this)),
+				new Separator(),
+				createToggleButton(new EnableGridAction(selection_tracker)),
+				createToggleButton(new EnableSnapAction(selection_tracker)),
+				new Separator(),
+				back_button,
+				front_button,
+				new Separator(),
+				undo_button,
+				redo_button,
+				new Separator(),
+				debug);
+	}
 
 
-    /** @return Currently edited file */
-    public File getFile()
-    {
-        return file;
-    }
+	private Button createButton(final ActionDescription action)
+	{
+		final Button button = new Button();
+		try
+		{
+			button.setGraphic(new ImageView(new Image(action.getIconStream())));
+		}
+		catch (final Exception ex)
+		{
+			logger.log(Level.WARNING, "Cannot load action icon", ex);
+		}
+		button.setTooltip(new Tooltip(action.getToolTip()));
+		button.setOnAction(event -> action.run(true));
+		return button;
+	}
 
-    /** Load model from file
-     *  @param file File that contains the model
-     */
-    public void loadModel(final File file)
-    {
-        EditorUtil.getExecutor().execute(() ->
-        {
-            try
-            {
-                doLoad(new FileInputStream(file), file.getCanonicalPath());
-                this.file = file;
-            }
-            catch (final Exception ex)
-            {
-                logger.log(Level.SEVERE, "Cannot start", ex);
-            }
-        });
-    }
+	private ToggleButton createToggleButton(final ActionDescription action)
+	{
+		final ToggleButton button = new ToggleButton();
+		try
+		{
+			button.setGraphic(new ImageView(new Image(action.getIconStream())));
+		}
+		catch (final Exception ex)
+		{
+			logger.log(Level.WARNING, "Cannot load action icon", ex);
+		}
+		button.setTooltip(new Tooltip(action.getToolTip()));
+		button.setSelected(true);
+		button.selectedProperty()
+		.addListener((final ObservableValue<? extends Boolean> observable,
+				final Boolean old_value, final Boolean enabled) ->
+		{
+			action.run(enabled);
+		});
+		return button;
+	}
 
-    private void doLoad(final InputStream stream, final String display_path) throws Exception
-    {
-        final ModelReader reader = new ModelReader(stream);
-        final DisplayModel model = reader.readModel();
-        model.setUserData(DisplayModel.USER_DATA_INPUT_FILE, display_path);
-        setModel(model);
-    }
 
-    /** Save model to file
-     *  @param file File into which to save the model
-     */
-    public void saveModelAs(final File file)
-    {
-        EditorUtil.getExecutor().execute(() ->
-        {
-            logger.log(Level.FINE, "Save as {0}", file);
-            try
-            (
-                final ModelWriter writer = new ModelWriter(new FileOutputStream(file));
-            )
-            {
-                writer.writeModel(editor.getModel());
-                this.file = file;
-            }
-            catch (Exception ex)
-            {
-                logger.log(Level.SEVERE, "Cannot save as " + file, ex);
-            }
-        });
-    }
+	/** @return Currently edited file */
+	public File getFile()
+	{
+		return file;
+	}
 
-    private void setModel(final DisplayModel model)
-    {
-        // Representation needs to be created in UI thread
-        toolkit.execute(() ->
-        {
-            editor.setModel(model);
-            tree.setModel(model);
-        });
-    }
+	/** Load model from file
+	 *  @param file File that contains the model
+	 */
+	public void loadModel(final File file)
+	{
+		EditorUtil.getExecutor().execute(() ->
+		{
+			try
+			{
+				doLoad(new FileInputStream(file), file.getCanonicalPath());
+				this.file = file;
+			}
+			catch (final Exception ex)
+			{
+				logger.log(Level.SEVERE, "Cannot start", ex);
+			}
+		});
+	}
 
-    public void dispose()
-    {
-        editor.dispose();
-    }
+	private void doLoad(final InputStream stream, final String display_path) throws Exception
+	{
+		final ModelReader reader = new ModelReader(stream);
+		final DisplayModel model = reader.readModel();
+		model.setUserData(DisplayModel.USER_DATA_INPUT_FILE, display_path);
+		setModel(model);
+	}
+
+	/** Save model to file
+	 *  @param file File into which to save the model
+	 */
+	public void saveModelAs(final File file)
+	{
+		EditorUtil.getExecutor().execute(() ->
+		{
+			logger.log(Level.FINE, "Save as {0}", file);
+			try
+			(
+					final ModelWriter writer = new ModelWriter(new FileOutputStream(file));
+					)
+			{
+				writer.writeModel(editor.getModel());
+				this.file = file;
+			}
+			catch (Exception ex)
+			{
+				logger.log(Level.SEVERE, "Cannot save as " + file, ex);
+			}
+		});
+	}
+
+	private void setModel(final DisplayModel model)
+	{
+		// Representation needs to be created in UI thread
+		toolkit.execute(() ->
+		{
+			editor.setModel(model);
+			tree.setModel(model);
+		});
+	}
+
+	public void dispose()
+	{
+		editor.dispose();
+	}
 }

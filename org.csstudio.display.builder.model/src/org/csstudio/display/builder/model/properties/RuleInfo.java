@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.csstudio.display.builder.model.ArrayWidgetProperty;
+import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
@@ -87,7 +89,7 @@ public class RuleInfo
 		attached_widget.getProperties().forEach(prop ->
 		{
 			// Do not include properties from categories: WIDGET or RUNTIME
-			// Do not include properties with names: actions, scripts, rules
+			// Do not include properties that are not supported in scripting
 			WidgetPropertyCategory pcat = prop.getCategory();
 			switch(pcat)
 			{
@@ -96,8 +98,12 @@ public class RuleInfo
 				break;
 			default:
 			{
-				String pname = prop.getName();
-				if ((pname != "actions") && (pname != "scripts") && (pname != "rules"))
+				if ( !(prop instanceof MacrosWidgetProperty) &&
+						!(prop instanceof ActionsWidgetProperty) &&
+						!(prop instanceof ScriptsWidgetProperty) &&
+						!(prop instanceof RulesWidgetProperty) &&
+						!(prop instanceof StructuredWidgetProperty) &&
+						!(prop instanceof ArrayWidgetProperty) )
 				{
 					propls.add(prop);
 				}

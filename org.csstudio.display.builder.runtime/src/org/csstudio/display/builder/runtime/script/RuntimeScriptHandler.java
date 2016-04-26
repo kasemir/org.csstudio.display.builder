@@ -66,8 +66,8 @@ public class RuntimeScriptHandler implements RuntimePVListener
 
 		final InputStream stream;
 		final DisplayModel model = widget.getDisplayModel();
-        final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-        final String path;
+		final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+		final String path;
 		if (script_info.getText() == null)
 		{   // Load external script
 			final String resolved = ModelResourceUtil.resolveResource(parent_display, script_name);
@@ -102,9 +102,13 @@ public class RuntimeScriptHandler implements RuntimePVListener
 		final InputStream stream = new ByteArrayInputStream(rule_info.getTextPy(widget, macros).getBytes());
 		String dummy_name = widget.getName() + ":" + rule_info.getName() + ".rule.py";
 
-		logger.log(Level.WARNING, "Compiling rule script for " + dummy_name + "\n" + rule_info.getNumberedTextPy(widget, macros));
+		logger.log(Level.FINER, "Compiling rule script for " + dummy_name + "\n" + rule_info.getNumberedTextPy(widget, macros));
 
-		return scripting.compile(null, dummy_name, stream);
+		try {
+			return scripting.compile(null, dummy_name, stream);
+		} catch (Exception e) {
+			throw new Exception("Cannot compile rule: " + dummy_name + "\n" + rule_info.getNumberedTextPy(widget, macros), e);
+		}
 	}
 
 
