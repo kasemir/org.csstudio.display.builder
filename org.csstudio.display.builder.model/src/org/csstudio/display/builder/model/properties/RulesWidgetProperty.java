@@ -38,8 +38,25 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
 {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
-	private static final WidgetPropertyDescriptor<String> miscUnkownPropID =
+	private static final WidgetPropertyDescriptor<String> miscUnknownPropID =
 			newStringPropertyDescriptor(WidgetPropertyCategory.MISC, "rule_unknown_propid", "?");
+
+	public static WidgetProperty<?> propIDToNewProp(Widget widget,
+			String prop_id, String dbg_tag)
+	{
+		Optional<WidgetProperty<?>> prop = widget.checkProperty(prop_id);
+
+		if (!prop.isPresent())
+		{
+			Logger.getLogger("RulesWidgetProperty.propIDToNewWidget")
+			.log(Level.WARNING, "Widget " + widget.getClass().getName()
+					+ " cannot make new unknown property id " + prop_id);
+
+			return miscUnknownPropID.createProperty(null, prop_id + " : " + dbg_tag);
+		}
+
+		return prop.get().clone();
+	}
 
 	/** Constructor
 	 *  @param descriptor Property descriptor
@@ -195,6 +212,8 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
 		setValue(rules);
 	}
 
+
+
 	private List<ExpressionInfo<?>> readExpressions(final ModelReader model_reader,
 			final String prop_id,
 			final boolean out_exp,
@@ -225,18 +244,11 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
 					}
 					else
 					{
-						Optional<WidgetProperty<?>> prop = this.getWidget().checkProperty(prop_id);
-						WidgetProperty<?> val_prop = null;
-						if (!prop.isPresent())
+						WidgetProperty<?> val_prop = propIDToNewProp(
+								this.getWidget(), prop_id, val_str);
+
+						if ( val_prop.getName() != miscUnknownPropID.getName() )
 						{
-							Logger.getLogger(getClass().getName())
-							.log(Level.WARNING, "Widget " + this.getWidget().getClass().getName()
-									+ " rule indicates unknown property id " + prop_id);
-							val_prop = miscUnkownPropID.createProperty(null, prop_id + " : " + val_str);
-						}
-						else
-						{
-							val_prop = prop.get().clone();
 							val_prop.readFromXML(model_reader, val_xml);
 						}
 						exprs.add(new ExpressionInfo<WidgetProperty<?>>(bool_exp, val_prop));

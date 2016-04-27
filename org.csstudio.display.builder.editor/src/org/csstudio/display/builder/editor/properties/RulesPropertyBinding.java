@@ -29,48 +29,50 @@ import javafx.scene.control.Button;
 public class RulesPropertyBinding
 extends WidgetPropertyBinding<Button, RulesWidgetProperty>
 {
-	/** Update property panel field as model changes */
-	private final WidgetPropertyListener<List<RuleInfo>> model_listener = (p, o, n) ->
-	{
-		jfx_node.setText(NLS.bind(Messages.RuleCountFMT, widget_property.getValue().size()));
-	};
+    /** Update property panel field as model changes */
+    private final WidgetPropertyListener<List<RuleInfo>> model_listener = (p, o, n) ->
+    {
+        jfx_node.setText(NLS.bind(Messages.RuleCountFMT, widget_property.getValue().size()));
+    };
 
-	/** Update model from user input */
-	private EventHandler<ActionEvent> action_handler = event ->
-	{
-		final RulesDialog dialog = new RulesDialog(undo, widget_property.getValue(), widget_property.getWidget());
-		final Optional<List<RuleInfo>> result = dialog.showAndWait();
-		if (result.isPresent())
-		{
-			undo.execute(new SetWidgetPropertyAction<List<RuleInfo>>(widget_property, result.get()));
-			for (Widget w : other)
-			{
-				final RulesWidgetProperty other_prop = (RulesWidgetProperty) w.getProperty(widget_property.getName());
-				undo.execute(new SetWidgetPropertyAction<List<RuleInfo>>(other_prop, result.get()));
-			}
-		}
-	};
+    /** Update model from user input */
+    private EventHandler<ActionEvent> action_handler = event ->
+    {
+        final RulesDialog dialog = new RulesDialog(undo, widget_property.getValue(), widget_property.getWidget());
+        //ScenicView.show(dialog.getDialogPane());
+        final Optional<List<RuleInfo>> result = dialog.showAndWait();
 
-	public RulesPropertyBinding(final UndoableActionManager undo,
-			final Button field,
-			final RulesWidgetProperty widget_property,
-			final List<Widget> other)
-	{
-		super(undo, field, widget_property, other);
-	}
+        if (result.isPresent())
+        {
+            undo.execute(new SetWidgetPropertyAction<List<RuleInfo>>(widget_property, result.get()));
+            for (Widget w : other)
+            {
+                final RulesWidgetProperty other_prop = (RulesWidgetProperty) w.getProperty(widget_property.getName());
+                undo.execute(new SetWidgetPropertyAction<List<RuleInfo>>(other_prop, result.get()));
+            }
+        }
+    };
 
-	@Override
-	public void bind()
-	{
-		widget_property.addPropertyListener(model_listener);
-		jfx_node.setOnAction(action_handler);
-		model_listener.propertyChanged(widget_property, null, null);
-	}
+    public RulesPropertyBinding(final UndoableActionManager undo,
+            final Button field,
+            final RulesWidgetProperty widget_property,
+            final List<Widget> other)
+    {
+        super(undo, field, widget_property, other);
+    }
 
-	@Override
-	public void unbind()
-	{
-		jfx_node.setOnAction(null);
-		widget_property.removePropertyListener(model_listener);
-	}
+    @Override
+    public void bind()
+    {
+        widget_property.addPropertyListener(model_listener);
+        jfx_node.setOnAction(action_handler);
+        model_listener.propertyChanged(widget_property, null, null);
+    }
+
+    @Override
+    public void unbind()
+    {
+        jfx_node.setOnAction(null);
+        widget_property.removePropertyListener(model_listener);
+    }
 }
