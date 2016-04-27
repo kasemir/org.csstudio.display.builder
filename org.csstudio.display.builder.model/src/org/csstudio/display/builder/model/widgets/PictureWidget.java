@@ -35,106 +35,106 @@ import org.w3c.dom.Text;
 @SuppressWarnings("nls")
 public class PictureWidget extends VisibleWidget
 {
-    public final static String default_pic = "platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif"; //$NON-NLS-1$
+	public final static String default_pic = "platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif"; //$NON-NLS-1$
 
-    /** Widget descriptor */
-    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
-        new WidgetDescriptor("picture", WidgetCategory.GRAPHIC,
-            "Picture",
-            "platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif",
-            "Display a picture from a file",
-            Arrays.asList("org.csstudio.opibuilder.widgets.Image"))
-    {
-        @Override
-        public Widget createWidget()
-        {
-            return new PictureWidget();
-        }
-    };
+	/** Widget descriptor */
+	public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+			new WidgetDescriptor("picture", WidgetCategory.GRAPHIC,
+					"Picture",
+					"platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif",
+					"Display a picture from a file",
+					Arrays.asList("org.csstudio.opibuilder.widgets.Image"))
+	{
+		@Override
+		public Widget createWidget()
+		{
+			return new PictureWidget();
+		}
+	};
 
-    /** Custom configurator to read legacy *.opi files */
-    private static class LEDConfigurator extends WidgetConfigurator
-    {
-        public LEDConfigurator(final Version xml_version)
-        {
-            super(xml_version);
-        }
+	/** Custom configurator to read legacy *.opi files */
+	private static class CustomConfigurator extends WidgetConfigurator
+	{
+		public CustomConfigurator(final Version xml_version)
+		{
+			super(xml_version);
+		}
 
-        @Override
-        public boolean configureFromXML(final ModelReader model_reader, final Widget widget, final Element widget_xml)
-                throws Exception
-        {
-            // Legacy used background color for the line
-            Element xml = XMLUtil.getChildElement(widget_xml, "image_file");
-            if (xml != null)
-            {
-                final Document doc = widget_xml.getOwnerDocument();
-                Element fname = doc.createElement(displayFile.getName());
+		@Override
+		public boolean configureFromXML(final ModelReader model_reader, final Widget widget, final Element widget_xml)
+				throws Exception
+		{
+			// Legacy used background color for the line
+			Element xml = XMLUtil.getChildElement(widget_xml, "image_file");
+			if (xml != null)
+			{
+				final Document doc = widget_xml.getOwnerDocument();
+				Element fname = doc.createElement(displayFile.getName());
 
-                if (xml.getFirstChild() != null)
-                {
-                    fname.appendChild(xml.getFirstChild().cloneNode(true));
-                }
-                else
-                {
-                    Text fpath = doc.createTextNode(default_pic);
-                    fname.appendChild(fpath);
-                }
-                widget_xml.appendChild(fname);
-            }
+				if (xml.getFirstChild() != null)
+				{
+					fname.appendChild(xml.getFirstChild().cloneNode(true));
+				}
+				else
+				{
+					Text fpath = doc.createTextNode(default_pic);
+					fname.appendChild(fpath);
+				}
+				widget_xml.appendChild(fname);
+			}
 
-            // Parse updated XML
-            return super.configureFromXML(model_reader, widget, widget_xml);
-        }
-    }
-    /** Position 'rotation': What is the rotation of the picture */
-    public static final WidgetPropertyDescriptor<Double> positionRotation =
-        newDoublePropertyDescriptor(WidgetPropertyCategory.POSITION, "rotation", Messages.WidgetProperties_Rotation);
+			// Parse updated XML
+			return super.configureFromXML(model_reader, widget, widget_xml);
+		}
+	}
+	/** Position 'rotation': What is the rotation of the picture */
+	public static final WidgetPropertyDescriptor<Double> positionRotation =
+			newDoublePropertyDescriptor(WidgetPropertyCategory.POSITION, "rotation", Messages.WidgetProperties_Rotation);
 
-    public static final WidgetPropertyDescriptor<Boolean> displayStretch =
-            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "stretch_image", Messages.WidgetProperties_StretchToFit);
+	public static final WidgetPropertyDescriptor<Boolean> displayStretch =
+			newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "stretch_image", Messages.WidgetProperties_StretchToFit);
 
-    private volatile WidgetProperty<String> filename;
-    private volatile WidgetProperty<Boolean> stretch_image;
-    private volatile WidgetProperty<Double> rotation;
+	private volatile WidgetProperty<String> filename;
+	private volatile WidgetProperty<Boolean> stretch_image;
+	private volatile WidgetProperty<Double> rotation;
 
-    public PictureWidget()
-    {
-        super(WIDGET_DESCRIPTOR.getType());
-    }
+	public PictureWidget()
+	{
+		super(WIDGET_DESCRIPTOR.getType());
+	}
 
-    @Override
-    protected void defineProperties(final List<WidgetProperty<?>> properties)
-    {
-        super.defineProperties(properties);
-        properties.add(filename = displayFile.createProperty(this, default_pic));
-        properties.add(stretch_image = displayStretch.createProperty(this, false));
-        properties.add(rotation = positionRotation.createProperty(this, 0.0));
-    }
+	@Override
+	protected void defineProperties(final List<WidgetProperty<?>> properties)
+	{
+		super.defineProperties(properties);
+		properties.add(filename = displayFile.createProperty(this, default_pic));
+		properties.add(stretch_image = displayStretch.createProperty(this, false));
+		properties.add(rotation = positionRotation.createProperty(this, 0.0));
+	}
 
-    /** @return Position 'rotation' */
-    public WidgetProperty<Double> positionRotation()
-    {
-        return rotation;
-    }
+	/** @return Position 'rotation' */
+	public WidgetProperty<Double> positionRotation()
+	{
+		return rotation;
+	}
 
-    /** @return Display 'text' */
-    public WidgetProperty<String> displayFile()
-    {
-        return filename;
-    }
+	/** @return Display 'text' */
+	public WidgetProperty<String> displayFile()
+	{
+		return filename;
+	}
 
-    /** @return Display 'stretch' */
-    public WidgetProperty<Boolean> displayStretch()
-    {
-        return stretch_image;
-    }
+	/** @return Display 'stretch' */
+	public WidgetProperty<Boolean> displayStretch()
+	{
+		return stretch_image;
+	}
 
-    @Override
-    public WidgetConfigurator getConfigurator(final Version persisted_version)
-            throws Exception
-    {
-        return new LEDConfigurator(persisted_version);
-    }
+	@Override
+	public WidgetConfigurator getConfigurator(final Version persisted_version)
+			throws Exception
+	{
+		return new CustomConfigurator(persisted_version);
+	}
 
 }

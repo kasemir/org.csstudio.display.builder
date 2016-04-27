@@ -385,6 +385,19 @@ public class CommonWidgetProperties
         }
     };
 
+    /** Behavior 'rules': Rules to execute */
+    public static final WidgetPropertyDescriptor<List<RuleInfo>> behaviorRules =
+        new WidgetPropertyDescriptor<List<RuleInfo>>(
+            WidgetPropertyCategory.BEHAVIOR, "rules", Messages.WidgetProperties_Rules)
+    {
+        @Override
+        public WidgetProperty<List<RuleInfo>> createProperty(final Widget widget,
+                                                               final List<RuleInfo> scripts)
+        {
+            return new RulesWidgetProperty(this, widget, scripts);
+        }
+    };
+
     /** Behavior 'limits_from_pv': Use limits from PV's meta data? */
     public static final WidgetPropertyDescriptor<Boolean> behaviorLimitsFromPV =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "limits_from_pv", Messages.WidgetProperties_LimitsFromPV);
