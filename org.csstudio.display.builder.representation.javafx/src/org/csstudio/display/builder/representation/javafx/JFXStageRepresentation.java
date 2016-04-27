@@ -44,7 +44,7 @@ public class JFXStageRepresentation extends JFXRepresentation
         stage.show();
 
         // If ScenicView.jar is added to classpath, open it here
-        // ScenicView.show(scene);
+        //ScenicView.show(scene);
 
         return getModelParent();
     }
@@ -57,7 +57,7 @@ public class JFXStageRepresentation extends JFXRepresentation
     }
 
     private void handleCloseRequest(final Scene scene,
-                                    final Consumer<DisplayModel> close_request_handler)
+            final Consumer<DisplayModel> close_request_handler)
     {
         final Parent root = getModelParent();
         final DisplayModel model = (DisplayModel) root.getProperties().get(ACTIVE_MODEL);

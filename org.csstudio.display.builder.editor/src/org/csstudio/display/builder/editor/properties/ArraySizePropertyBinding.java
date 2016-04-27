@@ -63,7 +63,7 @@ public class ArraySizePropertyBinding extends WidgetPropertyBinding<Spinner<Inte
     /** Update property sub-panel as array elements are added/removed */
     private WidgetPropertyListener<List<WidgetProperty<?>>> prop_listener = (prop, removed, added) ->
     {
-        panel_section.fill(undo, widget_property.getValue(), other, false);
+        panel_section.refill(undo, other);
     };
 
     /** @param panel_section Panel section for array elements
@@ -73,10 +73,10 @@ public class ArraySizePropertyBinding extends WidgetPropertyBinding<Spinner<Inte
      *  @param other Widgets that also have this array property
      */
     public ArraySizePropertyBinding(final PropertyPanelSection panel_section,
-                                    final UndoableActionManager undo,
-                                    final Spinner<Integer> node,
-                                    final ArrayWidgetProperty<WidgetProperty<?>> widget_property,
-                                    final List<Widget> other)
+            final UndoableActionManager undo,
+            final Spinner<Integer> node,
+            final ArrayWidgetProperty<WidgetProperty<?>> widget_property,
+            final List<Widget> other)
     {
         super(undo, node, widget_property, other);
         this.panel_section = panel_section;
@@ -89,8 +89,6 @@ public class ArraySizePropertyBinding extends WidgetPropertyBinding<Spinner<Inte
         jfx_node.getValueFactory().setValue(widget_property.size());
 
         widget_property.addPropertyListener(prop_listener);
-
-        panel_section.fill(undo, widget_property.getValue(), other, false);
     }
 
     @Override

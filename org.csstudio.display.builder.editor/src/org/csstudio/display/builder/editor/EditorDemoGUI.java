@@ -84,8 +84,8 @@ public class EditorDemoGUI
         editor = new DisplayEditor(toolkit);
 
         final ToolBar toolbar = createToolbar(editor.getSelectedWidgetUITracker(),
-                                              editor.getWidgetSelectionHandler(),
-                                              editor.getUndoableActionManager());
+                editor.getWidgetSelectionHandler(),
+                editor.getUndoableActionManager());
 
         tree = new WidgetTree(editor.getWidgetSelectionHandler());
 
@@ -110,12 +110,15 @@ public class EditorDemoGUI
         stage.setScene(scene);
         EditorUtil.setSceneStyle(scene);
 
+        // If ScenicView.jar is added to classpath, open it here
+        //ScenicView.show(scene);
+
         stage.show();
     }
 
     private ToolBar createToolbar(final SelectedWidgetUITracker selection_tracker,
-                                  final WidgetSelectionHandler selection_handler,
-                                  final UndoableActionManager undo)
+            final WidgetSelectionHandler selection_handler,
+            final UndoableActionManager undo)
     {
         final Button debug = new Button("Debug");
         debug.setOnAction(event -> editor.debug());
@@ -180,8 +183,8 @@ public class EditorDemoGUI
         button.setTooltip(new Tooltip(action.getToolTip()));
         button.setSelected(true);
         button.selectedProperty()
-              .addListener((final ObservableValue<? extends Boolean> observable,
-                            final Boolean old_value, final Boolean enabled) ->
+        .addListener((final ObservableValue<? extends Boolean> observable,
+                final Boolean old_value, final Boolean enabled) ->
         {
             action.run(enabled);
         });
@@ -232,8 +235,8 @@ public class EditorDemoGUI
             logger.log(Level.FINE, "Save as {0}", file);
             try
             (
-                final ModelWriter writer = new ModelWriter(new FileOutputStream(file));
-            )
+                    final ModelWriter writer = new ModelWriter(new FileOutputStream(file));
+                    )
             {
                 writer.writeModel(editor.getModel());
                 this.file = file;

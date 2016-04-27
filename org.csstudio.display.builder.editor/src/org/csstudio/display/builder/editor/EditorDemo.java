@@ -21,8 +21,9 @@ import javafx.stage.WindowEvent;
 @SuppressWarnings("nls")
 public class EditorDemo extends Application
 {
-    private static String display_file = "../org.csstudio.display.builder.runtime.test/examples/main.opi";
-//    private final String display_file = "../org.csstudio.display.builder.runtime.test/examples/legacy.opi";
+    //private static String display_file = "../org.csstudio.display.builder.runtime.test/examples/main.opi";
+    //    private final String display_file = "../org.csstudio.display.builder.runtime.test/examples/legacy.opi";
+    private static String display_file = "../org.csstudio.display.builder.runtime.test/examples/my_rules_example.opi";
     private EditorDemoGUI editor;
 
     /** JavaFX main

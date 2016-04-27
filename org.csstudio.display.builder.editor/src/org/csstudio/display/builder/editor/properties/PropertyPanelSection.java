@@ -27,6 +27,7 @@ import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
+import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.MultiLineInputDialog;
@@ -48,6 +49,9 @@ import javafx.scene.layout.Priority;
 public class PropertyPanelSection extends GridPane
 {
     private final List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
+    private int next_row = -1;
+    Collection<WidgetProperty<?>> properties = new ArrayList();
+    private boolean show_categories;
 
     public PropertyPanelSection()
     {
@@ -55,11 +59,13 @@ public class PropertyPanelSection extends GridPane
     }
 
     public void fill(final UndoableActionManager undo,
-		    		 final Collection<WidgetProperty<?>> properties,
-		    		 final List<Widget> other,
-		    		 final boolean show_categories)
+            final Collection<WidgetProperty<?>> properties,
+            final List<Widget> other,
+            final boolean show_categories)
     {
         clear();
+        this.properties = properties;
+        this.show_categories = show_categories;
         // Add UI items for each property
         WidgetPropertyCategory category = null;
         for (final WidgetProperty<?> property : properties)
@@ -70,7 +76,7 @@ public class PropertyPanelSection extends GridPane
 
             // Start of new category that needs to be shown?
             if (show_categories &&
-            	property.getCategory() != category)
+                    property.getCategory() != category)
             {
                 category = property.getCategory();
 
@@ -80,41 +86,42 @@ public class PropertyPanelSection extends GridPane
                 add(header, 0, getNextGridRow(), 2, 1);
             }
 
-            createPropertyUI(undo, property, other);
+            this.createPropertyUI(undo, property, other);
         }
+    }
+
+    public void refill(final UndoableActionManager undo,
+            final List<Widget> other)
+    {
+        fill(undo, this.properties, other, this.show_categories);
     }
 
     /** @return Next row in grid layout, i.e. row that is not populated */
     private int getNextGridRow()
     {
+        next_row++;
+        return next_row;
+
         // Goal was to avoid a separate 'row' counter.
         // Depends on nodes being added by rows,
         // so last node reflects index of last populated row.
-        final List<Node> nodes = getChildren();
-        final int n = nodes.size();
-        if (n <= 0)
-            return 0;
-        final Integer row = GridPane.getRowIndex(nodes.get(n-1));
-        return row == null ? 0 : row.intValue() + 1;
+        //final List<Node> nodes = getChildren();
+        //final int n = nodes.size();
+        //if (n <= 0)
+        //    return 0;
+        //final Integer row = GridPane.getRowIndex(nodes.get(n-1));
+        //return row == null ? 0 : row.intValue() + 1;
     }
 
-    /** Add UI items for displaying or editing property
-     *  @param property Property (on primary widget)
-     *  @param other Zero or more additional widgets that have same type of property
-     */
-    private void createPropertyUI(final UndoableActionManager undo,
-    							  final WidgetProperty<?> property,
-    							  final List<Widget> other)
+
+    public static Node bindSimplePropertyField (
+            final UndoableActionManager undo,
+            List<WidgetPropertyBinding<?,?>> bindings,
+            final WidgetProperty<?> property,
+            final List<Widget> other)
     {
-        // Skip runtime properties
-        if (property.getCategory() == WidgetPropertyCategory.RUNTIME)
-            return;
+        Node field = null;
 
-        final Label label = new Label(property.getDescription());
-        label.setMaxWidth(Double.MAX_VALUE);
-        GridPane.setHgrow(label, Priority.ALWAYS);
-
-        final Node field;
         if (property.isReadonly())
         {
             final TextField text = new TextField();
@@ -140,36 +147,6 @@ public class PropertyPanelSection extends GridPane
             bindings.add(binding);
             binding.bind();
             field = font_field;
-        }
-        else if (property instanceof MacrosWidgetProperty)
-        {
-            final MacrosWidgetProperty macros_prop = (MacrosWidgetProperty) property;
-            final Button macros_field = new Button();
-            macros_field.setMaxWidth(Double.MAX_VALUE);
-            final MacrosPropertyBinding binding = new MacrosPropertyBinding(undo, macros_field, macros_prop, other);
-            bindings.add(binding);
-            binding.bind();
-            field = macros_field;
-        }
-        else if (property instanceof ActionsWidgetProperty)
-        {
-            final ActionsWidgetProperty actions_prop = (ActionsWidgetProperty) property;
-            final Button actions_field = new Button();
-            actions_field.setMaxWidth(Double.MAX_VALUE);
-            final ActionsPropertyBinding binding = new ActionsPropertyBinding(undo, actions_field, actions_prop, other);
-            bindings.add(binding);
-            binding.bind();
-            field = actions_field;
-        }
-        else if (property instanceof ScriptsWidgetProperty)
-        {
-            final ScriptsWidgetProperty scripts_prop = (ScriptsWidgetProperty) property;
-            final Button scripts_field = new Button();
-            scripts_field.setMaxWidth(Double.MAX_VALUE);
-            final ScriptsPropertyBinding binding = new ScriptsPropertyBinding(undo, scripts_field, scripts_prop, other);
-            bindings.add(binding);
-            binding.bind();
-            field = scripts_field;
         }
         else if (property instanceof EnumWidgetProperty<?>)
         {
@@ -223,41 +200,6 @@ public class PropertyPanelSection extends GridPane
             else
                 field = text;
         }
-        else if (property instanceof StructuredWidgetProperty)
-        {
-            final StructuredWidgetProperty struct = (StructuredWidgetProperty) property;
-            final Label header = new Label(struct.getDescription());
-            header.getStyleClass().add("structure_property_name");
-            header.setMaxWidth(Double.MAX_VALUE);
-            add(header, 0, getNextGridRow(), 2, 1);
-            for (WidgetProperty<?> elem : struct.getValue())
-                createPropertyUI(undo, elem, other);
-            return;
-        }
-        else if (property instanceof ArrayWidgetProperty)
-        {
-            @SuppressWarnings("unchecked")
-            final ArrayWidgetProperty<WidgetProperty<?>> array = (ArrayWidgetProperty<WidgetProperty<?>>) property;
-
-            // UI for changing array size
-            final Spinner<Integer> spinner = new Spinner<>(1, 100, 0);
-            final HBox header = new HBox(label, spinner);
-            HBox.setHgrow(label, Priority.ALWAYS);
-            header.getStyleClass().add("array_property_name");
-
-            // Sub-panel for array elements
-            final PropertyPanelSection array_section = new PropertyPanelSection();
-            array_section.getStyleClass().add("array_property_elements");
-            final ArraySizePropertyBinding count_binding = new ArraySizePropertyBinding(array_section, undo, spinner, array, other);
-            bindings.add(count_binding);
-            count_binding.bind();
-
-            int row = getNextGridRow();
-            add(header, 0, row++, 2, 1);
-            add(array_section, 0, row, 2, 1);
-            GridPane.setHgrow(array_section, Priority.ALWAYS);
-            return;
-        }
         else if (property instanceof PointsWidgetProperty)
         {
             // TODO Table-based editor for list of points
@@ -268,6 +210,114 @@ public class PropertyPanelSection extends GridPane
             bindings.add(binding);
             binding.bind();
             field = points_field;
+        }
+        return field;
+
+    }
+
+    /** Add UI items for displaying or editing property
+     *  @param property Property (on primary widget)
+     *  @param other Zero or more additional widgets that have same type of property
+     */
+    private void createPropertyUI(final UndoableActionManager undo,
+            final WidgetProperty<?> property,
+            final List<Widget> other)
+    {
+        // Skip runtime properties
+        if (property.getCategory() == WidgetPropertyCategory.RUNTIME)
+            return;
+
+        final Label label = new Label(property.getDescription());
+        label.setMaxWidth(Double.MAX_VALUE);
+        GridPane.setHgrow(label, Priority.ALWAYS);
+        //this.setGridLinesVisible(true);
+
+        Node field = bindSimplePropertyField(undo, bindings, property, other);
+        if (field != null)
+        {
+            //do nothing
+        }
+        else if (property instanceof MacrosWidgetProperty)
+        {
+            final MacrosWidgetProperty macros_prop = (MacrosWidgetProperty) property;
+            final Button macros_field = new Button();
+            macros_field.setMaxWidth(Double.MAX_VALUE);
+            final MacrosPropertyBinding binding = new MacrosPropertyBinding(undo, macros_field, macros_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = macros_field;
+        }
+        else if (property instanceof ActionsWidgetProperty)
+        {
+            final ActionsWidgetProperty actions_prop = (ActionsWidgetProperty) property;
+            final Button actions_field = new Button();
+            actions_field.setMaxWidth(Double.MAX_VALUE);
+            final ActionsPropertyBinding binding = new ActionsPropertyBinding(undo, actions_field, actions_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = actions_field;
+        }
+        else if (property instanceof ScriptsWidgetProperty)
+        {
+            final ScriptsWidgetProperty scripts_prop = (ScriptsWidgetProperty) property;
+            final Button scripts_field = new Button();
+            scripts_field.setMaxWidth(Double.MAX_VALUE);
+            final ScriptsPropertyBinding binding = new ScriptsPropertyBinding(undo, scripts_field, scripts_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = scripts_field;
+        }
+        else if (property instanceof RulesWidgetProperty)
+        {
+            final RulesWidgetProperty rules_prop = (RulesWidgetProperty) property;
+            final Button rules_field = new Button();
+            rules_field.setMaxWidth(Double.MAX_VALUE);
+            final RulesPropertyBinding binding = new RulesPropertyBinding(undo, rules_field, rules_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = rules_field;
+        }
+        else if (property instanceof StructuredWidgetProperty)
+        {
+            final StructuredWidgetProperty struct = (StructuredWidgetProperty) property;
+            final Label header = new Label(struct.getDescription());
+            header.getStyleClass().add("structure_property_name");
+            header.setMaxWidth(Double.MAX_VALUE);
+            add(header, 0, getNextGridRow(), 2, 1);
+            for (WidgetProperty<?> elem : struct.getValue())
+                this.createPropertyUI(undo, elem, other);
+            return;
+        }
+        else if (property instanceof ArrayWidgetProperty)
+        {
+            @SuppressWarnings("unchecked")
+            final ArrayWidgetProperty<WidgetProperty<?>> array = (ArrayWidgetProperty<WidgetProperty<?>>) property;
+
+            // UI for changing array size
+            final Spinner<Integer> spinner = new Spinner<>(1, 100, 0);
+            final ArraySizePropertyBinding count_binding = new ArraySizePropertyBinding(this, undo, spinner, array, other);
+            bindings.add(count_binding);
+            count_binding.bind();
+
+            // set size of array
+            final int row = getNextGridRow();
+            label.getStyleClass().add("array_property_name");
+            spinner.getStyleClass().add("array_property_value");
+            add(label, 0, row);
+            add(spinner, 1, row);
+
+            // array elements
+            for (WidgetProperty<?> elem : array.getValue())
+                this.createPropertyUI(undo, elem, other);
+
+            // mark end of array
+            final Label endlabel = new Label();
+            endlabel.setMaxWidth(Double.MAX_VALUE);
+            GridPane.setHgrow(endlabel, Priority.ALWAYS);
+            endlabel.getStyleClass().add("array_property_name");
+            add(endlabel, 0, getNextGridRow(), 2, 1);
+
+            return;
         }
         // As new property types are added, they might need to be handled:
         // else if (property instanceof SomeNewWidgetProperty) { ... }
@@ -292,6 +342,6 @@ public class PropertyPanelSection extends GridPane
     {
         bindings.forEach(WidgetPropertyBinding::unbind);
         bindings.clear();
-		getChildren().clear();
+        getChildren().clear();
     }
 }

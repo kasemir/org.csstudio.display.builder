@@ -39,11 +39,11 @@ public class PictureWidget extends VisibleWidget
 
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
-        new WidgetDescriptor("picture", WidgetCategory.GRAPHIC,
-            "Picture",
-            "platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif",
-            "Display a picture from a file",
-            Arrays.asList("org.csstudio.opibuilder.widgets.Image"))
+            new WidgetDescriptor("picture", WidgetCategory.GRAPHIC,
+                    "Picture",
+                    "platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif",
+                    "Display a picture from a file",
+                    Arrays.asList("org.csstudio.opibuilder.widgets.Image"))
     {
         @Override
         public Widget createWidget()
@@ -53,9 +53,9 @@ public class PictureWidget extends VisibleWidget
     };
 
     /** Custom configurator to read legacy *.opi files */
-    private static class LEDConfigurator extends WidgetConfigurator
+    private static class CustomConfigurator extends WidgetConfigurator
     {
-        public LEDConfigurator(final Version xml_version)
+        public CustomConfigurator(final Version xml_version)
         {
             super(xml_version);
         }
@@ -89,7 +89,7 @@ public class PictureWidget extends VisibleWidget
     }
     /** Position 'rotation': What is the rotation of the picture */
     public static final WidgetPropertyDescriptor<Double> positionRotation =
-        newDoublePropertyDescriptor(WidgetPropertyCategory.POSITION, "rotation", Messages.WidgetProperties_Rotation);
+            newDoublePropertyDescriptor(WidgetPropertyCategory.POSITION, "rotation", Messages.WidgetProperties_Rotation);
 
     public static final WidgetPropertyDescriptor<Boolean> displayStretch =
             newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "stretch_image", Messages.WidgetProperties_StretchToFit);
@@ -134,7 +134,7 @@ public class PictureWidget extends VisibleWidget
     public WidgetConfigurator getConfigurator(final Version persisted_version)
             throws Exception
     {
-        return new LEDConfigurator(persisted_version);
+        return new CustomConfigurator(persisted_version);
     }
 
 }

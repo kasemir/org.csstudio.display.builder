@@ -58,6 +58,16 @@ public class Messages extends NLS
     public static String PointsTable_Y;
     public static String Red;
     public static String Remove;
+    public static String RulesDialog_ColName;
+    public static String RulesDialog_ColBoolExp;
+    public static String RulesDialog_ColValExp;
+    public static String RulesDialog_DefaultRuleName;
+    public static String RulesDialog_ExpressionsTT;
+    public static String RulesDialog_Info;
+    public static String RulesDialog_PVsTT;
+    public static String RulesDialog_RulesTT;
+    public static String RulesDialog_SelectRule;
+    public static String RulesDialog_Title;
     public static String ScriptsDialog_BtnEmbedJS;
     public static String ScriptsDialog_BtnEmbedPy;
     public static String ScriptsDialog_BtnFile;

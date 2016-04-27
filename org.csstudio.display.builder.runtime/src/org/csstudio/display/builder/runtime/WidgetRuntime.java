@@ -28,6 +28,7 @@ import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
+import org.csstudio.display.builder.model.properties.RuleInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
 import org.csstudio.display.builder.runtime.internal.RuntimePVs;
@@ -260,9 +261,11 @@ public class WidgetRuntime<MW extends Widget>
     {
         // Start scripts triggered by PVs
         final List<ScriptInfo> script_infos = widget.behaviorScripts().getValue();
-        if (script_infos.size() > 0)
+        final List<RuleInfo> rule_infos = widget.behaviorRules().getValue();
+        if ((script_infos.size() > 0) || (rule_infos.size() > 0))
         {
-            final List<RuntimeScriptHandler> handlers = new ArrayList<>(script_infos.size());
+            final List<RuntimeScriptHandler> handlers = new ArrayList<>(script_infos.size() + rule_infos.size());
+            
             for (final ScriptInfo script_info : script_infos)
             {
                 try
@@ -275,8 +278,24 @@ public class WidgetRuntime<MW extends Widget>
                         "Widget " + widget.getName() + " script " + script_info.getPath() + " failed to initialize", ex);
                 }
             }
+            
+            for (final RuleInfo rule_info : rule_infos)
+            {
+                try
+                {
+                    handlers.add(new RuntimeScriptHandler(widget, rule_info));
+                }
+                catch (final Exception ex)
+                {
+                    logger.log(Level.WARNING,
+                        "Widget " + widget.getName() + " rule " + rule_info.getName() + " failed to initialize", ex);
+                }
+            }
+            
             script_handlers = handlers;
         }
+        
+        
 
         // Compile scripts invoked by actions
         final List<ActionInfo> actions = widget.behaviorActions().getValue();
