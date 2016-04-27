@@ -65,14 +65,13 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         {
             this.model_trace = model_trace;
 
-            // TODO Trace axis property
-            int axis = 0;
-
             // TODO trace name property (instead of Y PV)
             trace = plot.addTrace(model_trace.traceY().getValue(), "", data,
                                   JFXUtil.convert(model_trace.traceColor().getValue()),
-                                  TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5, axis);
+                                  TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5,
+                                  model_trace.traceYAxis().getValue());
 
+            // TODO Allow changing Y axis index at runtime: Support in plot, add listener
             model_trace.traceY().addUntypedPropertyListener(trace_listener);
             model_trace.traceColor().addUntypedPropertyListener(trace_listener);
 
@@ -137,6 +136,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
         trackAxisChanges(model_widget.behaviorXAxis());
 
+        // TODO Create all the axes here because traces will need them to be present
         for (AxisWidgetProperty axis : model_widget.behaviorYAxes().getValue())
             trackAxisChanges(axis);
         model_widget.behaviorYAxes().addPropertyListener(this::yAxesChanged);
