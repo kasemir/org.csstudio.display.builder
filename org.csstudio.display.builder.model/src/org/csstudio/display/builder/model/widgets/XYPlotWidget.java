@@ -33,7 +33,7 @@ import org.w3c.dom.Element;
 /** Widget that displays X/Y waveforms
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
+@SuppressWarnings("nls") // TODO Externalize strings
 public class XYPlotWidget extends VisibleWidget
 {
     private static final WidgetPropertyDescriptor<Boolean> behaviorLegend =
@@ -85,6 +85,8 @@ public class XYPlotWidget extends VisibleWidget
         CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "x_pv", "X PV");
     private static final WidgetPropertyDescriptor<String> traceY =
         CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "y_pv", "Y PV");
+    private static final WidgetPropertyDescriptor<Integer> traceYAxis =
+        CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "axis", "Y Axis Index");
     private static final WidgetPropertyDescriptor<WidgetColor> traceColor =
         CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "color", "Color");
     private static final WidgetPropertyDescriptor<VType> traceXValue = CommonWidgetProperties.newRuntimeValue("x_value", "X Value");
@@ -101,15 +103,17 @@ public class XYPlotWidget extends VisibleWidget
             super(behaviorTrace, widget,
                   Arrays.asList(traceX.createProperty(widget, ""),
                                 traceY.createProperty(widget, ""),
+                                traceYAxis.createProperty(widget, 0),
                                 traceColor.createProperty(widget, new WidgetColor(0, 0, 255)),
                                 traceXValue.createProperty(widget, null),
                                 traceYValue.createProperty(widget, null)  ));
         }
         public WidgetProperty<String> traceX()          { return getElement(0); }
         public WidgetProperty<String> traceY()          { return getElement(1); }
-        public WidgetProperty<WidgetColor> traceColor() { return getElement(2); }
-        public WidgetProperty<VType> xValue()           { return getElement(3); }
-        public WidgetProperty<VType> yValue()           { return getElement(4); }
+        public WidgetProperty<Integer> traceYAxis()     { return getElement(2); }
+        public WidgetProperty<WidgetColor> traceColor() { return getElement(3); }
+        public WidgetProperty<VType> xValue()           { return getElement(4); }
+        public WidgetProperty<VType> yValue()           { return getElement(5); }
     };
 
     /** 'traces' array */
@@ -242,8 +246,11 @@ public class XYPlotWidget extends VisibleWidget
                 if (element != null)
                     trace.traceColor().readFromXML(model_reader, element);
 
-                final Optional<String> axis_index = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_y_axis_index");
-                // TODO Assign value axis
+                // Legacy used index 0=X, 1=Y, 2=Y1, ..
+                // except higher axis index could also stand for X1, X2, which we don't handle
+                final Optional<Integer> axis_index = XMLUtil.getChildInteger(xml, "trace_" + legacy_trace + "_y_axis_index");
+                if (axis_index.isPresent())
+                    trace.traceYAxis().setValue(Math.max(0, axis_index.get() - 1));
             }
             return true;
         }

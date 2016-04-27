@@ -60,8 +60,8 @@ public class PolygonWidget extends VisibleWidget
      */
     static void adjustXMLPoints(final Element widget_xml) throws Exception
     {
-        final int x0 = Integer.parseInt(XMLUtil.getChildString(widget_xml, "x").orElse("0"));
-        final int y0 = Integer.parseInt(XMLUtil.getChildString(widget_xml, "y").orElse("0"));
+        final int x0 = XMLUtil.getChildInteger(widget_xml, "x").orElse(0);
+        final int y0 = XMLUtil.getChildInteger(widget_xml, "y").orElse(0);
         Element xml = XMLUtil.getChildElement(widget_xml, "points");
         if (xml != null)
         {

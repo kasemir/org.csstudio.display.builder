@@ -124,7 +124,7 @@ public class GroupWidget extends VisibleWidget
             {
                 final GroupWidget group_widget = (GroupWidget) widget;
                 // Translate border styles
-                final int old_spec = Integer.parseInt(XMLUtil.getChildString(xml, "border_style").orElse("13"));
+                final int old_spec = XMLUtil.getChildInteger(xml, "border_style").orElse(13);
                 if (old_spec == 0  ||  old_spec == 15)     // NONE, Empty
                     group_widget.style.setValue(Style.NONE);
                 else if (old_spec >= 1  && old_spec <= 11) // Line, dash, raised, ..

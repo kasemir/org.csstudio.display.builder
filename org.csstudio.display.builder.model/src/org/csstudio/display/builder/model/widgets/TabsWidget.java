@@ -124,15 +124,11 @@ public class TabsWidget extends VisibleWidget
             if (! super.configureFromXML(model_reader, widget, xml))
                 return false;
 
-            if (xml_version.getMajor() < 2)
-            {
-                // Legacy org.csstudio.opibuilder.widgets.tab used <tab_count>,
-                Optional<String> text = XMLUtil.getChildString(xml, "tab_count");
-                if (! text.isPresent())
-                    return true;
-
+            final Optional<Integer> count_info = XMLUtil.getChildInteger(xml, "tab_count");
+            if (xml_version.getMajor() < 2  &&  count_info.isPresent())
+            {   // Legacy org.csstudio.opibuilder.widgets.tab used <tab_count>,
                 // Create matching number of tabs
-                final int count = Integer.parseInt(text.get());
+                final int count = count_info.get();
                 final TabsWidget tabs_widget = (TabsWidget)widget;
                 final ArrayWidgetProperty<TabItemProperty> tabs = tabs_widget.displayTabs();
                 while (count < tabs.size())
@@ -141,7 +137,7 @@ public class TabsWidget extends VisibleWidget
                     tabs.addElement();
 
                 // Basics that apply to all tabs
-                text = XMLUtil.getChildString(xml, "minimum_tab_height");
+                Optional<String> text = XMLUtil.getChildString(xml, "minimum_tab_height");
                 if (text.isPresent())
                     tabs_widget.displayTabHeight().setValue(Integer.parseInt(text.get()));
 
