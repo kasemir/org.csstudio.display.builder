@@ -136,17 +136,19 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
         trackAxisChanges(model_widget.behaviorXAxis());
 
-        // TODO Create all the axes here because traces will need them to be present
-        for (AxisWidgetProperty axis : model_widget.behaviorYAxes().getValue())
-            trackAxisChanges(axis);
+        // Track initial Y axis
+        final List<AxisWidgetProperty> y_axes = model_widget.behaviorYAxes().getValue();
+        trackAxisChanges(y_axes.get(0));
+        // Create additional Y axes from model
+        yAxesChanged(model_widget.behaviorYAxes(), null, y_axes);
+        // Track added/remove Y axes
         model_widget.behaviorYAxes().addPropertyListener(this::yAxesChanged);
 
         final UntypedWidgetPropertyListener position_listener = this::positionChanged;
         model_widget.positionWidth().addUntypedPropertyListener(position_listener);
         model_widget.positionHeight().addUntypedPropertyListener(position_listener);
 
-        for (TraceWidgetProperty trace : model_widget.behaviorTraces().getValue())
-            trace_handlers.add(new TraceHandler(trace));
+        tracesChanged(model_widget.behaviorTraces(), null, model_widget.behaviorTraces().getValue());
         model_widget.behaviorTraces().addPropertyListener(this::tracesChanged);
     }
 
@@ -175,14 +177,24 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     private void yAxesChanged(final WidgetProperty<List<AxisWidgetProperty>> property,
                               final List<AxisWidgetProperty> removed, final List<AxisWidgetProperty> added)
     {
-        if (removed != null)
-            for (AxisWidgetProperty axis : removed)
-                ignoreAxisChanges(axis);
+        final List<AxisWidgetProperty> model_y = property.getValue();
 
-        if (added != null)
-            for (AxisWidgetProperty axis : added)
-                trackAxisChanges(axis);
-
+        // Remove extra axes
+        int count = plot.getYAxes().size();
+        while (count > model_y.size())
+        {
+            final int to_remove = --count;
+            ignoreAxisChanges(model_y.get(to_remove));
+            plot.removeYAxis(to_remove);
+        }
+        // Add missing axes
+        while (count < model_y.size())
+        {
+            final AxisWidgetProperty model_axis = model_y.get(count++);
+            plot.addYAxis(model_axis.title().getValue());
+            trackAxisChanges(model_axis);
+        }
+        // Update axis detail: range, ..
         config_listener.propertyChanged(property, removed, added);
     }
 
@@ -195,24 +207,14 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     private void tracesChanged(final WidgetProperty<List<TraceWidgetProperty>> property,
                                final List<TraceWidgetProperty> removed, final List<TraceWidgetProperty> added)
     {
-        System.out.println("Removed trace " + removed);
-
         final List<TraceWidgetProperty> model_traces = property.getValue();
         int count = trace_handlers.size();
+        // Remove extra traces
         while (count > model_traces.size())
-        {
             trace_handlers.remove(--count).dispose();
-            System.out.println("Removed trace handler");
-        }
-
-        System.out.println("Added trace " + added);
-
-        count = trace_handlers.size();
+        // Add missing traces
         while (count < model_traces.size())
-        {
             trace_handlers.add(new TraceHandler(model_traces.get(count++)));
-            System.out.println("Added trace handler");
-        }
     }
 
     @Override
@@ -243,23 +245,16 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
         // Update Y Axes
         final List<AxisWidgetProperty> model_y = model_widget.behaviorYAxes().getValue();
-        // Remove extra axes
-        int count = plot.getYAxes().size();
-        while (count > model_y.size())
-            plot.removeYAxis(--count);
-        // Add and/or adjust config of existing axes
+        if (plot.getYAxes().size() != model_y.size())
+        {
+            logger.log(Level.WARNING, "Plot has " + plot.getYAxes().size() + " while model has " + model_y.size() + " Y axes");
+            return;
+        }
         for (int i=0;  i<model_y.size();  ++i)
         {
             final AxisWidgetProperty model_axis = model_y.get(i);
-            final YAxis<Double> plot_axis;
-            if (i < plot.getYAxes().size())
-            {
-                plot_axis = plot.getYAxes().get(i);
-                plot_axis.setName(model_axis.title().getValue());
-            }
-            else
-                plot_axis = plot.addYAxis(model_axis.title().getValue());
-
+            final YAxis<Double> plot_axis = plot.getYAxes().get(i);
+            plot_axis.setName(model_axis.title().getValue());
             plot_axis.setValueRange(model_axis.minimum().getValue(),
                                     model_axis.maximum().getValue());
             plot_axis.setAutoscale(model_axis.autoscale().getValue());
