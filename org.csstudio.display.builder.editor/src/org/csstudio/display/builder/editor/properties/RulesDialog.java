@@ -16,8 +16,11 @@ import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.RuleInfo;
 import org.csstudio.display.builder.model.properties.RuleInfo.ExpressionInfo;
+import org.csstudio.display.builder.model.properties.RuleInfo.ExprInfoString;
+import org.csstudio.display.builder.model.properties.RuleInfo.ExprInfoValue;
 import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -97,40 +100,17 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     };
 
     /** Expression info as property-based item for table */
-    public static class ExprItem<T>
+    public abstract static class ExprItem<T>
     {
-        final private StringProperty boolExp = new SimpleStringProperty();
-        //TODO: this valExp/val_exp naming is terrible. Change to propVal
-        final private T valExpObj;
-        final private StringProperty valExpStr = new SimpleStringProperty();
-        final private SimpleObjectProperty<Node> field = new SimpleObjectProperty<Node>();
-        private final List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
+        final protected StringProperty boolExp = new SimpleStringProperty();
+        //protected T propVal;
+        final protected SimpleObjectProperty<Node> field = new SimpleObjectProperty<Node>();
+        final protected List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
 
         public ExprItem(final String boolE, final T valE, final UndoableActionManager undo)
         {
             this.boolExp.set(boolE);
-            this.valExpObj = valE;
-            if (valE instanceof String)
-            {
-                valExpStr.set((String)valE);
-                field.setValue(null);
-            }
-            else if (valE instanceof WidgetProperty<?>)
-            {
-                WidgetProperty<?> prop = (WidgetProperty<?>)valE;
-                valExpStr.set( prop.getValue().toString() );
-                field.setValue(PropertyPanelSection.
-                        bindSimplePropertyField(undo, bindings, prop, new ArrayList<Widget>()));
-            }
-            else
-            {
-                valExpStr.set("ValExp class error" + valExpStr.getClass().getName());
-            }
-        }
-
-        public ExpressionInfo<T> toExp()
-        {
-            return new ExpressionInfo<T>(boolExp.get(), valExpObj);
+            //this.propVal = valE;
         }
 
         public SimpleObjectProperty<Node> fieldProperty()
@@ -143,25 +123,141 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             return boolExp;
         }
 
-        public StringProperty valExpStrProperty()
-        {
-            return valExpStr;
-        }
+        abstract boolean isWidgetProperty();
+        abstract public ExpressionInfo<T> toExprInfo();
+        abstract public T getPropVal();
     };
 
-    public static <T> ExprItem<T> forExp(final ExpressionInfo<T> exp, final UndoableActionManager undo)
-    {
-        return new ExprItem<T>(exp.getBoolExp(), exp.getValExp(), undo);
-    }
 
-    public static <T> ExprItem<T> changePropType(final T prop, final ExprItem<?> old_exp, final UndoableActionManager undo)
+    public static class ExprItemString extends ExprItem<String>
     {
-        return new ExprItem<T>(old_exp.boolExpProperty().get(), prop, undo);
-    }
+        final protected Widget widget = new Widget("ExprItemString");
+        final protected WidgetProperty<String> string_prop;
+        protected String internal_prop_val;
 
-    public static <T> ExprItem<T> makeExprItem(final T prop,  final UndoableActionManager undo)
+        public ExprItemString(String bool_exp, String prop_val, UndoableActionManager undo)
+        {
+            super(bool_exp, prop_val, undo);
+            internal_prop_val = prop_val;
+            string_prop = CommonWidgetProperties.displayText.createProperty(widget, prop_val);
+            field.setValue(PropertyPanelSection.
+                    bindSimplePropertyField(undo, bindings, string_prop, new ArrayList<Widget>()));
+        }
+
+        @Override
+        boolean isWidgetProperty()
+        {
+            return false;
+        }
+
+        @Override
+        public String getPropVal()
+        {
+            internal_prop_val = string_prop.getValue();
+            return internal_prop_val;
+        }
+
+        @Override
+        public ExprInfoString toExprInfo()
+        {
+            return new ExprInfoString(boolExp.get(), getPropVal());
+        }
+
+
+    };
+
+    public static class ExprItemValue<T> extends ExprItem< WidgetProperty<T> >
     {
-        return new ExprItem<T>("new expr", prop, undo);
+        protected final WidgetProperty<T> internal_prop_val;
+
+        public ExprItemValue(String bool_exp, WidgetProperty<T> prop_val, UndoableActionManager undo)
+        {
+            super(bool_exp, prop_val, undo);
+            internal_prop_val = prop_val;
+            field.setValue(PropertyPanelSection.
+                    bindSimplePropertyField(undo, bindings, prop_val, new ArrayList<Widget>()));
+        }
+
+        @Override
+        public ExprInfoValue<T> toExprInfo()
+        {
+            return new ExprInfoValue<T>(boolExp.get(), internal_prop_val);
+        }
+
+        @Override
+        boolean isWidgetProperty()
+        {
+            return true;
+        }
+
+        @Override
+        public WidgetProperty<T> getPropVal()
+        {
+            return internal_prop_val;
+        }
+
+    };
+
+    public static class ExprItemFactory
+    {
+        public static <T> ExprItem<?> InfoToItem(
+                final ExpressionInfo<T> info,
+                final UndoableActionManager undo) throws Exception
+        {
+            if (info.getPropVal() instanceof String)
+            {
+                return new ExprItemString(info.getBoolExp(), (String)info.getPropVal(), undo);
+            }
+            if (info.getPropVal() instanceof WidgetProperty<?>)
+            {
+                return new ExprItemValue<>(info.getBoolExp(), (WidgetProperty<?>)info.getPropVal(), undo);
+            }
+
+            Logger.getLogger("ExprItemFactory:InfoToItem").
+            log(Level.WARNING,"Tried to make new Expression from info with property not of type String or WidgetProperty: "
+                    + info.getPropVal().getClass().getName());
+
+            throw new Exception("Invalid info property type");
+        }
+
+        public static <T> ExprItem<?> makeNew(
+                final T property,
+                final UndoableActionManager undo) throws Exception
+        {
+            if (property instanceof String)
+            {
+                return new ExprItemString("new expr", (String)property, undo);
+            }
+            if (property instanceof WidgetProperty<?>)
+            {
+                return new ExprItemValue<>("new exp", (WidgetProperty<?>)property, undo);
+            }
+            Logger.getLogger("ExprItemFactory:makeNew").
+            log(Level.WARNING,"Tried to make new Expression from property not of type String or WidgetProperty: "
+                    + property.getClass().getName());
+
+            throw new Exception("Invalid property type");
+        }
+
+        public static <T> ExprItem<?> makeNewFromOld(
+                final T property,
+                final ExprItem<?> old_exp,
+                final UndoableActionManager undo) throws Exception
+        {
+            if (property instanceof String)
+            {
+                return new ExprItemString(old_exp.boolExpProperty().get(), (String)property, undo);
+            }
+            if (property instanceof WidgetProperty<?>)
+            {
+                return new ExprItemValue<>(old_exp.boolExpProperty().get(), (WidgetProperty<?>)property, undo);
+            }
+            Logger.getLogger("ExprItemFactory:makeNewFromOld").
+            log(Level.WARNING,"Tried to make new Expression from property not of type String or WidgetProperty: "
+                    + property.getClass().getName());
+
+            throw new Exception("Invalid property type");
+        }
     }
 
     public class ValueFormatCell extends TableCell<ExprItem<?>, Node> {
@@ -185,7 +281,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         public List<PVItem> pvs;
         protected StringProperty name = new SimpleStringProperty();
         protected StringProperty prop_id = new SimpleStringProperty();
-        public BooleanProperty out_exp = new SimpleBooleanProperty(false);
+        public BooleanProperty prop_as_expr = new SimpleBooleanProperty(false);
         protected Widget attached_widget = null;
 
 
@@ -200,14 +296,14 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 final List<PVItem> pvs,
                 final String name,
                 final String prop_id,
-                final boolean out_exp)
+                final boolean prop_as_exp)
         {
             this.attached_widget = attached_widget;
             this.expressions = exprs;
             this.pvs = pvs;
             this.name.set(name);
             this.prop_id.set(prop_id);
-            this.out_exp.set(out_exp);
+            this.prop_as_expr.set(prop_as_exp);
         }
 
         public static RuleItem forInfo(final Widget attached_widget, final RuleInfo info, final UndoableActionManager undo)
@@ -215,8 +311,17 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             final List<PVItem> pvs = new ArrayList<>();
             info.getPVs().forEach(pv -> pvs.add(PVItem.forPV(pv)));
             final List<ExprItem<?>> exprs = new ArrayList<>();
-            info.getExpressions().forEach(expr -> exprs.add(RulesDialog.forExp(expr, undo)));
-            return new RuleItem(attached_widget, exprs, pvs, info.getName(), info.getPropID(), info.getOutputExprFlag());
+            info.getExpressions().forEach(expr -> {
+                try
+                {
+                    exprs.add(ExprItemFactory.InfoToItem(expr, undo));
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                } } );
+
+            return new RuleItem(attached_widget, exprs, pvs, info.getName(), info.getPropID(), info.getPropAsExprFlag());
         }
 
         public RuleInfo getRuleInfo()
@@ -224,8 +329,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             final List<ScriptPV> spvs = new ArrayList<>();
             pvs.forEach(pv -> spvs.add(pv.toScriptPV()));
             final List<ExpressionInfo<?>> exps = new ArrayList<>();
-            expressions.forEach(exp -> exps.add(exp.toExp()));
-            return new RuleInfo(name.get(), prop_id.get(), out_exp.get(), exps, spvs);
+            expressions.forEach(exp -> exps.add(exp.toExprInfo()));
+            return new RuleInfo(name.get(), prop_id.get(), prop_as_expr.get(), exps, spvs);
         }
 
         public StringProperty nameProperty()
@@ -238,14 +343,59 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             return prop_id;
         }
 
+        public static ExprItem<?> addNewExpr(
+                final UndoableActionManager undo,
+                final ExprItem<?> old_exp,
+                final Widget attached_widget,
+                List<ExprItem<?>> expls,
+                final String prop_id,
+                final boolean prop_as_expr)
+        {
+            final Object new_prop;
+            if (prop_as_expr)
+            {
+                new_prop = prop_id + " value";
+            }
+            else
+            {
+                new_prop = RulesWidgetProperty.propIDToNewProp(attached_widget, prop_id, "");
+            }
+
+            ExprItem<?> new_exp = null;
+            try
+            {
+                if (old_exp != null)
+                {
+                    new_exp = ExprItemFactory.makeNewFromOld(new_prop, old_exp, undo);
+                }
+                else
+                {
+                    new_exp = ExprItemFactory.makeNew(new_prop, undo);
+                }
+                expls.add(new_exp);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            return new_exp;
+        }
+
         public ExprItem<?> addNewExpr(final UndoableActionManager undo)
         {
-            WidgetProperty<?> new_prop =
-                    RulesWidgetProperty.propIDToNewProp(attached_widget, prop_id.get(), "");
+            return addNewExpr(undo, null, attached_widget, expressions, prop_id.get(), prop_as_expr.get());
+        }
 
-            ExprItem<?> new_exp = makeExprItem(new_prop, undo);
-            expressions.add(new_exp);
-            return new_exp;
+        public boolean tryTogglePropAsExpr(final UndoableActionManager undo, boolean new_val)
+        {
+            if (prop_as_expr.get() == new_val)
+                return false;
+
+            List<ExprItem<?>> new_expr = new ArrayList<>();
+            expressions.forEach(expr -> addNewExpr(undo, expr, attached_widget, new_expr, prop_id.get(), new_val));
+            prop_as_expr.set(new_val);
+            expressions = new_expr;
+            return true;
         }
 
         public boolean tryUpdatePropID( final UndoableActionManager undo, String new_prop_id )
@@ -270,7 +420,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             prop_id.set(new_prop_id);;
 
             // If just an output expression string. No need to change objects
-            if (out_exp.get()) {
+            if (prop_as_expr.get()) {
                 return true;
             }
 
@@ -280,7 +430,15 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             {
                 WidgetProperty<?> new_prop =
                         RulesWidgetProperty.propIDToNewProp(attached_widget, prop_id.get(), "");
-                new_exps.add(changePropType(new_prop, exp, undo));
+                try
+                {
+                    new_exps.add(ExprItemFactory.makeNewFromOld(new_prop, exp, undo));
+                }
+                catch (Exception e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
 
             }
             expressions = new_exps;
@@ -440,7 +598,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 propComboBox.setDisable(false);
                 propComboBox.getSelectionModel().select(getPropLongString(selected));
                 valExpBox.setDisable(false);
-                valExpBox.selectedProperty().set(selected.out_exp.get());
+                valExpBox.selectedProperty().set(selected.prop_as_expr.get());
                 pv_items.setAll(selected.pvs);
                 expression_items.setAll(selected.expressions);
                 fixupPVs(0);
@@ -490,7 +648,15 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         valExpBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
             @Override
             public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val, Boolean new_val) {
-                selected_rule_item.out_exp.set(new_val);
+                if (!selected_rule_item.tryTogglePropAsExpr(undo, new_val))
+                {
+                    Logger.getLogger(this.getClass().getName()).
+                    log(Level.FINE, "Did not update rule property as expression flag to " + new_val);
+                }
+                else
+                {
+                    expression_items.setAll(selected_rule_item.expressions);
+                }
             }
         });
 

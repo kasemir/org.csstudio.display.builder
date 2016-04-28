@@ -148,12 +148,12 @@ public class RuleToScript
 					+ ", " + String.valueOf(col.getGreen())
 					+ ", " + String.valueOf(col.getBlue()) + ")\n";
 
-			if (!rule.getOutputExprFlag())
+			if (!rule.getPropAsExprFlag())
 			{
 				int idx = 0;
 				for (ExpressionInfo<?> expr : rule.getExpressions())
 				{
-					col = ((WidgetProperty<WidgetColor>) expr.getValExp()).getValue();
+					col = ((WidgetProperty<WidgetColor>) expr.getPropVal()).getValue();
 					script_str += "colorVal" + String.valueOf(idx) + " = "
 							+ "WidgetColor(" + String.valueOf(col.getRed())
 							+ ", " + String.valueOf(col.getGreen())
@@ -173,13 +173,13 @@ public class RuleToScript
 			script_str += (idx == 0) ? "if" : "elif";
 			script_str += " (" + expr.getBoolExp() + "):\n";
 			script_str += indent + setPropStr;
-			if (rule.getOutputExprFlag())
+			if (rule.getPropAsExprFlag())
 			{
-				script_str += expr.getValExp() + " )\n";
+				script_str += expr.getPropVal() + " )\n";
 			}
 			else
 			{
-				script_str += formatPropVal((WidgetProperty<?>) expr.getValExp(), idx, pform) + " )\n";
+				script_str += formatPropVal((WidgetProperty<?>) expr.getPropVal(), idx, pform) + " )\n";
 			}
 			idx++;
 		}
