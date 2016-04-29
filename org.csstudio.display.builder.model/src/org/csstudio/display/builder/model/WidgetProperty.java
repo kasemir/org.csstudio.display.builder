@@ -7,9 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
+import java.util.logging.Level;
 
 import javax.xml.stream.XMLStreamWriter;
 
@@ -63,6 +65,7 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
         this.value = this.default_value;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public WidgetProperty<T> clone()
     {
@@ -81,11 +84,10 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
                 {
                     ret = (WidgetProperty<T>) constructor.newInstance(descriptor, widget, default_value);
                     ret.setValue( this.getValue() );
-                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-                        | InvocationTargetException e)
+                }
+                catch (Exception ex)
                 {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    logger.log(Level.SEVERE, "Cannot clone " + this, ex);
                 }
                 return ret;
             }
