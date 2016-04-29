@@ -7,9 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.util;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.Preferences;
 import org.csstudio.display.builder.util.ResourceUtil;
@@ -106,24 +109,37 @@ public class ModelResourceUtil extends ResourceUtil
      */
     public static String resolveResource(final String parent_display, final String resource_name)
     {
-        // Can display be opened as file?
-        File file = new File(resource_name);
-        if (file.exists())
-            return file.getAbsolutePath();
+        logger.log(Level.FINE, "Resolving {0} relative to {1}", new Object[] { resource_name, parent_display });
+
+        if (isURL(resource_name))
+        {
+            // Appears to be URL?
+            logger.log(Level.FINE, "Using URL {0}", resource_name);
+            return resource_name;
+        }
 
         // .. relative to parent?
         final String combined = combineDisplayPaths(parent_display, resource_name);
+        if (isURL(combined))
+        {
+            logger.log(Level.FINE, "Using URL {0}", combined);
+            return combined;
+        }
+
+        // Can display be opened as file?
+        File file = new File(resource_name);
+        if (file.exists())
+        {
+            logger.log(Level.FINE, "Found file {0}", file);
+            return file.getAbsolutePath();
+        }
+
         file = new File(combined);
         if (file.exists())
+        {
+            logger.log(Level.FINE, "Found file {0}", file);
             return file.getAbsolutePath();
-
-        // Can display be opened as URL?
-        if (isURL(resource_name))
-            return resource_name;
-
-        // .. relative to parent?
-        if (isURL(combined))
-            return combined;
+        }
 
         // TODO Search along a configurable list of lookup paths
 

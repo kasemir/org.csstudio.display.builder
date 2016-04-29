@@ -31,70 +31,70 @@ import javafx.scene.control.Spinner;
  */
 public class ArraySizePropertyBinding extends WidgetPropertyBinding<Spinner<Integer>, ArrayWidgetProperty<WidgetProperty<?>>>
 {
-	private PropertyPanelSection panel_section;
+    private PropertyPanelSection panel_section;
 
-	/** Add/remove elements from array property in response to property UI */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private final ChangeListener<? super Integer> ui_listener = (prop, old, value) ->
-	{
-		final int desired = jfx_node.getValue();
+    /** Add/remove elements from array property in response to property UI */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private final ChangeListener<? super Integer> ui_listener = (prop, old, value) ->
+    {
+        final int desired = jfx_node.getValue();
 
-		// Grow/shrink array via undo-able actions
-		while (widget_property.size() < desired)
-		{
-			undo.add(new AddArrayElementAction<>(widget_property, widget_property.addElement()));
-			for (Widget w : other)
-			{
-				final ArrayWidgetProperty other_prop = (ArrayWidgetProperty) w.getProperty(widget_property.getName());
-				undo.add(new AddArrayElementAction<>(other_prop, other_prop.addElement()));
-			}
-		}
-		while (widget_property.size() > desired)
-		{
-			undo.execute(new RemoveArrayElementAction<>(widget_property));
-			for (Widget w : other)
-			{
-				final ArrayWidgetProperty other_prop = (ArrayWidgetProperty) w.getProperty(widget_property.getName());
-				undo.add(new RemoveArrayElementAction<>(other_prop));
-			}
-		}
-	};
+        // Grow/shrink array via undo-able actions
+        while (widget_property.size() < desired)
+        {
+            undo.add(new AddArrayElementAction<>(widget_property, widget_property.addElement()));
+            for (Widget w : other)
+            {
+                final ArrayWidgetProperty other_prop = (ArrayWidgetProperty) w.getProperty(widget_property.getName());
+                undo.add(new AddArrayElementAction<>(other_prop, other_prop.addElement()));
+            }
+        }
+        while (widget_property.size() > desired)
+        {
+            undo.execute(new RemoveArrayElementAction<>(widget_property));
+            for (Widget w : other)
+            {
+                final ArrayWidgetProperty other_prop = (ArrayWidgetProperty) w.getProperty(widget_property.getName());
+                undo.add(new RemoveArrayElementAction<>(other_prop));
+            }
+        }
+    };
 
-	/** Update property sub-panel as array elements are added/removed */
-	private WidgetPropertyListener<List<WidgetProperty<?>>> prop_listener = (prop, removed, added) ->
-	{
-		panel_section.refill(undo, other);
-	};
+    /** Update property sub-panel as array elements are added/removed */
+    private WidgetPropertyListener<List<WidgetProperty<?>>> prop_listener = (prop, removed, added) ->
+    {
+        panel_section.refill(undo, other);
+    };
 
-	/** @param panel_section Panel section for array elements
-	 *  @param undo Undo support
-	 *  @param node JFX node for array element count
-	 *  @param widget_property {@link ArrayWidgetProperty}
-	 *  @param other Widgets that also have this array property
-	 */
-	public ArraySizePropertyBinding(final PropertyPanelSection panel_section,
-			final UndoableActionManager undo,
-			final Spinner<Integer> node,
-			final ArrayWidgetProperty<WidgetProperty<?>> widget_property,
-			final List<Widget> other)
-	{
-		super(undo, node, widget_property, other);
-		this.panel_section = panel_section;
-	}
+    /** @param panel_section Panel section for array elements
+     *  @param undo Undo support
+     *  @param node JFX node for array element count
+     *  @param widget_property {@link ArrayWidgetProperty}
+     *  @param other Widgets that also have this array property
+     */
+    public ArraySizePropertyBinding(final PropertyPanelSection panel_section,
+            final UndoableActionManager undo,
+            final Spinner<Integer> node,
+            final ArrayWidgetProperty<WidgetProperty<?>> widget_property,
+            final List<Widget> other)
+    {
+        super(undo, node, widget_property, other);
+        this.panel_section = panel_section;
+    }
 
-	@Override
-	public void bind()
-	{
-		jfx_node.valueProperty().addListener(ui_listener);
-		jfx_node.getValueFactory().setValue(widget_property.size());
+    @Override
+    public void bind()
+    {
+        jfx_node.valueProperty().addListener(ui_listener);
+        jfx_node.getValueFactory().setValue(widget_property.size());
 
-		widget_property.addPropertyListener(prop_listener);
-	}
+        widget_property.addPropertyListener(prop_listener);
+    }
 
-	@Override
-	public void unbind()
-	{
-		widget_property.removePropertyListener(prop_listener);
-		jfx_node.valueProperty().removeListener(ui_listener);
-	}
+    @Override
+    public void unbind()
+    {
+        widget_property.removePropertyListener(prop_listener);
+        jfx_node.valueProperty().removeListener(ui_listener);
+    }
 }

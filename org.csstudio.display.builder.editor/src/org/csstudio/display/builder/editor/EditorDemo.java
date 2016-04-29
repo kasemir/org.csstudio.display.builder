@@ -21,36 +21,36 @@ import javafx.stage.WindowEvent;
 @SuppressWarnings("nls")
 public class EditorDemo extends Application
 {
-	//private static String display_file = "../org.csstudio.display.builder.runtime.test/examples/main.opi";
-	//    private final String display_file = "../org.csstudio.display.builder.runtime.test/examples/legacy.opi";
-	private static String display_file = "../org.csstudio.display.builder.runtime.test/examples/my_rules_example.opi";
-	private EditorDemoGUI editor;
+    //private static String display_file = "../org.csstudio.display.builder.runtime.test/examples/main.opi";
+    //    private final String display_file = "../org.csstudio.display.builder.runtime.test/examples/legacy.opi";
+    private static String display_file = "../org.csstudio.display.builder.runtime.test/examples/my_rules_example.opi";
+    private EditorDemoGUI editor;
 
-	/** JavaFX main
-	 *  @throws Exception
-	 */
-	public static void main(final String[] args) throws Exception
-	{
-		if (args.length == 1)
-			display_file = args[0];
+    /** JavaFX main
+     *  @throws Exception
+     */
+    public static void main(final String[] args) throws Exception
+    {
+        if (args.length == 1)
+            display_file = args[0];
 
-		LogManager.getLogManager().readConfiguration(new FileInputStream("../org.csstudio.display.builder.runtime.test/examples/logging.properties"));
+        LogManager.getLogManager().readConfiguration(new FileInputStream("../org.csstudio.display.builder.runtime.test/examples/logging.properties"));
 
-		launch(args);
-	}
+        launch(args);
+    }
 
-	/** JavaFX Start */
-	@Override
-	public void start(final Stage stage)
-	{
-		final File color_file = new File("../org.csstudio.display.builder.model/examples/color.def");
-		WidgetColorService.loadColors(color_file.getPath(), () -> new FileInputStream(color_file));
+    /** JavaFX Start */
+    @Override
+    public void start(final Stage stage)
+    {
+        final File color_file = new File("../org.csstudio.display.builder.model/examples/color.def");
+        WidgetColorService.loadColors(color_file.getPath(), () -> new FileInputStream(color_file));
 
-		final File font_file = new File("../org.csstudio.display.builder.model/examples/font.def");
-		WidgetFontService.loadFonts(font_file.getPath(), () -> new FileInputStream(font_file));
+        final File font_file = new File("../org.csstudio.display.builder.model/examples/font.def");
+        WidgetFontService.loadFonts(font_file.getPath(), () -> new FileInputStream(font_file));
 
-		editor = new EditorDemoGUI(stage);
-		editor.loadModel(new File(display_file));
-		stage.setOnCloseRequest((WindowEvent event) -> editor.dispose());
-	}
+        editor = new EditorDemoGUI(stage);
+        editor.loadModel(new File(display_file));
+        stage.setOnCloseRequest((WindowEvent event) -> editor.dispose());
+    }
 }
