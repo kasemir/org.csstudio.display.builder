@@ -71,9 +71,9 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
                                   TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5,
                                   model_trace.traceYAxis().getValue());
 
-            // TODO Allow changing Y axis index at runtime: Support in plot, add listener
             model_trace.traceY().addUntypedPropertyListener(trace_listener);
             model_trace.traceColor().addUntypedPropertyListener(trace_listener);
+            model_trace.traceYAxis().addUntypedPropertyListener(trace_listener);
 
             model_trace.xValue().addUntypedPropertyListener(value_listener);
             model_trace.yValue().addUntypedPropertyListener(value_listener);
@@ -83,6 +83,9 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         {
             trace.setName(model_trace.traceY().getValue());
             trace.setColor(JFXUtil.convert(model_trace.traceColor().getValue()));
+            final int desired = model_trace.traceYAxis().getValue();
+            if (desired != trace.getYAxis())
+                plot.moveTrace(trace, desired);
             plot.requestUpdate();
         };
 
@@ -140,7 +143,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         final List<AxisWidgetProperty> y_axes = model_widget.behaviorYAxes().getValue();
         trackAxisChanges(y_axes.get(0));
         // Create additional Y axes from model
-        yAxesChanged(model_widget.behaviorYAxes(), null, y_axes);
+        if (y_axes.size() > 1)
+            yAxesChanged(model_widget.behaviorYAxes(), null, y_axes.subList(1, y_axes.size()));
         // Track added/remove Y axes
         model_widget.behaviorYAxes().addPropertyListener(this::yAxesChanged);
 
@@ -177,23 +181,24 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     private void yAxesChanged(final WidgetProperty<List<AxisWidgetProperty>> property,
                               final List<AxisWidgetProperty> removed, final List<AxisWidgetProperty> added)
     {
-        final List<AxisWidgetProperty> model_y = property.getValue();
+        // Remove axis
+        if (removed != null)
+        {   // Notification holds the one removed axis, which was the last one
+            final AxisWidgetProperty axis = removed.get(0);
+            final int index = plot.getYAxes().size()-1;
+            ignoreAxisChanges(axis);
+            plot.removeYAxis(index);
+        }
 
-        // Remove extra axes
-        int count = plot.getYAxes().size();
-        while (count > model_y.size())
-        {
-            final int to_remove = --count;
-            ignoreAxisChanges(model_y.get(to_remove));
-            plot.removeYAxis(to_remove);
-        }
         // Add missing axes
-        while (count < model_y.size())
-        {
-            final AxisWidgetProperty model_axis = model_y.get(count++);
-            plot.addYAxis(model_axis.title().getValue());
-            trackAxisChanges(model_axis);
-        }
+        // Notification will hold the one added axis,
+        // but initial call from registerListeners() will hold all axes to add
+        if (added != null)
+            for (AxisWidgetProperty axis : added)
+            {
+                plot.addYAxis(axis.title().getValue());
+                trackAxisChanges(axis);
+            }
         // Update axis detail: range, ..
         config_listener.propertyChanged(property, removed, added);
     }

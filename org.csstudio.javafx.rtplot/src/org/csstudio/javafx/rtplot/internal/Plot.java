@@ -935,10 +935,17 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         else if (mouse_mode == MouseMode.PAN_PLOT  &&  start != null)
         {
             x_axis.pan(mouse_start_x_range, x_axis.getValue((int)start.getX()), x_axis.getValue((int)current.getX()));
-            for (int i=0; i<y_axes.size(); ++i)
+            try
             {
-                final YAxisImpl<XTYPE> axis = y_axes.get(i);
-                axis.pan(mouse_start_y_ranges.get(i), axis.getValue((int)start.getY()), axis.getValue((int)current.getY()));
+                for (int i=0; i<y_axes.size(); ++i)
+                {
+                    final YAxisImpl<XTYPE> axis = y_axes.get(i);
+                    axis.pan(mouse_start_y_ranges.get(i), axis.getValue((int)start.getY()), axis.getValue((int)current.getY()));
+                }
+            }
+            catch (IndexOutOfBoundsException ex)
+            {   // Axes could have been removed while looping. Never mind panning it.
+                logger.log(Level.FINE, "Axis removed?", ex);
             }
         }
         else
