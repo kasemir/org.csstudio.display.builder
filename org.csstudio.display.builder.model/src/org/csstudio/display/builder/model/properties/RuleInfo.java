@@ -30,139 +30,182 @@ import org.csstudio.display.builder.model.macros.MacroValueProvider;
  *  @author Megan Grodowitz
  */
 @SuppressWarnings("nls")
+
+
 public class RuleInfo
 {
 
-	public static class ExpressionInfo<T>
-	{
-		private final String bool_exp;
-		private final T val_exp;
+    public static abstract class ExpressionInfo<T>
+    {
+        private final String bool_exp;
+        private final T prop_val;
 
-		public ExpressionInfo(final String bool_exp, final T val_exp)
-		{
-			this.bool_exp = bool_exp;
-			this.val_exp = val_exp;
-		}
+        public ExpressionInfo(final String bool_exp, final T prop_val)
+        {
+            this.bool_exp = bool_exp;
+            this.prop_val = prop_val;
+        }
 
-		public String getBoolExp()
-		{
-			return bool_exp;
-		}
+        public String getBoolExp()
+        {
+            return bool_exp;
+        }
 
-		public T getValExp()
-		{
-			return val_exp;
-		}
-	};
+        public T getPropVal()
+        {
+            return prop_val;
+        }
 
-	private final List<ExpressionInfo<?>> expressions;
-	private final List<ScriptPV> pvs;
-	private final String name;
-	private final String prop_id;
-	private final boolean output_expression;
+        abstract boolean isWidgetProperty();
+    };
 
-	/** @param name Name of rule
-	 *  @param prop_id property that this rule applies to
-	 *  @param out_expr Set to true if expressions output expressions, false if output values
-	 *  @param exprs Pairs of (boolean expression , output), where output is either a value or another expression
-	 *  @param pvs PVs
-	 */
-	public RuleInfo(final String name, final String prop_id, final boolean out_expr,
-			final List<ExpressionInfo<?>> exprs, final List<ScriptPV> pvs)
-	{
-		this.name = name;
-		this.output_expression = out_expr;
-		this.prop_id = prop_id;
-		this.expressions = Collections.unmodifiableList(Objects.requireNonNull(exprs));
-		this.pvs = Collections.unmodifiableList(Objects.requireNonNull(pvs));
-	}
+    public static class ExprInfoString extends ExpressionInfo<String> {
 
-	/** Some properties cannot be the target of rules. This function takes a widget and returns a list of
-	 * valid targets for expressions
-	 * @param attached_widget
-	 * @return List of all properties of a widget that a rule can target
-	 */
-	static public List<WidgetProperty<?>> getTargettableProperties (Widget attached_widget)
-	{
-		List<WidgetProperty<?>> propls = new ArrayList<>();
+        public ExprInfoString(String bool_exp, String prop_val)
+        {
+            super(bool_exp, prop_val);
+        }
 
-		attached_widget.getProperties().forEach(prop ->
-		{
-			// Do not include properties from categories: WIDGET or RUNTIME
-			// Do not include properties that are not supported in scripting
-			WidgetPropertyCategory pcat = prop.getCategory();
-			switch(pcat)
-			{
-			case WIDGET:
-			case RUNTIME:
-				break;
-			default:
-			{
-				if ( !(prop instanceof MacrosWidgetProperty) &&
-						!(prop instanceof ActionsWidgetProperty) &&
-						!(prop instanceof ScriptsWidgetProperty) &&
-						!(prop instanceof RulesWidgetProperty) &&
-						!(prop instanceof StructuredWidgetProperty) &&
-						!(prop instanceof ArrayWidgetProperty) )
-				{
-					propls.add(prop);
-				}
-			}
-			}
-		});
+        @Override
+        boolean isWidgetProperty()
+        {
+            return false;
+        }
+    };
 
-		return propls;
-	}
+    public static class ExprInfoValue<T> extends ExpressionInfo< WidgetProperty<T> > {
+
+        /** Instantiate Expression with bool_exp string and widget property value
+         *
+         * @param bool_exp String for the boolean expression, e.g. (pv0 == 9)
+         * @param prop_val Widget Property to set if the boolean expression evaluates true
+         *
+         * Do NOT pass in a widget property object that belongs to a widget!
+         * The expression will alter the property value. This needs to be a property
+         * object created for this expression, probably by the containing rule.
+         */
+        public ExprInfoValue(String bool_exp, WidgetProperty<T> prop_val)
+        {
+            super(bool_exp, prop_val);
+        }
+
+        @Override
+        boolean isWidgetProperty()
+        {
+            return true;
+        }
+    };
+
+    private final List<ExpressionInfo<?>> expressions;
+    private final List<ScriptPV> pvs;
+    private final String name;
+    private final String prop_id;
+    private final boolean prop_as_expr_flag;
+
+    // TODO: no more creating expressions externally to rules. All the control of adding/changing expressions
+    // needs to go live inside the rule so that we always make sure expressions get a new property object
+    /** @param name Name of rule
+     *  @param prop_id property that this rule applies to
+     *  @param prop_as_expr_flag Set to true if expressions output expressions, false if output values
+     *  @param exprs Pairs of (boolean expression , output), where output is either a value or another expression
+     *  @param pvs PVs
+     */
+    public RuleInfo(final String name, final String prop_id, final boolean prop_as_expr_flag,
+            final List<ExpressionInfo<?>> exprs, final List<ScriptPV> pvs)
+    {
+        this.name = name;
+        this.prop_as_expr_flag = prop_as_expr_flag;
+        this.prop_id = prop_id;
+        this.expressions = Collections.unmodifiableList(Objects.requireNonNull(exprs));
+        this.pvs = Collections.unmodifiableList(Objects.requireNonNull(pvs));
+    }
+
+    /** Some properties cannot be the target of rules. This function takes a widget and returns a list of
+     * valid targets for expressions
+     * @param attached_widget
+     * @return List of all properties of a widget that a rule can target
+     */
+    static public List<WidgetProperty<?>> getTargettableProperties (Widget attached_widget)
+    {
+        List<WidgetProperty<?>> propls = new ArrayList<>();
+
+        attached_widget.getProperties().forEach(prop ->
+        {
+            // Do not include properties from categories: WIDGET or RUNTIME
+            // Do not include properties that are not supported in scripting
+            WidgetPropertyCategory pcat = prop.getCategory();
+            switch(pcat)
+            {
+            case WIDGET:
+            case RUNTIME:
+                break;
+            default:
+            {
+                if ( !(prop instanceof MacrosWidgetProperty) &&
+                        !(prop instanceof ActionsWidgetProperty) &&
+                        !(prop instanceof ScriptsWidgetProperty) &&
+                        !(prop instanceof RulesWidgetProperty) &&
+                        !(prop instanceof StructuredWidgetProperty) &&
+                        !(prop instanceof ArrayWidgetProperty) )
+                {
+                    propls.add(prop);
+                }
+            }
+            }
+        });
+
+        return propls;
+    }
 
 
-	/** @return Expressions consisting of (bool expression, target) pairs
-	 */
-	public List<ExpressionInfo<?>> getExpressions()
-	{
-		return expressions;
-	}
+    /** @return Expressions consisting of (bool expression, target) pairs
+     */
+    public List<ExpressionInfo<?>> getExpressions()
+    {
+        return expressions;
+    }
 
-	/** @return Input/Output PVs used by the script */
-	public List<ScriptPV> getPVs()
-	{
-		return pvs;
-	}
+    /** @return Input/Output PVs used by the script */
+    public List<ScriptPV> getPVs()
+    {
+        return pvs;
+    }
 
-	public String getName()
-	{
-		return name;
-	}
+    public String getName()
+    {
+        return name;
+    }
 
-	public String getPropID()
-	{
-		return prop_id;
-	}
+    public String getPropID()
+    {
+        return prop_id;
+    }
 
-	public boolean getOutputExprFlag()
-	{
-		return output_expression;
-	}
+    public boolean getPropAsExprFlag()
+    {
+        return prop_as_expr_flag;
+    }
 
-	public String getTextPy(final Widget attached_widget, final MacroValueProvider macros)
-	{
-		return RuleToScript.generatePy(attached_widget, macros, this);
-	}
+    public String getTextPy(final Widget attached_widget, final MacroValueProvider macros)
+    {
+        return RuleToScript.generatePy(attached_widget, macros, this);
+    }
 
-	public String getNumberedTextPy(final Widget attached_widget, final MacroValueProvider macros)
-	{
-		final String scr = RuleToScript.generatePy(attached_widget, macros, this);
-		String ret = "";
-		String[] lines = scr.split("\r\n|\r|\n");
-		for (int ldx = 0; ldx < lines.length; ldx++)
-		{
-			ret += String.format("%4d", ldx+1) + ": " + lines[ldx] + "\n";
-		}
-		return ret;
-	}
+    public String getNumberedTextPy(final Widget attached_widget, final MacroValueProvider macros)
+    {
+        final String scr = RuleToScript.generatePy(attached_widget, macros, this);
+        String ret = "";
+        String[] lines = scr.split("\r\n|\r|\n");
+        for (int ldx = 0; ldx < lines.length; ldx++)
+        {
+            ret += String.format("%4d", ldx+1) + ": " + lines[ldx] + "\n";
+        }
+        return ret;
+    }
 
-	@Override
-	public String toString()
-	{
-		return "RuleInfo('" + name + ": " + expressions + "', " + pvs + ")";
-	}
+    @Override
+    public String toString()
+    {
+        return "RuleInfo('" + name + ": " + expressions + "', " + pvs + ")";
+    }
 }

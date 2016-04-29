@@ -108,7 +108,7 @@ public class PropertyPanelSection extends GridPane
         //final List<Node> nodes = getChildren();
         //final int n = nodes.size();
         //if (n <= 0)
-        //    return 0;
+        //	return 0;
         //final Integer row = GridPane.getRowIndex(nodes.get(n-1));
         //return row == null ? 0 : row.intValue() + 1;
     }
