@@ -60,4 +60,8 @@ public interface RuntimePV
      *  @exception Exception on error
      */
     abstract public void write(final Object new_value) throws Exception;
+
+    // Should provide PV name in toString() for debug messages that include the PV
+    // @Override
+    // public String toString()
 }

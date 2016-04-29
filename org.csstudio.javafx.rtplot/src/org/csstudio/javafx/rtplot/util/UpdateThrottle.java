@@ -10,6 +10,7 @@ package org.csstudio.javafx.rtplot.util;
 import static org.csstudio.javafx.rtplot.Activator.logger;
 
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -93,8 +94,18 @@ public class UpdateThrottle
         }
         else
         {
-            // In idle period, react to trigger, but also on timer thread
-            timer.execute(update_then_wake);
+            // In idle period, react to trigger, but on timer thread
+            try
+            {
+                timer.execute(update_then_wake);
+            }
+            catch (RejectedExecutionException ex)
+            {
+                if (timer.isShutdown())
+                    logger.log(Level.FINE, "Update throttle thread already closed", ex);
+                else
+                    throw ex;
+            }
         }
     }
 

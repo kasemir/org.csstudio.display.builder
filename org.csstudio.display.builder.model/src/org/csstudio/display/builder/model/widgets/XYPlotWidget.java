@@ -33,7 +33,7 @@ import org.w3c.dom.Element;
 /** Widget that displays X/Y waveforms
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
+@SuppressWarnings("nls") // TODO Externalize strings
 public class XYPlotWidget extends VisibleWidget
 {
     private static final WidgetPropertyDescriptor<Boolean> behaviorLegend =
@@ -55,6 +55,10 @@ public class XYPlotWidget extends VisibleWidget
     /** Structure for 'axis' element */
     public static class AxisWidgetProperty extends StructuredWidgetProperty
     {
+        /** @param axis_descriptor behaviorXAxis or behaviorYAxis
+         *  @param widget
+         *  @param title_text
+         */
         public AxisWidgetProperty(final StructuredWidgetProperty.Descriptor axis_descriptor,
                                   final Widget widget, final String title_text)
         {
@@ -81,6 +85,8 @@ public class XYPlotWidget extends VisibleWidget
         CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "x_pv", "X PV");
     private static final WidgetPropertyDescriptor<String> traceY =
         CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "y_pv", "Y PV");
+    private static final WidgetPropertyDescriptor<Integer> traceYAxis =
+        CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "axis", "Y Axis Index");
     private static final WidgetPropertyDescriptor<WidgetColor> traceColor =
         CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "color", "Color");
     private static final WidgetPropertyDescriptor<VType> traceXValue = CommonWidgetProperties.newRuntimeValue("x_value", "X Value");
@@ -97,18 +103,24 @@ public class XYPlotWidget extends VisibleWidget
             super(behaviorTrace, widget,
                   Arrays.asList(traceX.createProperty(widget, ""),
                                 traceY.createProperty(widget, ""),
+                                traceYAxis.createProperty(widget, 0),
                                 traceColor.createProperty(widget, new WidgetColor(0, 0, 255)),
                                 traceXValue.createProperty(widget, null),
                                 traceYValue.createProperty(widget, null)  ));
         }
         public WidgetProperty<String> traceX()          { return getElement(0); }
         public WidgetProperty<String> traceY()          { return getElement(1); }
-        public WidgetProperty<WidgetColor> traceColor() { return getElement(2); }
-        public WidgetProperty<VType> xValue()           { return getElement(3); }
-        public WidgetProperty<VType> yValue()           { return getElement(4); }
+        public WidgetProperty<Integer> traceYAxis()     { return getElement(2); }
+        public WidgetProperty<WidgetColor> traceColor() { return getElement(3); }
+        public WidgetProperty<VType> xValue()           { return getElement(4); }
+        public WidgetProperty<VType> yValue()           { return getElement(5); }
     };
 
-
+    /** 'traces' array */
+    private static final ArrayWidgetProperty.Descriptor<TraceWidgetProperty> behaviorTraces =
+        new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.BEHAVIOR, "traces", "Traces",
+                                             (widget, index) ->
+                                             new TraceWidgetProperty(widget));
 
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -156,20 +168,14 @@ public class XYPlotWidget extends VisibleWidget
             XMLUtil.getChildString(xml, "axis_0_auto_scale").ifPresent(txt ->
                 plot.x_axis.autoscale().setValue(Boolean.parseBoolean(txt)) );
 
-            XMLUtil.getChildString(xml, "trace_0_x_pv").ifPresent(pv ->
-            {
-                final WidgetProperty<String> property = plot.trace.traceX();
-                ((StringWidgetProperty)property).setSpecification(pv.replace("$(pv_name)", pv_macro));
-            });
-            XMLUtil.getChildString(xml, "trace_0_y_pv").ifPresent(pv ->
-            {
-                final WidgetProperty<String> property = plot.trace.traceY();
-                ((StringWidgetProperty)property).setSpecification(pv.replace("$(pv_name)", pv_macro));
-            });
+            handleLegacyValueAxes(widget, xml, pv_macro);
 
-            final Element element = XMLUtil.getChildElement(xml, "trace_0_trace_color");
-            if (element != null)
-                plot.trace.traceColor().readFromXML(model_reader, element);
+            return handleLegacyTraces(model_reader, widget, xml, pv_macro);
+        }
+
+        private void handleLegacyValueAxes(final Widget widget, final Element xml, final String pv_macro)
+        {
+            final XYPlotWidget plot = (XYPlotWidget) widget;
 
             // "axis_1_*" was the Y axis, and higher axes could be either X or Y
             int y_count = 0; // Number of y axes found in legacy config
@@ -207,6 +213,45 @@ public class XYPlotWidget extends VisibleWidget
                 XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_auto_scale").ifPresent(txt ->
                     y_axis.autoscale().setValue(Boolean.parseBoolean(txt)) );
             }
+        }
+
+        private boolean handleLegacyTraces(final ModelReader model_reader,
+                                           final Widget widget, final Element xml, final String pv_macro) throws Exception
+        {
+            final XYPlotWidget plot = (XYPlotWidget) widget;
+
+            // "trace_0_x_pv", ".._y_pv", ".._trace_color" held the traces
+            for (int legacy_trace=0; /**/; ++legacy_trace)
+            {
+                // Was legacy widget used with scalar data, concatenated into waveform?
+                final Optional<String> concat = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_concatenate_data");
+                if (concat.isPresent()  &&  concat.get().equals("true"))
+                    return false;
+
+                final Optional<String> pv_name = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_y_pv");
+                if (! pv_name.isPresent())
+                    break;
+                final TraceWidgetProperty trace;
+                if (plot.traces.size() <= legacy_trace)
+                    trace = plot.traces.addElement();
+                else
+                    trace = plot.traces.getElement(legacy_trace);
+                ((StringWidgetProperty)trace.traceY()).setSpecification(pv_name.get().replace("$(pv_name)", pv_macro));
+
+                XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_x_pv").ifPresent(pv ->
+                {
+                    ((StringWidgetProperty)trace.traceX()).setSpecification(pv.replace("$(pv_name)", pv_macro));
+                });
+                final Element element = XMLUtil.getChildElement(xml, "trace_" + legacy_trace + "_trace_color");
+                if (element != null)
+                    trace.traceColor().readFromXML(model_reader, element);
+
+                // Legacy used index 0=X, 1=Y, 2=Y1, ..
+                // except higher axis index could also stand for X1, X2, which we don't handle
+                final Optional<Integer> axis_index = XMLUtil.getChildInteger(xml, "trace_" + legacy_trace + "_y_axis_index");
+                if (axis_index.isPresent())
+                    trace.traceYAxis().setValue(Math.max(0, axis_index.get() - 1));
+            }
             return true;
         }
     };
@@ -214,7 +259,7 @@ public class XYPlotWidget extends VisibleWidget
     private volatile WidgetProperty<Boolean> show_legend;
     private volatile AxisWidgetProperty x_axis;
     private volatile ArrayWidgetProperty<AxisWidgetProperty> y_axes;
-    private volatile TraceWidgetProperty trace;
+    private volatile ArrayWidgetProperty<TraceWidgetProperty> traces;
 
     public XYPlotWidget()
     {
@@ -234,7 +279,7 @@ public class XYPlotWidget extends VisibleWidget
         properties.add(show_legend = behaviorLegend.createProperty(this, true));
         properties.add(x_axis = new AxisWidgetProperty(behaviorXAxis, this, "X"));
         properties.add(y_axes = behaviorYAxes.createProperty(this, Arrays.asList(new AxisWidgetProperty(behaviorYAxis, this, "Y"))));
-        properties.add(trace = new TraceWidgetProperty(this));
+        properties.add(traces = behaviorTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this))));
     }
 
     /** @return Behavior 'show_legend' */
@@ -255,9 +300,9 @@ public class XYPlotWidget extends VisibleWidget
         return y_axes;
     }
 
-    /** @return Behavior 'trace' */
-    public TraceWidgetProperty behaviorTrace()
+    /** @return Behavior 'traces' */
+    public ArrayWidgetProperty<TraceWidgetProperty> behaviorTraces()
     {
-        return trace;
+        return traces;
     }
 }

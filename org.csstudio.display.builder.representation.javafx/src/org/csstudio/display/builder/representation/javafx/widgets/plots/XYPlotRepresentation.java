@@ -10,13 +10,16 @@ package org.csstudio.display.builder.representation.javafx.widgets.plots;
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget.AxisWidgetProperty;
+import org.csstudio.display.builder.model.widgets.XYPlotWidget.TraceWidgetProperty;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.PointType;
 import org.csstudio.javafx.rtplot.RTValuePlot;
@@ -27,7 +30,6 @@ import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -38,12 +40,86 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     private final DirtyFlag dirty_position = new DirtyFlag();
     private final DirtyFlag dirty_config = new DirtyFlag();
 
-    /** Canvas that displays the image. */
+    private final UntypedWidgetPropertyListener config_listener = (WidgetProperty<?> property, Object old_value, Object new_value) ->
+    {
+        dirty_config.mark();
+        toolkit.scheduleUpdate(this);
+    };
+
+    /** Plot */
     private RTValuePlot plot;
 
-    // TODO Support 0..N traces, not 1
-    private AtomicReference<Trace<Double>> trace0 = new AtomicReference<>();
-    final private XYVTypeDataProvider data0 = new XYVTypeDataProvider();
+    /** Handler for one trace of the plot
+     *
+     *  <p>Updates the plot when the configuration of a trace
+     *  or the associated X or Y value in the model changes.
+     */
+    private class TraceHandler
+    {
+        private final TraceWidgetProperty model_trace;
+        private final XYVTypeDataProvider data = new XYVTypeDataProvider();
+        private final UntypedWidgetPropertyListener trace_listener = this::traceChanged, value_listener = this::valueChanged;
+        private final Trace<Double> trace;
+
+        TraceHandler(final TraceWidgetProperty model_trace)
+        {
+            this.model_trace = model_trace;
+
+            // TODO trace name property (instead of Y PV)
+            trace = plot.addTrace(model_trace.traceY().getValue(), "", data,
+                                  JFXUtil.convert(model_trace.traceColor().getValue()),
+                                  TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5,
+                                  model_trace.traceYAxis().getValue());
+
+            model_trace.traceY().addUntypedPropertyListener(trace_listener);
+            model_trace.traceColor().addUntypedPropertyListener(trace_listener);
+            model_trace.traceYAxis().addUntypedPropertyListener(trace_listener);
+
+            model_trace.xValue().addUntypedPropertyListener(value_listener);
+            model_trace.yValue().addUntypedPropertyListener(value_listener);
+        }
+
+        private void traceChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+        {
+            trace.setName(model_trace.traceY().getValue());
+            trace.setColor(JFXUtil.convert(model_trace.traceColor().getValue()));
+            final int desired = model_trace.traceYAxis().getValue();
+            if (desired != trace.getYAxis())
+                plot.moveTrace(trace, desired);
+            plot.requestUpdate();
+        };
+
+        private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+        {
+            try
+            {
+                final VType x_value = model_trace.xValue().getValue();
+                final VType y_value = model_trace.yValue().getValue();
+                if (! (x_value instanceof VNumberArray  &&  y_value instanceof VNumberArray))
+                    return;
+
+                trace.setUnits(((VNumberArray)y_value).getUnits());
+                data.setData( ((VNumberArray)x_value).getData(), ((VNumberArray)y_value).getData());
+                plot.requestUpdate();
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "XYGraph data error", ex);
+            }
+        }
+
+        void dispose()
+        {
+            model_trace.traceY().removePropertyListener(trace_listener);
+            model_trace.traceColor().removePropertyListener(trace_listener);
+            model_trace.xValue().removePropertyListener(value_listener);
+            model_trace.yValue().removePropertyListener(value_listener);
+            plot.removeTrace(trace);
+        }
+    };
+
+    private final List<TraceHandler> trace_handlers = new CopyOnWriteArrayList<>();
+
 
     @Override
     public Pane createJFXNode() throws Exception
@@ -58,21 +134,73 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.behaviorLegend().addUntypedPropertyListener(this::configChanged);
-        model_widget.behaviorXAxis().title().addUntypedPropertyListener(this::configChanged);
-        model_widget.behaviorXAxis().minimum().addUntypedPropertyListener(this::configChanged);
-        model_widget.behaviorXAxis().maximum().addUntypedPropertyListener(this::configChanged);
-        model_widget.behaviorXAxis().autoscale().addUntypedPropertyListener(this::configChanged);
-        model_widget.positionWidth().addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
-        model_widget.behaviorTrace().xValue().addUntypedPropertyListener(this::valueChanged);
-        model_widget.behaviorTrace().yValue().addUntypedPropertyListener(this::valueChanged);
+
+        model_widget.behaviorLegend().addUntypedPropertyListener(config_listener);
+
+        trackAxisChanges(model_widget.behaviorXAxis());
+
+        // Track initial Y axis
+        final List<AxisWidgetProperty> y_axes = model_widget.behaviorYAxes().getValue();
+        trackAxisChanges(y_axes.get(0));
+        // Create additional Y axes from model
+        if (y_axes.size() > 1)
+            yAxesChanged(model_widget.behaviorYAxes(), null, y_axes.subList(1, y_axes.size()));
+        // Track added/remove Y axes
+        model_widget.behaviorYAxes().addPropertyListener(this::yAxesChanged);
+
+        final UntypedWidgetPropertyListener position_listener = this::positionChanged;
+        model_widget.positionWidth().addUntypedPropertyListener(position_listener);
+        model_widget.positionHeight().addUntypedPropertyListener(position_listener);
+
+        tracesChanged(model_widget.behaviorTraces(), null, model_widget.behaviorTraces().getValue());
+        model_widget.behaviorTraces().addPropertyListener(this::tracesChanged);
     }
 
-    private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    /** Listen to changed axis properties
+     *  @param axis X or Y axis
+     */
+    private void trackAxisChanges(final AxisWidgetProperty axis)
     {
-        dirty_config.mark();
-        toolkit.scheduleUpdate(this);
+        axis.title().addUntypedPropertyListener(config_listener);
+        axis.minimum().addUntypedPropertyListener(config_listener);
+        axis.maximum().addUntypedPropertyListener(config_listener);
+        axis.autoscale().addUntypedPropertyListener(config_listener);
+    }
+
+    /** Ignore changed axis properties
+     *  @param axis X or Y axis
+     */
+    private void ignoreAxisChanges(final AxisWidgetProperty axis)
+    {
+        axis.title().removePropertyListener(config_listener);
+        axis.minimum().removePropertyListener(config_listener);
+        axis.maximum().removePropertyListener(config_listener);
+        axis.autoscale().removePropertyListener(config_listener);
+    }
+
+    private void yAxesChanged(final WidgetProperty<List<AxisWidgetProperty>> property,
+                              final List<AxisWidgetProperty> removed, final List<AxisWidgetProperty> added)
+    {
+        // Remove axis
+        if (removed != null)
+        {   // Notification holds the one removed axis, which was the last one
+            final AxisWidgetProperty axis = removed.get(0);
+            final int index = plot.getYAxes().size()-1;
+            ignoreAxisChanges(axis);
+            plot.removeYAxis(index);
+        }
+
+        // Add missing axes
+        // Notification will hold the one added axis,
+        // but initial call from registerListeners() will hold all axes to add
+        if (added != null)
+            for (AxisWidgetProperty axis : added)
+            {
+                plot.addYAxis(axis.title().getValue());
+                trackAxisChanges(axis);
+            }
+        // Update axis detail: range, ..
+        config_listener.propertyChanged(property, removed, added);
     }
 
     private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -81,35 +209,17 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         toolkit.scheduleUpdate(this);
     }
 
-    private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    private void tracesChanged(final WidgetProperty<List<TraceWidgetProperty>> property,
+                               final List<TraceWidgetProperty> removed, final List<TraceWidgetProperty> added)
     {
-        try
-        {
-            final WidgetProperty<VType> x = model_widget.behaviorTrace().xValue();
-            final WidgetProperty<VType> y = model_widget.behaviorTrace().yValue();
-            final VType x_value = x.getValue();
-            final VType y_value = y.getValue();
-            if (x_value instanceof VNumberArray  &&  y_value instanceof VNumberArray)
-            {
-                // Create trace as value changes for the first time and thus sends units
-                if (trace0.get() == null)
-                {
-                    Trace<Double> old_trace = trace0.getAndSet(plot.addTrace(model_widget.behaviorTrace().traceY().getValue(),
-                                                               ((VNumberArray)y_value).getUnits(),
-                                                               data0, Color.BLUE, TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5, 0));
-                    // Can race result in two value updates trying to add the same trace?
-                    // --> Remove the previous one
-                    if (old_trace != null)
-                        plot.removeTrace(old_trace);
-                }
-                data0.setData( ((VNumberArray)x_value).getData(), ((VNumberArray)y_value).getData());
-                plot.requestUpdate();
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.log(Level.WARNING, "XYGraph data error", ex);
-        }
+        final List<TraceWidgetProperty> model_traces = property.getValue();
+        int count = trace_handlers.size();
+        // Remove extra traces
+        while (count > model_traces.size())
+            trace_handlers.remove(--count).dispose();
+        // Add missing traces
+        while (count < model_traces.size())
+            trace_handlers.add(new TraceHandler(model_traces.get(count++)));
     }
 
     @Override
@@ -140,18 +250,16 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
         // Update Y Axes
         final List<AxisWidgetProperty> model_y = model_widget.behaviorYAxes().getValue();
+        if (plot.getYAxes().size() != model_y.size())
+        {
+            logger.log(Level.WARNING, "Plot has " + plot.getYAxes().size() + " while model has " + model_y.size() + " Y axes");
+            return;
+        }
         for (int i=0;  i<model_y.size();  ++i)
         {
             final AxisWidgetProperty model_axis = model_y.get(i);
-            final YAxis<Double> plot_axis;
-            if (i <= plot.getYAxes().size())
-            {
-                plot_axis = plot.getYAxes().get(i);
-                plot_axis.setName(model_axis.title().getValue());
-            }
-            else
-                plot_axis = plot.addYAxis(model_axis.title().getValue());
-
+            final YAxis<Double> plot_axis = plot.getYAxes().get(i);
+            plot_axis.setName(model_axis.title().getValue());
             plot_axis.setValueRange(model_axis.minimum().getValue(),
                                     model_axis.maximum().getValue());
             plot_axis.setAutoscale(model_axis.autoscale().getValue());

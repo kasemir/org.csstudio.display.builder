@@ -31,8 +31,15 @@ public interface WidgetPropertyListener<T extends Object> extends BaseWidgetProp
      *  changed in a multi-threaded scenario while the <code>new_value</code>
      *  is the value at the time the notification was generated.
      *
-     *  <p>For list-typed properties, the value hints may only contain
-     *  the list of elements that <u>changed</u> instead of the complete data.
+     *  <p>For macro-based properties the <code>new_value</code>
+     *  can be <code>null</code> when the <em>specification</em> was updated,
+     *  because the true value obtained by <code>property.getValue()</code>
+     *  requires evaluation of macros.
+     *
+     *  <p>For array properties, the value hints are <code>null</code>
+     *  or contain a list with only one element,
+     *  specifically the element removed (<code>old_value</code>) from the end of the list
+     *  or the element added (<code>new_value</code>) to the end of the list.
      *
      *  @param property Property that changed
      *  @param old_value Old value hint

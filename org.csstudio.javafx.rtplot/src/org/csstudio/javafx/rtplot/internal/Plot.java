@@ -48,6 +48,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.ImageCursor;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -233,6 +234,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
 		widthProperty().addListener(resize_listener);
 		heightProperty().addListener(resize_listener);
 
+        setOnMouseEntered(this::mouseEntered);
 		setOnMousePressed(this::mouseDown);
 		setOnMouseMoved(this::mouseMove);
 		setOnMouseDragged(this::mouseMove);
@@ -512,6 +514,32 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         fireAnnotationsChanged();
     }
 
+    /** Set cursor.
+     *
+     *  <p>There is already <code>Node.setCursor()</code>
+     *  which sets the cursor for just this node.
+     *  But that has no affect when JFX is hosted
+     *  inside an SWT FXCanvas.
+     *  (https://bugs.openjdk.java.net/browse/JDK-8088147)
+     *
+     *  <p>We set the cursor of the _scene_, and monitor
+     *  the scene's cursor in the RCP code that creates the
+     *  FXCanvas to then update the SWT cursor.
+     *
+     *  @param cursor
+     */
+    private void doSetCursor(final Cursor cursor)
+    {
+        if (cursor == getCursor())
+            return;
+
+        setCursor(cursor);
+
+        final Scene scene = getScene();
+        if (scene != null)
+            scene.setCursor(cursor);
+    }
+
     /** Select Annotation at mouse position?
      *  @return Was a mouse annotation set?
      */
@@ -683,18 +711,18 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         if (mouse_mode == MouseMode.ZOOM_IN  ||  mouse_mode == MouseMode.ZOOM_OUT)
         {   // Update mouse pointer in ready-to-zoom mode
             if (plot_bounds.contains(current.getX(), current.getY()))
-                setCursor(mouse_mode == MouseMode.ZOOM_IN ? cursor_zoom_in : cursor_zoom_out);
+                doSetCursor(mouse_mode == MouseMode.ZOOM_IN ? cursor_zoom_in : cursor_zoom_out);
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
-                setCursor(Cursor.H_RESIZE);
+                doSetCursor(Cursor.H_RESIZE);
             else
             {
                 for (YAxisImpl<XTYPE> axis : y_axes)
                     if (axis.getBounds().contains(current.getX(), current.getY()))
                     {
-                        setCursor(Cursor.V_RESIZE);
+                        doSetCursor(Cursor.V_RESIZE);
                         return;
                     }
-                setCursor(Cursor.DEFAULT);
+                doSetCursor(Cursor.DEFAULT);
             }
         }
         else if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
@@ -799,17 +827,23 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         switch (mode)
         {
         case PAN:
-        	setCursor(cursor_pan);
+        	doSetCursor(cursor_pan);
             break;
         case ZOOM_IN:
-        	setCursor(cursor_zoom_in);
+            doSetCursor(cursor_zoom_in);
             break;
         case ZOOM_OUT:
-            setCursor(cursor_zoom_out);
+            doSetCursor(cursor_zoom_out);
             break;
         default:
-        	setCursor(Cursor.DEFAULT);
+            doSetCursor(Cursor.DEFAULT);
         }
+    }
+
+    /** onMouseEntered */
+    private void mouseEntered(final MouseEvent e)
+    {
+        getScene().setCursor(getCursor());
     }
 
     /** onMousePressed */
@@ -851,18 +885,18 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
                 {
                     mouse_y_axis = i;
                     mouse_mode = MouseMode.ZOOM_IN_Y;
-                    setCursor(Cursor.CROSSHAIR);
+                    doSetCursor(Cursor.CROSSHAIR);
                     return;
                 }
             if (plot_area.getBounds().contains(current.getX(), current.getY()))
             {
                 mouse_mode = MouseMode.ZOOM_IN_PLOT;
-                setCursor(Cursor.CROSSHAIR);
+                doSetCursor(Cursor.CROSSHAIR);
             }
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
             {
                 mouse_mode = MouseMode.ZOOM_IN_X;
-                setCursor(Cursor.CROSSHAIR);
+                doSetCursor(Cursor.CROSSHAIR);
             }
         }
         else if (mouse_mode == MouseMode.ZOOM_OUT)
@@ -901,10 +935,17 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         else if (mouse_mode == MouseMode.PAN_PLOT  &&  start != null)
         {
             x_axis.pan(mouse_start_x_range, x_axis.getValue((int)start.getX()), x_axis.getValue((int)current.getX()));
-            for (int i=0; i<y_axes.size(); ++i)
+            try
             {
-                final YAxisImpl<XTYPE> axis = y_axes.get(i);
-                axis.pan(mouse_start_y_ranges.get(i), axis.getValue((int)start.getY()), axis.getValue((int)current.getY()));
+                for (int i=0; i<y_axes.size(); ++i)
+                {
+                    final YAxisImpl<XTYPE> axis = y_axes.get(i);
+                    axis.pan(mouse_start_y_ranges.get(i), axis.getValue((int)start.getY()), axis.getValue((int)current.getY()));
+                }
+            }
+            catch (IndexOutOfBoundsException ex)
+            {   // Axes could have been removed while looping. Never mind panning it.
+                logger.log(Level.FINE, "Axis removed?", ex);
             }
         }
         else
@@ -1100,6 +1141,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
             mouse_current = Optional.empty();
             redraw_runnable.run();
         }
+        doSetCursor(null);
     }
 
     /** Stagger the range of axes */
