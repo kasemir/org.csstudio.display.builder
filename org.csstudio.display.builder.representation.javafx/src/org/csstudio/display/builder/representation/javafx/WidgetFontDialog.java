@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -31,6 +30,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.text.Font;
 
 /** Dialog for selecting a {@link WidgetFont}
  *  @author Kay Kasemir
@@ -74,9 +74,12 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
         content.setVgap(10);
         content.setPadding(new Insets(10));
 
-        // Get fonts on background thread
+        // Get font families and named fonts on background thread
         ModelThreadPool.getExecutor().execute(() ->
         {
+            final List<String> fams = Font.getFamilies();
+            Platform.runLater(() -> families.getItems().addAll(fams));
+
             final NamedWidgetFonts fonts = WidgetFontService.getFonts();
             final Collection<NamedWidgetFont> values = fonts.getFonts();
             Platform.runLater(() ->
@@ -90,16 +93,6 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
             });
         });
 
-        // Uses internal API
-        @SuppressWarnings("restriction")
-        final List<String> fams = new ArrayList<>(com.sun.javafx.tk.Toolkit.getToolkit().getFontLoader().getFamilies());
-
-        // This code uses public API, but AWT's list of font families
-        // differs from the one returned by the JFX toolkit.
-        // (At least on Linux, SWT has extra fonts)
-        // final List<String> fams = Arrays.asList(GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames());
-
-        families.getItems().addAll(fams);
         styles.getItems().addAll(WidgetFontStyle.values());
         sizes.getItems().addAll(default_sizes);
 
