@@ -65,36 +65,44 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         {
             this.model_trace = model_trace;
 
-            // TODO trace name property (instead of Y PV)
-            trace = plot.addTrace(model_trace.traceY().getValue(), "", data,
+            trace = plot.addTrace(getDisplayName(), "", data,
                                   JFXUtil.convert(model_trace.traceColor().getValue()),
                                   TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5,
                                   model_trace.traceYAxis().getValue());
 
-            model_trace.traceY().addUntypedPropertyListener(trace_listener);
+            model_trace.traceName().addUntypedPropertyListener(trace_listener);
+            model_trace.traceYPV().addUntypedPropertyListener(trace_listener);
             model_trace.traceColor().addUntypedPropertyListener(trace_listener);
             model_trace.traceYAxis().addUntypedPropertyListener(trace_listener);
 
-            model_trace.xValue().addUntypedPropertyListener(value_listener);
-            model_trace.yValue().addUntypedPropertyListener(value_listener);
+            model_trace.traceXValue().addUntypedPropertyListener(value_listener);
+            model_trace.traceYValue().addUntypedPropertyListener(value_listener);
+        }
+
+        private String getDisplayName()
+        {
+            String name = model_trace.traceName().getValue();
+            if (name.isEmpty())
+                return model_trace.traceYPV().getValue();
+            return name;
         }
 
         private void traceChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
         {
-            trace.setName(model_trace.traceY().getValue());
+            trace.setName(getDisplayName());
             trace.setColor(JFXUtil.convert(model_trace.traceColor().getValue()));
             final int desired = model_trace.traceYAxis().getValue();
             if (desired != trace.getYAxis())
                 plot.moveTrace(trace, desired);
-            plot.requestUpdate();
+            plot.requestLayout();
         };
 
         private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
         {
             try
             {
-                final VType x_value = model_trace.xValue().getValue();
-                final VType y_value = model_trace.yValue().getValue();
+                final VType x_value = model_trace.traceXValue().getValue();
+                final VType y_value = model_trace.traceYValue().getValue();
                 if (! (x_value instanceof VNumberArray  &&  y_value instanceof VNumberArray))
                     return;
 
@@ -110,10 +118,10 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
         void dispose()
         {
-            model_trace.traceY().removePropertyListener(trace_listener);
+            model_trace.traceYPV().removePropertyListener(trace_listener);
             model_trace.traceColor().removePropertyListener(trace_listener);
-            model_trace.xValue().removePropertyListener(value_listener);
-            model_trace.yValue().removePropertyListener(value_listener);
+            model_trace.traceXValue().removePropertyListener(value_listener);
+            model_trace.traceYValue().removePropertyListener(value_listener);
             plot.removeTrace(trace);
         }
     };

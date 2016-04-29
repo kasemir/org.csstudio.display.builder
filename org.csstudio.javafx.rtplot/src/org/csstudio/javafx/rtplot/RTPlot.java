@@ -302,11 +302,6 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         return plot.getTraces();
     }
 
-    /** @return Count the number of traces */
-    public int getTraceCount(){
-    return plot.getTraceCount();
-    }
-
     /** @param trace Trace to move from its current Y axis
      *  @param new_y_axis Index of new Y Axis
      */
@@ -328,6 +323,13 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     public void setUpdateThrottle(final long dormant_time, final TimeUnit unit)
     {
         plot.setUpdateThrottle(dormant_time, unit);
+    }
+
+    /** Request a complete redraw of the plot with new layout */
+    @Override
+    public void requestLayout()
+    {
+        plot.requestLayout();
     }
 
     /** Request a complete redraw of the plot */

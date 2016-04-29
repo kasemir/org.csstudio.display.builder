@@ -101,19 +101,21 @@ public class XYPlotWidget extends VisibleWidget
         public TraceWidgetProperty(final Widget widget)
         {
             super(behaviorTrace, widget,
-                  Arrays.asList(traceX.createProperty(widget, ""),
+                  Arrays.asList(CommonWidgetProperties.widgetName.createProperty(widget, ""),
+                                traceX.createProperty(widget, ""),
                                 traceY.createProperty(widget, ""),
                                 traceYAxis.createProperty(widget, 0),
                                 traceColor.createProperty(widget, new WidgetColor(0, 0, 255)),
                                 traceXValue.createProperty(widget, null),
                                 traceYValue.createProperty(widget, null)  ));
         }
-        public WidgetProperty<String> traceX()          { return getElement(0); }
-        public WidgetProperty<String> traceY()          { return getElement(1); }
-        public WidgetProperty<Integer> traceYAxis()     { return getElement(2); }
-        public WidgetProperty<WidgetColor> traceColor() { return getElement(3); }
-        public WidgetProperty<VType> xValue()           { return getElement(4); }
-        public WidgetProperty<VType> yValue()           { return getElement(5); }
+        public WidgetProperty<String> traceName()       { return getElement(0); }
+        public WidgetProperty<String> traceXPV()        { return getElement(1); }
+        public WidgetProperty<String> traceYPV()        { return getElement(2); }
+        public WidgetProperty<Integer> traceYAxis()     { return getElement(3); }
+        public WidgetProperty<WidgetColor> traceColor() { return getElement(4); }
+        public WidgetProperty<VType> traceXValue()      { return getElement(5); }
+        public WidgetProperty<VType> traceYValue()      { return getElement(6); }
     };
 
     /** 'traces' array */
@@ -220,31 +222,42 @@ public class XYPlotWidget extends VisibleWidget
         {
             final XYPlotWidget plot = (XYPlotWidget) widget;
 
-            // "trace_0_x_pv", ".._y_pv", ".._trace_color" held the traces
-            for (int legacy_trace=0; /**/; ++legacy_trace)
+            final int trace_count = XMLUtil.getChildInteger(xml, "trace_count").orElse(0);
+
+            // "trace_0_..." held the trace info
+            for (int legacy_trace=0; legacy_trace < trace_count; ++legacy_trace)
             {
                 // Was legacy widget used with scalar data, concatenated into waveform?
                 final Optional<String> concat = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_concatenate_data");
                 if (concat.isPresent()  &&  concat.get().equals("true"))
                     return false;
 
-                final Optional<String> pv_name = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_y_pv");
-                if (! pv_name.isPresent())
-                    break;
+                // Y PV
+                final String pv_name = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_y_pv").orElse("");
                 final TraceWidgetProperty trace;
                 if (plot.traces.size() <= legacy_trace)
                     trace = plot.traces.addElement();
                 else
                     trace = plot.traces.getElement(legacy_trace);
-                ((StringWidgetProperty)trace.traceY()).setSpecification(pv_name.get().replace("$(pv_name)", pv_macro));
+                ((StringWidgetProperty)trace.traceYPV()).setSpecification(pv_name.replace("$(pv_name)", pv_macro));
 
+                // X PV
                 XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_x_pv").ifPresent(pv ->
                 {
-                    ((StringWidgetProperty)trace.traceX()).setSpecification(pv.replace("$(pv_name)", pv_macro));
+                    ((StringWidgetProperty)trace.traceXPV()).setSpecification(pv.replace("$(pv_name)", pv_macro));
                 });
+
+                // Color
                 final Element element = XMLUtil.getChildElement(xml, "trace_" + legacy_trace + "_trace_color");
                 if (element != null)
                     trace.traceColor().readFromXML(model_reader, element);
+
+                // Name. Empty name will result in using the Y PV name
+                String name = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_name").orElse("");
+                name = name.replace("$(trace_" + legacy_trace + "_y_pv)", "");
+
+                if (! name.isEmpty())
+                    ((StringWidgetProperty)trace.traceName()).setSpecification(name.replace("$(pv_name)", pv_macro));
 
                 // Legacy used index 0=X, 1=Y, 2=Y1, ..
                 // except higher axis index could also stand for X1, X2, which we don't handle

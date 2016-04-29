@@ -387,11 +387,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         return traces;
     }
 
-    /** @return Count the number of traces */
-    public int getTraceCount(){
-    return traces.size();
-    }
-
     /** Remove trace from plot
      *  @param trace {@link Trace}, where axis must be a valid Y axis index
      */
@@ -425,6 +420,13 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     public void setUpdateThrottle(final long dormant_time, final TimeUnit unit)
     {
         update_throttle.setDormantTime(dormant_time, unit);
+    }
+
+    /** Request a complete redraw of the plot with new layout */
+    final public void requestLayout()
+    {
+        need_layout.set(true);
+        update_throttle.trigger();
     }
 
     /** Request a complete redraw of the plot */
