@@ -17,7 +17,7 @@ and similar "look", with improvements:
    again lessening the likelihood of user interface freezeups.
  * Separation of Model, Representation, Runtime and Editor
    to facilitate long term maintainability.
- * Model without reference to SWT/GEF (color, dimensions, ..)
+ * Model without reference to details of the Representation (SWT/GEF, color, dimensions, ..)
    to allow each to be developed and optimized in parallel.
  * Representation could be SWT, AWT, .., JavaFX, favoring the latter
    because it currently promises best performance and long term
@@ -50,11 +50,12 @@ Source Import into IDE
 
 Use `File`, `Import`, `Maven`, `Existing Maven Projects` to import the `org.csstudio.display.builder` source folder into the IDE.
 
-__Note:__ The Tycho Configurator will adjust three `.classpath` files,
+__Note:__ The Tycho Configurator will adjust `.classpath` files,
 the Team (git) support will indicate changes.
 Replace the changes with the HEAD version of the repository.
 
-(These .classfiles add the `JFXSWT` variable defined above to the IDE classpath)
+(These .classfiles add the `JFXSWT` variable defined above to the IDE classpath,
+ and add access rules to permit use of javafx.* classes)
 
 
 Entry Points
