@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.Preferences;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
@@ -36,7 +37,7 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class FontWidgetProperty extends WidgetProperty<WidgetFont>
 {
-    private static double legacy_size_calibration = 0.75;
+    private static double legacy_size_calibration = Preferences.getLegacyFontCalibration();
 
     private static final String FAMILY = "family";
     private static final String STYLE = "style";

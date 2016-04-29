@@ -19,6 +19,8 @@ public class Preferences
 {
     public static final String READ_TIMEOUT = "read_timeout";
 
+    public static final String LEGACY_FONT_CALIBRATION = "legacy_font_calibration";
+
     /** @return Read timeout [ms] */
     public static int getReadTimeout()
     {
@@ -27,5 +29,15 @@ public class Preferences
         if (prefs != null)
             timeout = prefs.getInt(ModelPlugin.ID, READ_TIMEOUT, timeout, null);
         return timeout;
+    }
+
+    /** @return Legacy font size calibration */
+    public static double getLegacyFontCalibration()
+    {
+        double factor = 0.75;
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs != null)
+            factor = prefs.getDouble(ModelPlugin.ID, LEGACY_FONT_CALIBRATION, factor, null);
+        return factor;
     }
 }
