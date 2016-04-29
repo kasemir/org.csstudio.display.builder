@@ -48,8 +48,8 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
 
         for (TraceWidgetProperty trace : widget.behaviorTraces().getValue())
         {
-            bind(trace.traceX(), trace.xValue());
-            bind(trace.traceY(), trace.yValue());
+            bind(trace.traceXPV(), trace.traceXValue());
+            bind(trace.traceYPV(), trace.traceYValue());
         }
     }
 

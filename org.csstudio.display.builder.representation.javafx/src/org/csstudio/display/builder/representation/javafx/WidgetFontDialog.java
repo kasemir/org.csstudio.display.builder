@@ -9,6 +9,7 @@ package org.csstudio.display.builder.representation.javafx;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetFontService;
@@ -16,8 +17,6 @@ import org.csstudio.display.builder.model.properties.NamedWidgetFont;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.model.properties.WidgetFontStyle;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
-
-import com.sun.javafx.tk.Toolkit;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -31,6 +30,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.text.Font;
 
 /** Dialog for selecting a {@link WidgetFont}
  *  @author Kay Kasemir
@@ -74,9 +74,12 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
         content.setVgap(10);
         content.setPadding(new Insets(10));
 
-        // Get fonts on background thread
+        // Get font families and named fonts on background thread
         ModelThreadPool.getExecutor().execute(() ->
         {
+            final List<String> fams = Font.getFamilies();
+            Platform.runLater(() -> families.getItems().addAll(fams));
+
             final NamedWidgetFonts fonts = WidgetFontService.getFonts();
             final Collection<NamedWidgetFont> values = fonts.getFonts();
             Platform.runLater(() ->
@@ -90,7 +93,6 @@ public class WidgetFontDialog extends Dialog<WidgetFont>
             });
         });
 
-        families.getItems().addAll(Toolkit.getToolkit().getFontLoader().getFamilies());
         styles.getItems().addAll(WidgetFontStyle.values());
         sizes.getItems().addAll(default_sizes);
 

@@ -9,7 +9,13 @@ build.log
 .project
 .settings
 # Ignore generated .classpath, except for those plugins that use FXCanvas
+# or JavaFX and we want to allow access to them,
+# while the Eclipse-generated .classpath will prohibit it
 .classpath
+!org.csstudio.display.builder.editor/.classpath
 !org.csstudio.display.builder.editor.rcp/.classpath
 !org.csstudio.display.builder.rcp/.classpath
+!org.csstudio.display.builder.representation.javafx/.classpath
 !org.csstudio.display.builder.representation.test/.classpath
+!org.csstudio.javafx/.classpath
+!org.csstudio.javafx.rtplot/.classpath
