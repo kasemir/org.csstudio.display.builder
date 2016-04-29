@@ -22,10 +22,13 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.diirt.vtype.VType;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
@@ -45,6 +48,30 @@ public class XYPlotWidget extends VisibleWidget
 
     private static final WidgetPropertyDescriptor<Boolean> autoscale =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "autoscale", "Auto-scale");
+
+    private static final WidgetPropertyDescriptor<WidgetFont> titleFont =
+        new WidgetPropertyDescriptor<WidgetFont>(
+            WidgetPropertyCategory.DISPLAY, "title_font", "Title Font")
+    {
+        @Override
+        public WidgetProperty<WidgetFont> createProperty(final Widget widget,
+                                                         final WidgetFont font)
+        {
+            return new FontWidgetProperty(this, widget, font);
+        }
+    };
+
+    private static final WidgetPropertyDescriptor<WidgetFont> scaleFont =
+        new WidgetPropertyDescriptor<WidgetFont>(
+            WidgetPropertyCategory.DISPLAY, "scale_font", "Scale Font")
+    {
+        @Override
+        public WidgetProperty<WidgetFont> createProperty(final Widget widget,
+                                                         final WidgetFont font)
+        {
+            return new FontWidgetProperty(this, widget, font);
+        }
+    };
 
     private final static StructuredWidgetProperty.Descriptor behaviorXAxis =
             new Descriptor(WidgetPropertyCategory.BEHAVIOR, "x_axis", "X Axis");
@@ -66,12 +93,17 @@ public class XYPlotWidget extends VisibleWidget
                   Arrays.asList(title.createProperty(widget, title_text),
                                 autoscale.createProperty(widget, false),
                                 CommonWidgetProperties.behaviorMinimum.createProperty(widget, 0.0),
-                                CommonWidgetProperties.behaviorMaximum.createProperty(widget, 100.0)));
+                                CommonWidgetProperties.behaviorMaximum.createProperty(widget, 100.0),
+                                titleFont.createProperty(widget, NamedWidgetFonts.DEFAULT_BOLD),
+                                scaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)
+                          ));
         }
         public WidgetProperty<String> title()        { return getElement(0); }
         public WidgetProperty<Boolean> autoscale()   { return getElement(1); }
         public WidgetProperty<Double> minimum()      { return getElement(2); }
         public WidgetProperty<Double> maximum()      { return getElement(3); }
+        public WidgetProperty<WidgetFont> titleFont()    { return getElement(4); }
+        public WidgetProperty<WidgetFont> scaleFont()    { return getElement(5); }
     };
 
     /** 'axes' array */
@@ -158,62 +190,66 @@ public class XYPlotWidget extends VisibleWidget
             final String pv_macro = XMLUtil.getChildString(xml, "pv_name").orElse("");
 
             // "axis_0_*" was the X axis config
-            XMLUtil.getChildString(xml, "axis_0_axis_title").ifPresent(title ->
-            {
-                final WidgetProperty<String> property = plot.x_axis.title();
-                ((StringWidgetProperty)property).setSpecification(title.replace("$(pv_name)", pv_macro));
-            });
-            XMLUtil.getChildString(xml, "axis_0_minimum").ifPresent(txt ->
-                plot.x_axis.minimum().setValue(Double.parseDouble(txt)) );
-            XMLUtil.getChildString(xml, "axis_0_maximum").ifPresent(txt ->
-                plot.x_axis.maximum().setValue(Double.parseDouble(txt)) );
-            XMLUtil.getChildString(xml, "axis_0_auto_scale").ifPresent(txt ->
-                plot.x_axis.autoscale().setValue(Boolean.parseBoolean(txt)) );
+            readLegacyAxis(model_reader, 0, xml, plot.x_axis, pv_macro);
 
-            handleLegacyValueAxes(widget, xml, pv_macro);
+            handleLegacyYAxes(model_reader, widget, xml, pv_macro);
 
             return handleLegacyTraces(model_reader, widget, xml, pv_macro);
         }
 
-        private void handleLegacyValueAxes(final Widget widget, final Element xml, final String pv_macro)
+        private void readLegacyAxis(final ModelReader model_reader,
+                                    final int legacy_axis, final Element xml, final AxisWidgetProperty axis, final String pv_macro) throws Exception
+        {
+            XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_axis_title").ifPresent(title ->
+            {
+                final WidgetProperty<String> property = axis.title();
+                ((StringWidgetProperty)property).setSpecification(title.replace("$(pv_name)", pv_macro));
+            });
+            XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_minimum").ifPresent(txt ->
+                axis.minimum().setValue(Double.parseDouble(txt)) );
+            XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_maximum").ifPresent(txt ->
+                axis.maximum().setValue(Double.parseDouble(txt)) );
+            XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_auto_scale").ifPresent(txt ->
+                axis.autoscale().setValue(Boolean.parseBoolean(txt)) );
+
+            Element font_el = XMLUtil.getChildElement(xml, "axis_" + legacy_axis + "_title_font");
+            if (font_el != null)
+                axis.titleFont().readFromXML(model_reader, font_el);
+
+            font_el = XMLUtil.getChildElement(xml, "axis_" + legacy_axis + "_scale_font");
+            if (font_el != null)
+                axis.scaleFont().readFromXML(model_reader, font_el);
+        }
+
+        private void handleLegacyYAxes(final ModelReader model_reader,
+                                       final Widget widget, final Element xml, final String pv_macro)  throws Exception
         {
             final XYPlotWidget plot = (XYPlotWidget) widget;
 
+            final int axis_count = XMLUtil.getChildInteger(xml, "axis_count").orElse(0);
+
             // "axis_1_*" was the Y axis, and higher axes could be either X or Y
             int y_count = 0; // Number of y axes found in legacy config
-            for (int legacy_axis=1; /**/; ++legacy_axis)
+            for (int legacy_axis=1; legacy_axis<axis_count; ++legacy_axis)
             {
                 // Check for "axis_*_y_axis" (default: true).
                 // If _not_, this is an additional X axis which we ignore
                 if (! Boolean.parseBoolean(XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_y_axis").orElse("true")))
                         continue;
 
-                // Done reading legacy Y axes?
-                final Optional<String> title = XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_axis_title");
-                if (! title.isPresent())
-                    break;
                 // Count actual Y axes, because legacy_axis includes skipped X axes
                 ++y_count;
 
                 final AxisWidgetProperty y_axis;
                 if (plot.y_axes.size() < y_count)
                 {
-                    y_axis = new AxisWidgetProperty(behaviorYAxis, widget, title.get());
+                    y_axis = new AxisWidgetProperty(behaviorYAxis, widget, "");
                     plot.y_axes.addElement(y_axis);
                 }
                 else
-                {
                     y_axis = plot.y_axes.getElement(y_count-1);
-                    final WidgetProperty<String> property = y_axis.title();
-                    ((StringWidgetProperty)property).setSpecification(title.get().replace("$(pv_name)", pv_macro));
-                }
 
-                XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_minimum").ifPresent(txt ->
-                    y_axis.minimum().setValue(Double.parseDouble(txt)) );
-                XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_maximum").ifPresent(txt ->
-                    y_axis.maximum().setValue(Double.parseDouble(txt)) );
-                XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_auto_scale").ifPresent(txt ->
-                    y_axis.autoscale().setValue(Boolean.parseBoolean(txt)) );
+                readLegacyAxis(model_reader, legacy_axis, xml, y_axis, pv_macro);
             }
         }
 
