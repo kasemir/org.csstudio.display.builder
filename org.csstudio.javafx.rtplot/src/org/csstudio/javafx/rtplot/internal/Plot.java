@@ -365,7 +365,14 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     public void addTrace(final TraceImpl<XTYPE> trace)
     {
         traces.add(trace);
-        y_axes.get(trace.getYAxis()).addTrace(trace);
+        try
+        {
+            y_axes.get(trace.getYAxis()).addTrace(trace);
+        }
+        catch (ArrayIndexOutOfBoundsException ex)
+        {
+            logger.log(Level.WARNING, "Cannot add trace to axis " + trace.getYAxis(), ex);
+        }
         need_layout.set(true);
         requestUpdate();
     }
@@ -376,9 +383,23 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     public void moveTrace(final TraceImpl<XTYPE> trace, final int new_y_axis)
     {
         Objects.requireNonNull(trace);
-        y_axes.get(trace.getYAxis()).removeTrace(trace);
+        try
+        {
+            y_axes.get(trace.getYAxis()).removeTrace(trace);
+        }
+        catch (ArrayIndexOutOfBoundsException ex)
+        {
+            logger.log(Level.WARNING, "Cannot remove trace from axis " + trace.getYAxis(), ex);
+        }
         trace.setYAxis(new_y_axis);
-        y_axes.get(trace.getYAxis()).addTrace(trace);
+        try
+        {
+            y_axes.get(trace.getYAxis()).addTrace(trace);
+        }
+        catch (ArrayIndexOutOfBoundsException ex)
+        {
+            logger.log(Level.WARNING, "Cannot assign trace to axis " + trace.getYAxis(), ex);
+        }
     }
 
     /** @return Thread-safe, read-only traces of the plot */
