@@ -25,6 +25,38 @@ public class ModelResourceUtil extends ResourceUtil
 {
     private static int timeout_ms = Preferences.getReadTimeout();
 
+    private static WorkspaceResourceHelper workspace_helper = initializeWRHelper();
+
+    private static WorkspaceResourceHelper initializeWRHelper()
+    {
+        try
+        {
+            @SuppressWarnings("unchecked")
+            final Class<WorkspaceResourceHelper> clazz =
+                (Class<WorkspaceResourceHelper>)Class.forName(WorkspaceResourceHelper.IMPL);
+            final WorkspaceResourceHelper helper = clazz.newInstance();
+            logger.config("Found WorkspaceResourceHelper");
+            return helper;
+        }
+        catch (ClassNotFoundException ex)
+        {   // OK to not have a WorkspaceResourceHelperImpl
+            logger.config("No WorkspaceResourceHelper");
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.SEVERE, "Cannot create WorkspaceResourceHelper", ex);
+        }
+        return null;
+    }
+
+    /** org.csstudio.display.builder.rcp calls this to support workspace files
+     *  @param workspace_helper
+     */
+    public static void setWorkspaceHelper(final WorkspaceResourceHelper workspace_helper)
+    {
+        ModelResourceUtil.workspace_helper = workspace_helper;
+    }
+
     // Many basic String operations since paths
     // may include " ", which URL won't handle,
     // or start with "https://", which File won't handle.
@@ -155,17 +187,18 @@ public class ModelResourceUtil extends ResourceUtil
      */
     public static InputStream openResourceStream(final String resource_name) throws Exception
     {
-        // TODO Handle Workspace location
-        // Provide hook for RCP plugin to add a workspace handler that's checked first:
-        // if (external_handler != null)
-        //    .. try that one first ..
-
         if (resource_name.startsWith("platform:"))
             return openPlatformResource(resource_name);
 
         if (resource_name.startsWith("http"))
             return openURL(resource_name);
 
+        if (workspace_helper != null)
+        {
+            final InputStream stream = workspace_helper.openWorkspaceResource(resource_name);
+            if (stream != null)
+                return stream;
+        }
         return new FileInputStream(resource_name);
     }
 
