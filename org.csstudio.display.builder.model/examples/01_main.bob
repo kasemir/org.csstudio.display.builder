@@ -21,7 +21,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>02_intro.opi</file>
+        <file>02_intro.bob</file>
         <target>replace</target>
         <description>Introduction</description>
       </action>
@@ -36,7 +36,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>graphics_label.opi</file>
+        <file>graphics_label.bob</file>
         <target>replace</target>
         <description>Label</description>
       </action>
@@ -51,7 +51,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>monitors_textupdate.opi</file>
+        <file>monitors_textupdate.bob</file>
         <target>replace</target>
         <description>Text Update</description>
       </action>
@@ -66,7 +66,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>monitors_led.opi</file>
+        <file>monitors_led.bob</file>
         <target>replace</target>
         <description>LED</description>
       </action>
@@ -152,7 +152,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>plots_xy.opi</file>
+        <file>plots_xy.bob</file>
         <target>replace</target>
         <description>X/Y Plot</description>
       </action>
@@ -167,7 +167,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>monitors_image.opi</file>
+        <file>monitors_image.bob</file>
         <target>replace</target>
         <description>Image</description>
       </action>
@@ -181,7 +181,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>10_scripts.opi</file>
+        <file>10_scripts.bob</file>
         <target>replace</target>
         <description>Scripts</description>
       </action>
@@ -238,7 +238,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>graphics_picture.opi</file>
+        <file>graphics_picture.bob</file>
         <target>replace</target>
         <description>Picture</description>
       </action>
@@ -265,7 +265,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>embedded/structure_embedded.opi</file>
+        <file>embedded/structure_embedded.bob</file>
         <target>replace</target>
         <description>Embedded</description>
       </action>
@@ -280,7 +280,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>structure_tabs.opi</file>
+        <file>structure_tabs.bob</file>
         <target>replace</target>
         <description>Tabs</description>
       </action>
@@ -295,7 +295,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>structure_group.opi</file>
+        <file>structure_group.bob</file>
         <target>replace</target>
         <description>Group</description>
       </action>
@@ -310,7 +310,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>controls_textentry.opi</file>
+        <file>controls_textentry.bob</file>
         <target>replace</target>
         <description>Text Entry</description>
       </action>
@@ -325,7 +325,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>control_toggle_buttons.opi</file>
+        <file>control_toggle_buttons.bob</file>
         <target>replace</target>
         <description>Toggle Buttons</description>
       </action>

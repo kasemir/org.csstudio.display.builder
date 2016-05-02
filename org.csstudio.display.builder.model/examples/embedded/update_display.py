@@ -9,8 +9,8 @@ from org.csstudio.display.builder.runtime.script import PVUtil
 
 sel = PVUtil.getDouble(pvs[0])
 if sel > 1.5:
-    widget.setPropertyValue("file", "missing.opi")
+    widget.setPropertyValue("file", "missing.bob")
 elif sel > 0.5:
-    widget.setPropertyValue("file", "b.opi")
+    widget.setPropertyValue("file", "b.bob")
 else:
-    widget.setPropertyValue("file", "a.opi")
+    widget.setPropertyValue("file", "a.bob")

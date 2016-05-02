@@ -18,8 +18,8 @@
     <y>41</y>
     <width>521</width>
     <height>146</height>
-    <text>Displays another *.opi file inside a widget.
-This widget is a 'container' that hosts another *.opi file as its 'content'.
+    <text>Displays another *.bob file inside a widget.
+This widget is a 'container' that hosts another *.bob file as its 'content'.
 By default, both the container and its content remain their original size.
 The container provides scroll bars when the content is too large.
 Alternatively, the content can be resized to match the container,
@@ -36,7 +36,7 @@ are always a compromise that often results in inconsistent widget sizes.</text>
     <y>217</y>
     <width>140</width>
     <height>140</height>
-    <file>embedded.opi</file>
+    <file>embedded.bob</file>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
@@ -63,7 +63,7 @@ are always a compromise that often results in inconsistent widget sizes.</text>
     <y>217</y>
     <width>140</width>
     <height>140</height>
-    <file>embedded.opi</file>
+    <file>embedded.bob</file>
     <resize>1</resize>
   </widget>
   <widget type="label" version="2.0.0">
@@ -91,7 +91,7 @@ are always a compromise that often results in inconsistent widget sizes.</text>
     <y>217</y>
     <width>140</width>
     <height>140</height>
-    <file>embedded.opi</file>
+    <file>embedded.bob</file>
     <resize>2</resize>
   </widget>
   <widget type="label" version="2.0.0">
@@ -127,7 +127,7 @@ then shows several motors via the Embedded Display Widget:</text>
     <y>481</y>
     <width>320</width>
     <height>210</height>
-    <file>motor.opi</file>
+    <file>motor.bob</file>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded Display_1</name>
@@ -138,7 +138,7 @@ then shows several motors via the Embedded Display Widget:</text>
     <y>481</y>
     <width>320</width>
     <height>210</height>
-    <file>motor.opi</file>
+    <file>motor.bob</file>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
