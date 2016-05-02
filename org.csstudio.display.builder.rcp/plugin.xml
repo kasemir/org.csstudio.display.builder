@@ -31,5 +31,16 @@
             name="%PreferencePage">
       </page>
    </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            default="false"
+            extensions="bob"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
+            id="org.csstudio.display.builder.rcp.RuntimeLauncher"
+            launcher="org.csstudio.display.builder.rcp.run.RuntimeLauncher"
+            name="%RuntimeView">
+      </editor>
+   </extension>
 
 </plugin>
