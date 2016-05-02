@@ -57,6 +57,12 @@ public class RuleInfo
         }
 
         abstract boolean isWidgetProperty();
+
+        @Override
+        public String toString()
+        {
+            return "(" + this.bool_exp + ") ? " + prop_val;
+        }
     };
 
     public static class ExprInfoString extends ExpressionInfo<String> {
