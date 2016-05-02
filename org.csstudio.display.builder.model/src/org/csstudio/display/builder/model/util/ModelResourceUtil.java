@@ -89,13 +89,32 @@ public class ModelResourceUtil extends ResourceUtil
      *  @param path Complete path, i.e. "/some/location/resource"
      *  @return Location, i.e. "/some/location" without trailing "/", or "."
      */
-    public static String getLocation(final String path)
+    public static String getLocation(String path)
     {
         // Remove last segment from parent_display to get path
         int sep = path.lastIndexOf('/');
         if (sep >= 0)
             return path.substring(0, sep);
         return ".";
+    }
+
+    /** @param resource_name Resource that may be relative to workspace
+     *  @return Location in local file system or <code>null</code>
+     */
+    public static String getLocalPath(final String resource_name)
+    {
+        if (workspace_helper != null)
+        {
+            final String absolute = workspace_helper.getLocalPath(resource_name);
+            if (absolute != null)
+                return absolute;
+        }
+
+        final File file = new File(resource_name);
+        if (file.exists())
+            return file.getAbsolutePath();
+
+        return null;
     }
 
     /** Combine display paths
@@ -143,9 +162,9 @@ public class ModelResourceUtil extends ResourceUtil
     {
         logger.log(Level.FINE, "Resolving {0} relative to {1}", new Object[] { resource_name, parent_display });
 
+        // Appears to be URL?
         if (isURL(resource_name))
         {
-            // Appears to be URL?
             logger.log(Level.FINE, "Using URL {0}", resource_name);
             return resource_name;
         }
@@ -156,6 +175,16 @@ public class ModelResourceUtil extends ResourceUtil
         {
             logger.log(Level.FINE, "Using URL {0}", combined);
             return combined;
+        }
+
+        // Check for workspace resource
+        if (workspace_helper != null)
+        {
+            if (workspace_helper.isWorkspaceResource(resource_name))
+                return resource_name;
+
+            if (workspace_helper.isWorkspaceResource(combined))
+                return combined;
         }
 
         // Can display be opened as file?
