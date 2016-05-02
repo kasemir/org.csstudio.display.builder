@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -40,11 +38,23 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
 {
     private final Logger logger = Logger.getLogger(getClass().getName());
 
-    private static final WidgetPropertyDescriptor<String> miscUnknownPropID =
-            newStringPropertyDescriptor(WidgetPropertyCategory.MISC, "rule_unknown_propid", "?");
+    //private static final WidgetPropertyDescriptor<String> miscUnknownPropID =
+    //      newStringPropertyDescriptor(WidgetPropertyCategory.MISC, "rule_unknown_propid", "?");
 
-    public static WidgetProperty<?> propIDToNewProp(Widget widget,
-            String prop_id, String dbg_tag)
+    private static final WidgetPropertyDescriptor<String> miscUnknownPropID =
+            new WidgetPropertyDescriptor<String>(WidgetPropertyCategory.MISC,
+                    "rule_unknown_propid", "RulesWidgetProperty:miscUnknownPropID", false)
+    {
+        @Override
+        public WidgetProperty<String> createProperty(final Widget widget, final String value)
+        {
+            return new StringWidgetProperty(this, widget, value);
+        }
+    };
+
+
+    public static WidgetProperty<?> propIDToNewProp(final Widget widget,
+            final String prop_id, final String dbg_tag)
     {
         Optional<WidgetProperty<?>> prop = widget.checkProperty(prop_id);
 
@@ -54,7 +64,10 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
             .log(Level.WARNING, "Widget " + widget.getClass().getName()
                     + " cannot make new unknown property id " + prop_id);
 
-            return miscUnknownPropID.createProperty(null, prop_id + " : " + dbg_tag);
+            if ((dbg_tag != null) && (dbg_tag.length() > 0))
+                return miscUnknownPropID.createProperty(null, dbg_tag);
+            else
+                return miscUnknownPropID.createProperty(null, prop_id + "?");
         }
 
         return prop.get().clone();
@@ -236,25 +249,25 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
             final Element tag_xml = XMLUtil.getChildElement(exp_xml, tagstr);
             //legacy case where value is used for all value expression
             final Element val_xml = (tag_xml == null) ? XMLUtil.getChildElement(exp_xml, "value") : tag_xml;
-            final String val_str = val_xml != null
-                    ? val_xml.getFirstChild().getNodeValue()
-                            : null;
 
-                    if (prop_as_expr)
-                    {
-                        exprs.add(new ExprInfoString(bool_exp, val_str));
-                    }
-                    else
-                    {
-                        WidgetProperty<?> val_prop = propIDToNewProp(
-                                this.getWidget(), prop_id, val_str);
+            if (prop_as_expr)
+            {
+                final String val_str = (val_xml != null) ? XMLUtil.getString(val_xml) : "";
+                exprs.add(new ExprInfoString(bool_exp, val_str));
+            }
+            else
+            {
+                final String val_str = (val_xml != null) ? XMLUtil.elementsToString(val_xml.getChildNodes(), false) : "";
 
-                        if ( val_prop.getName() != miscUnknownPropID.getName() )
-                        {
-                            val_prop.readFromXML(model_reader, val_xml);
-                        }
-                        exprs.add(new ExprInfoValue<>(bool_exp, val_prop));
-                    }
+                WidgetProperty<?> val_prop = propIDToNewProp(
+                        this.getWidget(), prop_id, val_str);
+
+                if ( val_prop.getName() != miscUnknownPropID.getName() )
+                {
+                    val_prop.readFromXML(model_reader, val_xml);
+                }
+                exprs.add(new ExprInfoValue<>(bool_exp, val_prop));
+            }
         }
         return exprs;
     }

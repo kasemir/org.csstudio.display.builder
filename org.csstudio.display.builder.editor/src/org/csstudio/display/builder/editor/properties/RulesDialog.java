@@ -103,14 +103,12 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     public abstract static class ExprItem<T>
     {
         final protected StringProperty boolExp = new SimpleStringProperty();
-        //protected T propVal;
         final protected SimpleObjectProperty<Node> field = new SimpleObjectProperty<Node>();
         final protected List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
 
         public ExprItem(final String boolE, final T valE, final UndoableActionManager undo)
         {
             this.boolExp.set(boolE);
-            //this.propVal = valE;
         }
 
         public SimpleObjectProperty<Node> fieldProperty()

@@ -13,7 +13,9 @@ import java.util.Optional;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /** XML Utility.
  *  @author Kay Kasemir
@@ -144,11 +146,11 @@ public class XMLUtil
     }
 
     /** Look for child node of given name.
-    *
-    *  @param parent Node where to start.
-    *  @param name Name of the node to look for.
-    *  @return Returns Element or <code>null</code>.
-    */
+     *
+     *  @param parent Node where to start.
+     *  @param name Name of the node to look for.
+     *  @return Returns Element or <code>null</code>.
+     */
     public static final Element getChildElement(final Node parent, final String name)
     {
         return findElementByName(parent.getFirstChild(), name);
@@ -187,7 +189,7 @@ public class XMLUtil
         while (node != null)
         {
             if (node.getNodeType() == Node.ELEMENT_NODE &&
-                node.getNodeName().equals(name))
+                    node.getNodeName().equals(name))
                 return (Element) node;
             node = node.getNextSibling();
         }
@@ -204,7 +206,7 @@ public class XMLUtil
         if (text == null) // <empty /> node
             return "";
         if ((text.getNodeType() == Node.TEXT_NODE  ||
-             text.getNodeType() == Node.CDATA_SECTION_NODE))
+                text.getNodeType() == Node.CDATA_SECTION_NODE))
             return text.getNodeValue();
         return "";
     }
@@ -254,4 +256,85 @@ public class XMLUtil
             return default_value;
         return Boolean.parseBoolean(text);
     }
+
+    /** Transform xml element and children into a string
+     *
+     * @param nd Node root of elements to transform
+     * @return String representation of xml
+     */
+    public static String elementToString(Node nd, boolean add_newlines) {
+        //short type = n.getNodeType();
+
+        if (Node.CDATA_SECTION_NODE == nd.getNodeType()) {
+            return "<![CDATA[" + nd.getNodeValue() + "]]&gt;";
+        }
+
+        // return if simple element type
+        final String name = nd.getNodeName();
+        if (name.startsWith("#")) {
+            if (name.equals("#text"))
+                return nd.getNodeValue();
+            return "";
+        }
+
+        // output name
+        String ret = "<" + name;
+
+        // output attributes
+        NamedNodeMap attrs = nd.getAttributes();
+        if (attrs != null) {
+            for (int idx = 0; idx < attrs.getLength(); idx++) {
+                Node attr = attrs.item(idx);
+                ret += " " + attr.getNodeName() + "=\"" + attr.getNodeValue() + "\"";
+            }
+        }
+
+        final String text = nd.getTextContent();
+        final NodeList child_ndls = nd.getChildNodes();
+        String all_child_str = "";
+
+        for (int idx = 0; idx < child_ndls.getLength(); idx++) {
+            final String child_str = elementToString(child_ndls.item(idx), add_newlines);
+            if ((child_str != null) && (child_str.length() > 0))
+            {
+                all_child_str += child_str;
+            }
+        }
+        if (all_child_str.length() > 0)
+        {
+            // output children
+            ret += ">" + (add_newlines ? "\n" : " ");
+            ret += all_child_str;
+            ret += "</" + name + ">";
+        }
+        else if ((text != null) && (text.length() > 0))
+        {
+            // output text
+            ret += text;
+            ret += "</" + name + ">";
+        }
+        else
+        {
+            // output nothing
+            ret += "/>" + (add_newlines ? "\n" : " ");
+        }
+
+        return ret;
+    }
+
+    public static String elementsToString(NodeList nls, boolean add_newlines) {
+
+        String ret = "";
+        for (int i = 0; i < nls.getLength(); i++) {
+            final String nextstr = elementToString(nls.item(i), add_newlines).trim();
+            if (nextstr.length() > 0)
+            {
+                if (ret.length() > 0)
+                    ret += (add_newlines)? "\n" : " ";
+                ret += nextstr;
+            }
+        }
+        return ret;
+    }
+
 }
