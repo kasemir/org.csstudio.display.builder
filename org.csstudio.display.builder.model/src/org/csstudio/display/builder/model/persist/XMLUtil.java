@@ -238,74 +238,67 @@ public class XMLUtil
 
     /** Transform xml element and children into a string
      *
-     * @param n Node root of elements to transform
+     * @param nd Node root of elements to transform
      * @return String representation of xml
      */
-    public static String elementToString(Node n, boolean add_newlines) {
+    public static String elementToString(Node nd, boolean add_newlines) {
+        //short type = n.getNodeType();
 
-        String name = n.getNodeName();
-
-        short type = n.getNodeType();
-
-        if (Node.CDATA_SECTION_NODE == type) {
-            return "<![CDATA[" + n.getNodeValue() + "]]&gt;";
+        if (Node.CDATA_SECTION_NODE == nd.getNodeType()) {
+            return "<![CDATA[" + nd.getNodeValue() + "]]&gt;";
         }
 
+        // return if simple element type
+        final String name = nd.getNodeName();
         if (name.startsWith("#")) {
             if (name.equals("#text"))
-                return n.getNodeValue();
+                return nd.getNodeValue();
             return "";
         }
 
-        StringBuffer sb = new StringBuffer();
-        sb.append('<').append(name);
+        // output name
+        String ret = "<" + name;
 
-        NamedNodeMap attrs = n.getAttributes();
+        // output attributes
+        NamedNodeMap attrs = nd.getAttributes();
         if (attrs != null) {
-            for (int i = 0; i < attrs.getLength(); i++) {
-                Node attr = attrs.item(i);
-                sb.append(' ').append(attr.getNodeName()).append("=\"").append(attr.getNodeValue()).append(
-                        "\"");
+            for (int idx = 0; idx < attrs.getLength(); idx++) {
+                Node attr = attrs.item(idx);
+                ret += " " + attr.getNodeName() + "=\"" + attr.getNodeValue() + "\"";
             }
         }
 
-        String textContent = null;
-        NodeList children = n.getChildNodes();
+        final String text = nd.getTextContent();
+        final NodeList child_ndls = nd.getChildNodes();
+        String all_child_str = "";
 
-        if (children.getLength() == 0) {
-            if ((textContent = n.getTextContent()) != null && !"".equals(textContent)) {
-                sb.append(textContent).append("</").append(name).append('>');
-                ;
-            } else {
-                if (add_newlines)
-                    sb.append("/>").append('\n');
-                else
-                    sb.append("/>").append(' ');
+        for (int idx = 0; idx < child_ndls.getLength(); idx++) {
+            final String child_str = elementToString(child_ndls.item(idx), add_newlines);
+            if ((child_str != null) && (child_str.length() > 0))
+            {
+                all_child_str += child_str;
             }
-        } else {
-            if (add_newlines)
-                sb.append("/>").append('\n');
-            else
-                sb.append("/>").append(' ');
-
-
-            boolean hasValidChildren = false;
-            for (int i = 0; i < children.getLength(); i++) {
-                String childToString = elementToString(children.item(i), add_newlines);
-                if (!"".equals(childToString)) {
-                    sb.append(childToString);
-                    hasValidChildren = true;
-                }
-            }
-
-            if (!hasValidChildren && ((textContent = n.getTextContent()) != null)) {
-                sb.append(textContent);
-            }
-
-            sb.append("</").append(name).append('>');
+        }
+        if (all_child_str.length() > 0)
+        {
+            // output children
+            ret += ">" + (add_newlines ? "\n" : " ");
+            ret += all_child_str;
+            ret += "</" + name + ">";
+        }
+        else if ((text != null) && (text.length() > 0))
+        {
+            // output text
+            ret += text;
+            ret += "</" + name + ">";
+        }
+        else
+        {
+            // output nothing
+            ret += "/>" + (add_newlines ? "\n" : " ");
         }
 
-        return sb.toString();
+        return ret;
     }
 
     public static String elementsToString(NodeList nls, boolean add_newlines) {
