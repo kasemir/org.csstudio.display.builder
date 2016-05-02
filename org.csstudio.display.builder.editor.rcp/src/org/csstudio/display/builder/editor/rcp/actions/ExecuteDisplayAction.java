@@ -11,6 +11,7 @@ import org.csstudio.display.builder.editor.rcp.Messages;
 import org.csstudio.display.builder.editor.rcp.Plugin;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.OpenDisplayAction;
+import org.eclipse.core.runtime.NullProgressMonitor;
 
 /** Action to execute currently edited display
  *  @author Kay Kasemir
@@ -18,6 +19,19 @@ import org.csstudio.display.builder.rcp.OpenDisplayAction;
 @SuppressWarnings("nls")
 public class ExecuteDisplayAction extends EditorAction
 {
+    /** Progress monitor that opens display when 'done' */
+    private class MonitorSaveThenOpenDisplay extends NullProgressMonitor
+    {
+        @Override
+        public void done()
+        {
+            if (isCanceled())
+                return;
+            final DisplayInfo info = edit_part.getDisplayInfo();
+            new OpenDisplayAction(info).run();
+        }
+    }
+
     public ExecuteDisplayAction()
     {
         super(Messages.ExecuteDisplay, Plugin.getIcon("execute.png"));
@@ -26,8 +40,6 @@ public class ExecuteDisplayAction extends EditorAction
     @Override
     public void run()
     {
-        edit_part.doSave(null);
-        final DisplayInfo info = edit_part.getDisplayInfo();
-        new OpenDisplayAction(info).run();
+        edit_part.doSave(new MonitorSaveThenOpenDisplay());
     }
 }

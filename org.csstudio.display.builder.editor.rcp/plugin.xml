@@ -3,10 +3,25 @@
 <plugin>
    <extension
          point="org.eclipse.ui.editors">
+      <!-- The same code is used for two editor definitions:
+           1) A default editor for the new file format.
+           2) A non-default editor for '*.opi' files that allows
+              editing (and translating) existing BOY display files.
+              When saved, the new extension is proposed.
+        -->
       <editor
             class="org.csstudio.display.builder.editor.rcp.DisplayEditorPart"
             contributorClass="org.csstudio.display.builder.editor.rcp.DisplayEditorToolbarContributor"
             default="true"
+            extensions="bob"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
+            id="org.csstudio.display.builder.editor.rcp.editor"
+            name="%DisplayEditor">
+      </editor>
+      <editor
+            class="org.csstudio.display.builder.editor.rcp.DisplayEditorPart"
+            contributorClass="org.csstudio.display.builder.editor.rcp.DisplayEditorToolbarContributor"
+            default="false"
             extensions="opi"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
             id="org.csstudio.display.builder.editor.rcp.editor1"
