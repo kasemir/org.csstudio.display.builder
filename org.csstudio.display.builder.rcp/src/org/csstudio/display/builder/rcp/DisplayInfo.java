@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp;
 
+import java.util.Objects;
+
 import org.csstudio.display.builder.model.macros.Macros;
 
 /** Information about a display
@@ -22,7 +24,7 @@ public class DisplayInfo
     {
         this.path = path;
         this.name = name;
-        this.macros = macros;
+        this.macros = Objects.requireNonNull(macros);
     }
 
     public String getPath()
