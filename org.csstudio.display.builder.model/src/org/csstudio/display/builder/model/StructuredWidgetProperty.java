@@ -130,8 +130,6 @@ public class StructuredWidgetProperty extends WidgetProperty<List<WidgetProperty
     {
         for (WidgetProperty<?> element : value)
         {
-            if (element.getCategory() == WidgetPropertyCategory.RUNTIME)
-                continue;
             final Element xml = XMLUtil.getChildElement(property_xml, element.getName());
             if (xml == null)
                 continue;
