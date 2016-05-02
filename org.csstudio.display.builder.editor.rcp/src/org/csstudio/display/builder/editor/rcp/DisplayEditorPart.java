@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
@@ -38,7 +39,9 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.window.Window;
@@ -68,7 +71,7 @@ import javafx.scene.Scene;
 public class DisplayEditorPart extends EditorPart
 {
     /** File extension used to save files */
-    final private static String FILE_EXTENSION = "opi";
+    final private static String FILE_EXTENSION = "bob";
 
     private final JFXRepresentation toolkit = new JFXRepresentation();
 
@@ -230,14 +233,26 @@ public class DisplayEditorPart extends EditorPart
         return null;
     }
 
+    // Called from ExecuteDisplayAction,
+    // which expects monitor.done() to be called on UI thread
+    // when successful
     @Override
     public void doSave(final IProgressMonitor monitor)
     {
-        final IFile file = getInputFile();
-        if (file != null)
-            saveModelToFile(file);
+        IFile file = getInputFile();
+        if (file != null   &&  FILE_EXTENSION.equals(file.getFileExtension()))
+            saveModelToFile(monitor, file);
         else
-            doSaveAs();
+        {   // No file name, or using legacy file extension -> prompt for name
+            file = promptForFile();
+            if (file == null)
+            {
+                monitor.setCanceled(true);
+                monitor.done();
+            }
+            else
+                saveModelToFile(monitor, file);
+        }
     }
 
     @Override
@@ -245,19 +260,21 @@ public class DisplayEditorPart extends EditorPart
     {
         final IFile file = promptForFile();
         if (file != null)
-            saveModelToFile(file);
+            saveModelToFile(new NullProgressMonitor(), file);
     }
 
     /** Save model to file, using background thread
+     *  @param save_monitor On success, <code>done</code> will be called <u>on UI thread</u>. Otherwise cancelled.
      *  @param file File to save
      */
-    private void saveModelToFile(final IFile file)
+    private void saveModelToFile(final IProgressMonitor save_monitor, final IFile file)
     {   // Save on background thread
-        Job job = new Job("Save")
+        final Job job = new Job("Save")
         {
             @Override
             protected IStatus run(final IProgressMonitor monitor)
             {
+                final SubMonitor progress = SubMonitor.convert(monitor, 100);
                 final DisplayModel model = editor.getModel();
                 logger.log(Level.FINE, "Save as {0}", file);
 
@@ -269,6 +286,7 @@ public class DisplayEditorPart extends EditorPart
                     final ModelWriter writer = new ModelWriter(tmp);
                     writer.writeModel(model);
                     writer.close();
+                    progress.worked(40);
 
                     // .. then write file from buffer
                     final ByteArrayInputStream stream = new ByteArrayInputStream(tmp.toByteArray());
@@ -276,16 +294,19 @@ public class DisplayEditorPart extends EditorPart
                         file.setContents(stream, true, false, monitor);
                     else
                         file.create(stream, true, monitor);
+                    progress.worked(40);
                 }
                 catch (Exception ex)
                 {
                     logger.log(Level.SEVERE, "Cannot save as " + file, ex);
+                    save_monitor.setCanceled(true);
+                    save_monitor.done();
                     return Status.OK_STATUS;
                 }
 
                 // Back on UI thread..
                 final IEditorInput input = new FileEditorInput(file);
-                toolkit.execute(() ->
+                final Future<Object> update_input = toolkit.submit(() ->
                 {   // Update editor input to current file name
                     setInput(input);
                     setPartName(model.getName());
@@ -293,7 +314,24 @@ public class DisplayEditorPart extends EditorPart
 
                     // Clear 'undo'
                     editor.getUndoableActionManager().clear();
+
+                    // Signal success
+                    save_monitor.done();
+                    return null;
                 });
+                // Wait for the UI task to complete
+                try
+                {
+                    update_input.get();
+                }
+                catch (Exception ex)
+                {
+                    logger.log(Level.WARNING, "Cannot update editor input", ex);
+                    save_monitor.setCanceled(true);
+                    save_monitor.done();
+                }
+                progress.done();
+
                 return Status.OK_STATUS;
             }
         };
@@ -305,11 +343,19 @@ public class DisplayEditorPart extends EditorPart
      */
     private IFile promptForFile()
     {
+        final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+
         final SaveAsDialog dlg = new SaveAsDialog(getSite().getShell());
         dlg.setBlockOnOpen(true);
         final IEditorInput input = getEditorInput();
         if (input instanceof FileEditorInput)
-            dlg.setOriginalFile(((FileEditorInput)input).getFile());
+        {
+            IPath orig_path = ((FileEditorInput)input).getFile().getFullPath();
+            // Propose new file extension
+            if (! FILE_EXTENSION.equals(orig_path.getFileExtension()))
+                orig_path = orig_path.removeFileExtension().addFileExtension(FILE_EXTENSION);
+            dlg.setOriginalFile(root.getFile(orig_path));
+        }
         if (dlg.open() != Window.OK)
             return null;
 
@@ -317,12 +363,9 @@ public class DisplayEditorPart extends EditorPart
         IPath path = dlg.getResult();
         if (path == null)
             return null;
-        // Assert it's an '.opi' file
-        final String ext = path.getFileExtension();
-        if (ext == null  ||  !ext.equals(FILE_EXTENSION))
+        // Assert correct file extension
+        if (! FILE_EXTENSION.equals(path.getFileExtension()))
             path = path.removeFileExtension().addFileExtension(FILE_EXTENSION);
-        // Get the file for the new resource's path.
-        final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         return root.getFile(path);
     }
 
