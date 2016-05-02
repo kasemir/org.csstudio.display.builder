@@ -11,8 +11,6 @@ import static org.csstudio.display.builder.editor.rcp.Plugin.logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -28,6 +26,7 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoRedoListener;
@@ -148,10 +147,10 @@ public class DisplayEditorPart extends EditorPart
     {
         try
         {
-            final File location = file.getLocation().toFile();
-            final ModelReader reader = new ModelReader(new FileInputStream(location));
+            final String ws_location = file.getFullPath().toOSString();
+            final ModelReader reader = new ModelReader(ModelResourceUtil.openResourceStream(ws_location));
             final DisplayModel model = reader.readModel();
-            model.setUserData(DisplayModel.USER_DATA_INPUT_FILE, location.getCanonicalPath());
+            model.setUserData(DisplayModel.USER_DATA_INPUT_FILE, ws_location);
             return model;
         }
         catch (Exception ex)
@@ -373,10 +372,8 @@ public class DisplayEditorPart extends EditorPart
     public DisplayInfo getDisplayInfo()
     {
         final IFile file = getInputFile();
-
-        // TODO Use workspace location, file.getFullPath(),
-        // and have org.csstudio.display.builder.model.util.ResourceUtil handle it
-        return new DisplayInfo(file.getLocation().toOSString(), editor.getModel().getName(), new Macros());
+        // Providing workspace location, which is handled in ModelResourceUtil
+        return new DisplayInfo(file.getFullPath().toOSString(), editor.getModel().getName(), new Macros());
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

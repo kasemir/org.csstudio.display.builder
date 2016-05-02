@@ -25,6 +25,38 @@ public class ModelResourceUtil extends ResourceUtil
 {
     private static int timeout_ms = Preferences.getReadTimeout();
 
+    private static WorkspaceResourceHelper workspace_helper = initializeWRHelper();
+
+    private static WorkspaceResourceHelper initializeWRHelper()
+    {
+        try
+        {
+            @SuppressWarnings("unchecked")
+            final Class<WorkspaceResourceHelper> clazz =
+                (Class<WorkspaceResourceHelper>)Class.forName(WorkspaceResourceHelper.IMPL);
+            final WorkspaceResourceHelper helper = clazz.newInstance();
+            logger.config("Found WorkspaceResourceHelper");
+            return helper;
+        }
+        catch (ClassNotFoundException ex)
+        {   // OK to not have a WorkspaceResourceHelperImpl
+            logger.config("No WorkspaceResourceHelper");
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.SEVERE, "Cannot create WorkspaceResourceHelper", ex);
+        }
+        return null;
+    }
+
+    /** org.csstudio.display.builder.rcp calls this to support workspace files
+     *  @param workspace_helper
+     */
+    public static void setWorkspaceHelper(final WorkspaceResourceHelper workspace_helper)
+    {
+        ModelResourceUtil.workspace_helper = workspace_helper;
+    }
+
     // Many basic String operations since paths
     // may include " ", which URL won't handle,
     // or start with "https://", which File won't handle.
@@ -57,13 +89,32 @@ public class ModelResourceUtil extends ResourceUtil
      *  @param path Complete path, i.e. "/some/location/resource"
      *  @return Location, i.e. "/some/location" without trailing "/", or "."
      */
-    public static String getLocation(final String path)
+    public static String getLocation(String path)
     {
         // Remove last segment from parent_display to get path
         int sep = path.lastIndexOf('/');
         if (sep >= 0)
             return path.substring(0, sep);
         return ".";
+    }
+
+    /** @param resource_name Resource that may be relative to workspace
+     *  @return Location in local file system or <code>null</code>
+     */
+    public static String getLocalPath(final String resource_name)
+    {
+        if (workspace_helper != null)
+        {
+            final String absolute = workspace_helper.getLocalPath(resource_name);
+            if (absolute != null)
+                return absolute;
+        }
+
+        final File file = new File(resource_name);
+        if (file.exists())
+            return file.getAbsolutePath();
+
+        return null;
     }
 
     /** Combine display paths
@@ -111,9 +162,9 @@ public class ModelResourceUtil extends ResourceUtil
     {
         logger.log(Level.FINE, "Resolving {0} relative to {1}", new Object[] { resource_name, parent_display });
 
+        // Appears to be URL?
         if (isURL(resource_name))
         {
-            // Appears to be URL?
             logger.log(Level.FINE, "Using URL {0}", resource_name);
             return resource_name;
         }
@@ -124,6 +175,16 @@ public class ModelResourceUtil extends ResourceUtil
         {
             logger.log(Level.FINE, "Using URL {0}", combined);
             return combined;
+        }
+
+        // Check for workspace resource
+        if (workspace_helper != null)
+        {
+            if (workspace_helper.isWorkspaceResource(resource_name))
+                return resource_name;
+
+            if (workspace_helper.isWorkspaceResource(combined))
+                return combined;
         }
 
         // Can display be opened as file?
@@ -155,17 +216,18 @@ public class ModelResourceUtil extends ResourceUtil
      */
     public static InputStream openResourceStream(final String resource_name) throws Exception
     {
-        // TODO Handle Workspace location
-        // Provide hook for RCP plugin to add a workspace handler that's checked first:
-        // if (external_handler != null)
-        //    .. try that one first ..
-
         if (resource_name.startsWith("platform:"))
             return openPlatformResource(resource_name);
 
         if (resource_name.startsWith("http"))
             return openURL(resource_name);
 
+        if (workspace_helper != null)
+        {
+            final InputStream stream = workspace_helper.openWorkspaceResource(resource_name);
+            if (stream != null)
+                return stream;
+        }
         return new FileInputStream(resource_name);
     }
 

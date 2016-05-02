@@ -121,8 +121,12 @@ public class StructuredWidgetProperty extends WidgetProperty<List<WidgetProperty
     public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
     {
         for (WidgetProperty<?> element : value)
-            if (element.getCategory() != WidgetPropertyCategory.RUNTIME)
+        {   // In general, don't persist runtime properties, except for 'children'
+            // as used by the TabsWidget.TabItemProperty
+            if ( element.getCategory() != WidgetPropertyCategory.RUNTIME  ||
+                 element.getName().equals(ChildrenProperty.DESCRIPTOR.getName()) )
                 model_writer.writeProperty(element);
+        }
     }
 
     @Override
@@ -130,8 +134,6 @@ public class StructuredWidgetProperty extends WidgetProperty<List<WidgetProperty
     {
         for (WidgetProperty<?> element : value)
         {
-            if (element.getCategory() == WidgetPropertyCategory.RUNTIME)
-                continue;
             final Element xml = XMLUtil.getChildElement(property_xml, element.getName());
             if (xml == null)
                 continue;

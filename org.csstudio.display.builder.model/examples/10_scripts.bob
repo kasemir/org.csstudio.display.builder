@@ -328,7 +328,7 @@ and the "Active" label moves next to the selected mode.</text>
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>solitaire/solitaire.opi</file>
+        <file>solitaire/solitaire.bob</file>
         <target>replace</target>
         <description>Solitaire</description>
       </action>
@@ -343,7 +343,7 @@ and the "Active" label moves next to the selected mode.</text>
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>t3/t3.opi</file>
+        <file>t3/t3.bob</file>
         <target>replace</target>
         <description>TTT</description>
       </action>
@@ -452,7 +452,7 @@ from new locations.</text>
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>webservice/webservice.opi</file>
+        <file>webservice/webservice.bob</file>
         <target>replace</target>
         <description>Web Service</description>
       </action>

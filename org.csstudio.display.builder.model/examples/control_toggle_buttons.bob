@@ -105,6 +105,7 @@
       <color red="204" green="255" blue="204">
       </color>
     </background_color>
+    <format>4</format>
     <pv_name>loc://boolTest</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
