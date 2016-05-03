@@ -65,6 +65,7 @@
     <!-- Plugins -->
     <module>org.csstudio.display.builder.editor</module>
     <module>org.csstudio.display.builder.editor.rcp</module>
+    <module>org.csstudio.display.builder.examples</module>
     <module>org.csstudio.display.builder.model</module>
     <module>org.csstudio.display.builder.model.rcp</module>
     <module>org.csstudio.display.builder.model.test</module>

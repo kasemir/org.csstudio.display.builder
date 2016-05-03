@@ -29,15 +29,14 @@ Nightly Snapshot
 
 To try the latest nightly snapshot in CSS:
 
- 1) Download the 'Basic EPICS' or SNS version of CS-Studio from http://ics-web.sns.ornl.gov/css/nightly/
- 2) Open the menu Help, Install New Software. Enter http://ics-web.sns.ornl.gov/css/display.builder
-    as a site, select the display builder for installation, follow the steps in the installation dialog, restart.
- 3) Start css with options `-vmargs -Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`
- 4) Get the examples from https://github.com/kasemir/org.csstudio.display.builder/tree/master/org.csstudio.display.builder.model/examples
-    into the workspace.
-    For example, clone the complete repo via the menu File, Import, Git, Projects from Git to import, using the
-    URI https://github.com/kasemir/org.csstudio.display.builder.git
-    
+1. Download the 'Basic EPICS' or SNS version of CS-Studio from http://ics-web.sns.ornl.gov/css/nightly/
+2. Open the menu `Help`, `Install New Software`. Enter `http://ics-web.sns.ornl.gov/css/display.builder`
+   as a site, select the display builder for installation, follow the steps in the installation dialog, restart.
+3. Start css with options `-vmargs -Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`
+4. Open the menu `CS-Studio`, `Utilities`, `Install Samples` to install the `Display Builder` examples.
+5. In the Navigator, open the `Display Builder/01_main.bob` file in the editor, look around,
+   press the green 'Execute' button in the toolbar. 
+   
 
 Dependencies
 ------------
