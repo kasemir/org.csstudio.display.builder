@@ -61,6 +61,8 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     private final static Map<String, WidgetRepresentationFactory<?, ?>> factories = new ConcurrentHashMap<>();
 
+    private final boolean edit_mode;
+
     private final UpdateThrottle throttle = new UpdateThrottle(this);
 
     /** Listener list */
@@ -92,10 +94,12 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         execute(() -> setBackground(new_color));
     };
 
-
-    /** Constructor */
-    public ToolkitRepresentation()
+    /** Constructor
+     *  @param edit_mode Edit mode?
+     */
+    public ToolkitRepresentation(final boolean edit_mode)
     {
+        this.edit_mode = edit_mode;
         synchronized (ToolkitRepresentation.class)
         {
             if (! initialized)
@@ -104,6 +108,25 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
                 initialized = true;
             }
         }
+    }
+
+    /** 'Edit' mode is used by the editor,
+     *  while non-edit mode is used by the runtime.
+     *
+     *  <p>In edit mode, the widget representation may
+     *  appear 'passive', not reacting to user input,
+     *  and instead showing additional information like
+     *  file names used as input for an image
+     *  or an outline for an otherwise shapeless widget.
+     *
+     *  <p>In runtime mode, the widget may react to user input
+     *  or at times be invisible.
+     *
+     *  @return <code>true</code> for edit mode
+     */
+    public final boolean isEditMode()
+    {
+        return edit_mode;
     }
 
     /** Register available representations */

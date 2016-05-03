@@ -73,18 +73,20 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
             else
                 JFXRepresentation.getChildren(parent).add(index, jfx_node);
 
-            // Any visible item can be 'clicked' to allow editor to 'select' it
-            jfx_node.setOnMousePressed((event) ->
-            {
-                event.consume();
-                toolkit.fireClick(model_widget, event.isControlDown());
-            });
-
-            jfx_node.setOnContextMenuRequested((event) ->
-            {
-                event.consume();
-                toolkit.fireContextMenu(model_widget);
-            });
+            if (toolkit.isEditMode())
+            {   // Any visible item can be 'clicked' to allow editor to 'select' it
+                jfx_node.setOnMousePressed((event) ->
+                {
+                    event.consume();
+                    toolkit.fireClick(model_widget, event.isControlDown());
+                });
+            }
+            else
+                jfx_node.setOnContextMenuRequested((event) ->
+                {
+                    event.consume();
+                    toolkit.fireContextMenu(model_widget);
+                });
         }
         registerListeners();
         updateChanges();
