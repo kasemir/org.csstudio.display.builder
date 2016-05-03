@@ -25,6 +25,7 @@ public class RCP_JFXRepresentation extends JFXRepresentation
 
     public RCP_JFXRepresentation()
     {
+        super(false);
         RuntimeUtil.hookRepresentationListener(this);
     }
 

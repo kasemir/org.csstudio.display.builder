@@ -52,7 +52,7 @@ public class RepresentationDemoJavaFXinSWT
             }
         };
 
-        final JFXRepresentation toolkit = new JFXRepresentation();
+        final JFXRepresentation toolkit = new JFXRepresentation(false);
         final Scene scene = new Scene(toolkit.createModelRoot());
         JFXRepresentation.setSceneStyle(scene);
         final Parent parent = toolkit.getModelParent();

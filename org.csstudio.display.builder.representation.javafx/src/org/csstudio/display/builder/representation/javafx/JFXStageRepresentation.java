@@ -23,6 +23,12 @@ import javafx.stage.WindowEvent;
 @SuppressWarnings("nls")
 public class JFXStageRepresentation extends JFXRepresentation
 {
+    /** Constructor for runtime mode */
+    public JFXStageRepresentation()
+    {
+        super(false);
+    }
+
     /** Configure an existing Stage
      *  @param stage Stage to configure
      *  @param model Model that provides stage size

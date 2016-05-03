@@ -75,7 +75,7 @@ public class EditorDemoGUI
 
     public EditorDemoGUI(final Stage stage)
     {
-        toolkit = new JFXRepresentation();
+        toolkit = new JFXRepresentation(true);
         createElements(stage);
     }
 

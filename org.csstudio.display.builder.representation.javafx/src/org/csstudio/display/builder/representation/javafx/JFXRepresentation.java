@@ -116,6 +116,14 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     /** Zoom to fit display's height */
     public static final double ZOOM_HEIGHT = -2.0;
 
+    /** Constructor
+     *  @param edit_mode Edit mode?
+     */
+    public JFXRepresentation(final boolean edit_mode)
+    {
+        super(edit_mode);
+    }
+
     @Override
     protected void initialize()
     {

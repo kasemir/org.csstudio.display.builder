@@ -72,7 +72,7 @@ public class DisplayEditorPart extends EditorPart
     /** File extension used to save files */
     final private static String FILE_EXTENSION = "bob";
 
-    private final JFXRepresentation toolkit = new JFXRepresentation();
+    private final JFXRepresentation toolkit = new JFXRepresentation(true);
 
     private FXCanvas fx_canvas;
 

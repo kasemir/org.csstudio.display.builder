@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -16,6 +17,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
+import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 
@@ -45,37 +47,46 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
         jfx_node = createJFXNode();
         if (jfx_node != null)
         {   // Order JFX children same as model widgets within their container
-            final int index;
+            int index = -1;
             final Optional<Widget> container = model_widget.getParent();
             if (container.isPresent())
             {
                 if (container.get() instanceof TabsWidget)
-                {   // TODO Locate model_widget inside one of the Tab's children
-                    index = -1;
+                {   // Locate model_widget inside one of the Tab's children
+                    final List<TabItemProperty> tabs = ((TabsWidget) container.get()).displayTabs().getValue();
+                    for (TabItemProperty tab : tabs)
+                    {
+                        final int i = tab.children().getValue().indexOf(model_widget);
+                        if (i >= 0)
+                        {
+                            index = i;
+                            break;
+                        }
+                    }
                 }
                 else
                     index = container.get().getProperty(ChildrenProperty.DESCRIPTOR).getValue().indexOf(model_widget);
             }
-            else
-                index = -1;
 
             if (index < 0)
                 JFXRepresentation.getChildren(parent).add(jfx_node);
             else
                 JFXRepresentation.getChildren(parent).add(index, jfx_node);
 
-            // Any visible item can be 'clicked' to allow editor to 'select' it
-            jfx_node.setOnMousePressed((event) ->
-            {
-                event.consume();
-                toolkit.fireClick(model_widget, event.isControlDown());
-            });
-
-            jfx_node.setOnContextMenuRequested((event) ->
-            {
-                event.consume();
-                toolkit.fireContextMenu(model_widget);
-            });
+            if (toolkit.isEditMode())
+            {   // Any visible item can be 'clicked' to allow editor to 'select' it
+                jfx_node.setOnMousePressed((event) ->
+                {
+                    event.consume();
+                    toolkit.fireClick(model_widget, event.isControlDown());
+                });
+            }
+            else
+                jfx_node.setOnContextMenuRequested((event) ->
+                {
+                    event.consume();
+                    toolkit.fireContextMenu(model_widget);
+                });
         }
         registerListeners();
         updateChanges();

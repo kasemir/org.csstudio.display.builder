@@ -45,9 +45,11 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
 
     public SWTRepresentation(final Display display)
     {
+        super(false); // Only supporting runtime, not edit mode
         this.display = display;
     }
 
+    @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void initialize()
     {
