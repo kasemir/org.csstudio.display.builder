@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
@@ -25,6 +26,7 @@ import org.csstudio.javafx.rtplot.internal.ToolbarHandler;
 import org.csstudio.javafx.rtplot.internal.TraceImpl;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 
+import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -39,7 +41,7 @@ import javafx.scene.text.Font;
  *  @param <XTYPE> Data type used for the {@link PlotDataItem}
  *  @author Kay Kasemir
  */
-@SuppressWarnings({ "nls", "restriction" })
+@SuppressWarnings("nls")
 public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 {
     final protected Plot<XTYPE> plot;
@@ -207,6 +209,23 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
             setTop(toolbar.getToolBar());
         else
             setTop(null);
+
+        // Force layout to reclaim space used by hidden toolbar,
+        // or make room for the visible toolbar
+        layoutChildren();
+        // XX Hack: Toolbar is garbled, all icons in pile at left end,
+        // when shown the first time, i.e. it was hidden when the plot
+        // was first shown.
+        // Manual fix is to hide and show again.
+        // Workaround is to force another layout a little later
+        if (show)
+            ForkJoinPool.commonPool().submit(() ->
+            {
+                Thread.sleep(1000);
+                Platform.runLater(() -> layoutChildren() );
+                return null;
+            });
+
         plot.fireToolbarChange(show);
     }
 
