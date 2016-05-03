@@ -27,12 +27,12 @@ and similar "look", with improvements:
 Nightly Snapshot
 ----------------
 
-To try the latest nightly snapshot in CSS:
+To try the latest nightly snapshot:
 
-1. Download the 'Basic EPICS' or SNS version of CS-Studio from http://ics-web.sns.ornl.gov/css/nightly/
-2. Open the menu `Help`, `Install New Software`. Enter `http://ics-web.sns.ornl.gov/css/display.builder`
+1. Download the 'Basic EPICS' or SNS version of CS-Studio from http://ics-web.sns.ornl.gov/css/nightly
+2. Start css with command-line options `-vmargs -Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`
+3. Open the menu `Help`, `Install New Software`. Enter `http://ics-web.sns.ornl.gov/css/display.builder`
    as a site, select the display builder for installation, follow the steps in the installation dialog, restart.
-3. Start css with options `-vmargs -Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`
 4. Open the menu `CS-Studio`, `Utilities`, `Install Samples` to install the `Display Builder` examples.
 5. In the Navigator, open the `Display Builder/01_main.bob` file in the editor, look around,
    press the green 'Execute' button in the toolbar. 
