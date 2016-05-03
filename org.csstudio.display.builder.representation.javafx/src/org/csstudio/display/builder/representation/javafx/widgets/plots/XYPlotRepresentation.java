@@ -135,7 +135,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     {
         plot = new RTValuePlot();
         plot.showToolbar(false);
-        plot.showCrosshair(true);
+        plot.showCrosshair(false);
         return plot;
     }
 

@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -41,7 +41,7 @@ import javafx.geometry.Point2D;
 @SuppressWarnings("nls")
 public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
 {
-    final private static ExecutorService thread_pool = Executors.newWorkStealingPool();
+    final private static ExecutorService thread_pool = ForkJoinPool.commonPool();
 
     final private Plot<XTYPE> plot;
 
