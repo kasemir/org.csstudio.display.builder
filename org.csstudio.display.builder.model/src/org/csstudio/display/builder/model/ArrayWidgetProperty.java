@@ -91,10 +91,11 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
     @Override
     public boolean isDefaultValue()
     {
-        for (WPE element : value)
-            if (! element.isDefaultValue())
-                return false;
-        return true;
+        // Array has 'default' value if it contains
+        // only the original default element.
+        // Otherwise, all elements need to be written
+        return value.size() == 1  &&
+               value.get(0).isDefaultValue();
     }
 
     @Override
