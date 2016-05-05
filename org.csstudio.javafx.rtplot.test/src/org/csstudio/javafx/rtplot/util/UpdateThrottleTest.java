@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Test;
 
-/** JUnit test of {@link UpdateThrottle}
+/** JUnit test of {@link RTPlotUpdateThrottle}
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -40,7 +40,7 @@ public class UpdateThrottleTest
             }
         };
 
-        final UpdateThrottle throttle = new UpdateThrottle(1L, TimeUnit.SECONDS, update);
+        final RTPlotUpdateThrottle throttle = new RTPlotUpdateThrottle(1L, TimeUnit.SECONDS, update);
         // No initial updates
         assertThat(updates.get(), equalTo(0));
 

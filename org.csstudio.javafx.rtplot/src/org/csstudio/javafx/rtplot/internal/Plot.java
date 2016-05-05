@@ -40,7 +40,7 @@ import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeAxisRanges;
 import org.csstudio.javafx.rtplot.internal.undo.UpdateAnnotationAction;
 import org.csstudio.javafx.rtplot.internal.util.ScreenTransform;
-import org.csstudio.javafx.rtplot.util.UpdateThrottle;
+import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -113,7 +113,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
      */
     private volatile Optional<Image> plot_image = Optional.empty();
 
-    final private UpdateThrottle update_throttle;
+    final private RTPlotUpdateThrottle update_throttle;
 
     final private TitlePart title_part;
     final private List<Trace<XTYPE>> traces = new CopyOnWriteArrayList<>();
@@ -217,7 +217,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         initializeCursors();
 
         // 50Hz default throttle
-        update_throttle = new UpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
+        update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
         {
             plot_processor.autoscale();
             updateImageBuffer();

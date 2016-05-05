@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.representation.UpdateThrottle;
+import org.csstudio.display.builder.representation.RepresentationUpdateThrottle;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ import org.junit.Test;
 @SuppressWarnings("nls")
 public class UpdateThrottleTest
 {
-    private final UpdateThrottle throttle = new UpdateThrottle(Executors.newSingleThreadExecutor());
+    private final RepresentationUpdateThrottle throttle = new RepresentationUpdateThrottle(Executors.newSingleThreadExecutor());
 
     private class TestWidgetRepresentation extends WidgetRepresentation<Object, Object, Widget>
     {
