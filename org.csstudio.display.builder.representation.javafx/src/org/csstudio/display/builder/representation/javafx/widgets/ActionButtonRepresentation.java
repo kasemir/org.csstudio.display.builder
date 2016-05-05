@@ -44,6 +44,9 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<ButtonB
     // it won't update between Button and MenuButton.
 
     private final DirtyFlag dirty_representation = new DirtyFlag();
+    private final DirtyFlag dirty_actionls = new DirtyFlag();
+
+    private volatile ButtonBase base;
 
     /** Optional modifier of the open display 'target */
     private Optional<OpenDisplayActionInfo.Target> target_modifier = Optional.empty();
@@ -51,28 +54,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<ButtonB
     @Override
     public ButtonBase createJFXNode() throws Exception
     {
-        final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
-        final ButtonBase base;
-        // Create either single-action button or menu for selecting one out of N actions
-        if (actions.size() == 1)
-        {
-            final Button button = new Button();
-            final ActionInfo the_action = actions.get(0);
-            button.setOnAction(event -> handleAction(the_action));
-            base = button;
-        }
-        else
-        {
-            final MenuButton button = new MenuButton();
-            for (final ActionInfo action : actions)
-            {
-                final MenuItem item = new MenuItem(action.getDescription());
-                final ActionInfo the_action = action;
-                item.setOnAction(event -> handleAction(the_action));
-                button.getItems().add(item);
-            }
-            base = button;
-        }
+        makeBaseButton();
 
         // Model has width/height, but JFX widget has min, pref, max size.
         // updateChanges() will set the 'pref' size, so make min use that as well.
@@ -125,6 +107,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<ButtonB
         model_widget.positionHeight().addUntypedPropertyListener(this::representationChanged);
         model_widget.displayText().addUntypedPropertyListener(this::representationChanged);
         model_widget.displayFont().addUntypedPropertyListener(this::representationChanged);
+        model_widget.behaviorActions().addUntypedPropertyListener(this::actionsChanged);
     }
 
     private void representationChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -133,15 +116,53 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<ButtonB
         toolkit.scheduleUpdate(this);
     }
 
+    private void actionsChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        dirty_actionls.mark();
+        dirty_representation.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+    private void makeBaseButton()
+    {
+        final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
+        // Create either single-action button or menu for selecting one out of N actions
+        if (actions.size() < 2)
+        {
+            final Button button = new Button();
+            if (actions.size() > 0)
+            {
+                final ActionInfo the_action = actions.get(0);
+                button.setOnAction(event -> handleAction(the_action));
+            }
+            base = button;
+        }
+        else
+        {
+            final MenuButton button = new MenuButton();
+            for (final ActionInfo action : actions)
+            {
+                final MenuItem item = new MenuItem(action.getDescription());
+                item.setOnAction(event -> handleAction(action));
+                button.getItems().add(item);
+            }
+            base = button;
+        }
+    }
+
     @Override
     public void updateChanges()
     {
         super.updateChanges();
+        if (dirty_actionls.checkAndClear())
+        {
+            makeBaseButton();
+        }
         if (dirty_representation.checkAndClear())
         {
             jfx_node.setText(model_widget.displayText().getValue());
             jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
-                                 model_widget.positionHeight().getValue());
+                    model_widget.positionHeight().getValue());
             jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
         }
     }
