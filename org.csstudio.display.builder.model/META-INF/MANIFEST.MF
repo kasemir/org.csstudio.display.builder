@@ -17,4 +17,5 @@ Export-Package: org.csstudio.display.builder.model,
  org.csstudio.display.builder.model.persist,
  org.csstudio.display.builder.model.properties,
  org.csstudio.display.builder.model.util,
- org.csstudio.display.builder.model.widgets
+ org.csstudio.display.builder.model.widgets,
+ org.csstudio.display.builder.model.widgets.plots

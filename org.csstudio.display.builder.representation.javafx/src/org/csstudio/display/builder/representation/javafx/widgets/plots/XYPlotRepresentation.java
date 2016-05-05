@@ -16,10 +16,11 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.widgets.XYPlotWidget;
-import org.csstudio.display.builder.model.widgets.XYPlotWidget.AxisWidgetProperty;
-import org.csstudio.display.builder.model.widgets.XYPlotWidget.TraceWidgetProperty;
-import org.csstudio.display.builder.model.widgets.XYPlotWidget.YAxisWidgetProperty;
+import org.csstudio.display.builder.model.widgets.plots.PlotWidgedProperties.AxisWidgetProperty;
+import org.csstudio.display.builder.model.widgets.plots.PlotWidgedProperties.TraceWidgetProperty;
+import org.csstudio.display.builder.model.widgets.plots.PlotWidgedProperties.YAxisWidgetProperty;
+import org.csstudio.display.builder.model.widgets.plots.PlotWidgetPointType;
+import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
@@ -69,15 +70,26 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
             trace = plot.addTrace(getDisplayName(), "", data,
                                   JFXUtil.convert(model_trace.traceColor().getValue()),
-                                  TraceType.SINGLE_LINE_DIRECT, 1, PointType.NONE, 5,
+                                  TraceType.SINGLE_LINE_DIRECT, 1,
+                                  map(model_trace.tracePointType().getValue()),
+                                  model_trace.tracePointSize().getValue(),
                                   model_trace.traceYAxis().getValue());
 
             model_trace.traceName().addUntypedPropertyListener(trace_listener);
+            // Not tracking X PV. Only matters to runtime.
             model_trace.traceYPV().addUntypedPropertyListener(trace_listener);
-            model_trace.traceColor().addUntypedPropertyListener(trace_listener);
             model_trace.traceYAxis().addUntypedPropertyListener(trace_listener);
+            model_trace.traceColor().addUntypedPropertyListener(trace_listener);
+            model_trace.tracePointType().addUntypedPropertyListener(trace_listener);
+            model_trace.tracePointSize().addUntypedPropertyListener(trace_listener);
             model_trace.traceXValue().addUntypedPropertyListener(value_listener);
             model_trace.traceYValue().addUntypedPropertyListener(value_listener);
+        }
+
+        private PointType map(final PlotWidgetPointType value)
+        {   // For now the ordinals match,
+            // only different types to keep the Model separate from the Representation
+            return PointType.fromOrdinal(value.ordinal());
         }
 
         private String getDisplayName()
@@ -92,6 +104,9 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         {
             trace.setName(getDisplayName());
             trace.setColor(JFXUtil.convert(model_trace.traceColor().getValue()));
+            trace.setPointType(map(model_trace.tracePointType().getValue()));
+            trace.setPointSize(model_trace.tracePointSize().getValue());
+
             final int desired = model_trace.traceYAxis().getValue();
             if (desired != trace.getYAxis())
                 plot.moveTrace(trace, desired);
@@ -123,6 +138,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             model_trace.traceYPV().removePropertyListener(trace_listener);
             model_trace.traceYAxis().removePropertyListener(trace_listener);
             model_trace.traceColor().removePropertyListener(trace_listener);
+            model_trace.tracePointType().removePropertyListener(trace_listener);
+            model_trace.tracePointSize().removePropertyListener(trace_listener);
             model_trace.traceXValue().removePropertyListener(value_listener);
             model_trace.traceYValue().removePropertyListener(value_listener);
             plot.removeTrace(trace);

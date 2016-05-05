@@ -178,7 +178,7 @@
       </widget>
       <widget
             category="PLOT"
-            class="org.csstudio.display.builder.model.widgets.XYPlotWidget"
+            class="org.csstudio.display.builder.model.widgets.plots.XYPlotWidget"
             description="%XYPlotWidget_Description"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/xyplot.png"
             name="%XYPlotWidget_Name"
