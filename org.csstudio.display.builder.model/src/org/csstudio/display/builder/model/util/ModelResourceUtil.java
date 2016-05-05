@@ -86,11 +86,16 @@ public class ModelResourceUtil extends ResourceUtil
     }
 
     /** Obtain location, i.e. directory of file or URL up to the last element
+     *
+     *  <p>For a <code>null</code> path, the location will also be <code>null</code>.
+     *
      *  @param path Complete path, i.e. "/some/location/resource"
      *  @return Location, i.e. "/some/location" without trailing "/", or "."
      */
-    public static String getLocation(String path)
+    public static String getLocation(final String path)
     {
+        if (path == null)
+            return null;
         // Remove last segment from parent_display to get path
         int sep = path.lastIndexOf('/');
         if (sep >= 0)
