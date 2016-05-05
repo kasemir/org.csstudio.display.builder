@@ -42,7 +42,7 @@ public class XYPlotWidget extends VisibleWidget
     private static final WidgetPropertyDescriptor<Boolean> displayLegend =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_legend", "Show Legend");
 
-    private static final WidgetPropertyDescriptor<String> displayTitle = // Also used for display title
+    private static final WidgetPropertyDescriptor<String> displayTitle =
             CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "title", "Title");
 
     // Elements of the 'axis' structure
@@ -50,7 +50,7 @@ public class XYPlotWidget extends VisibleWidget
     private static final WidgetPropertyDescriptor<Boolean> autoscale =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "autoscale", "Auto-scale");
 
-    private static final WidgetPropertyDescriptor<WidgetFont> titleFont =
+    private static final WidgetPropertyDescriptor<WidgetFont> titleFontProperty =
         new WidgetPropertyDescriptor<WidgetFont>(
             WidgetPropertyCategory.DISPLAY, "title_font", "Title Font")
     {
@@ -95,7 +95,7 @@ public class XYPlotWidget extends VisibleWidget
                                 autoscale.createProperty(widget, false),
                                 CommonWidgetProperties.behaviorMinimum.createProperty(widget, 0.0),
                                 CommonWidgetProperties.behaviorMaximum.createProperty(widget, 100.0),
-                                titleFont.createProperty(widget, NamedWidgetFonts.DEFAULT_BOLD),
+                                titleFontProperty.createProperty(widget, NamedWidgetFonts.DEFAULT_BOLD),
                                 scaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)
                           ));
         }
@@ -308,6 +308,7 @@ public class XYPlotWidget extends VisibleWidget
 
    // private volatile WidgetProperty<String> title;
     private volatile WidgetProperty<String> title;
+    private volatile WidgetProperty<WidgetFont> title_font;
     private volatile WidgetProperty<Boolean> show_legend;
     private volatile AxisWidgetProperty x_axis;
     private volatile ArrayWidgetProperty<AxisWidgetProperty> y_axes;
@@ -329,6 +330,7 @@ public class XYPlotWidget extends VisibleWidget
     {
         super.defineProperties(properties);
         properties.add(title = displayTitle.createProperty(this, ""));
+        properties.add(title_font = titleFontProperty.createProperty(this, NamedWidgetFonts.HEADER2));
         properties.add(show_legend = displayLegend.createProperty(this, true));
         properties.add(x_axis = new AxisWidgetProperty(behaviorXAxis, this, "X"));
         properties.add(y_axes = behaviorYAxes.createProperty(this, Arrays.asList(new AxisWidgetProperty(behaviorYAxis, this, "Y"))));
@@ -339,6 +341,12 @@ public class XYPlotWidget extends VisibleWidget
     public WidgetProperty<String> displayTitle()
     {
         return title;
+    }
+
+    /** @return Display 'title_font' */
+    public WidgetProperty<WidgetFont> displayTitleFont()
+    {
+        return title_font;
     }
 
     /** @return Display 'show_legend' */
