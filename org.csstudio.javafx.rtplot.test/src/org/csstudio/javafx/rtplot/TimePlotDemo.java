@@ -40,7 +40,7 @@ public class TimePlotDemo extends Application
         for (Handler handler : logger.getHandlers())
             handler.setLevel(logger.getLevel());
 
-        final RTTimePlot plot = new RTTimePlot();
+        final RTTimePlot plot = new RTTimePlot(true);
         plot.setTitle(Optional.of("Title of Time Demo"));
         plot.setUpdateThrottle(200, TimeUnit.MILLISECONDS);
         plot.setScrollStep(Duration.ofSeconds(30));

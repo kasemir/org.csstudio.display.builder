@@ -12,9 +12,11 @@ package org.csstudio.javafx.rtplot;
  */
 public class RTValuePlot extends RTPlot<Double>
 {
-    /** @param parent Parent widget */
-    public RTValuePlot()
+    /** Constructor
+     *  @param active Active mode where plot reacts to mouse/keyboard?
+     */
+    public RTValuePlot(final boolean active)
     {
-        super(Double.class);
+        super(Double.class, active);
     }
 }
