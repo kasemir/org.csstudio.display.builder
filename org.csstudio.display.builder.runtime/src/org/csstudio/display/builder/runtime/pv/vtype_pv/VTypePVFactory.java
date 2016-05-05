@@ -18,10 +18,23 @@ import org.csstudio.vtype.pv.PVPool;
  */
 public class VTypePVFactory implements RuntimePVFactory
 {
+    /** @param name PV Name that might contain legacy information
+     *  @return Patched PV name
+     */
+    private String patch(String name)
+    {
+        // Remove PVManager's longString modifier.
+        // Not using regular expression because text
+        // had to be exactly like this at end of PV name.
+        if (name.endsWith(" {\"longString\":true}"))
+            name = name.substring(0,  name.length()-20);
+        return name;
+    }
+
     @Override
     public RuntimePV getPV(final String name) throws Exception
     {
-        return new VTypePV(PVPool.getPV(name));
+        return new VTypePV(PVPool.getPV(patch(name)));
     }
 
     @Override
