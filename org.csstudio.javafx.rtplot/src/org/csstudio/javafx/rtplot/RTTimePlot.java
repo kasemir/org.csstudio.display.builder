@@ -45,9 +45,12 @@ public class RTTimePlot extends RTPlot<Instant>
 
     private Button scroll;
 
-    public RTTimePlot() throws Exception
+    /** Constructor
+     *  @param active Active mode where plot reacts to mouse/keyboard?
+     */
+    public RTTimePlot(final boolean active) throws Exception
     {
-        super(Instant.class);
+        super(Instant.class, active);
 
         scroll_on = Activator.getIcon("scroll_on");
         scroll_off = Activator.getIcon("scroll_off");

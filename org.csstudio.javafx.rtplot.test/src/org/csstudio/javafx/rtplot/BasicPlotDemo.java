@@ -36,7 +36,7 @@ public class BasicPlotDemo extends Application
         for (Handler handler : Logger.getLogger("").getHandlers())
             handler.setLevel(Level.FINE);
 
-        final Plot<Double> plot = new Plot<Double>(Double.class);
+        final Plot<Double> plot = new Plot<Double>(Double.class, true);
         plot.setTitle(Optional.of("Plot Demo"));
         plot.getXAxis().setName("The horizontal quantities on 'X'");
         plot.addYAxis("Another Axis");

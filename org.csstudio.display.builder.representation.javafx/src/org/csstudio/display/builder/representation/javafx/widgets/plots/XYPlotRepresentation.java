@@ -133,7 +133,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     @Override
     public Pane createJFXNode() throws Exception
     {
-        plot = new RTValuePlot();
+        // Plot is only active in runtime mode, not edit mode
+        plot = new RTValuePlot(! toolkit.isEditMode());
         plot.showToolbar(false);
         plot.showCrosshair(false);
         return plot;

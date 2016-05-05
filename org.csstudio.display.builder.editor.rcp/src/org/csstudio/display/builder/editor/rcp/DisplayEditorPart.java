@@ -124,6 +124,10 @@ public class DisplayEditorPart extends EditorPart
         final Scene scene = new Scene(root);
         EditorUtil.setSceneStyle(scene);
 
+        // Observed UI freeze in this call.
+        // Unsure what to do.
+        // Scene could be created in background,
+        // but setting the canvas' scene has to be on UI thread
         fx_canvas.setScene(scene);
 
         createActions();

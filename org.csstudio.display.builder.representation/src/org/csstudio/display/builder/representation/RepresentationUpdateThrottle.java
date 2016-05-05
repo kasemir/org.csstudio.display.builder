@@ -35,7 +35,7 @@ import java.util.logging.Level;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class UpdateThrottle
+public class RepresentationUpdateThrottle
 {
     /** Period in seconds for logging update performance */
     private static final int PERFORMANCE_LOG_PERIOD_SEC = 5;
@@ -67,7 +67,7 @@ public class UpdateThrottle
     private final Set<WidgetRepresentation<?, ?, ?>> updateable = new LinkedHashSet<>();
 
     /** @param gui_executor Executor for UI thread */
-    public UpdateThrottle(final Executor gui_executor)
+    public RepresentationUpdateThrottle(final Executor gui_executor)
     {
         this.gui_executor = gui_executor;
         throttle_thread = new Thread(this::doRun);

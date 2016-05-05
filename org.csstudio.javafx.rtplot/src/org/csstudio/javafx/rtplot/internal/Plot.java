@@ -40,7 +40,7 @@ import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeAxisRanges;
 import org.csstudio.javafx.rtplot.internal.undo.UpdateAnnotationAction;
 import org.csstudio.javafx.rtplot.internal.util.ScreenTransform;
-import org.csstudio.javafx.rtplot.util.UpdateThrottle;
+import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -86,6 +86,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
 
     static final String FONT_FAMILY = "Liberation Sans";
 
+    // TODO Static cursors, init. once
     private Cursor cursor_pan, cursor_zoom_in, cursor_zoom_out, cursor_zoom;
 
     /** Font to use for, well, title */
@@ -112,7 +113,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
      */
     private volatile Optional<Image> plot_image = Optional.empty();
 
-    final private UpdateThrottle update_throttle;
+    final private RTPlotUpdateThrottle update_throttle;
 
     final private TitlePart title_part;
     final private List<Trace<XTYPE>> traces = new CopyOnWriteArrayList<>();
@@ -189,11 +190,11 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     private volatile Optional<List<CursorMarker>> cursor_markers = Optional.empty();
 
     /** Constructor
-     *  @param parent Parent widget
+     *  @param active Active mode where plot reacts to mouse/keyboard?
      *  @param type Type of X axis
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Plot(final Class<XTYPE> type)
+    public Plot(final Class<XTYPE> type, final boolean active)
     {
         plot_processor = new PlotProcessor<XTYPE>(this);
 
@@ -215,10 +216,8 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
 
         initializeCursors();
 
-        setMouseMode(MouseMode.PAN);
-
         // 50Hz default throttle
-        update_throttle = new UpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
+        update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
         {
             plot_processor.autoscale();
             updateImageBuffer();
@@ -234,13 +233,17 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
 		widthProperty().addListener(resize_listener);
 		heightProperty().addListener(resize_listener);
 
-        setOnMouseEntered(this::mouseEntered);
-		setOnMousePressed(this::mouseDown);
-		setOnMouseMoved(this::mouseMove);
-		setOnMouseDragged(this::mouseMove);
-		setOnMouseReleased(this::mouseUp);
-		setOnMouseExited(this::mouseExit);
-		setOnScroll(this::wheelZoom);
+		if (active)
+		{
+		    setMouseMode(MouseMode.PAN);
+            setOnMouseEntered(this::mouseEntered);
+    		setOnMousePressed(this::mouseDown);
+    		setOnMouseMoved(this::mouseMove);
+    		setOnMouseDragged(this::mouseMove);
+    		setOnMouseReleased(this::mouseUp);
+    		setOnMouseExited(this::mouseExit);
+    		setOnScroll(this::wheelZoom);
+		}
     }
 
     private void initializeCursors()
