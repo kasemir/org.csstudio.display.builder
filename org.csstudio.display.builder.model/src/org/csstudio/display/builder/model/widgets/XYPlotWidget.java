@@ -46,9 +46,11 @@ public class XYPlotWidget extends VisibleWidget
             CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "title", "Title");
 
     // Elements of the 'axis' structure
-    // Also using displayTitle
     private static final WidgetPropertyDescriptor<Boolean> autoscale =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "autoscale", "Auto-scale");
+
+    private static final WidgetPropertyDescriptor<Boolean> logscale =
+            CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "log_scale", "Log. scale");
 
     private static final WidgetPropertyDescriptor<WidgetFont> titleFontProperty =
         new WidgetPropertyDescriptor<WidgetFont>(
@@ -80,38 +82,77 @@ public class XYPlotWidget extends VisibleWidget
     private final static StructuredWidgetProperty.Descriptor behaviorYAxis =
             new Descriptor(WidgetPropertyCategory.BEHAVIOR, "y_axis", "Y Axis");
 
-    /** Structure for 'axis' element */
+    /** Structure for X axis */
     public static class AxisWidgetProperty extends StructuredWidgetProperty
     {
-        /** @param axis_descriptor behaviorXAxis or behaviorYAxis
-         *  @param widget
+        /** @param widget
          *  @param title_text
          */
-        public AxisWidgetProperty(final StructuredWidgetProperty.Descriptor axis_descriptor,
-                                  final Widget widget, final String title_text)
+        public static AxisWidgetProperty create(final Widget widget, final String title_text)
         {
-            super(axis_descriptor, widget,
+            return new AxisWidgetProperty(behaviorXAxis, widget,
                   Arrays.asList(displayTitle.createProperty(widget, title_text),
                                 autoscale.createProperty(widget, false),
                                 CommonWidgetProperties.behaviorMinimum.createProperty(widget, 0.0),
                                 CommonWidgetProperties.behaviorMaximum.createProperty(widget, 100.0),
                                 titleFontProperty.createProperty(widget, NamedWidgetFonts.DEFAULT_BOLD),
-                                scaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)
-                          ));
+                                scaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)));
         }
-        public WidgetProperty<String> title()        { return getElement(0); }
-        public WidgetProperty<Boolean> autoscale()   { return getElement(1); }
-        public WidgetProperty<Double> minimum()      { return getElement(2); }
-        public WidgetProperty<Double> maximum()      { return getElement(3); }
-        public WidgetProperty<WidgetFont> titleFont()    { return getElement(4); }
-        public WidgetProperty<WidgetFont> scaleFont()    { return getElement(5); }
+
+        protected AxisWidgetProperty(final StructuredWidgetProperty.Descriptor axis_descriptor,
+                                     final Widget widget, final List<WidgetProperty<?>> elements)
+        {
+            super(axis_descriptor, widget, elements);
+        }
+
+        public WidgetProperty<String> title()           { return getElement(0); }
+        public WidgetProperty<Boolean> autoscale()      { return getElement(1); }
+        public WidgetProperty<Double> minimum()         { return getElement(2); }
+        public WidgetProperty<Double> maximum()         { return getElement(3); }
+        public WidgetProperty<WidgetFont> titleFont()   { return getElement(4); }
+        public WidgetProperty<WidgetFont> scaleFont()   { return getElement(5); }
+    };
+
+    /** Structure for Y axis */
+    public static class YAxisWidgetProperty extends AxisWidgetProperty
+    {
+        /** @param widget
+         *  @param title_text
+         */
+        public static YAxisWidgetProperty create(final Widget widget, final String title_text)
+        {
+            return new YAxisWidgetProperty(behaviorYAxis, widget,
+                  Arrays.asList(displayTitle.createProperty(widget, title_text),
+                                autoscale.createProperty(widget, false),
+                                logscale.createProperty(widget, false),
+                                CommonWidgetProperties.behaviorMinimum.createProperty(widget, 0.0),
+                                CommonWidgetProperties.behaviorMaximum.createProperty(widget, 100.0),
+                                titleFontProperty.createProperty(widget, NamedWidgetFonts.DEFAULT_BOLD),
+                                scaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)));
+        }
+
+        protected YAxisWidgetProperty(final StructuredWidgetProperty.Descriptor axis_descriptor,
+                                      final Widget widget, final List<WidgetProperty<?>> elements)
+        {
+            super(axis_descriptor, widget, elements);
+        }
+
+        public WidgetProperty<Boolean> logscale()       { return getElement(2); }
+        @Override
+        public WidgetProperty<Double> minimum()         { return getElement(3); }
+        @Override
+        public WidgetProperty<Double> maximum()         { return getElement(4); }
+        @Override
+        public WidgetProperty<WidgetFont> titleFont()   { return getElement(5); }
+        @Override
+        public WidgetProperty<WidgetFont> scaleFont()   { return getElement(6); }
     };
 
     /** 'axes' array */
-    private static final ArrayWidgetProperty.Descriptor<AxisWidgetProperty> behaviorYAxes =
+    private static final ArrayWidgetProperty.Descriptor<YAxisWidgetProperty> behaviorYAxes =
         new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.BEHAVIOR, "y_axes", "Y Axes",
                                              (widget, index) ->
-                                             new AxisWidgetProperty(behaviorYAxis, widget, index > 0 ? "Y " + index : "Y"));
+                                             YAxisWidgetProperty.create(widget, index > 0 ? "Y " + index : "Y"));
 
     // Elements of the 'trace' structure
     private static final WidgetPropertyDescriptor<String> traceX =
@@ -241,10 +282,10 @@ public class XYPlotWidget extends VisibleWidget
                 // Count actual Y axes, because legacy_axis includes skipped X axes
                 ++y_count;
 
-                final AxisWidgetProperty y_axis;
+                final YAxisWidgetProperty y_axis;
                 if (plot.y_axes.size() < y_count)
                 {
-                    y_axis = new AxisWidgetProperty(behaviorYAxis, widget, "");
+                    y_axis = YAxisWidgetProperty.create(widget, "");
                     plot.y_axes.addElement(y_axis);
                 }
                 else
@@ -311,7 +352,7 @@ public class XYPlotWidget extends VisibleWidget
     private volatile WidgetProperty<WidgetFont> title_font;
     private volatile WidgetProperty<Boolean> show_legend;
     private volatile AxisWidgetProperty x_axis;
-    private volatile ArrayWidgetProperty<AxisWidgetProperty> y_axes;
+    private volatile ArrayWidgetProperty<YAxisWidgetProperty> y_axes;
     private volatile ArrayWidgetProperty<TraceWidgetProperty> traces;
 
     public XYPlotWidget()
@@ -332,8 +373,8 @@ public class XYPlotWidget extends VisibleWidget
         properties.add(title = displayTitle.createProperty(this, ""));
         properties.add(title_font = titleFontProperty.createProperty(this, NamedWidgetFonts.HEADER2));
         properties.add(show_legend = displayLegend.createProperty(this, true));
-        properties.add(x_axis = new AxisWidgetProperty(behaviorXAxis, this, "X"));
-        properties.add(y_axes = behaviorYAxes.createProperty(this, Arrays.asList(new AxisWidgetProperty(behaviorYAxis, this, "Y"))));
+        properties.add(x_axis = AxisWidgetProperty.create(this, "X"));
+        properties.add(y_axes = behaviorYAxes.createProperty(this, Arrays.asList(YAxisWidgetProperty.create(this, "Y"))));
         properties.add(traces = behaviorTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this))));
     }
 
@@ -362,7 +403,7 @@ public class XYPlotWidget extends VisibleWidget
     }
 
     /** @return Behavior 'y_axes' */
-    public ArrayWidgetProperty<AxisWidgetProperty> behaviorYAxes()
+    public ArrayWidgetProperty<YAxisWidgetProperty> behaviorYAxes()
     {
         return y_axes;
     }

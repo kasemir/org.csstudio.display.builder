@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget.AxisWidgetProperty;
 import org.csstudio.display.builder.model.widgets.XYPlotWidget.TraceWidgetProperty;
+import org.csstudio.display.builder.model.widgets.XYPlotWidget.YAxisWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
@@ -26,6 +27,7 @@ import org.csstudio.javafx.rtplot.PointType;
 import org.csstudio.javafx.rtplot.RTValuePlot;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.TraceType;
+import org.csstudio.javafx.rtplot.YAxis;
 import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 
@@ -152,7 +154,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         trackAxisChanges(model_widget.behaviorXAxis());
 
         // Track initial Y axis
-        final List<AxisWidgetProperty> y_axes = model_widget.behaviorYAxes().getValue();
+        final List<YAxisWidgetProperty> y_axes = model_widget.behaviorYAxes().getValue();
         trackAxisChanges(y_axes.get(0));
         // Create additional Y axes from model
         if (y_axes.size() > 1)
@@ -179,6 +181,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         axis.autoscale().addUntypedPropertyListener(config_listener);
         axis.titleFont().addUntypedPropertyListener(config_listener);
         axis.scaleFont().addUntypedPropertyListener(config_listener);
+        if (axis instanceof YAxisWidgetProperty)
+            ((YAxisWidgetProperty)axis).logscale().addUntypedPropertyListener(config_listener);
     }
 
     /** Ignore changed axis properties
@@ -192,10 +196,12 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         axis.autoscale().removePropertyListener(config_listener);
         axis.titleFont().removePropertyListener(config_listener);
         axis.scaleFont().removePropertyListener(config_listener);
+        if (axis instanceof YAxisWidgetProperty)
+            ((YAxisWidgetProperty)axis).logscale().removePropertyListener(config_listener);
     }
 
-    private void yAxesChanged(final WidgetProperty<List<AxisWidgetProperty>> property,
-                              final List<AxisWidgetProperty> removed, final List<AxisWidgetProperty> added)
+    private void yAxesChanged(final WidgetProperty<List<YAxisWidgetProperty>> property,
+                              final List<YAxisWidgetProperty> removed, final List<YAxisWidgetProperty> added)
     {
         // Remove axis
         if (removed != null)
@@ -267,14 +273,20 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         plot.setLegendFont(JFXUtil.convert(model_widget.behaviorXAxis().titleFont().getValue()));
 
         // Update Y Axes
-        final List<AxisWidgetProperty> model_y = model_widget.behaviorYAxes().getValue();
+        final List<YAxisWidgetProperty> model_y = model_widget.behaviorYAxes().getValue();
         if (plot.getYAxes().size() != model_y.size())
         {
             logger.log(Level.WARNING, "Plot has " + plot.getYAxes().size() + " while model has " + model_y.size() + " Y axes");
             return;
         }
         for (int i=0;  i<model_y.size();  ++i)
-            updateAxisConfig( plot.getYAxes().get(i), model_y.get(i));
+            updateYAxisConfig( plot.getYAxes().get(i), model_y.get(i));
+    }
+
+    private void updateYAxisConfig(final YAxis<Double> plot_axis, final YAxisWidgetProperty model_axis)
+    {
+        updateAxisConfig(plot_axis, model_axis);
+        plot_axis.setLogarithmic(model_axis.logscale().getValue());
     }
 
     private void updateAxisConfig(final Axis<Double> plot_axis, final AxisWidgetProperty model_axis)

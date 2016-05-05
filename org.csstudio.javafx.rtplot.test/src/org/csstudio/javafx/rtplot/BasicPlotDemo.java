@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.csstudio.javafx.rtplot;
 
-import java.util.Optional;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,7 +36,7 @@ public class BasicPlotDemo extends Application
             handler.setLevel(Level.FINE);
 
         final Plot<Double> plot = new Plot<Double>(Double.class, true);
-        plot.setTitle(Optional.of("Plot Demo"));
+        plot.setTitle("Plot Demo");
         plot.getXAxis().setName("The horizontal quantities on 'X'");
         plot.addYAxis("Another Axis");
         plot.getYAxes().get(1).setOnRight(true);
