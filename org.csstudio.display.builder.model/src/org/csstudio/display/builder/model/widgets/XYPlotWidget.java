@@ -39,13 +39,14 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls") // TODO Externalize strings
 public class XYPlotWidget extends VisibleWidget
 {
-    private static final WidgetPropertyDescriptor<Boolean> behaviorLegend =
-        CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "show_legend", "Show Legend");
+    private static final WidgetPropertyDescriptor<Boolean> displayLegend =
+        CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_legend", "Show Legend");
+
+    private static final WidgetPropertyDescriptor<String> displayTitle = // Also used for display title
+            CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "title", "Title");
 
     // Elements of the 'axis' structure
-    private static final WidgetPropertyDescriptor<String> title =
-        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "title", "Title");
-
+    // Also using displayTitle
     private static final WidgetPropertyDescriptor<Boolean> autoscale =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "autoscale", "Auto-scale");
 
@@ -90,7 +91,7 @@ public class XYPlotWidget extends VisibleWidget
                                   final Widget widget, final String title_text)
         {
             super(axis_descriptor, widget,
-                  Arrays.asList(title.createProperty(widget, title_text),
+                  Arrays.asList(displayTitle.createProperty(widget, title_text),
                                 autoscale.createProperty(widget, false),
                                 CommonWidgetProperties.behaviorMinimum.createProperty(widget, 0.0),
                                 CommonWidgetProperties.behaviorMaximum.createProperty(widget, 100.0),
@@ -305,6 +306,8 @@ public class XYPlotWidget extends VisibleWidget
         }
     };
 
+   // private volatile WidgetProperty<String> title;
+    private volatile WidgetProperty<String> title;
     private volatile WidgetProperty<Boolean> show_legend;
     private volatile AxisWidgetProperty x_axis;
     private volatile ArrayWidgetProperty<AxisWidgetProperty> y_axes;
@@ -325,14 +328,21 @@ public class XYPlotWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(show_legend = behaviorLegend.createProperty(this, true));
+        properties.add(title = displayTitle.createProperty(this, ""));
+        properties.add(show_legend = displayLegend.createProperty(this, true));
         properties.add(x_axis = new AxisWidgetProperty(behaviorXAxis, this, "X"));
         properties.add(y_axes = behaviorYAxes.createProperty(this, Arrays.asList(new AxisWidgetProperty(behaviorYAxis, this, "Y"))));
         properties.add(traces = behaviorTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this))));
     }
 
-    /** @return Behavior 'show_legend' */
-    public WidgetProperty<Boolean> behaviorLegend()
+    /** @return Display 'title' */
+    public WidgetProperty<String> displayTitle()
+    {
+        return title;
+    }
+
+    /** @return Display 'show_legend' */
+    public WidgetProperty<Boolean> displayLegend()
     {
         return show_legend;
     }

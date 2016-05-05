@@ -145,7 +145,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     {
         super.registerListeners();
 
-        model_widget.behaviorLegend().addUntypedPropertyListener(config_listener);
+        model_widget.displayTitle().addUntypedPropertyListener(config_listener);
+        model_widget.displayLegend().addUntypedPropertyListener(config_listener);
 
         trackAxisChanges(model_widget.behaviorXAxis());
 
@@ -254,7 +255,9 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
     private void updateConfig()
     {
-        plot.showLegend(model_widget.behaviorLegend().getValue());
+        plot.setTitle(model_widget.displayTitle().getValue());
+
+        plot.showLegend(model_widget.displayLegend().getValue());
 
         // Update X Axis
         updateAxisConfig(plot.getXAxis(), model_widget.behaviorXAxis());

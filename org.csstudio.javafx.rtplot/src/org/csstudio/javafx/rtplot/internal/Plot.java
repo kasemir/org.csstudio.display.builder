@@ -292,9 +292,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     }
 
     /** @param title Title */
-    public void setTitle(final Optional<String> title)
+    public void setTitle(final String title)
     {
-        title_part.setName(title.orElse(""));
+        title_part.setName(title == null ? "" : title);
     }
 
     /** @param font Font to use for title */
