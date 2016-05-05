@@ -16,6 +16,7 @@ public class Messages extends NLS
 {
     private static final String BUNDLE_NAME = "org.csstudio.display.builder.model.messages"; //$NON-NLS-1$
 
+    // Keep in alphabetical order, matching the order in messages.properties
     public static String Actions_Zero;
     public static String Actions_N_Fmt;
     public static String BoolWidget_OffLabel;
@@ -40,6 +41,30 @@ public class Messages extends NLS
     public static String LabelWidget_Text;
     public static String Left;
     public static String Middle;
+    public static String PlotWidget_AutoScale;
+    public static String PlotWidget_Color;
+    public static String PlotWidget_LogScale;
+    public static String PlotWidget_PointSize;
+    public static String PlotWidget_PointType;
+    public static String PlotWidget_ScaleFont;
+    public static String PlotWidget_ShowLegend;
+    public static String PlotWidget_Title;
+    public static String PlotWidget_TitleFont;
+    public static String PlotWidget_Trace;
+    public static String PlotWidget_Traces;
+    public static String PlotWidget_X;
+    public static String PlotWidget_XAxis;
+    public static String PlotWidget_XPV;
+    public static String PlotWidget_Y;
+    public static String PlotWidget_YAxes;
+    public static String PlotWidget_YAxis;
+    public static String PlotWidget_YPV;
+    public static String PointType_Circles;
+    public static String PointType_Diamonds;
+    public static String PointType_None;
+    public static String PointType_Squares;
+    public static String PointType_Triangles;
+    public static String PointType_X;
     public static String Resize_Container;
     public static String Resize_Content;
     public static String Resize_None;
@@ -120,6 +145,8 @@ public class Messages extends NLS
     public static String WidgetPropertyCategory_Position;
     public static String WidgetPropertyCategory_Runtime;
     public static String WidgetPropertyCategory_Widget;
+    public static String XYPlot_Description;
+    public static String XYPlot_Name;
 
     static
     {

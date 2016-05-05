@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
@@ -164,7 +163,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     }
 
     /** @param title Title text */
-    public void setTitle(final Optional<String> title)
+    public void setTitle(final String title)
     {
         plot.setTitle(title);
     }
