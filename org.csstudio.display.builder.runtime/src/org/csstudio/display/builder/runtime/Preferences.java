@@ -44,13 +44,14 @@ public class Preferences
     public static List<TextPatch> getPV_NamePatches()
     {
         final List<TextPatch> patches = new ArrayList<>();
+        // Split on '@', except if preceded by '[' to skip '[@]'
         final String[] config = get(PV_NAME_PATCHES, "").split("(?<!\\[)@");
 
         if (config.length % 2 == 0)
         {
             for (int i=0; i<config.length; i+=2)
             {
-                TextPatch patch;
+                final TextPatch patch;
                 try
                 {
                     patch = new TextPatch(config[i], config[i+1]);
