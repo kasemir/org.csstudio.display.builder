@@ -5,18 +5,19 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.runtime.pv;
+package org.csstudio.display.builder.runtime;
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-/** Patch for PV name
+/** Patch for text
  *
- *  <p>Keeps pre-compiled pattern and the replacement.
+ *  <p>Pre-compiled pattern and the replacement.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class NamePatch
+public class TextPatch
 {
     final private Pattern pattern;
     final private String replacement;
@@ -25,20 +26,23 @@ public class NamePatch
      *  @param replacement Regular expression replacement, may contain references "$1"
      *  @throws PatternSyntaxException on error in pattern
      */
-    public NamePatch(final String pattern, final String replacement) throws PatternSyntaxException
+    public TextPatch(final String pattern, final String replacement) throws PatternSyntaxException
     {
         this.pattern = Pattern.compile(pattern);
         this.replacement = replacement.replace("[@]", "@");
     }
 
-    public String patch(final String name)
+    /** @param text Original text
+     *  @return Patched text
+     */
+    public String patch(final String text)
     {
-        return pattern.matcher(name).replaceAll(replacement);
+        return pattern.matcher(text).replaceAll(replacement);
     }
 
     @Override
     public String toString()
     {
-        return "NamePatch " + pattern.pattern() + " -> " + replacement;
+        return "TextPatch '" + pattern.pattern() + "' -> '" + replacement + "'";
     }
 }

@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.runtime.Preferences;
+import org.csstudio.display.builder.runtime.TextPatch;
 import org.csstudio.display.builder.runtime.pv.vtype_pv.VTypePVFactory;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
@@ -29,7 +30,7 @@ import org.eclipse.core.runtime.RegistryFactory;
 @SuppressWarnings("nls")
 public class PVFactory
 {
-    private static final List<NamePatch> patches = Preferences.getPV_NamePatches();
+    private static final List<TextPatch> patches = Preferences.getPV_NamePatches();
 
     /** The PV factory */
     private final static RuntimePVFactory factory;
@@ -78,7 +79,7 @@ public class PVFactory
     private static String patch(final String name)
     {
         String patched = name;
-        for (NamePatch patch : patches)
+        for (TextPatch patch : patches)
             patched = patch.patch(patched);
         if (! patched.equals(name))
             logger.log(Level.WARNING, "Patched PV name '" + name + "' into '" + patched + "'");

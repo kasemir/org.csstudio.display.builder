@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.regex.PatternSyntaxException;
 
-import org.csstudio.display.builder.runtime.pv.NamePatch;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 
@@ -41,24 +40,24 @@ public class Preferences
         return get(PV_FACTORY, "vtype.pv");
     }
 
-    /** @return PV {@link NamePatch}s */
-    public static List<NamePatch> getPV_NamePatches()
+    /** @return PV {@link TextPatch}s */
+    public static List<TextPatch> getPV_NamePatches()
     {
-        final List<NamePatch> patches = new ArrayList<>();
+        final List<TextPatch> patches = new ArrayList<>();
         final String[] config = get(PV_NAME_PATCHES, "").split("(?<!\\[)@");
 
         if (config.length % 2 == 0)
         {
             for (int i=0; i<config.length; i+=2)
             {
-                NamePatch patch;
+                TextPatch patch;
                 try
                 {
-                    patch = new NamePatch(config[i], config[i+1]);
+                    patch = new TextPatch(config[i], config[i+1]);
                 }
                 catch (PatternSyntaxException ex)
                 {
-                    logger.log(Level.SEVERE, "Error in name patch '" + config[i] + "' -> '" + config[i+1] + "'", ex);
+                    logger.log(Level.SEVERE, "Error in PV name patch '" + config[i] + "' -> '" + config[i+1] + "'", ex);
                     continue;
                 }
                 patches.add(patch);
