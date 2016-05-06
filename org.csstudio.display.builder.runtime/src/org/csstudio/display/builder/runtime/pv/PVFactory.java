@@ -10,10 +10,12 @@ package org.csstudio.display.builder.runtime.pv;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.runtime.Preferences;
+import org.csstudio.display.builder.runtime.TextPatch;
 import org.csstudio.display.builder.runtime.pv.vtype_pv.VTypePVFactory;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
@@ -25,8 +27,11 @@ import org.eclipse.core.runtime.RegistryFactory;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class PVFactory
 {
+    private static final List<TextPatch> patches = Preferences.getPV_NamePatches();
+
     /** The PV factory */
     private final static RuntimePVFactory factory;
 
@@ -68,6 +73,19 @@ public class PVFactory
         factory = the_factory;
     }
 
+    /** @param name PV Name that might contain legacy information
+     *  @return Patched PV name
+     */
+    private static String patch(final String name)
+    {
+        String patched = name;
+        for (TextPatch patch : patches)
+            patched = patch.patch(patched);
+        if (! patched.equals(name))
+            logger.log(Level.WARNING, "Patched PV name '" + name + "' into '" + patched + "'");
+        return patched;
+    }
+
     /** Get a PV
      *  @param name Name of PV
      *  @return {@link RuntimePV}
@@ -75,7 +93,7 @@ public class PVFactory
      */
     public static RuntimePV getPV(final String name) throws Exception
     {
-        return factory.getPV(name);
+        return factory.getPV(patch(name));
     }
 
     /** Release a PV (close, dispose resources, ...)
