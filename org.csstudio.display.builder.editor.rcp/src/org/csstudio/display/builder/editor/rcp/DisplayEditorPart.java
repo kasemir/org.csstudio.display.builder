@@ -30,7 +30,6 @@ import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoRedoListener;
-import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -189,9 +188,8 @@ public class DisplayEditorPart extends EditorPart
 
     private void createActions()
     {
-        final UndoableActionManager undo = editor.getUndoableActionManager();
-        actions.put(ActionFactory.UNDO.getId(), new UndoAction(undo));
-        actions.put(ActionFactory.REDO.getId(), new RedoAction(undo));
+        actions.put(ActionFactory.UNDO.getId(), new UndoAction(editor));
+        actions.put(ActionFactory.REDO.getId(), new RedoAction(editor));
     }
 
     /** @return {@link DisplayEditor} */

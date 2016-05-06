@@ -82,6 +82,12 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         enable_snap.setActiveEditor(editor);
         to_back_action.setActiveEditor(editor);
         to_front_action.setActiveEditor(editor);
+
+        // Register actions (really just used as handlers)
+        // for global actions that RCP already placed in the menu,
+        // including key bindings.
+        // Note that these actions need to have called
+        //   setActionDefinitionId(ActionFactory.XXXX.getCommandId());
         for (IAction action : global_actions)
             bars.setGlobalActionHandler(action.getId(), editor.getAction(action.getId()));
 
