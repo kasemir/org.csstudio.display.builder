@@ -9,6 +9,7 @@ package org.csstudio.display.builder.editor.actions;
 
 import java.util.List;
 
+import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetOrderAction;
@@ -24,11 +25,11 @@ public class ToBackAction extends ActionDescription
     private final UndoableActionManager undo;
     private final WidgetSelectionHandler selection_handler;
 
-    public ToBackAction(final UndoableActionManager undo, final WidgetSelectionHandler selection_handler)
+    public ToBackAction(final DisplayEditor editor)
     {
         super("platform:/plugin/org.csstudio.display.builder.editor/icons/toback.png", Messages.MoveToBack);
-        this.undo = undo;
-        this.selection_handler = selection_handler;
+        this.undo = editor.getUndoableActionManager();
+        this.selection_handler = editor.getWidgetSelectionHandler();
     }
 
     @Override

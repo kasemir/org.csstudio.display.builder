@@ -27,6 +27,6 @@ public class ToBackEditorAction extends EditorAction
     public void run()
     {
         final DisplayEditor editor = edit_part.getDisplayEditor();
-        new ToBackAction(editor.getUndoableActionManager(), editor.getWidgetSelectionHandler()).run(true);
+        new ToBackAction(editor).run(true);
     }
 }

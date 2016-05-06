@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.actions;
 
+import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 
@@ -18,11 +19,11 @@ public class EnableSnapAction extends ActionDescription
 {
     private final SelectedWidgetUITracker tracker;
 
-    public EnableSnapAction(final SelectedWidgetUITracker tracker)
+    public EnableSnapAction(final DisplayEditor editor)
     {
         super("platform:/plugin/org.csstudio.display.builder.editor/icons/snap.png",
               Messages.Snap);
-        this.tracker = tracker;
+        this.tracker = editor.getSelectedWidgetUITracker();
     }
 
     @Override

@@ -40,6 +40,10 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
     private final EnableSnapEditorAction enable_snap = new EnableSnapEditorAction();
     private final ToBackEditorAction to_back_action = new ToBackEditorAction();
     private final ToFrontEditorAction to_front_action = new ToFrontEditorAction();
+
+    // Global actions defined by RCP
+    // Holds actions for toolbar created by RCP ActionFactory.
+    // Active editor then registers a handler.
     private final List<IWorkbenchAction> global_actions = new ArrayList<>();
 
     @Override

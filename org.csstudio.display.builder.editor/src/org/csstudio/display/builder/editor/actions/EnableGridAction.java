@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.actions;
 
+import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 
@@ -18,11 +19,11 @@ public class EnableGridAction extends ActionDescription
 {
     private final SelectedWidgetUITracker tracker;
 
-    public EnableGridAction(final SelectedWidgetUITracker tracker)
+    public EnableGridAction(final DisplayEditor editor)
     {
         super("platform:/plugin/org.csstudio.display.builder.editor/icons/grid.png",
               Messages.Grid);
-        this.tracker = tracker;
+        this.tracker = editor.getSelectedWidgetUITracker();
     }
 
     @Override

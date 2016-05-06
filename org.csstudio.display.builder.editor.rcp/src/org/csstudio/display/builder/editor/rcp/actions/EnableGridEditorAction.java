@@ -30,6 +30,6 @@ public class EnableGridEditorAction extends EditorAction
     public void run()
     {
         final DisplayEditor editor = edit_part.getDisplayEditor();
-        new EnableGridAction(editor.getSelectedWidgetUITracker()).run(isChecked());
+        new EnableGridAction(editor).run(isChecked());
     }
 }

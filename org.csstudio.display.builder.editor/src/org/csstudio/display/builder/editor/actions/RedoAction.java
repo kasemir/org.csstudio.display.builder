@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.actions;
 
+import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
@@ -18,12 +19,12 @@ public class RedoAction extends ActionDescription
 {
     private final UndoableActionManager undo;
 
-    /** @param undo {@link UndoableActionManager} */
-    public RedoAction(final UndoableActionManager undo)
+    /** @param editor {@link DisplayEditor} */
+    public RedoAction(final DisplayEditor editor)
     {
         super("platform:/plugin/org.csstudio.display.builder.util/icons/redo.png",
               Messages.Redo_TT);
-        this.undo = undo;
+        this.undo = editor.getUndoableActionManager();
     }
 
     @Override

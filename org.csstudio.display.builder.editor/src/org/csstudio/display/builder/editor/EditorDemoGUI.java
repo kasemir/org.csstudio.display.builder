@@ -123,8 +123,8 @@ public class EditorDemoGUI
         final Button debug = new Button("Debug");
         debug.setOnAction(event -> editor.debug());
 
-        final Button undo_button = createButton(new UndoAction(undo));
-        final Button redo_button = createButton(new RedoAction(undo));
+        final Button undo_button = createButton(new UndoAction(editor));
+        final Button redo_button = createButton(new RedoAction(editor));
         undo_button.setDisable(true);
         redo_button.setDisable(true);
         undo.addListener((to_undo, to_redo) ->
@@ -133,15 +133,15 @@ public class EditorDemoGUI
             redo_button.setDisable(to_redo == null);
         });
 
-        final Button back_button = createButton(new ToBackAction(undo, selection_handler));
-        final Button front_button = createButton(new ToFrontAction(undo, selection_handler));
+        final Button back_button = createButton(new ToBackAction(editor));
+        final Button front_button = createButton(new ToFrontAction(editor));
 
         return new ToolBar(
                 createButton(new LoadModelAction(this)),
                 createButton(new SaveModelAction(this)),
                 new Separator(),
-                createToggleButton(new EnableGridAction(selection_tracker)),
-                createToggleButton(new EnableSnapAction(selection_tracker)),
+                createToggleButton(new EnableGridAction(editor)),
+                createToggleButton(new EnableSnapAction(editor)),
                 new Separator(),
                 back_button,
                 front_button,

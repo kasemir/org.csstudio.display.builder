@@ -27,6 +27,6 @@ public class ToFrontEditorAction extends EditorAction
     public void run()
     {
         final DisplayEditor editor = edit_part.getDisplayEditor();
-        new ToFrontAction(editor.getUndoableActionManager(), editor.getWidgetSelectionHandler()).run(true);
+        new ToFrontAction(editor).run(true);
     }
 }

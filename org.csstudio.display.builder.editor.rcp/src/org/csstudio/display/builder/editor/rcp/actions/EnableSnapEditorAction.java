@@ -30,6 +30,6 @@ public class EnableSnapEditorAction extends EditorAction
     public void run()
     {
         final DisplayEditor editor = edit_part.getDisplayEditor();
-        new EnableSnapAction(editor.getSelectedWidgetUITracker()).run(isChecked());
+        new EnableSnapAction(editor).run(isChecked());
     }
 }
