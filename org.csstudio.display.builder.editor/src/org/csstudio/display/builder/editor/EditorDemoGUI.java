@@ -16,14 +16,8 @@ import java.io.InputStream;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.editor.actions.ActionDescription;
-import org.csstudio.display.builder.editor.actions.EnableGridAction;
-import org.csstudio.display.builder.editor.actions.EnableSnapAction;
 import org.csstudio.display.builder.editor.actions.LoadModelAction;
-import org.csstudio.display.builder.editor.actions.RedoAction;
 import org.csstudio.display.builder.editor.actions.SaveModelAction;
-import org.csstudio.display.builder.editor.actions.ToBackAction;
-import org.csstudio.display.builder.editor.actions.ToFrontAction;
-import org.csstudio.display.builder.editor.actions.UndoAction;
 import org.csstudio.display.builder.editor.properties.PropertyPanel;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.editor.tree.WidgetTree;
@@ -31,9 +25,9 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
+import org.csstudio.display.builder.util.ResourceUtil;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -123,8 +117,8 @@ public class EditorDemoGUI
         final Button debug = new Button("Debug");
         debug.setOnAction(event -> editor.debug());
 
-        final Button undo_button = createButton(new UndoAction(editor));
-        final Button redo_button = createButton(new RedoAction(editor));
+        final Button undo_button = createButton(ActionDescription.UNDO);
+        final Button redo_button = createButton(ActionDescription.REDO);
         undo_button.setDisable(true);
         redo_button.setDisable(true);
         undo.addListener((to_undo, to_redo) ->
@@ -133,15 +127,15 @@ public class EditorDemoGUI
             redo_button.setDisable(to_redo == null);
         });
 
-        final Button back_button = createButton(new ToBackAction(editor));
-        final Button front_button = createButton(new ToFrontAction(editor));
+        final Button back_button = createButton(ActionDescription.TO_BACK);
+        final Button front_button = createButton(ActionDescription.TO_FRONT);
 
         return new ToolBar(
                 createButton(new LoadModelAction(this)),
                 createButton(new SaveModelAction(this)),
                 new Separator(),
-                createToggleButton(new EnableGridAction(editor)),
-                createToggleButton(new EnableSnapAction(editor)),
+                createToggleButton(ActionDescription.ENABLE_GRID),
+                createToggleButton(ActionDescription.ENABLE_SNAP),
                 new Separator(),
                 back_button,
                 front_button,
@@ -158,14 +152,14 @@ public class EditorDemoGUI
         final Button button = new Button();
         try
         {
-            button.setGraphic(new ImageView(new Image(action.getIconStream())));
+            button.setGraphic(new ImageView(new Image(ResourceUtil.openPlatformResource(action.getIconResourcePath()))));
         }
         catch (final Exception ex)
         {
             logger.log(Level.WARNING, "Cannot load action icon", ex);
         }
         button.setTooltip(new Tooltip(action.getToolTip()));
-        button.setOnAction(event -> action.run(true));
+        button.setOnAction(event -> action.run(editor));
         return button;
     }
 
@@ -174,7 +168,7 @@ public class EditorDemoGUI
         final ToggleButton button = new ToggleButton();
         try
         {
-            button.setGraphic(new ImageView(new Image(action.getIconStream())));
+            button.setGraphic(new ImageView(new Image(ResourceUtil.openPlatformResource(action.getIconResourcePath()))));
         }
         catch (final Exception ex)
         {
@@ -183,11 +177,7 @@ public class EditorDemoGUI
         button.setTooltip(new Tooltip(action.getToolTip()));
         button.setSelected(true);
         button.selectedProperty()
-        .addListener((final ObservableValue<? extends Boolean> observable,
-                final Boolean old_value, final Boolean enabled) ->
-        {
-            action.run(enabled);
-        });
+              .addListener((observable, old_value, enabled) -> action.run(editor, enabled) );
         return button;
     }
 

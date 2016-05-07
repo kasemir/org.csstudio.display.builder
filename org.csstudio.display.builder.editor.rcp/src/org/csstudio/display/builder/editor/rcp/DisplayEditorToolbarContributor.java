@@ -9,11 +9,9 @@ package org.csstudio.display.builder.editor.rcp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.csstudio.display.builder.editor.rcp.actions.EnableGridEditorAction;
-import org.csstudio.display.builder.editor.rcp.actions.EnableSnapEditorAction;
+import org.csstudio.display.builder.editor.actions.ActionDescription;
+import org.csstudio.display.builder.editor.rcp.actions.EditorAction;
 import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayAction;
-import org.csstudio.display.builder.editor.rcp.actions.ToBackEditorAction;
-import org.csstudio.display.builder.editor.rcp.actions.ToFrontEditorAction;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
@@ -36,10 +34,10 @@ import org.eclipse.ui.part.EditorActionBarContributor;
 public class DisplayEditorToolbarContributor extends EditorActionBarContributor
 {
     private final ExecuteDisplayAction execute_action = new ExecuteDisplayAction();
-    private final EnableGridEditorAction enable_grid = new EnableGridEditorAction();
-    private final EnableSnapEditorAction enable_snap = new EnableSnapEditorAction();
-    private final ToBackEditorAction to_back_action = new ToBackEditorAction();
-    private final ToFrontEditorAction to_front_action = new ToFrontEditorAction();
+    private final EditorAction enable_grid = EditorAction.forToggledActionDescription(ActionDescription.ENABLE_GRID);
+    private final EditorAction enable_snap = EditorAction.forToggledActionDescription(ActionDescription.ENABLE_SNAP);
+    private final EditorAction to_back_action = EditorAction.forActionDescription(ActionDescription.TO_BACK);
+    private final EditorAction to_front_action = EditorAction.forActionDescription(ActionDescription.TO_FRONT);
 
     // Global actions defined by RCP
     // Holds actions for toolbar created by RCP ActionFactory.
