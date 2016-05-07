@@ -81,7 +81,7 @@ public class WidgetTransfer
      */
     public static void addDropSupport(final Node node,
                                       final ParentHandler group_handler,
-                                      final Consumer<DisplayModel> handleDroppedModel)
+                                      final Consumer<List<Widget>> handleDroppedModel)
     {
         node.setOnDragOver((DragEvent event) ->
         {
@@ -103,23 +103,8 @@ public class WidgetTransfer
                     final DisplayModel model = ModelReader.parseXML(xml);
                     final List<Widget> widgets = model.getChildren();
                     logger.log(Level.FINE, "Dropped {0} widgets", widgets.size());
-
-                    // Find upper left corner of dropped widgets
-                    int min_x = Integer.MAX_VALUE, min_y = Integer.MAX_VALUE;
-                    for (Widget widget : widgets)
-                    {
-                        min_x = Math.min(widget.positionX().getValue(), min_x);
-                        min_y = Math.min(widget.positionY().getValue(), min_y);
-                    }
-                    // Move upper left corner to mouse location
-                    final int dx = (int)event.getX() - Math.max(0, min_x);
-                    final int dy = (int)event.getY() - Math.max(0, min_y);
-                    for (Widget widget : widgets)
-                    {
-                        widget.positionX().setValue(widget.positionX().getValue() + dx);
-                        widget.positionY().setValue(widget.positionY().getValue() + dy);
-                    }
-                    handleDroppedModel.accept(model);
+                    GeometryTools.moveWidgets((int)event.getX(), (int)event.getY(), widgets);
+                    handleDroppedModel.accept(widgets);
                 }
                 catch (Exception ex)
                 {

@@ -56,6 +56,8 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         manager.add(to_front_action);
         addGlobalAction(manager, ActionFactory.UNDO.create(window));
         addGlobalAction(manager, ActionFactory.REDO.create(window));
+        addGlobalAction(manager, ActionFactory.COPY.create(window));
+        addGlobalAction(manager, ActionFactory.PASTE.create(window));
     }
 
     private void addGlobalAction(final IToolBarManager manager, final IWorkbenchAction action)

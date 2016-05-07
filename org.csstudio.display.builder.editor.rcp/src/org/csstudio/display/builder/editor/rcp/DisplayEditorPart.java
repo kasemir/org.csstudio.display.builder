@@ -19,6 +19,8 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
+import org.csstudio.display.builder.editor.rcp.actions.CopyAction;
+import org.csstudio.display.builder.editor.rcp.actions.PasteAction;
 import org.csstudio.display.builder.editor.rcp.actions.RedoAction;
 import org.csstudio.display.builder.editor.rcp.actions.UndoAction;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -190,6 +192,8 @@ public class DisplayEditorPart extends EditorPart
     {
         actions.put(ActionFactory.UNDO.getId(), new UndoAction(editor));
         actions.put(ActionFactory.REDO.getId(), new RedoAction(editor));
+        actions.put(ActionFactory.COPY.getId(), new CopyAction(editor));
+        actions.put(ActionFactory.PASTE.getId(), new PasteAction(editor));
     }
 
     /** @return {@link DisplayEditor} */
