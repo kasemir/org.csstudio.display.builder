@@ -8,28 +8,24 @@
 package org.csstudio.display.builder.editor.rcp.actions;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
-import org.csstudio.display.builder.editor.actions.EnableGridAction;
 import org.eclipse.jface.action.Action;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.actions.ActionFactory;
 
-/** Action to enable/disable grid
+/** Action to copy to clipboard
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
-public class EnableGridEditorAction extends EditorAction
-{
-    public EnableGridEditorAction()
+public class CopyAction extends Action
+{   // Used as handler for RetargetAction, so no need for label, icon
+    private final DisplayEditor editor;
+    public CopyAction(final DisplayEditor editor)
     {
-        super(org.csstudio.display.builder.editor.Messages.Grid,
-              AbstractUIPlugin.imageDescriptorFromPlugin(org.csstudio.display.builder.editor.Plugin.ID, "icons/grid.png"),
-              Action.AS_CHECK_BOX);
-        setChecked(true);
+        this.editor = editor;
+        setActionDefinitionId(ActionFactory.COPY.getCommandId());
     }
 
     @Override
     public void run()
     {
-        final DisplayEditor editor = edit_part.getDisplayEditor();
-        new EnableGridAction(editor.getSelectedWidgetUITracker()).run(isChecked());
+        editor.copyToClipboard();
     }
 }

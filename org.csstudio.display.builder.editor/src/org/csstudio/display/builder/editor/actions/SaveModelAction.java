@@ -9,6 +9,7 @@ package org.csstudio.display.builder.editor.actions;
 
 import java.io.File;
 
+import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorDemoGUI;
 import org.csstudio.display.builder.editor.Messages;
 
@@ -22,20 +23,18 @@ import javafx.stage.Window;
 @SuppressWarnings("nls")
 public class SaveModelAction extends ActionDescription
 {
-    private final Window window;
+    private final Window window = null;
     private final EditorDemoGUI editor;
 
     /** @param save_handler Will be invoked with file name */
     public SaveModelAction(final EditorDemoGUI editor)
     {
-        super("platform:/plugin/org.csstudio.display.builder.editor/icons/save.png",
-              Messages.SaveDisplay_TT);
-        this.window = null;
+        super("icons/save.png", Messages.SaveDisplay_TT);
         this.editor = editor;
     }
 
     @Override
-    public void run(final boolean selected)
+    public void run(final DisplayEditor ignored, final boolean selected)
     {
         final FileChooser dialog = new FileChooser();
         dialog.setTitle(Messages.SaveDisplay);

@@ -186,4 +186,28 @@ public class GeometryTools
         final WidgetSearch search = new WidgetSearch(model.getChildren(), region);
         return search.compute();
     }
+
+    /** Move widgets to a new location
+     *  @param x Desired location of upper-left widget
+     *  @param y
+     *  @param widgets Widgets to move
+     */
+    public static void moveWidgets(final int x, final int y, final List<Widget> widgets)
+    {
+        // Find upper left corner of dropped widgets
+        int min_x = Integer.MAX_VALUE, min_y = Integer.MAX_VALUE;
+        for (Widget widget : widgets)
+        {
+            min_x = Math.min(widget.positionX().getValue(), min_x);
+            min_y = Math.min(widget.positionY().getValue(), min_y);
+        }
+        // Move upper left corner to desired location
+        final int dx = x - Math.max(0, min_x);
+        final int dy = y - Math.max(0, min_y);
+        for (Widget widget : widgets)
+        {
+            widget.positionX().setValue(widget.positionX().getValue() + dx);
+            widget.positionY().setValue(widget.positionY().getValue() + dy);
+        }
+    }
 }

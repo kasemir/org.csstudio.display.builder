@@ -8,28 +8,25 @@
 package org.csstudio.display.builder.editor.rcp.actions;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
-import org.csstudio.display.builder.editor.actions.EnableSnapAction;
 import org.eclipse.jface.action.Action;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.actions.ActionFactory;
 
-/** Action to enable/disable snapping to other widgets
+/** Action to paste from clipboard
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
-public class EnableSnapEditorAction extends EditorAction
-{
-    public EnableSnapEditorAction()
+public class PasteAction extends Action
+{   // Used as handler for RetargetAction, so no need for label, icon
+    private final DisplayEditor editor;
+    public PasteAction(final DisplayEditor editor)
     {
-        super(org.csstudio.display.builder.editor.Messages.Snap,
-              AbstractUIPlugin.imageDescriptorFromPlugin(org.csstudio.display.builder.editor.Plugin.ID, "icons/snap.png"),
-              Action.AS_CHECK_BOX);
-        setChecked(true);
+        this.editor = editor;
+        setActionDefinitionId(ActionFactory.PASTE.getCommandId());
     }
 
     @Override
     public void run()
     {
-        final DisplayEditor editor = edit_part.getDisplayEditor();
-        new EnableSnapAction(editor.getSelectedWidgetUITracker()).run(isChecked());
+        // TODO Determine where the mouse is
+        editor.pasteFromClipboard(0, 0);
     }
 }
