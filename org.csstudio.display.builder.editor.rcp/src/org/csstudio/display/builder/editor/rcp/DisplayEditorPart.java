@@ -30,6 +30,7 @@ import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.rcp.DisplayInfo;
+import org.csstudio.display.builder.rcp.Preferences;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoRedoListener;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
@@ -77,7 +78,7 @@ public class DisplayEditorPart extends EditorPart
 
     private FXCanvas fx_canvas;
 
-    private final DisplayEditor editor = new DisplayEditor(toolkit);
+    private final DisplayEditor editor = new DisplayEditor(toolkit, Preferences.getUndoSize());
 
     private OutlinePage outline_page = null;
 
@@ -193,7 +194,7 @@ public class DisplayEditorPart extends EditorPart
         actions.put(ActionFactory.UNDO.getId(), new UndoAction(editor));
         actions.put(ActionFactory.REDO.getId(), new RedoAction(editor));
         actions.put(ActionFactory.COPY.getId(), new CopyAction(editor));
-        actions.put(ActionFactory.PASTE.getId(), new PasteAction(editor));
+        actions.put(ActionFactory.PASTE.getId(), new PasteAction(fx_canvas, editor));
     }
 
     /** @return {@link DisplayEditor} */

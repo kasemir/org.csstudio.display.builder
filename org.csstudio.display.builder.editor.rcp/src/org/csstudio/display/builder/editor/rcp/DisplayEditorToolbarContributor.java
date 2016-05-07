@@ -83,11 +83,13 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         to_back_action.setActiveEditor(editor);
         to_front_action.setActiveEditor(editor);
 
-        // Register actions (really just used as handlers)
-        // for global actions that RCP already placed in the menu,
-        // including key bindings.
-        // Note that these actions need to have called
-        //   setActionDefinitionId(ActionFactory.XXXX.getCommandId());
+        // RCP defines global actions for copy, undo, ..
+        // in the menu, including key bindings.
+        // Bind to the handlers ('actions', but really used as handler)
+        // of active editor.
+        // Note that these handler 'actions' need to have called
+        //   setActionDefinitionId(ActionFactory.XXXX.getCommandId()),
+        // otherwise the global action remains disabled.
         for (IAction action : global_actions)
             bars.setGlobalActionHandler(action.getId(), editor.getAction(action.getId()));
 
