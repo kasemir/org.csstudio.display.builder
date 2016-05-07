@@ -54,7 +54,8 @@ import javafx.scene.control.TextArea;
  *
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
+// CursorFrame is restricted API, but currently without alternative
+@SuppressWarnings({ "nls", "restriction" })
 public class RuntimeViewPart extends ViewPart
 {
 	// FXViewPart saves a tiny bit of code, but this allow more control over the FXCanvas.
