@@ -9,6 +9,7 @@ package org.csstudio.display.builder.runtime.pv;
 
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,11 +33,14 @@ public class PVFactory
 {
     private static final List<TextPatch> patches = Preferences.getPV_NamePatches();
 
+    private static final String[] implementations;
+
     /** The PV factory */
-    private final static RuntimePVFactory factory;
+    private static final RuntimePVFactory factory;
 
     static
     {
+        final List<String> impl = new ArrayList<>();
         RuntimePVFactory the_factory = null;
 
         // Try to use extension point
@@ -45,6 +49,7 @@ public class PVFactory
         {   // Fall back for running without OSGi
             logger.log(Level.CONFIG, "Defaulting to VTypePVFactory");
             the_factory = new VTypePVFactory();
+            impl.add("vtype.pv");
         }
         else
         {
@@ -54,6 +59,7 @@ public class PVFactory
                 for (IConfigurationElement config : registry.getConfigurationElementsFor(RuntimePVFactory.EXTENSION_POINT))
                 {
                     final String id = config.getAttribute("id");
+                    impl.add(id);
                     logger.log(Level.CONFIG, "{0} contributes {1}", new Object[] { config.getContributor().getName(), id });
                     factories.put(id, (RuntimePVFactory) config.createExecutableExtension("class"));
                 }
@@ -70,7 +76,13 @@ public class PVFactory
             }
         }
 
+        implementations = impl.toArray(new String[impl.size()]);
         factory = the_factory;
+    }
+
+    public static String[] getImplementations()
+    {
+        return implementations;
     }
 
     /** @param name PV Name that might contain legacy information
