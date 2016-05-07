@@ -8,19 +8,16 @@
 package org.csstudio.display.builder.editor.rcp.actions;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
-import org.eclipse.jface.action.Action;
 import org.eclipse.ui.actions.ActionFactory;
 
 /** Action to copy to clipboard
  *  @author Kay Kasemir
  */
-public class CopyAction extends Action
-{   // Used as handler for RetargetAction, so no need for label, icon
-    private final DisplayEditor editor;
+public class CopyAction extends RetargetActionHandler
+{
     public CopyAction(final DisplayEditor editor)
     {
-        this.editor = editor;
-        setActionDefinitionId(ActionFactory.COPY.getCommandId());
+        super(editor, ActionFactory.COPY.getCommandId());
     }
 
     @Override

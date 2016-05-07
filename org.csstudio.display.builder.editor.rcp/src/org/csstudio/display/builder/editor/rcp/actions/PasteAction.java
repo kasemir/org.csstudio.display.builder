@@ -10,7 +10,6 @@ package org.csstudio.display.builder.editor.rcp.actions;
 import java.util.Random;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
-import org.eclipse.jface.action.Action;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -19,10 +18,9 @@ import org.eclipse.ui.actions.ActionFactory;
 /** Action to paste from clipboard
  *  @author Kay Kasemir
  */
-public class PasteAction extends Action
-{   // Used as handler for RetargetAction, so no need for label, icon
+public class PasteAction extends RetargetActionHandler
+{
     private final Control editor_control;
-    private final DisplayEditor editor;
 
     /** @param editor_control SWT parent of the editor,
      *                        used to check if the mouse pointer is still
@@ -31,9 +29,8 @@ public class PasteAction extends Action
      */
     public PasteAction(final Control editor_control, final DisplayEditor editor)
     {
+        super(editor, ActionFactory.PASTE.getCommandId());
         this.editor_control = editor_control;
-        this.editor = editor;
-        setActionDefinitionId(ActionFactory.PASTE.getCommandId());
     }
 
     @Override

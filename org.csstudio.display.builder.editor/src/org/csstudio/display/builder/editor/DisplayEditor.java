@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.editor;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -17,6 +18,7 @@ import org.csstudio.display.builder.editor.palette.Palette;
 import org.csstudio.display.builder.editor.poly.PointsBinding;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.editor.undo.AddWidgetAction;
+import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.JFXGeometryTools;
 import org.csstudio.display.builder.editor.util.ParentHandler;
@@ -279,12 +281,14 @@ public class DisplayEditor
         return model;
     }
 
-    /** Copy currently selected widgets to clipboard */
-    public void copyToClipboard()
+    /** Copy currently selected widgets to clipboard
+     *  @return Widgets that were copied or <code>null</code>
+     */
+    public List<Widget> copyToClipboard()
     {
         final List<Widget> widgets = selection.getSelection();
         if (widgets.isEmpty())
-            return;
+            return null;
 
         final String xml;
         try
@@ -294,12 +298,23 @@ public class DisplayEditor
         catch (Exception ex)
         {
             logger.log(Level.WARNING, "Cannot create content for clipboard", ex);
-            return;
+            return null;
         }
 
         final ClipboardContent content = new ClipboardContent();
         content.putString(xml);
         Clipboard.getSystemClipboard().setContent(content);
+        return widgets;
+    }
+
+    /** Cut (delete) selected widgets, placing them on the clipboard */
+    public void cutToClipboard()
+    {   // Strictly speaking, delete would not copy to the clipboard...
+        final List<Widget> widgets = copyToClipboard();
+        if (widgets == null)
+            return;
+        undo.execute(new RemoveWidgetsAction(widgets));
+        selection_tracker.setSelectedWidgets(Collections.emptyList());
     }
 
     /** Paste widgets from clipboard
