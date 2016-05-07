@@ -17,14 +17,14 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 /** Action to execute something on the current editor
  *  @author Kay Kasemir
  */
-public class EditorAction extends Action
+public class EditorPartAction extends Action
 {
-    public static EditorAction forActionDescription(final ActionDescription action)
+    public static EditorPartAction forActionDescription(final ActionDescription action)
     {
         final ImageDescriptor icon =
                 AbstractUIPlugin.imageDescriptorFromPlugin(org.csstudio.display.builder.editor.Plugin.ID,
                                                            action.getIcon());
-        return new EditorAction(action.getToolTip(), icon)
+        return new EditorPartAction(action.getToolTip(), icon)
         {
             @Override
             public void run()
@@ -35,12 +35,12 @@ public class EditorAction extends Action
         };
     }
 
-    public static EditorAction forToggledActionDescription(final ActionDescription action)
+    public static EditorPartAction forToggledActionDescription(final ActionDescription action)
     {
         final ImageDescriptor icon =
                 AbstractUIPlugin.imageDescriptorFromPlugin(org.csstudio.display.builder.editor.Plugin.ID,
                                                            action.getIcon());
-        return new EditorAction(action.getToolTip(), icon, Action.AS_CHECK_BOX)
+        return new EditorPartAction(action.getToolTip(), icon, Action.AS_CHECK_BOX)
         {
             @Override
             public void run()
@@ -54,12 +54,12 @@ public class EditorAction extends Action
 
     protected DisplayEditorPart edit_part;
 
-    public EditorAction(final String name, final ImageDescriptor icon)
+    public EditorPartAction(final String name, final ImageDescriptor icon)
     {
         super(name, icon);
     }
 
-    public EditorAction(final String name, final ImageDescriptor icon, final int style)
+    public EditorPartAction(final String name, final ImageDescriptor icon, final int style)
     {
         super(name, style);
         setImageDescriptor(icon);

@@ -8,23 +8,18 @@
 package org.csstudio.display.builder.editor.rcp.actions;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
-import org.eclipse.ui.actions.ActionFactory;
+import org.eclipse.jface.action.Action;
 
-/** Action to un-do last operation
+/** Base for retarget-action handler
  *  @author Kay Kasemir
  */
-public class UndoAction extends RetargetActionHandler
-{
-    public UndoAction(final DisplayEditor editor)
-    {
-        super(editor, ActionFactory.UNDO.getCommandId());
-        setEnabled(editor.getUndoableActionManager().canUndo());
-    }
+public class RetargetActionHandler extends Action
+{   // Used as handler for RetargetAction, so no need for label, icon
+    protected final DisplayEditor editor;
 
-    @Override
-    public void run()
+    public RetargetActionHandler(final DisplayEditor editor, final String command_id)
     {
-        editor.getWidgetSelectionHandler().clear();
-        editor.getUndoableActionManager().undoLast();
+        this.editor = editor;
+        setActionDefinitionId(command_id);
     }
 }

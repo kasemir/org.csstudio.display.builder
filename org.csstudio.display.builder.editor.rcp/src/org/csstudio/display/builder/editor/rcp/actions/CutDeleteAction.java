@@ -10,21 +10,21 @@ package org.csstudio.display.builder.editor.rcp.actions;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.eclipse.ui.actions.ActionFactory;
 
-/** Action to un-do last operation
+/** Action to cut to clipboard
  *  @author Kay Kasemir
  */
-public class UndoAction extends RetargetActionHandler
+public class CutDeleteAction extends RetargetActionHandler
 {
-    public UndoAction(final DisplayEditor editor)
+    public CutDeleteAction(final DisplayEditor editor, final boolean cut_or_delete)
     {
-        super(editor, ActionFactory.UNDO.getCommandId());
-        setEnabled(editor.getUndoableActionManager().canUndo());
+        super(editor, cut_or_delete
+                      ? ActionFactory.CUT.getCommandId()
+                      : ActionFactory.DELETE.getCommandId());
     }
 
     @Override
     public void run()
     {
-        editor.getWidgetSelectionHandler().clear();
-        editor.getUndoableActionManager().undoLast();
+        editor.cutToClipboard();
     }
 }

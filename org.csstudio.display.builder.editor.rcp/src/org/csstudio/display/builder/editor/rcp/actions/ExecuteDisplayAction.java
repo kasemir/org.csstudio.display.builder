@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class ExecuteDisplayAction extends EditorAction
+public class ExecuteDisplayAction extends EditorPartAction
 {
     /** Progress monitor that opens display when 'done' */
     private class MonitorSaveThenOpenDisplay extends NullProgressMonitor

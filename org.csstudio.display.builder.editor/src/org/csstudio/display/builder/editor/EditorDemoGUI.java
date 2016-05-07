@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.Random;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.editor.actions.ActionDescription;
@@ -28,6 +29,7 @@ import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.ResourceUtil;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -39,6 +41,8 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
@@ -66,6 +70,28 @@ public class EditorDemoGUI
     private WidgetTree tree;
 
     private PropertyPanel property_panel;
+
+    final EventHandler<KeyEvent> key_handler = (event) ->
+    {
+        final KeyCode code = event.getCode();
+        // Not checking for Control vs. Apple's Command key
+        if (code == KeyCode.Z)
+            editor.getUndoableActionManager().undoLast();
+        else if (code == KeyCode.Y)
+            editor.getUndoableActionManager().redoLast();
+        else if (code == KeyCode.DELETE  ||  code == KeyCode.BACK_SPACE  ||  code == KeyCode.X)
+            editor.cutToClipboard();
+        else if (code == KeyCode.C)
+            editor.copyToClipboard();
+        else if (code == KeyCode.V)
+        {   // Pasting somewhere in upper left corner
+            final Random random = new Random();
+            editor.pasteFromClipboard(random.nextInt(100), random.nextInt(100));
+        }
+        else // Pass on, don't consume
+            return;
+        event.consume();
+    };
 
     public EditorDemoGUI(final Stage stage)
     {
@@ -96,6 +122,8 @@ public class EditorDemoGUI
         toolbar_center_status.setCenter(center);
         toolbar_center_status.setBottom(status);
         BorderPane.setAlignment(center, Pos.TOP_LEFT);
+
+        toolbar_center_status.addEventFilter(KeyEvent.KEY_PRESSED, key_handler);
 
         stage.setTitle("Editor");
         stage.setWidth(1200);

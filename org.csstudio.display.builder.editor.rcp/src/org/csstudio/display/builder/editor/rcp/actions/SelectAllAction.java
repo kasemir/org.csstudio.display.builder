@@ -7,24 +7,28 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp.actions;
 
+import java.util.List;
+
 import org.csstudio.display.builder.editor.DisplayEditor;
+import org.csstudio.display.builder.model.Widget;
 import org.eclipse.ui.actions.ActionFactory;
 
-/** Action to un-do last operation
+/** Action to select all widgets
  *  @author Kay Kasemir
  */
-public class UndoAction extends RetargetActionHandler
+public class SelectAllAction extends RetargetActionHandler
 {
-    public UndoAction(final DisplayEditor editor)
+    public SelectAllAction(final DisplayEditor editor)
     {
-        super(editor, ActionFactory.UNDO.getCommandId());
-        setEnabled(editor.getUndoableActionManager().canUndo());
+        super(editor, ActionFactory.SELECT_ALL.getCommandId());
     }
 
     @Override
     public void run()
     {
-        editor.getWidgetSelectionHandler().clear();
-        editor.getUndoableActionManager().undoLast();
+        // Selects all direct child widgets, not widgets inside group etc.
+        // because copying or deleting a group already affects all sub-widgets
+        final List<Widget> widgets = editor.getModel().getChildren();
+        editor.getWidgetSelectionHandler().setSelection(widgets);
     }
 }

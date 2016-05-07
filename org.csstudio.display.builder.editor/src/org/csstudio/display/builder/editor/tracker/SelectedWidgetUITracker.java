@@ -16,7 +16,6 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
-import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.ParentHandler;
@@ -366,53 +365,45 @@ public class SelectedWidgetUITracker extends Group
         // Consume handled event to keep the key focus,
         // which is otherwise lost to the 'tab-order' traversal
         final KeyCode code = event.getCode();
-        // Mac OS X and rest differ on delete vs. backspace. Treat the same
-        if (code == KeyCode.DELETE  ||  code == KeyCode.BACK_SPACE)
+        switch (code)
         {
-            undo.execute(new RemoveWidgetsAction(widgets));
-            setSelectedWidgets(Collections.emptyList());
+        case UP:
+            if (event.isShiftDown())
+                updateTracker(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight()-1);
+            else
+                updateTracker(tracker.getX(), tracker.getY()-1, tracker.getWidth(), tracker.getHeight());
+            break;
+        case DOWN:
+            if (event.isShiftDown())
+                updateTracker(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight()+1);
+            else
+                updateTracker(tracker.getX(), tracker.getY()+1, tracker.getWidth(), tracker.getHeight());
+            break;
+        case LEFT:
+            if (event.isShiftDown())
+                updateTracker(tracker.getX(), tracker.getY(), tracker.getWidth()-1, tracker.getHeight());
+            else
+                updateTracker(tracker.getX()-1, tracker.getY(), tracker.getWidth(), tracker.getHeight());
+            break;
+        case RIGHT:
+            if (event.isShiftDown())
+                updateTracker(tracker.getX(), tracker.getY(), tracker.getWidth()+1, tracker.getHeight());
+            else
+                updateTracker(tracker.getX()+1, tracker.getY(), tracker.getWidth(), tracker.getHeight());
+            break;
+        default:
+            return;
         }
-        else
-        {
-            switch (code)
-            {
-            case UP:
-                if (event.isShiftDown())
-                    updateTracker(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight()-1);
-                else
-                    updateTracker(tracker.getX(), tracker.getY()-1, tracker.getWidth(), tracker.getHeight());
-                break;
-            case DOWN:
-                if (event.isShiftDown())
-                    updateTracker(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight()+1);
-                else
-                    updateTracker(tracker.getX(), tracker.getY()+1, tracker.getWidth(), tracker.getHeight());
-                break;
-            case LEFT:
-                if (event.isShiftDown())
-                    updateTracker(tracker.getX(), tracker.getY(), tracker.getWidth()-1, tracker.getHeight());
-                else
-                    updateTracker(tracker.getX()-1, tracker.getY(), tracker.getWidth(), tracker.getHeight());
-                break;
-            case RIGHT:
-                if (event.isShiftDown())
-                    updateTracker(tracker.getX(), tracker.getY(), tracker.getWidth()+1, tracker.getHeight());
-                else
-                    updateTracker(tracker.getX()+1, tracker.getY(), tracker.getWidth(), tracker.getHeight());
-                break;
-            default:
-                return;
-            }
-            updateWidgetsFromTracker();
+        updateWidgetsFromTracker();
 
-            // Reset tracker as if we started at this position.
-            // That way, a sequence of cursor key moves turns into individual undo-able actions.
-            orig_x = tracker.getX();
-            orig_y = tracker.getY();
-            orig_width = tracker.getWidth();
-            orig_height = tracker.getHeight();
-            orig_position = widgets.stream().map(GeometryTools::getBounds).collect(Collectors.toList());
-        }
+        // Reset tracker as if we started at this position.
+        // That way, a sequence of cursor key moves turns into individual undo-able actions.
+        orig_x = tracker.getX();
+        orig_y = tracker.getY();
+        orig_width = tracker.getWidth();
+        orig_height = tracker.getHeight();
+        orig_position = widgets.stream().map(GeometryTools::getBounds).collect(Collectors.toList());
+
         event.consume();
     }
 

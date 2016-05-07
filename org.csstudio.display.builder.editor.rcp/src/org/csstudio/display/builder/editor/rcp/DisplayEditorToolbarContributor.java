@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.csstudio.display.builder.editor.actions.ActionDescription;
-import org.csstudio.display.builder.editor.rcp.actions.EditorAction;
+import org.csstudio.display.builder.editor.rcp.actions.EditorPartAction;
 import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayAction;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -34,10 +34,10 @@ import org.eclipse.ui.part.EditorActionBarContributor;
 public class DisplayEditorToolbarContributor extends EditorActionBarContributor
 {
     private final ExecuteDisplayAction execute_action = new ExecuteDisplayAction();
-    private final EditorAction enable_grid = EditorAction.forToggledActionDescription(ActionDescription.ENABLE_GRID);
-    private final EditorAction enable_snap = EditorAction.forToggledActionDescription(ActionDescription.ENABLE_SNAP);
-    private final EditorAction to_back_action = EditorAction.forActionDescription(ActionDescription.TO_BACK);
-    private final EditorAction to_front_action = EditorAction.forActionDescription(ActionDescription.TO_FRONT);
+    private final EditorPartAction enable_grid = EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_GRID);
+    private final EditorPartAction enable_snap = EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_SNAP);
+    private final EditorPartAction to_back_action = EditorPartAction.forActionDescription(ActionDescription.TO_BACK);
+    private final EditorPartAction to_front_action = EditorPartAction.forActionDescription(ActionDescription.TO_FRONT);
 
     // Global actions defined by RCP
     // Holds actions for toolbar created by RCP ActionFactory.
@@ -56,8 +56,11 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         manager.add(to_front_action);
         addGlobalAction(manager, ActionFactory.UNDO.create(window));
         addGlobalAction(manager, ActionFactory.REDO.create(window));
-        addGlobalAction(manager, ActionFactory.COPY.create(window));
-        addGlobalAction(manager, ActionFactory.PASTE.create(window));
+        global_actions.add(ActionFactory.CUT.create(window));
+        global_actions.add(ActionFactory.COPY.create(window));
+        global_actions.add(ActionFactory.PASTE.create(window));
+        global_actions.add(ActionFactory.DELETE.create(window));
+        global_actions.add(ActionFactory.SELECT_ALL.create(window));
     }
 
     private void addGlobalAction(final IToolBarManager manager, final IWorkbenchAction action)
