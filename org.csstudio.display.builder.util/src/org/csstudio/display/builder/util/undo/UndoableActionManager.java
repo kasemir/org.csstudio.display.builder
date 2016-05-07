@@ -21,9 +21,16 @@ import java.util.logging.Logger;
 public class UndoableActionManager
 {
     private final Logger logger = Logger.getLogger(getClass().getName());
-    private final SizeLimitedStack<UndoableAction> undoStack = new SizeLimitedStack<UndoableAction>(30);
-    private final SizeLimitedStack<UndoableAction> redoStack = new SizeLimitedStack<UndoableAction>(30);
+    private final SizeLimitedStack<UndoableAction> undoStack;
+    private final SizeLimitedStack<UndoableAction> redoStack;
     private final List<UndoRedoListener> listeners = new CopyOnWriteArrayList<>();
+
+    /** @param stack_size Number of undo/redo entries */
+    public UndoableActionManager(final int stack_size)
+    {
+        undoStack = new SizeLimitedStack<UndoableAction>(stack_size);
+        redoStack = new SizeLimitedStack<UndoableAction>(stack_size);
+    }
 
     /** @param listener Listener to add */
     public void addListener(final UndoRedoListener listener)

@@ -79,7 +79,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     private static final int ZOOM_PIXEL_THRESHOLD = 20;
 
     /** Support for un-do and re-do */
-    final private UndoableActionManager undo = new UndoableActionManager();
+    final private UndoableActionManager undo = new UndoableActionManager(50);
 
     /** Background color */
     private volatile Color background = Color.WHITE;
@@ -87,7 +87,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     static final String FONT_FAMILY = "Liberation Sans";
 
     // TODO Static cursors, init. once
-    private Cursor cursor_pan, cursor_zoom_in, cursor_zoom_out, cursor_zoom;
+    private Cursor cursor_pan, cursor_zoom_in, cursor_zoom_out;
 
     /** Font to use for, well, title */
     private volatile Font title_font = new Font(FONT_FAMILY, Font.BOLD, 18);
@@ -253,7 +253,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
             cursor_pan = new ImageCursor(Activator.getIcon("cursor_pan"));
             cursor_zoom_in = new ImageCursor(Activator.getIcon("cursor_zoom_in"));
             cursor_zoom_out = new ImageCursor(Activator.getIcon("cursor_zoom_out"));
-            cursor_zoom = new ImageCursor(Activator.getIcon("cursor_zoom"));
         }
         catch (Exception ex)
         {
@@ -261,7 +260,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
             cursor_pan = Cursor.HAND;
             cursor_zoom_in = Cursor.DEFAULT;
             cursor_zoom_out = Cursor.DEFAULT;
-            cursor_zoom = Cursor.DEFAULT;
         }
     }
 

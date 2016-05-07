@@ -100,8 +100,7 @@ public class DisplayEditor
 
     private final WidgetNaming widget_naming = new WidgetNaming();
 
-
-    private final UndoableActionManager undo = new UndoableActionManager();
+    private final UndoableActionManager undo;
 
     private final WidgetSelectionHandler selection = new WidgetSelectionHandler();
 
@@ -114,10 +113,13 @@ public class DisplayEditor
     private Group model_parent;
     private final Group edit_tools = new Group();
 
-    /** @param toolkit JFX Toolkit */
-    public DisplayEditor(final JFXRepresentation toolkit)
+    /** @param toolkit JFX Toolkit
+     *  @param stack_size Number of undo/redo entries
+     */
+    public DisplayEditor(final JFXRepresentation toolkit, final int stack_size)
     {
         this.toolkit = toolkit;
+        undo = new UndoableActionManager(stack_size);
 
         group_handler = new ParentHandler(edit_tools, selection);
 

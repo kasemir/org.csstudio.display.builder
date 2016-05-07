@@ -75,7 +75,7 @@ public class EditorDemoGUI
 
     private void createElements(final Stage stage)
     {
-        editor = new DisplayEditor(toolkit);
+        editor = new DisplayEditor(toolkit, 50);
 
         final ToolBar toolbar = createToolbar(editor.getSelectedWidgetUITracker(),
                 editor.getWidgetSelectionHandler(),
