@@ -193,7 +193,7 @@ public class DisplayEditorPart extends EditorPart
         actions.put(ActionFactory.UNDO.getId(), new UndoAction(editor));
         actions.put(ActionFactory.REDO.getId(), new RedoAction(editor));
         actions.put(ActionFactory.COPY.getId(), new CopyAction(editor));
-        actions.put(ActionFactory.PASTE.getId(), new PasteAction(editor));
+        actions.put(ActionFactory.PASTE.getId(), new PasteAction(fx_canvas, editor));
     }
 
     /** @return {@link DisplayEditor} */
