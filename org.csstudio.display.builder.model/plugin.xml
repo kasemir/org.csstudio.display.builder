@@ -149,6 +149,9 @@
          <alternates
                type="org.csstudio.opibuilder.widgets.ActionButton">
          </alternates>
+         <alternates
+               type="org.csstudio.opibuilder.widgets.MenuButton">
+         </alternates>
       </widget>
 
 
