@@ -33,11 +33,23 @@ import org.eclipse.ui.part.EditorActionBarContributor;
  */
 public class DisplayEditorToolbarContributor extends EditorActionBarContributor
 {
-    private final ExecuteDisplayAction execute_action = new ExecuteDisplayAction();
-    private final EditorPartAction enable_grid = EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_GRID);
-    private final EditorPartAction enable_snap = EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_SNAP);
-    private final EditorPartAction to_back_action = EditorPartAction.forActionDescription(ActionDescription.TO_BACK);
-    private final EditorPartAction to_front_action = EditorPartAction.forActionDescription(ActionDescription.TO_FRONT);
+    // Actions that act on active editor
+    private final EditorPartAction[] editor_actions = new EditorPartAction[]
+    {
+        new ExecuteDisplayAction(),
+        EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_GRID),
+        EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_SNAP),
+        EditorPartAction.forActionDescription(ActionDescription.TO_BACK),
+        EditorPartAction.forActionDescription(ActionDescription.TO_FRONT),
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_LEFT),
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_CENTER),
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_RIGHT),
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_TOP),
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_MIDDLE),
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_BOTTOM),
+        EditorPartAction.forActionDescription(ActionDescription.MATCH_WIDTH),
+        EditorPartAction.forActionDescription(ActionDescription.MATCH_HEIGHT),
+    };
 
     // Global actions defined by RCP
     // Holds actions for toolbar created by RCP ActionFactory.
@@ -49,11 +61,8 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
     {
         final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
         manager.add(new Separator());
-        manager.add(execute_action);
-        manager.add(enable_grid);
-        manager.add(enable_snap);
-        manager.add(to_back_action);
-        manager.add(to_front_action);
+        for (EditorPartAction epa : editor_actions)
+            manager.add(epa);
         addGlobalAction(manager, ActionFactory.UNDO.create(window));
         addGlobalAction(manager, ActionFactory.REDO.create(window));
         global_actions.add(ActionFactory.CUT.create(window));
@@ -80,11 +89,8 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         if (bars == null)
             return;
 
-        execute_action.setActiveEditor(editor);
-        enable_grid.setActiveEditor(editor);
-        enable_snap.setActiveEditor(editor);
-        to_back_action.setActiveEditor(editor);
-        to_front_action.setActiveEditor(editor);
+        for (EditorPartAction epa : editor_actions)
+            epa.setActiveEditor(editor);
 
         // RCP defines global actions for copy, undo, ..
         // in the menu, including key bindings.
@@ -94,7 +100,7 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         //   setActionDefinitionId(ActionFactory.XXXX.getCommandId()),
         // otherwise the global action remains disabled.
         for (IAction action : global_actions)
-            bars.setGlobalActionHandler(action.getId(), editor.getAction(action.getId()));
+            bars.setGlobalActionHandler(action.getId(), editor.getRetargetActionHandler(action.getId()));
 
         bars.updateActionBars();
     }
@@ -102,11 +108,8 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
     @Override
     public void dispose()
     {
-        execute_action.setActiveEditor(null);
-        enable_grid.setActiveEditor(null);
-        enable_snap.setActiveEditor(null);
-        to_back_action.setActiveEditor(null);
-        to_front_action.setActiveEditor(null);
+        for (EditorPartAction epa : editor_actions)
+            epa.setActiveEditor(null);
         for (IWorkbenchAction action : global_actions)
             action.dispose();
         global_actions.clear();

@@ -134,7 +134,7 @@ public class DisplayEditorPart extends EditorPart
         // but setting the canvas' scene has to be on UI thread
         fx_canvas.setScene(scene);
 
-        createActions();
+        createRetargetableActionHandlers();
 
         final IEditorInput input = getEditorInput();
         final IFile file = input.getAdapter(IFile.class);
@@ -191,7 +191,7 @@ public class DisplayEditorPart extends EditorPart
         model.widgetName().addPropertyListener(model_name_listener);
     }
 
-    private void createActions()
+    private void createRetargetableActionHandlers()
     {
         actions.put(ActionFactory.UNDO.getId(), new UndoAction(editor));
         actions.put(ActionFactory.REDO.getId(), new RedoAction(editor));
@@ -212,7 +212,7 @@ public class DisplayEditorPart extends EditorPart
      *  @param id Action ID
      *  @return Action for that ID
      */
-    public IAction getAction(final String id)
+    public IAction getRetargetActionHandler(final String id)
     {
         return actions.get(id);
     }
