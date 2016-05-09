@@ -8,6 +8,8 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
@@ -25,6 +27,7 @@ import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.XMLUtil;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.osgi.framework.Version;
 import org.w3c.dom.Document;
@@ -112,6 +115,8 @@ public class ActionButtonWidget extends VisibleWidget
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<String> text;
     private volatile WidgetProperty<WidgetFont> font;
+    private volatile WidgetProperty<WidgetColor> background;
+    private volatile WidgetProperty<WidgetColor> foreground;
 
     public ActionButtonWidget()
     {
@@ -126,6 +131,8 @@ public class ActionButtonWidget extends VisibleWidget
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(text = displayText.createProperty(this, "$(actions)"));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(background = displayBackgroundColor.createProperty(this, new WidgetColor(30, 144, 255)));
+        properties.add(foreground = displayForegroundColor.createProperty(this, new WidgetColor(255, 255, 255)));
     }
 
     /** @return Widget 'macros' */
@@ -145,6 +152,19 @@ public class ActionButtonWidget extends VisibleWidget
     {
         return font;
     }
+
+    /** @return Display 'background_color' */
+    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    {
+        return background;
+    }
+
+    /** @return Display 'foreground_color' */
+    public WidgetProperty<WidgetColor> displayForegroundColor()
+    {
+        return foreground;
+    }
+
 
     /** Action button widget extends parent macros
      *  @return {@link Macros}

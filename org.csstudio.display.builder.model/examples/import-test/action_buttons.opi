@@ -218,7 +218,7 @@ $(pv_value)</tooltip>
     </font>
     <forecolor_alarm_sensitive>true</forecolor_alarm_sensitive>
     <foreground_color>
-      <color name="Header_ForeGround" red="255" green="255" blue="255" />
+      <color name="Attention" red="255" green="160" blue="0" />
     </foreground_color>
     <height>40</height>
     <image></image>
