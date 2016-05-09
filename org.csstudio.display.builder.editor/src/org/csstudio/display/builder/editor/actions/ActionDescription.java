@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.Messages;
+import org.csstudio.display.builder.editor.undo.SetWidgetPropertyAction;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetOrderAction;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
@@ -72,6 +73,60 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             for (Widget widget : widgets)
                 undo.execute(new UpdateWidgetOrderAction(widget, -1));
+        }
+    };
+
+    // Alignment icons from GEF (https://github.com/eclipse/gef/tree/master/org.eclipse.gef/src/org/eclipse/gef/internal/icons)
+    /** Align widgets on left edge */
+    public static final ActionDescription ALIGN_LEFT =
+        new ActionDescription("icons/alignleft.gif", Messages.AlignLeft)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            final UndoableActionManager undo = editor.getUndoableActionManager();
+            if (widgets.size() < 2)
+                return;
+            final int dest = widgets.get(0).positionX().getValue();
+            for (int i=1; i<widgets.size(); ++i)
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionX(), dest));
+        }
+    };
+
+    /** Align widgets on (vertical) center line */
+    public static final ActionDescription ALIGN_CENTER =
+        new ActionDescription("icons/aligncenter.gif", Messages.AlignCenter)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            final UndoableActionManager undo = editor.getUndoableActionManager();
+            if (widgets.size() < 2)
+                return;
+            final int dest = widgets.get(0).positionX().getValue() + widgets.get(0).positionWidth().getValue() / 2;
+            for (int i=1; i<widgets.size(); ++i)
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionX(),
+                                                                  dest - widgets.get(i).positionWidth().getValue()/2));
+        }
+    };
+
+    /** Align widgets on right edge */
+    public static final ActionDescription ALIGN_RIGHT =
+        new ActionDescription("icons/alignright.gif", Messages.AlignRight)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            final UndoableActionManager undo = editor.getUndoableActionManager();
+            if (widgets.size() < 2)
+                return;
+            final int dest = widgets.get(0).positionX().getValue() + widgets.get(0).positionWidth().getValue();
+            for (int i=1; i<widgets.size(); ++i)
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionX(),
+                                                                  dest - widgets.get(i).positionWidth().getValue()));
         }
     };
 
