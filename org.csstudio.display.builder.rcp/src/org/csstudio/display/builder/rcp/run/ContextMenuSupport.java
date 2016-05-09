@@ -9,12 +9,18 @@ package org.csstudio.display.builder.rcp.run;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.csstudio.csdata.ProcessVariable;
+import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.representation.ToolkitListener;
+import org.csstudio.display.builder.runtime.ActionUtil;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -26,12 +32,37 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPartSite;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 /** Context menu
  *  @author Kay Kasemir
  */
 public class ContextMenuSupport
 {
+    /** SWT/JFace Action for a model's ActionInfo
+     *
+     *  <p>Shows the ActionInfo's description and icon,
+     *  invokes it.
+     */
+    private static class ActionInfoWrapper extends Action
+    {
+        private final Widget widget;
+        private final ActionInfo info;
+        public ActionInfoWrapper(final Widget widget, final ActionInfo info)
+        {
+            super(info.getDescription(),
+                  AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, info.getType().getIconPath()));
+            this.widget = widget;
+            this.info = info;
+        }
+
+        @Override
+        public void run()
+        {
+            ActionUtil.handleAction(widget, info);
+        }
+    }
+
     private Widget context_menu_widget = null;
 
     /** Create SWT context menu
@@ -59,6 +90,9 @@ public class ContextMenuSupport
         mm.addMenuListener((manager) ->
         {   // Widget info
             manager.add(new WidgetInfoAction(context_menu_widget));
+
+            // Actions
+            addActions(manager, context_menu_widget, context_menu_widget.behaviorActions().getValue());
 
             // TODO Eventually, widget's representation will want to
             // add widget-specific menu items.
@@ -106,5 +140,11 @@ public class ContextMenuSupport
                 context_menu_widget = null;
             }
         });
+    }
+
+    private void addActions(final IMenuManager manager, final Widget widget, final List<ActionInfo> actions)
+    {
+        for (ActionInfo info : actions)
+            manager.add(new ActionInfoWrapper(widget, info));
     }
 }

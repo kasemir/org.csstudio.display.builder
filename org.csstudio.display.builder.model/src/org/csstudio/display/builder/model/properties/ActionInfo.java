@@ -28,9 +28,9 @@ public abstract class ActionInfo
     /** Description of a type of action: Name, icon */
     public enum ActionType
     {
-        OPEN_DISPLAY("Open Display", "platform:/plugin/org.csstudio.display.builder.model/icons/open_display.png"),
-        WRITE_PV("Write PV", "platform:/plugin/org.csstudio.display.builder.model/icons/write_pv.png"),
-        EXECUTE_SCRIPT("Execute Script", "platform:/plugin/org.csstudio.display.builder.model/icons/execute_script.png");
+        OPEN_DISPLAY("Open Display", "icons/open_display.png"),
+        WRITE_PV("Write PV", "icons/write_pv.png"),
+        EXECUTE_SCRIPT("Execute Script", "icons/execute_script.png");
 
         private final String name, icon_path;
 
@@ -40,12 +40,17 @@ public abstract class ActionInfo
             this.icon_path = icon_path;
         }
 
+        public String getIconPath()
+        {
+            return icon_path;
+        }
+
         /** @return Stream for icon's content or <code>null</code> */
         public InputStream getIconStream()
         {
             try
             {
-                return ResourceUtil.openPlatformResource(icon_path);
+                return ResourceUtil.openPlatformResource("platform:/plugin/org.csstudio.display.builder.model/" + icon_path);
             }
             catch (Exception ex)
             {
