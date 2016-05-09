@@ -33,6 +33,7 @@ import org.eclipse.ui.part.EditorActionBarContributor;
  */
 public class DisplayEditorToolbarContributor extends EditorActionBarContributor
 {
+    // Actions that act on active editor
     private final EditorPartAction[] editor_actions = new EditorPartAction[]
     {
         new ExecuteDisplayAction(),
@@ -42,9 +43,13 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         EditorPartAction.forActionDescription(ActionDescription.TO_FRONT),
         EditorPartAction.forActionDescription(ActionDescription.ALIGN_LEFT),
         EditorPartAction.forActionDescription(ActionDescription.ALIGN_CENTER),
-        EditorPartAction.forActionDescription(ActionDescription.ALIGN_RIGHT)
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_RIGHT),
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_TOP),
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_MIDDLE),
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_BOTTOM),
+        EditorPartAction.forActionDescription(ActionDescription.MATCH_WIDTH),
+        EditorPartAction.forActionDescription(ActionDescription.MATCH_HEIGHT),
     };
-
 
     // Global actions defined by RCP
     // Holds actions for toolbar created by RCP ActionFactory.

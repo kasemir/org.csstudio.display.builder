@@ -130,6 +130,93 @@ public abstract class ActionDescription
         }
     };
 
+    /** Align widgets on top edge */
+    public static final ActionDescription ALIGN_TOP =
+        new ActionDescription("icons/aligntop.gif", Messages.AlignTop)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            final UndoableActionManager undo = editor.getUndoableActionManager();
+            if (widgets.size() < 2)
+                return;
+            final int dest = widgets.get(0).positionY().getValue();
+            for (int i=1; i<widgets.size(); ++i)
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionY(), dest));
+        }
+    };
+
+    /** Align widgets on (horizontal) middle line */
+    public static final ActionDescription ALIGN_MIDDLE =
+        new ActionDescription("icons/alignmid.gif", Messages.AlignMiddle)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            final UndoableActionManager undo = editor.getUndoableActionManager();
+            if (widgets.size() < 2)
+                return;
+            final int dest = widgets.get(0).positionY().getValue() + widgets.get(0).positionHeight().getValue()/2;
+            for (int i=1; i<widgets.size(); ++i)
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionY(),
+                                                                  dest - widgets.get(i).positionHeight().getValue()/2));
+        }
+    };
+
+    /** Align widgets on bottom edge */
+    public static final ActionDescription ALIGN_BOTTOM =
+        new ActionDescription("icons/alignbottom.gif", Messages.AlignBottom)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            final UndoableActionManager undo = editor.getUndoableActionManager();
+            if (widgets.size() < 2)
+                return;
+            final int dest = widgets.get(0).positionY().getValue() + widgets.get(0).positionHeight().getValue();
+            for (int i=1; i<widgets.size(); ++i)
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionY(),
+                                                                  dest - widgets.get(i).positionHeight().getValue()));
+        }
+    };
+
+    /** Set widgets to same width */
+    public static final ActionDescription MATCH_WIDTH =
+        new ActionDescription("icons/matchwidth.gif", Messages.MatchWidth)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            final UndoableActionManager undo = editor.getUndoableActionManager();
+            if (widgets.size() < 2)
+                return;
+            final int dest = widgets.get(0).positionWidth().getValue();
+            for (int i=1; i<widgets.size(); ++i)
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionWidth(), dest));
+        }
+    };
+
+    /** Set widgets to same height */
+    public static final ActionDescription MATCH_HEIGHT =
+        new ActionDescription("icons/matchheight.gif", Messages.MatchHeight)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            final UndoableActionManager undo = editor.getUndoableActionManager();
+            if (widgets.size() < 2)
+                return;
+            final int dest = widgets.get(0).positionHeight().getValue();
+            for (int i=1; i<widgets.size(); ++i)
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionHeight(), dest));
+        }
+    };
+
     /** Un-do last change */
     public static final ActionDescription UNDO =
         new ActionDescription("icons/undo.png", Messages.Undo_TT)
