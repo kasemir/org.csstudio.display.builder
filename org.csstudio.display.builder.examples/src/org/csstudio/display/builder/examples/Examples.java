@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.examples;
 
 import java.net.URL;
+import java.util.Objects;
 
 import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.examples.SampleSet;
@@ -17,12 +18,13 @@ import org.osgi.framework.Bundle;
 /** Example support for installing the model's examples
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class Examples implements SampleSet
 {
     @Override
     public URL getDirectoryURL()
     {
         final Bundle bundle = Platform.getBundle(ModelPlugin.ID);
-        return bundle.getEntry("/examples");
+        return Objects.requireNonNull(bundle.getEntry("/examples"), "Cannot locate examples");
     }
 }
