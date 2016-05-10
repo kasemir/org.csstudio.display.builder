@@ -9,10 +9,14 @@ package org.csstudio.display.builder.model;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,6 +73,25 @@ public class WidgetPropertiesUnitTest
         {
             System.out.println("Properly detected " + ex.getMessage());
             assertThat(ex.getMessage(), containsString("bogus"));
+        }
+    }
+
+    @Test
+    public void testPropertyListing()
+    {
+        final Widget led = new MultiStateLEDWidget();
+        final Collection<String> names = led.getCurrentPropertyNames();
+        System.out.println("Properties of " + led.getType());
+        for (String name : names)
+            System.out.println(name);
+        assertThat(names, hasItem("name"));
+        assertThat(names, hasItem("states[1].color"));
+
+        // Check that all listed properties are actually found
+        for (String name : names)
+        {
+            WidgetProperty<?> property = led.getProperty(name);
+            assertThat(name, property, not(nullValue()));
         }
     }
 }

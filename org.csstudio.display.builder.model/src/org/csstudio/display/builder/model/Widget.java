@@ -19,6 +19,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -335,6 +336,43 @@ public class Widget
     public Set<WidgetProperty<?>> getProperties()
     {
         return properties;
+    }
+
+    /** Get names of all properties of the widget
+     *
+     *  <p>Provides the complete list of properties,
+     *  including all current array items and structure elements
+     *  via their path name.
+     *
+     *  @return Property names
+     */
+    public Collection<String> getCurrentPropertyNames()
+    {
+        final List<String> names = new ArrayList<>();
+        for (WidgetProperty<?> property : properties)
+            addPropertyNames(names, property.getName(), property);
+        return names;
+    }
+
+    private void addPropertyNames(final List<String> names, String path, final WidgetProperty<?> property)
+    {
+        if (property instanceof ArrayWidgetProperty)
+        {
+            final ArrayWidgetProperty<?> array = (ArrayWidgetProperty<?>) property;
+            for (int i=0; i<array.size(); ++i)
+                addPropertyNames(names, path + "[" + i + "]", array.getElement(i));
+        }
+        else if (property instanceof StructuredWidgetProperty)
+        {
+            final StructuredWidgetProperty struct = (StructuredWidgetProperty) property;
+            for (int i=0; i<struct.size(); ++i)
+            {
+                final WidgetProperty<?> item = struct.getElement(i);
+                addPropertyNames(names, path + "." + item.getName(), item);
+            }
+        }
+        else
+            names.add(path);
     }
 
     /** Check if widget has a given property.
