@@ -25,6 +25,8 @@ public class Messages extends NLS
     public static String AlignMiddle;
     public static String AlignRight;
     public static String AlignTop;
+    public static String DistributeHorizontally;
+    public static String DistributeVertically;
     public static String FileTypeAll;
     public static String FileTypeDisplays;
     public static String Grid;

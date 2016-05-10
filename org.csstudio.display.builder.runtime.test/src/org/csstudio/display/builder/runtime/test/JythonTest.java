@@ -45,6 +45,15 @@ public class JythonTest
     // The problem appears related to usage of ThreadLocal in org.python.core.ThreadStateMapping.
     // Setting all path elements once in step 1 seems to fix the problem,
     // but it would be nice to demonstrate the original issue in a unit test.
+    //
+    // Unfortunately, very hard to duplicate. Only rarely see the test fail:
+    //  Expected: a string containing "special"
+    //  but: was "['/tmp/always', '/usr/local/hudson/config/jobs/CSS_display.builder/workspace/org.csstudio.display.builder.runtime.test/target/work/plugins/org.python.jython_2.7.0.release/Lib', '__classpath__', '__pyclasspath__/']"
+    //   at org.hamcrest.MatcherAssert.assertThat(MatcherAssert.java:20)
+    //   at org.junit.Assert.assertThat(Assert.java:956)
+    //   at org.junit.Assert.assertThat(Assert.java:923)
+    //   at org.csstudio.display.builder.runtime.test.JythonTest.testInterpreter(JythonTest.java:115) // old line number
+    //   at org.csstudio.display.builder.runtime.test.JythonTest.lambda$2(JythonTest.java:136)        // old line number
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     private void init()
