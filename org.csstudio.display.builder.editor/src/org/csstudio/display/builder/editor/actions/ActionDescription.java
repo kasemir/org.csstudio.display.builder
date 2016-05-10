@@ -217,6 +217,26 @@ public abstract class ActionDescription
         }
     };
 
+    /** Distribute widgets horizontally */
+    public static final ActionDescription DIST_HORIZ =
+        new ActionDescription("icons/distribute_hc.png", Messages.DistributeHorizontally)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            final UndoableActionManager undo = editor.getUndoableActionManager();
+            if (widgets.size() < 3)
+                return;
+
+            // TODO Get left/right
+
+
+            // TODO Set widget's X coord to distribute horizontally
+        }
+    };
+
+
     /** Un-do last change */
     public static final ActionDescription UNDO =
         new ActionDescription("icons/undo.png", Messages.Undo_TT)

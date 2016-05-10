@@ -49,6 +49,7 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         EditorPartAction.forActionDescription(ActionDescription.ALIGN_BOTTOM),
         EditorPartAction.forActionDescription(ActionDescription.MATCH_WIDTH),
         EditorPartAction.forActionDescription(ActionDescription.MATCH_HEIGHT),
+        EditorPartAction.forActionDescription(ActionDescription.DIST_HORIZ),
     };
 
     // Global actions defined by RCP
