@@ -9,6 +9,8 @@ package org.csstudio.display.builder.model;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -156,5 +158,15 @@ public class ArrayWidgetPropertyUnitTest
         final String xml2 = ModelWriter.getXML(read_back);
         System.out.println(xml2);
         assertThat(xml2, equalTo(xml));
+    }
+
+    @Test
+    public void testArrayAccess() throws Exception
+    {
+        final DemoWidget widget = new DemoWidget();
+        final WidgetProperty<?> item = widget.getProperty("items[1]");
+        System.out.println("items[1]: " + item);
+        assertThat(item, not(nullValue()));
+        assertThat(item.getValue(), equalTo("Two"));
     }
 }
