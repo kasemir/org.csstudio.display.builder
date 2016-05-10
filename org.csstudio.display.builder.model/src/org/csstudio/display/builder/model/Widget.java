@@ -19,6 +19,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -28,6 +29,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.macros.MacroOrPropertyProvider;
@@ -301,7 +304,7 @@ public class Widget
     {
         return scripts;
     }
-    
+
     /** @return Behavior 'rules' */
     public WidgetProperty<List<RuleInfo>> behaviorRules()
     {
@@ -333,6 +336,43 @@ public class Widget
     public Set<WidgetProperty<?>> getProperties()
     {
         return properties;
+    }
+
+    /** Get names of all properties of the widget
+     *
+     *  <p>Provides the complete list of properties,
+     *  including all current array items and structure elements
+     *  via their path name.
+     *
+     *  @return Property names
+     */
+    public Collection<String> getCurrentPropertyNames()
+    {
+        final List<String> names = new ArrayList<>();
+        for (WidgetProperty<?> property : properties)
+            addPropertyNames(names, property.getName(), property);
+        return names;
+    }
+
+    private void addPropertyNames(final List<String> names, String path, final WidgetProperty<?> property)
+    {
+        if (property instanceof ArrayWidgetProperty)
+        {
+            final ArrayWidgetProperty<?> array = (ArrayWidgetProperty<?>) property;
+            for (int i=0; i<array.size(); ++i)
+                addPropertyNames(names, path + "[" + i + "]", array.getElement(i));
+        }
+        else if (property instanceof StructuredWidgetProperty)
+        {
+            final StructuredWidgetProperty struct = (StructuredWidgetProperty) property;
+            for (int i=0; i<struct.size(); ++i)
+            {
+                final WidgetProperty<?> item = struct.getElement(i);
+                addPropertyNames(names, path + "." + item.getName(), item);
+            }
+        }
+        else
+            names.add(path);
     }
 
     /** Check if widget has a given property.
@@ -382,10 +422,58 @@ public class Widget
      *  @throws IllegalArgumentException if property is unknown
      */
     public WidgetProperty<?> getProperty(final String name)
-    {
+    {   // Is name a path "struct_prop.array_prop[2].element" ?
+        if (name.indexOf('.') >=0  ||  name.indexOf('[') >= 0)
+            return getPropertyByPath(name);
+        // Plain property name
         final WidgetProperty<?> property = property_map.get(name);
         if (property == null)
             throw new IllegalArgumentException(toString() + " has no '" + name + "' property");
+        return property;
+    }
+
+    private final static Pattern array_pattern = Pattern.compile("([a-zA-Z0-9]+)\\[([0-9]+)\\]");
+
+    /** Get property via path
+     *  @param path_name "struct_prop.array_prop[2].element"
+     *  @return Property for "element"
+     *  @throws IllegalArgumentException if path includes invalid elements
+     */
+    @SuppressWarnings("rawtypes")
+    private WidgetProperty<?> getPropertyByPath(final String path_name) throws IllegalArgumentException
+    {
+        final String[] path = path_name.split("\\.");
+        WidgetProperty<?> property = null;
+        for (String item : path)
+        {   // Does item refer to array element?
+            final String name;
+            final int index;
+            final Matcher matcher = array_pattern.matcher(item);
+            if (matcher.matches())
+            {
+                name = matcher.group(1);
+                index = Integer.parseInt(matcher.group(2));
+            }
+            else
+            {
+                name = item;
+                index = -1;
+            }
+            // Get property for the 'name'.
+            // For first item, from widget. Later descent into structure.
+            if (property == null)
+                property = property_map.get(name);
+            else if (property instanceof StructuredWidgetProperty)
+                property = ((StructuredWidgetProperty)property).getElement(name);
+            else
+                throw new IllegalArgumentException("Cannot locate '" + name + "' for '" + path_name + "'");
+            // Fetch individual array element?
+            if (index >= 0)
+                if (property instanceof ArrayWidgetProperty)
+                    property = ((ArrayWidgetProperty)property).getElement(index);
+                else
+                    throw new IllegalArgumentException("'" + name + "' of '" + path_name + "' it not an array");
+        }
         return property;
     }
 
