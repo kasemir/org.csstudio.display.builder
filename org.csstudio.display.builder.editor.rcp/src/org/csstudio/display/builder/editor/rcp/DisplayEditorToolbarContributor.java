@@ -37,10 +37,13 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
     private final EditorPartAction[] editor_actions = new EditorPartAction[]
     {
         new ExecuteDisplayAction(),
+        null, // Marker for Separator
         EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_GRID),
         EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_SNAP),
+        null, // Marker for Separator
         EditorPartAction.forActionDescription(ActionDescription.TO_BACK),
         EditorPartAction.forActionDescription(ActionDescription.TO_FRONT),
+        null, // Marker for Separator
         EditorPartAction.forActionDescription(ActionDescription.ALIGN_LEFT),
         EditorPartAction.forActionDescription(ActionDescription.ALIGN_CENTER),
         EditorPartAction.forActionDescription(ActionDescription.ALIGN_RIGHT),
@@ -50,6 +53,7 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         EditorPartAction.forActionDescription(ActionDescription.MATCH_WIDTH),
         EditorPartAction.forActionDescription(ActionDescription.MATCH_HEIGHT),
         EditorPartAction.forActionDescription(ActionDescription.DIST_HORIZ),
+        EditorPartAction.forActionDescription(ActionDescription.DIST_VERT),
     };
 
     // Global actions defined by RCP
@@ -61,11 +65,15 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
     public void contributeToToolBar(final IToolBarManager manager)
     {
         final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        manager.add(new Separator());
         for (EditorPartAction epa : editor_actions)
-            manager.add(epa);
+            if (epa == null)
+                manager.add(new Separator());
+            else
+                manager.add(epa);
+        manager.add(new Separator());
         addGlobalAction(manager, ActionFactory.UNDO.create(window));
         addGlobalAction(manager, ActionFactory.REDO.create(window));
+        manager.add(new Separator());
         global_actions.add(ActionFactory.CUT.create(window));
         global_actions.add(ActionFactory.COPY.create(window));
         global_actions.add(ActionFactory.PASTE.create(window));
@@ -91,7 +99,8 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
             return;
 
         for (EditorPartAction epa : editor_actions)
-            epa.setActiveEditor(editor);
+            if (epa != null)
+                epa.setActiveEditor(editor);
 
         // RCP defines global actions for copy, undo, ..
         // in the menu, including key bindings.
