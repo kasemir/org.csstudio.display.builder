@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
-  <name>Display</name>
+  <name>Main</name>
   <x>-1</x>
   <y>-1</y>
   <widget type="label" version="2.0.0">
@@ -195,7 +195,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file></file>
+        <file>03_properties.bob</file>
         <target>replace</target>
         <description>Properties</description>
       </action>
