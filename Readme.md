@@ -35,7 +35,8 @@ To try the latest nightly snapshot:
    as a site, select the display builder for installation, follow the steps in the installation dialog, restart.
 4. Open the menu `CS-Studio`, `Utilities`, `Install Samples` to install the `Display Builder` examples.
 5. In the Navigator, open the `Display Builder/01_main.bob` file in the editor, look around,
-   press the green 'Execute' button in the toolbar. 
+   press the green 'Execute' button in the toolbar.
+6. In the Navigator, right-click on some folder and invoke `New/Other..`, `Display Editor/New Display` to create your first own display.
    
 
 Dependencies
