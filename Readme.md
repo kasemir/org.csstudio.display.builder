@@ -5,9 +5,9 @@ Update of CS-Studio 'BOY',
 i.e. the `org.csstudio.opibuilder.*` code in 
 https://github.com/ControlSystemStudio/cs-studio.
 
-Goal is to provide the same functionality,
-including read-compatibility with existing *.opi files
-and similar "look", with improvements:
+Goal: Very similar functionality and "look",
+ability to read existing *.opi files,
+with improvements:
 
  * Model loads in background threads.
    Opening a new display will no longer result in user interface freeze,
@@ -21,7 +21,7 @@ and similar "look", with improvements:
    to allow each to be developed and optimized in parallel.
  * Representation could be SWT, AWT, .., JavaFX, favoring the latter
    because it currently promises best performance and long term
-   Java support
+   Java support.
  * Runtime independent of representation and editor.
 
 Nightly Snapshot
@@ -35,7 +35,7 @@ To try the latest nightly snapshot:
    as a site, select the display builder for installation, follow the steps in the installation dialog, restart.
 4. Open the menu `CS-Studio`, `Utilities`, `Install Samples` to install the `Display Builder` examples.
 5. In the Navigator, open the `Display Builder/01_main.bob` file in the editor, look around,
-   press the green 'Execute' button in the toolbar.
+   press the green `Execute` button in the toolbar.
 6. In the Navigator, right-click on some folder and invoke `New/Other..`, `Display Editor/New Display` to create your first own display.
    
 
@@ -50,7 +50,7 @@ Dependencies
  * In Eclipse Preferences, Java, Build Path, Classpath Variables:
    Set `JFXSWT` to the `lib/jfxswt.jar` file within your JRE.
    For example, on Mac OS X this could be `/Library/Java/JavaVirtualMachines/jdk1.8.0_71.jdk/Contents/Home/jre/lib/jfxswt.jar`.
- * As Eclipse Preferences, Plugin Development, Target platform, use a CS-Studio target.
+ * In Eclipse Preferences, Plugin Development, Target platform, define a CS-Studio target.
    For example, use the current IDE and add a "Directory" pointing to a CSS product's `plugins/` directory.
  * In product start config, add VM options
    `-Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`
@@ -137,6 +137,9 @@ Display editor, implemented in Java FX.
 `org.csstudio.display.builder.editor.rcp`:
 Hosts editor inside CS-Studio.
 
+`org.csstudio.display.builder.editor.examples`:
+RCP plugin for installing the examples.
+
 `org.csstudio.display.builder.util`,
 `org.csstudio.javafx`,
 `org.csstudio.javafx.rtplot`:
@@ -217,23 +220,22 @@ The base `WidgetRuntime` handles the following:
 
 Major TODOs:
 
- * Check details of script support: One instance per display? One for each action?
- * Rule engine
+ * None?
  
 ** Editor **
 
 Interactive display editor.
 
 New JFX-based development has Palette, Property Panel, Widget Tree,
+copy/paste,
 move/resize via tracker, snap-to-grid, snap-to-other-widgets,
+align, distribute,
 editor for points of polyline/polygon.
 
 Considered GEF 4 which supports JFX, but still lacks basics like palette & property panel.
 
 Major TODOs:
- * Copy/paste
  * Rulers, Guides
- * Align, distribute within selection
 
 ** Eclipse Integration **
 
