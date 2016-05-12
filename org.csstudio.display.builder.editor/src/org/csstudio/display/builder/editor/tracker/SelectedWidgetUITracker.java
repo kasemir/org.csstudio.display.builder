@@ -12,6 +12,7 @@ import static org.csstudio.display.builder.editor.DisplayEditor.logger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -20,9 +21,12 @@ import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.ParentHandler;
 import org.csstudio.display.builder.model.ChildrenProperty;
+import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
@@ -32,6 +36,7 @@ import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.TextField;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
@@ -140,7 +145,7 @@ public class SelectedWidgetUITracker extends Group
     private void hookEvents()
     {
         tracker.setCursor(Cursor.MOVE);
-        tracker.addEventHandler(MouseEvent.MOUSE_PRESSED, this::startDrag);
+        tracker.addEventHandler(MouseEvent.MOUSE_PRESSED, this::mousePressed);
         tracker.addEventHandler(MouseEvent.MOUSE_RELEASED, this::endMouseDrag);
         tracker.setOnMouseDragged((MouseEvent event) ->
         {
@@ -288,6 +293,63 @@ public class SelectedWidgetUITracker extends Group
         handle.setOnMousePressed(this::startDrag);
         handle.setOnMouseReleased(this::endMouseDrag);
         return handle;
+    }
+
+    /** @param event {@link MouseEvent} */
+    private void mousePressed(final MouseEvent event)
+    {
+        if (event.getClickCount() == 1)
+            startDrag(event);
+        else
+        {
+            event.consume();
+            if (widgets.size() == 1)
+                createInlineEditor(widgets.get(0));
+        }
+    }
+
+    /** Create an inline editor
+     *
+     *  <p>Depending on the widget's properties, it will edit
+     *  the PV name or the text.
+     *
+     *  @param widget Widget on which to create an inline editor
+     */
+    private void createInlineEditor(final Widget widget)
+    {
+        // Check for an inline-editable property
+        Optional<WidgetProperty<String>> check = widget.checkProperty(CommonWidgetProperties.behaviorPVName);
+        if (! check.isPresent())
+            check = widget.checkProperty(CommonWidgetProperties.displayText);
+        if (! check.isPresent())
+            return;
+
+        // Create text field, aligned with widget, but assert minimum size
+        final MacroizedWidgetProperty<String> property = (MacroizedWidgetProperty<String>)check.get();
+        final TextField text = new TextField(property.getSpecification());
+        text.setPromptText(property.getDescription());
+        text.relocate(tracker.getX(), tracker.getY());
+        text.resize(Math.max(100, tracker.getWidth()), Math.max(20, tracker.getHeight()));
+        getChildren().add(text);
+
+        System.out.println("Added in-place editor for " + widget);
+        text.requestFocus();
+
+        // On enter, update the property. On Escape, just close
+        text.setOnKeyPressed(event ->
+        {
+            if (event.getCode() == KeyCode.ENTER)
+            {
+                property.setSpecification(text.getText());
+                getChildren().remove(text);
+                System.out.println("Save & close in-place editor");
+            }
+            if (event.getCode() == KeyCode.ESCAPE)
+            {
+                getChildren().remove(text);
+                System.out.println("Closed in-place editor");
+            }
+        });
     }
 
     /** @param event {@link MouseEvent}; <code>null</code> if not triggered by mouse */
