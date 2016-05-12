@@ -109,7 +109,7 @@ __Command-line build:__
 
  * build/make.sh
 
-Allows compilation from command line, for example to automate a nightly build.
+Allows compilation from command line, for example to automate a nightly build. Requires maven.
 
 
 Code Overview
@@ -217,6 +217,7 @@ The base `WidgetRuntime` handles the following:
  * Each script in the "scripts" property is parsed, its PVs are created,
    and the script is triggered when any of its input PVs change.
    The script can then update widget properties.
+   Similarly, "rules" are converted into scripts and then executed.
 
 Major TODOs:
 
@@ -333,7 +334,8 @@ Most basic option, allows for any JFX item:
 Canvas, Shape, Control, ...
 
 * Region
-Allows for Border (alarm sensitive border, ..)
+Allows for Border (alarm sensitive border, ..).
+Many widgets are based on a Region to support the alarm sensitive border.
 
 * Control
 Has Border, Context Menu, Tool Tip
