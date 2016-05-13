@@ -9,6 +9,7 @@ package org.csstudio.display.builder.editor.properties;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,7 +51,7 @@ public class PropertyPanelSection extends GridPane
 {
     private final List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
     private int next_row = -1;
-    Collection<WidgetProperty<?>> properties = new ArrayList();
+    private Collection<WidgetProperty<?>> properties = Collections.emptyList();
     private boolean show_categories;
 
     public PropertyPanelSection()
@@ -101,18 +102,7 @@ public class PropertyPanelSection extends GridPane
     {
         next_row++;
         return next_row;
-
-        // Goal was to avoid a separate 'row' counter.
-        // Depends on nodes being added by rows,
-        // so last node reflects index of last populated row.
-        //final List<Node> nodes = getChildren();
-        //final int n = nodes.size();
-        //if (n <= 0)
-        //	return 0;
-        //final Integer row = GridPane.getRowIndex(nodes.get(n-1));
-        //return row == null ? 0 : row.intValue() + 1;
     }
-
 
     public static Node bindSimplePropertyField (
             final UndoableActionManager undo,
@@ -152,6 +142,7 @@ public class PropertyPanelSection extends GridPane
         {
             final EnumWidgetProperty<?> enum_prop = (EnumWidgetProperty<?>) property;
             final ComboBox<String> check = new ComboBox<>();
+            check.setPromptText(property.getDefaultValue().toString());
             check.setEditable(true);
             check.getItems().addAll(enum_prop.getLabels());
             final EnumWidgetPropertyBinding binding =
@@ -163,6 +154,7 @@ public class PropertyPanelSection extends GridPane
         else if (property instanceof BooleanWidgetProperty)
         {
             final ComboBox<String> check = new ComboBox<>();
+            check.setPromptText(property.getDefaultValue().toString());
             check.setEditable(true);
             check.getItems().addAll("true", "false");
             final BooleanWidgetPropertyBinding binding =
@@ -175,6 +167,7 @@ public class PropertyPanelSection extends GridPane
         {
             final MacroizedWidgetProperty<?> macro_prop = (MacroizedWidgetProperty<?>)property;
             final TextField text = new TextField();
+            text.setPromptText(macro_prop.getDefaultValue().toString());
             final MacroizedWidgetPropertyBinding binding =
                     new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
             bindings.add(binding);
