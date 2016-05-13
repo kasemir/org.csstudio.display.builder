@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import java.util.Optional;
+
 import javax.xml.stream.XMLStreamWriter;
 
 import org.csstudio.display.builder.model.Widget;
@@ -14,6 +16,8 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.persist.XMLTags;
+import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.w3c.dom.Element;
 
 /** Widget property with ColorMap as value.
@@ -36,6 +40,16 @@ public class ColorMapWidgetProperty extends WidgetProperty<ColorMap>
         super(descriptor, widget, default_value);
     }
 
+
+
+    @Override
+    public boolean isDefaultValue()
+    {
+        return false; // TODO Remove, only to force XML
+    }
+
+
+
     @Override
     public void setValueFromObject(final Object value) throws Exception
     {
@@ -48,14 +62,30 @@ public class ColorMapWidgetProperty extends WidgetProperty<ColorMap>
     @Override
     public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
     {
-        // TODO Write colormap
-        writer.writeStartElement("color_map");
-        writer.writeEndElement();
+        Optional<ColorMap.Predefined> map = value.getPredefined();
+        if (map.isPresent())
+        {
+            writer.writeStartElement(XMLTags.NAME);
+            writer.writeCharacters(map.get().name());
+            writer.writeEndElement();
+        }
+        else
+        {
+            // TODO Write sections of color map
+            // <map>
+            //   <e red="0" green="0" blue="0">0.0</e>
+            //   <e red="255" green="255" blue="255">1.0</e>
+            // </map>
+        }
     }
 
     @Override
     public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
-        // TODO Read colormap
+        // TODO Read colormap sections
+        // TODO Translate legacy <map>2</map>
+
+        XMLUtil.getChildString(property_xml, XMLTags.NAME)
+               .ifPresent(name -> setValue(ColorMap.Predefined.valueOf(name).get()));
     }
 }

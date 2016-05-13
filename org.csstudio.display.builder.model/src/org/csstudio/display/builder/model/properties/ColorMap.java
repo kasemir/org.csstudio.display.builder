@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import java.util.Optional;
+
 /** Map of values to colors
  *
  *  @author Kay Kasemir
@@ -396,6 +398,17 @@ public class ColorMap
         // Loop goes just up to last section, not including last section
         final int last = sections.length - 1;
         colors[255] = new WidgetColor(sections[last][1], sections[last][2], sections[last][3]);
+    }
+
+    /** Check if this color map is a predefined one
+     *  @return Predefined color map
+     */
+    public Optional<Predefined> getPredefined()
+    {
+        for (Predefined def : Predefined.values())
+            if (this == def.get())
+                return Optional.of(def);
+        return Optional.empty();
     }
 
     public WidgetColor getColor(final int intensity)
