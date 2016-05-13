@@ -119,7 +119,8 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
     public void dispose()
     {
         for (EditorPartAction epa : editor_actions)
-            epa.setActiveEditor(null);
+            if (epa != null)
+                epa.setActiveEditor(null);
         for (IWorkbenchAction action : global_actions)
             action.dispose();
         global_actions.clear();
