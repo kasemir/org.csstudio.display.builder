@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
+import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.ParentHandler;
@@ -37,6 +38,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
@@ -78,6 +80,9 @@ public class SelectedWidgetUITracker extends Group
     private final Rectangle handle_top_left, handle_top, handle_top_right,
                             handle_right, handle_bottom_right, handle_bottom,
                             handle_bottom_left, handle_left;
+
+    /** Inline editor for widget's PV name or text */
+    private TextField inline_editor = null;
 
     /** Widgets to track */
     private List<Widget> widgets = Collections.emptyList();
@@ -146,7 +151,7 @@ public class SelectedWidgetUITracker extends Group
     {
         tracker.setCursor(Cursor.MOVE);
         tracker.addEventHandler(MouseEvent.MOUSE_PRESSED, this::mousePressed);
-        tracker.addEventHandler(MouseEvent.MOUSE_RELEASED, this::endMouseDrag);
+        tracker.addEventHandler(MouseEvent.MOUSE_RELEASED, this::mouseReleased);
         tracker.setOnMouseDragged((MouseEvent event) ->
         {
             if (start_x < 0)
@@ -303,9 +308,16 @@ public class SelectedWidgetUITracker extends Group
         else
         {
             event.consume();
-            if (widgets.size() == 1)
+            if (widgets.size() == 1  &&  inline_editor == null)
                 createInlineEditor(widgets.get(0));
         }
+    }
+
+    /** @param event {@link MouseEvent} */
+    private void mouseReleased(final MouseEvent event)
+    {
+        if (inline_editor == null)
+            endMouseDrag(event);
     }
 
     /** Create an inline editor
@@ -326,30 +338,42 @@ public class SelectedWidgetUITracker extends Group
 
         // Create text field, aligned with widget, but assert minimum size
         final MacroizedWidgetProperty<String> property = (MacroizedWidgetProperty<String>)check.get();
-        final TextField text = new TextField(property.getSpecification());
-        text.setPromptText(property.getDescription());
-        text.relocate(tracker.getX(), tracker.getY());
-        text.resize(Math.max(100, tracker.getWidth()), Math.max(20, tracker.getHeight()));
-        getChildren().add(text);
-
-        System.out.println("Added in-place editor for " + widget);
-        text.requestFocus();
+        inline_editor = new TextField(property.getSpecification());
+        inline_editor.setPromptText(property.getDescription()); // Not really shown since TextField will have focus
+        inline_editor.setTooltip(new Tooltip(property.getDescription()));
+        inline_editor.relocate(tracker.getX(), tracker.getY());
+        inline_editor.resize(Math.max(100, tracker.getWidth()), Math.max(20, tracker.getHeight()));
+        getChildren().add(inline_editor);
 
         // On enter, update the property. On Escape, just close
-        text.setOnKeyPressed(event ->
+        inline_editor.setOnKeyPressed(event ->
         {
-            if (event.getCode() == KeyCode.ENTER)
+            switch (event.getCode())
             {
-                property.setSpecification(text.getText());
-                getChildren().remove(text);
-                System.out.println("Save & close in-place editor");
-            }
-            if (event.getCode() == KeyCode.ESCAPE)
-            {
-                getChildren().remove(text);
-                System.out.println("Closed in-place editor");
+            case ENTER:
+                undo.execute(new SetMacroizedWidgetPropertyAction(property, inline_editor.getText()));
+                // Fall through, close editor
+            case ESCAPE:
+                event.consume();
+                closeInlineEditor();
+            default:
             }
         });
+        // Close when focus lost
+        inline_editor.focusedProperty().addListener((prop, old, focused) ->
+        {
+            if (! focused)
+                closeInlineEditor();
+        });
+
+        inline_editor.selectAll();
+        inline_editor.requestFocus();
+    }
+
+    private void closeInlineEditor()
+    {
+        getChildren().remove(inline_editor);
+        inline_editor = null;
     }
 
     /** @param event {@link MouseEvent}; <code>null</code> if not triggered by mouse */
