@@ -5,7 +5,7 @@ Update of CS-Studio 'BOY',
 i.e. the `org.csstudio.opibuilder.*` code in 
 https://github.com/ControlSystemStudio/cs-studio.
 
-Goal: Very similar functionality and "look",
+Goal: Similar functionality and "look",
 ability to read existing *.opi files,
 with improvements:
 
@@ -24,10 +24,8 @@ with improvements:
    Java support.
  * Runtime independent of representation and editor.
 
-Nightly Snapshot
-----------------
-
-To try the latest nightly snapshot:
+Try Nightly Snapshot
+--------------------
 
 1. Download the 'Basic EPICS' or SNS version of CS-Studio from http://ics-web.sns.ornl.gov/css/nightly
 2. Start css with command-line options `-vmargs -Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi` or assert that these settings are in the css.ini file
@@ -39,8 +37,10 @@ To try the latest nightly snapshot:
 6. In the Navigator, right-click on some folder and invoke `New/Other..`, `Display Editor/New Display` to create your first own display.
    
 
-Dependencies
-------------
+Development Details
+-------------------
+
+### Dependencies
 
  * Java 8 SDK, at least 1.8.0_7x.
    Needs 1.8.0_40 for javafx.scene.control.Dialog.
@@ -59,8 +59,7 @@ Dependencies
    Mac OS X: Double-click each *.ttf to preview, then click "Install Font".
 
 
-Source Import into IDE
-----------------------
+### Source Import into IDE
 
 Use `File`, `Import`, `Maven`, `Existing Maven Projects` to import the `org.csstudio.display.builder` source folder into the IDE.
 
@@ -72,8 +71,7 @@ Replace the changes with the HEAD version of the repository.
  and add access rules to permit use of javafx.* classes)
 
 
-Entry Points
------------- 
+### Entry Points
 
 __Standalone 'main()'-type Java applications:__
 
@@ -157,7 +155,7 @@ https://github.com/kasemir/org.csstudio.display.builder/commit/5abd05bcdd2a3c4fd
 Development Status
 ------------------
 
-** Model **
+#### Model
 
 Describes Widgets and their Properties.
 Widget Properties have well defined types. Access to properties is thread-safe.
@@ -182,7 +180,7 @@ Major TODOs:
    Each new widget is added as its own class derived from the base `Widget`
    and registered via extension point.
 
-** Representation **
+####  Representation
 
 Represents Widgets in a UI toolkit, i.e. makes them visible on the screen.
 Implemented for SWT and JavaFX to demonstrate that different toolkits can be supported,
@@ -197,7 +195,7 @@ Major TODOs:
    On change, it can prepare the UI update, which is then scheduled via `ToolkitRepresentation.scheduleUpdate()`
    to occur on the UI thread in a throttled manner.
  
-** Runtime **
+####  Runtime
 
 Connects to PVs, executes Jython and JavaScript in background threads.
 Throttled updates on user interface thread.
@@ -223,7 +221,7 @@ Major TODOs:
 
  * None?
  
-** Editor **
+####  Editor
 
 Interactive display editor.
 
@@ -238,7 +236,7 @@ Considered GEF 4 which supports JFX, but still lacks basics like palette & prope
 Major TODOs:
  * Rulers, Guides
 
-** Eclipse Integration **
+####  Eclipse Integration
 
 Everything can be tested in form of JUnit tests or 'main' type demos.
 
