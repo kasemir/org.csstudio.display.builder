@@ -22,6 +22,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
+import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
@@ -162,6 +163,16 @@ public class PropertyPanelSection extends GridPane
             bindings.add(binding);
             binding.bind();
             field = check;
+        }
+        else if (property instanceof ColorMapWidgetProperty)
+        {
+            final ColorMapWidgetProperty colormap_prop = (ColorMapWidgetProperty) property;
+            final Button map_button = new Button();
+            map_button.setMaxWidth(Double.MAX_VALUE);
+            final ColorMapPropertyBinding binding = new ColorMapPropertyBinding(undo, map_button, colormap_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = map_button;
         }
         else if (property instanceof MacroizedWidgetProperty)
         {

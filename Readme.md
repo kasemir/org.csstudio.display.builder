@@ -97,7 +97,7 @@ __Feature for a CS-Studio product:__
 
  * org.csstudio.display.builder.feature
  
-Registers the Display Builder editor for *.opi files.
+Registers the Display Builder editor for *.opi and *.bob files.
 Display files can be executed from within the editor,
 or via a `File`, `Top Displays` menu entry configured
 via `org.csstudio.display.builder.rcp/top_displays`.

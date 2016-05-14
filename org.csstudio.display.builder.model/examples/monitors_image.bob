@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="2.0.0">
+<display version="1.0.0">
   <name>Display</name>
   <x>-1</x>
   <y>-1</y>
@@ -27,10 +27,75 @@ followed by the pixels of the top row, then the second row and so on.</text>
   <widget type="image" version="2.0.0">
     <name>Image</name>
     <y>151</y>
-    <width>471</width>
+    <width>291</width>
     <height>299</height>
     <pv_name>sim://sawtooth(10, 50, 10000, 0.5)</pv_name>
     <minimum>-1.0</minimum>
     <maximum>1.0</maximum>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_2</name>
+    <y>501</y>
+    <width>271</width>
+    <height>120</height>
+    <text>Default; perceptually uniform.
+Represents value range without
+emphasising any subsection.
+Differences in computer monitors or
+color vision deficiency have only minor 
+impacts on overall perception. </text>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <y>471</y>
+    <width>171</width>
+    <text>'Viridis' Color Map</text>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="image" version="2.0.0">
+    <name>Image_1</name>
+    <x>331</x>
+    <y>151</y>
+    <width>291</width>
+    <height>299</height>
+    <pv_name>sim://sawtooth(10, 50, 10000, 0.5)</pv_name>
+    <minimum>-1.0</minimum>
+    <maximum>1.0</maximum>
+    <color_map>
+      <name>JET</name>
+    </color_map>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_4</name>
+    <x>331</x>
+    <y>471</y>
+    <width>171</width>
+    <text>'Jet' Color Map</text>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_5</name>
+    <x>331</x>
+    <y>501</y>
+    <width>320</width>
+    <height>120</height>
+    <text>Example for alternate color map; colorful.
+May add visual interest, but distorts the data
+because it over-emphasizes subsections of
+the value range.</text>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
   </widget>
 </display>
