@@ -54,7 +54,7 @@ public class ColorMap
     // map = plt.get_cmap('viridis')
     // for i,c in enumerate(map.colors):
     //     print("{ %4d, %3d, %3d, %3d }," % ( i, c[0]*255, c[1]*255, c[2]*255) )
-    public final static Predefined VIRIDIS = new Predefined("VIRIDIS", "Viridis", new int[][]
+    public final static Predefined VIRIDIS = new Predefined("VIRIDIS", "Viridis (perceptually uniform)", new int[][]
     {
        {   0,  68,   1,  84 },
        {   1,  68,   2,  85 },
@@ -314,7 +314,7 @@ public class ColorMap
        { 255, 253, 231,  36 }
     });
 
-    public final static Predefined GRAY = new Predefined("GRAY", "GrayScale", new int[][]
+    public final static Predefined GRAY = new Predefined("GRAY", "Gray Scale", new int[][]
     {
         {   0,   0,   0,   0 },
         { 255, 255, 255, 255 }
@@ -330,7 +330,7 @@ public class ColorMap
         { 255, 128,   0,   0 }
     });
 
-    public final static Predefined SPECTRUM = new Predefined("SPECTRUM", "ColorSpectrum", new int[][]
+    public final static Predefined SPECTRUM = new Predefined("SPECTRUM", "Color Spectrum", new int[][]
     {
         {   0,   0,   0,   0 },
         {  32, 255,   0, 255 },
