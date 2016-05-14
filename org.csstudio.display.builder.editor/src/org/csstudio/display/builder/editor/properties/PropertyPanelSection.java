@@ -22,7 +22,6 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
-import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
@@ -167,26 +166,13 @@ public class PropertyPanelSection extends GridPane
         }
         else if (property instanceof ColorMapWidgetProperty)
         {
-            final ColorMapWidgetProperty map_prop = (ColorMapWidgetProperty) property;
-            final ComboBox<String> check = new ComboBox<>();
-            check.setPromptText(property.getDefaultValue().toString());
-            check.setEditable(true);
-
-            // TODO Add 'Custom' to map options
-            check.getItems().add("Custom");
-            for (ColorMap.Predefined map : ColorMap.PREDEFINED)
-                check.getItems().add(map.getName());
-
-            // TODO Binding
-            if (map_prop.getValue() instanceof ColorMap.Predefined)
-                check.setValue(((ColorMap.Predefined)map_prop.getValue()).getName());
-            else
-                check.setValue(check.getItems().get(0));
-//            final EnumWidgetPropertyBinding binding =
-//                    new EnumWidgetPropertyBinding(undo, check, enum_prop, other);
-//            bindings.add(binding);
-//            binding.bind();
-            field = check;
+            final ColorMapWidgetProperty colormap_prop = (ColorMapWidgetProperty) property;
+            final Button map_button = new Button();
+            map_button.setMaxWidth(Double.MAX_VALUE);
+            final ColorMapPropertyBinding binding = new ColorMapPropertyBinding(undo, map_button, colormap_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = map_button;
         }
         else if (property instanceof MacroizedWidgetProperty)
         {
