@@ -430,6 +430,9 @@ public class ColorMap
         return sections;
     }
 
+    /** @param intensity Intensity 0 to 255
+     *  @return Color for that intensity
+     */
     public WidgetColor getColor(final int intensity)
     {
         if (intensity <= 0)
@@ -439,6 +442,9 @@ public class ColorMap
         return colors[intensity];
     }
 
+    /** @param intensity Intensity 0.0 to 1.0
+     *  @return Color for that intensity
+     */
     public WidgetColor getColor(final double intensity)
     {
         // Rounds to nearest of the 255 colors.
