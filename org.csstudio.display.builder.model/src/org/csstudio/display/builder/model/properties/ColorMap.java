@@ -17,15 +17,27 @@ public class ColorMap
     /** Named color map used for pre-defined values */
     public static class Predefined extends ColorMap
     {
-        private final String name;
+        private final String name, description;
 
-        Predefined(final String name, final int[][] sections) throws IllegalArgumentException
+        Predefined(final String name, final String description, final int[][] sections) throws IllegalArgumentException
         {
             super(sections);
             this.name = name;
+            this.description = description;
         }
 
         public String getName()
+        {
+            return name;
+        }
+
+        public String getDescription()
+        {
+            return description;
+        }
+
+        @Override
+        public String toString()
         {
             return name;
         }
@@ -42,7 +54,7 @@ public class ColorMap
     // map = plt.get_cmap('viridis')
     // for i,c in enumerate(map.colors):
     //     print("{ %4d, %3d, %3d, %3d }," % ( i, c[0]*255, c[1]*255, c[2]*255) )
-    public final static Predefined VIRIDIS = new Predefined("Viridis", new int[][]
+    public final static Predefined VIRIDIS = new Predefined("VIRIDIS", "Viridis", new int[][]
     {
        {   0,  68,   1,  84 },
        {   1,  68,   2,  85 },
@@ -302,13 +314,13 @@ public class ColorMap
        { 255, 253, 231,  36 }
     });
 
-    public final static Predefined GRAY = new Predefined("GrayScale", new int[][]
+    public final static Predefined GRAY = new Predefined("GRAY", "GrayScale", new int[][]
     {
         {   0,   0,   0,   0 },
         { 255, 255, 255, 255 }
     });
 
-    public final static Predefined JET = new Predefined("Jet", new int[][]
+    public final static Predefined JET = new Predefined("JET", "Jet", new int[][]
     {
         {   0,   0,   0, 143 },
         {  28,   0,   0, 255 },
@@ -318,7 +330,7 @@ public class ColorMap
         { 255, 128,   0,   0 }
     });
 
-    public final static Predefined SPECTRUM = new Predefined("ColorSpectrum", new int[][]
+    public final static Predefined SPECTRUM = new Predefined("SPECTRUM", "ColorSpectrum", new int[][]
     {
         {   0,   0,   0,   0 },
         {  32, 255,   0, 255 },
@@ -331,7 +343,7 @@ public class ColorMap
         { 255, 255, 255, 255 }
     });
 
-    public final static Predefined HOT = new Predefined("Hot", new int[][]
+    public final static Predefined HOT = new Predefined("HOT", "Hot", new int[][]
     {
         {   0,  11,   0,   0 },
         {  94, 255,   0,   0 },
@@ -339,13 +351,13 @@ public class ColorMap
         { 255, 255, 255, 255 }
     });
 
-    public final static Predefined COOL = new Predefined("Cool", new int[][]
+    public final static Predefined COOL = new Predefined("COOL", "Cool", new int[][]
     {
         {   0,   0, 255, 255 },
         { 255, 255,   0, 255 }
     });
 
-    public final static Predefined SHADED = new Predefined("Shaded", new int[][]
+    public final static Predefined SHADED = new Predefined("SHADED", "Shaded", new int[][]
     {
         {   0,   0,   0,   0 },
         { 128, 255,   0,   0 },
