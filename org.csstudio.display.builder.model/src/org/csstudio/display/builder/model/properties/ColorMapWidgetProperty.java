@@ -40,16 +40,6 @@ public class ColorMapWidgetProperty extends WidgetProperty<ColorMap>
         super(descriptor, widget, default_value);
     }
 
-
-
-    @Override
-    public boolean isDefaultValue()
-    {
-        return false; // TODO Remove, only to force XML
-    }
-
-
-
     @Override
     public void setValueFromObject(final Object value) throws Exception
     {
@@ -62,30 +52,95 @@ public class ColorMapWidgetProperty extends WidgetProperty<ColorMap>
     @Override
     public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
     {
-        Optional<ColorMap.Predefined> map = value.getPredefined();
-        if (map.isPresent())
+        if (value instanceof ColorMap.Predefined)
         {
+            final ColorMap.Predefined map = (ColorMap.Predefined) value;
             writer.writeStartElement(XMLTags.NAME);
-            writer.writeCharacters(map.get().name());
+            writer.writeCharacters(map.getName());
             writer.writeEndElement();
         }
         else
         {
-            // TODO Write sections of color map
-            // <map>
-            //   <e red="0" green="0" blue="0">0.0</e>
-            //   <e red="255" green="255" blue="255">1.0</e>
-            // </map>
+            final int[][] sections = value.getSections();
+            for (int i=0; i<sections.length; ++i)
+            {
+                writer.writeEmptyElement("section");
+                writer.writeAttribute(XMLTags.VALUE, Integer.toString(sections[i][0]));
+                writer.writeAttribute(XMLTags.RED, Integer.toString(sections[i][1]));
+                writer.writeAttribute(XMLTags.GREEN, Integer.toString(sections[i][2]));
+                writer.writeAttribute(XMLTags.BLUE, Integer.toString(sections[i][3]));
+            }
         }
     }
 
     @Override
     public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
-        // TODO Read colormap sections
-        // TODO Translate legacy <map>2</map>
+        // Translate legacy <map>2</map>
+        final Optional<Integer> legacy_map = XMLUtil.getChildInteger(property_xml, "map");
+        if (legacy_map.isPresent())
+        {
+            switch (legacy_map.get())
+            {
+            case 1: // GrayScale
+                setValue(ColorMap.GRAY);
+                break;
+            case 2: // JET
+                setValue(ColorMap.JET);
+                break;
+            case 3: // ColorSpectrum
+                setValue(ColorMap.SPECTRUM);
+                break;
+            case 4: // Hot
+                setValue(ColorMap.HOT);
+                break;
+            case 5: // Cool
+                setValue(ColorMap.COOL);
+                break;
+            case 6: // Shaded
+                setValue(ColorMap.SHADED);
+                break;
+            }
+            return;
+        }
 
-        XMLUtil.getChildString(property_xml, XMLTags.NAME)
-               .ifPresent(name -> setValue(ColorMap.Predefined.valueOf(name).get()));
+        // TODO Read legacy sections?
+        // <map>
+        //   <e red="0" green="0" blue="0">0.0</e>
+        //   <e red="255" green="255" blue="255">1.0</e>
+        // </map>
+
+        // Named (predefined) color map?
+        final Optional<String> name = XMLUtil.getChildString(property_xml, XMLTags.NAME);
+        if (name.isPresent())
+        {
+            for (ColorMap.Predefined map : ColorMap.PREDEFINED)
+                if (map.getName().equals(name.get()))
+                {
+                    setValue(map);
+                    break;
+                }
+            return;
+        }
+        // Sectional color map?
+        final int[][] sections = new int[256][4];
+        int entries = 0;
+        for (Element section : XMLUtil.getChildElements(property_xml, "section"))
+        {
+            if (entries >= sections.length)
+                throw new Exception("More than " + sections.length + " color map sections");
+            sections[entries][0] = Integer.parseInt(section.getAttribute(XMLTags.VALUE));
+            sections[entries][1] = Integer.parseInt(section.getAttribute(XMLTags.RED));
+            sections[entries][2] = Integer.parseInt(section.getAttribute(XMLTags.GREEN));
+            sections[entries][3] = Integer.parseInt(section.getAttribute(XMLTags.BLUE));
+            ++entries;
+        }
+        if (entries > 0)
+        {   // Shrink array
+            final int[][] used = new int[entries][4];
+            for (int i=0; i<entries; ++i)
+                System.arraycopy(sections[i], 0, used[i], 0, 4);
+            setValue(new ColorMap(used));
+        }
     }
 }

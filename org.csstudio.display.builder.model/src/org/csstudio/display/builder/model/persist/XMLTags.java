@@ -14,15 +14,18 @@ package org.csstudio.display.builder.model.persist;
 public interface XMLTags
 {
     public static final String ACTION = "action";
+    public static final String BLUE = "blue";
     public static final String COLOR = "color";
     public static final String DESCRIPTION = "description";
     public static final String DISPLAY = "display";
     public static final String FILE = "file";
     public static final String FONT = "font";
+    public static final String GREEN = "green";
     public static final String MACROS = "macros";
     public static final String NAME = "name";
     public static final String PATH = "path";
     public static final String PV_NAME = "pv_name";
+    public static final String RED = "red";
     public static final String RULE = "rule";
     public static final String SCRIPT = "script";
     public static final String TARGET = "target";

@@ -109,7 +109,7 @@ public class ImageWidget extends VisibleWidget
         properties.add(data_height = dataHeight.createProperty(this, 100));
         properties.add(data_minimum = behaviorMinimum.createProperty(this, 0.0));
         properties.add(data_maximum = behaviorMaximum.createProperty(this, 255.0));
-        properties.add(data_colormap = dataColormap.createProperty(this, ColorMap.Predefined.VIRIDIS.get()));
+        properties.add(data_colormap = dataColormap.createProperty(this, ColorMap.VIRIDIS));
         properties.add(value = runtimeValue.createProperty(this, null));
     }
 
