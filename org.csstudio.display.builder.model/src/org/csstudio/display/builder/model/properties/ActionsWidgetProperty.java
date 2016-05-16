@@ -28,6 +28,7 @@ import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
+import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo.Target;
 import org.eclipse.osgi.util.NLS;
 import org.w3c.dom.Element;
 
@@ -63,6 +64,17 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
             setValue(Arrays.asList((ActionInfo[]) value));
         else
             throw new Exception("Need ActionInfo[], got " + value);
+    }
+
+    private Target modeToTargetConvert(int mode)
+    {
+        if (mode == 0)
+            return OpenDisplayActionInfo.Target.REPLACE;
+
+        if ((mode >= 1) && (mode <= 6))
+            return OpenDisplayActionInfo.Target.TAB;
+
+        return OpenDisplayActionInfo.Target.WINDOW;
     }
 
     @Override
@@ -140,12 +152,13 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
             if (OPEN_DISPLAY.equalsIgnoreCase(type)) // legacy used uppercase type name
             {   // Use <file>, falling back to legacy <path>
                 final String file = XMLUtil.getChildString(action_xml, XMLTags.FILE)
-                                           .orElse(XMLUtil.getChildString(action_xml, "path")
-                                                          .orElse(""));
+                        .orElse(XMLUtil.getChildString(action_xml, "path")
+                                .orElse(""));
 
                 OpenDisplayActionInfo.Target target = OpenDisplayActionInfo.Target.REPLACE;
                 // Legacy used <replace> with value 0/1/2 for TAB/REPLACE/WINDOW
                 final Optional<String> replace = XMLUtil.getChildString(action_xml, "replace");
+                final Optional<String> mode = XMLUtil.getChildString(action_xml, "mode");
                 if (replace.isPresent())
                 {
                     if ("0".equals(replace.get()))
@@ -153,11 +166,15 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                     else if ("2".equals(replace.get()))
                         target = OpenDisplayActionInfo.Target.WINDOW;
                 }
+                else if (mode.isPresent())
+                {
+                    target = modeToTargetConvert(Integer.valueOf(mode.get()));
+                }
                 else
                     target = OpenDisplayActionInfo.Target.valueOf(
-                        XMLUtil.getChildString(action_xml, XMLTags.TARGET)
-                               .orElse(OpenDisplayActionInfo.Target.REPLACE.name())
-                               .toUpperCase() );
+                            XMLUtil.getChildString(action_xml, XMLTags.TARGET)
+                            .orElse(OpenDisplayActionInfo.Target.REPLACE.name())
+                            .toUpperCase() );
 
                 final Macros macros;
                 final Element macro_xml = XMLUtil.getChildElement(action_xml, XMLTags.MACROS);
@@ -217,7 +234,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 if (embed)
                 {
                     final String dialect = type.contains("PYTHON")
-                                         ? ScriptInfo.EMBEDDED_PYTHON : ScriptInfo.EMBEDDED_JAVASCRIPT;
+                            ? ScriptInfo.EMBEDDED_PYTHON : ScriptInfo.EMBEDDED_JAVASCRIPT;
                     info = new ScriptInfo(dialect, text, Collections.emptyList());
                 }
                 else

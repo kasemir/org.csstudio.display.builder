@@ -50,7 +50,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
     private final DirtyFlag dirty_actionls = new DirtyFlag();
 
     private volatile ButtonBase base;
-    private volatile String background, font_color;
+    private volatile String background, text_fill, fx_base;
     private volatile Color foreground;
 
     /** Optional modifier of the open display 'target */
@@ -71,8 +71,10 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         // Monitor keys that modify the OpenDisplayActionInfo.Target.
         // Use filter to capture event that's otherwise already handled.
         base.addEventFilter(MouseEvent.MOUSE_PRESSED, this::checkModifiers);
+
         pane = new Pane();
         pane.getChildren().add(base);
+
         return pane;
     }
 
@@ -145,11 +147,15 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
 
         WidgetColor col = model_widget.displayBackgroundColor().getValue();
         background = String.format("-fx-background-color: #%02x%02x%02x;", col.getRed(), col.getGreen(), col.getBlue());
+        fx_base = String.format("-fx-base: #%02x%02x%02x;", col.getRed(), col.getGreen(), col.getBlue());
 
         col = model_widget.displayForegroundColor().getValue();
-        font_color = String.format("-fx-text-fill: #%02x%02x%02x;", col.getRed(), col.getGreen(), col.getBlue());
+        text_fill = String.format("-fx-text-fill: #%02x%02x%02x;", col.getRed(), col.getGreen(), col.getBlue());
 
         foreground = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
+
+        //fx_base = ".context-menu { -fx-skin: \"com.sun.javafx.scene.control.skin.ContextMenuSkin\"; -fx-background-color: darkgreen;";
+        //fx_base += "-fx-background-insets: 0, 1, 2; -fx-background-radius: 0 6 6 6, 0 5 5 5, 0 4 4 4; -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em; /* 4 1 8 1 */ }";
     }
 
     private void makeBaseButton()
@@ -173,13 +179,24 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             {
                 final MenuItem item = new MenuItem(action.getDescription());
                 //item.setStyle("-fx-background-color: slateblue; -fx-text-fill: white;");
+                item.setStyle(background + " " + text_fill);
                 item.setOnAction(event -> handleAction(action));
                 button.getItems().add(item);
             }
             base = button;
         }
         //button1.setStyle("-fx-font: 22 arial; -fx-base: #b6e7c9;");
-        base.setStyle(background);
+        base.setStyle(background + " " + fx_base);
+
+        if (toolkit.isEditMode())
+        {
+            //base.setOnMouseReleased(event -> {});
+            base.setOnMousePressed((event) ->
+            {
+                event.consume();
+                toolkit.fireClick(model_widget, event.isControlDown());
+            });
+        }
 
         //TODO: disable dropdown if in edit mode
     }

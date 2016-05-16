@@ -79,6 +79,14 @@
     <width>160</width>
     <height>50</height>
     <text>Open Screens</text>
+    <background_color>
+      <color red="128" green="77" blue="128">
+      </color>
+    </background_color>
+    <foreground_color>
+      <color red="255" green="255" blue="102">
+      </color>
+    </foreground_color>
     <actions>
       <action type="open_display">
         <file>screen_A.bob</file>
