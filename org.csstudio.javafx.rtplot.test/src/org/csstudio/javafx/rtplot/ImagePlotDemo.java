@@ -67,9 +67,10 @@ public class ImagePlotDemo extends Application
 
         final ImagePlot plot = new ImagePlot();
 
-        timer.scheduleAtFixedRate(() -> plot.setValue(WIDTH, HEIGHT, computeData()),
-                                  100, 50, TimeUnit.MILLISECONDS);
+        plot.setColorMapping(ImagePlot.RAINBOW);
 
+        timer.scheduleAtFixedRate(() -> plot.setValue(WIDTH, HEIGHT, computeData()),
+                                  200, 100, TimeUnit.MILLISECONDS);
 
 		final Pane root = new Pane(plot);
 		plot.widthProperty().bind(root.widthProperty());

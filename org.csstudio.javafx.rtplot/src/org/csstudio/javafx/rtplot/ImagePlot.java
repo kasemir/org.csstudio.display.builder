@@ -109,6 +109,12 @@ public class ImagePlot extends Canvas
         heightProperty().addListener(resize_listener);
     }
 
+    /** @param color_mapping Function that returns {@link Color} for value 0.0 .. 1.0 */
+    public void setColorMapping(final DoubleFunction<Color> color_mapping)
+    {
+        this.color_mapping = color_mapping;
+    }
+
     /** Set the data to display
      *  @param width Number of elements in one 'row' of data
      *  @param height Number of data rows
@@ -158,6 +164,13 @@ public class ImagePlot extends Canvas
     /** Draw all components into image buffer */
     private void updateImageBuffer()
     {
+        // Would like to use JFX WritableImage,
+        // but rendering problem on Linux (sandbox.ImageScaling),
+        // and no way to disable the color interpolation that 'smears'
+        // the scaled image.
+        // (http://bugs.java.com/bugdatabase/view_bug.do?bug_id=8091877).
+        // So image is prepared in AWT and then converted to JFX
+
         logger.log(Level.FINE, "updateImageBuffer");
         final Rectangle area_copy = area;
         if (area_copy.width <= 0  ||  area_copy.height <= 0)
@@ -171,6 +184,8 @@ public class ImagePlot extends Canvas
         gc.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
         gc.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
         gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+
+        // TODO If autoscale, compute min..max here, before layout of color bar
 
         if (need_layout.getAndSet(false))
             computeLayout(gc, area_copy);
@@ -188,7 +203,8 @@ public class ImagePlot extends Canvas
 
         // Paint the image
         final BufferedImage unscaled = drawData();
-        gc.drawImage(unscaled, 0, 0, image_area.width, image_area.height, null);
+        if (unscaled != null)
+            gc.drawImage(unscaled, 0, 0, image_area.width, image_area.height, null);
 
         gc.dispose();
 
@@ -209,19 +225,18 @@ public class ImagePlot extends Canvas
         final ListNumber numbers = this.image_data;
 
         // Create image that'll be written with data
-        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_RGB);
-
         if (data_width <= 0  ||  data_height <= 0)
         {
-            logger.log(Level.WARNING, "Cannot draw image sized {0} x {1}", new Object[] { data_width, data_height });
-            return image;
+            logger.log(Level.FINE, "Cannot draw image sized {0} x {1}", new Object[] { data_width, data_height });
+            return null;
         }
         if (numbers.size() < data_width * data_height)
         {
             logger.log(Level.SEVERE, "Image sized {0} x {1} received only {2} data samples",
                                      new Object[] { data_width, data_height, numbers.size() });
-            return image;
+            return null;
         }
+        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_RGB);
 
         if (true) // TODO If autoscale..
         {
