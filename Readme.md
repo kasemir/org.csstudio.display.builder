@@ -5,9 +5,9 @@ Update of CS-Studio 'BOY',
 i.e. the `org.csstudio.opibuilder.*` code in 
 https://github.com/ControlSystemStudio/cs-studio.
 
-Goal is to provide the same functionality,
-including read-compatibility with existing *.opi files
-and similar "look", with improvements:
+Goal: Similar functionality and "look",
+ability to read existing *.opi files,
+with improvements:
 
  * Model loads in background threads.
    Opening a new display will no longer result in user interface freeze,
@@ -21,13 +21,11 @@ and similar "look", with improvements:
    to allow each to be developed and optimized in parallel.
  * Representation could be SWT, AWT, .., JavaFX, favoring the latter
    because it currently promises best performance and long term
-   Java support
+   Java support.
  * Runtime independent of representation and editor.
 
-Nightly Snapshot
-----------------
-
-To try the latest nightly snapshot:
+Try Nightly Snapshot
+--------------------
 
 1. Download the 'Basic EPICS' or SNS version of CS-Studio from http://ics-web.sns.ornl.gov/css/nightly
 2. Start css with command-line options `-vmargs -Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi` or assert that these settings are in the css.ini file
@@ -35,31 +33,38 @@ To try the latest nightly snapshot:
    as a site, select the display builder for installation, follow the steps in the installation dialog, restart.
 4. Open the menu `CS-Studio`, `Utilities`, `Install Samples` to install the `Display Builder` examples.
 5. In the Navigator, open the `Display Builder/01_main.bob` file in the editor, look around,
-   press the green 'Execute' button in the toolbar. 
+   press the green `Execute` button in the toolbar.
+6. In the Navigator, right-click on some folder and invoke `New/Other..`, `Display Editor/New Display` to create your first own display.
+
+You should install the "Liberation" fonts from https://fedorahosted.org/liberation-fonts
+which are used by the examples.
+Mac OS X: Double-click each *.ttf to preview, then click "Install Font".
    
 
-Dependencies
-------------
+Development Details
+-------------------
+
+### Dependencies
 
  * Java 8 SDK, at least 1.8.0_7x.
    Needs 1.8.0_40 for javafx.scene.control.Dialog.
    1.8.0_51 causes ComboBoxes in editor's property panel to hang on Windows, fixed in later releases.
  * Eclipse IDE for RCP Development with `Tycho Configurator`.
-   In `Preferences`, `Maven`, `Catalog`, search for "tycho" and install it.
- * In Eclipse Preferences, Java, Build Path, Classpath Variables:
+   In `Preferences`, `Maven`, `Discovery`, `Open Catalog`, search for "tycho" and install it.
+ * In `Preferences`, `Maven`, `Errors/Warnings`, disable all errors, for example select "Ignore" for all of them.
+ * In Eclipse `Preferences`, `Java`, `Build Path`, `Classpath Variables`:
    Set `JFXSWT` to the `lib/jfxswt.jar` file within your JRE.
    For example, on Mac OS X this could be `/Library/Java/JavaVirtualMachines/jdk1.8.0_71.jdk/Contents/Home/jre/lib/jfxswt.jar`.
- * As Eclipse Preferences, Plugin Development, Target platform, use a CS-Studio target.
+ * In Eclipse `Preferences`, `Java`, `Compiler`, `Errors/Warnings`, `Deprecated and restricted API`, change the level for "Forbidden Reference (access rules)" from `Error` to `Warning`.
+   Set `JFXSWT` to the `lib/jfxswt.jar` file within your JRE.
+   For example, on Mac OS X this could be `/Library/Java/JavaVirtualMachines/jdk1.8.0_71.jdk/Contents/Home/jre/lib/jfxswt.jar`.
+ * In Eclipse Preferences, Plugin Development, Target platform, define a CS-Studio target.
    For example, use the current IDE and add a "Directory" pointing to a CSS product's `plugins/` directory.
  * In product start config, add VM options
    `-Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`
  * Demos use EPICS `softIoc` for `org.csstudio.display.builder.runtime.test/examples/demo.db`
- * Install the "Liberation" fonts from https://fedorahosted.org/liberation-fonts.
-   Mac OS X: Double-click each *.ttf to preview, then click "Install Font".
 
-
-Source Import into IDE
-----------------------
+### Source Import into IDE
 
 Use `File`, `Import`, `Maven`, `Existing Maven Projects` to import the `org.csstudio.display.builder` source folder into the IDE.
 
@@ -71,8 +76,7 @@ Replace the changes with the HEAD version of the repository.
  and add access rules to permit use of javafx.* classes)
 
 
-Entry Points
------------- 
+### Entry Points
 
 __Standalone 'main()'-type Java applications:__
 
@@ -98,7 +102,7 @@ __Feature for a CS-Studio product:__
 
  * org.csstudio.display.builder.feature
  
-Registers the Display Builder editor for *.opi files.
+Registers the Display Builder editor for *.opi and *.bob files.
 Display files can be executed from within the editor,
 or via a `File`, `Top Displays` menu entry configured
 via `org.csstudio.display.builder.rcp/top_displays`.
@@ -108,7 +112,7 @@ __Command-line build:__
 
  * build/make.sh
 
-Allows compilation from command line, for example to automate a nightly build.
+Allows compilation from command line, for example to automate a nightly build. Requires maven.
 
 
 Code Overview
@@ -136,6 +140,9 @@ Display editor, implemented in Java FX.
 `org.csstudio.display.builder.editor.rcp`:
 Hosts editor inside CS-Studio.
 
+`org.csstudio.display.builder.editor.examples`:
+RCP plugin for installing the examples.
+
 `org.csstudio.display.builder.util`,
 `org.csstudio.javafx`,
 `org.csstudio.javafx.rtplot`:
@@ -153,7 +160,7 @@ https://github.com/kasemir/org.csstudio.display.builder/commit/5abd05bcdd2a3c4fd
 Development Status
 ------------------
 
-** Model **
+#### Model
 
 Describes Widgets and their Properties.
 Widget Properties have well defined types. Access to properties is thread-safe.
@@ -178,7 +185,7 @@ Major TODOs:
    Each new widget is added as its own class derived from the base `Widget`
    and registered via extension point.
 
-** Representation **
+####  Representation
 
 Represents Widgets in a UI toolkit, i.e. makes them visible on the screen.
 Implemented for SWT and JavaFX to demonstrate that different toolkits can be supported,
@@ -193,7 +200,7 @@ Major TODOs:
    On change, it can prepare the UI update, which is then scheduled via `ToolkitRepresentation.scheduleUpdate()`
    to occur on the UI thread in a throttled manner.
  
-** Runtime **
+####  Runtime
 
 Connects to PVs, executes Jython and JavaScript in background threads.
 Throttled updates on user interface thread.
@@ -213,28 +220,28 @@ The base `WidgetRuntime` handles the following:
  * Each script in the "scripts" property is parsed, its PVs are created,
    and the script is triggered when any of its input PVs change.
    The script can then update widget properties.
+   Similarly, "rules" are converted into scripts and then executed.
 
 Major TODOs:
 
- * Check details of script support: One instance per display? One for each action?
- * Rule engine
+ * None?
  
-** Editor **
+####  Editor
 
 Interactive display editor.
 
 New JFX-based development has Palette, Property Panel, Widget Tree,
+copy/paste,
 move/resize via tracker, snap-to-grid, snap-to-other-widgets,
+align, distribute,
 editor for points of polyline/polygon.
 
 Considered GEF 4 which supports JFX, but still lacks basics like palette & property panel.
 
 Major TODOs:
- * Copy/paste
  * Rulers, Guides
- * Align, distribute within selection
 
-** Eclipse Integration **
+####  Eclipse Integration
 
 Everything can be tested in form of JUnit tests or 'main' type demos.
 
@@ -330,7 +337,8 @@ Most basic option, allows for any JFX item:
 Canvas, Shape, Control, ...
 
 * Region
-Allows for Border (alarm sensitive border, ..)
+Allows for Border (alarm sensitive border, ..).
+Many widgets are based on a Region to support the alarm sensitive border.
 
 * Control
 Has Border, Context Menu, Tool Tip

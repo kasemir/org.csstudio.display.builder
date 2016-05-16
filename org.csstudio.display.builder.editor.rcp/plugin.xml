@@ -28,5 +28,27 @@
             name="%DisplayEditor">
       </editor>
    </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="org.csstudio.display.builder"
+            name="%DisplayEditor">
+      </category>
+
+     <!-- TODO display.builder needs its own perspectives for runtime and editor
+               to run without the opibuilder.
+               
+               The 'finalPerspective' then needs to change into a new
+               display.builder.editor perspective
+       -->
+      <wizard
+            category="org.csstudio.display.builder"
+            class="org.csstudio.display.builder.editor.rcp.NewDisplayWizard"
+            finalPerspective="org.csstudio.opibuilder.opieditor"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
+            id="org.csstudio.display.builder.editor.rcp.NewDisplayWizard"
+            name="%NewDisplay">
+      </wizard>
+   </extension>
 
 </plugin>

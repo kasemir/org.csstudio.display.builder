@@ -12,17 +12,22 @@ import static org.csstudio.display.builder.editor.DisplayEditor.logger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
+import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.ParentHandler;
 import org.csstudio.display.builder.model.ChildrenProperty;
+import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
@@ -32,6 +37,8 @@ import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
@@ -73,6 +80,9 @@ public class SelectedWidgetUITracker extends Group
     private final Rectangle handle_top_left, handle_top, handle_top_right,
                             handle_right, handle_bottom_right, handle_bottom,
                             handle_bottom_left, handle_left;
+
+    /** Inline editor for widget's PV name or text */
+    private TextField inline_editor = null;
 
     /** Widgets to track */
     private List<Widget> widgets = Collections.emptyList();
@@ -140,8 +150,8 @@ public class SelectedWidgetUITracker extends Group
     private void hookEvents()
     {
         tracker.setCursor(Cursor.MOVE);
-        tracker.addEventHandler(MouseEvent.MOUSE_PRESSED, this::startDrag);
-        tracker.addEventHandler(MouseEvent.MOUSE_RELEASED, this::endMouseDrag);
+        tracker.addEventHandler(MouseEvent.MOUSE_PRESSED, this::mousePressed);
+        tracker.addEventHandler(MouseEvent.MOUSE_RELEASED, this::mouseReleased);
         tracker.setOnMouseDragged((MouseEvent event) ->
         {
             if (start_x < 0)
@@ -288,6 +298,82 @@ public class SelectedWidgetUITracker extends Group
         handle.setOnMousePressed(this::startDrag);
         handle.setOnMouseReleased(this::endMouseDrag);
         return handle;
+    }
+
+    /** @param event {@link MouseEvent} */
+    private void mousePressed(final MouseEvent event)
+    {
+        if (event.getClickCount() == 1)
+            startDrag(event);
+        else
+        {
+            event.consume();
+            if (widgets.size() == 1  &&  inline_editor == null)
+                createInlineEditor(widgets.get(0));
+        }
+    }
+
+    /** @param event {@link MouseEvent} */
+    private void mouseReleased(final MouseEvent event)
+    {
+        if (inline_editor == null)
+            endMouseDrag(event);
+    }
+
+    /** Create an inline editor
+     *
+     *  <p>Depending on the widget's properties, it will edit
+     *  the PV name or the text.
+     *
+     *  @param widget Widget on which to create an inline editor
+     */
+    private void createInlineEditor(final Widget widget)
+    {
+        // Check for an inline-editable property
+        Optional<WidgetProperty<String>> check = widget.checkProperty(CommonWidgetProperties.behaviorPVName);
+        if (! check.isPresent())
+            check = widget.checkProperty(CommonWidgetProperties.displayText);
+        if (! check.isPresent())
+            return;
+
+        // Create text field, aligned with widget, but assert minimum size
+        final MacroizedWidgetProperty<String> property = (MacroizedWidgetProperty<String>)check.get();
+        inline_editor = new TextField(property.getSpecification());
+        inline_editor.setPromptText(property.getDescription()); // Not really shown since TextField will have focus
+        inline_editor.setTooltip(new Tooltip(property.getDescription()));
+        inline_editor.relocate(tracker.getX(), tracker.getY());
+        inline_editor.resize(Math.max(100, tracker.getWidth()), Math.max(20, tracker.getHeight()));
+        getChildren().add(inline_editor);
+
+        // On enter, update the property. On Escape, just close
+        inline_editor.setOnKeyPressed(event ->
+        {
+            switch (event.getCode())
+            {
+            case ENTER:
+                undo.execute(new SetMacroizedWidgetPropertyAction(property, inline_editor.getText()));
+                // Fall through, close editor
+            case ESCAPE:
+                event.consume();
+                closeInlineEditor();
+            default:
+            }
+        });
+        // Close when focus lost
+        inline_editor.focusedProperty().addListener((prop, old, focused) ->
+        {
+            if (! focused)
+                closeInlineEditor();
+        });
+
+        inline_editor.selectAll();
+        inline_editor.requestFocus();
+    }
+
+    private void closeInlineEditor()
+    {
+        getChildren().remove(inline_editor);
+        inline_editor = null;
     }
 
     /** @param event {@link MouseEvent}; <code>null</code> if not triggered by mouse */

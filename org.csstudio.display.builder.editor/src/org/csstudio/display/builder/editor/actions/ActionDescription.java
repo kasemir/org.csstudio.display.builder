@@ -217,6 +217,72 @@ public abstract class ActionDescription
         }
     };
 
+    /** Distribute widgets horizontally */
+    public static final ActionDescription DIST_HORIZ =
+        new ActionDescription("icons/distribute_hc.png", Messages.DistributeHorizontally)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            final UndoableActionManager undo = editor.getUndoableActionManager();
+            final int N = widgets.size();
+            if (N < 3)
+                return;
+
+            // Get left/right
+            int left = widgets.get(0).positionX().getValue() + widgets.get(0).positionWidth().getValue()/2;
+            int right = left;
+            for (int i=1; i<N; ++i)
+            {
+                int center = widgets.get(i).positionX().getValue() + widgets.get(i).positionWidth().getValue()/2;
+                left = Math.min(left, center);
+                right = Math.max(right, center);
+            }
+
+            // Set widget's X coord to distribute centers horizontally
+            for (int i=0; i<N; ++i)
+            {
+                final int dest = left + i*(right - left)/(N-1);
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionX(),
+                                                                  dest - widgets.get(i).positionWidth().getValue()/2));
+            }
+        }
+    };
+
+    /** Distribute widgets horizontally */
+    public static final ActionDescription DIST_VERT =
+        new ActionDescription("icons/distribute_vc.png", Messages.DistributeVertically)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            final List<Widget> widgets = editor.getWidgetSelectionHandler().getSelection();
+            final UndoableActionManager undo = editor.getUndoableActionManager();
+            final int N = widgets.size();
+            if (N < 3)
+                return;
+
+            // Get top/bottom
+            int top = widgets.get(0).positionY().getValue() + widgets.get(0).positionHeight().getValue()/2;
+            int bottom = top;
+            for (int i=1; i<N; ++i)
+            {
+                int middle = widgets.get(i).positionY().getValue() + widgets.get(i).positionHeight().getValue()/2;
+                top = Math.min(top, middle);
+                bottom = Math.max(bottom, middle);
+            }
+
+            // Set widget's Y coord to distribute centers horizontally
+            for (int i=0; i<N; ++i)
+            {
+                final int dest = top + i*(bottom - top)/(N-1);
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionY(),
+                                                                  dest - widgets.get(i).positionHeight().getValue()/2));
+            }
+        }
+    };
+
     /** Un-do last change */
     public static final ActionDescription UNDO =
         new ActionDescription("icons/undo.png", Messages.Undo_TT)

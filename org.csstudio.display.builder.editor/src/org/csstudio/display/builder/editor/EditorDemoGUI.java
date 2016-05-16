@@ -74,16 +74,15 @@ public class EditorDemoGUI
     final EventHandler<KeyEvent> key_handler = (event) ->
     {
         final KeyCode code = event.getCode();
-        // Not checking for Control vs. Apple's Command key
-        if (code == KeyCode.Z)
+        if (event.isControlDown()  &&  code == KeyCode.Z)
             editor.getUndoableActionManager().undoLast();
-        else if (code == KeyCode.Y)
+        else if (event.isControlDown()  &&  code == KeyCode.Y)
             editor.getUndoableActionManager().redoLast();
-        else if (code == KeyCode.DELETE  ||  code == KeyCode.BACK_SPACE  ||  code == KeyCode.X)
+        else if (event.isControlDown()  &&  code == KeyCode.X)
             editor.cutToClipboard();
-        else if (code == KeyCode.C)
+        else if (event.isControlDown()  &&  code == KeyCode.C)
             editor.copyToClipboard();
-        else if (code == KeyCode.V)
+        else if (event.isControlDown()  &&  code == KeyCode.V)
         {   // Pasting somewhere in upper left corner
             final Random random = new Random();
             editor.pasteFromClipboard(random.nextInt(100), random.nextInt(100));
