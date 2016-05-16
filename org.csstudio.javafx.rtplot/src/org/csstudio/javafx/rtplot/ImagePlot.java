@@ -37,6 +37,7 @@ import javafx.scene.image.Image;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class ImagePlot extends Canvas
 {
     /** Gray scale color mapping */
@@ -57,8 +58,10 @@ public class ImagePlot extends Canvas
     /** Image data size */
     private volatile int data_width = 0, data_height = 0;
 
+    private volatile boolean autoscale = true;
+
     /** Image data range */
-    private volatile double min=0.0, max=0.0;
+    private volatile double min=0.0, max=1.0;
 
     /** Mapping of value 0..1 to color */
     private volatile DoubleFunction<Color> color_mapping = GRAYSCALE;
@@ -109,6 +112,19 @@ public class ImagePlot extends Canvas
         heightProperty().addListener(resize_listener);
     }
 
+    public void setAutoscale(final boolean autoscale)
+    {
+        this.autoscale = autoscale;
+        requestUpdate();
+    }
+
+    public void setRange(final double min, final double max)
+    {
+        this.min = min;
+        this.max = max;
+        requestUpdate();
+    }
+
     /** @param color_mapping Function that returns {@link Color} for value 0.0 .. 1.0 */
     public void setColorMapping(final DoubleFunction<Color> color_mapping)
     {
@@ -153,7 +169,8 @@ public class ImagePlot extends Canvas
     }
 
     /** Compute layout of plot components */
-    private void computeLayout(final Graphics2D gc, final Rectangle bounds)
+    private void computeLayout(final Graphics2D gc, final Rectangle bounds,
+                               final double min, final double max)
     {
         logger.log(Level.FINE, "computeLayout");
         // TODO Color bar (Y Axis)..
@@ -185,10 +202,31 @@ public class ImagePlot extends Canvas
         gc.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
         gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 
-        // TODO If autoscale, compute min..max here, before layout of color bar
+        // Get safe copy of the data
+        // (not synchronized, i.e. width vs. data may be inconsistent,
+        //  but at least data won't change within this method)
+        final int data_width = this.data_width, data_height = this.data_height;
+        final ListNumber numbers = this.image_data;
+        double min = this.min, max = this.max;
+
+        if (autoscale)
+        {   // Compute min..max before layout of color bar
+            final IteratorNumber iter = numbers.iterator();
+            min = Double.MAX_VALUE;
+            max = Double.NEGATIVE_INFINITY;
+            while (iter.hasNext())
+            {
+                final double sample = iter.nextDouble();
+                if (sample > max)
+                    max = sample;
+                if (sample < min)
+                    min = sample;
+            }
+            logger.log(Level.FINE, "Autoscale range {0} .. {1}", new Object[] { min, max });
+        }
 
         if (need_layout.getAndSet(false))
-            computeLayout(gc, area_copy);
+            computeLayout(gc, area_copy, min, max);
 
         // Debug: Fill background and exact outer rim
 //        gc.setColor(Color.WHITE);
@@ -202,7 +240,7 @@ public class ImagePlot extends Canvas
         // TODO Paint color bar, y_axis.paint(gc, plot_bounds);
 
         // Paint the image
-        final BufferedImage unscaled = drawData();
+        final BufferedImage unscaled = drawData(data_width, data_height, numbers, min, max, color_mapping);
         if (unscaled != null)
             gc.drawImage(unscaled, 0, 0, image_area.width, image_area.height, null);
 
@@ -212,18 +250,17 @@ public class ImagePlot extends Canvas
         plot_image = SwingFXUtils.toFXImage(image, null);
     }
 
-    /** @return {@link BufferedImage}, sized to match data */
-    private BufferedImage drawData()
+    /** @param data_width
+     *  @param data_height
+     *  @param numbers
+     *  @param min
+     *  @param max
+     *  @param color_mapping
+     *  @return {@link BufferedImage}, sized to match data
+     */
+    private static BufferedImage drawData(final int data_width, final int data_height, final ListNumber numbers,
+                                          final double min, final double max, final DoubleFunction<Color> color_mapping)
     {
-        // Get safe copy of the data
-        // (not synchronized, i.e. width vs. data may be inconsistent,
-        //  but at least data won't change within this method)
-        final int data_width = this.data_width;
-        final int data_height = this.data_height;
-        double min = this.min;
-        double max = this.max;
-        final ListNumber numbers = this.image_data;
-
         // Create image that'll be written with data
         if (data_width <= 0  ||  data_height <= 0)
         {
@@ -238,21 +275,6 @@ public class ImagePlot extends Canvas
         }
         final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_RGB);
 
-        if (true) // TODO If autoscale..
-        {
-            final IteratorNumber iter = numbers.iterator();
-            min = Double.MAX_VALUE;
-            max = Double.NEGATIVE_INFINITY;
-            while (iter.hasNext())
-            {
-                final double sample = iter.nextDouble();
-                if (sample > max)
-                    max = sample;
-                if (sample < min)
-                    min = sample;
-            }
-            logger.log(Level.FINE, "Autoscale range {0} .. {1}", new Object[] { min, max });
-        }
         final Graphics2D gc = image.createGraphics();
         if (min < max) // Implies min and max being finite, not-NaN
         {

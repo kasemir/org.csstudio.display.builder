@@ -86,7 +86,7 @@
       </widget>
       <widget
             category="MONITOR"
-            class="org.csstudio.display.builder.model.widgets.ImageWidget"
+            class="org.csstudio.display.builder.model.widgets.plots.ImageWidget"
             description="%ImageWidget_Description"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/image.png"
             name="%ImageWidget_Name"

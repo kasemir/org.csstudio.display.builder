@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.model.widgets;
+package org.csstudio.display.builder.model.widgets.plots;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMinimum;
@@ -26,6 +26,7 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
+import org.csstudio.display.builder.model.widgets.VisibleWidget;
 import org.diirt.vtype.VType;
 
 /** Widget that displays an image
@@ -88,6 +89,8 @@ public class ImageWidget extends VisibleWidget
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<Integer> data_width;
     private volatile WidgetProperty<Integer> data_height;
+
+    private volatile WidgetProperty<Boolean> data_autoscale;
     private volatile WidgetProperty<Double> data_minimum;
     private volatile WidgetProperty<Double> data_maximum;
     private volatile WidgetProperty<ColorMap> data_colormap;
@@ -107,6 +110,7 @@ public class ImageWidget extends VisibleWidget
         properties.add(displayBorderAlarmSensitive.createProperty(this, true));
         properties.add(data_width = dataWidth.createProperty(this, 100));
         properties.add(data_height = dataHeight.createProperty(this, 100));
+        properties.add(data_autoscale = PlotWidgetProperties.autoscale.createProperty(this, false));
         properties.add(data_minimum = behaviorMinimum.createProperty(this, 0.0));
         properties.add(data_maximum = behaviorMaximum.createProperty(this, 255.0));
         properties.add(data_colormap = dataColormap.createProperty(this, ColorMap.VIRIDIS));
@@ -129,6 +133,12 @@ public class ImageWidget extends VisibleWidget
     public WidgetProperty<Integer> behaviorDataHeight()
     {
         return data_height;
+    }
+
+    /** @return Behavior 'autoscale' */
+    public WidgetProperty<Boolean> behaviorDataAutoscale()
+    {
+        return data_autoscale;
     }
 
     /** @return Behavior 'minimum' */

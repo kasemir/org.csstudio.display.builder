@@ -15,7 +15,7 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.csstudio.display.builder.model.widgets.ImageWidget;
+import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.ImagePlot;
 import org.diirt.util.array.ListNumber;
@@ -38,6 +38,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     @Override
     public Pane createJFXNode() throws Exception
     {
+        image_plot.setAutoscale(false);
         return new Pane(image_plot);
     }
 
@@ -47,16 +48,20 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         super.registerListeners();
         model_widget.positionWidth().addUntypedPropertyListener(this::positionChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
+
         model_widget.behaviorDataColormap().addPropertyListener(this::colormapChanged);
+
+        model_widget.behaviorDataAutoscale().addUntypedPropertyListener(this::configChanged);
+        model_widget.behaviorDataMinimum().addUntypedPropertyListener(this::configChanged);
+        model_widget.behaviorDataMaximum().addUntypedPropertyListener(this::configChanged);
+
         model_widget.behaviorDataWidth().addUntypedPropertyListener(this::contentChanged);
         model_widget.behaviorDataHeight().addUntypedPropertyListener(this::contentChanged);
-        // TODO
-//        model_widget.behaviorDataMinimum()
-//        model_widget.behaviorDataMaximum()
         model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
 
         // Initial update
         colormapChanged(null, null, model_widget.behaviorDataColormap().getValue());
+        configChanged(null, null, null);
     }
 
     private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -72,6 +77,13 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
             final WidgetColor color = colormap.getColor(value);
             return new java.awt.Color(color.getRed(), color.getGreen(), color.getBlue());
         });
+    }
+
+    private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        image_plot.setAutoscale(model_widget.behaviorDataAutoscale().getValue());
+        image_plot.setRange(model_widget.behaviorDataMinimum().getValue(),
+                            model_widget.behaviorDataMaximum().getValue());
     }
 
     private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
