@@ -45,7 +45,7 @@ class IndentingXMLStreamWriter implements XMLStreamWriter
         base.writeCharacters(NEWLINE);
         for (int i=0; i<level; ++i)
             base.writeCharacters(INDENTATION);
-        state = State.InElement;
+        //state = State.InElement;
     }
 
     @Override
@@ -145,6 +145,7 @@ class IndentingXMLStreamWriter implements XMLStreamWriter
     {
         indent(level++);
         base.writeStartElement(localName);
+        state = State.InElement;
     }
 
     @Override
@@ -153,6 +154,7 @@ class IndentingXMLStreamWriter implements XMLStreamWriter
     {
         indent(level++);
         base.writeStartElement(namespaceURI, localName);
+        state = State.InElement;
     }
 
     @Override
@@ -161,6 +163,7 @@ class IndentingXMLStreamWriter implements XMLStreamWriter
     {
         indent(level++);
         base.writeStartElement(prefix, localName, namespaceURI);
+        state = State.InElement;
     }
 
     @Override
