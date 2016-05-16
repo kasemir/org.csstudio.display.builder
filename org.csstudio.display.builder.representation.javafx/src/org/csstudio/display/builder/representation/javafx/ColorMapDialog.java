@@ -45,6 +45,8 @@ import javafx.scene.paint.Color;
 @SuppressWarnings("nls")
 public class ColorMapDialog extends Dialog<ColorMap>
 {
+    private static final int COLOR_BAR_HEIGHT = 50;
+
     /** One section of the color map: Value for slot and color */
     private static class ColorSection
     {
@@ -170,7 +172,9 @@ public class ColorMapDialog extends Dialog<ColorMap>
         final HBox color_title = new HBox(fill1, new Label(Messages.ColorMapDialog_Result), fill2);
 
         color_bar = new Region();
-        color_bar.setMinHeight(50.0);
+        color_bar.setMinHeight(COLOR_BAR_HEIGHT);
+        color_bar.setMaxHeight(COLOR_BAR_HEIGHT);
+        color_bar.setPrefHeight(COLOR_BAR_HEIGHT);
 
         final HBox color_legend = new HBox(new Label("0"), fill3, new Label("255"));
 
@@ -290,18 +294,24 @@ public class ColorMapDialog extends Dialog<ColorMap>
     /** Update color bar in UI from current 'map' */
     private void updateColorBar()
     {
-        final WritableImage colors = new WritableImage(256, 1);
+        // On Mac OS X it was OK to create an image sized 256 x 1:
+        // 256 wide to easily set the 256 colors,
+        // 1 pixel height which is then stretched via the BackgroundSize().
+        // On Linux, the result was garbled unless the image height matched the
+        // actual height, so it's now fixed to COLOR_BAR_HEIGHT
+        final WritableImage colors = new WritableImage(256, COLOR_BAR_HEIGHT);
         final PixelWriter writer = colors.getPixelWriter();
         for (int x=0; x<256; ++x)
         {
             final WidgetColor color = map.getColor(x);
             final int arfb = (255 << 24) | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
-            writer.setArgb(x, 0, arfb);
+            for (int y=0; y<COLOR_BAR_HEIGHT; ++y)
+                writer.setArgb(x, y, arfb);
         }
-        // Stretch (256 x 1) image to fill (256 x Height) pixels of color_bar
+        // Stretch image to fill color_bar
         color_bar.setBackground(new Background(
-                new BackgroundImage(colors, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.REPEAT,
+                new BackgroundImage(colors, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
                                     BackgroundPosition.DEFAULT,
-                                    new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, false))));
+                                    new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, true))));
     }
 }
