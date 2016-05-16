@@ -7,26 +7,28 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp.actions;
 
-import org.csstudio.display.builder.editor.DisplayEditor;
-import org.csstudio.display.builder.editor.actions.ToFrontAction;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import java.util.List;
 
-/** Action to move widget to front
+import org.csstudio.display.builder.editor.DisplayEditor;
+import org.csstudio.display.builder.model.Widget;
+import org.eclipse.ui.actions.ActionFactory;
+
+/** Action to select all widgets
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
-public class ToFrontEditorAction extends EditorAction
+public class SelectAllAction extends RetargetActionHandler
 {
-    public ToFrontEditorAction()
+    public SelectAllAction(final DisplayEditor editor)
     {
-        super(org.csstudio.display.builder.editor.Messages.MoveToFront,
-              AbstractUIPlugin.imageDescriptorFromPlugin(org.csstudio.display.builder.editor.Plugin.ID, "icons/tofront.png"));
+        super(editor, ActionFactory.SELECT_ALL.getCommandId());
     }
 
     @Override
     public void run()
     {
-        final DisplayEditor editor = edit_part.getDisplayEditor();
-        new ToFrontAction(editor.getUndoableActionManager(), editor.getWidgetSelectionHandler()).run(true);
+        // Selects all direct child widgets, not widgets inside group etc.
+        // because copying or deleting a group already affects all sub-widgets
+        final List<Widget> widgets = editor.getModel().getChildren();
+        editor.getWidgetSelectionHandler().setSelection(widgets);
     }
 }

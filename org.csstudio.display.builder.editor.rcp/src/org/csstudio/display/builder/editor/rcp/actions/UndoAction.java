@@ -7,25 +7,24 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp.actions;
 
-import org.csstudio.display.builder.util.undo.UndoableActionManager;
-import org.eclipse.jface.action.Action;
+import org.csstudio.display.builder.editor.DisplayEditor;
+import org.eclipse.ui.actions.ActionFactory;
 
 /** Action to un-do last operation
  *  @author Kay Kasemir
  */
-public class UndoAction extends Action
-{   // Used as handler for RetargetAction, so no need for label, icon
-    private final UndoableActionManager manager;
-
-    public UndoAction(final UndoableActionManager manager)
+public class UndoAction extends RetargetActionHandler
+{
+    public UndoAction(final DisplayEditor editor)
     {
-        this.manager = manager;
-        setEnabled(manager.canUndo());
+        super(editor, ActionFactory.UNDO.getCommandId());
+        setEnabled(editor.getUndoableActionManager().canUndo());
     }
 
     @Override
     public void run()
     {
-        manager.undoLast();
+        editor.getWidgetSelectionHandler().clear();
+        editor.getUndoableActionManager().undoLast();
     }
 }

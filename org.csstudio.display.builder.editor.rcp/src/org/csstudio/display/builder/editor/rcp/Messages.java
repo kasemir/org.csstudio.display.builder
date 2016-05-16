@@ -19,6 +19,21 @@ public class Messages extends NLS
 
     // Keep in alphabetical order!
     public static String ExecuteDisplay;
+    public static String NewDisplay_Browse;
+    public static String NewDisplay_BrowseTitle;
+    public static String NewDisplay_Container;
+    public static String NewDisplay_ContainerNotFound;
+    public static String NewDisplay_Description;
+    public static String NewDisplay_Error;
+    public static String NewDisplay_Extension;
+    public static String NewDisplay_ExtensionError;
+    public static String NewDisplay_Filename;
+    public static String NewDisplay_InitialName;
+    public static String NewDisplay_InvalidFileName;
+    public static String NewDisplay_MissingContainer;
+    public static String NewDisplay_MissingFileName;
+    public static String NewDisplay_NotWriteable;
+    public static String NewDisplay_Title;
 
     static
     {

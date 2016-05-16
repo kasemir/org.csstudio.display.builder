@@ -27,8 +27,6 @@ import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
-import com.sun.javafx.tk.Toolkit;
-
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
@@ -150,7 +148,6 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
                              final List<TabItemProperty> removed,
                              final List<TabItemProperty> added)
     {
-        Toolkit.getToolkit().checkFxUserThread();
         if (removed != null)
             removeTabs(removed);
         if (added != null)

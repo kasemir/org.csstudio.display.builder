@@ -20,6 +20,7 @@ public class Preferences
     public static final String COLOR_FILE = "color_file";
     public static final String FONT_FILE = "font_file";
     public static final String TOP_DISPLAYS = "top_displays";
+    public static final String UNDO_SIZE = "undo_size";
 
     public static String getColorFile()
     {
@@ -36,6 +37,11 @@ public class Preferences
     public static String getTopDisplays()
     {
         return getPreference(TOP_DISPLAYS, "");
+    }
+
+    public static int getUndoSize()
+    {
+        return Integer.parseInt(getPreference(UNDO_SIZE, "100"));
     }
 
     /** @param key Preference key

@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 
@@ -50,15 +49,19 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 //    final private ToggleLegendAction<XTYPE> toggle_legend;
 //    final private Action snapshot;
 
+    /** Constructor
+     *  @param active Active mode where plot reacts to mouse/keyboard?
+     *  @param type Type of X axis
+     */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected RTPlot(final Class<XTYPE> type)
+    protected RTPlot(final Class<XTYPE> type, final boolean active)
     {
     	// To avoid unchecked casts, factory methods for..() would need
         // pass already constructed Plot<T> and Toolbar<T>, where T is set,
         // into constructor.
         if (type == Double.class)
         {
-            plot = (Plot) new Plot<Double>(Double.class);
+            plot = (Plot) new Plot<Double>(Double.class, active);
             toolbar = (ToolbarHandler) new ToolbarHandler<Double>((RTPlot)this);
 //            toggle_toolbar = (ToggleToolbarAction) new ToggleToolbarAction<Double>((RTPlot)this, true);
 //            toggle_legend = (ToggleLegendAction) new ToggleLegendAction<Double>((RTPlot)this, true);
@@ -66,7 +69,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         }
         else if (type == Instant.class)
         {
-            plot = (Plot) new Plot<Instant>(Instant.class);
+            plot = (Plot) new Plot<Instant>(Instant.class, active);
             toolbar = (ToolbarHandler) new ToolbarHandler<Instant>((RTPlot)this);
 //            toggle_toolbar = (ToggleToolbarAction) new ToggleToolbarAction<Double>((RTPlot)this, true);
 //            toggle_legend = (ToggleLegendAction) new ToggleLegendAction<Double>((RTPlot)this, true);
@@ -81,11 +84,15 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         plot.widthProperty().bind(center.widthProperty());
         plot.heightProperty().bind(center.heightProperty());
         setCenter(center);
-        showToolbar(true);
+        showToolbar(active);
 
-        addEventFilter(KeyEvent.KEY_PRESSED, this::keyPressed);
-        // Need focus to receive key events. Get focus when mouse enters
-        setOnMouseEntered(event -> requestFocus());
+        if (active)
+        {
+            addEventFilter(KeyEvent.KEY_PRESSED, this::keyPressed);
+            // Need focus to receive key events. Get focus when mouse moves.
+            // (tried mouse _entered_, but can then loose focus while mouse still in widget)
+            setOnMouseMoved(event -> requestFocus());
+        }
     }
 
     /** onKeyPressed */
@@ -156,7 +163,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     }
 
     /** @param title Title text */
-    public void setTitle(final Optional<String> title)
+    public void setTitle(final String title)
     {
         plot.setTitle(title);
     }

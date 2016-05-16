@@ -40,7 +40,7 @@ import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeAxisRanges;
 import org.csstudio.javafx.rtplot.internal.undo.UpdateAnnotationAction;
 import org.csstudio.javafx.rtplot.internal.util.ScreenTransform;
-import org.csstudio.javafx.rtplot.util.UpdateThrottle;
+import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -79,14 +79,15 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     private static final int ZOOM_PIXEL_THRESHOLD = 20;
 
     /** Support for un-do and re-do */
-    final private UndoableActionManager undo = new UndoableActionManager();
+    final private UndoableActionManager undo = new UndoableActionManager(50);
 
     /** Background color */
     private volatile Color background = Color.WHITE;
 
     static final String FONT_FAMILY = "Liberation Sans";
 
-    private Cursor cursor_pan, cursor_zoom_in, cursor_zoom_out, cursor_zoom;
+    // TODO Static cursors, init. once
+    private Cursor cursor_pan, cursor_zoom_in, cursor_zoom_out;
 
     /** Font to use for, well, title */
     private volatile Font title_font = new Font(FONT_FAMILY, Font.BOLD, 18);
@@ -112,7 +113,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
      */
     private volatile Optional<Image> plot_image = Optional.empty();
 
-    final private UpdateThrottle update_throttle;
+    final private RTPlotUpdateThrottle update_throttle;
 
     final private TitlePart title_part;
     final private List<Trace<XTYPE>> traces = new CopyOnWriteArrayList<>();
@@ -189,11 +190,11 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     private volatile Optional<List<CursorMarker>> cursor_markers = Optional.empty();
 
     /** Constructor
-     *  @param parent Parent widget
+     *  @param active Active mode where plot reacts to mouse/keyboard?
      *  @param type Type of X axis
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Plot(final Class<XTYPE> type)
+    public Plot(final Class<XTYPE> type, final boolean active)
     {
         plot_processor = new PlotProcessor<XTYPE>(this);
 
@@ -215,10 +216,8 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
 
         initializeCursors();
 
-        setMouseMode(MouseMode.PAN);
-
         // 50Hz default throttle
-        update_throttle = new UpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
+        update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
         {
             plot_processor.autoscale();
             updateImageBuffer();
@@ -234,13 +233,17 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
 		widthProperty().addListener(resize_listener);
 		heightProperty().addListener(resize_listener);
 
-        setOnMouseEntered(this::mouseEntered);
-		setOnMousePressed(this::mouseDown);
-		setOnMouseMoved(this::mouseMove);
-		setOnMouseDragged(this::mouseMove);
-		setOnMouseReleased(this::mouseUp);
-		setOnMouseExited(this::mouseExit);
-		setOnScroll(this::wheelZoom);
+		if (active)
+		{
+		    setMouseMode(MouseMode.PAN);
+            setOnMouseEntered(this::mouseEntered);
+    		setOnMousePressed(this::mouseDown);
+    		setOnMouseMoved(this::mouseMove);
+    		setOnMouseDragged(this::mouseMove);
+    		setOnMouseReleased(this::mouseUp);
+    		setOnMouseExited(this::mouseExit);
+    		setOnScroll(this::wheelZoom);
+		}
     }
 
     private void initializeCursors()
@@ -250,7 +253,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
             cursor_pan = new ImageCursor(Activator.getIcon("cursor_pan"));
             cursor_zoom_in = new ImageCursor(Activator.getIcon("cursor_zoom_in"));
             cursor_zoom_out = new ImageCursor(Activator.getIcon("cursor_zoom_out"));
-            cursor_zoom = new ImageCursor(Activator.getIcon("cursor_zoom"));
         }
         catch (Exception ex)
         {
@@ -258,7 +260,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
             cursor_pan = Cursor.HAND;
             cursor_zoom_in = Cursor.DEFAULT;
             cursor_zoom_out = Cursor.DEFAULT;
-            cursor_zoom = Cursor.DEFAULT;
         }
     }
 
@@ -289,9 +290,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     }
 
     /** @param title Title */
-    public void setTitle(final Optional<String> title)
+    public void setTitle(final String title)
     {
-        title_part.setName(title.orElse(""));
+        title_part.setName(title == null ? "" : title);
     }
 
     /** @param font Font to use for title */

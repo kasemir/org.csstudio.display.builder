@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.rcp.Plugin;
 import org.csstudio.display.builder.runtime.RuntimePlugin;
+import org.csstudio.display.builder.runtime.pv.PVFactory;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -93,11 +94,13 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
             }
         });
 
-        final String[][] pv_factories = new String[][]
-        {
-            new String[] { "vtype.pv", "vtype.pv" },
-            new String[] { "pvmanager", "pvmanager" },
-        };
+        final String[] implementations = PVFactory.getImplementations();
+        // Combo needs list where each entry is [ label, value ].
+        // We use [ implementation, implementation ].
+        final String[][] pv_factories = new String[implementations.length][];
+        for (int i=0; i<implementations.length; ++i)
+            pv_factories[i] = new String[] { implementations[i], implementations[i] };
+
         addField(new ComboFieldEditor(org.csstudio.display.builder.runtime.Preferences.PV_FACTORY,
                 "PV Factory:", pv_factories, getFieldEditorParent())
         {

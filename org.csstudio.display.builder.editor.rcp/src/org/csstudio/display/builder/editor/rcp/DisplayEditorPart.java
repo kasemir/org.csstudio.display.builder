@@ -19,7 +19,11 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
+import org.csstudio.display.builder.editor.rcp.actions.CopyAction;
+import org.csstudio.display.builder.editor.rcp.actions.CutDeleteAction;
+import org.csstudio.display.builder.editor.rcp.actions.PasteAction;
 import org.csstudio.display.builder.editor.rcp.actions.RedoAction;
+import org.csstudio.display.builder.editor.rcp.actions.SelectAllAction;
 import org.csstudio.display.builder.editor.rcp.actions.UndoAction;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
@@ -28,9 +32,9 @@ import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.rcp.DisplayInfo;
+import org.csstudio.display.builder.rcp.Preferences;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoRedoListener;
-import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -76,7 +80,7 @@ public class DisplayEditorPart extends EditorPart
 
     private FXCanvas fx_canvas;
 
-    private final DisplayEditor editor = new DisplayEditor(toolkit);
+    private final DisplayEditor editor = new DisplayEditor(toolkit, Preferences.getUndoSize());
 
     private OutlinePage outline_page = null;
 
@@ -124,9 +128,13 @@ public class DisplayEditorPart extends EditorPart
         final Scene scene = new Scene(root);
         EditorUtil.setSceneStyle(scene);
 
+        // Observed UI freeze in this call.
+        // Unsure what to do.
+        // Scene could be created in background,
+        // but setting the canvas' scene has to be on UI thread
         fx_canvas.setScene(scene);
 
-        createActions();
+        createRetargetableActionHandlers();
 
         final IEditorInput input = getEditorInput();
         final IFile file = input.getAdapter(IFile.class);
@@ -183,11 +191,15 @@ public class DisplayEditorPart extends EditorPart
         model.widgetName().addPropertyListener(model_name_listener);
     }
 
-    private void createActions()
+    private void createRetargetableActionHandlers()
     {
-        final UndoableActionManager undo = editor.getUndoableActionManager();
-        actions.put(ActionFactory.UNDO.getId(), new UndoAction(undo));
-        actions.put(ActionFactory.REDO.getId(), new RedoAction(undo));
+        actions.put(ActionFactory.UNDO.getId(), new UndoAction(editor));
+        actions.put(ActionFactory.REDO.getId(), new RedoAction(editor));
+        actions.put(ActionFactory.CUT.getId(), new CutDeleteAction(editor, true));
+        actions.put(ActionFactory.COPY.getId(), new CopyAction(editor));
+        actions.put(ActionFactory.PASTE.getId(), new PasteAction(fx_canvas, editor));
+        actions.put(ActionFactory.DELETE.getId(), new CutDeleteAction(editor, false));
+        actions.put(ActionFactory.SELECT_ALL.getId(), new SelectAllAction(editor));
     }
 
     /** @return {@link DisplayEditor} */
@@ -200,7 +212,7 @@ public class DisplayEditorPart extends EditorPart
      *  @param id Action ID
      *  @return Action for that ID
      */
-    public IAction getAction(final String id)
+    public IAction getRetargetActionHandler(final String id)
     {
         return actions.get(id);
     }

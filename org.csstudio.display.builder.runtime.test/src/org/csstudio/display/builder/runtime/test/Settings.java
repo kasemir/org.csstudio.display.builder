@@ -21,7 +21,7 @@ public class Settings
     // Default display, can be changed via command line
     public static String display_path =
           //"../org.csstudio.display.builder.model/examples/graphics_picture.opi";
-           "../org.csstudio.display.builder.model/examples/01_main.opi";
+           "../org.csstudio.display.builder.model/examples/01_main.bob";
 //        "example.opi";
 //        "legacy.opi";
 //        "legacy_embed.opi";

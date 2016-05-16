@@ -27,6 +27,8 @@ public class VTypePVFactory implements RuntimePVFactory
     @Override
     public void releasePV(final RuntimePV pv)
     {
-        PVPool.releasePV(((VTypePV)pv).getPV());
+        final VTypePV vpv = (VTypePV)pv;
+        vpv.close();
+        PVPool.releasePV(vpv.getPV());
     }
 }

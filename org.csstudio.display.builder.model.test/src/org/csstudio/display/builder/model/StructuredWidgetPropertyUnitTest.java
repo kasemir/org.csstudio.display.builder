@@ -156,4 +156,18 @@ public class StructuredWidgetPropertyUnitTest
             assertThat(ex.getMessage(), containsString("String cannot"));
         }
     }
+
+    @Test
+    public void testStructureAccess() throws Exception
+    {
+        final PlotWidget widget = new PlotWidget();
+
+        System.out.println(widget.getProperties());
+
+        widget.setPropertyValue("trace.pv_name", "fred");
+
+        final WidgetProperty<?> item = widget.getProperty("trace.pv_name");
+        System.out.println("trace.pv_name: " + item);
+        assertThat(item.getValue(), equalTo("fred"));
+    }
 }

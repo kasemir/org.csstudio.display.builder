@@ -9,11 +9,14 @@ package org.csstudio.display.builder.runtime.pv;
 
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.runtime.Preferences;
+import org.csstudio.display.builder.runtime.TextPatch;
 import org.csstudio.display.builder.runtime.pv.vtype_pv.VTypePVFactory;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
@@ -25,13 +28,19 @@ import org.eclipse.core.runtime.RegistryFactory;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class PVFactory
 {
+    private static final List<TextPatch> patches = Preferences.getPV_NamePatches();
+
+    private static final String[] implementations;
+
     /** The PV factory */
-    private final static RuntimePVFactory factory;
+    private static final RuntimePVFactory factory;
 
     static
     {
+        final List<String> impl = new ArrayList<>();
         RuntimePVFactory the_factory = null;
 
         // Try to use extension point
@@ -40,6 +49,7 @@ public class PVFactory
         {   // Fall back for running without OSGi
             logger.log(Level.CONFIG, "Defaulting to VTypePVFactory");
             the_factory = new VTypePVFactory();
+            impl.add("vtype.pv");
         }
         else
         {
@@ -49,6 +59,7 @@ public class PVFactory
                 for (IConfigurationElement config : registry.getConfigurationElementsFor(RuntimePVFactory.EXTENSION_POINT))
                 {
                     final String id = config.getAttribute("id");
+                    impl.add(id);
                     logger.log(Level.CONFIG, "{0} contributes {1}", new Object[] { config.getContributor().getName(), id });
                     factories.put(id, (RuntimePVFactory) config.createExecutableExtension("class"));
                 }
@@ -65,7 +76,26 @@ public class PVFactory
             }
         }
 
+        implementations = impl.toArray(new String[impl.size()]);
         factory = the_factory;
+    }
+
+    public static String[] getImplementations()
+    {
+        return implementations;
+    }
+
+    /** @param name PV Name that might contain legacy information
+     *  @return Patched PV name
+     */
+    private static String patch(final String name)
+    {
+        String patched = name;
+        for (TextPatch patch : patches)
+            patched = patch.patch(patched);
+        if (! patched.equals(name))
+            logger.log(Level.WARNING, "Patched PV name '" + name + "' into '" + patched + "'");
+        return patched;
     }
 
     /** Get a PV
@@ -75,7 +105,7 @@ public class PVFactory
      */
     public static RuntimePV getPV(final String name) throws Exception
     {
-        return factory.getPV(name);
+        return factory.getPV(patch(name));
     }
 
     /** Release a PV (close, dispose resources, ...)

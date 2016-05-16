@@ -8,25 +8,23 @@
 package org.csstudio.display.builder.editor.rcp.actions;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
-import org.csstudio.display.builder.editor.actions.ToBackAction;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.actions.ActionFactory;
 
-/** Action to move widget to back
+/** Action to cut to clipboard
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
-public class ToBackEditorAction extends EditorAction
+public class CutDeleteAction extends RetargetActionHandler
 {
-    public ToBackEditorAction()
+    public CutDeleteAction(final DisplayEditor editor, final boolean cut_or_delete)
     {
-        super(org.csstudio.display.builder.editor.Messages.MoveToBack,
-              AbstractUIPlugin.imageDescriptorFromPlugin(org.csstudio.display.builder.editor.Plugin.ID, "icons/toback.png"));
+        super(editor, cut_or_delete
+                      ? ActionFactory.CUT.getCommandId()
+                      : ActionFactory.DELETE.getCommandId());
     }
 
     @Override
     public void run()
     {
-        final DisplayEditor editor = edit_part.getDisplayEditor();
-        new ToBackAction(editor.getUndoableActionManager(), editor.getWidgetSelectionHandler()).run(true);
+        editor.cutToClipboard();
     }
 }

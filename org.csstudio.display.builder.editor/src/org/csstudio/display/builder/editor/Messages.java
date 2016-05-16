@@ -19,11 +19,21 @@ public class Messages extends NLS
     // Keep in alphabetical order, synchronized with messages.properties
     public static String AddElement;
     public static String AddWidget;
+    public static String AlignBottom;
+    public static String AlignCenter;
+    public static String AlignLeft;
+    public static String AlignMiddle;
+    public static String AlignRight;
+    public static String AlignTop;
+    public static String DistributeHorizontally;
+    public static String DistributeVertically;
     public static String FileTypeAll;
     public static String FileTypeDisplays;
     public static String Grid;
     public static String LoadDisplay;
     public static String LoadDisplay_TT;
+    public static String MatchHeight;
+    public static String MatchWidth;
     public static String MoveToBack;
     public static String MoveToFront;
     public static String PointCount_Fmt;

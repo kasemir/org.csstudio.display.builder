@@ -38,8 +38,10 @@ public class JFXStageRepresentation extends JFXRepresentation
     public Parent configureStage(final Stage stage, final DisplayModel model, final Consumer<DisplayModel> close_request_handler)
     {
         stage.setTitle(model.widgetName().getValue());
-        stage.setWidth(model.positionWidth().getValue());
-        stage.setHeight(model.positionHeight().getValue());
+        final int width = Math.max(800, model.positionWidth().getValue());
+        final int height = Math.max(600, model.positionHeight().getValue());
+        stage.setWidth(width);
+		stage.setHeight(height);
         stage.setX(model.positionX().getValue());
         stage.setY(model.positionY().getValue());
 

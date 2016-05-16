@@ -7,6 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.pv;
 
+import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
+
+import java.util.logging.Level;
+
 import org.csstudio.vtype.pv.PVListener;
 import org.csstudio.vtype.pv.PVPool;
 import org.diirt.vtype.VType;
@@ -60,6 +64,15 @@ public interface RuntimePV
      *  @exception Exception on error
      */
     abstract public void write(final Object new_value) throws Exception;
+
+    // Legacy API that was accessed by some scripts
+    default public void setValue(final Object new_value) throws Exception
+    {
+        logger.log(Level.SEVERE,
+                "Script calls 'setValue(" + new_value +") for PV '" + getName() +
+                "'. Update to 'write'");
+        write(new_value);
+    }
 
     // Should provide PV name in toString() for debug messages that include the PV
     // @Override

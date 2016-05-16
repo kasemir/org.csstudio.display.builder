@@ -27,7 +27,7 @@ import java.util.logging.Level;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class UpdateThrottle
+public class RTPlotUpdateThrottle
 {
     final private ScheduledExecutorService timer =
             Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("RTPlotUpdateThrottle"));
@@ -53,7 +53,7 @@ public class UpdateThrottle
      *  @param unit Units for the dormant period
      *  @param update {@link Runnable} to invoke for triggers
      */
-    public UpdateThrottle(final long dormant_time, final TimeUnit unit, final Runnable update)
+    public RTPlotUpdateThrottle(final long dormant_time, final TimeUnit unit, final Runnable update)
     {
         setDormantTime(dormant_time, unit);
         this.update_then_wake = () ->

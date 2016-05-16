@@ -9,11 +9,9 @@ package org.csstudio.display.builder.editor.rcp;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.csstudio.display.builder.editor.rcp.actions.EnableGridEditorAction;
-import org.csstudio.display.builder.editor.rcp.actions.EnableSnapEditorAction;
+import org.csstudio.display.builder.editor.actions.ActionDescription;
+import org.csstudio.display.builder.editor.rcp.actions.EditorPartAction;
 import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayAction;
-import org.csstudio.display.builder.editor.rcp.actions.ToBackEditorAction;
-import org.csstudio.display.builder.editor.rcp.actions.ToFrontEditorAction;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.Separator;
@@ -35,25 +33,52 @@ import org.eclipse.ui.part.EditorActionBarContributor;
  */
 public class DisplayEditorToolbarContributor extends EditorActionBarContributor
 {
-    private final ExecuteDisplayAction execute_action = new ExecuteDisplayAction();
-    private final EnableGridEditorAction enable_grid = new EnableGridEditorAction();
-    private final EnableSnapEditorAction enable_snap = new EnableSnapEditorAction();
-    private final ToBackEditorAction to_back_action = new ToBackEditorAction();
-    private final ToFrontEditorAction to_front_action = new ToFrontEditorAction();
+    // Actions that act on active editor
+    private final EditorPartAction[] editor_actions = new EditorPartAction[]
+    {
+        new ExecuteDisplayAction(),
+        null, // Marker for Separator
+        EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_GRID),
+        EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_SNAP),
+        null, // Marker for Separator
+        EditorPartAction.forActionDescription(ActionDescription.TO_BACK),
+        EditorPartAction.forActionDescription(ActionDescription.TO_FRONT),
+        null, // Marker for Separator
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_LEFT),
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_CENTER),
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_RIGHT),
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_TOP),
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_MIDDLE),
+        EditorPartAction.forActionDescription(ActionDescription.ALIGN_BOTTOM),
+        EditorPartAction.forActionDescription(ActionDescription.MATCH_WIDTH),
+        EditorPartAction.forActionDescription(ActionDescription.MATCH_HEIGHT),
+        EditorPartAction.forActionDescription(ActionDescription.DIST_HORIZ),
+        EditorPartAction.forActionDescription(ActionDescription.DIST_VERT),
+    };
+
+    // Global actions defined by RCP
+    // Holds actions for toolbar created by RCP ActionFactory.
+    // Active editor then registers a handler.
     private final List<IWorkbenchAction> global_actions = new ArrayList<>();
 
     @Override
     public void contributeToToolBar(final IToolBarManager manager)
     {
         final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+        for (EditorPartAction epa : editor_actions)
+            if (epa == null)
+                manager.add(new Separator());
+            else
+                manager.add(epa);
         manager.add(new Separator());
-        manager.add(execute_action);
-        manager.add(enable_grid);
-        manager.add(enable_snap);
-        manager.add(to_back_action);
-        manager.add(to_front_action);
         addGlobalAction(manager, ActionFactory.UNDO.create(window));
         addGlobalAction(manager, ActionFactory.REDO.create(window));
+        manager.add(new Separator());
+        global_actions.add(ActionFactory.CUT.create(window));
+        global_actions.add(ActionFactory.COPY.create(window));
+        global_actions.add(ActionFactory.PASTE.create(window));
+        global_actions.add(ActionFactory.DELETE.create(window));
+        global_actions.add(ActionFactory.SELECT_ALL.create(window));
     }
 
     private void addGlobalAction(final IToolBarManager manager, final IWorkbenchAction action)
@@ -73,13 +98,19 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         if (bars == null)
             return;
 
-        execute_action.setActiveEditor(editor);
-        enable_grid.setActiveEditor(editor);
-        enable_snap.setActiveEditor(editor);
-        to_back_action.setActiveEditor(editor);
-        to_front_action.setActiveEditor(editor);
+        for (EditorPartAction epa : editor_actions)
+            if (epa != null)
+                epa.setActiveEditor(editor);
+
+        // RCP defines global actions for copy, undo, ..
+        // in the menu, including key bindings.
+        // Bind to the handlers ('actions', but really used as handler)
+        // of active editor.
+        // Note that these handler 'actions' need to have called
+        //   setActionDefinitionId(ActionFactory.XXXX.getCommandId()),
+        // otherwise the global action remains disabled.
         for (IAction action : global_actions)
-            bars.setGlobalActionHandler(action.getId(), editor.getAction(action.getId()));
+            bars.setGlobalActionHandler(action.getId(), editor.getRetargetActionHandler(action.getId()));
 
         bars.updateActionBars();
     }
@@ -87,11 +118,9 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
     @Override
     public void dispose()
     {
-        execute_action.setActiveEditor(null);
-        enable_grid.setActiveEditor(null);
-        enable_snap.setActiveEditor(null);
-        to_back_action.setActiveEditor(null);
-        to_front_action.setActiveEditor(null);
+        for (EditorPartAction epa : editor_actions)
+            if (epa != null)
+                epa.setActiveEditor(null);
         for (IWorkbenchAction action : global_actions)
             action.dispose();
         global_actions.clear();

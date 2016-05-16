@@ -27,8 +27,6 @@ public class VTypePV implements RuntimePV, PVListener
     VTypePV(final PV pv)
     {
         this.pv = pv;
-        // TODO Add listener only once needed
-        // TODO Remove listener
         pv.addListener(this);
     }
 
@@ -96,6 +94,11 @@ public class VTypePV implements RuntimePV, PVListener
     PV getPV()
     {
         return pv;
+    }
+
+    void close()
+    {
+        pv.removeListener(this);
     }
 
     @Override

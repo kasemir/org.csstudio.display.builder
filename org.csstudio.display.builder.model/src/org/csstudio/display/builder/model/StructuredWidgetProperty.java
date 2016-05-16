@@ -76,6 +76,12 @@ public class StructuredWidgetProperty extends WidgetProperty<List<WidgetProperty
         return true;
     }
 
+    /** @return Number of structure elements */
+    public int size()
+    {
+        return value.size();
+    }
+
     /** Access element as known type
      *
      *  @param index Element index, 0 .. (<code>getValue().size()</code>-1)

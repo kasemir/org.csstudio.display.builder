@@ -38,7 +38,11 @@ public class JFXFontCalibration extends Application implements FontCalibration
     {
         final Font font = Font.font(FontCalibration.FONT, FontCalibration.SIZE);
         if (! font.getName().startsWith(FontCalibration.FONT))
-            throw new Exception("Requested " + FontCalibration.FONT + " but got " + font.getName());
+        {
+            logger.log(Level.SEVERE, "Cannot obtain font " + FontCalibration.FONT + " for calibration. Got " + font.getName());
+            logger.log(Level.SEVERE, "Font calibration will default to 1.0. Check installation of calibration font");
+            return 1.0;
+        }
         text.setFont(font);
 
         final Bounds measure = text.getLayoutBounds();

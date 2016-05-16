@@ -108,7 +108,7 @@ public class ValuePlotDemo extends Application
             handler.setLevel(logger.getLevel());
 
 
-        final RTValuePlot plot = new RTValuePlot();
+        final RTValuePlot plot = new RTValuePlot(true);
         plot.getXAxis().setValueRange(0.0, Double.valueOf(MAX_SIZE));
         plot.getXAxis().setGridVisible(true);
         plot.getYAxes().get(0).setGridVisible(true);

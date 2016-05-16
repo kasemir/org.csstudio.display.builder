@@ -34,10 +34,6 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class ColorWidgetProperty extends WidgetProperty<WidgetColor>
 {
-    private static final String BLUE = "blue";
-    private static final String GREEN = "green";
-    private static final String RED = "red";
-
     /** Constructor
      *  @param descriptor Property descriptor
      *  @param widget Widget that holds the property and handles listeners
@@ -66,9 +62,9 @@ public class ColorWidgetProperty extends WidgetProperty<WidgetColor>
         writer.writeStartElement(XMLTags.COLOR);
         if (value instanceof NamedWidgetColor)
             writer.writeAttribute(XMLTags.NAME, ((NamedWidgetColor) value).getName());
-        writer.writeAttribute(RED, Integer.toString(value.getRed()));
-        writer.writeAttribute(GREEN, Integer.toString(value.getGreen()));
-        writer.writeAttribute(BLUE, Integer.toString(value.getBlue()));
+        writer.writeAttribute(XMLTags.RED, Integer.toString(value.getRed()));
+        writer.writeAttribute(XMLTags.GREEN, Integer.toString(value.getGreen()));
+        writer.writeAttribute(XMLTags.BLUE, Integer.toString(value.getBlue()));
         writer.writeEndElement();
     }
 
@@ -80,9 +76,9 @@ public class ColorWidgetProperty extends WidgetProperty<WidgetColor>
             return;
 
         final String name = col_el.getAttribute(XMLTags.NAME);
-        final int red = getAttrib(col_el, RED);
-        final int green = getAttrib(col_el, GREEN);
-        final int blue = getAttrib(col_el, BLUE);
+        final int red = getAttrib(col_el, XMLTags.RED);
+        final int green = getAttrib(col_el, XMLTags.GREEN);
+        final int blue = getAttrib(col_el, XMLTags.BLUE);
 
         final WidgetColor color;
         if (name.isEmpty())

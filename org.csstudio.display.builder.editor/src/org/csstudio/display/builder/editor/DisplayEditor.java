@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.editor;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -17,6 +18,7 @@ import org.csstudio.display.builder.editor.palette.Palette;
 import org.csstudio.display.builder.editor.poly.PointsBinding;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.editor.undo.AddWidgetAction;
+import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.JFXGeometryTools;
 import org.csstudio.display.builder.editor.util.ParentHandler;
@@ -26,6 +28,8 @@ import org.csstudio.display.builder.editor.util.WidgetTransfer;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
@@ -37,6 +41,8 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.Pane;
 
 /** Display editor UI
@@ -96,8 +102,7 @@ public class DisplayEditor
 
     private final WidgetNaming widget_naming = new WidgetNaming();
 
-
-    private final UndoableActionManager undo = new UndoableActionManager();
+    private final UndoableActionManager undo;
 
     private final WidgetSelectionHandler selection = new WidgetSelectionHandler();
 
@@ -110,10 +115,13 @@ public class DisplayEditor
     private Group model_parent;
     private final Group edit_tools = new Group();
 
-    /** @param toolkit JFX Toolkit */
-    public DisplayEditor(final JFXRepresentation toolkit)
+    /** @param toolkit JFX Toolkit
+     *  @param stack_size Number of undo/redo entries
+     */
+    public DisplayEditor(final JFXRepresentation toolkit, final int stack_size)
     {
         this.toolkit = toolkit;
+        undo = new UndoableActionManager(stack_size);
 
         group_handler = new ParentHandler(edit_tools, selection);
 
@@ -193,7 +201,7 @@ public class DisplayEditor
 
         new PointsBinding(edit_tools, selection, undo);
 
-        WidgetTransfer.addDropSupport(model_root, group_handler, this::handleDroppedModel);
+        WidgetTransfer.addDropSupport(model_root, group_handler, this::addWidgets);
     }
 
     private void selectWidgetsInRegion(final Rectangle2D region)
@@ -203,8 +211,8 @@ public class DisplayEditor
         selection.setSelection(found);
     }
 
-    /** @param model Dropped model with widgets to be added to existing model */
-    private void handleDroppedModel(final DisplayModel dropped_model)
+    /** @param widgets Widgets to be added to existing model */
+    private void addWidgets(final List<Widget> widgets)
     {
         // Dropped into a sub-group or the main display?
         ChildrenProperty target = group_handler.getActiveParentChildren();
@@ -221,15 +229,14 @@ public class DisplayEditor
         // Add dropped widgets
         try
         {
-            final List<Widget> dropped = dropped_model.getChildren();
-            for (Widget widget : dropped)
+            for (Widget widget : widgets)
             {
                 widget.positionX().setValue(widget.positionX().getValue() - dx);
                 widget.positionY().setValue(widget.positionY().getValue() - dy);
                 widget_naming.setDefaultName(container.getDisplayModel(), widget);
                 undo.execute(new AddWidgetAction(target, widget));
             }
-            selection.setSelection(dropped);
+            selection.setSelection(widgets);
         }
         catch (Exception ex)
         {
@@ -272,6 +279,70 @@ public class DisplayEditor
     public DisplayModel getModel()
     {
         return model;
+    }
+
+    /** Copy currently selected widgets to clipboard
+     *  @return Widgets that were copied or <code>null</code>
+     */
+    public List<Widget> copyToClipboard()
+    {
+        final List<Widget> widgets = selection.getSelection();
+        if (widgets.isEmpty())
+            return null;
+
+        final String xml;
+        try
+        {
+            xml = ModelWriter.getXML(widgets);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot create content for clipboard", ex);
+            return null;
+        }
+
+        final ClipboardContent content = new ClipboardContent();
+        content.putString(xml);
+        Clipboard.getSystemClipboard().setContent(content);
+        return widgets;
+    }
+
+    /** Cut (delete) selected widgets, placing them on the clipboard */
+    public void cutToClipboard()
+    {   // Strictly speaking, delete would not copy to the clipboard...
+        final List<Widget> widgets = copyToClipboard();
+        if (widgets == null)
+            return;
+        undo.execute(new RemoveWidgetsAction(widgets));
+        selection_tracker.setSelectedWidgets(Collections.emptyList());
+    }
+
+    /** Paste widgets from clipboard
+     *  @param x Desired coordinate of upper-left widget ..
+     *  @param y .. when pasted
+     */
+    public void pasteFromClipboard(final int x, final int y)
+    {
+        final String xml = Clipboard.getSystemClipboard().getString();
+        // Anything on clipboard?
+        if (xml == null)
+            return;
+        // Does it look like widget XML?
+        if (! (xml.startsWith("<?xml")  &&
+               xml.contains("<display")))
+            return;
+        try
+        {
+            final DisplayModel model = ModelReader.parseXML(xml);
+            final List<Widget> widgets = model.getChildren();
+            logger.log(Level.FINE, "Pasted {0} widgets", widgets.size());
+            GeometryTools.moveWidgets(x, y, widgets);
+            addWidgets(widgets);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Failed to paste content of clipboard", ex);
+        }
     }
 
     /** Print debug info */

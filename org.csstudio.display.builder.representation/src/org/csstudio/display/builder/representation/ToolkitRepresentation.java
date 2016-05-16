@@ -63,7 +63,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
 
     private final boolean edit_mode;
 
-    private final UpdateThrottle throttle = new UpdateThrottle(this);
+    private final RepresentationUpdateThrottle throttle = new RepresentationUpdateThrottle(this);
 
     /** Listener list */
     private final List<ToolkitListener> listeners = new CopyOnWriteArrayList<>();

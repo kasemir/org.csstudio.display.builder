@@ -9,7 +9,6 @@ package org.csstudio.javafx.rtplot;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Handler;
@@ -40,8 +39,8 @@ public class TimePlotDemo extends Application
         for (Handler handler : logger.getHandlers())
             handler.setLevel(logger.getLevel());
 
-        final RTTimePlot plot = new RTTimePlot();
-        plot.setTitle(Optional.of("Title of Time Demo"));
+        final RTTimePlot plot = new RTTimePlot(true);
+        plot.setTitle("Title of Time Demo");
         plot.setUpdateThrottle(200, TimeUnit.MILLISECONDS);
         plot.setScrollStep(Duration.ofSeconds(30));
 
