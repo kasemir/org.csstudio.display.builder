@@ -56,13 +56,12 @@ Development Details
    Set `JFXSWT` to the `lib/jfxswt.jar` file within your JRE.
    For example, on Mac OS X this could be `/Library/Java/JavaVirtualMachines/jdk1.8.0_71.jdk/Contents/Home/jre/lib/jfxswt.jar`.
  * In Eclipse `Preferences`, `Java`, `Compiler`, `Errors/Warnings`, `Deprecated and restricted API`, change the level for "Forbidden Reference (access rules)" from `Error` to `Warning`.
-   Set `JFXSWT` to the `lib/jfxswt.jar` file within your JRE.
-   For example, on Mac OS X this could be `/Library/Java/JavaVirtualMachines/jdk1.8.0_71.jdk/Contents/Home/jre/lib/jfxswt.jar`.
- * In Eclipse Preferences, Plugin Development, Target platform, define a CS-Studio target.
+ * In Eclipse `Preferences`, `Plugin Development`, `Target platform`,
+   define target that's suitable for CS-Studio development.
    For example, use the current IDE and add a "Directory" pointing to a CSS product's `plugins/` directory.
  * In product start config, add VM options
    `-Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`
- * Demos use EPICS `softIoc` for `org.csstudio.display.builder.runtime.test/examples/demo.db`
+ * Some demos may use PVs from an EPICS `softIoc` for `org.csstudio.display.builder.runtime.test/examples/demo.db`
 
 ### Source Import into IDE
 
