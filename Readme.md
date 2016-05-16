@@ -35,6 +35,10 @@ Try Nightly Snapshot
 5. In the Navigator, open the `Display Builder/01_main.bob` file in the editor, look around,
    press the green `Execute` button in the toolbar.
 6. In the Navigator, right-click on some folder and invoke `New/Other..`, `Display Editor/New Display` to create your first own display.
+
+You should install the "Liberation" fonts from https://fedorahosted.org/liberation-fonts
+which are used by the examples.
+Mac OS X: Double-click each *.ttf to preview, then click "Install Font".
    
 
 Development Details
@@ -55,9 +59,6 @@ Development Details
  * In product start config, add VM options
    `-Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`
  * Demos use EPICS `softIoc` for `org.csstudio.display.builder.runtime.test/examples/demo.db`
- * Install the "Liberation" fonts from https://fedorahosted.org/liberation-fonts.
-   Mac OS X: Double-click each *.ttf to preview, then click "Install Font".
-
 
 ### Source Import into IDE
 
