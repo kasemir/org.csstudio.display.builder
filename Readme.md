@@ -51,6 +51,7 @@ Development Details
    1.8.0_51 causes ComboBoxes in editor's property panel to hang on Windows, fixed in later releases.
  * Eclipse IDE for RCP Development with `Tycho Configurator`.
    In `Preferences`, `Maven`, `Discovery`, `Open Catalog`, search for "tycho" and install it.
+ * In `Preferences`, `Maven`, `Errors/Warnings`, disable all errors, for example select "Ignore" for all of them.
  * In Eclipse Preferences, Java, Build Path, Classpath Variables:
    Set `JFXSWT` to the `lib/jfxswt.jar` file within your JRE.
    For example, on Mac OS X this could be `/Library/Java/JavaVirtualMachines/jdk1.8.0_71.jdk/Contents/Home/jre/lib/jfxswt.jar`.
