@@ -116,27 +116,27 @@ class IndentingXMLStreamWriter implements XMLStreamWriter
     public void writeEmptyElement(final String namespaceURI, final String localName)
             throws XMLStreamException
     {
-        indent(level++);
+        indent(level);
         base.writeEmptyElement(namespaceURI, localName);
-        state = State.Idle;
+        state = level > 0 ? State.InElement : State.Idle;
     }
 
     @Override
     public void writeEmptyElement(final String prefix, final String localName,
             final String namespaceURI) throws XMLStreamException
     {
-        indent(level++);
+        indent(level);
         base.writeEmptyElement(prefix, localName, namespaceURI);
-        state = State.Idle;
+        state = level > 0 ? State.InElement : State.Idle;
     }
 
     @Override
     public void writeEmptyElement(final String localName)
             throws XMLStreamException
     {
-        indent(level++);
+        indent(level);
         base.writeEmptyElement(localName);
-        state = State.Idle;
+        state = level > 0 ? State.InElement : State.Idle;
     }
 
     @Override
