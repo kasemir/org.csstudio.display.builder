@@ -122,6 +122,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
         super.registerListeners();
         model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayFont().addUntypedPropertyListener(this::styleChanged);
 
@@ -173,6 +174,8 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
                                  model_widget.positionHeight().getValue());
         if (dirty_style.checkAndClear())
         {
+            final String color = JFXUtil.webRGB(model_widget.displayForegroundColor().getValue());
+            jfx_node.setStyle("-fx-text-fill:" + color);
             final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
             jfx_node.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
             jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
