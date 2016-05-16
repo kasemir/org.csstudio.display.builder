@@ -52,16 +52,23 @@ public class ImagePlot extends Canvas
     /** Area used by the image */
     private volatile Rectangle image_area = new Rectangle(0, 0, 0, 0);
 
+    /** Area used by the color bar. <code>null</code> if not visible */
+    private volatile Rectangle colorbar_area = null;
+
     /** Does layout need to be re-computed? */
     final private AtomicBoolean need_layout = new AtomicBoolean(true);
 
     /** Image data size */
     private volatile int data_width = 0, data_height = 0;
 
+    /** Auto-scale the data range? */
     private volatile boolean autoscale = true;
 
     /** Image data range */
     private volatile double min=0.0, max=1.0;
+
+    /** Show color bar? */
+    private volatile boolean show_colorbar = true;
 
     /** Mapping of value 0..1 to color */
     private volatile DoubleFunction<Color> color_mapping = GRAYSCALE;
@@ -173,9 +180,22 @@ public class ImagePlot extends Canvas
                                final double min, final double max)
     {
         logger.log(Level.FINE, "computeLayout");
+
+        image_area = new Rectangle(bounds);
+
+        final int colorbar_size = 25;
+
+        // Color bar requested and there's room?
+        if (show_colorbar  &&  bounds.width > 2*colorbar_size)
+        {
+            colorbar_area = new Rectangle(bounds.width - colorbar_size, colorbar_size, colorbar_size, bounds.height-2*colorbar_size);
+            image_area.width -= colorbar_size;
+        }
+        else
+            colorbar_area = null;
+
         // TODO Color bar (Y Axis)..
 
-        image_area = bounds;
     }
 
     /** Draw all components into image buffer */
@@ -208,8 +228,9 @@ public class ImagePlot extends Canvas
         final int data_width = this.data_width, data_height = this.data_height;
         final ListNumber numbers = this.image_data;
         double min = this.min, max = this.max;
+        final DoubleFunction<Color> color_mapping = this.color_mapping;
 
-        if (autoscale)
+        if (autoscale  &&  numbers != null)
         {   // Compute min..max before layout of color bar
             final IteratorNumber iter = numbers.iterator();
             min = Double.MAX_VALUE;
@@ -228,16 +249,23 @@ public class ImagePlot extends Canvas
         if (need_layout.getAndSet(false))
             computeLayout(gc, area_copy, min, max);
 
-        // Debug: Fill background and exact outer rim
-//        gc.setColor(Color.WHITE);
-//        gc.fillRect(0, 0, area_copy.width, area_copy.height);
+        // TODO Fill with a 'background' color instead of white
+        gc.setColor(Color.WHITE);
+        gc.fillRect(0, 0, area_copy.width, area_copy.height);
+
+        // Debug: Show exact outer rim
 //        gc.setColor(Color.RED);
 //        gc.drawLine(0, 0, image_area.width-1, 0);
 //        gc.drawLine(image_area.width-1, 0, image_area.width-1, image_area.height-1);
 //        gc.drawLine(image_area.width-1, image_area.height-1, 0, image_area.height-1);
 //        gc.drawLine(0, image_area.height-1, 0, 0);
 
-        // TODO Paint color bar, y_axis.paint(gc, plot_bounds);
+        // TODO Paint color bar only once, then cache until it changes
+        if (colorbar_area != null)
+        {
+            final BufferedImage bar = drawColorBar(min, max, color_mapping);
+            gc.drawImage(bar, colorbar_area.x, colorbar_area.y, colorbar_area.width, colorbar_area.height, null);
+        }
 
         // Paint the image
         final BufferedImage unscaled = drawData(data_width, data_height, numbers, min, max, color_mapping);
@@ -248,6 +276,22 @@ public class ImagePlot extends Canvas
 
         // Convert to JFX
         plot_image = SwingFXUtils.toFXImage(image, null);
+    }
+
+    private BufferedImage drawColorBar(final double min, final double max, final DoubleFunction<Color> color_mapping)
+    {
+        final BufferedImage image = new BufferedImage(1, 255, BufferedImage.TYPE_INT_RGB);
+
+        // TODO Add scale
+        final Graphics2D gc = image.createGraphics();
+        for (int value=0; value<256; ++value)
+        {
+            gc.setColor(color_mapping.apply((255-value)/255.0));
+            gc.drawLine(0, value, 0, value);
+        }
+        gc.dispose();
+
+        return image;
     }
 
     /** @param data_width
