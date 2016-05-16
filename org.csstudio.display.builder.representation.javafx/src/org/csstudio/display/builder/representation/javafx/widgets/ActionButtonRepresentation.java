@@ -7,14 +7,16 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.macros.MacroHandler;
+import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.properties.WidgetColor;
@@ -46,16 +48,20 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
     // Specifically, if the action count changed between 1 and >1,
     // it won't update between Button and MenuButton.
 
+    public final static Logger logger = Logger.getLogger(ActionButtonRepresentation.class.getName());
+
     private final DirtyFlag dirty_representation = new DirtyFlag();
     private final DirtyFlag dirty_actionls = new DirtyFlag();
 
     private volatile ButtonBase base;
     private volatile String background, text_fill, fx_base;
     private volatile Color foreground;
+    private volatile String button_text;
 
     /** Optional modifier of the open display 'target */
     private Optional<OpenDisplayActionInfo.Target> target_modifier = Optional.empty();
     private Pane pane;
+
 
 
     @Override
@@ -158,6 +164,48 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         //fx_base += "-fx-background-insets: 0, 1, 2; -fx-background-radius: 0 6 6 6, 0 5 5 5, 0 4 4 4; -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em; /* 4 1 8 1 */ }";
     }
 
+    private String makeActionText(ActionInfo action)
+    {
+        String action_str = action.getDescription();
+        String expanded;
+        if (action_str.length() == 0)
+        {
+            action_str = action.toString();
+        }
+        final MacroValueProvider macros = model_widget.getMacrosOrProperties();
+
+        try
+        {
+            expanded = MacroHandler.replace(macros, action_str);
+        }
+        catch (final Exception ex)
+        {
+            logger.log(Level.WARNING, model_widget + " action " + action + " cannot expand macros for " + action_str, ex);
+            expanded = action_str;
+        }
+        return expanded;
+    }
+
+    private void makeButtonText()
+    {
+        button_text = model_widget.displayText().getValue();
+        if (button_text.length() > 0)
+            return;
+
+        final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
+        if (actions.size() < 1)
+        {
+            button_text = "EMPTY";
+            return;
+        }
+        if (actions.size() > 1)
+        {
+            button_text = "Choose 1 of " + String.valueOf(actions.size());
+            return;
+        }
+        button_text = makeActionText(actions.get(0));
+    }
+
     private void makeBaseButton()
     {
         final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
@@ -177,7 +225,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             final MenuButton button = new MenuButton();
             for (final ActionInfo action : actions)
             {
-                final MenuItem item = new MenuItem(action.getDescription());
+                final MenuItem item = new MenuItem(makeActionText(action));
                 //item.setStyle("-fx-background-color: slateblue; -fx-text-fill: white;");
                 item.setStyle(background + " " + text_fill);
                 item.setOnAction(event -> handleAction(action));
@@ -198,7 +246,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             });
         }
 
-        //TODO: disable dropdown if in edit mode
+
     }
 
     @Override
@@ -213,7 +261,8 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         }
         if (dirty_representation.checkAndClear())
         {
-            base.setText(model_widget.displayText().getValue());
+            makeButtonText();
+            base.setText(button_text);
             base.setTextFill(foreground);
             base.setPrefSize(model_widget.positionWidth().getValue(),
                     model_widget.positionHeight().getValue());
