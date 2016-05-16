@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFormat;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayPrecision;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayShowUnits;
@@ -79,6 +80,7 @@ public class TextEntryWidget extends VisibleWidget
     }
 
     private volatile WidgetProperty<String> pv_name;
+    private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<FormatOption> format;
@@ -110,6 +112,7 @@ public class TextEntryWidget extends VisibleWidget
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(displayBorderAlarmSensitive.createProperty(this, true));
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.WRITE_BACKGROUND)));
+        properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(format = displayFormat.createProperty(this, FormatOption.DEFAULT));
         properties.add(precision = displayPrecision.createProperty(this, 2));
@@ -121,6 +124,12 @@ public class TextEntryWidget extends VisibleWidget
     public WidgetProperty<String> behaviorPVName()
     {
         return pv_name;
+    }
+    
+    /** @return Display 'foreground_color' */
+    public WidgetProperty<WidgetColor> displayForegroundColor()
+    {
+        return foreground;
     }
 
     /** @return Display 'background_color' */
