@@ -174,14 +174,8 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
                                  model_widget.positionHeight().getValue());
         if (dirty_style.checkAndClear())
         {
-            Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
-            //jfx_node.setTextFill(color);
-            /*String style = jfx_node.getStyle();
-            int startIndex = style.indexOf("-fx-text-fill:");
-            int endIndex = style.indexOf(';', startIndex < 0 ? style.length() : startIndex);
-            startIndex = (startIndex < 0 ? endIndex-1 : startIndex+14);*/
-            //jfx_node.setStyle(style.substring(0,startIndex) + color.toString() + style.substring(endIndex));
-            	//color.toString() too inconsistent
+            final String color = JFXUtil.webRGB(model_widget.displayForegroundColor().getValue());
+            jfx_node.setStyle("-fx-text-fill:" + color);
             final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
             jfx_node.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
             jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
