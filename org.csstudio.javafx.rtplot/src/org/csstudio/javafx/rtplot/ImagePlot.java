@@ -84,6 +84,9 @@ public class ImagePlot extends Canvas
     /** Show color bar? */
     private volatile boolean show_colorbar = true;
 
+    /** Color bar size */
+    private volatile int colorbar_size = 40;
+
     /** Mapping of value 0..1 to color */
     private volatile DoubleFunction<Color> color_mapping = GRAYSCALE;
 
@@ -198,6 +201,20 @@ public class ImagePlot extends Canvas
         return y_axis;
     }
 
+    /** @param show_colorbar Show color bar? */
+    public void showColorBar(final boolean show_colorbar)
+    {
+        this.show_colorbar = show_colorbar;
+        requestLayout();
+    }
+
+    /** @param colorbar_size Color bar size in pixels */
+    public void setColorBarSize(final int colorbar_size)
+    {
+        this.colorbar_size = colorbar_size;
+        requestLayout();
+    }
+
     /** Set the data to display
      *  @param width Number of elements in one 'row' of data
      *  @param height Number of data rows
@@ -249,10 +266,9 @@ public class ImagePlot extends Canvas
         image_area = new Rectangle(y_axis_width, 0, bounds.width - y_axis_width, bounds.height - x_axis_height);
 
         // Color bar requested and there's room?
-        final int colorbar_size = 30;
         if (show_colorbar)
         {
-            colorbar_area = new Rectangle(bounds.width - 2*colorbar_size, colorbar_size, 2*colorbar_size, image_area.height-2*colorbar_size);
+            colorbar_area = new Rectangle(bounds.width - colorbar_size, colorbar_size, colorbar_size, image_area.height-2*colorbar_size);
 
             final int cb_axis_width = colorbar_axis.getDesiredPixelSize(colorbar_area, gc);
             colorbar_axis.setBounds(colorbar_area.x, colorbar_area.y, cb_axis_width, colorbar_area.height);

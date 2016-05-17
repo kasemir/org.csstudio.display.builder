@@ -20,6 +20,8 @@ import org.diirt.util.array.ListDouble;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
 import javafx.stage.Stage;
 
 /** @author Kay Kasemir
@@ -55,6 +57,8 @@ public class ImagePlotDemo extends Application
         return new ArrayDouble(data);
     }
 
+    volatile boolean show_colorbar = true;
+
     @Override
     public void start(final Stage stage) throws Exception
     {
@@ -70,8 +74,19 @@ public class ImagePlotDemo extends Application
         plot.setAutoscale(true);
         plot.setValueRange(0.0, 2.0);
 
+        plot.getXAxis().setGridVisible(true);
+        plot.getYAxis().setGridVisible(true);
+        plot.getYAxis().setScaleFont(Font.font("Liberation Sans", FontPosture.ITALIC, 25));
+
         timer.scheduleAtFixedRate(() -> plot.setValue(WIDTH, HEIGHT, computeData()),
                                   200, 100, TimeUnit.MILLISECONDS);
+
+        timer.scheduleAtFixedRate(() ->
+        {
+            show_colorbar = ! show_colorbar;
+            plot.showColorBar(show_colorbar);
+        }, 5000, 5000, TimeUnit.MILLISECONDS);
+
 
 		final Pane root = new Pane(plot);
 		plot.widthProperty().bind(root.widthProperty());
