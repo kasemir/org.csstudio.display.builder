@@ -101,7 +101,11 @@ public class ImagePlot extends Canvas
      */
     private volatile Image plot_image = null;
 
+    /** Throttle updates, enforcing a 'dormant' period */
     private final RTPlotUpdateThrottle update_throttle;
+
+    /** Suppress updates triggered by axis changes from layout or autoscale */
+    private volatile boolean in_update = false;
 
     /** Listener to Axis {@link PlotPart} */
     final private PlotPartListener axis_listener = new PlotPartListener()
@@ -115,7 +119,8 @@ public class ImagePlot extends Canvas
         @Override
         public void refreshPlotPart(final PlotPart plotPart)
         {
-            requestUpdate();
+            if (! in_update)
+                requestUpdate();
         }
     };
 
@@ -275,12 +280,13 @@ public class ImagePlot extends Canvas
         // the scaled image.
         // (http://bugs.java.com/bugdatabase/view_bug.do?bug_id=8091877).
         // So image is prepared in AWT and then converted to JFX
-
         logger.log(Level.FINE, "updateImageBuffer");
+
         final Rectangle area_copy = area;
         if (area_copy.width <= 0  ||  area_copy.height <= 0)
             return;
 
+        in_update = true;
         final BufferedImage image = new BufferedImage(area_copy.width, area_copy.height, BufferedImage.TYPE_INT_ARGB);
         final Graphics2D gc = image.createGraphics();
 
@@ -346,6 +352,8 @@ public class ImagePlot extends Canvas
 
         gc.dispose();
 
+        in_update = false;
+
         // Convert to JFX
         plot_image = SwingFXUtils.toFXImage(image, null);
     }
@@ -356,14 +364,12 @@ public class ImagePlot extends Canvas
         for (int value=0; value<256; ++value)
         {
             final Color color = color_mapping.apply((255-value)/255.0);
-            final int rgb = (255 << 24) | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
-            image.setRGB(0, value, rgb);
+            image.setRGB(0, value, color.getRGB());
         }
         return image;
     }
 
-    private static long avg_nano = 0;
-    private static long runs = 0;
+    // private static long avg_nano = 0, runs = 0;
 
     /** @param data_width
      *  @param data_height
@@ -395,7 +401,7 @@ public class ImagePlot extends Canvas
         {
             // Draw each pixel
             final IteratorNumber iter = numbers.iterator();
-            final long start = System.nanoTime();
+            // final long start = System.nanoTime();
             for (int y=0; y<data_height; ++y)
             {
                 for (int x=0; x<data_width; ++x)
@@ -407,20 +413,20 @@ public class ImagePlot extends Canvas
                     if (scaled > 1.0)
                         scaled = 1.0;
                     final Color color = color_mapping.apply(scaled);
-//                  // What's faster: gc.setColor(color); gc.drawLine(x, y, x, y), gc.fillRect(x, y, 1, 1), direct pixel access?
+                    // What's faster: gc.setColor(color) and gc.drawLine(x, y, x, y) or gc.fillRect(x, y, 1, 1),
+                    // ordirect pixel access?
                     // Test image showed ~52ms for drawLine, ~13ms for setRGB
                     // No difference for BufferedImage.TYPE_INT_ARGB vs. BufferedImage.TYPE_INT_RGB
-                    final int rgb = (255 << 24) | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
-                    image.setRGB(x, y, rgb);
+                    image.setRGB(x, y, color.getRGB());
                 }
             }
-            final long nano = System.nanoTime() - start;
-            avg_nano = (avg_nano*3 + nano)/4;
-            if (++runs > 100)
-            {
-                runs = 0;
-                System.out.println("ms: " + nano/1e6);
-            }
+            // final long nano = System.nanoTime() - start;
+            // avg_nano = (avg_nano*3 + nano)/4;
+            // if (++runs > 100)
+            // {
+            //     runs = 0;
+            //     System.out.println("ms: " + nano/1e6);
+            // }
         }
         else
         {

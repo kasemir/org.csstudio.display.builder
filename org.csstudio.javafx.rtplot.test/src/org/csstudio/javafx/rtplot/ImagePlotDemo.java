@@ -55,8 +55,6 @@ public class ImagePlotDemo extends Application
         return new ArrayDouble(data);
     }
 
-
-
     @Override
     public void start(final Stage stage) throws Exception
     {
@@ -69,7 +67,7 @@ public class ImagePlotDemo extends Application
 
         plot.setColorMapping(ImagePlot.RAINBOW);
 
-        plot.setAutoscale(false);
+        plot.setAutoscale(true);
         plot.setValueRange(0.0, 2.0);
 
         timer.scheduleAtFixedRate(() -> plot.setValue(WIDTH, HEIGHT, computeData()),

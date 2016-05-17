@@ -60,6 +60,9 @@ public class RTPlotUpdateThrottle
         {   // Perform the update
             try
             {
+                // Wait a little to allow more updates to accumulate
+                Thread.sleep(20);
+                pending_trigger.set(false);
                 update.run();
             }
             catch (Throwable ex)

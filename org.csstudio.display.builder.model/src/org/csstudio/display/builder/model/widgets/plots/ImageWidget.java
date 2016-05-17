@@ -110,7 +110,7 @@ public class ImageWidget extends VisibleWidget
         properties.add(displayBorderAlarmSensitive.createProperty(this, true));
         properties.add(data_width = dataWidth.createProperty(this, 100));
         properties.add(data_height = dataHeight.createProperty(this, 100));
-        properties.add(data_autoscale = PlotWidgetProperties.autoscale.createProperty(this, false));
+        properties.add(data_autoscale = PlotWidgetProperties.autoscale.createProperty(this, true));
         properties.add(data_minimum = behaviorMinimum.createProperty(this, 0.0));
         properties.add(data_maximum = behaviorMaximum.createProperty(this, 255.0));
         properties.add(data_colormap = dataColormap.createProperty(this, ColorMap.VIRIDIS));
