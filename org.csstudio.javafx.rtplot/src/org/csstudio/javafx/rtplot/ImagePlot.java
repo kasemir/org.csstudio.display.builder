@@ -19,6 +19,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.DoubleFunction;
 import java.util.logging.Level;
 
+import org.csstudio.javafx.rtplot.internal.AxisPart;
+import org.csstudio.javafx.rtplot.internal.HorizontalNumericAxis;
+import org.csstudio.javafx.rtplot.internal.PlotPart;
+import org.csstudio.javafx.rtplot.internal.PlotPartListener;
+import org.csstudio.javafx.rtplot.internal.YAxisImpl;
 import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
 import org.diirt.util.array.IteratorNumber;
 import org.diirt.util.array.ListNumber;
@@ -49,14 +54,20 @@ public class ImagePlot extends Canvas
     /** Area of this canvas */
     private volatile Rectangle area = new Rectangle(0, 0, 0, 0);
 
+    /** Does layout need to be re-computed? */
+    final private AtomicBoolean need_layout = new AtomicBoolean(true);
+
+    /** X Axis */
+    final private AxisPart<Double> x_axis;
+
+    /** Y Axis */
+    final private YAxisImpl<Double> y_axis;
+
     /** Area used by the image */
     private volatile Rectangle image_area = new Rectangle(0, 0, 0, 0);
 
     /** Area used by the color bar. <code>null</code> if not visible */
     private volatile Rectangle colorbar_area = null;
-
-    /** Does layout need to be re-computed? */
-    final private AtomicBoolean need_layout = new AtomicBoolean(true);
 
     /** Image data size */
     private volatile int data_width = 0, data_height = 0;
@@ -89,6 +100,22 @@ public class ImagePlot extends Canvas
 
     private final RTPlotUpdateThrottle update_throttle;
 
+    /** Listener to Axis {@link PlotPart} */
+    final private PlotPartListener axis_listener = new PlotPartListener()
+    {
+        @Override
+        public void layoutPlotPart(final PlotPart plotPart)
+        {
+            need_layout.set(true);
+        }
+
+        @Override
+        public void refreshPlotPart(final PlotPart plotPart)
+        {
+            requestUpdate();
+        }
+    };
+
     final private Runnable redraw_runnable = () ->
     {
         final GraphicsContext gc = getGraphicsContext2D();
@@ -103,6 +130,9 @@ public class ImagePlot extends Canvas
 
     public ImagePlot()
     {
+        x_axis = new HorizontalNumericAxis("X", axis_listener);
+        y_axis = new YAxisImpl<>("Y", axis_listener);
+
         // 50Hz default throttle
         update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
         {
@@ -119,12 +149,17 @@ public class ImagePlot extends Canvas
         heightProperty().addListener(resize_listener);
     }
 
+    /** @param autoscale  Auto-scale the color mapping? */
     public void setAutoscale(final boolean autoscale)
     {
         this.autoscale = autoscale;
         requestUpdate();
     }
 
+    /** Set color mapping value range
+     *  @param min
+     *  @param max
+     */
     public void setRange(final double min, final double max)
     {
         this.min = min;
@@ -136,6 +171,22 @@ public class ImagePlot extends Canvas
     public void setColorMapping(final DoubleFunction<Color> color_mapping)
     {
         this.color_mapping = color_mapping;
+    }
+
+    /** <b>Note: May offer too much access
+     *  @return X Axis
+     */
+    public Axis<Double> getXAxis()
+    {
+        return x_axis;
+    }
+
+    /** <b>Note: May offer too much access
+     *  @return Y Axis
+     */
+    public Axis<Double> getYAxis()
+    {
+        return y_axis;
     }
 
     /** Set the data to display
@@ -181,21 +232,25 @@ public class ImagePlot extends Canvas
     {
         logger.log(Level.FINE, "computeLayout");
 
-        image_area = new Rectangle(bounds);
+        // X Axis as high as desired. Width will depend on Y axis.
+        final int x_axis_height = x_axis.getDesiredPixelSize(bounds, gc);
+        final int y_axis_height = bounds.height - x_axis_height;
+        final int y_axis_width  = y_axis.getDesiredPixelSize(new Rectangle(0, 0, bounds.width, y_axis_height), gc);
 
-        final int colorbar_size = 25;
+        image_area = new Rectangle(y_axis_width, 0, bounds.width - y_axis_width, bounds.height - x_axis_height);
 
         // Color bar requested and there's room?
-        if (show_colorbar  &&  bounds.width > 2*colorbar_size)
+        final int colorbar_size = 25;
+        if (show_colorbar  &&  image_area.width > 2*colorbar_size)
         {
-            colorbar_area = new Rectangle(bounds.width - colorbar_size, colorbar_size, colorbar_size, bounds.height-2*colorbar_size);
+            colorbar_area = new Rectangle(bounds.width - colorbar_size, colorbar_size, colorbar_size, image_area.height-2*colorbar_size);
             image_area.width -= colorbar_size;
         }
         else
             colorbar_area = null;
 
-        // TODO Color bar (Y Axis)..
-
+        y_axis.setBounds(0, 0, y_axis_width, image_area.height);
+        x_axis.setBounds(image_area.x, image_area.height, image_area.width, x_axis_height);
     }
 
     /** Draw all components into image buffer */
@@ -270,7 +325,10 @@ public class ImagePlot extends Canvas
         // Paint the image
         final BufferedImage unscaled = drawData(data_width, data_height, numbers, min, max, color_mapping);
         if (unscaled != null)
-            gc.drawImage(unscaled, 0, 0, image_area.width, image_area.height, null);
+            gc.drawImage(unscaled, image_area.x, image_area.y, image_area.width, image_area.height, null);
+
+        y_axis.paint(gc, image_area);
+        x_axis.paint(gc, image_area);
 
         gc.dispose();
 
