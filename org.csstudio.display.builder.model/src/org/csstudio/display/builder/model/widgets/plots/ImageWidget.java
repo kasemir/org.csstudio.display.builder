@@ -19,15 +19,21 @@ import java.util.List;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
 import org.diirt.vtype.VType;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
 
 /** Widget that displays an image
  *  @author Kay Kasemir
@@ -49,6 +55,24 @@ public class ImageWidget extends VisibleWidget
             return new ImageWidget();
         }
     };
+
+    private static final WidgetPropertyDescriptor<ColorMap> dataColormap =
+            new WidgetPropertyDescriptor<ColorMap>(
+                    WidgetPropertyCategory.DISPLAY, "color_map", Messages.WidgetProperties_ColorMap)
+    {
+        @Override
+        public WidgetProperty<ColorMap> createProperty(final Widget widget,
+                final ColorMap map)
+        {
+            return new ColorMapWidgetProperty(this, widget, map);
+        }
+    };
+
+    private static final WidgetPropertyDescriptor<Boolean> showColormap =
+            CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_colormap", "Show Colormap");
+
+    private static final WidgetPropertyDescriptor<Integer> colormapSize =
+            CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "colormap_size", "Colormap Size");
 
     private static final WidgetPropertyDescriptor<Integer> dataWidth =
         new WidgetPropertyDescriptor<Integer>(
@@ -74,47 +98,87 @@ public class ImageWidget extends VisibleWidget
         }
     };
 
-    private static final WidgetPropertyDescriptor<ColorMap> dataColormap =
-        new WidgetPropertyDescriptor<ColorMap>(
-            WidgetPropertyCategory.BEHAVIOR, "color_map", Messages.WidgetProperties_ColorMap)
+    private class CustomWidgetConfigurator extends WidgetConfigurator
     {
-        @Override
-        public WidgetProperty<ColorMap> createProperty(final Widget widget,
-                                                       final ColorMap map)
+        public CustomWidgetConfigurator(final Version xml_version)
         {
-            return new ColorMapWidgetProperty(this, widget, map);
+            super(xml_version);
         }
-    };
+
+        @Override
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget,
+                final Element xml) throws Exception
+        {
+            if (! super.configureFromXML(model_reader, widget, xml))
+                return false;
+
+            if (xml_version.getMajor() < 2)
+            {
+                final ImageWidget image = (ImageWidget) widget;
+                XMLUtil.getChildString(xml, "show_ramp")
+                       .ifPresent(show -> image.show_colormap.setValue(Boolean.parseBoolean(show)));
+            }
+
+            return true;
+        }
+    }
+
+
+    private volatile WidgetProperty<Boolean> show_colormap;
+    private volatile WidgetProperty<Integer> colormap_size;
+    private volatile WidgetProperty<ColorMap> data_colormap;
 
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<Integer> data_width;
     private volatile WidgetProperty<Integer> data_height;
-
     private volatile WidgetProperty<Boolean> data_autoscale;
     private volatile WidgetProperty<Double> data_minimum;
     private volatile WidgetProperty<Double> data_maximum;
-    private volatile WidgetProperty<ColorMap> data_colormap;
 
     private WidgetProperty<VType> value;
 
     public ImageWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
+        // Initial size
+        positionWidth().setValue(400);
+        positionHeight().setValue(300);
     }
 
     @Override
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(displayBorderAlarmSensitive.createProperty(this, true));
+        properties.add(data_colormap = dataColormap.createProperty(this, ColorMap.VIRIDIS));
+        properties.add(show_colormap = showColormap.createProperty(this, true));
+        properties.add(colormap_size = colormapSize.createProperty(this, 40));
+        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(data_width = dataWidth.createProperty(this, 100));
         properties.add(data_height = dataHeight.createProperty(this, 100));
         properties.add(data_autoscale = PlotWidgetProperties.autoscale.createProperty(this, true));
         properties.add(data_minimum = behaviorMinimum.createProperty(this, 0.0));
         properties.add(data_maximum = behaviorMaximum.createProperty(this, 255.0));
-        properties.add(data_colormap = dataColormap.createProperty(this, ColorMap.VIRIDIS));
         properties.add(value = runtimeValue.createProperty(this, null));
+    }
+
+    @Override
+    public WidgetConfigurator getConfigurator(final Version persisted_version)
+            throws Exception
+    {
+        return new CustomWidgetConfigurator(persisted_version);
+    }
+
+    /** @return Display 'show_colormap' */
+    public WidgetProperty<Boolean> displayShowColormap()
+    {
+        return show_colormap;
+    }
+
+    /** @return Display 'colormap_size' */
+    public WidgetProperty<Integer> displayColormapSize()
+    {
+        return colormap_size;
     }
 
     /** @return Behavior 'pv_name' */

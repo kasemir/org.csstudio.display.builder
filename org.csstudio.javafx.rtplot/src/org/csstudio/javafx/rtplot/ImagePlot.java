@@ -82,7 +82,7 @@ public class ImagePlot extends Canvas
     private volatile double min=0.0, max=1.0;
 
     /** Show color bar? */
-    private volatile boolean show_colorbar = true;
+    private volatile boolean show_colormap = true;
 
     /** Color bar size */
     private volatile int colorbar_size = 40;
@@ -201,17 +201,17 @@ public class ImagePlot extends Canvas
         return y_axis;
     }
 
-    /** @param show_colorbar Show color bar? */
-    public void showColorBar(final boolean show_colorbar)
+    /** @param show Show color map? */
+    public void showColorMap(final boolean show)
     {
-        this.show_colorbar = show_colorbar;
+        show_colormap = show;
         requestLayout();
     }
 
-    /** @param colorbar_size Color bar size in pixels */
-    public void setColorBarSize(final int colorbar_size)
+    /** @param size Color bar size in pixels */
+    public void setColorMapSize(final int size)
     {
-        this.colorbar_size = colorbar_size;
+        colorbar_size = size;
         requestLayout();
     }
 
@@ -266,7 +266,7 @@ public class ImagePlot extends Canvas
         image_area = new Rectangle(y_axis_width, 0, bounds.width - y_axis_width, bounds.height - x_axis_height);
 
         // Color bar requested and there's room?
-        if (show_colorbar)
+        if (show_colormap)
         {
             colorbar_area = new Rectangle(bounds.width - colorbar_size, colorbar_size, colorbar_size, image_area.height-2*colorbar_size);
 

@@ -51,6 +51,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 
         model_widget.behaviorDataColormap().addPropertyListener(this::colormapChanged);
 
+        model_widget.displayShowColormap().addUntypedPropertyListener(this::configChanged);
+        model_widget.displayColormapSize().addUntypedPropertyListener(this::configChanged);
         model_widget.behaviorDataAutoscale().addUntypedPropertyListener(this::configChanged);
         model_widget.behaviorDataMinimum().addUntypedPropertyListener(this::configChanged);
         model_widget.behaviorDataMaximum().addUntypedPropertyListener(this::configChanged);
@@ -81,6 +83,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 
     private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        image_plot.showColorMap(model_widget.displayShowColormap().getValue());
+        image_plot.setColorMapSize(model_widget.displayColormapSize().getValue());
         image_plot.setAutoscale(model_widget.behaviorDataAutoscale().getValue());
         image_plot.setValueRange(model_widget.behaviorDataMinimum().getValue(),
                             model_widget.behaviorDataMaximum().getValue());

@@ -84,7 +84,7 @@ public class ImagePlotDemo extends Application
         timer.scheduleAtFixedRate(() ->
         {
             show_colorbar = ! show_colorbar;
-            plot.showColorBar(show_colorbar);
+            plot.showColorMap(show_colorbar);
         }, 5000, 5000, TimeUnit.MILLISECONDS);
 
 
