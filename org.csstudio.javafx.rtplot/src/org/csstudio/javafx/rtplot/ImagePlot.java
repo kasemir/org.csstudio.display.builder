@@ -352,17 +352,13 @@ public class ImagePlot extends Canvas
 
     private BufferedImage drawColorBar(final double min, final double max, final DoubleFunction<Color> color_mapping)
     {
-        final BufferedImage image = new BufferedImage(1, 255, BufferedImage.TYPE_INT_RGB);
-
-        // TODO Add scale
-        final Graphics2D gc = image.createGraphics();
+        final BufferedImage image = new BufferedImage(1, 256, BufferedImage.TYPE_INT_ARGB);
         for (int value=0; value<256; ++value)
         {
-            gc.setColor(color_mapping.apply((255-value)/255.0));
-            gc.drawLine(0, value, 0, value);
+            final Color color = color_mapping.apply((255-value)/255.0);
+            final int rgb = (255 << 24) | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
+            image.setRGB(0, value, rgb);
         }
-        gc.dispose();
-
         return image;
     }
 
@@ -392,7 +388,7 @@ public class ImagePlot extends Canvas
                                      new Object[] { data_width, data_height, numbers.size() });
             return null;
         }
-        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_RGB);
+        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_ARGB);
 
         final Graphics2D gc = image.createGraphics();
         if (min < max) // Implies min and max being finite, not-NaN
@@ -411,9 +407,11 @@ public class ImagePlot extends Canvas
                     if (scaled > 1.0)
                         scaled = 1.0;
                     final Color color = color_mapping.apply(scaled);
-                    gc.setColor(color);
-                    // What's faster, gc.fillRect(x, y, 1, 1) or 1-pixel line?
-                    gc.drawLine(x, y, x, y);
+//                  // What's faster: gc.setColor(color); gc.drawLine(x, y, x, y), gc.fillRect(x, y, 1, 1), direct pixel access?
+                    // Test image showed ~52ms for drawLine, ~13ms for setRGB
+                    // No difference for BufferedImage.TYPE_INT_ARGB vs. BufferedImage.TYPE_INT_RGB
+                    final int rgb = (255 << 24) | (color.getRed() << 16) | (color.getGreen() << 8) | color.getBlue();
+                    image.setRGB(x, y, rgb);
                 }
             }
             final long nano = System.nanoTime() - start;
