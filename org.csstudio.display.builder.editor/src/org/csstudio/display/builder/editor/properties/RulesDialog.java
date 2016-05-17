@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
+import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,10 +20,10 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.RuleInfo;
-import org.csstudio.display.builder.model.properties.RuleInfo.ExpressionInfo;
-import org.csstudio.display.builder.model.properties.RuleInfo.PropInfo;
 import org.csstudio.display.builder.model.properties.RuleInfo.ExprInfoString;
 import org.csstudio.display.builder.model.properties.RuleInfo.ExprInfoValue;
+import org.csstudio.display.builder.model.properties.RuleInfo.ExpressionInfo;
+import org.csstudio.display.builder.model.properties.RuleInfo.PropInfo;
 import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -65,8 +67,6 @@ import javafx.util.Callback;
 @SuppressWarnings("nls")
 public class RulesDialog extends Dialog<List<RuleInfo>>
 {
-    static final Logger logger = Logger.getLogger(RulesDialog.class.getName());
-
     /** ScriptPV info as property-based item for table */
     public static class PVItem
     {
@@ -274,8 +274,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     /** Modifiable RuleInfo */
     public static class RuleItem
     {
-        private final Logger logger = Logger.getLogger(getClass().getName());
-
         public List<ExprItem<?>> expressions;
         public List<PVItem> pvs;
         protected StringProperty name = new SimpleStringProperty();
@@ -625,7 +623,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         propComboBox.valueProperty().addListener(new ChangeListener<String>() {
             @Override
-            public void changed(ObservableValue ov, String t, String t1) {
+            public void changed(ObservableValue<? extends String> ov, String t, String t1) {
                 if (!selected_rule_item.tryUpdatePropID(undo, getPropID(t1)))
                 {
                     Logger.getLogger(this.getClass().getName()).
