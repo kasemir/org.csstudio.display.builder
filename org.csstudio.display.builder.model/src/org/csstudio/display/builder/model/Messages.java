@@ -21,6 +21,11 @@ public class Messages extends NLS
     public static String Actions_N_Fmt;
     public static String BoolWidget_OffLabel;
     public static String BoolWidget_OnLabel;
+    public static String ByteMonitor_BitReverse;
+    public static String ByteMonitor_Horizontal;
+    public static String ByteMonitor_NumBits;
+    public static String ByteMonitor_SquareLED;
+    public static String ByteMonitor_StartBit;
     public static String ActiveTab;
     public static String Bottom;
     public static String Center;

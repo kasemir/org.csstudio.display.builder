@@ -31,7 +31,8 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     int numBits = 8;
     boolean bitReverse = false;
     boolean horizontal = true;
-
+    boolean square_led = false;
+    
     private final DirtyFlag dirty_size = new DirtyFlag();
     protected final DirtyFlag dirty_content = new DirtyFlag();
 
