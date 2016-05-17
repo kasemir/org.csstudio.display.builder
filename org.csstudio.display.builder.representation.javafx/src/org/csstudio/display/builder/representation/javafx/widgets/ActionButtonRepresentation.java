@@ -7,16 +7,19 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.macros.MacroHandler;
+import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
@@ -25,12 +28,14 @@ import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class ActionButtonRepresentation extends RegionBaseRepresentation<ButtonBase, ActionButtonWidget>
+public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, ActionButtonWidget>
 {
     // Uses a Button if there is only one action,
     // otherwise a MenuButton so that user can select the specific action.
@@ -43,17 +48,26 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<ButtonB
     // Specifically, if the action count changed between 1 and >1,
     // it won't update between Button and MenuButton.
 
+    public final static Logger logger = Logger.getLogger(ActionButtonRepresentation.class.getName());
+
     private final DirtyFlag dirty_representation = new DirtyFlag();
     private final DirtyFlag dirty_actionls = new DirtyFlag();
 
     private volatile ButtonBase base;
+    private volatile String background, text_fill, fx_base;
+    private volatile Color foreground;
+    private volatile String button_text;
 
     /** Optional modifier of the open display 'target */
     private Optional<OpenDisplayActionInfo.Target> target_modifier = Optional.empty();
+    private Pane pane;
+
+
 
     @Override
-    public ButtonBase createJFXNode() throws Exception
+    public Pane createJFXNode() throws Exception
     {
+        updateColors();
         makeBaseButton();
 
         // Model has width/height, but JFX widget has min, pref, max size.
@@ -63,7 +77,11 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<ButtonB
         // Monitor keys that modify the OpenDisplayActionInfo.Target.
         // Use filter to capture event that's otherwise already handled.
         base.addEventFilter(MouseEvent.MOUSE_PRESSED, this::checkModifiers);
-        return base;
+
+        pane = new Pane();
+        pane.getChildren().add(base);
+
+        return pane;
     }
 
     /** @param event Mouse event to check for target modifier keys */
@@ -83,7 +101,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<ButtonB
         if (target_modifier.isPresent())
         {
             logger.log(Level.FINE, "{0} modifier: {1}", new Object[] { model_widget, target_modifier.get() });
-            jfx_node.arm();
+            base.arm();
         }
     }
 
@@ -102,25 +120,90 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<ButtonB
     @Override
     protected void registerListeners()
     {
+        updateColors();
         super.registerListeners();
         model_widget.positionWidth().addUntypedPropertyListener(this::representationChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::representationChanged);
         model_widget.displayText().addUntypedPropertyListener(this::representationChanged);
         model_widget.displayFont().addUntypedPropertyListener(this::representationChanged);
-        model_widget.behaviorActions().addUntypedPropertyListener(this::actionsChanged);
+        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::buttonChanged);
+        model_widget.displayForegroundColor().addUntypedPropertyListener(this::buttonChanged);
+        model_widget.behaviorActions().addUntypedPropertyListener(this::buttonChanged);
     }
 
     private void representationChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        updateColors();
         dirty_representation.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    private void actionsChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    private void buttonChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        updateColors();
         dirty_actionls.mark();
         dirty_representation.mark();
         toolkit.scheduleUpdate(this);
+    }
+
+    private void updateColors()
+    {
+        //background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
+        //font_color = JFXUtil.convert(model_widget.displayLineColor().getValue());
+
+        WidgetColor col = model_widget.displayBackgroundColor().getValue();
+        background = String.format("-fx-background-color: #%02x%02x%02x;", col.getRed(), col.getGreen(), col.getBlue());
+        fx_base = String.format("-fx-base: #%02x%02x%02x;", col.getRed(), col.getGreen(), col.getBlue());
+
+        col = model_widget.displayForegroundColor().getValue();
+        text_fill = String.format("-fx-text-fill: #%02x%02x%02x;", col.getRed(), col.getGreen(), col.getBlue());
+
+        foreground = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
+
+        //fx_base = ".context-menu { -fx-skin: \"com.sun.javafx.scene.control.skin.ContextMenuSkin\"; -fx-background-color: darkgreen;";
+        //fx_base += "-fx-background-insets: 0, 1, 2; -fx-background-radius: 0 6 6 6, 0 5 5 5, 0 4 4 4; -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em; /* 4 1 8 1 */ }";
+    }
+
+    private String makeActionText(ActionInfo action)
+    {
+        String action_str = action.getDescription();
+        String expanded;
+        if (action_str.length() == 0)
+        {
+            action_str = action.toString();
+        }
+        final MacroValueProvider macros = model_widget.getMacrosOrProperties();
+
+        try
+        {
+            expanded = MacroHandler.replace(macros, action_str);
+        }
+        catch (final Exception ex)
+        {
+            logger.log(Level.WARNING, model_widget + " action " + action + " cannot expand macros for " + action_str, ex);
+            expanded = action_str;
+        }
+        return expanded;
+    }
+
+    private void makeButtonText()
+    {
+        button_text = model_widget.displayText().getValue();
+        if (button_text.length() > 0)
+            return;
+
+        final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
+        if (actions.size() < 1)
+        {
+            button_text = "EMPTY";
+            return;
+        }
+        if (actions.size() > 1)
+        {
+            button_text = "Choose 1 of " + String.valueOf(actions.size());
+            return;
+        }
+        button_text = makeActionText(actions.get(0));
     }
 
     private void makeBaseButton()
@@ -142,12 +225,28 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<ButtonB
             final MenuButton button = new MenuButton();
             for (final ActionInfo action : actions)
             {
-                final MenuItem item = new MenuItem(action.getDescription());
+                final MenuItem item = new MenuItem(makeActionText(action));
+                //item.setStyle("-fx-background-color: slateblue; -fx-text-fill: white;");
+                item.setStyle(background + " " + text_fill);
                 item.setOnAction(event -> handleAction(action));
                 button.getItems().add(item);
             }
             base = button;
         }
+        //button1.setStyle("-fx-font: 22 arial; -fx-base: #b6e7c9;");
+        base.setStyle(background + " " + fx_base);
+
+        if (toolkit.isEditMode())
+        {
+            //base.setOnMouseReleased(event -> {});
+            base.setOnMousePressed((event) ->
+            {
+                event.consume();
+                toolkit.fireClick(model_widget, event.isControlDown());
+            });
+        }
+
+
     }
 
     @Override
@@ -157,13 +256,19 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<ButtonB
         if (dirty_actionls.checkAndClear())
         {
             makeBaseButton();
+            jfx_node.getChildren().clear();
+            jfx_node.getChildren().add(base);
         }
         if (dirty_representation.checkAndClear())
         {
-            jfx_node.setText(model_widget.displayText().getValue());
-            jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
+            makeButtonText();
+            base.setText(button_text);
+            base.setTextFill(foreground);
+            base.setPrefSize(model_widget.positionWidth().getValue(),
                     model_widget.positionHeight().getValue());
-            jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+            base.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+            jfx_node.getChildren().clear();
+            jfx_node.getChildren().add(base);
         }
     }
 }
