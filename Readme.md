@@ -178,11 +178,12 @@ Widgets with key functionality:
 * EmbeddedDisplay widget that (at runtime) loads other *.opi file,
 * ActionButton that opens new *.opi, either in new window or replacing existing model.
 
+To add a new widget, implement a new widget model based on the `Widget` class.
+Register via extension point.
+To support standalone testing w/o RCP, also add to `WidgetFactory#registerKnownWidgets`.
 
 Major TODOs:
  * Add many more widgets and their properties.
-   Each new widget is added as its own class derived from the base `Widget`
-   and registered via extension point.
 
 ####  Representation
 
@@ -190,14 +191,19 @@ Represents Widgets in a UI toolkit, i.e. makes them visible on the screen.
 Implemented for SWT and JavaFX to demonstrate that different toolkits can be supported,
 but SWT implementation is limited because emphasis is on JavaFX.
 
+To represent a new widget, implement a `WidgetRepresentation` for either JavaFX or SWT (or both)
+and register with the `JFXRepresentation` respectively `SWTRepresentation`
+via an extension point.
+To support standalone testing w/o RCP, also add to `JFXRepresentation#registerKnownRepresentations`
+or the corresponding `SWTRepresentation`.
+
+The representation needs to add listeners to model properties of interest.
+On change, it can prepare the UI update, which is then scheduled via `ToolkitRepresentation.scheduleUpdate()`
+to occur on the UI thread in a throttled manner.
+
+
 Major TODOs:
  * A ton of widgets and their representation.
-   Each new widget needs to implement a `WidgetRepresentation` for either JavaFX or SWT (or both)
-   and register with the `JFXRepresentation` respectively `SWTRepresentation`
-   via an extension point.
-   The representation needs to add listeners to model properties of interest.
-   On change, it can prepare the UI update, which is then scheduled via `ToolkitRepresentation.scheduleUpdate()`
-   to occur on the UI thread in a throttled manner.
  
 ####  Runtime
 
