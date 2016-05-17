@@ -321,7 +321,7 @@ public class Widget
      *  @throws Exception if persisted version cannot be handled
      */
     public WidgetConfigurator getConfigurator(final Version persisted_version)
-        throws Exception
+            throws Exception
     {
         // if (persisted_version.getMajor() < 1)
         //    throw new Exception("Can only handle version 1.0.0 and higher");
@@ -354,7 +354,7 @@ public class Widget
         return names;
     }
 
-    private void addPropertyNames(final List<String> names, String path, final WidgetProperty<?> property)
+    public void addPropertyNames(final List<String> names, String path, final WidgetProperty<?> property)
     {
         if (property instanceof ArrayWidgetProperty)
         {
@@ -381,7 +381,16 @@ public class Widget
      */
     public Optional<WidgetProperty<?>> checkProperty(final String name)
     {
-        final WidgetProperty<?> property = property_map.get(name);
+        WidgetProperty<?> property;
+        try
+        {
+            property = getProperty(name);
+        }
+        catch (Exception e)
+        {
+            property = null;
+        }
+
         return Optional.ofNullable(property);
     }
 
@@ -519,7 +528,7 @@ public class Widget
      *  @throws IllegalArgumentException if property is unknown
      */
     public <PT> void setPropertyValue(final WidgetPropertyDescriptor<PT> property_description,
-                                      final PT value)
+            final PT value)
     {
         getProperty(property_description).setValue(value);
     }
@@ -535,7 +544,7 @@ public class Widget
      *  @throws Exception if value is unsuitable for this property
      */
     public void setPropertyValue(final String name,
-                                 final Object value) throws Exception
+            final Object value) throws Exception
     {
         getProperty(name).setValueFromObject(value);
     }

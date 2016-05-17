@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.RuleInfo;
 import org.csstudio.display.builder.model.properties.RuleInfo.ExpressionInfo;
+import org.csstudio.display.builder.model.properties.RuleInfo.PropInfo;
 import org.csstudio.display.builder.model.properties.RuleInfo.ExprInfoString;
 import org.csstudio.display.builder.model.properties.RuleInfo.ExprInfoValue;
 import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
@@ -64,7 +65,7 @@ import javafx.util.Callback;
 @SuppressWarnings("nls")
 public class RulesDialog extends Dialog<List<RuleInfo>>
 {
-
+    static final Logger logger = Logger.getLogger(RulesDialog.class.getName());
 
     /** ScriptPV info as property-based item for table */
     public static class PVItem
@@ -480,47 +481,44 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
     /** Property options for target of expression **/
     ObservableList<String> prop_id_opts = FXCollections.observableArrayList();
-    final List<WidgetProperty<?>> propls;
+    final List<PropInfo> propinfo_ls;
     private ComboBox<String> propComboBox;
 
     /** Is the property value an expressions (i.e. user input string) **/
     private CheckBox valExpBox;
 
-    /** turn a property into the long string form used in the combo box **/
-    public String getPropLongString(WidgetProperty<?> prop)
-    {
-        String ret = prop.getDescription() + ",  [" + prop.getName() + "=" + prop.getValue() + "]";
-        if ( !propls.contains(prop) )
-        {
-            return "INVALID: " + ret;
-        }
-        return ret;
-    }
-
     /** turn this rule's property into the long string form used in the combo box **/
     public String getPropLongString(RuleItem rule)
     {
-        Optional<WidgetProperty<?>> prop = rule.attached_widget.checkProperty(rule.prop_id.get());
-
-        if (prop.isPresent())
-        {
-            return getPropLongString(prop.get());
-        }
-
-        return "INVALID: " + rule.prop_id.get();
+        final PropInfo pi = new PropInfo(rule.attached_widget, rule.prop_id.get());
+        return pi.toString();
     }
 
     /** get the short property id from the long string from the combo box **/
     public String getPropID( String longString )
     {
         int idx = prop_id_opts.indexOf(longString);
-        if ((idx < 0) || (idx > propls.size())) {
-            Logger.getLogger(this.getClass().getName()).
-            log(Level.FINE, "Could not match long string " + longString + " to property." +
-                    " Got index " + String.valueOf(idx) + " out of bounds " + String.valueOf(propls.size()));
+        if ((idx < 0) || (idx > propinfo_ls.size())) {
+            logger.log(Level.SEVERE, "Could not match combo box item " + longString + " to property." +
+                    " Got index " + String.valueOf(idx) + " out of bounds " + String.valueOf(propinfo_ls.size()));
             return null;
         }
-        return propls.get(idx).getName();
+        PropInfo pi = propinfo_ls.get(idx);
+
+        if (pi.toString().equals(longString))
+            return pi.getPropID();
+
+        logger.log(Level.WARNING, "Mismatch in property dropdown and property listing");
+
+        for (PropInfo propi : propinfo_ls )
+        {
+            if (propi.toString().equals(longString))
+                return propi.getPropID();
+
+        }
+
+        logger.log(Level.SEVERE, "Could not find property for combo box item: " + longString);
+        return null;
     }
 
     /** @param rules Rules to show/edit in the dialog */
@@ -530,10 +528,10 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         this.undo = undo;
         this.attached_widget = attached_widget;
 
-        propls = RuleInfo.getTargettableProperties(attached_widget);
-        propls.forEach(prop ->
+        propinfo_ls = RuleInfo.getTargettableProperties(attached_widget);
+        propinfo_ls.forEach(pi ->
         {
-            prop_id_opts.add( getPropLongString(prop) );
+            prop_id_opts.add( pi.toString() );
         });
 
         setHeaderText(Messages.RulesDialog_Info + ": " +
@@ -706,7 +704,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             rule_items.add( new RuleItem(
                     attached_widget,
                     ( (selected_rule_item == null) ?
-                            ( (propls.size() == 0) ? "" : propls.get(0).getName() )
+                            ( (propinfo_ls.size() == 0) ? "" : propinfo_ls.get(0).getPropID() )
                             :
                                 selected_rule_item.prop_id.get() )
                     ));

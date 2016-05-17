@@ -11,9 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
-import org.csstudio.display.builder.model.ArrayWidgetProperty;
-import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
@@ -102,6 +101,44 @@ public class RuleInfo
         }
     };
 
+    public static class PropInfo
+    {
+        private final WidgetProperty<?> prop;
+        private final String prop_id;
+
+        public PropInfo(Widget attached_widget, String prop_id_str)
+        {
+            prop_id = prop_id_str;
+            Optional<WidgetProperty<?>> wprop = attached_widget.checkProperty(prop_id_str);
+
+            if (wprop.isPresent())
+            {
+                prop = wprop.get();
+            }
+            else
+            {
+                prop = null;
+            }
+        }
+
+        public WidgetProperty<?> getProp() {
+            return prop;
+        }
+
+        public String getPropID() {
+            return prop_id;
+        }
+
+        @Override
+        public String toString() {
+            if (prop == null)
+            {
+                return "INVALID: " + prop_id;
+            }
+            return prop_id + ", [" + prop.getName() + "=" + prop.getValue() + "]";
+        }
+    }
+
     private final List<ExpressionInfo<?>> expressions;
     private final List<ScriptPV> pvs;
     private final String name;
@@ -131,9 +168,9 @@ public class RuleInfo
      * @param attached_widget
      * @return List of all properties of a widget that a rule can target
      */
-    static public List<WidgetProperty<?>> getTargettableProperties (Widget attached_widget)
+    static public List<PropInfo> getTargettableProperties (Widget attached_widget)
     {
-        List<WidgetProperty<?>> propls = new ArrayList<>();
+        List<PropInfo> propls = new ArrayList<>();
 
         attached_widget.getProperties().forEach(prop ->
         {
@@ -150,11 +187,16 @@ public class RuleInfo
                 if ( !(prop instanceof MacrosWidgetProperty) &&
                         !(prop instanceof ActionsWidgetProperty) &&
                         !(prop instanceof ScriptsWidgetProperty) &&
-                        !(prop instanceof RulesWidgetProperty) &&
-                        !(prop instanceof StructuredWidgetProperty) &&
-                        !(prop instanceof ArrayWidgetProperty) )
+                        !(prop instanceof RulesWidgetProperty) )
                 {
-                    propls.add(prop);
+                    List<String> names = new ArrayList<>();
+
+                    attached_widget.addPropertyNames(names, prop.getName(), prop);
+
+                    for (String name : names)
+                    {
+                        propls.add(new PropInfo(attached_widget, name));
+                    }
                 }
             }
             }
