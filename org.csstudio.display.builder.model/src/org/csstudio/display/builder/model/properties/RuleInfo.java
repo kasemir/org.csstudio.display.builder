@@ -168,9 +168,9 @@ public class RuleInfo
      * @param attached_widget
      * @return List of all properties of a widget that a rule can target
      */
-    static public List<PropInfo> getTargettableProperties (Widget attached_widget)
+    static public List<PropInfo> getTargettableProperties (final Widget attached_widget)
     {
-        List<PropInfo> propls = new ArrayList<>();
+        final List<PropInfo> propls = new ArrayList<>();
 
         attached_widget.getProperties().forEach(prop ->
         {
@@ -185,13 +185,13 @@ public class RuleInfo
             default:
             {
                 if ( !(prop instanceof MacrosWidgetProperty) &&
-                        !(prop instanceof ActionsWidgetProperty) &&
-                        !(prop instanceof ScriptsWidgetProperty) &&
-                        !(prop instanceof RulesWidgetProperty) )
+                     !(prop instanceof ActionsWidgetProperty) &&
+                     !(prop instanceof ScriptsWidgetProperty) &&
+                     !(prop instanceof RulesWidgetProperty) )
                 {
-                    List<String> names = new ArrayList<>();
+                    final List<String> names = new ArrayList<>();
 
-                    attached_widget.addPropertyNames(names, prop.getName(), prop);
+                    Widget.addPropertyNames(names, prop.getName(), prop);
 
                     for (String name : names)
                     {

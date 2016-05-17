@@ -354,7 +354,18 @@ public class Widget
         return names;
     }
 
-    public void addPropertyNames(final List<String> names, String path, final WidgetProperty<?> property)
+    /** Helper for adding the complete property name 'paths'
+     *
+     *  <p>For a scalar property, this method simply adds that property
+     *  name to the list of names.
+     *
+     *  <p>For arrays or structures, it adds names for each array resp. structure element.
+     *
+     * @param names
+     * @param path
+     * @param property
+     */
+    public static void addPropertyNames(final List<String> names, String path, final WidgetProperty<?> property)
     {
         if (property instanceof ArrayWidgetProperty)
         {
