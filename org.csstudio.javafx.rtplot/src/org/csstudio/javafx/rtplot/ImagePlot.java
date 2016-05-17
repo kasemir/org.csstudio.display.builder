@@ -66,6 +66,9 @@ public class ImagePlot extends Canvas
     /** Area used by the image */
     private volatile Rectangle image_area = new Rectangle(0, 0, 0, 0);
 
+    /** Color bar Axis */
+    final private YAxisImpl<Double> colorbar_axis;
+
     /** Area used by the color bar. <code>null</code> if not visible */
     private volatile Rectangle colorbar_area = null;
 
@@ -132,6 +135,7 @@ public class ImagePlot extends Canvas
     {
         x_axis = new HorizontalNumericAxis("X", axis_listener);
         y_axis = new YAxisImpl<>("Y", axis_listener);
+        colorbar_axis =  new YAxisImpl<>("", axis_listener);
 
         // 50Hz default throttle
         update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
@@ -160,7 +164,7 @@ public class ImagePlot extends Canvas
      *  @param min
      *  @param max
      */
-    public void setRange(final double min, final double max)
+    public void setValueRange(final double min, final double max)
     {
         this.min = min;
         this.max = max;
@@ -240,11 +244,20 @@ public class ImagePlot extends Canvas
         image_area = new Rectangle(y_axis_width, 0, bounds.width - y_axis_width, bounds.height - x_axis_height);
 
         // Color bar requested and there's room?
-        final int colorbar_size = 25;
-        if (show_colorbar  &&  image_area.width > 2*colorbar_size)
+        final int colorbar_size = 30;
+        if (show_colorbar)
         {
-            colorbar_area = new Rectangle(bounds.width - colorbar_size, colorbar_size, colorbar_size, image_area.height-2*colorbar_size);
-            image_area.width -= colorbar_size;
+            colorbar_area = new Rectangle(bounds.width - 2*colorbar_size, colorbar_size, 2*colorbar_size, image_area.height-2*colorbar_size);
+
+            final int cb_axis_width = colorbar_axis.getDesiredPixelSize(colorbar_area, gc);
+            colorbar_axis.setBounds(colorbar_area.x, colorbar_area.y, cb_axis_width, colorbar_area.height);
+            colorbar_area.x += cb_axis_width;
+            colorbar_area.width -= cb_axis_width;
+
+            if (image_area.width > cb_axis_width + colorbar_area.width)
+                image_area.width -= cb_axis_width + colorbar_area.width;
+            else
+                colorbar_area = null;
         }
         else
             colorbar_area = null;
@@ -300,6 +313,7 @@ public class ImagePlot extends Canvas
             }
             logger.log(Level.FINE, "Autoscale range {0} .. {1}", new Object[] { min, max });
         }
+        colorbar_axis.setValueRange(min, max);
 
         if (need_layout.getAndSet(false))
             computeLayout(gc, area_copy, min, max);
@@ -315,11 +329,11 @@ public class ImagePlot extends Canvas
 //        gc.drawLine(image_area.width-1, image_area.height-1, 0, image_area.height-1);
 //        gc.drawLine(0, image_area.height-1, 0, 0);
 
-        // TODO Paint color bar only once, then cache until it changes
         if (colorbar_area != null)
         {
             final BufferedImage bar = drawColorBar(min, max, color_mapping);
             gc.drawImage(bar, colorbar_area.x, colorbar_area.y, colorbar_area.width, colorbar_area.height, null);
+            colorbar_axis.paint(gc, colorbar_area);
         }
 
         // Paint the image
@@ -352,6 +366,9 @@ public class ImagePlot extends Canvas
         return image;
     }
 
+    private static long avg_nano = 0;
+    private static long runs = 0;
+
     /** @param data_width
      *  @param data_height
      *  @param numbers
@@ -382,6 +399,7 @@ public class ImagePlot extends Canvas
         {
             // Draw each pixel
             final IteratorNumber iter = numbers.iterator();
+            final long start = System.nanoTime();
             for (int y=0; y<data_height; ++y)
             {
                 for (int x=0; x<data_width; ++x)
@@ -397,6 +415,13 @@ public class ImagePlot extends Canvas
                     // What's faster, gc.fillRect(x, y, 1, 1) or 1-pixel line?
                     gc.drawLine(x, y, x, y);
                 }
+            }
+            final long nano = System.nanoTime() - start;
+            avg_nano = (avg_nano*3 + nano)/4;
+            if (++runs > 100)
+            {
+                runs = 0;
+                System.out.println("ms: " + nano/1e6);
             }
         }
         else

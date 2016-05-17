@@ -69,6 +69,9 @@ public class ImagePlotDemo extends Application
 
         plot.setColorMapping(ImagePlot.RAINBOW);
 
+        plot.setAutoscale(false);
+        plot.setValueRange(0.0, 2.0);
+
         timer.scheduleAtFixedRate(() -> plot.setValue(WIDTH, HEIGHT, computeData()),
                                   200, 100, TimeUnit.MILLISECONDS);
 

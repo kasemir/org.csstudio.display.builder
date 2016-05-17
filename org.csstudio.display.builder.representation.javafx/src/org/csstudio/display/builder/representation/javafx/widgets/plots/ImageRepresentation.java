@@ -82,7 +82,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         image_plot.setAutoscale(model_widget.behaviorDataAutoscale().getValue());
-        image_plot.setRange(model_widget.behaviorDataMinimum().getValue(),
+        image_plot.setValueRange(model_widget.behaviorDataMinimum().getValue(),
                             model_widget.behaviorDataMaximum().getValue());
     }
 

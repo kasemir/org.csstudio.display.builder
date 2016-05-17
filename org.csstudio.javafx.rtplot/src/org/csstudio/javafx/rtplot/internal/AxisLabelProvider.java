@@ -89,8 +89,12 @@ public class AxisLabelProvider<XTYPE extends Comparable<XTYPE>>
         colors.clear();
         if (use_axis_name)
         {
-            labels.add(axis.getName());
-            colors.add(axis.getColor());
+            final String name = axis.getName();
+            if (name != null  &&  !name.isEmpty())
+            {
+                labels.add(name);
+                colors.add(axis.getColor());
+            }
         }
         if (use_trace_names)
             for (TraceImpl<XTYPE> trace : axis.getTraces())
