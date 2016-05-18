@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.persist;
 
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayOutputStream;
@@ -102,15 +103,13 @@ public class XMLWriteTest
                                "    <x>42</x>\n" +
                                "    <y>73</y>\n" +
                                "    <align side=\"left\"/>\n" +
-                               "    <text>Hello, Dolly</text>\n" +
+                               "    <text>Hello, Dolly!</text>\n" +
                                "    <option wrap=\"true\"/>\n" +
                                "  </widget>\n" +
                                "</display>\n";
         System.out.println("Desired output:");
         System.out.println(desired);
 
-        // TODO Make this one work
-        // There's currently a bug for 'empty' elements
-        // assertThat(xml, equalTo(desired));
+        assertThat(xml, equalTo(desired));
     }
 }
