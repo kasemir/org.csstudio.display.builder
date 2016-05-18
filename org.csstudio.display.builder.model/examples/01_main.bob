@@ -209,7 +209,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file></file>
+        <file>04_macros.bob</file>
         <target>replace</target>
         <description>Macros</description>
       </action>
@@ -223,7 +223,7 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file></file>
+        <file>05_actions.bob</file>
         <target>replace</target>
         <description>Actions</description>
       </action>
@@ -330,5 +330,36 @@
         <description>Toggle Buttons</description>
       </action>
     </actions>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_16</name>
+    <x>191</x>
+    <y>371</y>
+    <width>120</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>control_action_buttons.bob</file>
+        <target>replace</target>
+        <description>Action Buttons</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_17</name>
+    <x>191</x>
+    <y>201</y>
+    <width>120</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>graphics_poly.bob</file>
+        <target>replace</target>
+        <description>Polygon/line</description>
+      </action>
+    </actions>
+    <pv_name></pv_name>
   </widget>
 </display>

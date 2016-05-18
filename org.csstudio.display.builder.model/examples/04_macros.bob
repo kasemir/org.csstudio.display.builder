@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Macros</name>
+  <x>-1</x>
+  <y>-1</y>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <width>281</width>
+    <height>31</height>
+    <text>Macros</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <y>41</y>
+    <width>331</width>
+    <height>30</height>
+    <text>Purpose</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_2</name>
+    <y>71</y>
+    <width>451</width>
+    <height>120</height>
+    <text>Macros allow you to define generic displays.
+
+Typically, a macro is used instead of a PV name.
+The same display file can then be used for different PVs
+by opening the display with appropriate macro values.</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <y>211</y>
+    <width>331</width>
+    <height>30</height>
+    <text>Defining Macros</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_4</name>
+    <y>241</y>
+    <width>561</width>
+    <height>330</height>
+    <text>Macros can be defined at 
+
+  1. In the 'Action' that opens a display
+  2. In the properties of an 'Embedded Display' widget
+  3. In a *.bob display
+  4. In a 'Group' widget
+
+Macros are added respectively overwritten in the above hierarchy.
+
+Example:
+
+An 'Action' of an Action Button widget opens display 'sub.bob' with macros "PV=MyPV, TITLE=Hello".
+
+That sub.bob display itself defines a macro "TITLE=Welcome".
+It includes a 'Group' widget that defines a macro "VISIBLE=true".
+
+Result:
+A widget inside that 'Group' widget will see macros "PV=MyPV, TITLE=Welcome, VISIBLE=true".</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_7</name>
+    <y>600</y>
+    <width>331</width>
+    <height>30</height>
+    <text>Using Macros</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_8</name>
+    <y>630</y>
+    <width>541</width>
+    <height>180</height>
+    <text>When entering the property of a widget, most places
+allow using "$(MACRO_NAME)".
+
+For example, the 'PV Name' can be entered as "$(PV)".
+At runtime, the value of the macro "PV" will then be used as the PV Name.
+
+Similarly, properties for the 'X Position' or 'Width' of a widget can use macros,
+as long as the value of the macro evaluates to a number.
+The 'Visible' property can use a macro, as long as the value of the macro
+equals "true" resp. "false".</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_9</name>
+    <x>571</x>
+    <y>600</y>
+    <width>331</width>
+    <height>30</height>
+    <text>Access to Widget Properties</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_10</name>
+    <x>571</x>
+    <y>630</y>
+    <width>541</width>
+    <height>191</height>
+    <text>When evaluating a macro, if the macro has not been defined,
+the properties of the widget are searched.
+
+For example, when using the macro "$(x)" while no value
+for the macro "x" has been defined, the 'x' property of the widget
+will be used.
+
+Note that this mechanism uses the internal, non-localized name of
+the property as it is for example found in the *.bob file.
+The 'X Position' property for example has an internal name 'x'.</text>
+  </widget>
+</display>
