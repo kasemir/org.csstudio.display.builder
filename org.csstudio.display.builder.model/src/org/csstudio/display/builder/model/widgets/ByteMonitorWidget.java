@@ -14,12 +14,14 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayOnColor;
 //import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
 import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
-//import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.???; //for Labels
+import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 //import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
@@ -28,6 +30,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
+import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 //import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 //import org.csstudio.display.builder.model.properties.WidgetFont;
@@ -90,6 +93,17 @@ public class ByteMonitorWidget extends VisibleWidget
     public static final WidgetPropertyDescriptor<Boolean> displaySquareLED =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "square_led", Messages.ByteMonitor_SquareLED);
     
+    //Labels property, model MultiStateLED
+    //Is registered somewhere?
+    //TODO: this is really tangled; double-check functionality, efficiency
+    private static final ArrayWidgetProperty.Descriptor<StringWidgetProperty> displayLabels =
+            new ArrayWidgetProperty.Descriptor<StringWidgetProperty>(
+                    WidgetPropertyCategory.DISPLAY,
+                    "labels", "Labels", (widget, index) -> 
+                    new StringWidgetProperty(
+                            newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "labels", "Labels"),
+                            widget, "") );
+    
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<WidgetColor> off_color;
@@ -99,7 +113,7 @@ public class ByteMonitorWidget extends VisibleWidget
     private volatile WidgetProperty<Boolean> bit_rev;
     private volatile WidgetProperty<Boolean> horiz;
     private volatile WidgetProperty<Boolean> square_led;
-    //private volatile WidgetProperty<String> labels;
+    private volatile ArrayWidgetProperty<StringWidgetProperty> labels;
     //private volatile WidgetProperty<WidgetFont> font;
     
     public ByteMonitorWidget()
@@ -121,7 +135,8 @@ public class ByteMonitorWidget extends VisibleWidget
         properties.add(bit_rev = displayBitReverse.createProperty(this,false));
         properties.add(horiz = displayHorizontal.createProperty(this,true));
         properties.add(square_led = displaySquareLED.createProperty(this,false));
-        //properties.add(labels = displayLabels.createProperty(this, ""));
+        properties.add(labels = displayLabels.createProperty(this, new ArrayList<StringWidgetProperty>(8)));
+            //TODO: how best to get List<StringWidgetProperty> elements?
         //properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
     }
     
@@ -178,4 +193,11 @@ public class ByteMonitorWidget extends VisibleWidget
     {
         return square_led;
     }
+    
+    /** @return 'labels' */
+    public ArrayWidgetProperty<StringWidgetProperty> displayLabels()
+    {
+        return labels;
+    }
+
 }
