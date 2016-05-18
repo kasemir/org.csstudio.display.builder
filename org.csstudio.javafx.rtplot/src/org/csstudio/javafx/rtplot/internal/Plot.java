@@ -84,7 +84,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     /** Background color */
     private volatile Color background = Color.WHITE;
 
-    static final String FONT_FAMILY = "Liberation Sans";
+    public static final String FONT_FAMILY = "Liberation Sans";
 
     // TODO Static cursors, init. once
     private Cursor cursor_pan, cursor_zoom_in, cursor_zoom_out;

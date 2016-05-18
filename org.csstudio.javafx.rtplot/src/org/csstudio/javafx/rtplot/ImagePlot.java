@@ -34,6 +34,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.text.Font;
 
 /** Plot for an image
  *
@@ -212,6 +213,13 @@ public class ImagePlot extends Canvas
     public void setColorMapSize(final int size)
     {
         colorbar_size = size;
+        requestLayout();
+    }
+
+    /** @param size Color bar size in pixels */
+    public void setColorMapFont(final Font font)
+    {
+        colorbar_axis.setScaleFont(font);
         requestLayout();
     }
 

@@ -16,7 +16,10 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
+import org.csstudio.display.builder.model.widgets.plots.ImageWidget.AxisWidgetProperty;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
+import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.ImagePlot;
 import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.VNumberArray;
@@ -49,10 +52,14 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.positionWidth().addUntypedPropertyListener(this::positionChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
 
-        model_widget.behaviorDataColormap().addPropertyListener(this::colormapChanged);
-
+        model_widget.displayDataColormap().addPropertyListener(this::colormapChanged);
         model_widget.displayShowColormap().addUntypedPropertyListener(this::configChanged);
         model_widget.displayColormapSize().addUntypedPropertyListener(this::configChanged);
+        model_widget.displayColormapFont().addUntypedPropertyListener(this::configChanged);
+        addAxisListener(model_widget.displayXAxis());
+        addAxisListener(model_widget.displayYAxis());
+
+
         model_widget.behaviorDataAutoscale().addUntypedPropertyListener(this::configChanged);
         model_widget.behaviorDataMinimum().addUntypedPropertyListener(this::configChanged);
         model_widget.behaviorDataMaximum().addUntypedPropertyListener(this::configChanged);
@@ -62,8 +69,18 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
 
         // Initial update
-        colormapChanged(null, null, model_widget.behaviorDataColormap().getValue());
+        colormapChanged(null, null, model_widget.displayDataColormap().getValue());
         configChanged(null, null, null);
+    }
+
+    private void addAxisListener(final AxisWidgetProperty axis)
+    {
+        axis.visible().addUntypedPropertyListener(this::configChanged);
+        axis.title().addUntypedPropertyListener(this::configChanged);
+        axis.minimum().addUntypedPropertyListener(this::configChanged);
+        axis.maximum().addUntypedPropertyListener(this::configChanged);
+        axis.titleFont().addUntypedPropertyListener(this::configChanged);
+        axis.scaleFont().addUntypedPropertyListener(this::configChanged);
     }
 
     private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -85,9 +102,21 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     {
         image_plot.showColorMap(model_widget.displayShowColormap().getValue());
         image_plot.setColorMapSize(model_widget.displayColormapSize().getValue());
+        image_plot.setColorMapFont(JFXUtil.convert(model_widget.displayColormapFont().getValue()));
+        axisChanged(model_widget.displayXAxis(), image_plot.getXAxis());
+        axisChanged(model_widget.displayYAxis(), image_plot.getYAxis());
         image_plot.setAutoscale(model_widget.behaviorDataAutoscale().getValue());
         image_plot.setValueRange(model_widget.behaviorDataMinimum().getValue(),
-                            model_widget.behaviorDataMaximum().getValue());
+                                 model_widget.behaviorDataMaximum().getValue());
+    }
+
+    private void axisChanged(final AxisWidgetProperty property, final Axis<Double> axis)
+    {
+        axis.setVisible(property.visible().getValue());
+        axis.setName(property.title().getValue());
+        axis.setValueRange(property.minimum().getValue(), property.maximum().getValue());
+        axis.setLabelFont(JFXUtil.convert(property.titleFont().getValue()));
+        axis.setScaleFont(JFXUtil.convert(property.scaleFont().getValue()));
     }
 
     private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
