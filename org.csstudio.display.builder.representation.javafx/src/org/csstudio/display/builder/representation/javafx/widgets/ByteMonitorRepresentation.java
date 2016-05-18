@@ -28,11 +28,12 @@ import javafx.scene.shape.Shape;
  */
 public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, ByteMonitorWidget>
 {
-    int startBit = 0; //model_widget.displayNumBits().getValue();
-    int numBits = 8; //model_widget.displayNumBits().getValue();
-    boolean bitReverse = false; //model_widget.displayBitReverse().getValue();
-    boolean horizontal = true; //model_widget.displayHorizontal().getValue();
-    boolean square_led = false; //model_widget.displaySquareLED().getValue();
+	//TODO: BIG PROBLEM: investigate initialization
+    private volatile int startBit = 0; //model_widget.displayNumBits().getValue();
+    private volatile int numBits = 8; //model_widget.displayNumBits().getValue();
+    private volatile boolean bitReverse = false; //model_widget.displayBitReverse().getValue();
+    private volatile boolean horizontal = true; //model_widget.displayHorizontal().getValue();
+    private volatile boolean square_led = false; //model_widget.displaySquareLED().getValue();
     
     private final DirtyFlag dirty_size = new DirtyFlag();
     protected final DirtyFlag dirty_content = new DirtyFlag();
@@ -40,23 +41,21 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     protected volatile Color[] colors = new Color[2];
 
     protected volatile Color[] value_colors = new Color [16];
-        //TODO: accommodate maxNumBits? also see createJFXNode
     
     /** LED Ellipses inside {@link Pane} for grouping and alignment */
     private Shape [] leds = new Shape [16];
-    //TODO: add logic for square_led property
     
     @Override
     protected Pane createJFXNode() throws Exception {
         colors = createColors();
         final Pane pane = new Pane();
-        for (int i = 0; i < numBits; i++) { //or maxNumBits?
+        for (int i = 0; i < numBits; i++) {
             value_colors[i] = colors[0];
             leds[i] = square_led ? new Rectangle() : new Ellipse();
             leds[i].getStyleClass().add("led");
-            //if (i < numBits)
-                    pane.getChildren().add(leds[i]);
+            pane.getChildren().add(leds[i]);
         }
+        //TODO: implement horizontal property
         pane.setMinSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
         pane.setMaxSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
         return pane;
@@ -78,6 +77,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         for (int i = 0; i < numBits; i++) {
             colorIndices[bitReverse ? i : numBits-1-i] = ( number & (1 << (startBit+i)) );
         }
+        //TODO: fix bitReverse property
         return colorIndices;
     }
     
@@ -87,14 +87,36 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         super.registerListeners();
         model_widget.positionWidth().addPropertyListener(this::sizeChanged);
         model_widget.positionHeight().addPropertyListener(this::sizeChanged);
+        
         model_widget.runtimeValue().addPropertyListener(this::contentChanged);
+        
         model_widget.displayOffColor().addUntypedPropertyListener(this::configChanged);
         model_widget.displayOnColor().addUntypedPropertyListener(this::configChanged);
-        model_widget.displayNumBits().addUntypedPropertyListener(this::configChanged);
+        
+        model_widget.displayNumBits().addUntypedPropertyListener(this::paneChanged);
+        
         model_widget.displayStartBit().addUntypedPropertyListener(this::configChanged);
         model_widget.displayBitReverse().addUntypedPropertyListener(this::configChanged);
-        model_widget.displayHorizontal().addUntypedPropertyListener(this::configChanged);
-        model_widget.displaySquareLED().addUntypedPropertyListener(this::configChanged);
+        
+        model_widget.displayHorizontal().addUntypedPropertyListener(this::paneChanged);
+        model_widget.displaySquareLED().addUntypedPropertyListener(this::paneChanged);
+    }
+    
+    /**
+     * Invoked when type, number, or arrangement of
+     * LEDs changed (squareLED, numBits, or horizontal)
+     * @param property Ignored
+     * @param old_value Ignored
+     * @param new_value Ignored
+     */
+    protected void paneChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        numBits = model_widget.displayNumBits().getValue();
+        horizontal = model_widget.displayHorizontal().getValue();
+        square_led = model_widget.displaySquareLED().getValue();
+        dirty_content.mark();
+        dirty_size.mark();
+        toolkit.scheduleUpdate(this);
     }
     
     private void sizeChanged(final WidgetProperty<Integer> property, final Integer old_value, final Integer new_value)
@@ -103,7 +125,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         toolkit.scheduleUpdate(this);
     }
     
-    /** Invoked when bit/color properties changed
+    /** Invoked when color or bitReverse properties changed
      *  and current colors need to be re-evaluated
      *  @param property Ignored
      *  @param old_value Ignored
@@ -111,13 +133,10 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
      */
     protected void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        numBits = model_widget.displayNumBits().getValue();
         startBit = model_widget.displayStartBit().getValue();
         if (startBit + numBits > 16)
             startBit = 16 - numBits;
         bitReverse = model_widget.displayBitReverse().getValue();
-        horizontal = model_widget.displayHorizontal().getValue();
-        square_led = model_widget.displaySquareLED().getValue();
         colors = createColors();
         contentChanged(model_widget.runtimeValue(), null, model_widget.runtimeValue().getValue());
     }
@@ -144,11 +163,31 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         super.updateChanges();
         if (dirty_size.checkAndClear())
         {
+            //adjust number and type of child LEDs in pane
+            int listSize = jfx_node.getChildren().size();
+            for (int i = 0; i < numBits; i++) {
+                if (square_led && !(leds[i] instanceof Rectangle)) {
+                    leds[i] = new Rectangle();
+                    leds[i].getStyleClass().add("led");
+                }
+                else if (!square_led && !(leds[i] instanceof Ellipse)) {
+                    leds[i] = new Ellipse();
+                    leds[i].getStyleClass().add("led");
+                }
+                if (i >= listSize)
+                    jfx_node.getChildren().add(leds[i]);
+            }
+            if (listSize > numBits)
+                jfx_node.getChildren().remove(numBits, listSize);
+            
+            //TODO: adjust horizontal/vertical arrangement in pane
+            
+            //adjust size of LEDs in pane
             final int w = model_widget.positionWidth().getValue();
             final int h = model_widget.positionHeight().getValue();
             jfx_node.setPrefSize(w, h);
             if (numBits > 0) {
-                //if (!square_led) {
+                if (!square_led) {
                     final int d = Math.min(horizontal ? w/numBits : w, horizontal ? h : h/numBits);
                     for (int i = 0; i < numBits; i++) {
                         ((Ellipse)leds[i]).setCenterX(horizontal ? d/2 + i*w/numBits : d/2);
@@ -156,18 +195,18 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
                         ((Ellipse)leds[i]).setRadiusX(d/2);
                         ((Ellipse)leds[i]).setRadiusY(d/2);
                     }
-                /*} else {
+                } else {
                     for (int i = 0; i < numBits; i++) {
                         ((Rectangle)leds[i]).setX(horizontal ? i*w/numBits : 0);
                         ((Rectangle)leds[i]).setY(horizontal ? 0 : i*h/numBits);
                         ((Rectangle)leds[i]).setWidth(horizontal ? w/numBits : w);
                         ((Rectangle)leds[i]).setHeight(horizontal ? h : h/numBits);
                     }
-                }*/
+                }
             }
         }
         if (dirty_content.checkAndClear())
-        	for (int i = 0; i < numBits; i++)
+            for (int i = 0; i < numBits; i++)
                 leds[i].setFill(
                     // Put highlight in top-left corner, about 0.2 wide,
                     // relative to actual size of LED

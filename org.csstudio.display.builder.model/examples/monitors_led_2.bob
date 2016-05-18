@@ -471,10 +471,12 @@
   </widget>
   <widget type="byte_monitor" version="2.0.0">
     <name>Byte Monitor</name>
-    <x>41</x>
-    <y>219</y>
-    <width>223</width>
-    <height>32</height>
+    <x>85</x>
+    <y>211</y>
+    <width>196</width>
+    <height>30</height>
+    <num_bits>7</num_bits>
+    <bit_rev>true</bit_rev>
     <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
 </display>
