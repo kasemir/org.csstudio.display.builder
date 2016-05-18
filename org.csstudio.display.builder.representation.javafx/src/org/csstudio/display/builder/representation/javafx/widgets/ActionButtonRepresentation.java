@@ -151,17 +151,37 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         //background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
         //font_color = JFXUtil.convert(model_widget.displayLineColor().getValue());
 
-        WidgetColor col = model_widget.displayBackgroundColor().getValue();
-        background = String.format("-fx-background-color: #%02x%02x%02x;", col.getRed(), col.getGreen(), col.getBlue());
-        fx_base = String.format("-fx-base: #%02x%02x%02x;", col.getRed(), col.getGreen(), col.getBlue());
-
-        col = model_widget.displayForegroundColor().getValue();
-        text_fill = String.format("-fx-text-fill: #%02x%02x%02x;", col.getRed(), col.getGreen(), col.getBlue());
+        final WidgetColor fg = model_widget.displayForegroundColor().getValue();
+        text_fill = String.format("-fx-text-fill: #%02x%02x%02x;", fg.getRed(), fg.getGreen(), fg.getBlue());
 
         foreground = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
 
         //fx_base = ".context-menu { -fx-skin: \"com.sun.javafx.scene.control.skin.ContextMenuSkin\"; -fx-background-color: darkgreen;";
         //fx_base += "-fx-background-insets: 0, 1, 2; -fx-background-radius: 0 6 6 6, 0 5 5 5, 0 4 4 4; -fx-padding: 0.333333em 0.083333em 0.666667em 0.083333em; /* 4 1 8 1 */ }";
+
+        WidgetColor bg = model_widget.displayBackgroundColor().getValue();
+        //background = String.format("-fx-background-color: #%02x%02x%02x;", col.getRed(), col.getGreen(), col.getBlue());
+        fx_base = String.format("-fx-base: #%02x%02x%02x;", bg.getRed(), bg.getGreen(), bg.getBlue());
+
+        background = "-fx-color: derive(" + bg + ", 50%);" +
+                "-fx-outer-border: derive(" + bg + ", -23%);" +
+                "-fx-inner-border: linear-gradient(to bottom," +
+                "ladder(" + bg + "," +
+                "       derive(" + bg + ",30%) 0%," +
+                "       derive(" + bg + ",20%) 40%," +
+                "       derive(" + bg + ",25%) 60%," +
+                "       derive(" + bg + ",55%) 80%," +
+                "       derive(" + bg + ",55%) 90%," +
+                "       derive(" + bg + ",75%) 100%" +
+                ")," +
+                "ladder(" + bg + "," +
+                "       derive(" + bg + ",20%) 0%," +
+                "       derive(" + bg + ",10%) 20%," +
+                "       derive(" + bg + ",5%) 40%," +
+                "       derive(" + bg + ",-2%) 60%," +
+                "       derive(" + bg + ",-5%) 100%" +
+                "));" +
+                "-fx-background: " + bg + ";";
     }
 
     private String makeActionText(ActionInfo action)
