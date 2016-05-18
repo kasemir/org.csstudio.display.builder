@@ -33,7 +33,8 @@ public class NamedWidgetColors extends ConfigFileParser
                                TEXT = "Text",
                                BACKGROUND = "Background",
                                READ_BACKGROUND = "Read_Background",
-                               WRITE_BACKGROUND = "Write_Background";
+                               WRITE_BACKGROUND = "Write_Background",
+                               BUTTON_BACKGROUND = "Button_Background";
 
     private static final NamedWidgetColor DEFAULT_ALARM_OK = new NamedWidgetColor(ALARM_OK, 0, 255, 0);
     private static final NamedWidgetColor DEFAULT_ALARM_MINOR = new NamedWidgetColor(ALARM_MINOR, 255, 128, 0);
@@ -45,6 +46,7 @@ public class NamedWidgetColors extends ConfigFileParser
     private static final NamedWidgetColor DEFAULT_BACKGROUND = new NamedWidgetColor(BACKGROUND, 255, 255, 255);
     private static final NamedWidgetColor DEFAULT_READ_BACKGROUND = new NamedWidgetColor(READ_BACKGROUND, 240, 240, 240);
     private static final NamedWidgetColor DEFAULT_WRITE_BACKGROUND = new NamedWidgetColor(WRITE_BACKGROUND, 128, 255, 255);
+    private static final NamedWidgetColor DEFAULT_BUTTON_BACKGROUND = new NamedWidgetColor(BUTTON_BACKGROUND, 210, 210, 210);
 
     private final Map<String, NamedWidgetColor> colors = Collections.synchronizedMap(new LinkedHashMap<>());
 
@@ -64,6 +66,7 @@ public class NamedWidgetColors extends ConfigFileParser
         define(DEFAULT_BACKGROUND);
         define(DEFAULT_READ_BACKGROUND);
         define(DEFAULT_WRITE_BACKGROUND);
+        define(DEFAULT_BUTTON_BACKGROUND);
     }
 
     /** Define a named color

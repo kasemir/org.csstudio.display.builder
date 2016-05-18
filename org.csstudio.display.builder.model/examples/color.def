@@ -22,6 +22,9 @@ Background = 255, 255, 255
 Read_Background = 240, 240, 240
 Write_Background = 128, 255, 255
 
+# .. for buttons
+Button_Background = 210, 210, 210
+
 # ------- Examples for additional colors ----------------
 # Also show ideas for site-specific guidelines that
 # are required to make sense of the color names.
