@@ -32,7 +32,6 @@ import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
-import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
@@ -61,34 +60,37 @@ public class ImageWidget extends VisibleWidget
         }
     };
 
+    /** Color map: Maps values to colors in the image */
     private static final WidgetPropertyDescriptor<ColorMap> dataColormap =
-            new WidgetPropertyDescriptor<ColorMap>(
-                    WidgetPropertyCategory.DISPLAY, "color_map", Messages.WidgetProperties_ColorMap)
+        new WidgetPropertyDescriptor<ColorMap>(WidgetPropertyCategory.DISPLAY, "color_map", Messages.WidgetProperties_ColorMap)
     {
         @Override
-        public WidgetProperty<ColorMap> createProperty(final Widget widget,
-                final ColorMap map)
+        public WidgetProperty<ColorMap> createProperty(final Widget widget, final ColorMap map)
         {
             return new ColorMapWidgetProperty(this, widget, map);
         }
     };
 
-    private static final WidgetPropertyDescriptor<Boolean> showColormap =
-            CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_colormap", "Show Colormap");
+    private static final WidgetPropertyDescriptor<Integer> colorbarSize =
+        CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "bar_size", "Color Bar Size");
 
-    private static final WidgetPropertyDescriptor<Integer> colormapSize =
-            CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "colormap_size", "Colormap Size");
+    private final static StructuredWidgetProperty.Descriptor displayColorbar =
+        new Descriptor(WidgetPropertyCategory.DISPLAY, "color_bar", "Color Bar");
 
-    private static final WidgetPropertyDescriptor<WidgetFont> colormapFont =
-            new WidgetPropertyDescriptor<WidgetFont>(
-                WidgetPropertyCategory.DISPLAY, "colormap_font", "Colormap Font")
+    /** Structure for color bar, the 'legend' that shows the color bar */
+    public static class ColorBarProperty extends StructuredWidgetProperty
     {
-        @Override
-        public WidgetProperty<WidgetFont> createProperty(final Widget widget,
-                                                         final WidgetFont font)
+        public ColorBarProperty(final Widget widget)
         {
-            return new FontWidgetProperty(this, widget, font);
+            super(displayColorbar, widget,
+                  Arrays.asList(CommonWidgetProperties.positionVisible.createProperty(widget, true),
+                                colorbarSize.createProperty(widget, 40),
+                                PlotWidgetProperties.scaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)));
         }
+
+        public WidgetProperty<Boolean> visible()        { return getElement(0); }
+        public WidgetProperty<Integer> barSize()        { return getElement(1); }
+        public WidgetProperty<WidgetFont> scaleFont()   { return getElement(2); }
     };
 
     /** Structure for X and Y axes */
@@ -180,7 +182,27 @@ public class ImageWidget extends VisibleWidget
             {
                 final ImageWidget image = (ImageWidget) widget;
                 XMLUtil.getChildString(xml, "show_ramp")
-                       .ifPresent(show -> image.show_colormap.setValue(Boolean.parseBoolean(show)));
+                       .ifPresent(show -> image.color_bar.visible().setValue(Boolean.parseBoolean(show)));
+
+                final Element el = XMLUtil.getChildElement(xml, "font");
+                if (el != null)
+                    image.displayColorbar().scaleFont().readFromXML(model_reader, el);
+
+                XMLUtil.getChildString(xml, "x_axis_visible")
+                       .ifPresent(show -> image.x_axis.visible().setValue(Boolean.parseBoolean(show)));
+                XMLUtil.getChildDouble(xml, "x_axis_minimum")
+                       .ifPresent(value -> image.x_axis.minimum().setValue(value));
+                XMLUtil.getChildDouble(xml, "x_axis_maximum")
+                       .ifPresent(value -> image.x_axis.maximum().setValue(value));
+
+                XMLUtil.getChildString(xml, "y_axis_visible")
+                       .ifPresent(show -> image.y_axis.visible().setValue(Boolean.parseBoolean(show)));
+                XMLUtil.getChildDouble(xml, "y_axis_minimum")
+                       .ifPresent(value -> image.y_axis.minimum().setValue(value));
+                XMLUtil.getChildDouble(xml, "y_axis_maximum")
+                       .ifPresent(value -> image.y_axis.maximum().setValue(value));
+
+
             }
 
             return true;
@@ -189,9 +211,7 @@ public class ImageWidget extends VisibleWidget
 
 
     private volatile WidgetProperty<ColorMap> data_colormap;
-    private volatile WidgetProperty<Boolean> show_colormap;
-    private volatile WidgetProperty<Integer> colormap_size;
-    private volatile WidgetProperty<WidgetFont> colormap_font;
+    private volatile ColorBarProperty color_bar;
     private volatile AxisWidgetProperty x_axis;
     private volatile AxisWidgetProperty y_axis;
     private volatile WidgetProperty<String> pv_name;
@@ -214,9 +234,7 @@ public class ImageWidget extends VisibleWidget
         super.defineProperties(properties);
         properties.add(displayBorderAlarmSensitive.createProperty(this, true));
         properties.add(data_colormap = dataColormap.createProperty(this, ColorMap.VIRIDIS));
-        properties.add(show_colormap = showColormap.createProperty(this, true));
-        properties.add(colormap_size = colormapSize.createProperty(this, 40));
-        properties.add(colormap_font = colormapFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(color_bar = new ColorBarProperty(this));
         properties.add(x_axis = new XAxisWidgetProperty(this));
         properties.add(y_axis = new YAxisWidgetProperty(this));
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
@@ -241,22 +259,10 @@ public class ImageWidget extends VisibleWidget
         return data_colormap;
     }
 
-    /** @return Display 'show_colormap' */
-    public WidgetProperty<Boolean> displayShowColormap()
+    /** @return Display 'color_bar' */
+    public ColorBarProperty displayColorbar()
     {
-        return show_colormap;
-    }
-
-    /** @return Display 'colormap_size' */
-    public WidgetProperty<Integer> displayColormapSize()
-    {
-        return colormap_size;
-    }
-
-    /** @return Display 'colormap_font' */
-    public WidgetProperty<WidgetFont> displayColormapFont()
-    {
-        return colormap_font;
+        return color_bar;
     }
 
     /** @return Display 'x_axis' */

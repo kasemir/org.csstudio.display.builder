@@ -184,6 +184,7 @@ public class ImagePlot extends Canvas
     public void setColorMapping(final DoubleFunction<Color> color_mapping)
     {
         this.color_mapping = color_mapping;
+        requestUpdate();
     }
 
     /** <b>Note: May offer too much access

@@ -53,9 +53,9 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
 
         model_widget.displayDataColormap().addPropertyListener(this::colormapChanged);
-        model_widget.displayShowColormap().addUntypedPropertyListener(this::configChanged);
-        model_widget.displayColormapSize().addUntypedPropertyListener(this::configChanged);
-        model_widget.displayColormapFont().addUntypedPropertyListener(this::configChanged);
+        model_widget.displayColorbar().visible().addUntypedPropertyListener(this::configChanged);
+        model_widget.displayColorbar().barSize().addUntypedPropertyListener(this::configChanged);
+        model_widget.displayColorbar().scaleFont().addUntypedPropertyListener(this::configChanged);
         addAxisListener(model_widget.displayXAxis());
         addAxisListener(model_widget.displayYAxis());
 
@@ -100,9 +100,9 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 
     private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        image_plot.showColorMap(model_widget.displayShowColormap().getValue());
-        image_plot.setColorMapSize(model_widget.displayColormapSize().getValue());
-        image_plot.setColorMapFont(JFXUtil.convert(model_widget.displayColormapFont().getValue()));
+        image_plot.showColorMap(model_widget.displayColorbar().visible().getValue());
+        image_plot.setColorMapSize(model_widget.displayColorbar().barSize().getValue());
+        image_plot.setColorMapFont(JFXUtil.convert(model_widget.displayColorbar().scaleFont().getValue()));
         axisChanged(model_widget.displayXAxis(), image_plot.getXAxis());
         axisChanged(model_widget.displayYAxis(), image_plot.getYAxis());
         image_plot.setAutoscale(model_widget.behaviorDataAutoscale().getValue());
