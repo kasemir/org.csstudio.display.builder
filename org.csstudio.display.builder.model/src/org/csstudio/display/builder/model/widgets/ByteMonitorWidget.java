@@ -12,7 +12,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayOffColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayOnColor;
 //**TODO: create Integer properties numBits, startBit; booleans horizontal, bitReverse, square_led
-import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
+//import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
 import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 //import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorBit;
 //import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
@@ -23,13 +23,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.display.builder.model.Messages;
-//import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
 //import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 //import org.csstudio.display.builder.model.properties.WidgetFont;
@@ -56,14 +56,29 @@ public class ByteMonitorWidget extends VisibleWidget
         }
     };
     
-    //TODO: constraints on bit integer properties? how to manage?
     /** Display 'start bit': Number of first (smallest) bit */
     public static final WidgetPropertyDescriptor<Integer> displayStartBit =
-        newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "start_bit", Messages.ByteMonitor_StartBit);
+        //newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "start_bit", Messages.ByteMonitor_StartBit);
+        new WidgetPropertyDescriptor<Integer>(WidgetPropertyCategory.DISPLAY, "start_bit", Messages.ByteMonitor_StartBit)
+        {
+            @Override
+            public WidgetProperty<Integer> createProperty(final Widget widget, final Integer value)
+            {
+                return new IntegerWidgetProperty(this, widget, value, 0, 16);
+            }
+        };
 
     /** Display 'num. bits': Bit number in the integer to start displaying. */
     public static final WidgetPropertyDescriptor<Integer> displayNumBits =
-        newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "num_bits", Messages.ByteMonitor_NumBits);
+        //newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "num_bits", Messages.ByteMonitor_NumBits);
+        new WidgetPropertyDescriptor<Integer>(WidgetPropertyCategory.DISPLAY, "num_bits", Messages.ByteMonitor_NumBits)
+        {
+            @Override
+            public WidgetProperty<Integer> createProperty(final Widget widget, final Integer value)
+            {
+                return new IntegerWidgetProperty(this, widget, value, 1, 16);
+            }
+        };
     
     /** Display 'bit reverse': Reverse the direction that bits are displayed; if no, the start bit (the smallest bit) is on right or bottom. */
     public static final WidgetPropertyDescriptor<Boolean> displayBitReverse =
