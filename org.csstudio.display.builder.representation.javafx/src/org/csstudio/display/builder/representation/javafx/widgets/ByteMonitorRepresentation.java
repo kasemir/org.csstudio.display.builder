@@ -27,11 +27,11 @@ import javafx.scene.shape.Shape;
  *  @author Amanda Carpenter
  */
 public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, ByteMonitorWidget>
+//TODO: consider extending BaseLEDRepresentation instead
 {
 	//TODO: BIG PROBLEM: investigate initialization
     private volatile int startBit = 0; //model_widget.displayNumBits().getValue();
     private volatile int numBits = 8; //model_widget.displayNumBits().getValue();
-    private volatile boolean bitReverse = false; //model_widget.displayBitReverse().getValue();
     private volatile boolean horizontal = true; //model_widget.displayHorizontal().getValue();
     private volatile boolean square_led = false; //model_widget.displaySquareLED().getValue();
     
@@ -47,6 +47,8 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     
     @Override
     protected Pane createJFXNode() throws Exception {
+        numBits = model_widget.displayNumBits().getValue();
+        square_led = model_widget.displaySquareLED().getValue();
         colors = createColors();
         final Pane pane = new Pane();
         for (int i = 0; i < numBits; i++) {
@@ -75,9 +77,9 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         int [] colorIndices = new int [numBits];
         int number = VTypeUtil.getValueNumber(value).intValue();
         for (int i = 0; i < numBits; i++) {
-            colorIndices[bitReverse ? i : numBits-1-i] = ( number & (1 << (startBit+i)) );
+            colorIndices[model_widget.displayBitReverse().getValue() ? i : numBits-1-i] =
+                    ( number & (1 << (startBit+i)) );
         }
-        //TODO: fix bitReverse property
         return colorIndices;
     }
     
@@ -87,17 +89,12 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         super.registerListeners();
         model_widget.positionWidth().addPropertyListener(this::sizeChanged);
         model_widget.positionHeight().addPropertyListener(this::sizeChanged);
-        
         model_widget.runtimeValue().addPropertyListener(this::contentChanged);
-        
         model_widget.displayOffColor().addUntypedPropertyListener(this::configChanged);
         model_widget.displayOnColor().addUntypedPropertyListener(this::configChanged);
-        
         model_widget.displayNumBits().addUntypedPropertyListener(this::paneChanged);
-        
         model_widget.displayStartBit().addUntypedPropertyListener(this::configChanged);
         model_widget.displayBitReverse().addUntypedPropertyListener(this::configChanged);
-        
         model_widget.displayHorizontal().addUntypedPropertyListener(this::paneChanged);
         model_widget.displaySquareLED().addUntypedPropertyListener(this::paneChanged);
     }
@@ -114,9 +111,8 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         numBits = model_widget.displayNumBits().getValue();
         horizontal = model_widget.displayHorizontal().getValue();
         square_led = model_widget.displaySquareLED().getValue();
-        dirty_content.mark();
         dirty_size.mark();
-        toolkit.scheduleUpdate(this);
+        contentChanged(model_widget.runtimeValue(), null, model_widget.runtimeValue().getValue());
     }
     
     private void sizeChanged(final WidgetProperty<Integer> property, final Integer old_value, final Integer new_value)
@@ -133,16 +129,16 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
      */
     protected void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        startBit = model_widget.displayStartBit().getValue();
-        if (startBit + numBits > 16)
-            startBit = 16 - numBits;
-        bitReverse = model_widget.displayBitReverse().getValue();
         colors = createColors();
         contentChanged(model_widget.runtimeValue(), null, model_widget.runtimeValue().getValue());
     }
 
     private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
+        startBit = model_widget.displayStartBit().getValue();
+        if (startBit + numBits > 16)
+            startBit = 16 - numBits;
+
         int value_indices [] = computeColorIndices(new_value);
         final Color[] save_colors = colors;
         for (int i = 0; i < numBits; i++) {
@@ -152,11 +148,21 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
                 value_indices[i] = save_colors.length-1;
             value_colors[i] = save_colors[value_indices[i]];
         }
-
+        
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
     }
-
+    
+    /** helper for updateChanges, when the shape of the LED is changed */
+    private int replaceShape(Shape shape, int index, int numChildren) {
+        leds[index] = shape;
+        leds[index].getStyleClass().add("led");
+        if (index < numChildren)
+            jfx_node.getChildren().remove(index, numChildren);
+        jfx_node.getChildren().add(leds[index]);
+        return index+1;
+    }
+    
     @Override
     public void updateChanges()
     {
@@ -166,15 +172,11 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
             //adjust number and type of child LEDs in pane
             int listSize = jfx_node.getChildren().size();
             for (int i = 0; i < numBits; i++) {
-                if (square_led && !(leds[i] instanceof Rectangle)) {
-                    leds[i] = new Rectangle();
-                    leds[i].getStyleClass().add("led");
-                }
-                else if (!square_led && !(leds[i] instanceof Ellipse)) {
-                    leds[i] = new Ellipse();
-                    leds[i].getStyleClass().add("led");
-                }
-                if (i >= listSize)
+                if (square_led && !(leds[i] instanceof Rectangle))
+                    listSize = replaceShape(new Rectangle(), i, listSize);
+                else if (!square_led && !(leds[i] instanceof Ellipse))
+                   listSize = replaceShape(new Ellipse(), i, listSize);
+                else if (i >= listSize)
                     jfx_node.getChildren().add(leds[i]);
             }
             if (listSize > numBits)
@@ -208,6 +210,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         if (dirty_content.checkAndClear())
             for (int i = 0; i < numBits; i++)
                 leds[i].setFill(
+                    //TODO: adjust to orthogonal/other gradient for if square_led
                     // Put highlight in top-left corner, about 0.2 wide,
                     // relative to actual size of LED
                     new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
