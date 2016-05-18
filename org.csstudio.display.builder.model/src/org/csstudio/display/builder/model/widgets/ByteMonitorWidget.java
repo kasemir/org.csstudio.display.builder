@@ -9,15 +9,13 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayOffColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayOnColor;
-//**TODO: create Integer properties numBits, startBit; booleans horizontal, bitReverse, square_led
 //import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
 import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
-//import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorBit;
-//import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
+//import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.???; //for Labels
 //import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
-//??import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -101,8 +99,8 @@ public class ByteMonitorWidget extends VisibleWidget
     private volatile WidgetProperty<Boolean> bit_rev;
     private volatile WidgetProperty<Boolean> horiz;
     private volatile WidgetProperty<Boolean> square_led;
+    //private volatile WidgetProperty<String> labels;
     //private volatile WidgetProperty<WidgetFont> font;
-    //private volatile WidgetProperty<Boolean> displayBorderAlarmSensitive;
     
     public ByteMonitorWidget()
     {
@@ -115,6 +113,7 @@ public class ByteMonitorWidget extends VisibleWidget
         super.defineProperties(properties);
         properties.add(behaviorPVName.createProperty(this, ""));
         properties.add(value = runtimeValue.createProperty(this, null));
+        properties.add(displayBorderAlarmSensitive.createProperty(this, true));
         properties.add(off_color = displayOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
         properties.add(on_color = displayOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
         properties.add(start_bit = displayStartBit.createProperty(this,0));
@@ -122,12 +121,8 @@ public class ByteMonitorWidget extends VisibleWidget
         properties.add(bit_rev = displayBitReverse.createProperty(this,false));
         properties.add(horiz = displayHorizontal.createProperty(this,true));
         properties.add(square_led = displaySquareLED.createProperty(this,false));
+        //properties.add(labels = displayLabels.createProperty(this, ""));
         //properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        //properties.add(displayBorderAlarmSensitive.createProperty(this, true));
-
-        // Initial size
-        //positionWidth().setValue(20);
-        //positionHeight().setValue(20);
     }
     
     /** @return Behavior 'pv_name' */
