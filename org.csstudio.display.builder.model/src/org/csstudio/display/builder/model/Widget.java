@@ -163,8 +163,8 @@ public class Widget
         prelim_properties.add(name = widgetName.createProperty(this, ""));
         prelim_properties.add(x = positionX.createProperty(this, 0));
         prelim_properties.add(y = positionY.createProperty(this, 0));
-        prelim_properties.add(width = positionWidth.createProperty(this, 100));
-        prelim_properties.add(height = positionHeight.createProperty(this, 20));
+        prelim_properties.add(width = positionWidth.createProperty(this, default_width));
+        prelim_properties.add(height = positionHeight.createProperty(this, default_height));
         prelim_properties.add(actions = behaviorActions.createProperty(this, Collections.emptyList()));
         prelim_properties.add(scripts = behaviorScripts.createProperty(this, Collections.emptyList()));
         prelim_properties.add(rules = behaviorRules.createProperty(this, Collections.emptyList()));

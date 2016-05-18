@@ -41,6 +41,10 @@ public class HorizontalNumericAxis extends NumericAxis
     public final int getDesiredPixelSize(final Rectangle region, final Graphics2D gc)
     {
         logger.log(Level.FINE,  "XAxis layout");
+
+        if (! isVisible())
+            return 0;
+
         gc.setFont(label_font);
         final int label_size = gc.getFontMetrics().getHeight();
         gc.setFont(scale_font);
@@ -53,6 +57,9 @@ public class HorizontalNumericAxis extends NumericAxis
     @Override
     public void paint(final Graphics2D gc, final Rectangle plot_bounds)
     {
+        if (! isVisible())
+            return;
+
         final Rectangle region = getBounds();
 
         final Stroke old_width = gc.getStroke();

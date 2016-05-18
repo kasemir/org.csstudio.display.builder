@@ -246,6 +246,27 @@ public class XMLUtil
         }
     }
 
+    /** Given a parent element, locate double value of a child node.
+     *  @param parent Parent element
+     *  @param name Name of child element
+     *  @return Value of child element, or empty result
+     *  @throws Exception on error parsing the number
+     */
+    public static Optional<Double> getChildDouble(final Element parent, final String name) throws Exception
+    {
+        final Element child = getChildElement(parent, name);
+        if (child == null)
+            return Optional.empty();
+        try
+        {
+            return Optional.of(Double.valueOf(getString(child)));
+        }
+        catch (NumberFormatException ex)
+        {
+            throw new Exception("Expected double for <" + name +">", ex);
+        }
+    }
+
     /** @param text Text that should contain true or false
      *  @param default_value Value to use when text is empty
      *  @return Boolean value of text

@@ -30,7 +30,7 @@ import org.diirt.vtype.VType;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class PlotWidgedProperties
+public class PlotWidgetProperties
 {
     // Custom property types
     public static final WidgetPropertyDescriptor<Boolean> displayLegend =
@@ -52,13 +52,13 @@ public class PlotWidgedProperties
     };
 
     // Elements of the 'axis' structure
-    private static final WidgetPropertyDescriptor<Boolean> autoscale =
+    public static final WidgetPropertyDescriptor<Boolean> autoscale =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "autoscale", Messages.PlotWidget_AutoScale);
 
     private static final WidgetPropertyDescriptor<Boolean> logscale =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "log_scale", Messages.PlotWidget_LogScale);
 
-    private static final WidgetPropertyDescriptor<WidgetFont> scaleFont =
+    public static final WidgetPropertyDescriptor<WidgetFont> scaleFont =
         new WidgetPropertyDescriptor<WidgetFont>(
             WidgetPropertyCategory.DISPLAY, "scale_font", Messages.PlotWidget_ScaleFont)
     {

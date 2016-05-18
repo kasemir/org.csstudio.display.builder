@@ -42,7 +42,7 @@ public class LinearTicks implements Ticks<Double>
     protected NumberFormat detailed_num_fmt = createDecimalFormat(2);
 
     /** Threshold for order-of-magnitude to use exponential notation */
-    protected long exponential_threshold = 4;
+    protected long exponential_threshold = 5;
 
     /** @param order_of_magnitude If value range exceeds this threshold, use exponential notation */
     public void setExponentialThreshold(long order_of_magnitude)

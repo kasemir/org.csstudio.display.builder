@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.widgets.plots.PlotWidgedProperties.TraceWidgetProperty;
+import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.TraceWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.display.builder.runtime.pv.PVFactory;

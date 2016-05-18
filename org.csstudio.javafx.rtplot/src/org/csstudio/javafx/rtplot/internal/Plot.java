@@ -84,7 +84,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     /** Background color */
     private volatile Color background = Color.WHITE;
 
-    static final String FONT_FAMILY = "Liberation Sans";
+    public static final String FONT_FAMILY = "Liberation Sans";
 
     // TODO Static cursors, init. once
     private Cursor cursor_pan, cursor_zoom_in, cursor_zoom_out;
@@ -154,7 +154,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
 
 
     /** Listener to X Axis {@link PlotPart} */
-    final PlotPartListener x_axis_listener = new PlotPartListener()
+    private final PlotPartListener x_axis_listener = new PlotPartListener()
     {
         @Override
         public void layoutPlotPart(final PlotPart plotPart)
@@ -169,8 +169,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
             requestUpdate();
         }
     };
+
     /** Listener to Title, Y Axis and plot area {@link PlotPart}s */
-    final PlotPartListener plot_part_listener = new PlotPartListener()
+    private final PlotPartListener plot_part_listener = new PlotPartListener()
     {
         @Override
         public void layoutPlotPart(final PlotPart plotPart)
