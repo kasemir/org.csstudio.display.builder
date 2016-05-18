@@ -26,10 +26,11 @@ import javafx.scene.shape.Shape;
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
  */
+//TODO: consider Pane vs Canvas;
 public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, ByteMonitorWidget>
-//TODO: consider extending BaseLEDRepresentation instead
+//TODO: consider extending BaseLEDRepresentation instead (how similar?)
 {
-	//TODO: BIG PROBLEM: investigate initialization
+    //TODO: BIG PROBLEM: investigate initialization
     private volatile int startBit = 0; //model_widget.displayNumBits().getValue();
     private volatile int numBits = 8; //model_widget.displayNumBits().getValue();
     private volatile boolean horizontal = true; //model_widget.displayHorizontal().getValue();

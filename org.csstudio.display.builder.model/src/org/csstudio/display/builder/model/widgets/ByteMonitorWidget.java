@@ -64,7 +64,7 @@ public class ByteMonitorWidget extends VisibleWidget
             @Override
             public WidgetProperty<Integer> createProperty(final Widget widget, final Integer value)
             {
-                return new IntegerWidgetProperty(this, widget, value, 0, 16);
+                return new IntegerWidgetProperty(this, widget, value, 0, 15);
             }
         };
 
