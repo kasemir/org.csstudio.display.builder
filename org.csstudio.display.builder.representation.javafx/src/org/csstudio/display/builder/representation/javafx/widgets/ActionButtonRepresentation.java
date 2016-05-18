@@ -150,28 +150,9 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         foreground = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
 
         final String bg = JFXUtil.webRGB(model_widget.displayBackgroundColor().getValue());
-
         fx_base = "-fx-base: " + bg + ";";
 
-        background = "-fx-color: derive(" + bg + ", 50%);" +
-                "-fx-outer-border: derive(" + bg + ", -23%);" +
-                "-fx-inner-border: linear-gradient(to bottom," +
-                "ladder(" + bg + "," +
-                "       derive(" + bg + ",30%) 0%," +
-                "       derive(" + bg + ",20%) 40%," +
-                "       derive(" + bg + ",25%) 60%," +
-                "       derive(" + bg + ",55%) 80%," +
-                "       derive(" + bg + ",55%) 90%," +
-                "       derive(" + bg + ",75%) 100%" +
-                ")," +
-                "ladder(" + bg + "," +
-                "       derive(" + bg + ",20%) 0%," +
-                "       derive(" + bg + ",10%) 20%," +
-                "       derive(" + bg + ",5%) 40%," +
-                "       derive(" + bg + ",-2%) 60%," +
-                "       derive(" + bg + ",-5%) 100%" +
-                "));" +
-                "-fx-background: " + bg + ";";
+        background = JFXUtil.shadedStyle(model_widget.displayBackgroundColor().getValue());
     }
 
     private String makeActionText(ActionInfo action)

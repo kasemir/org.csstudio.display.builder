@@ -145,8 +145,8 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
     }
 
     private void tabsChanged(final WidgetProperty<List<TabItemProperty>> property,
-                             final List<TabItemProperty> removed,
-                             final List<TabItemProperty> added)
+            final List<TabItemProperty> removed,
+            final List<TabItemProperty> added)
     {
         if (removed != null)
             removeTabs(removed);
@@ -226,7 +226,7 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
         final Point2D tabs_bounds = jfx_node.localToScene(0.0, 0.0);
         final Point2D pane_bounds = pane.localToScene(0.0, 0.0);
         final int[] insets = new int[] { (int)(pane_bounds.getX() - tabs_bounds.getX()),
-                                         (int)(pane_bounds.getY() - tabs_bounds.getY()) };
+                (int)(pane_bounds.getY() - tabs_bounds.getY()) };
         logger.log(Level.INFO, "Insets: " + Arrays.toString(insets));
         if (insets[0] < 0  ||  insets[1] < 0)
         {
@@ -243,35 +243,7 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
 
         if (dirty_layout.checkAndClear())
         {
-            // How to best set colors?
-            // Content Pane can be set in API, but Tab has no usable 'set color' API.
-            // TabPane has setBackground(), but in "floating" style that would be
-            // the background behind the tabs, which is usually transparent.
-            // modena.css of JDK8 reveals a structure of sub-items which are shaded with gradients based
-            // on  -fx-color for the inactive tabs,
-            //     -fx-outer-border and -fx-inner-border for the, well, border,
-            // and -fx-background for the selected tab,
-            // so re-define those.
-            final String bg = JFXUtil.webRGB(model_widget.displayBackgroundColor().getValue());
-            final String style = "-fx-color: derive(" + bg + ", 50%);" +
-                                 "-fx-outer-border: derive(" + bg + ", -23%);" +
-                                 "-fx-inner-border: linear-gradient(to bottom," +
-                                 "ladder(" + bg + "," +
-                                 "       derive(" + bg + ",30%) 0%," +
-                                 "       derive(" + bg + ",20%) 40%," +
-                                 "       derive(" + bg + ",25%) 60%," +
-                                 "       derive(" + bg + ",55%) 80%," +
-                                 "       derive(" + bg + ",55%) 90%," +
-                                 "       derive(" + bg + ",75%) 100%" +
-                                 ")," +
-                                 "ladder(" + bg + "," +
-                                 "       derive(" + bg + ",20%) 0%," +
-                                 "       derive(" + bg + ",10%) 20%," +
-                                 "       derive(" + bg + ",5%) 40%," +
-                                 "       derive(" + bg + ",-2%) 60%," +
-                                 "       derive(" + bg + ",-5%) 100%" +
-                                 "));" +
-                                 "-fx-background: " + bg + ";";
+            final String style = JFXUtil.shadedStyle(model_widget.displayBackgroundColor().getValue());
 
             final Background background = new Background(new BackgroundFill(JFXUtil.convert(model_widget.displayBackgroundColor().getValue()), null, null));
 
