@@ -40,35 +40,6 @@ Actions can
 </text>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Label_9</name>
-    <x>571</x>
-    <y>600</y>
-    <width>331</width>
-    <height>30</height>
-    <text>Access to Widget Properties</text>
-    <font>
-      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
-      </font>
-    </font>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_10</name>
-    <x>571</x>
-    <y>630</y>
-    <width>541</width>
-    <height>191</height>
-    <text>When evaluating a macro, if the macro has not been defined,
-the properties of the widget are searched.
-
-For example, when using the macro "$(x)" while no value
-for the macro "x" has been defined, the 'x' property of the widget
-will be used.
-
-Note that this mechanism uses the internal, non-localized name of
-the property as it is for example found in the *.bob file.
-The 'X Position' property for example has an internal name 'x'.</text>
-  </widget>
-  <widget type="label" version="2.0.0">
     <name>Label_5</name>
     <y>261</y>
     <width>561</width>
@@ -82,5 +53,49 @@ it is more obvious to end users.</text>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button</name>
+    <x>381</x>
+    <y>141</y>
+    <width>120</width>
+    <height>30</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>01_main.bob</file>
+        <target>replace</target>
+        <description>back to main</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_1</name>
+    <x>381</x>
+    <y>181</y>
+    <width>120</width>
+    <height>30</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="write_pv">
+        <pv_name>$(pv_name)</pv_name>
+        <value>Hello</value>
+        <description>Write PV</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>$(pv_name)</pv_name>
+        <value>Bye</value>
+        <description>Write Bye</description>
+      </action>
+    </actions>
+    <pv_name>loc://text("some_PV")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update</name>
+    <x>261</x>
+    <y>181</y>
+    <width>110</width>
+    <height>30</height>
+    <pv_name>loc://text("some_PV")</pv_name>
   </widget>
 </display>
