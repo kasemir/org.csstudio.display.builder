@@ -24,9 +24,9 @@ import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
-import org.csstudio.display.builder.model.widgets.plots.PlotWidgedProperties.AxisWidgetProperty;
-import org.csstudio.display.builder.model.widgets.plots.PlotWidgedProperties.TraceWidgetProperty;
-import org.csstudio.display.builder.model.widgets.plots.PlotWidgedProperties.YAxisWidgetProperty;
+import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.AxisWidgetProperty;
+import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.TraceWidgetProperty;
+import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.YAxisWidgetProperty;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
 
@@ -244,12 +244,12 @@ public class XYPlotWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(title = PlotWidgedProperties.displayTitle.createProperty(this, ""));
-        properties.add(title_font = PlotWidgedProperties.titleFontProperty.createProperty(this, NamedWidgetFonts.HEADER2));
-        properties.add(show_legend = PlotWidgedProperties.displayLegend.createProperty(this, true));
+        properties.add(title = PlotWidgetProperties.displayTitle.createProperty(this, ""));
+        properties.add(title_font = PlotWidgetProperties.titleFontProperty.createProperty(this, NamedWidgetFonts.HEADER2));
+        properties.add(show_legend = PlotWidgetProperties.displayLegend.createProperty(this, true));
         properties.add(x_axis = AxisWidgetProperty.create(this, Messages.PlotWidget_X));
-        properties.add(y_axes = PlotWidgedProperties.behaviorYAxes.createProperty(this, Arrays.asList(YAxisWidgetProperty.create(this, Messages.PlotWidget_Y))));
-        properties.add(traces = PlotWidgedProperties.behaviorTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this))));
+        properties.add(y_axes = PlotWidgetProperties.behaviorYAxes.createProperty(this, Arrays.asList(YAxisWidgetProperty.create(this, Messages.PlotWidget_Y))));
+        properties.add(traces = PlotWidgetProperties.behaviorTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this))));
     }
 
     /** @return Display 'title' */

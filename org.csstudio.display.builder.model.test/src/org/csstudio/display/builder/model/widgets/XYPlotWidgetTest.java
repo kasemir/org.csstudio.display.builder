@@ -18,7 +18,7 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
-import org.csstudio.display.builder.model.widgets.plots.PlotWidgedProperties.AxisWidgetProperty;
+import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.AxisWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.junit.Test;
 

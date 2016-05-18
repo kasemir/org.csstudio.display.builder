@@ -9,8 +9,8 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
 
@@ -25,7 +25,9 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
@@ -131,8 +133,8 @@ public class ActionButtonWidget extends VisibleWidget
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(text = displayText.createProperty(this, "$(actions)"));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        properties.add(background = displayBackgroundColor.createProperty(this, new WidgetColor(30, 144, 255)));
-        properties.add(foreground = displayForegroundColor.createProperty(this, new WidgetColor(255, 255, 255)));
+        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
+        properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
     }
 
     /** @return Widget 'macros' */
