@@ -51,13 +51,12 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     //XXX: consider Pane vs Canvas
     protected Pane createJFXNode() throws Exception
     {
+        colors = createColors();
+        final Pane pane = new Pane();
         numBits = model_widget.displayNumBits().getValue();
         square_led = model_widget.displaySquareLED().getValue();
         horizontal = model_widget.displayHorizontal().getValue();
-        colors = createColors();
-        final Pane pane = new Pane();
         addLEDs(pane);
-        configChanged(null, null, null);
         pane.setMinSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
         pane.setMaxSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
         return pane;
@@ -66,18 +65,14 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
 
     private void addLEDs(Pane pane)
     {
-        if (horizontal)
-            addLEDs(pane, 20, 20*numBits, true);
-        else
-            addLEDs(pane, 20*numBits, 20, false);
-    }
-    private void addLEDs(Pane pane, int w, int h) {
-        addLEDs(pane, w, h, horizontal);
+        addLEDs(pane, model_widget.positionWidth().getValue(),
+                model_widget.positionHeight().getValue(), horizontal);
     }
     private void addLEDs(Pane pane, int w, int h, boolean horizontal)
     {
         int save_bits = numBits;
         boolean save_sq = square_led;
+        Color [] save_colors = value_colors;
         leds.clear();
         for (int i = 0; i < save_bits; i++)
         {
@@ -98,10 +93,19 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
                 ((Ellipse)led).setRadiusY(d/2);
             }
             led.getStyleClass().add("led");
+            if (save_colors != null && i < save_colors.length)
+                led.setFill( makeGradient(save_colors[i]) );
             leds.add(led);
         }
         pane.getChildren().clear();
         pane.getChildren().addAll(leds);
+    }
+
+    private LinearGradient makeGradient(Color color)
+    {
+        return new LinearGradient(0, 0, .7, .7, true, CycleMethod.NO_CYCLE,
+                new Stop(0, color.interpolate(Color.WHITESMOKE, 0.8)),
+                new Stop(1, color));
     }
 
     protected Color[] createColors()
@@ -148,6 +152,8 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         model_widget.displayNumBits().addUntypedPropertyListener(this::lookChanged);
         model_widget.displayHorizontal().addUntypedPropertyListener(this::lookChanged);
         model_widget.displaySquareLED().addUntypedPropertyListener(this::lookChanged);
+
+        lookChanged(null, null, null);
     }
 
     /**
@@ -189,19 +195,15 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
 
     private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
-        //adjust value_colors array values
-        int save_nBits = numBits;
         int value_indices [] = computeColorIndices(new_value);
-        final Color[] new_colors = new Color[save_nBits];
+        final Color[] new_colorVals = new Color[value_indices.length];
         final Color[] save_colors = colors;
-        for (int i = 0; i < save_nBits; i++) {
-            if (value_indices[i] < 0)
-                value_indices[i] = 0;
-            if (value_indices[i] >= save_colors.length)
-                value_indices[i] = save_colors.length-1;
-            new_colors[i] = save_colors[value_indices[i]];
+        for (int i = 0; i < value_indices.length; i++)
+        {
+            value_indices[i] = value_indices[i] <= 0 ? 0 : 1;
+            new_colorVals[i] = save_colors[value_indices[i]];
         }
-        value_colors = new_colors;
+        value_colors = new_colorVals;
 
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
@@ -216,21 +218,17 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
             final int w = model_widget.positionWidth().getValue();
             final int h = model_widget.positionHeight().getValue();
             jfx_node.setPrefSize(w, h);
-            addLEDs(jfx_node, w, h);
+            addLEDs(jfx_node, w, h, horizontal);
 
         }
         if (dirty_content.checkAndClear()) {
-            final Color[] save_colors = value_colors;
-            if (save_colors == null)
+            final Color[] save_values = value_colors;
+            if (save_values == null)
                 return;
 
-            final int N = Math.min(leds.size(), save_colors.length);
+            final int N = Math.min(leds.size(), save_values.length);
             for (int i = 0; i < N; i++) {
-                // Put highlight in top-left corner
-                leds.get(i).setFill(
-                                new LinearGradient(0, 0, .5, .5, true, CycleMethod.NO_CYCLE,
-                                        new Stop(0, save_colors[i].interpolate(Color.WHITESMOKE, 0.8)),
-                                        new Stop(1, save_colors[i])) );
+                leds.get(i).setFill( makeGradient(save_values[i]) );
             }
             jfx_node.getChildren().clear();
             jfx_node.getChildren().addAll(leds);
