@@ -7,9 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
@@ -45,7 +42,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     private volatile boolean horizontal = true;
     private volatile boolean square_led = false;
 
-    private final List<Shape> leds = new CopyOnWriteArrayList<Shape>();
+    private volatile Shape[] leds = null;
 
     @Override
     //XXX: consider Pane vs Canvas
@@ -62,46 +59,51 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         return pane;
     }
 
-
-    private void addLEDs(Pane pane)
+    private void addLEDs(final Pane pane)
     {
         addLEDs(pane, model_widget.positionWidth().getValue(),
                 model_widget.positionHeight().getValue(), horizontal);
     }
-    private void addLEDs(Pane pane, int w, int h, boolean horizontal)
+
+    private void addLEDs(final Pane pane, final int w, final int h, final boolean horizontal)
     {
-        int save_bits = numBits;
-        boolean save_sq = square_led;
-        Color [] save_colorVals = value_colors;
-        leds.clear();
+        final int save_bits = numBits;
+        final boolean save_sq = square_led;
+        final Color [] save_colorVals = value_colors;
+        final Shape [] leds = new Shape[save_bits];
         for (int i = 0; i < save_bits; i++)
         {
-            final Shape led = save_sq ? new Rectangle() : new Ellipse();
+            final Shape led;
             if (save_sq)
             {
-                ((Rectangle)led).setX(horizontal ? i*w/save_bits : 0);
-                ((Rectangle)led).setY(horizontal ? 0 : i*h/save_bits);
-                ((Rectangle)led).setWidth(horizontal ? w/save_bits : w);
-                ((Rectangle)led).setHeight(horizontal ? h : h/save_bits);
+                final Rectangle rect = new Rectangle();
+                rect.setX(horizontal ? i*w/save_bits : 0);
+                rect.setY(horizontal ? 0 : i*h/save_bits);
+                rect.setWidth(horizontal ? w/save_bits : w);
+                rect.setHeight(horizontal ? h : h/save_bits);
+                led = rect;
             }
             else
             {
+                final Ellipse ell = new Ellipse();
                 final int d = Math.min(horizontal ? w/save_bits : w, horizontal ? h : h/save_bits);
-                ((Ellipse)led).setCenterX(horizontal ? d/2 + i*w/save_bits : d/2);
-                ((Ellipse)led).setCenterY(horizontal ? d/2 : d/2 + i*h/save_bits);
-                ((Ellipse)led).setRadiusX(d/2);
-                ((Ellipse)led).setRadiusY(d/2);
+                ell.setCenterX(horizontal ? d/2 + i*w/save_bits : d/2);
+                ell.setCenterY(horizontal ? d/2 : d/2 + i*h/save_bits);
+                ell.setRadiusX(d/2);
+                ell.setRadiusY(d/2);
+                led = ell;
             }
             led.getStyleClass().add("led");
             if (save_colorVals != null && i < save_colorVals.length)
                 led.setFill( makeGradient(save_colorVals[i]) );
-            leds.add(led);
+            leds[i] = led;
         }
+        this.leds = leds;
         pane.getChildren().clear();
         pane.getChildren().addAll(leds);
     }
 
-    private LinearGradient makeGradient(Color color)
+    private LinearGradient makeGradient(final Color color)
     {
         return new LinearGradient(0, 0, .7, .7, true, CycleMethod.NO_CYCLE,
                 new Stop(0, color.interpolate(Color.WHITESMOKE, 0.8)),
@@ -120,18 +122,15 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     protected int [] computeColorIndices(final VType value)
     {
         int nBits = numBits;
-        int sBit = startBit;
+        final int sBit = startBit;
         if (nBits + sBit > 32)
             nBits = 32 - sBit;
-        boolean save_bitRev = bitReverse;
+        final boolean save_bitRev = bitReverse;
 
-        int [] colorIndices = new int [nBits];
-        int number = VTypeUtil.getValueNumber(value).intValue();
+        final int [] colorIndices = new int [nBits];
+        final int number = VTypeUtil.getValueNumber(value).intValue();
         for (int i = 0; i < nBits; i++)
-        {
-            colorIndices[ save_bitRev ? i : nBits-1-i] =
-                    ( number & (1 << (sBit+i)) );
-        }
+            colorIndices[ save_bitRev ? i : nBits-1-i] = number & (1 << (sBit+i));
         return colorIndices;
     }
 
@@ -197,7 +196,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
 
     private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
-        int value_indices [] = computeColorIndices(new_value);
+        final int value_indices [] = computeColorIndices(new_value);
         final Color[] new_colorVals = new Color[value_indices.length];
         final Color[] save_colors = colors;
         for (int i = 0; i < value_indices.length; i++)
@@ -223,17 +222,16 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
             addLEDs(jfx_node, w, h, horizontal);
 
         }
-        if (dirty_content.checkAndClear()) {
+        if (dirty_content.checkAndClear())
+        {
+            final Shape[] save_leds = leds;
             final Color[] save_values = value_colors;
-            if (save_values == null)
+            if (save_leds == null  ||  save_values == null)
                 return;
 
-            final int N = Math.min(leds.size(), save_values.length);
-            for (int i = 0; i < N; i++) {
-                leds.get(i).setFill( makeGradient(save_values[i]) );
-            }
-            jfx_node.getChildren().clear();
-            jfx_node.getChildren().addAll(leds);
+            final int N = Math.min(save_leds.length, save_values.length);
+            for (int i = 0; i < N; i++)
+                leds[i].setFill( makeGradient(save_values[i]));
         }
     }
 }

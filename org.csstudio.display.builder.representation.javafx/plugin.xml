@@ -80,7 +80,7 @@
             type="xyplot">
       </representation>
       <representation
-            class="org.csstudio.display.builder.representation.javafx.ByteMonitorRepresentation"
+            class="org.csstudio.display.builder.representation.javafx.widgets.ByteMonitorRepresentation"
             type="byte_monitor">
       </representation>
    </extension>

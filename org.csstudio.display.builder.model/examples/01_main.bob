@@ -122,7 +122,7 @@
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
     <x>191</x>
-    <y>261</y>
+    <y>291</y>
     <width>120</width>
     <height>30</height>
     <text>Controls</text>
@@ -134,7 +134,7 @@
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
     <x>332</x>
-    <y>261</y>
+    <y>291</y>
     <width>120</width>
     <height>30</height>
     <text>Plots</text>
@@ -146,7 +146,7 @@
   <widget type="action_button" version="2.0.0">
     <name>Action Button_4</name>
     <x>332</x>
-    <y>291</y>
+    <y>321</y>
     <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
@@ -304,7 +304,7 @@
   <widget type="action_button" version="2.0.0">
     <name>Action Button_14</name>
     <x>191</x>
-    <y>291</y>
+    <y>321</y>
     <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
@@ -319,7 +319,7 @@
   <widget type="action_button" version="2.0.0">
     <name>Action Button_15</name>
     <x>191</x>
-    <y>331</y>
+    <y>361</y>
     <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
@@ -334,7 +334,7 @@
   <widget type="action_button" version="2.0.0">
     <name>Action Button_16</name>
     <x>191</x>
-    <y>371</y>
+    <y>401</y>
     <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
@@ -361,5 +361,20 @@
       </action>
     </actions>
     <pv_name></pv_name>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_18</name>
+    <x>332</x>
+    <y>241</y>
+    <width>120</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>monitors_bytemonitor.bob</file>
+        <target>replace</target>
+        <description>Byte Monitor</description>
+      </action>
+    </actions>
   </widget>
 </display>

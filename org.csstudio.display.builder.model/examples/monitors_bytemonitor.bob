@@ -87,7 +87,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
-    <x>102</x>
+    <x>108</x>
     <y>87</y>
     <width>28</width>
     <height>26</height>
@@ -108,7 +108,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
-    <x>80</x>
+    <x>83</x>
     <y>87</y>
     <width>22</width>
     <height>26</height>
@@ -129,7 +129,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
-    <x>167</x>
+    <x>171</x>
     <y>321</y>
     <width>59</width>
     <height>26</height>
@@ -166,7 +166,7 @@
   <widget type="label" version="2.0.0">
     <name>Label_10</name>
     <x>451</x>
-    <y>271</y>
+    <y>396</y>
     <width>48</width>
     <height>26</height>
     <text>Label6</text>
@@ -182,7 +182,7 @@
   <widget type="label" version="2.0.0">
     <name>Label_11</name>
     <x>451</x>
-    <y>297</y>
+    <y>367</y>
     <width>48</width>
     <text>Label5</text>
     <background_color>
@@ -197,7 +197,7 @@
   <widget type="label" version="2.0.0">
     <name>Label_12</name>
     <x>451</x>
-    <y>331</y>
+    <y>335</y>
     <width>48</width>
     <text>Label4</text>
     <background_color>
@@ -212,7 +212,7 @@
   <widget type="label" version="2.0.0">
     <name>Label_13</name>
     <x>451</x>
-    <y>232</y>
+    <y>428</y>
     <width>48</width>
     <height>26</height>
     <text>Label7</text>
@@ -263,7 +263,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_15</name>
-    <x>167</x>
+    <x>181</x>
     <y>103</y>
     <width>421</width>
     <height>26</height>
@@ -283,7 +283,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_16</name>
-    <x>167</x>
+    <x>181</x>
     <y>169</y>
     <width>421</width>
     <height>26</height>
@@ -331,7 +331,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_18</name>
-    <x>60</x>
+    <x>67</x>
     <y>87</y>
     <width>20</width>
     <height>16</height>
@@ -350,7 +350,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_19</name>
-    <x>62</x>
+    <x>67</x>
     <y>154</y>
     <width>18</width>
     <text>0</text>
@@ -364,7 +364,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_21</name>
-    <x>108</x>
+    <x>117</x>
     <y>154</y>
     <width>21</width>
     <text>2</text>
@@ -403,7 +403,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_25</name>
-    <x>107</x>
+    <x>113</x>
     <y>212</y>
     <width>18</width>
     <text>3</text>
@@ -472,7 +472,7 @@
   <widget type="label" version="2.0.0">
     <name>Label_27</name>
     <x>451</x>
-    <y>361</y>
+    <y>300</y>
     <width>48</width>
     <height>26</height>
     <text>Label3</text>
@@ -480,14 +480,14 @@
   <widget type="label" version="2.0.0">
     <name>Label_28</name>
     <x>451</x>
-    <y>401</y>
+    <y>271</y>
     <width>60</width>
     <text>Label2</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_29</name>
     <x>451</x>
-    <y>431</y>
+    <y>240</y>
     <width>52</width>
     <text>Label1</text>
   </widget>
