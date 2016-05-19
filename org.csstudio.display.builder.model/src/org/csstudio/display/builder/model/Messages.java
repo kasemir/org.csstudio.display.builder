@@ -23,6 +23,7 @@ public class Messages extends NLS
     public static String BoolWidget_OnLabel;
     public static String ActiveTab;
     public static String Bottom;
+    public static String Checkbox_Label;
     public static String Center;
     public static String FontStyle_Bold;
     public static String FontStyle_BoldItalic;
