@@ -35,10 +35,10 @@ import javafx.scene.shape.Rectangle;
  *
  *  <p>In "EDIT" mode, a handle on each point allows moving
  *  the point. Clicking with 'Control' adds a new point.
- *  Clicking with 'Alt' deletes the point.
+ *  Clicking with 'Shift' or 'Alt' deletes the point.
  *  Space key switches to "APPEND" mode.
  *
- *  <p>Escape key exists the editor from either mode.
+ *  <p>Escape key exits the editor from either mode.
  *
  *  @author Kay Kasemir
  */
@@ -76,8 +76,7 @@ public class PointsEditor
 
         // Backspace to delete last point in 'APPEND' mode
         int N = points.size();
-        if (mode == Mode.APPEND  &&  N > 0  &&
-            event.getCode() == KeyCode.BACK_SPACE)
+        if (mode == Mode.APPEND  &&  N > 0  &&  event.getCode() == KeyCode.BACK_SPACE)
         {
             event.consume();
             points.delete(N-1);
@@ -94,7 +93,8 @@ public class PointsEditor
             listener.pointsChanged(points);
         }
 
-        if (event.getCode() == KeyCode.ESCAPE)
+        if (event.getCode() == KeyCode.ESCAPE  ||
+            event.getCode() == KeyCode.ENTER)
             listener.done(); // XXX Not 'consumed' so others may also react to Escape
     };
 
@@ -137,6 +137,8 @@ public class PointsEditor
         event.consume();
     };
 
+    private Cursor original_cursor;
+
     /** Static initialization of custom cursors */
     private static synchronized void init()
     {   // Already initialized?
@@ -164,6 +166,8 @@ public class PointsEditor
     public PointsEditor(final Group root, final Points points, final PointsEditorListener listener)
     {
         init();
+
+        original_cursor = root.getScene().getCursor();
 
         this.points = points;
         this.listener = listener;
@@ -279,7 +283,7 @@ public class PointsEditor
                     endMode();
                     startMode(mode);
                 }
-                else if (event.isAltDown())
+                else if (event.isAltDown()  ||  event.isShiftDown())
                 {
                     // Don't delete last point
                     if (points.size() <= 1)
@@ -295,11 +299,11 @@ public class PointsEditor
             {
                 event.consume();
                 if (event.isControlDown()  &&  cursor_add != null)
-                    setCursor(cursor_add);
-                else if (event.isAltDown()  &&  cursor_remove != null)
-                    setCursor(cursor_remove);
+                    getScene().setCursor(cursor_add);
+                else if ((event.isShiftDown() || event.isAltDown())  &&  cursor_remove != null)
+                    getScene().setCursor(cursor_remove);
                 else
-                    setCursor(Cursor.HAND);
+                    getScene().setCursor(Cursor.HAND);
             });
             setOnMouseDragged(event ->
             {

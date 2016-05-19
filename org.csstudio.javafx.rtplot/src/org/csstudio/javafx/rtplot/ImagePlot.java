@@ -160,6 +160,9 @@ public class ImagePlot extends Canvas
         };
         widthProperty().addListener(resize_listener);
         heightProperty().addListener(resize_listener);
+
+        setOnMouseMoved(event -> updateLocationInfo(event.getX(), event.getY()));
+        setOnMouseExited(event -> updateLocationInfo(-1, -1));
     }
 
     /** @param autoscale  Auto-scale the color mapping? */
@@ -463,6 +466,46 @@ public class ImagePlot extends Canvas
         gc.dispose();
 
         return image;
+    }
+
+    /** Update information about the image location under the mouse pointer
+     *  @param mouse_x
+     *  @param mouse_y
+     */
+    private void updateLocationInfo(final double mouse_x, final double mouse_y)
+    {
+        if (! image_area.contains(mouse_x, mouse_y))
+        {
+            System.out.println("Outside of image");
+            return;
+        }
+        final int screen_x = (int) (mouse_x + 0.5);
+        final int screen_y = (int) (mouse_y + 0.5);
+        // Location on axes, i.e. what user configured as horizontal and vertical values
+        final double x_val = x_axis.getValue(screen_x);
+        final double y_val = y_axis.getValue(screen_y);
+
+        // Location as coordinate into image
+        AxisRange<Double> range = x_axis.getValueRange();
+        int image_x = (int) ((data_width-1) * (x_val - range.low) / (range.high - range.low) + 0.5);
+        if (image_x >= data_width)
+            image_x = data_width - 1;
+        range = y_axis.getValueRange();
+        int image_y = (int) ((data_height-1) * (1.0 - (y_val - range.low) / (range.high - range.low)) + 0.5);
+        if (image_y >= data_height)
+            image_y = data_height - 1;
+
+        final ListNumber data = image_data;
+        final double pixel = data == null ? -1 : data.getDouble(image_x + image_y * data_width);
+        final String info = formatLocationInfo(x_val, y_val, pixel);
+
+        // TODO Set 'info' text, and show that in the redraw_runnable
+        System.out.println(info);
+    }
+
+    private String formatLocationInfo(final double x, final double y, final double value)
+    {   // TODO Allow script to install alternate format
+        return "(" + x + ", " + y + ") = " + value;
     }
 
     /** Should be invoked when plot no longer used to release resources */

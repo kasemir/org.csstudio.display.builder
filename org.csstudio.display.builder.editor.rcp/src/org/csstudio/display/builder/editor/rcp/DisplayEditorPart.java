@@ -32,6 +32,7 @@ import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.rcp.DisplayInfo;
+import org.csstudio.display.builder.rcp.JFXCursorFix;
 import org.csstudio.display.builder.rcp.Preferences;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoRedoListener;
@@ -127,6 +128,8 @@ public class DisplayEditorPart extends EditorPart
         final Parent root = editor.create();
         final Scene scene = new Scene(root);
         EditorUtil.setSceneStyle(scene);
+
+        JFXCursorFix.apply(scene, fx_canvas);
 
         // Observed UI freeze in this call.
         // Unsure what to do.

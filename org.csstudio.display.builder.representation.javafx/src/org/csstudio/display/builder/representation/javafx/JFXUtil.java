@@ -61,6 +61,44 @@ public class JFXUtil
         return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
     }
 
+    /** Convert model color into CSS style string for shading tabs, buttons, etc
+     *  @param color {@link WidgetColor}
+     *  @return style string of the form "-fx-color: ... -fx-outer-border: ... -fx-inner-border: ... -fx-background: ..."
+     */
+    public static String shadedStyle(final WidgetColor color)
+    {
+        // How to best set colors?
+        // Content Pane can be set in API, but Tab has no usable 'set color' API.
+        // TabPane has setBackground(), but in "floating" style that would be
+        // the background behind the tabs, which is usually transparent.
+        // modena.css of JDK8 reveals a structure of sub-items which are shaded with gradients based
+        // on  -fx-color for the inactive tabs,
+        //     -fx-outer-border and -fx-inner-border for the, well, border,
+        // and -fx-background for the selected tab,
+        // so re-define those.
+        final String bg = JFXUtil.webRGB(color);
+
+        return  "-fx-color: derive(" + bg + ", 50%);" +
+        "-fx-outer-border: derive(" + bg + ", -23%);" +
+        "-fx-inner-border: linear-gradient(to bottom," +
+        "ladder(" + bg + "," +
+        "       derive(" + bg + ",30%) 0%," +
+        "       derive(" + bg + ",20%) 40%," +
+        "       derive(" + bg + ",25%) 60%," +
+        "       derive(" + bg + ",55%) 80%," +
+        "       derive(" + bg + ",55%) 90%," +
+        "       derive(" + bg + ",75%) 100%" +
+        ")," +
+        "ladder(" + bg + "," +
+        "       derive(" + bg + ",20%) 0%," +
+        "       derive(" + bg + ",10%) 20%," +
+        "       derive(" + bg + ",5%) 40%," +
+        "       derive(" + bg + ",-2%) 60%," +
+        "       derive(" + bg + ",-5%) 100%" +
+        "));" +
+        "-fx-background: " + bg + ";";
+    }
+
     /** Convert JFX color into model color
      *  @param color {@link Color}
      *  @return {@link WidgetColor}
@@ -68,8 +106,8 @@ public class JFXUtil
     public static WidgetColor convert(final Color color)
     {
         return new WidgetColor((int) (color.getRed() * 255),
-                               (int) (color.getGreen() * 255),
-                               (int) (color.getBlue() * 255));
+                (int) (color.getGreen() * 255),
+                (int) (color.getBlue() * 255));
     }
 
     /** Convert model font into JFX font

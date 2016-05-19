@@ -11,7 +11,6 @@ import static org.csstudio.display.builder.rcp.Plugin.logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -21,12 +20,12 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
+import org.csstudio.display.builder.rcp.JFXCursorFix;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -37,13 +36,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import com.sun.javafx.cursor.CursorFrame;
-
-import javafx.beans.value.ChangeListener;
 import javafx.embed.swt.FXCanvas;
-import javafx.embed.swt.SWTFXUtils;
-import javafx.scene.Cursor;
-import javafx.scene.ImageCursor;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
@@ -54,8 +47,7 @@ import javafx.scene.control.TextArea;
  *
  *  @author Kay Kasemir
  */
-// CursorFrame is restricted API, but currently without alternative
-@SuppressWarnings({ "nls", "restriction" })
+@SuppressWarnings("nls")
 public class RuntimeViewPart extends ViewPart
 {
 	// FXViewPart saves a tiny bit of code, but this allow more control over the FXCanvas.
@@ -151,39 +143,7 @@ public class RuntimeViewPart extends ViewPart
         root.getProperties().put(ROOT_RUNTIME_VIEW_PART, this);
         fx_canvas.setScene(scene);
 
-        // Track JFX cursor, update SWT cursor
-        final ChangeListener<Cursor> cursor_listener = (prop, old, newCursor) ->
-        {
-            // Standard cursors and null are handled by FXCanvas.
-            // Image-based cursors need to be translated into SWT cursor
-            // with code based on GEF FXCanvasEx,
-            // https://github.com/eclipse/gef4/blob/master/org.eclipse.gef4.fx.swt/src/org/eclipse/gef4/fx/swt/canvas/FXCanvasEx.java
-            if (newCursor instanceof ImageCursor)
-            {
-                // custom cursor, convert image
-                final ImageData imageData = SWTFXUtils.fromFXImage(((ImageCursor) newCursor).getImage(), null);
-                final double hotspotX = ((ImageCursor) newCursor).getHotspotX();
-                final double hotspotY = ((ImageCursor) newCursor).getHotspotY();
-                org.eclipse.swt.graphics.Cursor swtCursor = new org.eclipse.swt.graphics.Cursor(
-                        fx_canvas.getDisplay(), imageData, (int) hotspotX, (int) hotspotY);
-                // Set platform cursor on CursorFrame so that it can be
-                // retrieved by FXCanvas' HostContainer
-                // which ultimately sets the cursor on the FXCanvas
-                try
-                {
-                    final Method currentCursorFrameAccessor =
-                        Cursor.class.getDeclaredMethod("getCurrentFrame", new Class[] {});
-                    currentCursorFrameAccessor.setAccessible(true);
-                    final CursorFrame currentCursorFrame = (CursorFrame) currentCursorFrameAccessor.invoke(newCursor, new Object[] {});
-                    currentCursorFrame.setPlatforCursor(org.eclipse.swt.graphics.Cursor.class, swtCursor);
-                }
-                catch (Exception ex)
-                {
-                    logger.log(Level.WARNING, "Cannot update SWT cursor from JFX cursor", ex);
-                }
-            }
-        };
-        scene.cursorProperty().addListener(cursor_listener);
+        JFXCursorFix.apply(scene, fx_canvas);
 
         createToolbarItems();
 
