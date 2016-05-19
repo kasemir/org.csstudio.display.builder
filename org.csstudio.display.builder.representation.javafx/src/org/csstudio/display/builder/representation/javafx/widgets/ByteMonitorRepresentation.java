@@ -72,7 +72,7 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     {
         int save_bits = numBits;
         boolean save_sq = square_led;
-        Color [] save_colors = value_colors;
+        Color [] save_colorVals = value_colors;
         leds.clear();
         for (int i = 0; i < save_bits; i++)
         {
@@ -93,8 +93,8 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
                 ((Ellipse)led).setRadiusY(d/2);
             }
             led.getStyleClass().add("led");
-            if (save_colors != null && i < save_colors.length)
-                led.setFill( makeGradient(save_colors[i]) );
+            if (save_colorVals != null && i < save_colorVals.length)
+                led.setFill( makeGradient(save_colorVals[i]) );
             leds.add(led);
         }
         pane.getChildren().clear();
@@ -119,18 +119,18 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
 
     protected int [] computeColorIndices(final VType value)
     {
-        int save_nBits = numBits;
-        int save_sBit = startBit;
-        if (save_nBits + save_sBit > 32)
-            save_nBits = 32 - save_sBit;
+        int nBits = numBits;
+        int sBit = startBit;
+        if (nBits + sBit > 32)
+            nBits = 32 - sBit;
         boolean save_bitRev = bitReverse;
 
-        int [] colorIndices = new int [save_nBits];
+        int [] colorIndices = new int [nBits];
         int number = VTypeUtil.getValueNumber(value).intValue();
-        for (int i = 0; i < save_nBits; i++)
+        for (int i = 0; i < nBits; i++)
         {
-            colorIndices[ save_bitRev ? i : save_nBits-1-i] =
-                    ( number & (1 << (save_sBit+i)) );
+            colorIndices[ save_bitRev ? i : nBits-1-i] =
+                    ( number & (1 << (sBit+i)) );
         }
         return colorIndices;
     }
@@ -153,12 +153,14 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         model_widget.displayHorizontal().addUntypedPropertyListener(this::lookChanged);
         model_widget.displaySquareLED().addUntypedPropertyListener(this::lookChanged);
 
+        //initialization
+        configChanged(null, null, null);
         lookChanged(null, null, null);
     }
 
     /**
-     * Invoked when LED shape, number, arrangement, or text
-     * changed (squareLED, numBits, horizontal, labels)
+     * Invoked when LED shape, number, or arrangement
+     * changed (square_led, numBits, horizontal)
      * @param property Ignored
      * @param old_value Ignored
      * @param new_value Ignored
@@ -179,8 +181,8 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         toolkit.scheduleUpdate(this);
     }
 
-    /** Invoked when color, startBit, or bitReverse properties changed
-     *  and current colors need to be re-evaluated; calls content changed
+    /** Invoked when color, startBit, or bitReverse properties
+     *  changed and current colors need to be re-evaluated
      *  @param property Ignored
      *  @param old_value Ignored
      *  @param new_value Ignored
