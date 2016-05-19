@@ -1,16 +1,23 @@
 package org.csstudio.display.builder.representation.javafx.sandbox;
 
 import javafx.application.Application;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Ellipse;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.*;
 import javafx.stage.Stage;
 
+
+//incorporate changing values, somehow
 public class PaneEllipsesDemo extends Application
 {
 
@@ -25,32 +32,36 @@ public class PaneEllipsesDemo extends Application
     public void start(final Stage stage)
     {
         Color [] value_colors = getColors(170); //10101010
-
+        String[] labels = {"1","2","4","8","16","32","64","128"};
+        
+        //===widget-relevant code===//
         Pane pane = new Pane();
         Ellipse ellipses [] = new Ellipse [number];
+        Text textLabels [] = new Text [number];
         for (int i = 0; i < number; i++) {
             ellipses[i] = new Ellipse();
-            pane.getChildren().add(ellipses[i]);
+            textLabels[i] = createText(labels[i]);
+            pane.getChildren().addAll(ellipses[i], textLabels[i]);
         }
-//        Pane pane = new Pane(ellipses);
-        //pane.setMinSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
-        //pane.setMaxSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
 
         pane.setPrefSize(size*number, size);
         for (int i = 0; i < number; i++) {
-        	ellipses[i].setCenterX(size/2 + i*size);
-        	ellipses[i].setCenterY(size/2);
-        	ellipses[i].setRadiusX(size/2);
-        	ellipses[i].setRadiusY(size/2);
+            ellipses[i].setCenterX(size/2 + i*size);
+            ellipses[i].setCenterY(size/2);
+            ellipses[i].setRadiusX(size/2);
+            ellipses[i].setRadiusY(size/2);
+            textLabels[i].setX(i*size);
+            textLabels[i].setY(size/2);
+            textLabels[i].setWrappingWidth(size);
         }
 
-    	for (int i = 0; i < number; i++)
+        for (int i = 0; i < number; i++)
             ellipses[i].setFill(
-                // Put highlight in top-left corner, about 0.2 wide,
-                // relative to actual size of LED
-                new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
+                new LinearGradient(0, 0, 0.5, 0.5, true, CycleMethod.NO_CYCLE,
                                    new Stop(0, value_colors[i].interpolate(Color.WHITESMOKE, 0.8)),
                                    new Stop(1, value_colors[i])));
+        
+        //=end widget-relevant code=//
         
         //VBox.setVgrow(pane, Priority.NEVER);
         VBox vbox = new VBox(pane);
@@ -62,15 +73,23 @@ public class PaneEllipsesDemo extends Application
         stage.show();
     }
     
-	private Color[] getColors(int bits) {
-		Color [] result = new Color [size];
-		Color bright = Color.web("0x00FF00",1.0);
-		Color dark = Color.web("0x007700",1.0);
-		for (int i = 0; i < size; i++) {
-			result[i] = (bits & 1) == 1 ? bright : dark;
-			bits = bits >> 1;
-		}
-		return result;
-	}
+    private final Text createText(String text) {
+        final Text newText = new Text(text);
+        newText.setFont(new Font(20));
+        newText.setTextOrigin(VPos.CENTER);
+        newText.setTextAlignment(TextAlignment.CENTER);
+        return newText;
+    }
+
+    private Color[] getColors(int bits) {
+        Color [] result = new Color [size];
+        Color bright = Color.web("0x00FF00",1.0);
+        Color dark = Color.web("0x007700",1.0);
+        for (int i = 0; i < size; i++) {
+            result[i] = (bits & 1) == 1 ? bright : dark;
+            bits = bits >> 1;
+        }
+        return result;
+    }
 
 }

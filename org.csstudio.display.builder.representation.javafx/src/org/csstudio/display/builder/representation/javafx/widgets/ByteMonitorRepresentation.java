@@ -9,11 +9,13 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.ByteMonitorWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
 
+import javafx.geometry.VPos;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -23,6 +25,9 @@ import javafx.scene.paint.Stop;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
@@ -41,26 +46,50 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     private volatile int numBits = 8;
     private volatile boolean horizontal = true;
     private volatile boolean square_led = false;
+    private volatile String labelStrings [];
+    private volatile Font font = new Font(20); //TODO: incorporate font property
 
-    /** LED Ellipses inside {@link Pane} for grouping and alignment */
-    private Shape [] leds = new Shape [16];
+    private final Shape [] leds = new Shape [16];
+    private final Text [] textLabels = new Text[16];
     
     @Override
     //XXX: consider Pane vs Canvas;
+    //TODO: perhaps re-work as a set of StackPanes with Shape, Text children
     protected Pane createJFXNode() throws Exception {
         numBits = model_widget.displayNumBits().getValue();
         square_led = model_widget.displaySquareLED().getValue();
         colors = createColors();
+        labelStrings = getLabelStrings(model_widget.displayLabels().getValue().toArray());
         final Pane pane = new Pane();
         for (int i = 0; i < numBits; i++) {
             value_colors[i] = colors[0];
             leds[i] = square_led ? new Rectangle() : new Ellipse();
             leds[i].getStyleClass().add("led");
-            pane.getChildren().add(leds[i]);
+            textLabels[i] = labelStrings[i] != null ? createText(labelStrings[i]) : null;
+            pane.getChildren().addAll(leds[i]);
         }
+        for (int i = numBits; i < 16; i++)
+            textLabels[i] = null;
         pane.setMinSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
         pane.setMaxSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
         return pane;
+    }
+    
+    private final Text createText(String text) {
+        final Text newText = new Text(text);
+        newText.setFont(font);
+        newText.setTextOrigin(VPos.CENTER);
+        newText.setTextAlignment(TextAlignment.CENTER);
+        return newText;
+    }
+    
+    private String[] getLabelStrings(Object [] labelWidgets) {
+        String [] result = new String [16];
+        for (int i = 0; i < labelWidgets.length; i++)
+            result[i] = ((StringWidgetProperty)labelWidgets[i]).getValue();
+        for (int i = labelWidgets.length; i < 16; i++)
+            result[i] = null;
+        return result;
     }
     
     protected Color[] createColors()
@@ -76,10 +105,12 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     {
         int [] colorIndices = new int [numBits];
         int number = VTypeUtil.getValueNumber(value).intValue();
-        for (int i = 0; i < numBits; i++) {
+        for (int i = 0; i < numBits && startBit+i < 16; i++) {
             colorIndices[model_widget.displayBitReverse().getValue() ? i : numBits-1-i] =
                     ( number & (1 << (startBit+i)) );
         }
+        for (int i = 16-startBit; i < numBits; i++)
+            colorIndices[model_widget.displayBitReverse().getValue() ? i : numBits-1-i] = 0;
         return colorIndices;
     }
     
@@ -89,19 +120,23 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         super.registerListeners();
         model_widget.positionWidth().addPropertyListener(this::sizeChanged);
         model_widget.positionHeight().addPropertyListener(this::sizeChanged);
+
         model_widget.runtimeValue().addPropertyListener(this::contentChanged);
+        
         model_widget.displayOffColor().addUntypedPropertyListener(this::configChanged);
         model_widget.displayOnColor().addUntypedPropertyListener(this::configChanged);
-        model_widget.displayNumBits().addUntypedPropertyListener(this::lookChanged);
         model_widget.displayStartBit().addUntypedPropertyListener(this::configChanged);
         model_widget.displayBitReverse().addUntypedPropertyListener(this::configChanged);
+
+        model_widget.displayNumBits().addUntypedPropertyListener(this::lookChanged);
         model_widget.displayHorizontal().addUntypedPropertyListener(this::lookChanged);
         model_widget.displaySquareLED().addUntypedPropertyListener(this::lookChanged);
+        model_widget.displayLabels().addUntypedPropertyListener(this::lookChanged);
     }
     
     /**
-     * Invoked when type, number, or arrangement of
-     * LEDs changed (squareLED, numBits, or horizontal)
+     * Invoked when LED shape, number, arrangement, or text
+     * changed (squareLED, numBits, horizontal, labels)
      * @param property Ignored
      * @param old_value Ignored
      * @param new_value Ignored
@@ -111,6 +146,8 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         numBits = model_widget.displayNumBits().getValue();
         horizontal = model_widget.displayHorizontal().getValue();
         square_led = model_widget.displaySquareLED().getValue();
+        labelStrings = getLabelStrings(model_widget.displayLabels().getValue().toArray());
+            //note: copied to array to safeguard against mid-operation changes
         dirty_size.mark();
         contentChanged(model_widget.runtimeValue(), null, model_widget.runtimeValue().getValue());
     }
@@ -121,8 +158,8 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         toolkit.scheduleUpdate(this);
     }
     
-    /** Invoked when color or bitReverse properties changed
-     *  and current colors need to be re-evaluated
+    /** Invoked when color, startBit, or bitReverse properties changed
+     *  and current colors need to be re-evaluated; calls content changed
      *  @param property Ignored
      *  @param old_value Ignored
      *  @param new_value Ignored
@@ -135,10 +172,10 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
 
     private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
+        //adjust startBit variable
         startBit = model_widget.displayStartBit().getValue();
-        if (startBit + numBits > 16)
-            startBit = 16 - numBits;
-
+        
+        //adjust value_colors array values
         int value_indices [] = computeColorIndices(new_value);
         final Color[] save_colors = colors;
         for (int i = 0; i < numBits; i++) {
@@ -154,13 +191,13 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     }
     
     /** helper for updateChanges, when the shape of the LED is changed */
-    private int replaceShape(Shape shape, int index, int numChildren) {
-        leds[index] = shape;
-        leds[index].getStyleClass().add("led");
-        if (index < numChildren)
-            jfx_node.getChildren().remove(index, numChildren);
-        jfx_node.getChildren().add(leds[index]);
-        return index+1;
+    private int replaceShape(Shape shape, int shapeIndex, int childIndex, int listSize) {
+        leds[shapeIndex] = shape;
+        leds[shapeIndex].getStyleClass().add("led");
+        jfx_node.getChildren().remove(childIndex, listSize);
+        //note: list does not add null (i.e. textLabels[i])
+        jfx_node.getChildren().addAll(leds[shapeIndex], textLabels[shapeIndex]);
+        return jfx_node.getChildren().size();
     }
     
     @Override
@@ -170,14 +207,20 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         if (dirty_size.checkAndClear())
         {
             //adjust number and type of child LEDs in pane
+            Object [] children = jfx_node.getChildren().toArray();
             int listSize = jfx_node.getChildren().size();
+            int childIndex = 0;
             for (int i = 0; i < numBits; i++) {
+                if (childIndex < children.length && children[childIndex] instanceof Text)
+                    childIndex++;
                 if (square_led && !(leds[i] instanceof Rectangle))
-                    listSize = replaceShape(new Rectangle(), i, listSize);
+                    listSize = replaceShape(new Rectangle(), i, childIndex, listSize);
                 else if (!square_led && !(leds[i] instanceof Ellipse))
-                   listSize = replaceShape(new Ellipse(), i, listSize);
-                else if (i >= listSize)
-                    jfx_node.getChildren().add(leds[i]);
+                   listSize = replaceShape(new Ellipse(), i, childIndex, listSize);
+                else if (childIndex >= children.length) {
+                    //note: list does not add null (i.e. textLabels[i])
+                    jfx_node.getChildren().addAll(leds[i], textLabels[i]);
+                }
             }
             if (listSize > numBits)
                 jfx_node.getChildren().remove(numBits, listSize);
@@ -205,8 +248,9 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
                 }
             }
         }
-        if (dirty_content.checkAndClear())
-            for (int i = 0; i < numBits; i++)
+        if (dirty_content.checkAndClear()) {
+            final String save_labels [] = labelStrings; //is of size 16, with non-present labels null
+            for (int i = 0; i < numBits; i++) {
                 // Put highlight in top-left corner
                 leds[i].setFill( //square_led ?
                                 new LinearGradient(0, 0, .5, .5, true, CycleMethod.NO_CYCLE,
@@ -215,5 +259,11 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
                                 new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,*/
                                         new Stop(0, value_colors[i].interpolate(Color.WHITESMOKE, 0.8)),
                                         new Stop(1, value_colors[i])) );
+                if (save_labels[i] != null)
+                    textLabels[i].setText(save_labels[i]);
+                else
+                    textLabels[i] = null;
+            }
+        }
     }
 }

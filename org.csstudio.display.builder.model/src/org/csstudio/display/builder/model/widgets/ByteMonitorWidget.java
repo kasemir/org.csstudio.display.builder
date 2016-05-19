@@ -93,16 +93,16 @@ public class ByteMonitorWidget extends VisibleWidget
     public static final WidgetPropertyDescriptor<Boolean> displaySquareLED =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "square_led", Messages.ByteMonitor_SquareLED);
     
-    //Labels property, model MultiStateLED
+    //Labels property, refer to MultiStateLED
     //Is registered somewhere?
     //TODO: this is really tangled; double-check functionality, efficiency
     private static final ArrayWidgetProperty.Descriptor<StringWidgetProperty> displayLabels =
             new ArrayWidgetProperty.Descriptor<StringWidgetProperty>(
-                    WidgetPropertyCategory.DISPLAY,
-                    "labels", "Labels", (widget, index) -> 
-                    new StringWidgetProperty(
-                            newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "labels", "Labels"),
-                            widget, "") );
+                    WidgetPropertyCategory.DISPLAY, "label", "Labels",
+                    (widget, index) -> new StringWidgetProperty(
+                            newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "labels", "label"),
+                            widget, "")
+                    );
     
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<VType> value;
@@ -136,7 +136,7 @@ public class ByteMonitorWidget extends VisibleWidget
         properties.add(horiz = displayHorizontal.createProperty(this,true));
         properties.add(square_led = displaySquareLED.createProperty(this,false));
         properties.add(labels = displayLabels.createProperty(this, new ArrayList<StringWidgetProperty>(8)));
-            //TODO: how best to get List<StringWidgetProperty> elements?
+            //TODO: how best to get List<StringWidgetProperty> elements? What is this constructor, anyway?
         //properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
     }
     
