@@ -325,6 +325,7 @@
     <x>60</x>
     <y>103</y>
     <height>30</height>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
     <numBits>4</numBits>
     <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
@@ -342,8 +343,10 @@
     <y>169</y>
     <width>101</width>
     <height>26</height>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
     <numBits>4</numBits>
     <bitReverse>true</bitReverse>
+    <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_19</name>
@@ -379,8 +382,10 @@
     <y>231</y>
     <width>101</width>
     <height>30</height>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
     <startBit>1</startBit>
     <numBits>4</numBits>
+    <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_23</name>
@@ -416,8 +421,10 @@
     <y>195</y>
     <width>35</width>
     <height>116</height>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
     <numBits>4</numBits>
     <horizontal>false</horizontal>
+    <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
   <widget type="byte_monitor" version="2.0.0">
     <name>Byte Monitor_4</name>
@@ -425,16 +432,19 @@
     <y>195</y>
     <width>30</width>
     <height>116</height>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
     <numBits>4</numBits>
     <bitReverse>true</bitReverse>
     <horizontal>false</horizontal>
+    <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
   <widget type="byte_monitor" version="2.0.0">
     <name>Byte Monitor_5</name>
     <x>41</x>
-    <y>451</y>
-    <width>178</width>
-    <height>30</height>
+    <y>441</y>
+    <width>270</width>
+    <height>23</height>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
     <off_color>
       <color name="Attention" red="255" green="160" blue="0">
       </color>
@@ -445,6 +455,7 @@
     </on_color>
     <numBits>5</numBits>
     <square_led>true</square_led>
+    <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
   <widget type="byte_monitor" version="2.0.0">
     <name>Byte Monitor_6</name>
@@ -452,9 +463,11 @@
     <y>232</y>
     <width>38</width>
     <height>226</height>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
     <numBits>7</numBits>
     <horizontal>false</horizontal>
     <square_led>true</square_led>
+    <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_27</name>
