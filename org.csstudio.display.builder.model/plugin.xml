@@ -227,7 +227,7 @@
             category="CONTROL"
             class="%CheckBoxWidget_Description"
             description="Read/write a bit in a PV"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/checkbox.png"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/checkbox.gif"
             name="%CheckBoxWidget_Name"
             type="checkbox">
       </widget>

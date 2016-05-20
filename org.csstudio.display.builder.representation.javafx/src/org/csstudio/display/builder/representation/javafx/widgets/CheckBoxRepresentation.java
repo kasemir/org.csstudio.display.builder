@@ -20,16 +20,18 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
+    private final DirtyFlag dirty_label = new DirtyFlag();
 
     //TODO: why Integer and int on BoolButton? thread-safety implications?
     protected volatile int bit = 0;
     protected volatile Integer value = 0;
     protected volatile boolean state = false;
+    protected volatile String label = "";
 
     @Override
     protected final CheckBox createJFXNode() throws Exception
     {
-        final CheckBox checkbox = new CheckBox(model_widget.displayLabel().getValue());
+        final CheckBox checkbox = new CheckBox(label);
         checkbox.setMinSize(ButtonBase.USE_PREF_SIZE, ButtonBase.USE_PREF_SIZE);
         checkbox.setOnAction(event -> handlePress());
         return checkbox;
@@ -40,7 +42,7 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
     private void handlePress()
     {
         logger.log(Level.FINE, "{0} pressed", model_widget);
-        int new_val = (value ^ ((bit < 0) ? 1 : (1 << bit)) );
+        int new_val = (bit < 0) ? (value == 0 ? 1 : 0) : (value ^ (1 << bit));
         toolkit.fireWrite(model_widget, new_val);
     }
 
@@ -51,6 +53,9 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
         model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::sizeChanged);
         model_widget.displayAutoSize().addUntypedPropertyListener(this::sizeChanged);
+
+        labelChanged(model_widget.displayLabel(), null, model_widget.displayLabel().getValue());
+        model_widget.displayLabel().addPropertyListener(this::labelChanged);
 
         bitChanged(model_widget.behaviorBit(), null, model_widget.behaviorBit().getValue());
         model_widget.behaviorBit().addPropertyListener(this::bitChanged);
@@ -63,10 +68,17 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
         toolkit.scheduleUpdate(this);
     }
 
+    private void labelChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
+    {
+        label = new_value != null ? new_value : model_widget.displayLabel().getValue();
+        dirty_label.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
     private void bitChanged(final WidgetProperty<Integer> property, final Integer old_value, final Integer new_value)
     {
-        bit = new_value;
-        stateChanged(new_value, value);
+        bit = (new_value != null ? new_value : model_widget.behaviorBit().getValue());
+        stateChanged(bit, value);
     }
 
     private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
@@ -75,9 +87,9 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
         stateChanged(bit, value);
     }
 
-    private void stateChanged(final Integer new_bit, final int new_value)
+    private void stateChanged(final int new_bit, final int new_value)
     {
-        state  = (new_bit < 0) ? (new_value != 0) : (((new_value >> new_bit) & 1) == 1);
+        state  = (new_bit < 0) ? new_value != 0 : ((new_value >> new_bit) & 1) == 1;
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -96,6 +108,10 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
         if (dirty_content.checkAndClear())
         {
             jfx_node.setSelected(state);
+        }
+        if (dirty_label.checkAndClear())
+        {
+            jfx_node.setText(label);
         }
     }
 }

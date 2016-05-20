@@ -34,8 +34,8 @@ public class CheckBoxWidget extends VisibleWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("checkbox", WidgetCategory.CONTROL,
-            "CheckBox",
-            "platform:/plugin/org.csstudio.display.builder.model/icons/checkbox.png",
+            "Check Box",
+            "platform:/plugin/org.csstudio.display.builder.model/icons/checkbox.gif",
             "Read/write a bit in a PV",
             Arrays.asList("org.csstudio.opibuilder.widgets.checkbox") )
     {
@@ -52,8 +52,6 @@ public class CheckBoxWidget extends VisibleWidget
     /** Display 'auto_size': Automatically adjust size of widget */
     public static final WidgetPropertyDescriptor<Boolean> displayAutoSize =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "auto_size", Messages.AutoSize);
-
-    //TODO? displayAutoSize ("auto_size")
 
     private volatile WidgetProperty<Integer> bit;
     private volatile WidgetProperty<VType> value;
