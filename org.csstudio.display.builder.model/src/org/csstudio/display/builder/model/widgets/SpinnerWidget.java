@@ -139,6 +139,8 @@ public class SpinnerWidget extends VisibleWidget
         return value;
     }
 
+    //TODO: return minimum, maximum, limits_from_pv
+
     /** @return Behavior 'step_increment' */
     public WidgetProperty<Integer> behaviorStepIncrement()
     {
