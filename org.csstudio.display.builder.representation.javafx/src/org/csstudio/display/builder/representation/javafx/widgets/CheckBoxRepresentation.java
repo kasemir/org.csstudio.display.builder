@@ -7,7 +7,7 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
-import org.csstudio.display.builder.model.widgets.CheckboxWidget;
+import org.csstudio.display.builder.model.widgets.CheckBoxWidget;
 import org.diirt.vtype.VType;
 
 import javafx.scene.control.ButtonBase;
@@ -16,7 +16,7 @@ import javafx.scene.control.CheckBox;
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
  */
-public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, CheckboxWidget>
+public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, CheckBoxWidget>
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();

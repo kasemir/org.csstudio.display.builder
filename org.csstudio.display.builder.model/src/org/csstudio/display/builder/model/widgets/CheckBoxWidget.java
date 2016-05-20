@@ -21,7 +21,7 @@ import org.diirt.vtype.VType;
 /** Widget that can read/write a bit in a PV
  *  @author Amanda Carpenter
  */
-public class CheckboxWidget extends VisibleWidget
+public class CheckBoxWidget extends VisibleWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -34,7 +34,7 @@ public class CheckboxWidget extends VisibleWidget
         @Override
         public Widget createWidget()
         {
-            return new CheckboxWidget();
+            return new CheckBoxWidget();
         }
     };
     /** Display 'label': Text for label */
@@ -57,7 +57,7 @@ public class CheckboxWidget extends VisibleWidget
         properties.add(label = displayLabel.createProperty(this, Messages.Checkbox_Label));
     }
 
-    public CheckboxWidget()
+    public CheckBoxWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
     }

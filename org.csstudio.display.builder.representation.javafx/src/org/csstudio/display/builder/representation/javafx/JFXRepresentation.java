@@ -18,7 +18,7 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.ArcWidget;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
-import org.csstudio.display.builder.model.widgets.CheckboxWidget;
+import org.csstudio.display.builder.model.widgets.CheckBoxWidget;
 import org.csstudio.display.builder.model.widgets.EllipseWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
@@ -154,7 +154,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(ActionButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ActionButtonRepresentation());
         factories.put(ArcWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ArcRepresentation());
         factories.put(BoolButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new BoolButtonRepresentation());
-        factories.put(CheckboxWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new CheckBoxRepresentation());
+        factories.put(CheckBoxWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new CheckBoxRepresentation());
         factories.put(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new EmbeddedDisplayRepresentation());
         factories.put(EllipseWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new EllipseRepresentation());
         factories.put(GroupWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new GroupRepresentation());
