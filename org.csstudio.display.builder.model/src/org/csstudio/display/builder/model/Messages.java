@@ -19,6 +19,8 @@ public class Messages extends NLS
     // Keep in alphabetical order, matching the order in messages.properties
     public static String Actions_Zero;
     public static String Actions_N_Fmt;
+    public static String ActiveTab;
+    public static String AutoSize;
     public static String BoolWidget_OffLabel;
     public static String BoolWidget_OnLabel;
     public static String ByteMonitor_BitReverse;
@@ -26,7 +28,6 @@ public class Messages extends NLS
     public static String ByteMonitor_NumBits;
     public static String ByteMonitor_SquareLED;
     public static String ByteMonitor_StartBit;
-    public static String ActiveTab;
     public static String Bottom;
     public static String Checkbox_Label;
     public static String Center;

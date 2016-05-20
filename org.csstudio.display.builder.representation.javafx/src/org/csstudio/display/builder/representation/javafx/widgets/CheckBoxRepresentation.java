@@ -48,8 +48,9 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addPropertyListener(this::sizeChanged);
-        model_widget.positionHeight().addPropertyListener(this::sizeChanged);
+        model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.positionHeight().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.displayAutoSize().addUntypedPropertyListener(this::sizeChanged);
 
         bitChanged(model_widget.behaviorBit(), null, model_widget.behaviorBit().getValue());
         model_widget.behaviorBit().addPropertyListener(this::bitChanged);
@@ -89,8 +90,10 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
         {
             jfx_node.setPrefWidth(model_widget.positionWidth().getValue());
             jfx_node.setPrefHeight(model_widget.positionHeight().getValue());
+            if (model_widget.displayAutoSize().getValue())
+                jfx_node.autosize();
         }
-        if (dirty_size.checkAndClear())
+        if (dirty_content.checkAndClear())
         {
             jfx_node.setSelected(state);
         }

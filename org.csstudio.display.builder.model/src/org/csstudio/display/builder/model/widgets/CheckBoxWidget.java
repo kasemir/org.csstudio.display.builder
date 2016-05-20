@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorBit;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
@@ -48,11 +49,16 @@ public class CheckBoxWidget extends VisibleWidget
     public static final WidgetPropertyDescriptor<String> displayLabel =
         newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "label", Messages.Checkbox_Label);
 
+    /** Display 'auto_size': Automatically adjust size of widget */
+    public static final WidgetPropertyDescriptor<Boolean> displayAutoSize =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "auto_size", Messages.AutoSize);
+
     //TODO? displayAutoSize ("auto_size")
 
     private volatile WidgetProperty<Integer> bit;
     private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<String> label;
+    private volatile WidgetProperty<Boolean> auto_size;
 
     @Override
     protected void defineProperties(final List<WidgetProperty<?>> properties)
@@ -62,6 +68,7 @@ public class CheckBoxWidget extends VisibleWidget
         properties.add(bit = behaviorBit.createProperty(this, 0));
         properties.add(value = runtimeValue.createProperty(this, null));
         properties.add(label = displayLabel.createProperty(this, Messages.Checkbox_Label));
+        properties.add(auto_size = displayAutoSize.createProperty(this, false));
     }
 
     public CheckBoxWidget()
@@ -81,10 +88,16 @@ public class CheckBoxWidget extends VisibleWidget
         return value;
     }
 
-    /** @return Runtime 'label' */
+    /** @return Display 'label' */
     public WidgetProperty<String> displayLabel()
     {
         return label;
+    }
+
+    /** @return Display 'auto_size' */
+    public WidgetProperty<Boolean> displayAutoSize()
+    {
+        return auto_size;
     }
 
 }
