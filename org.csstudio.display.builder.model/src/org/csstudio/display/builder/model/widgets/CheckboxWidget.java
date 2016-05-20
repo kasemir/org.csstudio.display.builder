@@ -18,12 +18,15 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.diirt.vtype.VType;
 
 @SuppressWarnings("nls")
+/** Widget that can read/write a bit in a PV
+ *  @author Amanda Carpenter
+ */
 public class CheckboxWidget extends VisibleWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("checkbox", WidgetCategory.CONTROL,
-            "Checkbox",
+            "CheckBox",
             "platform:/plugin/org.csstudio.display.builder.model/icons/checkbox.png",
             "Read/write a bit in a PV",
             Arrays.asList("org.csstudio.opibuilder.widgets.checkbox") )
@@ -31,7 +34,7 @@ public class CheckboxWidget extends VisibleWidget
         @Override
         public Widget createWidget()
         {
-            return new RectangleWidget();
+            return new CheckboxWidget();
         }
     };
     /** Display 'label': Text for label */
@@ -42,6 +45,7 @@ public class CheckboxWidget extends VisibleWidget
 
     private volatile WidgetProperty<Integer> bit;
     private volatile WidgetProperty<VType> value;
+    private volatile WidgetProperty<String> label;
 
     @Override
     protected void defineProperties(final List<WidgetProperty<?>> properties)
@@ -50,6 +54,7 @@ public class CheckboxWidget extends VisibleWidget
         properties.add(behaviorPVName.createProperty(this, ""));
         properties.add(bit = behaviorBit.createProperty(this, 0));
         properties.add(value = runtimeValue.createProperty(this, null));
+        properties.add(label = displayLabel.createProperty(this, Messages.Checkbox_Label));
     }
 
     public CheckboxWidget()
@@ -67,6 +72,12 @@ public class CheckboxWidget extends VisibleWidget
     public WidgetProperty<VType> runtimeValue()
     {
         return value;
+    }
+
+    /** @return Runtime 'label' */
+    public WidgetProperty<String> displayLabel()
+    {
+        return label;
     }
 
 }

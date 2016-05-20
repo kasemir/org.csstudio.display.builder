@@ -16,6 +16,10 @@
             type="bool_button">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.CheckBoxRepresentation"
+            type="checkbox">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.EllipseRepresentation"
             type="ellipse">
       </representation>
