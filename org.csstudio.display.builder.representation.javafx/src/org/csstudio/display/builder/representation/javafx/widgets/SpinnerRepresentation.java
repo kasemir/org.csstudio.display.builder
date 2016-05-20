@@ -5,21 +5,25 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.SpinnerWidget;
 
 import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
  */
-public class SpinnerRepresentation extends JFXBaseRepresentation<Spinner, SpinnerWidget>
+public class SpinnerRepresentation extends JFXBaseRepresentation<Spinner<Double>, SpinnerWidget>
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
 
     protected volatile Integer value = 0;
+    protected volatile Integer max = 10;
+    protected volatile Integer min = 0;
 
     @Override
-    protected final Spinner createJFXNode() throws Exception
+    protected final Spinner<Double> createJFXNode() throws Exception
     {
-        //SpinnerValueFactory()
-        final Spinner spinner = new Spinner();
+        SpinnerValueFactory<Double> svf = new SpinnerValueFactory.DoubleSpinnerValueFactory(min, max);
+        final Spinner<Double> spinner = new Spinner();
+        spinner.setValueFactory(svf);
         //adjust spinner
         return spinner;
     }

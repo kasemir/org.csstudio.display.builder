@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 /** Spinner demo
  *
  *  @author Kay Kasemir
+ *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
 public class SpinnerDemo extends Application
@@ -32,10 +33,11 @@ public class SpinnerDemo extends Application
     {
         final Label label = new Label("Demo:");
 
-        SpinnerValueFactory<Integer> svf = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10);
-        Spinner<Integer> spinner = new Spinner<>();
+        SpinnerValueFactory<Double> svf = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 10);
+        Spinner<Double> spinner = new Spinner<>();
         spinner.setValueFactory(svf);
-        // spinner.setEditable(true);
+        spinner.setEditable(true);
+        //TODO: need to figure out how to override Spinner and/or factory methods, to format like TextUpdate
         spinner.setPrefWidth(80);
 
         spinner.valueProperty().addListener((prop, old, value) ->

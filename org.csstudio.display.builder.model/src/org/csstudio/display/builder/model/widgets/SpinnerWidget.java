@@ -37,7 +37,7 @@ public class SpinnerWidget extends VisibleWidget
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("spinner", WidgetCategory.CONTROL,
             "Spinner",
-            "platform:/plugin/org.csstudio.display.builder.model/icons/Spinner.png",
+            "platform:/plugin/org.csstudio.display.builder.model/icons/Spinner.gif",
             "A spinner, with up/down arrows",
             Arrays.asList("org.csstudio.opibuilder.widgets.Spinner"))//TODO: check on this
         {
