@@ -35,7 +35,7 @@ import org.diirt.vtype.VType;
 public class ByteMonitorWidget extends VisibleWidget
 {
     /** Widget descriptor */
-    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+	public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("byte_monitor", WidgetCategory.MONITOR,
             "Byte Monitor",
             "platform:/plugin/org.csstudio.display.builder.model/icons/byte_monitor.png",
