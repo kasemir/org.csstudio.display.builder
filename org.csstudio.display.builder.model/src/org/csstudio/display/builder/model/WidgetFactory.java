@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.ArcWidget;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
+//import org.csstudio.display.builder.model.widgets.ByteMonitorWidget;
 import org.csstudio.display.builder.model.widgets.CheckBoxWidget;
 import org.csstudio.display.builder.model.widgets.EllipseWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
@@ -105,6 +106,7 @@ public class WidgetFactory
         addWidgetType(ActionButtonWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ArcWidget.WIDGET_DESCRIPTOR);
         addWidgetType(BoolButtonWidget.WIDGET_DESCRIPTOR);
+        //addWidgetType(ByteMonitorWidget.WIDGET_DESCRIPTOR);
         addWidgetType(CheckBoxWidget.WIDGET_DESCRIPTOR);
         addWidgetType(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR);
         addWidgetType(EllipseWidget.WIDGET_DESCRIPTOR);
