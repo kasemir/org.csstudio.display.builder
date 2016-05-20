@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Display</name>
+  <x>-1</x>
+  <y>-1</y>
+  <widget type="checkbox" version="2.0.0">
+    <name>CheckBox</name>
+    <x>57</x>
+    <y>45</y>
+    <height>26</height>
+    <label>bit 0</label>
+    <pv_name>loc://boolTest</pv_name>
+  </widget>
+  <widget type="byte_monitor" version="2.0.0">
+    <name>Byte Monitor</name>
+    <x>31</x>
+    <y>45</y>
+    <width>24</width>
+    <height>90</height>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <numBits>4</numBits>
+    <bitReverse>true</bitReverse>
+    <horizontal>false</horizontal>
+    <pv_name>loc://boolTest</pv_name>
+  </widget>
+  <widget type="checkbox" version="2.0.0">
+    <name>CheckBox_1</name>
+    <x>57</x>
+    <y>71</y>
+    <label>bit 1</label>
+    <pv_name>loc://boolTest</pv_name>
+    <bit>1</bit>
+  </widget>
+  <widget type="checkbox" version="2.0.0">
+    <name>CheckBox_2</name>
+    <x>57</x>
+    <y>117</y>
+    <label>bit 3</label>
+    <pv_name>loc://boolTest</pv_name>
+    <bit>3</bit>
+  </widget>
+  <widget type="checkbox" version="2.0.0">
+    <name>CheckBox_3</name>
+    <x>57</x>
+    <y>91</y>
+    <height>26</height>
+    <label>bit 2</label>
+    <pv_name>loc://boolTest</pv_name>
+    <bit>2</bit>
+  </widget>
+  <widget type="byte_monitor" version="2.0.0">
+    <name>Byte Monitor_1</name>
+    <x>141</x>
+    <y>45</y>
+    <width>30</width>
+    <height>92</height>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <numBits>4</numBits>
+    <bitReverse>true</bitReverse>
+    <horizontal>false</horizontal>
+    <pv_name>sim://ramp(0,4,1)</pv_name>
+  </widget>
+  <widget type="checkbox" version="2.0.0">
+    <name>CheckBox_4</name>
+    <x>171</x>
+    <y>71</y>
+    <label>read bit 1 (*)</label>
+    <pv_name></pv_name>
+    <bit>1</bit>
+  </widget>
+  <widget type="checkbox" version="2.0.0">
+    <name>CheckBox_5</name>
+    <x>41</x>
+    <y>151</y>
+    <label>bit -1 (value)</label>
+    <pv_name>loc://boolTest</pv_name>
+    <bit>-1</bit>
+  </widget>
+  <widget type="checkbox" version="2.0.0">
+    <name>CheckBox_6</name>
+    <x>157</x>
+    <y>151</y>
+    <width>134</width>
+    <label>read bit -1 (value) (*)</label>
+    <pv_name></pv_name>
+    <bit>-1</bit>
+  </widget>
+</display>
