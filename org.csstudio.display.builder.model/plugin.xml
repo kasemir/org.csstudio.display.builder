@@ -225,8 +225,8 @@
       </widget>
       <widget
             category="CONTROL"
-            class="%CheckBoxWidget_Description"
-            description="Read/write a bit in a PV"
+            class="org.csstudio.display.builder.model.widgets.CheckBoxWidget"
+            description="%CheckBoxWidget_Description"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/checkbox.gif"
             name="%CheckBoxWidget_Name"
             type="checkbox">
@@ -238,6 +238,14 @@
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/byte_monitor.png"
             name="%ByteMonitorWidget_Name"
             type="byte_monitor">
+      </widget>
+      <widget
+            category="CONTROL"
+            class="org.csstudio.display.builder.model.widgets.SpinnerWidget"
+            description="%SpinnerWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/Spinner.gif"
+            name="%SpinnerWidget_Name"
+            type="spinner">
       </widget>
    </extension>
 
