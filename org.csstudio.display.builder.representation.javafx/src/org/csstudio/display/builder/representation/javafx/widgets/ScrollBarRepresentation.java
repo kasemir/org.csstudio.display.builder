@@ -37,11 +37,11 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.positionWidth().addUntypedPropertyListener(this::styleChanged);
         model_widget.behaviorLimitsFromPV().addUntypedPropertyListener(this::limitsChanged);
         model_widget.behaviorMinimum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.behaviorMaximum().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.displayHorizontal().addPropertyListener(this::sizeChanged);
+        model_widget.displayHorizontal().addPropertyListener(this::styleChanged);
 
         //Since both the widget's PV value and the ScrollBar node's value property might be
         //written to independently during runtime, both must be listened to. Since ChangeListeners
@@ -51,7 +51,7 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
 
     }
 
-    private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_style.mark();
         toolkit.scheduleUpdate(this);
@@ -59,8 +59,8 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
 
     private void limitsChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        double min_val = min = model_widget.behaviorMinimum().getValue();
-        double max_val = max = model_widget.behaviorMaximum().getValue();
+        double min_val = model_widget.behaviorMinimum().getValue();
+        double max_val = model_widget.behaviorMaximum().getValue();
         if (model_widget.behaviorLimitsFromPV().getValue())
         {
             //Try to get display range from PV
@@ -77,8 +77,10 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
             min_val = 0.0;
             max_val = 100.0;
         }
+
         min = min_val;
         max = max_val;
+
         dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -104,10 +106,11 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
             jfx_node.setPrefWidth(model_widget.positionWidth().getValue());
             jfx_node.setMin(min);
             jfx_node.setMax(max);
+            jfx_node.setOrientation(model_widget.displayHorizontal().getValue() ? Orientation.HORIZONTAL : Orientation.VERTICAL);
         }
         if (dirty_value.checkAndClear())
         {
-            double newval = VTypeUtil.getValueNumber(model_widget.runtimeValue().getValue()).doubleValue();
+            double newval = VTypeUtil.getValueNumber( model_widget.runtimeValue().getValue() ).doubleValue();
             if (newval < min) newval = min;
             else if (newval > max) newval = max;
             jfx_node.setValue(newval);
