@@ -2,7 +2,6 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFormat;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayPrecision;
@@ -19,12 +18,10 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
-import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.FormatOption;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.diirt.vtype.VType;
 
 /** Widget that represents a spinner
@@ -59,11 +56,21 @@ public class SpinnerWidget extends VisibleWidget
     public static final WidgetPropertyDescriptor<Boolean> displayButtonsOnLeft =
             CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "buttons_on_left", Messages.Spinner_ButtonsOnLeft);
 
+    //TODO: spinner format uses only Decimal, Exponential, and Hex; also (new?) Engineering?
+    /*public static final WidgetPropertyDescriptor<FormatOption> displayFormat =
+            new WidgetPropertyDescriptor<Integer>(WidgetPropertyCategory.DISPLAY, "startBit", Messages.WidgetProperties_Format)
+            {
+                @Override
+                public WidgetProperty<FormatOption> createProperty(final Widget widget, final FormatOption value)
+                {
+                    return new EnumWidgetProperty(this, widget, value);
+                }
+            }*/
+
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetColor> foreground;
-    private volatile WidgetProperty<WidgetFont> font;
-    private volatile WidgetProperty<FormatOption> format;
+    private volatile WidgetProperty<FormatOption> format; //includes decimal, exponential, and hex
     private volatile WidgetProperty<Integer> precision;
     private volatile WidgetProperty<VType> value;
     //Minimum (minimum) //Lower limit of the widget.
@@ -87,8 +94,7 @@ public class SpinnerWidget extends VisibleWidget
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.WRITE_BACKGROUND)));
         properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
-        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        properties.add(format = displayFormat.createProperty(this, FormatOption.DEFAULT));
+        properties.add(format = displayFormat.createProperty(this, FormatOption.DECIMAL));
         properties.add(precision = displayPrecision.createProperty(this, 2));
         properties.add(value = runtimeValue.createProperty(this, null));
         //TODO: properties.add: minimum, maximum, limits_from_pv
@@ -113,12 +119,6 @@ public class SpinnerWidget extends VisibleWidget
     public WidgetProperty<WidgetColor> displayForegroundColor()
     {
         return foreground;
-    }
-
-    /** @return Display 'font' */
-    public WidgetProperty<WidgetFont> displayFont()
-    {
-        return font;
     }
 
     /** @return Display 'format' */

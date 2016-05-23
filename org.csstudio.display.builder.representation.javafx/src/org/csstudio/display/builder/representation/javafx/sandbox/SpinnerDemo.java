@@ -8,11 +8,16 @@
 package org.csstudio.display.builder.representation.javafx.sandbox;
 
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 /** Spinner demo
@@ -33,12 +38,35 @@ public class SpinnerDemo extends Application
     {
         final Label label = new Label("Demo:");
 
-        SpinnerValueFactory<Double> svf = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 10);
+        SpinnerValueFactory<Double> svf = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1000);
         Spinner<Double> spinner = new Spinner<>();
         spinner.setValueFactory(svf);
+        //??? do this later
+        /*svf.setConverter(
+                new StringConverter<Double>()
+                {
+                    @Override
+                    public Double fromString(String string) {
+                        //value should be VNumber, parse returns double or long
+                        return FormatOptionHandler.parse(model_widget.runtimeValue().getValue(), string);
+                    }
+                    @Override
+                    public String toString(Double object) {
+                        //use FormatOptionHandler.format()
+                        return null;
+                    }
+                });*/
+        spinner.editorProperty().getValue().setStyle("-fx-text-fill:" + "black");
+        spinner.editorProperty().getValue().setBackground(
+                new Background(new BackgroundFill(Color.AZURE, CornerRadii.EMPTY, Insets.EMPTY)));
+
+        //spinner.getStyleClass().add(Spinner.STYLE_CLASS_ARROWS_ON_LEFT_VERTICAL);
+        //int x = spinner.getStyleClass().indexOf(Spinner.STYLE_CLASS_ARROWS_ON_LEFT_VERTICAL);
+        //if (x > 0) spinner.getStyleClass().remove(x);
+
         spinner.setEditable(true);
-        //TODO: need to figure out how to override Spinner and/or factory methods, to format like TextUpdate
         spinner.setPrefWidth(80);
+        //how to exit spinner?
 
         spinner.valueProperty().addListener((prop, old, value) ->
         {
