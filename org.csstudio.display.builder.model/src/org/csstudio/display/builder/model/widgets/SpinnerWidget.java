@@ -1,5 +1,8 @@
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorLimitsFromPV;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMaximum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMinimum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
@@ -73,9 +76,9 @@ public class SpinnerWidget extends VisibleWidget
     private volatile WidgetProperty<FormatOption> format; //includes decimal, exponential, and hex
     private volatile WidgetProperty<Integer> precision;
     private volatile WidgetProperty<VType> value;
-    //Minimum (minimum) //Lower limit of the widget.
-    //Maximum (maximum)
-    //Limits From PV(limits_from_pv)
+    private volatile WidgetProperty<Double> minimum;
+    private volatile WidgetProperty<Double> maximum;
+    private volatile WidgetProperty<Boolean> limits_from_pv;
     //increments: configurable at Runtime from its context menu Configure Runtime Properties....
         //does this make runtime category?
     private volatile WidgetProperty<Integer> step_increment;
@@ -97,7 +100,9 @@ public class SpinnerWidget extends VisibleWidget
         properties.add(format = displayFormat.createProperty(this, FormatOption.DECIMAL));
         properties.add(precision = displayPrecision.createProperty(this, 2));
         properties.add(value = runtimeValue.createProperty(this, null));
-        //TODO: properties.add: minimum, maximum, limits_from_pv
+        properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
+        properties.add(maximum = behaviorMaximum.createProperty(this, 0.0));
+        properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, false));
         properties.add(step_increment = behaviorStepIncrement.createProperty(this, 1));
         properties.add(page_increment = behaviorPageIncrement.createProperty(this, 1));
         properties.add(buttons_on_left = displayButtonsOnLeft.createProperty(this, false));
@@ -139,7 +144,23 @@ public class SpinnerWidget extends VisibleWidget
         return value;
     }
 
-    //TODO: return minimum, maximum, limits_from_pv
+    /** @return Behavior 'minimum' */
+    public WidgetProperty<Double> behaviorMinimum()
+    {
+        return minimum;
+    }
+
+    /** @return Behavior 'maximum' */
+    public WidgetProperty<Double> behaviorMaximum()
+    {
+        return maximum;
+    }
+
+    /** @return Behavior 'limits_from_pv' */
+    public WidgetProperty<Boolean> behaviorLimitsFromPV()
+    {
+        return limits_from_pv;
+    }
 
     /** @return Behavior 'step_increment' */
     public WidgetProperty<Integer> behaviorStepIncrement()
