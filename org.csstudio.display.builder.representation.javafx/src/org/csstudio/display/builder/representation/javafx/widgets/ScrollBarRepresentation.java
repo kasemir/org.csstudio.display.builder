@@ -15,6 +15,7 @@ import javafx.scene.control.ScrollBar;
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
  */
+//TODO: add support for keyboard value change while in focus
 public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, ScrollBarWidget>
 {
     private final DirtyFlag dirty_style = new DirtyFlag();

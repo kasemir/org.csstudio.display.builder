@@ -6,6 +6,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.Arrays;
@@ -43,11 +44,23 @@ public class ScrollBarWidget extends VisibleWidget
 
     /** Display 'horizontal': Use horizontal orientation */ //TODO: ?add to CommonWidgetProperties
     public static final WidgetPropertyDescriptor<Boolean> displayHorizontal =
-        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "horizontal", Messages.WidgetProperties_Horizontal);
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "horizontal", Messages.Horizontal);
 
-    /** Display 'show_value_tip': Use horizontal orientation */
+    /** Display 'show_value_tip': Show value tip */
     public static final WidgetPropertyDescriptor<Boolean> displayShowValueTip =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_value_tip", Messages.ScrollBar_ShowValueTip);
+
+    /** Behavior 'bar_length': Bar length: length visible */
+    public static final WidgetPropertyDescriptor<Double> behaviorBarLength =
+        newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "bar_length", Messages.ScrollBar_BarLength);
+
+    /** Behavior 'bar_length': Bar length: length visible */
+    public static final WidgetPropertyDescriptor<Double> behaviorStepIncrement =
+        newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "step_increment", Messages.Increments_StepIncrement);
+
+    /** Behavior 'bar_length': Bar length: length visible */
+    public static final WidgetPropertyDescriptor<Double> behaviorPageIncrement =
+        newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "page_increment", Messages.Increments_PageIncrement);
 
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<VType> value;
@@ -56,9 +69,9 @@ public class ScrollBarWidget extends VisibleWidget
     private volatile WidgetProperty<Boolean> limits_from_pv;
     private volatile WidgetProperty<Boolean> horizontal;
     private volatile WidgetProperty<Boolean> show_value_tip;
-    //display: show_value_tip, horizontal,
-    //behavior: bar_length (?? confusing description & behavior in old CSS)
-    //behavior: step_increment, page_increment
+    private volatile WidgetProperty<Double> bar_length;
+    private volatile WidgetProperty<Double> step_increment;
+    private volatile WidgetProperty<Double> page_increment;
 
     public ScrollBarWidget()
     {
@@ -79,6 +92,9 @@ public class ScrollBarWidget extends VisibleWidget
         properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, false));
         properties.add(horizontal = displayHorizontal.createProperty(this, true));
         properties.add(show_value_tip = displayShowValueTip.createProperty(this, true));
+        properties.add(bar_length = behaviorBarLength.createProperty(this, 10.0));
+        properties.add(step_increment = behaviorStepIncrement.createProperty(this, 1.0));
+        properties.add(page_increment = behaviorPageIncrement.createProperty(this, 10.0));
     }
 
     /** @return Behavior 'pv_name' */
@@ -121,6 +137,24 @@ public class ScrollBarWidget extends VisibleWidget
     public WidgetProperty<Boolean> displayShowValueTip()
     {
         return show_value_tip;
+    }
+
+    /** @return Behavior 'bar_length' */
+    public WidgetProperty<Double> behaviorBarLength()
+    {
+        return bar_length;
+    }
+
+    /** @return Behavior 'step_increment' */
+    public WidgetProperty<Double> behaviorStepIncrement()
+    {
+        return step_increment;
+    }
+
+    /** @return Behavior 'page_increment' */
+    public WidgetProperty<Double> behaviorPageIncrement()
+    {
+        return page_increment;
     }
 
 }
