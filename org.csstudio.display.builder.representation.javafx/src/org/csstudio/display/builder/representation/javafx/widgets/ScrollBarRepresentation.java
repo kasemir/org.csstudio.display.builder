@@ -41,6 +41,8 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
         model_widget.behaviorLimitsFromPV().addUntypedPropertyListener(this::limitsChanged);
         model_widget.behaviorMinimum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.behaviorMaximum().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.displayHorizontal().addPropertyListener(this::sizeChanged);
+
         //Since both the widget's PV value and the ScrollBar node's value property might be
         //written to independently during runtime, both must be listened to. Since ChangeListeners
         //only fire with an actual change, the listeners will not endlessly trigger each other.
@@ -81,24 +83,15 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
         toolkit.scheduleUpdate(this);
     }
 
-    private double clamp(double min, double val, double max)
+    private void nodeValueChanged(ObservableValue<? extends Number> property, Number old_value, Number new_value)
     {
-        if (val < min) return min;
-        if (val > max) return max;
-        return val;
+        toolkit.fireWrite(model_widget, new_value);
     }
 
     private void valueChanged(final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value)
     {
-        VType vtype = new_value != null ? new_value : model_widget.runtimeValue().getValue();
-        jfx_node.setValue(clamp(min, VTypeUtil.getValueNumber(vtype).doubleValue(), max));
         dirty_value.mark();
         toolkit.scheduleUpdate(this);
-    }
-
-    private void nodeValueChanged(ObservableValue<? extends Number> property, Number old_value, Number new_value)
-    {
-        toolkit.fireWrite(model_widget, new_value);
     }
 
     @Override
@@ -111,6 +104,13 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
             jfx_node.setPrefWidth(model_widget.positionWidth().getValue());
             jfx_node.setMin(min);
             jfx_node.setMax(max);
+        }
+        if (dirty_value.checkAndClear())
+        {
+            double newval = VTypeUtil.getValueNumber(model_widget.runtimeValue().getValue()).doubleValue();
+            if (newval < min) newval = min;
+            else if (newval > max) newval = max;
+            jfx_node.setValue(newval);
         }
     }
 
