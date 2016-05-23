@@ -6,6 +6,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.diirt.vtype.VType;
 
 /** Widget that can read/write numeric PV via scrollbar
  *  @author Amanda Carpenter
@@ -48,6 +50,7 @@ public class ScrollBarWidget extends VisibleWidget
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_value_tip", Messages.ScrollBar_ShowValueTip);
 
     private volatile WidgetProperty<String> pv_name;
+    private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<Double> minimum;
     private volatile WidgetProperty<Double> maximum;
     private volatile WidgetProperty<Boolean> limits_from_pv;
@@ -69,9 +72,10 @@ public class ScrollBarWidget extends VisibleWidget
     {
         super.defineProperties(properties);
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
+        properties.add(value = runtimeValue.createProperty(this, null));
         properties.add(displayBorderAlarmSensitive.createProperty(this, true));
         properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
-        properties.add(maximum = behaviorMaximum.createProperty(this, 0.0));
+        properties.add(maximum = behaviorMaximum.createProperty(this, 100.0));
         properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, false));
         properties.add(horizontal = displayHorizontal.createProperty(this, true));
         properties.add(show_value_tip = displayShowValueTip.createProperty(this, true));
@@ -81,6 +85,12 @@ public class ScrollBarWidget extends VisibleWidget
     public WidgetProperty<String> behaviorPVName()
     {
         return pv_name;
+    }
+
+    /** @return Runtime 'value' */
+    public WidgetProperty<VType> runtimeValue()
+    {
+        return value;
     }
 
     /** @return Behavior 'minimum' */
