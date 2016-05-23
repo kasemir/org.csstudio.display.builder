@@ -43,6 +43,9 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
         model_widget.behaviorMinimum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.behaviorMaximum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.displayHorizontal().addPropertyListener(this::styleChanged);
+        model_widget.behaviorBarLength().addPropertyListener(this::styleChanged);
+        model_widget.behaviorStepIncrement().addPropertyListener(this::styleChanged);
+        model_widget.behaviorPageIncrement().addPropertyListener(this::styleChanged);
 
         //Since both the widget's PV value and the ScrollBar node's value property might be
         //written to independently during runtime, both must be listened to. Since ChangeListeners
@@ -108,6 +111,9 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
             jfx_node.setMin(min);
             jfx_node.setMax(max);
             jfx_node.setOrientation(model_widget.displayHorizontal().getValue() ? Orientation.HORIZONTAL : Orientation.VERTICAL);
+            jfx_node.setUnitIncrement(model_widget.behaviorStepIncrement().getValue());
+            jfx_node.setBlockIncrement(model_widget.behaviorPageIncrement().getValue());
+            jfx_node.setVisibleAmount(model_widget.behaviorBarLength().getValue());
         }
         if (dirty_value.checkAndClear())
         {
