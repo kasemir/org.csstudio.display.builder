@@ -1,5 +1,7 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.util.function.Supplier;
+
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
@@ -18,6 +20,7 @@ import javafx.scene.input.KeyEvent;
  */
 //TODO: represent show_value_tip
 //value tip: when incr/decr, appears "behind" (left/right by incr/decr)
+//TODO: Investigate error: "Invalid setting for pv_name_patches" after "Connecting Widget 'Scrollbar' (scrollbar) to loc://boolTest"
 public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, ScrollBarWidget>
 {
     private final DirtyFlag dirty_style = new DirtyFlag();
@@ -31,19 +34,21 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
     {
         ScrollBar scrollbar = new ScrollBar();
         scrollbar.setOrientation(model_widget.displayHorizontal().getValue() ? Orientation.VERTICAL : Orientation.HORIZONTAL);
-        //TODO: fix this keyboard junk
         scrollbar.setFocusTraversable(true);
         scrollbar.setOnKeyPressed((final KeyEvent event) ->
         {
             switch (event.getCode())
             {
-            case LEFT: case DOWN: jfx_node.decrement();
+            case DOWN: jfx_node.decrement();
                 break;
-            case RIGHT: case UP: jfx_node.increment();
+            case UP: jfx_node.increment();
                 break;
-            case PAGE_UP: jfx_node.adjustValue(jfx_node.getValue()+1); //blockIncrement is used
+            case PAGE_UP:
+                //The expression needs to be re-evaluated for safety in case of changes
+                jfx_node.adjustValue(blockUp.get());
                 break;
-            case PAGE_DOWN: jfx_node.adjustValue(jfx_node.getValue()-1); //blockIncrement is used
+            case PAGE_DOWN:
+                jfx_node.adjustValue(blockDown.get());
                 break;
             default: break;
             }
@@ -52,6 +57,9 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
 
         return scrollbar;
     }
+
+    private Supplier<Double> blockUp = ()->jfx_node.getValue()+jfx_node.getBlockIncrement();
+    private Supplier<Double> blockDown = ()->jfx_node.getValue()-jfx_node.getBlockIncrement();
 
     @Override
     protected void registerListeners()
