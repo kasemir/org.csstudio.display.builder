@@ -11,11 +11,13 @@ import org.diirt.vtype.ValueUtil;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.input.KeyEvent;
 
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
  */
-//TODO: add support for keyboard value change while in focus
+//TODO: represent show_value_tip
+//value tip: when incr/decr, appears "behind" (left/right by incr/decr)
 public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, ScrollBarWidget>
 {
     private final DirtyFlag dirty_style = new DirtyFlag();
@@ -29,6 +31,23 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
     {
         ScrollBar scrollbar = new ScrollBar();
         scrollbar.setOrientation(model_widget.displayHorizontal().getValue() ? Orientation.VERTICAL : Orientation.HORIZONTAL);
+        //TODO: fix this keyboard junk
+        scrollbar.setFocusTraversable(true);
+        scrollbar.setOnKeyPressed((final KeyEvent event) ->
+        {
+            switch (event.getCode())
+            {
+            case LEFT: case DOWN: jfx_node.decrement();
+                break;
+            case RIGHT: case UP: jfx_node.increment();
+                break;
+            case PAGE_UP: jfx_node.adjustValue(jfx_node.getValue()+1); //blockIncrement is used
+                break;
+            case PAGE_DOWN: jfx_node.adjustValue(jfx_node.getValue()-1); //blockIncrement is used
+                break;
+            default: break;
+            }
+        });
         limitsChanged(null, null, null);
 
         return scrollbar;
