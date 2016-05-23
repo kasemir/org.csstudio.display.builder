@@ -87,5 +87,9 @@
             class="org.csstudio.display.builder.representation.javafx.widgets.ByteMonitorRepresentation"
             type="byte_monitor">
       </representation>
+      <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.ScrollBarRepresentation"
+            type="scrollbar">
+      </representation>
    </extension>
 </plugin>
