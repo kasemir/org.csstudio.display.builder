@@ -51,6 +51,7 @@
     <width>30</width>
     <height>133</height>
     <horizontal>false</horizontal>
+    <scale_format># xx</scale_format>
     <pv_name>loc://boolTest</pv_name>
   </widget>
 </display>

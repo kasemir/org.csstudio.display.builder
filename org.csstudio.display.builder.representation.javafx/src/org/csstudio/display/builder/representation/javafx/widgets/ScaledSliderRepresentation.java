@@ -1,5 +1,7 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.text.DecimalFormat;
+
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
@@ -19,6 +21,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
+import javafx.util.converter.FormatStringConverter;
 
 public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, ScaledSliderWidget>
 //TODO: consider placing under a ScaledWidgetBase superclass (with ProgressBar) or an IncrementedControl (with scrollbar, spinner)
@@ -34,6 +37,7 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
     private volatile double stepIncrement = 1.0;
     private volatile int tickCount = 20;
 
+    @SuppressWarnings("unchecked")
     @Override
     protected Slider createJFXNode() throws Exception
     {
@@ -61,8 +65,8 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
         limitsChanged(null, null, null);
         styleChanged(null, null, null);
         slider.setValue(value);
-        slider.setShowTickLabels(model_widget.behaviorShowScale().getValue());
-        slider.setShowTickMarks(model_widget.behaviorShowMinorTicks().getValue());
+        slider.setShowTickLabels(model_widget.displayShowScale().getValue());
+        slider.setShowTickMarks(model_widget.displayShowMinorTicks().getValue());
         slider.setSnapToTicks(true);
 
         return slider;
@@ -85,8 +89,9 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
         model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayFillColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.behaviorShowScale().addUntypedPropertyListener(this::styleChanged);
-        model_widget.behaviorShowMinorTicks().addUntypedPropertyListener(this::styleChanged);
+        model_widget.displayShowScale().addUntypedPropertyListener(this::styleChanged);
+        model_widget.displayShowMinorTicks().addUntypedPropertyListener(this::styleChanged);
+        model_widget.displayScaleFormat().addUntypedPropertyListener(this::styleChanged);
 
         //Since both the widget's PV value and the JFX node's value property might be
         //written to independently during runtime, both must be listened to. Since ChangeListeners
@@ -199,8 +204,10 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
             final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
             jfx_node.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
             //jfx_node.setFont(JFXUtil.convert(model_widget.displayScaleFont().getValue()));
-            jfx_node.setShowTickLabels(model_widget.behaviorShowScale().getValue());
-            jfx_node.setShowTickMarks(model_widget.behaviorShowMinorTicks().getValue());
+            final String format = model_widget.displayScaleFormat().getValue();
+            jfx_node.setLabelFormatter(new FormatStringConverter<Double>(new DecimalFormat(format)));
+            jfx_node.setShowTickLabels(model_widget.displayShowScale().getValue());
+            jfx_node.setShowTickMarks(model_widget.displayShowMinorTicks().getValue());
         }
     }
 }

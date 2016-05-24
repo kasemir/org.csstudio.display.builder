@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.Arrays;
@@ -90,6 +91,10 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     public static final WidgetPropertyDescriptor<Boolean> displayShowMinorTicks =
             newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_minor_ticks", Messages.WidgetProperties_ShowMinorTicks);
 
+    /** Display 'scale_format': Formatter for scale labels; follows java DecimalFormat */
+    public static final WidgetPropertyDescriptor<String> displayScaleFormat =
+            newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "scale_format", Messages.WidgetProperties_ScaleFormat);
+
     private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<Boolean> horizontal;
     private volatile WidgetProperty<Double> page_increment;
@@ -107,6 +112,7 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     private volatile WidgetProperty<WidgetFont> scale_font;
     private volatile WidgetProperty<Boolean> show_scale;
     private volatile WidgetProperty<Boolean> show_minor_ticks;
+    private volatile WidgetProperty<String> scale_format;
 
     public ScaledSliderWidget()
     {
@@ -137,6 +143,7 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         properties.add(major_tick_step_hint = displayMajorTickStepHint.createProperty(this, 20));
         properties.add(show_scale = displayShowScale.createProperty(this, true));
         properties.add(show_minor_ticks = displayShowMinorTicks.createProperty(this, true));
+        properties.add(scale_format = displayScaleFormat.createProperty(this, ""));
     }
 
     /** @return Runtime 'value' */
@@ -212,15 +219,21 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     }
 
     /** @return Display 'show_scale' */
-    public WidgetProperty<Boolean> behaviorShowScale()
+    public WidgetProperty<Boolean> displayShowScale()
     {
         return show_scale;
     }
 
     /** @return Display 'show_minor_ticks' */
-    public WidgetProperty<Boolean> behaviorShowMinorTicks()
+    public WidgetProperty<Boolean> displayShowMinorTicks()
     {
         return show_minor_ticks;
+    }
+
+    /** @return Display 'scale_format' */
+    public WidgetProperty<String> displayScaleFormat()
+    {
+        return scale_format;
     }
 
 }
