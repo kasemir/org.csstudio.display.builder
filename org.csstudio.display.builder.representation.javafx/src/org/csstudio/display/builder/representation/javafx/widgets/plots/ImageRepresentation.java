@@ -21,7 +21,9 @@ import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.ImagePlot;
+import org.diirt.util.array.ArrayShort;
 import org.diirt.util.array.ListNumber;
+import org.diirt.vtype.VImage;
 import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 
@@ -127,6 +129,20 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
             final ListNumber numbers = ((VNumberArray) value).getData();
             image_plot.setValue(model_widget.behaviorDataWidth().getValue(),
                                 model_widget.behaviorDataHeight().getValue(), numbers);
+        }
+        else if (value instanceof VImage)
+        {
+            final VImage image = (VImage) value;
+            final short[] data = new short[image.getData().length];
+            for (int i=0; i<data.length; ++i)
+            {
+                final byte b = image.getData()[i];
+                if (b < 0)
+                    data[i] = (short) (b + 128);
+                else
+                    data[i] = b;
+            }
+            image_plot.setValue(image.getWidth(), image.getHeight(), new ArrayShort(data, true));
         }
         else if (value != null)
             logger.log(Level.WARNING, "Cannot draw image from {0}", value);
