@@ -147,7 +147,12 @@ public class NewDisplayWizardPage extends WizardPage
             return;
         }
         int dotLoc = fileName.lastIndexOf('.');
-        if (dotLoc != -1)
+        if (dotLoc < 0)
+        {
+            updateStatus(Messages.NewDisplay_MissingExtensionError);
+            return;
+        }
+        else
         {
             final String ext = fileName.substring(dotLoc + 1);
             if (ext.equalsIgnoreCase(Messages.NewDisplay_Extension) == false)
