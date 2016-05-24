@@ -11,14 +11,12 @@ import org.diirt.vtype.ValueUtil;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
 
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
  */
-//TODO: represent show_value_tip
-//value tip: when incr/decr, appears "behind" (left/right by incr/decr)
-//TODO: Investigate error: "Invalid setting for pv_name_patches" after "Connecting Widget 'Scrollbar' (scrollbar) to loc://boolTest"
 public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, ScrollBarWidget>
 {
     private final DirtyFlag dirty_style = new DirtyFlag();
@@ -33,6 +31,7 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
         ScrollBar scrollbar = new ScrollBar();
         scrollbar.setOrientation(model_widget.displayHorizontal().getValue() ? Orientation.VERTICAL : Orientation.HORIZONTAL);
         scrollbar.setFocusTraversable(true);
+        scrollbar.setTooltip(new Tooltip(""));
         scrollbar.setOnKeyPressed((final KeyEvent event) ->
         {
             switch (event.getCode())
@@ -43,7 +42,7 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
                 break;
             case PAGE_UP:
                 //In theory, this may be unsafe; i.e. if max/min are changed
-                //at runtime.
+                //after node creation.
                 jfx_node.adjustValue(max);
                 break;
             case PAGE_DOWN:
@@ -114,6 +113,8 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
 
     private void nodeValueChanged(ObservableValue<? extends Number> property, Number old_value, Number new_value)
     {
+        if (model_widget.displayShowValueTip().getValue())
+            jfx_node.getTooltip().setText(""+new_value);
         toolkit.fireWrite(model_widget, new_value);
     }
 

@@ -62,7 +62,6 @@ public class ScrollBarWidget extends VisibleWidget
     public static final WidgetPropertyDescriptor<Double> behaviorPageIncrement =
         newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "page_increment", Messages.Increments_PageIncrement);
 
-    private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<Double> minimum;
     private volatile WidgetProperty<Double> maximum;
@@ -84,7 +83,7 @@ public class ScrollBarWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
+        properties.add(behaviorPVName.createProperty(this, ""));
         properties.add(value = runtimeValue.createProperty(this, null));
         properties.add(displayBorderAlarmSensitive.createProperty(this, true));
         properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
@@ -95,12 +94,6 @@ public class ScrollBarWidget extends VisibleWidget
         properties.add(bar_length = behaviorBarLength.createProperty(this, 10.0));
         properties.add(step_increment = behaviorStepIncrement.createProperty(this, 1.0));
         properties.add(page_increment = behaviorPageIncrement.createProperty(this, 10.0));
-    }
-
-    /** @return Behavior 'pv_name' */
-    public WidgetProperty<String> behaviorPVName()
-    {
-        return pv_name;
     }
 
     /** @return Runtime 'value' */
