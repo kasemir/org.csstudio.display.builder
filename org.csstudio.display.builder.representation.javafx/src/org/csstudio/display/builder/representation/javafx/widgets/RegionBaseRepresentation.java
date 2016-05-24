@@ -146,8 +146,12 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
         if (alarm_sensitive_border_prop.getValue())
         {
             if (value instanceof Alarm)
+                // Have alarm info
                 severity = ((Alarm)value).getAlarmSeverity();
-            else
+            else if (value instanceof VType)
+                // VType that doesn't provide alarm, always OK
+                severity = AlarmSeverity.NONE;
+            else// null
                 severity = AlarmSeverity.UNDEFINED;
         }
         else
