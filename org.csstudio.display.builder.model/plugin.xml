@@ -241,6 +241,9 @@
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/byte_monitor.png"
             name="%ByteMonitorWidget_Name"
             type="byte_monitor">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.bytemonitor">
+         </alternates>
       </widget>
       <widget
             category="CONTROL"
@@ -249,6 +252,20 @@
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/scrollbar.png"
             name="%ScrollBarWidget_Name"
             type="scrollbar">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.scrollbar">
+         </alternates>
+      </widget>
+      <widget
+            category="CONTROL"
+            class="org.csstudio.display.builder.model.widgets.ScaledSliderWidget"
+            description="%ScaledSliderWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/scaled_slider.gif"
+            name="%ScaledSliderWidget_Name"
+            type="scaledslider">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.scaledslider">
+         </alternates>
       </widget>
    </extension>
 
