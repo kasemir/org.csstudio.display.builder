@@ -49,9 +49,9 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
         {
             switch (event.getCode())
             {
-            case DOWN: jfx_node.adjustValue(value+stepIncrement);
+            case DOWN: case LEFT: jfx_node.adjustValue(value-stepIncrement);
                 break;
-            case UP: jfx_node.adjustValue(value-stepIncrement);
+            case UP: case RIGHT: jfx_node.adjustValue(value+stepIncrement);
                 break;
             case PAGE_UP:
                 jfx_node.decrement();
@@ -71,9 +71,6 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
 
         return slider;
     }
-
-    //Supplier<Double> stepUpValue = ()->value+stepIncrement;
-    //Supplier<Double> stepDownValue = ()->value-stepIncrement;
 
     @Override
     protected void registerListeners()
