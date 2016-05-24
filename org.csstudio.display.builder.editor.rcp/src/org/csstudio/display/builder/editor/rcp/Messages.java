@@ -31,6 +31,7 @@ public class Messages extends NLS
     public static String NewDisplay_InitialName;
     public static String NewDisplay_InvalidFileName;
     public static String NewDisplay_MissingContainer;
+    public static String NewDisplay_MissingExtensionError;
     public static String NewDisplay_MissingFileName;
     public static String NewDisplay_NotWriteable;
     public static String NewDisplay_Title;
