@@ -3,58 +3,67 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
-import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
+import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.Display;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueUtil;
 
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.scene.control.ScrollBar;
+import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 
-/** Creates JavaFX item for model widget
- *  @author Amanda Carpenter
- */
-public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, ScrollBarWidget>
+//TODO: color tick labels (foreground)
+public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, ScaledSliderWidget>
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_value = new DirtyFlag();
+    private final DirtyFlag dirty_style = new DirtyFlag();
 
     private volatile double min = 0.0;
     private volatile double max = 100.0;
+    private volatile double value = 50.0;
+    private volatile double stepIncrement = 1.0;
 
     @Override
-    protected ScrollBar createJFXNode() throws Exception
+    protected Slider createJFXNode() throws Exception
     {
-        ScrollBar scrollbar = new ScrollBar();
-        scrollbar.setOrientation(model_widget.displayHorizontal().getValue() ? Orientation.VERTICAL : Orientation.HORIZONTAL);
-        scrollbar.setFocusTraversable(true);
-        scrollbar.setTooltip(new Tooltip(""));
-        scrollbar.setOnKeyPressed((final KeyEvent event) ->
+        Slider slider = new Slider();
+        slider.setOrientation(model_widget.displayHorizontal().getValue() ? Orientation.VERTICAL : Orientation.HORIZONTAL);
+        slider.setFocusTraversable(true);
+        slider.setTooltip(new Tooltip(""));
+        slider.setOnKeyPressed((final KeyEvent event) ->
         {
             switch (event.getCode())
             {
-            case DOWN: jfx_node.decrement();
+            case DOWN: jfx_node.adjustValue(value+stepIncrement);
                 break;
-            case UP: jfx_node.increment();
+            case UP: jfx_node.adjustValue(value-stepIncrement);
                 break;
             case PAGE_UP:
-                //In theory, this may be unsafe; i.e. if max/min are changed
-                //after node creation.
-                jfx_node.adjustValue(max);
+                jfx_node.decrement();
                 break;
             case PAGE_DOWN:
-                jfx_node.adjustValue(min);
+                jfx_node.increment();
                 break;
             default: break;
             }
         });
         limitsChanged(null, null, null);
+        styleChanged(null, null, null);
 
-        return scrollbar;
+        return slider;
     }
+
+    //Supplier<Double> stepUpValue = ()->value+stepIncrement;
+    //Supplier<Double> stepDownValue = ()->value-stepIncrement;
 
     @Override
     protected void registerListeners()
@@ -65,11 +74,10 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
         model_widget.behaviorMinimum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.behaviorMaximum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.displayHorizontal().addPropertyListener(this::sizeChanged);
-        model_widget.behaviorBarLength().addPropertyListener(this::sizeChanged);
         model_widget.behaviorStepIncrement().addPropertyListener(this::sizeChanged);
         model_widget.behaviorPageIncrement().addPropertyListener(this::sizeChanged);
 
-        //Since both the widget's PV value and the ScrollBar node's value property might be
+        //Since both the widget's PV value and the JFX node's value property might be
         //written to independently during runtime, both must be listened to. Since ChangeListeners
         //only fire with an actual change, the listeners will not endlessly trigger each other.
         model_widget.runtimeValue().addPropertyListener(this::valueChanged);
@@ -80,6 +88,12 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_size.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+    private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -113,8 +127,7 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
 
     private void nodeValueChanged(ObservableValue<? extends Number> property, Number old_value, Number new_value)
     {
-        if (model_widget.displayShowValueTip().getValue())
-            jfx_node.getTooltip().setText(""+new_value);
+        jfx_node.getTooltip().setText(""+new_value);
         toolkit.fireWrite(model_widget, new_value);
     }
 
@@ -135,9 +148,8 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
             jfx_node.setMin(min);
             jfx_node.setMax(max);
             jfx_node.setOrientation(model_widget.displayHorizontal().getValue() ? Orientation.HORIZONTAL : Orientation.VERTICAL);
-            jfx_node.setUnitIncrement(model_widget.behaviorStepIncrement().getValue());
+            //jfx_node.setUnitIncrement(model_widget.behaviorStepIncrement().getValue());
             jfx_node.setBlockIncrement(model_widget.behaviorPageIncrement().getValue());
-            jfx_node.setVisibleAmount(model_widget.behaviorBarLength().getValue());
         }
         if (dirty_value.checkAndClear())
         {
@@ -146,6 +158,13 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
             else if (newval > max) newval = max;
             jfx_node.setValue(newval);
         }
+        if (dirty_style .checkAndClear())
+        {
+            final String color = JFXUtil.webRGB(model_widget.displayForegroundColor().getValue());
+            jfx_node.setStyle("-fx-text-fill:" + color);
+            final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
+            jfx_node.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
+            //jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+        }
     }
-
 }

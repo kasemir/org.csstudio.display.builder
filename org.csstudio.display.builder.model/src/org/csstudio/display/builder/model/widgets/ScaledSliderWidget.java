@@ -142,13 +142,13 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     }
 
     /** @return Display 'foreground' */
-    public WidgetProperty<WidgetColor> displayForeground()
+    public WidgetProperty<WidgetColor> displayForegroundColor()
     {
         return foreground;
     }
 
     /** @return Display 'background' */
-    public WidgetProperty<WidgetColor> displayBackground()
+    public WidgetProperty<WidgetColor> displayBackgroundColor()
     {
         return background;
     }

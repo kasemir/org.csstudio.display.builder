@@ -91,5 +91,9 @@
             class="org.csstudio.display.builder.representation.javafx.widgets.ScrollBarRepresentation"
             type="scrollbar">
       </representation>
+      <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.ScaledSliderRepresentation"
+            type="scaledslider">
+      </representation>
    </extension>
 </plugin>
