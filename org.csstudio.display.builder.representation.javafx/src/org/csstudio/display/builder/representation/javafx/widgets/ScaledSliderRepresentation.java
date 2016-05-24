@@ -20,8 +20,9 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 
-//TODO: color tick labels (foreground)
 public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, ScaledSliderWidget>
+//TODO: consider placing under a ScaledWidgetBase superclass (with ProgressBar) or an IncrementedControl (with scrollbar, spinner)
+    //consider also interfacing; perhaps make IncrementedControlWidget the interface
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_value = new DirtyFlag();
@@ -31,6 +32,7 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
     private volatile double max = 100.0;
     private volatile double value = 50.0;
     private volatile double stepIncrement = 1.0;
+    private volatile int tickCount = 20;
 
     @Override
     protected Slider createJFXNode() throws Exception
@@ -58,6 +60,10 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
         });
         limitsChanged(null, null, null);
         styleChanged(null, null, null);
+        slider.setValue(value);
+        slider.setShowTickLabels(model_widget.behaviorShowScale().getValue());
+        slider.setShowTickMarks(model_widget.behaviorShowMinorTicks().getValue());
+        slider.setSnapToTicks(true);
 
         return slider;
     }
@@ -76,6 +82,11 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
         model_widget.displayHorizontal().addPropertyListener(this::sizeChanged);
         model_widget.behaviorStepIncrement().addPropertyListener(this::sizeChanged);
         model_widget.behaviorPageIncrement().addPropertyListener(this::sizeChanged);
+        model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.displayFillColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.behaviorShowScale().addUntypedPropertyListener(this::styleChanged);
+        model_widget.behaviorShowMinorTicks().addUntypedPropertyListener(this::styleChanged);
 
         //Since both the widget's PV value and the JFX node's value property might be
         //written to independently during runtime, both must be listened to. Since ChangeListeners
@@ -87,6 +98,11 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
 
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        stepIncrement = model_widget.behaviorStepIncrement().getValue();
+        double increment = model_widget.behaviorStepIncrement().getValue();
+        //The node's majorTickUnit value should always be calculated from its
+        //minorTickCount in order to avoid errors caused by casting double to int.
+        tickCount = (int) (calculateTickUnit() / increment);
         dirty_size.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -121,8 +137,22 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
         min = min_val;
         max = max_val;
 
-        dirty_size.mark();
-        toolkit.scheduleUpdate(this);
+        sizeChanged(null, null, null);
+    }
+
+    //TODO: link this properly
+    /** Method for calculating the node's majorTickUnit value. The actual value should
+     *  be calculated from the minorTickCount (tick count per major unit) to maintain correct
+     *  increments for snapping/stepping between minor ticks.
+     */
+    private double calculateTickUnit()
+    {
+        final Integer mtsh = model_widget.displayMajorTickStepHint().getValue();
+        final int length = (model_widget.displayHorizontal().getValue() ?
+                        model_widget.positionWidth().getValue() :
+                        model_widget.positionHeight().getValue());
+        final double range = max - min;
+        return (range > 0 ? range : 100) * (mtsh != null ? mtsh : 20) / length;
     }
 
     private void nodeValueChanged(ObservableValue<? extends Number> property, Number old_value, Number new_value)
@@ -143,12 +173,14 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
         super.updateChanges();
         if (dirty_size.checkAndClear())
         {
+            int save_count = tickCount;
             jfx_node.setPrefHeight(model_widget.positionHeight().getValue());
             jfx_node.setPrefWidth(model_widget.positionWidth().getValue());
             jfx_node.setMin(min);
             jfx_node.setMax(max);
             jfx_node.setOrientation(model_widget.displayHorizontal().getValue() ? Orientation.HORIZONTAL : Orientation.VERTICAL);
-            //jfx_node.setUnitIncrement(model_widget.behaviorStepIncrement().getValue());
+            jfx_node.setMinorTickCount(save_count);
+            jfx_node.setMajorTickUnit(save_count * model_widget.behaviorStepIncrement().getValue());
             jfx_node.setBlockIncrement(model_widget.behaviorPageIncrement().getValue());
         }
         if (dirty_value.checkAndClear())
@@ -157,14 +189,18 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
             if (newval < min) newval = min;
             else if (newval > max) newval = max;
             jfx_node.setValue(newval);
+            value = newval;
         }
-        if (dirty_style .checkAndClear())
+        if (dirty_style.checkAndClear())
         {
+            //TODO: properly represent fg color, font
             final String color = JFXUtil.webRGB(model_widget.displayForegroundColor().getValue());
-            jfx_node.setStyle("-fx-text-fill:" + color);
+            jfx_node.setStyle("-fx-text-fill:" + color + ";-fx-stroke:" + color); //this doesn't do anything
             final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
             jfx_node.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
-            //jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+            //jfx_node.setFont(JFXUtil.convert(model_widget.displayScaleFont().getValue()));
+            jfx_node.setShowTickLabels(model_widget.behaviorShowScale().getValue());
+            jfx_node.setShowTickMarks(model_widget.behaviorShowMinorTicks().getValue());
         }
     }
 }

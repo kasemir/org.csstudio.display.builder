@@ -6,7 +6,7 @@
   <widget type="scrollbar" version="2.0.0">
     <name>Scrollbar</name>
     <x>41</x>
-    <y>130</y>
+    <y>160</y>
     <show_value_tip>false</show_value_tip>
     <pv_name>loc://boolTest</pv_name>
     <maximum>1000.0</maximum>
@@ -14,8 +14,8 @@
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry</name>
-    <x>161</x>
-    <y>161</y>
+    <x>40</x>
+    <y>100</y>
     <pv_name>loc://boolTest</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
@@ -39,9 +39,18 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
-    <x>41</x>
-    <y>101</y>
+    <x>40</x>
+    <y>130</y>
     <text>Scrollbar</text>
     <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="scaledslider" version="2.0.0">
+    <name>Scaled Slider</name>
+    <x>81</x>
+    <y>201</y>
+    <width>30</width>
+    <height>133</height>
+    <horizontal>false</horizontal>
+    <pv_name>loc://boolTest</pv_name>
   </widget>
 </display>
