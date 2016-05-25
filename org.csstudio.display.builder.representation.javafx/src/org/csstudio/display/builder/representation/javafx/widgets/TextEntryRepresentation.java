@@ -57,7 +57,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
         {
             switch (event.getCode())
             {
-            case ESCAPE: case TAB:
+            case ESCAPE:
                 // Revert original value, leave active state
                 restore();
                 active = false;
