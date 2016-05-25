@@ -13,10 +13,12 @@ import org.diirt.vtype.VNumber;
 import org.diirt.vtype.VType;
 
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -27,72 +29,153 @@ import javafx.util.StringConverter;
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
  */
-//This needs more work. Lots more work.
-//TODO: handle changes to min/max
 @SuppressWarnings("nls")
-public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<VNumber>, SpinnerWidget>
+public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<String>, SpinnerWidget>
 {
+    /** Is user actively editing the content, so updates should be suppressed? */
+    private volatile boolean active = false;
+
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
 
     protected volatile String value_text = "<?>";
-    protected volatile Double max = 10.0;
-    protected volatile Double min = 0.0;
+    protected volatile VType value = null;
 
     @Override
-    protected final Spinner<VNumber> createJFXNode() throws Exception
+    protected final Spinner<String> createJFXNode() throws Exception
     {
-        final Spinner<VNumber> spinner = new Spinner<VNumber>();
+        final Spinner<String> spinner = new Spinner<String>();
         spinner.setValueFactory(createSVF());
         styleChanged(null, null, null);
         spinner.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         spinner.setEditable(true);
+        spinner.getEditor().setOnKeyPressed((final KeyEvent event) ->
+        {
+            switch (event.getCode())
+            {
+            case ESCAPE: //TODO: fix: escape key event not sensed
+                // Revert original value, leave active state
+                restore();
+                active = false;
+                break;
+            case ENTER:
+                // Submit value, leave active state
+                submit();
+                active = false;
+                break;
+            default:
+                // Any other key results in active state
+                active = true;
+            }
+        });
+        /*spinner.setOnKeyPressed((final KeyEvent event)->
+        {
+            if (spinner.isFocused())
+            {
+                switch(event.getCode())
+                {
+                case UP: jfx_node.getValueFactory().increment(1);
+                    break;
+                case DOWN: jfx_node.getValueFactory().decrement(1);
+                    break;
+                case PAGE_UP:
+                    break;
+                case PAGE_DOWN:
+                    break;
+                default:
+                    break;
+                }
+            }
+        });*/
+
         return spinner;
     }
 
-    private SpinnerValueFactory<VNumber> createSVF()
+    /** Restore representation to last known value,
+     *  replacing what user might have entered
+     */
+    private void restore()
     {
-        SpinnerValueFactory<VNumber> svf = new VNumberSpinnerValueFactory();
-        svf.setValue((VNumber) model_widget.runtimeValue().getValue());
+        //The value factory is updated based on the old value.
+        jfx_node.getValueFactory().setValue(value_text);
+        ((TextSpinnerValueFactory)jfx_node.getValueFactory()).setVTypeValue(value);
+    }
+
+    /** Submit value entered by user */
+    private void submit()
+    {
+        //The value factory retains the old values, and will be updated as scheduled below.
+        final String text = jfx_node.getEditor().getText();
+        Object value =
+                FormatOptionHandler.parse(model_widget.runtimeValue().getValue(), text);
+        double min = model_widget.behaviorMinimum().getValue();
+        double max = model_widget.behaviorMaximum().getValue();
+        if (value instanceof Number)
+        {
+            if (((Number)value).doubleValue() < min)
+                value = min;
+            else if (((Number)value).doubleValue() > max)
+                value = max;
+        }
+        logger.log(Level.FINE, "Writing '" + text + "' as " + value + " (" + value.getClass().getName() + ")");
+        toolkit.fireWrite(model_widget, value);
+
+        // Wrote value. Expected is either
+        // a) PV receives that value, PV updates to
+        //    submitted value or maybe a 'clamped' value
+        // --> We'll receive contentChanged() and update the value factory.
+        // b) PV doesn't receive the value and never sends
+        //    an update. The value factory retains the old value,
+        // --> Schedule an update to the new value.
+        //
+        // This could result in a little flicker:
+        // User enters "new_value".
+        // We send that, but retain "old_value" to handle case b)
+        // PV finally sends "new_value", and we show that.
+        //
+        // In practice, this rarely happens because we only schedule an update.
+        // By the time it executes, we already have case a.
+        // If it does turn into a problem, could introduce toolkit.scheduleDelayedUpdate()
+        // so that case b) only restores the old 'value_text' after some delay,
+        // increasing the chance of a) to happen.
+        dirty_content.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+    private SpinnerValueFactory<String> createSVF()
+    {
+        SpinnerValueFactory<String> svf = new TextSpinnerValueFactory();
+        svf.setValue(value_text);
         return svf;
     }
 
-    private class VNumberSpinnerValueFactory extends SpinnerValueFactory<VNumber>
+    private class TextSpinnerValueFactory extends SpinnerValueFactory<String>
     {
         // Constructors
-        VNumberSpinnerValueFactory()
+        TextSpinnerValueFactory()
         {
             this(model_widget.behaviorMinimum().getDefaultValue(),
                  model_widget.behaviorMaximum().getDefaultValue(),
                  model_widget.behaviorStepIncrement().getDefaultValue());
         }
 
-        VNumberSpinnerValueFactory(double min, double max, double stepIncrement)
+        TextSpinnerValueFactory(double min, double max, double stepIncrement)
         {
             setStepIncrement(stepIncrement);
             setMin(min);
             setMax(max);
-            setConverter(new StringConverter<VNumber>()
+            setConverter(new StringConverter<String>()
             {
                 @Override
-                public String toString(VNumber object)
+                public String toString(String object)
                 {
-                    return computeText(object);
+                    return object;
                 }
 
                 @Override
-                public VNumber fromString(String text)
+                public String fromString(String text)
                 {
-                    value_text = text;
-                    final Object parsed = FormatOptionHandler.parse(model_widget.runtimeValue().getValue(), text);
-                    logger.log(Level.FINE, "Writing '" + text + "' as " + parsed + " (" + parsed.getClass().getName() + ")");
-                    toolkit.fireWrite(model_widget, parsed);
-                    //The VNumber returned below may not reflect the text. However, the request to
-                    //write has two outcomes:
-                    //(a) The write is successful, causing contentChanged() to be called
-                    //(b) The write fails. Thus, we schedule an update to restore the old text.
-                    scheduleContentUpdate();
-                    return (VNumber) model_widget.runtimeValue().getValue();
+                    return text;
                 }
             });
         }
@@ -149,27 +232,67 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<VNum
             return max;
         }
 
+        //TODO: Is really better to have this separate?
+        private ObjectPropertyBase<VType> vtypeValue = new ObjectPropertyBase<VType>()
+        {
+            @Override
+            public Object getBean()
+            {
+                return null; //should return the SpinnerValueFactory, perhaps, but not needed here
+            }
+            @Override
+            public String getName()
+            {
+                return "vtypeValue";
+            }
+
+        };
+        public final void setVTypeValue(VType value)
+        {
+            vtypeValue.set(value);
+        }
+        public final VType getVTypeValue()
+        {
+            return vtypeValue.get();
+        }
+        /**
+         * Sets the associated VType value.
+         */
+        //implement if needed: public final ObjectPropertyBase<VType> vtypeValueProperty()
+
         // Increment and decrement
         @Override
         public void decrement(int steps)
         {
-            double value = this.getValue().getValue().doubleValue();
-            if (Double.isNaN(value) || Double.isInfinite(value))
-                return;
+            double value = computeDouble(getVTypeValue());
+            if (Double.isNaN(value) || Double.isInfinite(value)) return;
             double result = value - steps*getStepIncrement();
-            if (result <= getMax() && result >= getMin())
-                toolkit.fireWrite(model_widget, result);
+            if (result < getMin()) result = getMin();
+            else if (result > getMax()) result = getMax();
+            toolkit.fireWrite(model_widget, result);
         }
 
         @Override
         public void increment(int steps)
         {
-            double value = this.getValue().getValue().doubleValue();
-            if (Double.isNaN(value) || Double.isInfinite(value))
-                return;
+            Double value = computeDouble(getVTypeValue());
+            if (Double.isNaN(value) || Double.isInfinite(value)) return;
             double result = value + steps*getStepIncrement();
+            if (result < getMin()) result = getMin();
+            else if (result > getMax()) result = getMax();
             toolkit.fireWrite(model_widget, result);
         }
+
+        private double computeDouble(VType vtype)
+        {
+            if (!(vtype instanceof VNumber))
+            {
+                scheduleContentUpdate();
+                return Double.NaN;
+            }
+            return ((VNumber)vtype).getValue().doubleValue();
+        }
+
     };
 
     /** @param value Current value of PV
@@ -196,14 +319,16 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<VNum
         model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
 
-        model_widget.behaviorStepIncrement().addUntypedPropertyListener(this::incrementChanged);
+        model_widget.behaviorStepIncrement().addUntypedPropertyListener(this::behaviorChanged);
+        model_widget.behaviorMinimum().addUntypedPropertyListener(this::behaviorChanged);
+        model_widget.behaviorMaximum().addUntypedPropertyListener(this::behaviorChanged);
 
         model_widget.displayFormat().addUntypedPropertyListener(this::contentChanged);
         model_widget.displayPrecision().addUntypedPropertyListener(this::contentChanged);
         model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
 
         contentChanged(null, null, null);
-        incrementChanged(null, null, null);
+        behaviorChanged(null, null, null);
    }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -212,23 +337,27 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<VNum
         toolkit.scheduleUpdate(this);
     }
 
-    private void incrementChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    private void behaviorChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        ( (VNumberSpinnerValueFactory)jfx_node.getValueFactory() )
-            .setStepIncrement(model_widget.behaviorStepIncrement().getValue());
+        TextSpinnerValueFactory factory = (TextSpinnerValueFactory)jfx_node.getValueFactory();
+        factory.setStepIncrement(model_widget.behaviorStepIncrement().getValue());
+        factory.setMin(model_widget.behaviorMinimum().getValue());
+        factory.setMax(model_widget.behaviorMaximum().getValue());
     }
 
 
     private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        value_text = computeText(model_widget.runtimeValue().getValue());
+        value = model_widget.runtimeValue().getValue();
+        value_text = computeText(value);
         scheduleContentUpdate();
     }
 
-    protected void scheduleContentUpdate()
+    private void scheduleContentUpdate()
     {
         dirty_content.mark();
-        toolkit.scheduleUpdate(this);
+        if (!active)
+            toolkit.scheduleUpdate(this);
     }
 
     @Override
@@ -254,9 +383,9 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<VNum
         }
         if (dirty_content.checkAndClear())
         {
-            VType vtype = model_widget.runtimeValue().getValue();
-            if (vtype instanceof VNumber)
-                jfx_node.getValueFactory().setValue((VNumber) vtype);
+            ( (TextSpinnerValueFactory)jfx_node.getValueFactory() ).setVTypeValue(value);
+            jfx_node.getValueFactory().setValue(value_text);
+
         }
     }
 }
