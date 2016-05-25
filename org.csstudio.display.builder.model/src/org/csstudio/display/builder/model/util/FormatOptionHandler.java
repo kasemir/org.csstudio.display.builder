@@ -21,6 +21,7 @@ import org.diirt.vtype.Display;
 import org.diirt.vtype.VDouble;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VEnumArray;
+import org.diirt.vtype.VImage;
 import org.diirt.vtype.VNumber;
 import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VString;
@@ -102,6 +103,11 @@ public class FormatOptionHandler
         }
         else if (value instanceof VStringArray)
             return StringList.join(((VStringArray)value).getData());
+        else if (value instanceof VImage)
+        {
+            final VImage image = (VImage) value;
+            return "VImage(" + image.getWidth() + " x " + image.getHeight() + ")";
+        }
 
         return "<" + value.getClass().getName() + ">";
     }

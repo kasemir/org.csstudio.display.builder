@@ -16,17 +16,12 @@
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
     <y>41</y>
-    <width>441</width>
-    <height>100</height>
-    <text>Displays an image PV.
-
-For Channel Access, this needs to be a waveform that contains
-the pixel values starting with the top-left pixel,
-followed by the pixels of the top row, then the second row and so on.</text>
+    <width>181</width>
+    <text>Displays an image PV.</text>
   </widget>
   <widget type="image" version="2.0.0">
     <name>Image</name>
-    <y>151</y>
+    <y>71</y>
     <width>291</width>
     <height>299</height>
     <color_bar>
@@ -71,7 +66,7 @@ followed by the pixels of the top row, then the second row and so on.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
-    <y>501</y>
+    <y>421</y>
     <width>271</width>
     <height>120</height>
     <text>Default; perceptually uniform.
@@ -87,7 +82,7 @@ impacts on overall perception. </text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
-    <y>471</y>
+    <y>391</y>
     <width>171</width>
     <text>'Viridis' Color Map</text>
     <font>
@@ -98,7 +93,7 @@ impacts on overall perception. </text>
   <widget type="image" version="2.0.0">
     <name>Image_1</name>
     <x>331</x>
-    <y>151</y>
+    <y>71</y>
     <width>291</width>
     <height>299</height>
     <color_map>
@@ -147,7 +142,7 @@ impacts on overall perception. </text>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
     <x>331</x>
-    <y>471</y>
+    <y>391</y>
     <width>171</width>
     <text>'Jet' Color Map</text>
     <font>
@@ -158,7 +153,7 @@ impacts on overall perception. </text>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
     <x>331</x>
-    <y>501</y>
+    <y>421</y>
     <width>320</width>
     <height>120</height>
     <text>Example for alternate color map; colorful.
@@ -172,7 +167,7 @@ the value range.</text>
   </widget>
   <widget type="image" version="2.0.0">
     <name>Image_2</name>
-    <y>661</y>
+    <y>551</y>
     <width>622</width>
     <height>320</height>
     <color_bar>
@@ -218,7 +213,7 @@ the value range.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
-    <y>1021</y>
+    <y>921</y>
     <width>271</width>
     <height>60</height>
     <text>- Horizontal, vertical axes
@@ -230,9 +225,36 @@ the value range.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
-    <y>991</y>
+    <y>891</y>
     <width>171</width>
     <text>Options</text>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_8</name>
+    <x>271</x>
+    <y>921</y>
+    <width>561</width>
+    <height>180</height>
+    <text>For PVAccess, the data can be an NTNDArray PV
+(currently limited to byte[]).
+
+For PVAccess or Channel Access, the data can be a waveform that contains
+the pixels values starting with the top-left pixel,
+followed by the pixels of the top row, then the second row and so on.
+
+The image data width and height need to be configured for waveform PVs.
+For NTNDArray PVs, the image size is provided by the PV.</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_9</name>
+    <x>271</x>
+    <y>891</y>
+    <width>171</width>
+    <text>PV, Data</text>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
