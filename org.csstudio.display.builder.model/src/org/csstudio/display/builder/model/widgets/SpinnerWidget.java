@@ -39,7 +39,7 @@ public class SpinnerWidget extends VisibleWidget
             "Spinner",
             "platform:/plugin/org.csstudio.display.builder.model/icons/Spinner.gif",
             "A spinner, with up/down arrows",
-            Arrays.asList("org.csstudio.opibuilder.widgets.Spinner"))//TODO: check on this
+            Arrays.asList("org.csstudio.opibuilder.widgets.spinner"))
         {
             @Override
             public Widget createWidget()
@@ -47,8 +47,6 @@ public class SpinnerWidget extends VisibleWidget
                 return new SpinnerWidget();
             }
         };
-
-    //TODO? configurator?
 
     public static final WidgetPropertyDescriptor<Double> behaviorStepIncrement =
             CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "step_increment", Messages.Spinner_StepIncrement);

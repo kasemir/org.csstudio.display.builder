@@ -49,6 +49,12 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         styleChanged(null, null, null);
         spinner.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         spinner.setEditable(true);
+        spinner.focusedProperty().addListener((property, oldval, newval)->
+        {
+            if (!spinner.isFocused())
+                restore();
+            active = false;
+        });
         spinner.getEditor().setOnKeyPressed((final KeyEvent event) ->
         {
             switch (event.getCode())
@@ -63,30 +69,28 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
                 submit();
                 active = false;
                 break;
+            //incrementing by keyboard
+            case UP:
+                if (!active)
+                    jfx_node.getValueFactory().increment(1);
+                break;
+            case DOWN:
+                if (!active)
+                    jfx_node.getValueFactory().decrement(1);
+                break;
+            case PAGE_UP:
+                if (!active)
+                    ((TextSpinnerValueFactory)jfx_node.getValueFactory()).pageIncrement(1);
+                break;
+            case PAGE_DOWN:
+                if (!active)
+                    ((TextSpinnerValueFactory)jfx_node.getValueFactory()).pageDecrement(1);
+                break;
             default:
                 // Any other key results in active state
                 active = true;
             }
         });
-        /*spinner.setOnKeyPressed((final KeyEvent event)->
-        {
-            if (spinner.isFocused())
-            {
-                switch(event.getCode())
-                {
-                case UP: jfx_node.getValueFactory().increment(1);
-                    break;
-                case DOWN: jfx_node.getValueFactory().decrement(1);
-                    break;
-                case PAGE_UP:
-                    break;
-                case PAGE_DOWN:
-                    break;
-                default:
-                    break;
-                }
-            }
-        });*/
 
         return spinner;
     }
@@ -96,9 +100,8 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
      */
     private void restore()
     {
-        //The value factory is updated based on the old value.
-        jfx_node.getValueFactory().setValue(value_text);
-        ((TextSpinnerValueFactory)jfx_node.getValueFactory()).setVTypeValue(value);
+        //The old value is restored.
+        jfx_node.getEditor().setText(jfx_node.getValueFactory().getValue());
     }
 
     /** Submit value entered by user */
@@ -198,6 +201,24 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
             return stepIncrement;
         }
 
+        private DoubleProperty pageIncrement = new SimpleDoubleProperty(this, "pageIncrement");
+        public final void setPageIncrement(double value)
+        {
+            pageIncrement.set(value);
+        }
+        public final double getPageIncrement()
+        {
+            return pageIncrement.get();
+        }
+        /**
+         * Sets the amount to increment or decrement by when page up/down buttons pressed.
+         */
+        public final DoubleProperty pageIncrementProperty()
+        {
+            return pageIncrement;
+        }
+
+
         private DoubleProperty min = new SimpleDoubleProperty(this, "min");
         public final void setMin(double value)
         {
@@ -238,7 +259,7 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
             @Override
             public Object getBean()
             {
-                return null; //should return the SpinnerValueFactory, perhaps, but not needed here
+                return this; //return the TextSpinnerValueFactory
             }
             @Override
             public String getName()
@@ -264,34 +285,41 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         @Override
         public void decrement(int steps)
         {
-            double value = computeDouble(getVTypeValue());
-            if (Double.isNaN(value) || Double.isInfinite(value)) return;
-            double result = value - steps*getStepIncrement();
-            if (result < getMin()) result = getMin();
-            else if (result > getMax()) result = getMax();
-            toolkit.fireWrite(model_widget, result);
+            writeResultingValue(-steps*getStepIncrement());
         }
 
         @Override
         public void increment(int steps)
         {
-            Double value = computeDouble(getVTypeValue());
-            if (Double.isNaN(value) || Double.isInfinite(value)) return;
-            double result = value + steps*getStepIncrement();
-            if (result < getMin()) result = getMin();
-            else if (result > getMax()) result = getMax();
-            toolkit.fireWrite(model_widget, result);
+            writeResultingValue(steps*getStepIncrement());
         }
 
-        private double computeDouble(VType vtype)
+        public void pageDecrement(int steps)
         {
-            if (!(vtype instanceof VNumber))
+            writeResultingValue(-steps*getPageIncrement());
+        }
+
+        public void pageIncrement(int steps)
+        {
+            writeResultingValue(steps*getPageIncrement());
+        }
+
+        private void writeResultingValue(double change)
+        {
+            double value;
+            if (!(getVTypeValue() instanceof VNumber))
             {
                 scheduleContentUpdate();
-                return Double.NaN;
+                return;
             }
-            return ((VNumber)vtype).getValue().doubleValue();
+            value = ((VNumber)getVTypeValue()).getValue().doubleValue();
+            if (Double.isNaN(value) || Double.isInfinite(value)) return;
+            value += change;
+            if (value < getMin()) value = getMin();
+            else if (value > getMax()) value = getMax();
+            toolkit.fireWrite(model_widget, value);
         }
+
 
     };
 
@@ -320,6 +348,7 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
 
         model_widget.behaviorStepIncrement().addUntypedPropertyListener(this::behaviorChanged);
+        model_widget.behaviorPageIncrement().addUntypedPropertyListener(this::behaviorChanged);
         model_widget.behaviorMinimum().addUntypedPropertyListener(this::behaviorChanged);
         model_widget.behaviorMaximum().addUntypedPropertyListener(this::behaviorChanged);
 
@@ -341,6 +370,7 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
     {
         TextSpinnerValueFactory factory = (TextSpinnerValueFactory)jfx_node.getValueFactory();
         factory.setStepIncrement(model_widget.behaviorStepIncrement().getValue());
+        factory.setPageIncrement(model_widget.behaviorPageIncrement().getValue());
         factory.setMin(model_widget.behaviorMinimum().getValue());
         factory.setMax(model_widget.behaviorMaximum().getValue());
     }

@@ -241,6 +241,9 @@
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/byte_monitor.png"
             name="%ByteMonitorWidget_Name"
             type="byte_monitor">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.bytemonitor">
+         </alternates>
       </widget>
       <widget
             category="CONTROL"
@@ -249,6 +252,9 @@
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/Spinner.gif"
             name="%SpinnerWidget_Name"
             type="spinner">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.spinner">
+         </alternates>
       </widget>
    </extension>
 
