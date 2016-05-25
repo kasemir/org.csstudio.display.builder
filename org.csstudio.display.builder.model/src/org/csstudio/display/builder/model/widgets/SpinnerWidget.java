@@ -50,11 +50,11 @@ public class SpinnerWidget extends VisibleWidget
 
     //TODO? configurator?
 
-    public static final WidgetPropertyDescriptor<Integer> behaviorStepIncrement =
-            CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "step_increment", Messages.Spinner_StepIncrement);
+    public static final WidgetPropertyDescriptor<Double> behaviorStepIncrement =
+            CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "step_increment", Messages.Spinner_StepIncrement);
 
-    public static final WidgetPropertyDescriptor<Integer> behaviorPageIncrement =
-            CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "page_increment", Messages.Spinner_PageIncrement);
+    public static final WidgetPropertyDescriptor<Double> behaviorPageIncrement =
+            CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "page_increment", Messages.Spinner_PageIncrement);
 
     public static final WidgetPropertyDescriptor<Boolean> displayButtonsOnLeft =
             CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "buttons_on_left", Messages.Spinner_ButtonsOnLeft);
@@ -81,8 +81,8 @@ public class SpinnerWidget extends VisibleWidget
     private volatile WidgetProperty<Boolean> limits_from_pv;
     //increments: configurable at Runtime from its context menu Configure Runtime Properties....
         //does this make runtime category?
-    private volatile WidgetProperty<Integer> step_increment;
-    private volatile WidgetProperty<Integer> page_increment;
+    private volatile WidgetProperty<Double> step_increment;
+    private volatile WidgetProperty<Double> page_increment;
     private volatile WidgetProperty<Boolean> buttons_on_left;
 
     public SpinnerWidget()
@@ -101,10 +101,10 @@ public class SpinnerWidget extends VisibleWidget
         properties.add(precision = displayPrecision.createProperty(this, 2));
         properties.add(value = runtimeValue.createProperty(this, null));
         properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
-        properties.add(maximum = behaviorMaximum.createProperty(this, 0.0));
+        properties.add(maximum = behaviorMaximum.createProperty(this, 100.0));
         properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, false));
-        properties.add(step_increment = behaviorStepIncrement.createProperty(this, 1));
-        properties.add(page_increment = behaviorPageIncrement.createProperty(this, 1));
+        properties.add(step_increment = behaviorStepIncrement.createProperty(this, 1.0));
+        properties.add(page_increment = behaviorPageIncrement.createProperty(this, 10.0));
         properties.add(buttons_on_left = displayButtonsOnLeft.createProperty(this, false));
     }
 
@@ -163,13 +163,13 @@ public class SpinnerWidget extends VisibleWidget
     }
 
     /** @return Behavior 'step_increment' */
-    public WidgetProperty<Integer> behaviorStepIncrement()
+    public WidgetProperty<Double> behaviorStepIncrement()
     {
         return step_increment;
     }
 
     /** @return Behavior 'step_increment' */
-    public WidgetProperty<Integer> behaviorPageIncrement()
+    public WidgetProperty<Double> behaviorPageIncrement()
     {
         return page_increment;
     }
