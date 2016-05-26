@@ -6,8 +6,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFillColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
@@ -66,10 +64,11 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
 
     //XXX: The following are common scaled-widget properties
 
-    /** Display 'major_tick_step_hint': Minimum space, in pixels, between major tick marks. */
-    public static final WidgetPropertyDescriptor<Integer> displayMajorTickStepHint =
-            newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "major_tick_step_hint", Messages.WidgetProperties_MajorTickStepHint);
+    /** Position 'major_tick_step_hint': Minimum space, in pixels, between major tick marks. */
+    public static final WidgetPropertyDescriptor<Integer> positionMajorTickStepHint =
+            newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "major_tick_step_hint", Messages.WidgetProperties_MajorTickStepHint);
 
+    //define in defineProperties() when representation implemented
     /** Display 'scale_font': Font for scale */
     public static final WidgetPropertyDescriptor<WidgetFont> displayScaleFont =
         new WidgetPropertyDescriptor<WidgetFont>(
@@ -99,17 +98,16 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     private volatile WidgetProperty<Boolean> horizontal;
     private volatile WidgetProperty<Double> page_increment;
     private volatile WidgetProperty<Double> step_increment;
-    private volatile WidgetProperty<WidgetColor> foreground; //TODO: represent foreground
+    private volatile WidgetProperty<WidgetColor> foreground; //define in defineProperties() when representation implemented
     private volatile WidgetProperty<WidgetColor> background;
-    private volatile WidgetProperty<WidgetColor> fill_color; //TODO: represent fill_color
-    //color_fillbackground //bar background
-    //thumb_color
+    private volatile WidgetProperty<WidgetColor> fill_color; //define in defineProperties() when representation implemented
+    //potential future properties: 'color_fillbackground' 'bar_background', 'thumb_color'
     //scaled-widget properties:
     private volatile WidgetProperty<Double> minimum;
     private volatile WidgetProperty<Double> maximum;
     private volatile WidgetProperty<Boolean> limits_from_pv;
     private volatile WidgetProperty<Integer> major_tick_step_hint;
-    private volatile WidgetProperty<WidgetFont> scale_font;
+    private volatile WidgetProperty<WidgetFont> scale_font; //define in defineProperties() when representation implemented
     private volatile WidgetProperty<Boolean> show_scale;
     private volatile WidgetProperty<Boolean> show_minor_ticks;
     private volatile WidgetProperty<String> scale_format;
@@ -131,16 +129,15 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         properties.add(horizontal = displayHorizontal.createProperty(this, true));
         properties.add(step_increment = behaviorStepIncrement.createProperty(this, 1.0));
         properties.add(page_increment = behaviorPageIncrement.createProperty(this, 10.0));
-        properties.add(foreground =
-                displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        //properties.add(foreground =
+                //displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background =
                 displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        properties.add(fill_color = displayFillColor.createProperty(this, new WidgetColor(60, 255, 60)));
         //scaled-widget properties:
         properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
         properties.add(maximum = behaviorMaximum.createProperty(this, 100.0));
         properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, false));
-        properties.add(major_tick_step_hint = displayMajorTickStepHint.createProperty(this, 20));
+        properties.add(major_tick_step_hint = positionMajorTickStepHint.createProperty(this, 20));
         properties.add(show_scale = displayShowScale.createProperty(this, true));
         properties.add(show_minor_ticks = displayShowMinorTicks.createProperty(this, true));
         properties.add(scale_format = displayScaleFormat.createProperty(this, ""));
@@ -206,8 +203,8 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         return fill_color;
     }
 
-    /** @return Display 'major_tick_step_hint' */
-    public WidgetProperty<Integer> displayMajorTickStepHint()
+    /** @return Position 'major_tick_step_hint' */
+    public WidgetProperty<Integer> positionMajorTickStepHint()
     {
         return major_tick_step_hint;
     }

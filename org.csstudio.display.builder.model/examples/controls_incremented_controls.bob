@@ -8,7 +8,7 @@
     <x>41</x>
     <y>160</y>
     <show_value_tip>false</show_value_tip>
-    <pv_name>loc://boolTest</pv_name>
+    <pv_name>loc://number(0.0)</pv_name>
     <maximum>1000.0</maximum>
     <step_increment>5.0</step_increment>
   </widget>
@@ -16,7 +16,7 @@
     <name>Text Entry</name>
     <x>40</x>
     <y>100</y>
-    <pv_name>loc://boolTest</pv_name>
+    <pv_name>loc://number(0.0)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
@@ -52,7 +52,7 @@
     <height>205</height>
     <horizontal>false</horizontal>
     <scale_format>#</scale_format>
-    <pv_name>loc://boolTest</pv_name>
+    <pv_name>loc://number(0.0)</pv_name>
     <step_increment>5.0</step_increment>
   </widget>
 </display>
