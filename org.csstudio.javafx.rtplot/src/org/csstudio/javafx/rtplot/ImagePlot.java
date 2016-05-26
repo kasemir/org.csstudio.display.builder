@@ -94,6 +94,9 @@ public class ImagePlot extends Canvas
     /** Image data */
     private volatile ListNumber image_data = null;
 
+    /** Is 'image_data' meant to be treated as 'unsigned'? */
+    private volatile boolean unsigned_data = false;
+
     /** Buffer for image and color bar
      *
      *  <p>UpdateThrottle calls updateImageBuffer() to set the image
@@ -232,12 +235,14 @@ public class ImagePlot extends Canvas
      *  @param height Number of data rows
      *  @param data Image elements, starting in 'top left' corner,
      *              proceeding along the row, then to next rows
+     *  @param unsigned Is the data meant to be treated as 'unsigned'
      */
-    public void setValue(final int width, final int height, final ListNumber data)
+    public void setValue(final int width, final int height, final ListNumber data, final boolean unsigned)
     {
         data_width = width;
         data_height = height;
         image_data = data;
+        unsigned_data = unsigned;
         requestUpdate();
     }
 
@@ -329,6 +334,7 @@ public class ImagePlot extends Canvas
         //  but at least data won't change within this method)
         final int data_width = this.data_width, data_height = this.data_height;
         final ListNumber numbers = this.image_data;
+        final boolean unsigned = this.unsigned_data;
         double min = this.min, max = this.max;
         final DoubleFunction<Color> color_mapping = this.color_mapping;
 
@@ -371,7 +377,7 @@ public class ImagePlot extends Canvas
         }
 
         // Paint the image
-        final BufferedImage unscaled = drawData(data_width, data_height, numbers, min, max, color_mapping);
+        final BufferedImage unscaled = drawData(data_width, data_height, numbers, unsigned, min, max, color_mapping);
         if (unscaled != null)
             gc.drawImage(unscaled, image_area.x, image_area.y, image_area.width, image_area.height, null);
 
@@ -402,12 +408,14 @@ public class ImagePlot extends Canvas
     /** @param data_width
      *  @param data_height
      *  @param numbers
+     *  @param unsigned
      *  @param min
      *  @param max
      *  @param color_mapping
      *  @return {@link BufferedImage}, sized to match data
      */
     private static BufferedImage drawData(final int data_width, final int data_height, final ListNumber numbers,
+                                          final boolean unsigned,
                                           final double min, final double max, final DoubleFunction<Color> color_mapping)
     {
         // Create image that'll be written with data
@@ -434,7 +442,7 @@ public class ImagePlot extends Canvas
             {
                 for (int x=0; x<data_width; ++x)
                 {
-                    final double sample = iter.nextDouble();
+                    final double sample = unsigned ? Integer.toUnsignedLong(iter.nextInt()) : iter.nextDouble();
                     double scaled = (sample - min) / (max - min);
                     if (scaled < 0.0)
                         scaled = 0;
@@ -442,7 +450,7 @@ public class ImagePlot extends Canvas
                         scaled = 1.0;
                     final Color color = color_mapping.apply(scaled);
                     // What's faster: gc.setColor(color) and gc.drawLine(x, y, x, y) or gc.fillRect(x, y, 1, 1),
-                    // ordirect pixel access?
+                    // or direct pixel access?
                     // Test image showed ~52ms for drawLine, ~13ms for setRGB
                     // No difference for BufferedImage.TYPE_INT_ARGB vs. BufferedImage.TYPE_INT_RGB
                     image.setRGB(x, y, color.getRGB());

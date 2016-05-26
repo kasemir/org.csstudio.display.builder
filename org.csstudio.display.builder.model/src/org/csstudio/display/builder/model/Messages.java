@@ -140,6 +140,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Text;
     public static String WidgetProperties_Transparent;
     public static String WidgetProperties_Type;
+    public static String WidgetProperties_UnsignedData;
     public static String WidgetProperties_Value;
     public static String WidgetProperties_VerticalAlignment;
     public static String WidgetProperties_Visible;

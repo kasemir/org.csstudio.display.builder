@@ -164,6 +164,10 @@ public class ImageWidget extends VisibleWidget
         }
     };
 
+    private static final WidgetPropertyDescriptor<Boolean> dataUnsigned =
+        CommonWidgetProperties.newBooleanPropertyDescriptor(
+            WidgetPropertyCategory.BEHAVIOR, "unsigned", Messages.WidgetProperties_UnsignedData);
+
     private class CustomWidgetConfigurator extends WidgetConfigurator
     {
         public CustomWidgetConfigurator(final Version xml_version)
@@ -220,6 +224,7 @@ public class ImageWidget extends VisibleWidget
     private volatile WidgetProperty<Boolean> data_autoscale;
     private volatile WidgetProperty<Double> data_minimum;
     private volatile WidgetProperty<Double> data_maximum;
+    private volatile WidgetProperty<Boolean> data_unsigned;
 
     private WidgetProperty<VType> value;
 
@@ -240,6 +245,7 @@ public class ImageWidget extends VisibleWidget
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(data_width = dataWidth.createProperty(this, 100));
         properties.add(data_height = dataHeight.createProperty(this, 100));
+        properties.add(data_unsigned = dataUnsigned.createProperty(this, false));
         properties.add(data_autoscale = PlotWidgetProperties.autoscale.createProperty(this, true));
         properties.add(data_minimum = behaviorMinimum.createProperty(this, 0.0));
         properties.add(data_maximum = behaviorMaximum.createProperty(this, 255.0));
@@ -293,6 +299,12 @@ public class ImageWidget extends VisibleWidget
     public WidgetProperty<Integer> behaviorDataHeight()
     {
         return data_height;
+    }
+
+    /** @return Behavior 'unsigned' */
+    public WidgetProperty<Boolean> behaviorDataUnsigned()
+    {
+        return data_unsigned;
     }
 
     /** @return Behavior 'autoscale' */
