@@ -23,7 +23,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.util.converter.FormatStringConverter;
 
-public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, ScaledSliderWidget>
+public class ScaledSliderRepresentation extends RegionBaseRepresentation<Slider, ScaledSliderWidget>
 //TODO: consider placing under a ScaledWidgetBase superclass (with ProgressBar) or an IncrementedControl (with scrollbar, spinner)
     //consider also interfacing; perhaps make IncrementedControlWidget the interface
 {
@@ -37,7 +37,7 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
     private volatile double stepIncrement = 1.0;
     private volatile int tickCount = 20;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("nls")
     @Override
     protected Slider createJFXNode() throws Exception
     {
@@ -65,8 +65,6 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
         limitsChanged(null, null, null);
         styleChanged(null, null, null);
         slider.setValue(value);
-        slider.setShowTickLabels(model_widget.displayShowScale().getValue());
-        slider.setShowTickMarks(model_widget.displayShowMinorTicks().getValue());
         slider.setSnapToTicks(true);
 
         return slider;
@@ -103,8 +101,8 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
         stepIncrement = model_widget.behaviorStepIncrement().getValue();
         double increment = model_widget.behaviorStepIncrement().getValue();
         //The node's majorTickUnit value should always be calculated from its
-        //minorTickCount in order to avoid errors caused by casting double to int.
-        tickCount = (int) (calculateTickUnit() / increment);
+        //minorTickCount in order to avoid errors caused by casting to int.
+        tickCount = (int) (calculateTickUnit() / increment) - 1;
         dirty_size.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -142,21 +140,21 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
         sizeChanged(null, null, null);
     }
 
-    //TODO: link this properly
-    /** Method for calculating the node's majorTickUnit value. The actual value should
-     *  be calculated from the minorTickCount (tick count per major unit) to maintain correct
-     *  increments for snapping/stepping between minor ticks.
+    /*  Method for calculating the node's majorTickUnit property value. The actual value should
+     *  be calculated from the integer minorTickCount (tick count per major unit) to maintain
+     *  correct increments for snapping/stepping between minor ticks.
      */
     private double calculateTickUnit()
     {
-        final Integer mtsh = model_widget.displayMajorTickStepHint().getValue();
+        final int mtsh = model_widget.positionMajorTickStepHint().getValue();
         final int length = (model_widget.displayHorizontal().getValue() ?
                         model_widget.positionWidth().getValue() :
                         model_widget.positionHeight().getValue());
         final double range = max - min;
-        return (range > 0 ? range : 100) * (mtsh != null ? mtsh : 20) / length;
+        return (range > 0 ? range : 100) / (length / mtsh);
     }
 
+    @SuppressWarnings("nls")
     private void nodeValueChanged(ObservableValue<? extends Number> property, Number old_value, Number new_value)
     {
         jfx_node.getTooltip().setText(""+new_value);
@@ -169,6 +167,7 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
         toolkit.scheduleUpdate(this);
     }
 
+    @SuppressWarnings("nls")
     @Override
     public void updateChanges()
     {
@@ -176,13 +175,12 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
         if (dirty_size.checkAndClear())
         {
             int save_count = tickCount;
-            jfx_node.setPrefHeight(model_widget.positionHeight().getValue());
-            jfx_node.setPrefWidth(model_widget.positionWidth().getValue());
+            jfx_node.setPrefSize(model_widget.positionWidth().getValue(), model_widget.positionHeight().getValue());
             jfx_node.setMin(min);
             jfx_node.setMax(max);
             jfx_node.setOrientation(model_widget.displayHorizontal().getValue() ? Orientation.HORIZONTAL : Orientation.VERTICAL);
             jfx_node.setMinorTickCount(save_count);
-            jfx_node.setMajorTickUnit(save_count * model_widget.behaviorStepIncrement().getValue());
+            jfx_node.setMajorTickUnit((save_count + 1) * model_widget.behaviorStepIncrement().getValue());
             jfx_node.setBlockIncrement(model_widget.behaviorPageIncrement().getValue());
         }
         if (dirty_value.checkAndClear())
@@ -196,8 +194,8 @@ public class ScaledSliderRepresentation extends JFXBaseRepresentation<Slider, Sc
         if (dirty_style.checkAndClear())
         {
             //TODO: properly represent fg color, font
-            final String color = JFXUtil.webRGB(model_widget.displayForegroundColor().getValue());
-            jfx_node.setStyle("-fx-text-fill:" + color + ";-fx-stroke:" + color); //this doesn't do anything
+            //final String color = JFXUtil.webRGB(model_widget.displayForegroundColor().getValue());
+            //jfx_node.setStyle("-fx-text-fill:" + color + ";-fx-stroke:" + color); //this doesn't do anything
             final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
             jfx_node.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
             //jfx_node.setFont(JFXUtil.convert(model_widget.displayScaleFont().getValue()));

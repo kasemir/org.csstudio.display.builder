@@ -49,9 +49,10 @@
     <x>81</x>
     <y>201</y>
     <width>30</width>
-    <height>133</height>
+    <height>205</height>
     <horizontal>false</horizontal>
-    <scale_format># xx</scale_format>
+    <scale_format>#</scale_format>
     <pv_name>loc://boolTest</pv_name>
+    <step_increment>5.0</step_increment>
   </widget>
 </display>
