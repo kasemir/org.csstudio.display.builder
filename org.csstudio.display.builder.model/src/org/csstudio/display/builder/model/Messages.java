@@ -122,6 +122,10 @@ public class Messages extends NLS
     public static String WidgetProperties_Height;
     public static String WidgetProperties_HorizontalAlignment;
     public static String WidgetProperties_Insets;
+    public static String WidgetProperties_LevelHi;
+    public static String WidgetProperties_LevelHiHi;
+    public static String WidgetProperties_LevelLo;
+    public static String WidgetProperties_LevelLoLo;
     public static String WidgetProperties_LimitsFromPV;
     public static String WidgetProperties_LineColor;
     public static String WidgetProperties_LineWidth;
@@ -143,6 +147,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Scripts;
     public static String WidgetProperties_ShowMinorTicks;
     public static String WidgetProperties_ShowScale;
+    public static String WidgetProperties_ShowMarkers;
     public static String WidgetProperties_ShowUnits;
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Text;

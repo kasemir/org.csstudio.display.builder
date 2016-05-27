@@ -94,6 +94,26 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     public static final WidgetPropertyDescriptor<String> displayScaleFormat =
             newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "scale_format", Messages.WidgetProperties_ScaleFormat);
 
+    /** Display 'show_markers': Show tick markers for HI, HIHI, LO, & LOLO levels. */
+    public static final WidgetPropertyDescriptor<Boolean> displayShowMarkers =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_markers", Messages.WidgetProperties_ShowMarkers);
+
+    /** Display 'level_hi': Level of HI value for widget*/
+    public static final WidgetPropertyDescriptor<Double> displayLevelHi =
+            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_hi", Messages.WidgetProperties_LevelHi);
+
+    /** Display 'level_hihi': Level of HIHI value for widget*/
+    public static final WidgetPropertyDescriptor<Double> displayLevelHiHi =
+            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_hihi", Messages.WidgetProperties_LevelHiHi);
+
+    /** Display 'level_lo': Level of LO value for widget*/
+    public static final WidgetPropertyDescriptor<Double> displayLevelLo =
+            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_lo", Messages.WidgetProperties_LevelLo);
+
+    /** Display 'level_lolo': Level of LO value for widget*/
+    public static final WidgetPropertyDescriptor<Double> displayLevelLoLo =
+            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_lolo", Messages.WidgetProperties_LevelLoLo);
+
     private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<Boolean> horizontal;
     private volatile WidgetProperty<Double> page_increment;
@@ -111,6 +131,11 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     private volatile WidgetProperty<Boolean> show_scale;
     private volatile WidgetProperty<Boolean> show_minor_ticks;
     private volatile WidgetProperty<String> scale_format;
+    private volatile WidgetProperty<Boolean> show_markers;
+    private volatile WidgetProperty<Double> level_hi;
+    private volatile WidgetProperty<Double> level_hihi;
+    private volatile WidgetProperty<Double> level_lo;
+    private volatile WidgetProperty<Double> level_lolo;
 
     public ScaledSliderWidget()
     {
@@ -129,8 +154,6 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         properties.add(horizontal = displayHorizontal.createProperty(this, true));
         properties.add(step_increment = behaviorStepIncrement.createProperty(this, 1.0));
         properties.add(page_increment = behaviorPageIncrement.createProperty(this, 10.0));
-        //properties.add(foreground =
-                //displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background =
                 displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         //scaled-widget properties:
@@ -141,30 +164,17 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         properties.add(show_scale = displayShowScale.createProperty(this, true));
         properties.add(show_minor_ticks = displayShowMinorTicks.createProperty(this, true));
         properties.add(scale_format = displayScaleFormat.createProperty(this, ""));
+        properties.add(show_markers = displayShowMarkers.createProperty(this, false));
+        properties.add(level_hihi = displayLevelHiHi.createProperty(this, 90.0));
+        properties.add(level_hi = displayLevelHi.createProperty(this, 80.0));
+        properties.add(level_lo = displayLevelLo.createProperty(this, 20.0));
+        properties.add(level_lolo = displayLevelLoLo.createProperty(this, 10.0));
     }
 
     /** @return Runtime 'value' */
     public WidgetProperty<VType> runtimeValue()
     {
         return value;
-    }
-
-    /** @return Behavior 'minimum' */
-    public WidgetProperty<Double> behaviorMinimum()
-    {
-        return minimum;
-    }
-
-    /** @return Behavior 'maximum' */
-    public WidgetProperty<Double> behaviorMaximum()
-    {
-        return maximum;
-    }
-
-    /** @return Behavior 'limits_from_pv' */
-    public WidgetProperty<Boolean> behaviorLimitsFromPV()
-    {
-        return limits_from_pv;
     }
 
     /** @return Display 'horizontal' */
@@ -203,6 +213,25 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         return fill_color;
     }
 
+    //scaled widget properties:
+    /** @return Behavior 'minimum' */
+    public WidgetProperty<Double> behaviorMinimum()
+    {
+        return minimum;
+    }
+
+    /** @return Behavior 'maximum' */
+    public WidgetProperty<Double> behaviorMaximum()
+    {
+        return maximum;
+    }
+
+    /** @return Behavior 'limits_from_pv' */
+    public WidgetProperty<Boolean> behaviorLimitsFromPV()
+    {
+        return limits_from_pv;
+    }
+
     /** @return Position 'major_tick_step_hint' */
     public WidgetProperty<Integer> positionMajorTickStepHint()
     {
@@ -231,6 +260,36 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     public WidgetProperty<String> displayScaleFormat()
     {
         return scale_format;
+    }
+
+    /** @return Display 'show_markers' */
+    public WidgetProperty<Boolean> displayShowMarkers()
+    {
+        return show_markers;
+    }
+
+    /** @return Display 'level_hi' */
+    public WidgetProperty<Double> displayLevelHi()
+    {
+        return level_hi;
+    }
+
+    /** @return Display 'level_hihi' */
+    public WidgetProperty<Double> displayLevelHiHi()
+    {
+        return level_hihi;
+    }
+
+    /** @return Display 'level_lo' */
+    public WidgetProperty<Double> displayLevelLo()
+    {
+        return level_lo;
+    }
+
+    /** @return Display 'level_lolo' */
+    public WidgetProperty<Double> displayLevelLoLo()
+    {
+        return level_lolo;
     }
 
 }
