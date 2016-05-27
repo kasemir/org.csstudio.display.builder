@@ -4,126 +4,189 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.beans.binding.DoubleBinding;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.geometry.Orientation;
 import javafx.geometry.Side;
 import javafx.scene.chart.Axis;
-import javafx.scene.control.Slider;
+import javafx.scene.layout.Region;
 
 @SuppressWarnings("nls")
 /**
- * {@link Axis} implementation for hi, lo, hihi, and lolo markers on a
- * linear scaled widget (i.e. Slider, Thermometer, Tank...).
+ * {@link Axis} implementation for representing hi, lo, hihi, and lolo markers
+ * on a linear scaled widget (i.e. Slider, Thermometer, Tank...).
  * Could potentially be extended for round widgets (e.g. Knob, Gauge).
  */
-public class MarkerAxis extends Axis<String>
+public abstract class MarkerAxis<T extends Region> extends Axis<String>
 {
-    DoubleBinding length;
-    DoubleBinding min;
-    DoubleBinding max;
-
-    public MarkerAxis(Slider slider)
+    /**
+     * Instantiates a marker axis, initializing bindings and registering
+     * property listeners associated with the node.
+     * @param node Region-based node associated with the axis.
+     */
+    public MarkerAxis(T node)
     {
-        length = new DoubleBinding()
+        initializeBindings(node);
+        setSide(getSide() == null || getSide().isHorizontal() ? Side.TOP : Side.LEFT);
+        node.widthProperty().addListener((property, oldval, newval) ->
         {
+            if (getSide().isHorizontal())
             {
-                super.bind(slider.widthProperty(), slider.heightProperty(), slider.orientationProperty());
+                setWidths(newval.doubleValue());
             }
-
-            @Override
-            protected double computeValue()
-            {
-                return slider.getOrientation()==Orientation.HORIZONTAL ?
-                        slider.getWidth() :
-                        slider.getHeight();
-            }
-        };
-        min = new DoubleBinding()
-        {
-            {
-                super.bind(slider.minProperty());
-            }
-
-            @Override
-            protected double computeValue()
-            {
-                return slider.getMin();
-            }
-        };
-        max = new DoubleBinding()
-        {
-            {
-                super.bind(slider.maxProperty());
-            }
-
-            @Override
-            protected double computeValue()
-            {
-                return slider.getMax();
-            }
-        };
-
-        slider.widthProperty().addListener((property, oldval, newval) ->
-        {
-            if (slider.getOrientation() == Orientation.HORIZONTAL)
-                this.setWidth(newval.doubleValue());
         });
-        slider.heightProperty().addListener((property, oldval, newval) ->
+        node.heightProperty().addListener((property, oldval, newval) ->
         {
-            if (slider.getOrientation() == Orientation.VERTICAL)
-                this.setHeight(newval.doubleValue());
+            if (getSide().isVertical())
+            {
+                setHeights(newval.doubleValue());
+            }
         });
-        slider.orientationProperty().addListener((property, oldval, newval) ->
-            this.setSide(newval==Orientation.HORIZONTAL ? Side.TOP : Side.LEFT)
-        );
-        setSide(slider.getOrientation()==Orientation.HORIZONTAL ? Side.TOP : Side.LEFT);
     }
 
-    private DoubleProperty hi = new SimpleDoubleProperty(this, "hi", 80);
-    public void setHi(double value)
+    void setHeights(double value)
+    {
+        setMinHeight(value);
+        setMaxHeight(value);
+        setHeight(value);
+    }
+
+    void setWidths(double value)
+    {
+        setMinWidth(value);
+        setMaxWidth(value);
+        setWidth(value);
+    }
+
+    protected DoubleBinding length;
+    protected DoubleBinding min;
+    protected DoubleBinding max;
+
+    /**
+     * Initialize the DoubleBinding fields length, min, and max. The
+     * node is provided to allow binding its properties.
+     * @param node The node associated with the MarkerAxis.
+     */
+    protected abstract void initializeBindings(T node);
+
+    //--- properties
+    private final DoubleProperty hi = new SimpleDoubleProperty(this, "hi", 80);
+    public final void setHi(double value)
     {
         hi.set(value);
+        invalidateRange();
+        layoutChildren();
     }
-    private DoubleProperty hihi = new SimpleDoubleProperty(this, "hihi", 90);
-    public void setHiHi(double value)
+    public final double getHi()
+    {
+        return hi.get();
+    }
+
+    private final DoubleProperty hihi = new SimpleDoubleProperty(this, "hihi", 90);
+    public final void setHiHi(double value)
     {
         hihi.set(value);
+        invalidateRange();
+        layoutChildren();
     }
-    private DoubleProperty lo = new SimpleDoubleProperty(this, "lo", 20);
-    public void setLo(double value)
+    public final double getHiHi()
+    {
+        return hihi.get();
+    }
+
+    private final DoubleProperty lo = new SimpleDoubleProperty(this, "lo", 20);
+    public final void setLo(double value)
     {
         lo.set(value);
+        invalidateRange();
+        layoutChildren();
     }
-    private DoubleProperty lolo = new SimpleDoubleProperty(this, "lolo", 10);
-    public void setLoLo(double value)
+    public final double getLo()
+    {
+        return lo.get();
+    }
+
+    private final DoubleProperty lolo = new SimpleDoubleProperty(this, "lolo", 10);
+    public final void setLoLo(double value)
     {
         lolo.set(value);
+        invalidateRange();
+        layoutChildren();
+    }
+    public final double getLoLo()
+    {
+        return lolo.get();
+    }
+
+    private final BooleanProperty showHi = new SimpleBooleanProperty(this, "showHi", true);
+    public final void setShowHi(boolean value)
+    {
+        showHi.set(value);
+        invalidateRange();
+        layoutChildren();
+    }
+    public final boolean getShowHi()
+    {
+        return showHi.get();
+    }
+
+    private final BooleanProperty showHiHi = new SimpleBooleanProperty(this, "showHiHi", true);
+    public final void setShowHiHi(boolean value)
+    {
+        showHiHi.set(value);
+        invalidateRange();
+        layoutChildren();
+    }
+    public final boolean getShowHiHi()
+    {
+        return showHiHi.get();
+    }
+
+    private final BooleanProperty showLo = new SimpleBooleanProperty(this, "showLo", true);
+    public final void setShowLo(boolean value)
+    {
+        showLo.set(value);
+        invalidateRange();
+        layoutChildren();
+    }
+    public final boolean getShowLo()
+    {
+        return showLo.get();
+    }
+
+    private final BooleanProperty showLoLo = new SimpleBooleanProperty(this, "showLoLo", true);
+    public final void setShowLoLo(boolean value)
+    {
+        showLoLo.set(value);
+        invalidateRange();
+        layoutChildren();
+    }
+    public final boolean getShowLoLo()
+    {
+        return showLoLo.get();
     }
 
     //--- overridden methods
     @Override
     protected void setRange(Object range, boolean animate)
     {
-        this.setSide(getSide() == null || getSide().isHorizontal() ? Side.TOP : Side.LEFT);
     }
 
     @Override
     protected Object getRange()
     {
-        this.setSide(getSide() == null || getSide().isHorizontal() ? Side.TOP : Side.LEFT);
         return null;
     }
 
     @Override
     protected Object autoRange(double length)
     {
-        this.setSide(getSide() == null || getSide().isHorizontal() ? Side.TOP : Side.LEFT);
         return null;
     }
 
     @Override
-    public double getZeroPosition()
+    public final double getZeroPosition()
     {
         return Double.NaN;
     }
@@ -131,28 +194,36 @@ public class MarkerAxis extends Axis<String>
     private double offset = 0;
 
     @Override
-    public double getDisplayPosition(String value)
+    public final double getDisplayPosition(String value)
     {
         final double scale = calculateScale();
         return offset + (toNumericValue(value) - min.get()) * scale;
     }
 
     @Override
-    public String getValueForDisplay(double displayPosition)
+    public final String getValueForDisplay(double displayPosition)
     {
         final double scale = calculateScale();
         return toRealValue( (displayPosition-offset) / scale + min.get() );
     }
 
     @Override
-    public boolean isValueOnAxis(String value)
+    public final boolean isValueOnAxis(String value)
     {
         double number = toNumericValue(value);
-        return number >= min.get() && number <= max.get();
+        if (number==lolo.get())
+            return showLoLo.get();
+        if (number==lo.get())
+            return showLo.get();
+        if (number==hi.get())
+            return showHi.get();
+        if (number==hihi.get())
+            return showHiHi.get();
+        return false;
     }
 
     @Override
-    public double toNumericValue(String value)
+    public final double toNumericValue(String value)
     {
         if ("lolo".equals(value))
             return lolo.get();
@@ -162,11 +233,11 @@ public class MarkerAxis extends Axis<String>
             return hi.get();
         if ("hihi".equals(value))
             return hihi.get();
-        return 0;
+        return Double.NaN;
     }
 
     @Override
-    public String toRealValue(double value)
+    public final String toRealValue(double value)
     {
         if (value <= lolo.get())
             return "lolo";
@@ -180,13 +251,13 @@ public class MarkerAxis extends Axis<String>
     }
 
     @Override
-    protected String getTickMarkLabel(String value)
+    protected final String getTickMarkLabel(String value)
     {
         return value.toUpperCase();
     }
 
     @Override
-    protected List<String> calculateTickValues(double length, Object range)
+    protected final List<String> calculateTickValues(double length, Object range)
     {
         String [] markers = new String [] {"lolo", "lo", "hi", "hihi"};
         List<String> list = new ArrayList<String>();
@@ -194,6 +265,18 @@ public class MarkerAxis extends Axis<String>
             if (isValueOnAxis(mark))
                 list.add(mark);
         return list;
+    }
+
+    //--- other methods
+    /**
+     * Adjusts side property of axis according to orientation. To be
+     * called when orientation changes.
+     * @param vertical Whether to make the axis vertical or, if false, horizontal.
+     */
+    protected void makeVertical(boolean vertical)
+    {
+        setSide(vertical ? Side.LEFT : Side.TOP);
+        invalidateRange();
     }
 
     private double calculateScale()
