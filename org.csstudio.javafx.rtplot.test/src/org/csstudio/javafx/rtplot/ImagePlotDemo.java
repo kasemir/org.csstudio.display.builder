@@ -78,7 +78,7 @@ public class ImagePlotDemo extends Application
         plot.getYAxis().setGridVisible(true);
         plot.getYAxis().setScaleFont(Font.font("Liberation Sans", FontPosture.ITALIC, 25));
 
-        timer.scheduleAtFixedRate(() -> plot.setValue(WIDTH, HEIGHT, computeData()),
+        timer.scheduleAtFixedRate(() -> plot.setValue(WIDTH, HEIGHT, computeData(), false),
                                   200, 100, TimeUnit.MILLISECONDS);
 
         timer.scheduleAtFixedRate(() ->
