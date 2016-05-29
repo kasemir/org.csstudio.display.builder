@@ -81,6 +81,9 @@ public class Messages extends NLS
     public static String Style_Line;
     public static String Style_None;
     public static String Style_Title;
+    public static String Spinner_ButtonsOnLeft;
+    public static String Spinner_PageIncrement;
+    public static String Spinner_StepIncrement;
     public static String Tab_Height;
     public static String Tab_Item;
     public static String TabsWidget_Description;
