@@ -14,13 +14,17 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.DoubleFunction;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.rtplot.internal.AxisPart;
 import org.csstudio.javafx.rtplot.internal.HorizontalNumericAxis;
+import org.csstudio.javafx.rtplot.internal.MouseMode;
 import org.csstudio.javafx.rtplot.internal.PlotPart;
 import org.csstudio.javafx.rtplot.internal.PlotPartListener;
 import org.csstudio.javafx.rtplot.internal.YAxisImpl;
@@ -31,9 +35,14 @@ import org.diirt.util.array.ListNumber;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Point2D;
+import javafx.scene.Cursor;
+import javafx.scene.ImageCursor;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 
 /** Plot for an image
@@ -46,11 +55,26 @@ import javafx.scene.text.Font;
 @SuppressWarnings("nls")
 public class ImagePlot extends Canvas
 {
+    final private static int ARROW_SIZE = 8;
+
+    /** When using 'rubberband' to zoom in, need to select a region
+     *  at least this wide resp. high.
+     *  Smaller regions are likely the result of an accidental
+     *  click-with-jerk, which would result into a huge zoom step.
+     */
+    private static final int ZOOM_PIXEL_THRESHOLD = 20;
+
+    /** Support for un-do and re-do */
+    final private UndoableActionManager undo = new UndoableActionManager(50);
+
     /** Gray scale color mapping */
     public final static DoubleFunction<Color> GRAYSCALE = value -> new Color((float)value, (float)value, (float)value);
 
     /** Rainbow color mapping */
     public final static DoubleFunction<Color> RAINBOW = value -> new Color(Color.HSBtoRGB((float)value, 1.0f, 1.0f));
+
+    // TODO Static cursors, init. once
+    private Cursor cursor_zoom_in;
 
     /** Area of this canvas */
     private volatile Rectangle area = new Rectangle(0, 0, 0, 0);
@@ -114,6 +138,11 @@ public class ImagePlot extends Canvas
     /** Suppress updates triggered by axis changes from layout or autoscale */
     private volatile boolean in_update = false;
 
+    private MouseMode mouse_mode = MouseMode.ZOOM_IN;
+    private Optional<Point2D> mouse_start = Optional.empty();
+    private volatile Optional<Point2D> mouse_current = Optional.empty();
+
+
     /** Listener to Axis {@link PlotPart} */
     final private PlotPartListener axis_listener = new PlotPartListener()
     {
@@ -140,7 +169,7 @@ public class ImagePlot extends Canvas
             {
                 gc.drawImage(image, 0, 0);
             }
-        // TODO drawMouseModeFeedback(gc);
+        drawMouseModeFeedback(gc);
     };
 
     public ImagePlot()
@@ -148,6 +177,8 @@ public class ImagePlot extends Canvas
         x_axis = new HorizontalNumericAxis("X", axis_listener);
         y_axis = new YAxisImpl<>("Y", axis_listener);
         colorbar_axis =  new YAxisImpl<>("", axis_listener);
+
+        initializeCursors();
 
         // 50Hz default throttle
         update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
@@ -164,8 +195,32 @@ public class ImagePlot extends Canvas
         widthProperty().addListener(resize_listener);
         heightProperty().addListener(resize_listener);
 
-        setOnMouseMoved(event -> updateLocationInfo(event.getX(), event.getY()));
-        setOnMouseExited(event -> updateLocationInfo(-1, -1));
+        // TODO Pass 'active' in as argument
+        boolean active = true;
+        if (active)
+        {
+            doSetCursor(cursor_zoom_in);
+            setOnMouseEntered(this::mouseEntered);
+            setOnMousePressed(this::mouseDown);
+            setOnMouseMoved(this::mouseMove);
+            setOnMouseDragged(this::mouseMove);
+            setOnMouseReleased(this::mouseUp);
+            setOnMouseExited(this::mouseExit);
+//            setOnScroll(this::wheelZoom);
+        }
+    }
+
+    private void initializeCursors()
+    {
+        try
+        {
+            cursor_zoom_in = new ImageCursor(Activator.getIcon("cursor_zoom_in"));
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Error loading cursors", ex);
+            cursor_zoom_in = Cursor.DEFAULT;
+        }
     }
 
     /** @param autoscale  Auto-scale the color mapping? */
@@ -379,7 +434,17 @@ public class ImagePlot extends Canvas
         // Paint the image
         final BufferedImage unscaled = drawData(data_width, data_height, numbers, unsigned, min, max, color_mapping);
         if (unscaled != null)
-            gc.drawImage(unscaled, image_area.x, image_area.y, image_area.width, image_area.height, null);
+        {
+            // TODO Compute image source coords from axes
+            int sx1 = 0;
+            int sy1 = 0;
+            int sx2 = sx1 + data_width;
+            int sy2 = sy1 + data_height;
+            gc.drawImage(unscaled,
+                         image_area.x, image_area.y, image_area.x + image_area.width, image_area.y + image_area.height,
+                         sx1,  sy1,  sx2,  sy2,
+                         /* ImageObserver */ null);
+        }
 
         y_axis.paint(gc, image_area);
         x_axis.paint(gc, image_area);
@@ -476,6 +541,181 @@ public class ImagePlot extends Canvas
         return image;
     }
 
+    /** Draw visual feedback (rubber band rectangle etc.)
+     *  for current mouse mode
+     *  @param gc GC
+     */
+    private void drawMouseModeFeedback(final GraphicsContext gc)
+    {   // Safe copy, then check null (== isPresent())
+        final Point2D current = mouse_current.orElse(null);
+        if (current == null)
+            return;
+
+
+        final Point2D start = mouse_start.orElse(null);
+
+        final Rectangle plot_bounds = image_area;
+
+        if (mouse_mode == MouseMode.ZOOM_IN)
+        {   // Update mouse pointer in ready-to-zoom mode
+            if (plot_bounds.contains(current.getX(), current.getY()))
+                doSetCursor(cursor_zoom_in);
+            else if (x_axis.getBounds().contains(current.getX(), current.getY()))
+                doSetCursor(Cursor.H_RESIZE);
+            else if (y_axis.getBounds().contains(current.getX(), current.getY()))
+                doSetCursor(Cursor.V_RESIZE);
+            else
+                doSetCursor(Cursor.DEFAULT);
+        }
+        else if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
+        {
+            final int left = (int) Math.min(start.getX(), current.getX());
+            final int right = (int) Math.max(start.getX(), current.getX());
+            final int width = right - left;
+            final int mid_y = plot_bounds.y + plot_bounds.height / 2;
+            // Range on axis
+            gc.strokeRect(left, start.getY(), width, 1);
+            // Left, right vertical bar
+            gc.strokeLine(left, plot_bounds.y, left, plot_bounds.y + plot_bounds.height);
+            gc.strokeLine(right, plot_bounds.y, right, plot_bounds.y + plot_bounds.height);
+            if (width >= 5*ARROW_SIZE)
+            {
+                gc.strokeLine(left, mid_y, left + 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(left+ARROW_SIZE, mid_y-ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(left+ARROW_SIZE, mid_y+ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
+
+                gc.strokeLine(right, mid_y, right - 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(right-ARROW_SIZE, mid_y-ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(right-ARROW_SIZE, mid_y+ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
+            }
+        }
+        else if (mouse_mode == MouseMode.ZOOM_IN_Y  &&  start != null)
+        {
+            final int top = (int) Math.min(start.getY(), current.getY());
+            final int bottom = (int) Math.max(start.getY(), current.getY());
+            final int height = bottom - top;
+            final int mid_x = plot_bounds.x + plot_bounds.width / 2;
+            // Range on axis
+            gc.strokeRect(start.getX(), top, 1, height);
+            // Top, bottom horizontal bar
+            gc.strokeLine(plot_bounds.x, top, plot_bounds.x + plot_bounds.width, top);
+            gc.strokeLine(plot_bounds.x, bottom, plot_bounds.x + plot_bounds.width, bottom);
+            if (height >= 5 * ARROW_SIZE)
+            {
+                gc.strokeLine(mid_x, top, mid_x, top + 2*ARROW_SIZE);
+                gc.strokeLine(mid_x-ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
+                gc.strokeLine(mid_x+ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
+
+                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x, bottom);
+                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x-ARROW_SIZE, bottom - ARROW_SIZE);
+                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x+ARROW_SIZE, bottom - ARROW_SIZE);
+            }
+        }
+        else if (mouse_mode == MouseMode.ZOOM_IN_PLOT  &&  start != null)
+        {
+            final int left = (int) Math.min(start.getX(), current.getX());
+            final int right = (int) Math.max(start.getX(), current.getX());
+            final int top = (int) Math.min(start.getY(), current.getY());
+            final int bottom = (int) Math.max(start.getY(), current.getY());
+            final int width = right - left;
+            final int height = bottom - top;
+            final int mid_x = left + width / 2;
+            final int mid_y = top + height / 2;
+            gc.strokeRect(left, top, width, height);
+            if (width >= 5*ARROW_SIZE)
+            {
+                gc.strokeLine(left, mid_y, left + 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(left+ARROW_SIZE, mid_y-ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(left+ARROW_SIZE, mid_y+ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
+
+                gc.strokeLine(right, mid_y, right - 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(right-ARROW_SIZE, mid_y-ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(right-ARROW_SIZE, mid_y+ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
+            }
+            if (height >= 5*ARROW_SIZE)
+            {
+                gc.strokeLine(mid_x, top, mid_x, top + 2*ARROW_SIZE);
+                gc.strokeLine(mid_x-ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
+                gc.strokeLine(mid_x+ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
+
+                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x, bottom);
+                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x-ARROW_SIZE, bottom - ARROW_SIZE);
+                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x+ARROW_SIZE, bottom - ARROW_SIZE);
+            }
+        }
+    }
+
+    /** Set cursor.
+     *
+     *  <p>There is already <code>Node.setCursor()</code>
+     *  which sets the cursor for just this node.
+     *  But that has no affect when JFX is hosted
+     *  inside an SWT FXCanvas.
+     *  (https://bugs.openjdk.java.net/browse/JDK-8088147)
+     *
+     *  <p>We set the cursor of the _scene_, and monitor
+     *  the scene's cursor in the RCP code that creates the
+     *  FXCanvas to then update the SWT cursor.
+     *
+     *  @param cursor
+     */
+    private void doSetCursor(final Cursor cursor)
+    {
+        if (cursor == getCursor())
+            return;
+
+        setCursor(cursor);
+
+        final Scene scene = getScene();
+        if (scene != null)
+            scene.setCursor(cursor);
+    }
+
+    /** onMouseEntered */
+    private void mouseEntered(final MouseEvent e)
+    {
+        getScene().setCursor(getCursor());
+    }
+
+    /** onMousePressed */
+    private void mouseDown(final MouseEvent e)
+    {
+        // Don't start mouse actions when user invokes context menu
+        if (! e.isPrimaryButtonDown()  ||  (PlatformInfo.is_mac_os_x && e.isControlDown()))
+            return;
+        final Point2D current = new Point2D(e.getX(), e.getY());
+        mouse_start = mouse_current = Optional.of(current);
+
+        if (mouse_mode == MouseMode.ZOOM_IN)
+        {   // Determine start of 'rubberband' zoom.
+            // Reset cursor from SIZE* to CROSS.
+            if (y_axis.getBounds().contains(current.getX(), current.getY()))
+            {
+                mouse_mode = MouseMode.ZOOM_IN_Y;
+                doSetCursor(Cursor.CROSSHAIR);
+            }
+            else if (image_area.contains(current.getX(), current.getY()))
+            {
+                mouse_mode = MouseMode.ZOOM_IN_PLOT;
+                doSetCursor(Cursor.CROSSHAIR);
+            }
+            else if (x_axis.getBounds().contains(current.getX(), current.getY()))
+            {
+                mouse_mode = MouseMode.ZOOM_IN_X;
+                doSetCursor(Cursor.CROSSHAIR);
+            }
+        }
+    }
+
+    /** setOnMouseMoved */
+    private void mouseMove(final MouseEvent e)
+    {
+        final Point2D current = new Point2D(e.getX(), e.getY());
+        mouse_current = Optional.of(current);
+        updateLocationInfo(e.getX(), e.getY());
+        redrawSafely();
+    }
+
     /** Update information about the image location under the mouse pointer
      *  @param mouse_x
      *  @param mouse_y
@@ -509,6 +749,73 @@ public class ImagePlot extends Canvas
 
         // TODO Set 'info' text, and show that in the redraw_runnable
         System.out.println(info);
+    }
+
+    /** setOnMouseReleased */
+    private void mouseUp(final MouseEvent e)
+    {
+        final Point2D start = mouse_start.orElse(null);
+        final Point2D current = mouse_current.orElse(null);
+        if (start == null  ||  current == null)
+            return;
+
+        if (mouse_mode == MouseMode.ZOOM_IN_X)
+        {   // X axis increases going _right_ just like mouse 'x' coordinate
+            if (Math.abs(start.getX() - current.getX()) > ZOOM_PIXEL_THRESHOLD)
+            {
+                final int low = (int) Math.min(start.getX(), current.getX());
+                final int high = (int) Math.max(start.getX(), current.getX());
+                final AxisRange<Double> original_x_range = x_axis.getValueRange();
+                final AxisRange<Double> new_x_range = new AxisRange<>(x_axis.getValue(low), x_axis.getValue(high));
+                // TODO undo.execute(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_In_X, x_axis, original_x_range, new_x_range));
+                System.out.println("Zoom x from " + original_x_range + " to " + new_x_range);
+            }
+            mouse_mode = MouseMode.ZOOM_IN;
+        }
+        else if (mouse_mode == MouseMode.ZOOM_IN_Y)
+        {   // Mouse 'y' increases going _down_ the screen
+            if (Math.abs(start.getY() - current.getY()) > ZOOM_PIXEL_THRESHOLD)
+            {
+                final int high = (int)Math.min(start.getY(), current.getY());
+                final int low = (int) Math.max(start.getY(), current.getY());
+                final AxisRange<Double> original_y_range = y_axis.getValueRange();
+                final AxisRange<Double> new_y_range = new AxisRange<>(y_axis.getValue(low), y_axis.getValue(high));
+//              TODO  undo.execute(new ChangeAxisRanges<Double>(this, Messages.Zoom_In_Y,
+//                        Arrays.asList(y_axis),
+//                        Arrays.asList(y_axis.getValueRange()),
+//                        Arrays.asList(new AxisRange<Double>(y_axis.getValue(low), y_axis.getValue(high)))));
+                System.out.println("Zoom y from " + original_y_range + " to " + new_y_range);
+            }
+            mouse_mode = MouseMode.ZOOM_IN;
+        }
+        else if (mouse_mode == MouseMode.ZOOM_IN_PLOT)
+        {
+            if (Math.abs(start.getX() - current.getX()) > ZOOM_PIXEL_THRESHOLD  ||
+                Math.abs(start.getY() - current.getY()) > ZOOM_PIXEL_THRESHOLD)
+            {   // X axis increases going _right_ just like mouse 'x' coordinate
+                int low = (int) Math.min(start.getX(), current.getX());
+                int high = (int) Math.max(start.getX(), current.getX());
+                final AxisRange<Double> original_x_range = x_axis.getValueRange();
+                final AxisRange<Double> new_x_range = new AxisRange<>(x_axis.getValue(low), x_axis.getValue(high));
+
+                // Mouse 'y' increases going _down_ the screen
+                high = (int) Math.min(start.getY(), current.getY());
+                low = (int) Math.max(start.getY(), current.getY());
+                final AxisRange<Double> original_y_range = y_axis.getValueRange();
+                final AxisRange<Double> new_y_range = new AxisRange<>(y_axis.getValue(low), y_axis.getValue(high));
+                // TODO undo.execute(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_In, x_axis, original_x_range, new_x_range, y_axes, original_y_ranges, new_y_ranges));
+                System.out.println("Zoom x from " + original_x_range + " to " + new_x_range);
+                System.out.println("Zoom y from " + original_y_range + " to " + new_y_range);
+            }
+            mouse_mode = MouseMode.ZOOM_IN;
+        }
+    }
+
+    /** setOnMouseExited */
+    private void mouseExit(final MouseEvent e)
+    {
+        doSetCursor(null);
+        updateLocationInfo(-1, -1);
     }
 
     private String formatLocationInfo(final double x, final double y, final double value)
