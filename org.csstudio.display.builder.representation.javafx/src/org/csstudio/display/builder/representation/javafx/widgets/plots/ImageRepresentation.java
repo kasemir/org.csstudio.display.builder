@@ -37,11 +37,13 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     private final DirtyFlag dirty_position = new DirtyFlag();
 
     /** Actual plotting delegated to {@link RTImagePlot} */
-    private final RTImagePlot image_plot = new RTImagePlot();
+    private RTImagePlot image_plot;
 
     @Override
     public Pane createJFXNode() throws Exception
     {
+        // Plot is only active in runtime mode, not edit mode
+        image_plot = new RTImagePlot(! toolkit.isEditMode());
         image_plot.setAutoscale(false);
         return new Pane(image_plot);
     }
@@ -150,8 +152,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         {
             final int w = model_widget.positionWidth().getValue();
             final int h = model_widget.positionHeight().getValue();
-            image_plot.setWidth(w);
-            image_plot.setHeight(h);
+            image_plot.setPrefWidth(w);
+            image_plot.setPrefHeight(h);
         }
         image_plot.requestUpdate();
     }
