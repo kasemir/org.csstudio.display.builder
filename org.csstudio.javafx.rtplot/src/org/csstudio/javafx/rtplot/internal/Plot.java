@@ -29,7 +29,6 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.PlatformInfo;
-import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.Messages;
@@ -47,8 +46,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
-import javafx.scene.ImageCursor;
-import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -85,9 +82,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     private volatile Color background = Color.WHITE;
 
     public static final String FONT_FAMILY = "Liberation Sans";
-
-    // TODO Static cursors, init. once
-    private Cursor cursor_pan, cursor_zoom_in, cursor_zoom_out;
 
     /** Font to use for, well, title */
     private volatile Font title_font = new Font(FONT_FAMILY, Font.BOLD, 18);
@@ -215,8 +209,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         plot_area = new PlotPart("main", plot_part_listener);
         legend = new LegendPart<XTYPE>("legend", plot_part_listener);
 
-        initializeCursors();
-
         // 50Hz default throttle
         update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
         {
@@ -245,23 +237,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     		setOnMouseExited(this::mouseExit);
     		setOnScroll(this::wheelZoom);
 		}
-    }
-
-    private void initializeCursors()
-    {
-        try
-        {
-            cursor_pan = new ImageCursor(Activator.getIcon("cursor_pan"));
-            cursor_zoom_in = new ImageCursor(Activator.getIcon("cursor_zoom_in"));
-            cursor_zoom_out = new ImageCursor(Activator.getIcon("cursor_zoom_out"));
-        }
-        catch (Exception ex)
-        {
-            logger.log(Level.WARNING, "Error loading cursors", ex);
-            cursor_pan = Cursor.HAND;
-            cursor_zoom_in = Cursor.DEFAULT;
-            cursor_zoom_out = Cursor.DEFAULT;
-        }
     }
 
     /** @param listener Listener to add */
@@ -539,32 +514,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         fireAnnotationsChanged();
     }
 
-    /** Set cursor.
-     *
-     *  <p>There is already <code>Node.setCursor()</code>
-     *  which sets the cursor for just this node.
-     *  But that has no affect when JFX is hosted
-     *  inside an SWT FXCanvas.
-     *  (https://bugs.openjdk.java.net/browse/JDK-8088147)
-     *
-     *  <p>We set the cursor of the _scene_, and monitor
-     *  the scene's cursor in the RCP code that creates the
-     *  FXCanvas to then update the SWT cursor.
-     *
-     *  @param cursor
-     */
-    private void doSetCursor(final Cursor cursor)
-    {
-        if (cursor == getCursor())
-            return;
-
-        setCursor(cursor);
-
-        final Scene scene = getScene();
-        if (scene != null)
-            scene.setCursor(cursor);
-    }
-
     /** Select Annotation at mouse position?
      *  @return Was a mouse annotation set?
      */
@@ -697,7 +646,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         gc.dispose();
 
         // Update image
-        // TODO Re-use existing plot_image? Then need to SYNC
         plot_image = Optional.of(SwingFXUtils.toFXImage(image, null));
     }
 
@@ -736,18 +684,18 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         if (mouse_mode == MouseMode.ZOOM_IN  ||  mouse_mode == MouseMode.ZOOM_OUT)
         {   // Update mouse pointer in ready-to-zoom mode
             if (plot_bounds.contains(current.getX(), current.getY()))
-                doSetCursor(mouse_mode == MouseMode.ZOOM_IN ? cursor_zoom_in : cursor_zoom_out);
+                PlotCursors.setCursor(this, mouse_mode);
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
-                doSetCursor(Cursor.H_RESIZE);
+                PlotCursors.setCursor(this, Cursor.H_RESIZE);
             else
             {
                 for (YAxisImpl<XTYPE> axis : y_axes)
                     if (axis.getBounds().contains(current.getX(), current.getY()))
                     {
-                        doSetCursor(Cursor.V_RESIZE);
+                        PlotCursors.setCursor(this, Cursor.V_RESIZE);
                         return;
                     }
-                doSetCursor(Cursor.DEFAULT);
+                PlotCursors.setCursor(this, Cursor.DEFAULT);
             }
         }
         else if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
@@ -849,20 +797,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
             throw new IllegalArgumentException("Not permitted to set " + mode);
         mouse_mode = mode;
 
-        switch (mode)
-        {
-        case PAN:
-        	doSetCursor(cursor_pan);
-            break;
-        case ZOOM_IN:
-            doSetCursor(cursor_zoom_in);
-            break;
-        case ZOOM_OUT:
-            doSetCursor(cursor_zoom_out);
-            break;
-        default:
-            doSetCursor(Cursor.DEFAULT);
-        }
+        PlotCursors.setCursor(this, mode);
     }
 
     /** onMouseEntered */
@@ -910,18 +845,18 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
                 {
                     mouse_y_axis = i;
                     mouse_mode = MouseMode.ZOOM_IN_Y;
-                    doSetCursor(Cursor.CROSSHAIR);
+                    PlotCursors.setCursor(this, mouse_mode);
                     return;
                 }
             if (plot_area.getBounds().contains(current.getX(), current.getY()))
             {
                 mouse_mode = MouseMode.ZOOM_IN_PLOT;
-                doSetCursor(Cursor.CROSSHAIR);
+                PlotCursors.setCursor(this, mouse_mode);
             }
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
             {
                 mouse_mode = MouseMode.ZOOM_IN_X;
-                doSetCursor(Cursor.CROSSHAIR);
+                PlotCursors.setCursor(this, mouse_mode);
             }
         }
         else if (mouse_mode == MouseMode.ZOOM_OUT)
@@ -1166,7 +1101,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
             mouse_current = Optional.empty();
             redraw_runnable.run();
         }
-        doSetCursor(null);
+        PlotCursors.setCursor(this, Cursor.DEFAULT);
     }
 
     /** Stagger the range of axes */

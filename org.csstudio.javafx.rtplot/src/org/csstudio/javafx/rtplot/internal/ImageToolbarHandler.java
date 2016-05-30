@@ -91,10 +91,9 @@ public class ImageToolbarHandler
         toolbar.getItems().add(new Separator());
         addUndo();
 
-        // Initially, panning is selected
-        selectMouseMode(pointer);
+        // Initially, zooming is selected
+        selectMouseMode(zoom_in);
     }
-
 
     private void addMouseModes()
     {

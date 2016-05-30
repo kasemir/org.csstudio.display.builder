@@ -22,7 +22,6 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.PlatformInfo;
-import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
@@ -36,8 +35,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
-import javafx.scene.ImageCursor;
-import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -74,9 +71,6 @@ public class ImagePlot extends Canvas
 
     /** Rainbow color mapping */
     public final static DoubleFunction<Color> RAINBOW = value -> new Color(Color.HSBtoRGB((float)value, 1.0f, 1.0f));
-
-    // TODO Static cursors, init. once
-    private Cursor cursor_zoom_in, cursor_zoom_out;
 
     /** Area of this canvas */
     private volatile Rectangle area = new Rectangle(0, 0, 0, 0);
@@ -186,8 +180,6 @@ public class ImagePlot extends Canvas
         y_axis = new YAxisImpl<>("Y", axis_listener);
         colorbar_axis =  new YAxisImpl<>("", axis_listener);
 
-        initializeCursors();
-
         // 50Hz default throttle
         update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
         {
@@ -207,7 +199,7 @@ public class ImagePlot extends Canvas
 
         if (active)
         {
-            setMouseMode(MouseMode.NONE);
+            setMouseMode(MouseMode.ZOOM_IN);
             setOnMouseEntered(this::mouseEntered);
             setOnMousePressed(this::mouseDown);
             setOnMouseMoved(this::mouseMove);
@@ -215,21 +207,6 @@ public class ImagePlot extends Canvas
             setOnMouseReleased(this::mouseUp);
             setOnMouseExited(this::mouseExit);
             setOnScroll(this::wheelZoom);
-        }
-    }
-
-    private void initializeCursors()
-    {
-        try
-        {
-            cursor_zoom_in = new ImageCursor(Activator.getIcon("cursor_zoom_in"));
-            cursor_zoom_out = new ImageCursor(Activator.getIcon("cursor_zoom_out"));
-        }
-        catch (Exception ex)
-        {
-            logger.log(Level.WARNING, "Error loading cursors", ex);
-            cursor_zoom_in = Cursor.DEFAULT;
-            cursor_zoom_out = Cursor.DEFAULT;
         }
     }
 
@@ -600,13 +577,13 @@ public class ImagePlot extends Canvas
         if (mouse_mode == MouseMode.ZOOM_IN)
         {   // Update mouse pointer in ready-to-zoom mode
             if (plot_bounds.contains(current.getX(), current.getY()))
-                doSetCursor(cursor_zoom_in);
+                PlotCursors.setCursor(this, MouseMode.ZOOM_IN);
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
-                doSetCursor(Cursor.H_RESIZE);
+                PlotCursors.setCursor(this, Cursor.H_RESIZE);
             else if (y_axis.getBounds().contains(current.getX(), current.getY()))
-                doSetCursor(Cursor.V_RESIZE);
+                PlotCursors.setCursor(this, Cursor.V_RESIZE);
             else
-                doSetCursor(Cursor.DEFAULT);
+                PlotCursors.setCursor(this, Cursor.DEFAULT);
         }
         else if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
         {
@@ -686,52 +663,13 @@ public class ImagePlot extends Canvas
         }
     }
 
-    /** Set cursor.
-     *
-     *  <p>There is already <code>Node.setCursor()</code>
-     *  which sets the cursor for just this node.
-     *  But that has no affect when JFX is hosted
-     *  inside an SWT FXCanvas.
-     *  (https://bugs.openjdk.java.net/browse/JDK-8088147)
-     *
-     *  <p>We set the cursor of the _scene_, and monitor
-     *  the scene's cursor in the RCP code that creates the
-     *  FXCanvas to then update the SWT cursor.
-     *
-     *  @param cursor
-     */
-    private void doSetCursor(final Cursor cursor)
-    {
-        if (cursor == getCursor())
-            return;
-
-        setCursor(cursor);
-
-        final Scene scene = getScene();
-        if (scene != null)
-            scene.setCursor(cursor);
-    }
-
     /** @param mode New {@link MouseMode}
      *  @throws IllegalArgumentException if mode is internal
      */
     public void setMouseMode(final MouseMode mode)
     {
         mouse_mode = mode;
-        switch (mode)
-        {
-        case ZOOM_IN:
-            doSetCursor(cursor_zoom_in);
-            break;
-        case ZOOM_OUT:
-            doSetCursor(cursor_zoom_out);
-            break;
-        case NONE:
-            doSetCursor(Cursor.DEFAULT);
-            break;
-        default:
-            throw new IllegalArgumentException("Not permitted to set " + mode);
-        }
+        PlotCursors.setCursor(this, mouse_mode);
     }
 
     /** onMouseEntered */
@@ -755,17 +693,17 @@ public class ImagePlot extends Canvas
             if (y_axis.getBounds().contains(current.getX(), current.getY()))
             {
                 mouse_mode = MouseMode.ZOOM_IN_Y;
-                doSetCursor(Cursor.CROSSHAIR);
+                PlotCursors.setCursor(this, mouse_mode);
             }
             else if (image_area.contains(current.getX(), current.getY()))
             {
                 mouse_mode = MouseMode.ZOOM_IN_PLOT;
-                doSetCursor(Cursor.CROSSHAIR);
+                PlotCursors.setCursor(this, mouse_mode);
             }
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
             {
                 mouse_mode = MouseMode.ZOOM_IN_X;
-                doSetCursor(Cursor.CROSSHAIR);
+                PlotCursors.setCursor(this, mouse_mode);
             }
         }
         else if (mouse_mode == MouseMode.ZOOM_OUT)
@@ -876,7 +814,7 @@ public class ImagePlot extends Canvas
     /** setOnMouseExited */
     private void mouseExit(final MouseEvent e)
     {
-        doSetCursor(null);
+        PlotCursors.setCursor(this, Cursor.DEFAULT);
         updateLocationInfo(-1, -1);
     }
 
