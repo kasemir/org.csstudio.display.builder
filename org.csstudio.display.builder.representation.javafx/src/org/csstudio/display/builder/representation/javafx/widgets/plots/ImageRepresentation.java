@@ -104,6 +104,10 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         image_plot.showColorMap(model_widget.displayColorbar().visible().getValue());
         image_plot.setColorMapSize(model_widget.displayColorbar().barSize().getValue());
         image_plot.setColorMapFont(JFXUtil.convert(model_widget.displayColorbar().scaleFont().getValue()));
+        image_plot.setAxisRange(model_widget.displayXAxis().minimum().getValue(),
+                                model_widget.displayXAxis().maximum().getValue(),
+                                model_widget.displayYAxis().minimum().getValue(),
+                                model_widget.displayYAxis().maximum().getValue());
         axisChanged(model_widget.displayXAxis(), image_plot.getXAxis());
         axisChanged(model_widget.displayYAxis(), image_plot.getYAxis());
         image_plot.setAutoscale(model_widget.behaviorDataAutoscale().getValue());
@@ -115,7 +119,6 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     {
         axis.setVisible(property.visible().getValue());
         axis.setName(property.title().getValue());
-        axis.setValueRange(property.minimum().getValue(), property.maximum().getValue());
         axis.setLabelFont(JFXUtil.convert(property.titleFont().getValue()));
         axis.setScaleFont(JFXUtil.convert(property.scaleFont().getValue()));
     }

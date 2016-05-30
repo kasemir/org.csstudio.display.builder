@@ -28,6 +28,8 @@ import org.csstudio.javafx.rtplot.internal.MouseMode;
 import org.csstudio.javafx.rtplot.internal.PlotPart;
 import org.csstudio.javafx.rtplot.internal.PlotPartListener;
 import org.csstudio.javafx.rtplot.internal.YAxisImpl;
+import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
+import org.csstudio.javafx.rtplot.internal.util.LinearScreenTransform;
 import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
 import org.diirt.util.array.IteratorNumber;
 import org.diirt.util.array.ListNumber;
@@ -81,6 +83,9 @@ public class ImagePlot extends Canvas
 
     /** Does layout need to be re-computed? */
     final private AtomicBoolean need_layout = new AtomicBoolean(true);
+
+    /** Axis range for 'full' image */
+    private volatile double min_x = 0.0, max_x = 100.0, min_y = 0.0, max_y = 100.0;
 
     /** X Axis */
     final private AxisPart<Double> x_axis;
@@ -186,6 +191,8 @@ public class ImagePlot extends Canvas
             updateImageBuffer();
             redrawSafely();
         });
+        x_axis.setValueRange(min_x, max_x);
+        y_axis.setValueRange(min_y, max_y);
 
         final ChangeListener<? super Number> resize_listener = (prop, old, value) ->
         {
@@ -199,7 +206,9 @@ public class ImagePlot extends Canvas
         boolean active = true;
         if (active)
         {
-            doSetCursor(cursor_zoom_in);
+            doSetCursor(cursor_zoom_in); // TODO Zoom out
+            // TODO Keyboard commands
+            // TODO Toolbar
             setOnMouseEntered(this::mouseEntered);
             setOnMousePressed(this::mouseDown);
             setOnMouseMoved(this::mouseMove);
@@ -246,6 +255,23 @@ public class ImagePlot extends Canvas
     {
         this.color_mapping = color_mapping;
         requestUpdate();
+    }
+
+    /** Set axis range for 'full' image
+     *  @param min_x
+     *  @param max_x
+     *  @param min_y
+     *  @param max_y
+     */
+    public void setAxisRange(final double min_x, final double max_x,
+                             final double min_y, final double max_y)
+    {
+        this.min_x = min_x;
+        this.max_x = max_x;
+        this.min_y = min_y;
+        this.max_y = max_y;
+        x_axis.setValueRange(min_x, max_x);
+        y_axis.setValueRange(min_y, max_y);
     }
 
     /** <b>Note: May offer too much access
@@ -435,11 +461,19 @@ public class ImagePlot extends Canvas
         final BufferedImage unscaled = drawData(data_width, data_height, numbers, unsigned, min, max, color_mapping);
         if (unscaled != null)
         {
-            // TODO Compute image source coords from axes
-            int sx1 = 0;
-            int sy1 = 0;
-            int sx2 = sx1 + data_width;
-            int sy2 = sy1 + data_height;
+            // Transform from full axis range into data range,
+            // using the current 'zoom' state of each axis
+            final LinearScreenTransform t = new LinearScreenTransform();
+            AxisRange<Double> zoomed = x_axis.getValueRange();
+            t.config(min_x, max_x, 0, data_width);
+            final int sx1 = Math.max(0, (int)t.transform(zoomed.low));
+            final int sx2 = Math.min(data_width, (int)t.transform(zoomed.high));
+
+            // TODO Fix Y range zoom. 'top' vs. 'bottom' of image are swapped
+            zoomed = y_axis.getValueRange();
+            t.config(min_y, max_y, 0, data_height);
+            final int sy1 = Math.max(0, (int)t.transform(zoomed.low));
+            final int sy2 = Math.min(data_height, (int)t.transform(zoomed.high));
             gc.drawImage(unscaled,
                          image_area.x, image_area.y, image_area.x + image_area.width, image_area.y + image_area.height,
                          sx1,  sy1,  sx2,  sy2,
@@ -767,8 +801,7 @@ public class ImagePlot extends Canvas
                 final int high = (int) Math.max(start.getX(), current.getX());
                 final AxisRange<Double> original_x_range = x_axis.getValueRange();
                 final AxisRange<Double> new_x_range = new AxisRange<>(x_axis.getValue(low), x_axis.getValue(high));
-                // TODO undo.execute(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_In_X, x_axis, original_x_range, new_x_range));
-                System.out.println("Zoom x from " + original_x_range + " to " + new_x_range);
+                undo.execute(new ChangeImageZoom(x_axis, original_x_range, new_x_range, null, null, null));
             }
             mouse_mode = MouseMode.ZOOM_IN;
         }
@@ -780,11 +813,7 @@ public class ImagePlot extends Canvas
                 final int low = (int) Math.max(start.getY(), current.getY());
                 final AxisRange<Double> original_y_range = y_axis.getValueRange();
                 final AxisRange<Double> new_y_range = new AxisRange<>(y_axis.getValue(low), y_axis.getValue(high));
-//              TODO  undo.execute(new ChangeAxisRanges<Double>(this, Messages.Zoom_In_Y,
-//                        Arrays.asList(y_axis),
-//                        Arrays.asList(y_axis.getValueRange()),
-//                        Arrays.asList(new AxisRange<Double>(y_axis.getValue(low), y_axis.getValue(high)))));
-                System.out.println("Zoom y from " + original_y_range + " to " + new_y_range);
+                undo.execute(new ChangeImageZoom(null, null, null, y_axis, original_y_range, new_y_range));
             }
             mouse_mode = MouseMode.ZOOM_IN;
         }
@@ -803,9 +832,8 @@ public class ImagePlot extends Canvas
                 low = (int) Math.max(start.getY(), current.getY());
                 final AxisRange<Double> original_y_range = y_axis.getValueRange();
                 final AxisRange<Double> new_y_range = new AxisRange<>(y_axis.getValue(low), y_axis.getValue(high));
-                // TODO undo.execute(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_In, x_axis, original_x_range, new_x_range, y_axes, original_y_ranges, new_y_ranges));
-                System.out.println("Zoom x from " + original_x_range + " to " + new_x_range);
-                System.out.println("Zoom y from " + original_y_range + " to " + new_y_range);
+                undo.execute(new ChangeImageZoom(x_axis, original_x_range, new_x_range,
+                                                 y_axis, original_y_range, new_y_range));
             }
             mouse_mode = MouseMode.ZOOM_IN;
         }
