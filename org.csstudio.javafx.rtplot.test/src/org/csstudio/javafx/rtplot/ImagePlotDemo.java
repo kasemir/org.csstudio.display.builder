@@ -67,9 +67,9 @@ public class ImagePlotDemo extends Application
         for (Handler handler : Logger.getLogger("").getHandlers())
             handler.setLevel(level);
 
-        final ImagePlot plot = new ImagePlot();
+        final RTImagePlot plot = new RTImagePlot();
 
-        plot.setColorMapping(ImagePlot.RAINBOW);
+        plot.setColorMapping(RTImagePlot.RAINBOW);
 
         plot.setAutoscale(true);
         plot.setValueRange(0.0, 2.0);

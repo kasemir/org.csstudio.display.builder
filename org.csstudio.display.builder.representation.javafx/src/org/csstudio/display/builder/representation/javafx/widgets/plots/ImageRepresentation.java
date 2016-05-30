@@ -20,7 +20,7 @@ import org.csstudio.display.builder.model.widgets.plots.ImageWidget.AxisWidgetPr
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
-import org.csstudio.javafx.rtplot.ImagePlot;
+import org.csstudio.javafx.rtplot.RTImagePlot;
 import org.diirt.util.array.ArrayByte;
 import org.diirt.vtype.VImage;
 import org.diirt.vtype.VNumberArray;
@@ -36,8 +36,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 {
     private final DirtyFlag dirty_position = new DirtyFlag();
 
-    /** Actual plotting delegated to {@link ImagePlot} */
-    private final ImagePlot image_plot = new ImagePlot();
+    /** Actual plotting delegated to {@link RTImagePlot} */
+    private final RTImagePlot image_plot = new RTImagePlot();
 
     @Override
     public Pane createJFXNode() throws Exception

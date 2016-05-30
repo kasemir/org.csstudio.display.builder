@@ -45,6 +45,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.text.Font;
 
 /** Plot for an image
@@ -55,9 +56,11 @@ import javafx.scene.text.Font;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class ImagePlot extends Canvas
+public class RTImagePlot extends Canvas
 {
     final private static int ARROW_SIZE = 8;
+
+    private static final double ZOOM_FACTOR = 1.5;
 
     /** When using 'rubberband' to zoom in, need to select a region
      *  at least this wide resp. high.
@@ -177,7 +180,7 @@ public class ImagePlot extends Canvas
         drawMouseModeFeedback(gc);
     };
 
-    public ImagePlot()
+    public RTImagePlot()
     {
         x_axis = new HorizontalNumericAxis("X", axis_listener);
         y_axis = new YAxisImpl<>("Y", axis_listener);
@@ -215,7 +218,7 @@ public class ImagePlot extends Canvas
             setOnMouseDragged(this::mouseMove);
             setOnMouseReleased(this::mouseUp);
             setOnMouseExited(this::mouseExit);
-//            setOnScroll(this::wheelZoom);
+            setOnScroll(this::wheelZoom);
         }
     }
 
@@ -469,11 +472,11 @@ public class ImagePlot extends Canvas
             final int sx1 = Math.max(0, (int)t.transform(zoomed.low));
             final int sx2 = Math.min(data_width, (int)t.transform(zoomed.high));
 
-            // TODO Fix Y range zoom. 'top' vs. 'bottom' of image are swapped
+            // For Y axis, min_y == bottom == data_height
             zoomed = y_axis.getValueRange();
-            t.config(min_y, max_y, 0, data_height);
-            final int sy1 = Math.max(0, (int)t.transform(zoomed.low));
-            final int sy2 = Math.min(data_height, (int)t.transform(zoomed.high));
+            t.config(min_y, max_y, data_height, 0);
+            final int sy1 = Math.max(0, (int)t.transform(zoomed.high));
+            final int sy2 = Math.min(data_height, (int)t.transform(zoomed.low));
             gc.drawImage(unscaled,
                          image_area.x, image_area.y, image_area.x + image_area.width, image_area.y + image_area.height,
                          sx1,  sy1,  sx2,  sy2,
@@ -800,7 +803,8 @@ public class ImagePlot extends Canvas
                 final int low = (int) Math.min(start.getX(), current.getX());
                 final int high = (int) Math.max(start.getX(), current.getX());
                 final AxisRange<Double> original_x_range = x_axis.getValueRange();
-                final AxisRange<Double> new_x_range = new AxisRange<>(x_axis.getValue(low), x_axis.getValue(high));
+                final AxisRange<Double> new_x_range = new AxisRange<>(Math.max(min_x, x_axis.getValue(low)),
+                                                                      Math.min(max_x, x_axis.getValue(high)));
                 undo.execute(new ChangeImageZoom(x_axis, original_x_range, new_x_range, null, null, null));
             }
             mouse_mode = MouseMode.ZOOM_IN;
@@ -812,7 +816,8 @@ public class ImagePlot extends Canvas
                 final int high = (int)Math.min(start.getY(), current.getY());
                 final int low = (int) Math.max(start.getY(), current.getY());
                 final AxisRange<Double> original_y_range = y_axis.getValueRange();
-                final AxisRange<Double> new_y_range = new AxisRange<>(y_axis.getValue(low), y_axis.getValue(high));
+                final AxisRange<Double> new_y_range = new AxisRange<>(Math.max(min_y, y_axis.getValue(low)),
+                                                                      Math.min(max_y, y_axis.getValue(high)));
                 undo.execute(new ChangeImageZoom(null, null, null, y_axis, original_y_range, new_y_range));
             }
             mouse_mode = MouseMode.ZOOM_IN;
@@ -825,13 +830,14 @@ public class ImagePlot extends Canvas
                 int low = (int) Math.min(start.getX(), current.getX());
                 int high = (int) Math.max(start.getX(), current.getX());
                 final AxisRange<Double> original_x_range = x_axis.getValueRange();
-                final AxisRange<Double> new_x_range = new AxisRange<>(x_axis.getValue(low), x_axis.getValue(high));
-
+                final AxisRange<Double> new_x_range = new AxisRange<>(Math.max(min_x, x_axis.getValue(low)),
+                                                                      Math.min(max_x, x_axis.getValue(high)));
                 // Mouse 'y' increases going _down_ the screen
                 high = (int) Math.min(start.getY(), current.getY());
                 low = (int) Math.max(start.getY(), current.getY());
                 final AxisRange<Double> original_y_range = y_axis.getValueRange();
-                final AxisRange<Double> new_y_range = new AxisRange<>(y_axis.getValue(low), y_axis.getValue(high));
+                final AxisRange<Double> new_y_range = new AxisRange<>(Math.max(min_y, y_axis.getValue(low)),
+                                                                      Math.min(max_y, y_axis.getValue(high)));
                 undo.execute(new ChangeImageZoom(x_axis, original_x_range, new_x_range,
                                                  y_axis, original_y_range, new_y_range));
             }
@@ -846,8 +852,69 @@ public class ImagePlot extends Canvas
         updateLocationInfo(-1, -1);
     }
 
+    /** Zoom in/out triggered by mouse wheel
+     *  @param event Scroll event
+     */
+    private void wheelZoom(final ScrollEvent event)
+    {
+        // Invoked by mouse scroll wheel.
+        // Only allow zoom (with control), not pan.
+        if (! event.isControlDown())
+            return;
+
+        if (event.getDeltaY() > 0)
+            zoomInOut(event.getX(), event.getY(), 1.0/ZOOM_FACTOR);
+        else if (event.getDeltaY() < 0)
+            zoomInOut(event.getX(), event.getY(), ZOOM_FACTOR);
+
+    }
+
+    /** Zoom 'in' or 'out' from where the mouse was clicked
+     *  @param x Mouse coordinate
+     *  @param y Mouse coordinate
+     *  @param factor Zoom factor, positive to zoom 'out'
+     */
+    private void zoomInOut(final double x, final double y, final double factor)
+    {
+        final boolean zoom_x = x_axis.getBounds().contains(x, y);
+        final boolean zoom_y = y_axis.getBounds().contains(x, y);
+        final boolean zoom_both = image_area.getBounds().contains(x, y);
+        AxisRange<Double> orig_x = null, orig_y = null;
+        if (zoom_x || zoom_both)
+            orig_x = zoomAxis(x_axis, (int)x, factor, min_x, max_x);
+        if (zoom_y || zoom_both)
+            orig_y = zoomAxis(y_axis, (int)y, factor, min_y, max_y);
+        if (zoom_both)
+            undo.add(new ChangeImageZoom(x_axis, orig_x, x_axis.getValueRange(),
+                                         y_axis, orig_y, y_axis.getValueRange()));
+        else if (zoom_x)
+            undo.add(new ChangeImageZoom(x_axis, orig_x, x_axis.getValueRange(), null, null, null));
+        else if (zoom_y)
+            undo.add(new ChangeImageZoom(null, null, null, y_axis, orig_y, y_axis.getValueRange()));
+    }
+
+    /** Zoom one axis 'in' or 'out' around a position on the axis
+     *  @param axis Axis to zoom
+     *  @param pos Screen coordinate on the axis
+     *  @param factor Zoom factor
+     *  @param min Minimum and ..
+     *  @param max .. maximum value for axis range
+     *  @return
+     */
+    private AxisRange<Double> zoomAxis(final AxisPart<Double> axis, final int pos, final double factor,
+                                       final double min, final double max)
+    {
+        final AxisRange<Double> orig = axis.getValueRange();
+        final double fixed = axis.getValue(pos);
+        final double new_low  = fixed - (fixed - orig.getLow()) * factor;
+        final double new_high = fixed + (orig.getHigh() - fixed) * factor;
+        axis.setValueRange(Math.max(min, new_low), Math.min(max, new_high));
+        return orig;
+    }
+
     private String formatLocationInfo(final double x, final double y, final double value)
-    {   // TODO Allow script to install alternate format
+    {   // TODO Allow script to install alternate format,
+        // or send x, y and value to PVs
         return "(" + x + ", " + y + ") = " + value;
     }
 
