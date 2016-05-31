@@ -56,11 +56,11 @@ public class ScrollBarWidget extends VisibleWidget
 
     /** Behavior 'step_increment': Regular/unit increment */
     public static final WidgetPropertyDescriptor<Double> behaviorStepIncrement =
-        newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "step_increment", Messages.Increments_StepIncrement);
+        newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "step_increment", Messages.Spinner_StepIncrement);
 
     /** Behavior 'page increment': Increment on page up/down */
     public static final WidgetPropertyDescriptor<Double> behaviorPageIncrement =
-        newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "page_increment", Messages.Increments_PageIncrement);
+        newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "page_increment", Messages.Spinner_PageIncrement);
 
     private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<Double> minimum;

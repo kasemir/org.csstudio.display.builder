@@ -8,16 +8,22 @@
 package org.csstudio.display.builder.representation.javafx.sandbox;
 
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 /** Spinner demo
  *
  *  @author Kay Kasemir
+ *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
 public class SpinnerDemo extends Application
@@ -32,10 +38,19 @@ public class SpinnerDemo extends Application
     {
         final Label label = new Label("Demo:");
 
-        SpinnerValueFactory<Integer> svf = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10);
-        Spinner<Integer> spinner = new Spinner<>();
+        SpinnerValueFactory<Double> svf = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 1000);
+        Spinner<Double> spinner = new Spinner<>();
         spinner.setValueFactory(svf);
-        // spinner.setEditable(true);
+        spinner.editorProperty().getValue().setStyle("-fx-text-fill:" + "black");
+        spinner.editorProperty().getValue().setBackground(
+                new Background(new BackgroundFill(Color.AZURE, CornerRadii.EMPTY, Insets.EMPTY)));
+
+
+        //spinner.getStyleClass().add(Spinner.STYLE_CLASS_ARROWS_ON_LEFT_VERTICAL);
+        //int x = spinner.getStyleClass().indexOf(Spinner.STYLE_CLASS_ARROWS_ON_LEFT_VERTICAL);
+        //if (x > 0) spinner.getStyleClass().remove(x);
+
+        spinner.setEditable(true);
         spinner.setPrefWidth(80);
 
         spinner.valueProperty().addListener((prop, old, value) ->

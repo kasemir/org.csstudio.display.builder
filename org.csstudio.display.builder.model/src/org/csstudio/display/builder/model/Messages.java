@@ -45,8 +45,6 @@ public class Messages extends NLS
     public static String GroupWidget_Description;
     public static String GroupWidget_Name;
     public static String Horizontal;
-    public static String Increments_PageIncrement;
-    public static String Increments_StepIncrement;
     public static String LabelWidget_Text;
     public static String Left;
     public static String Middle;
@@ -80,6 +78,9 @@ public class Messages extends NLS
     public static String Right;
     public static String ScrollBar_ShowValueTip;
     public static String ScrollBar_BarLength;
+    public static String Spinner_ButtonsOnLeft;
+    public static String Spinner_PageIncrement;
+    public static String Spinner_StepIncrement;
     public static String Style;
     public static String Style_Group;
     public static String Style_Line;
@@ -153,6 +154,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Text;
     public static String WidgetProperties_Transparent;
     public static String WidgetProperties_Type;
+    public static String WidgetProperties_UnsignedData;
     public static String WidgetProperties_Value;
     public static String WidgetProperties_VerticalAlignment;
     public static String WidgetProperties_Visible;

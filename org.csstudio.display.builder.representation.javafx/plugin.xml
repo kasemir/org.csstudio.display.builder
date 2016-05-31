@@ -64,6 +64,10 @@
             type="rectangle">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.SpinnerRepresentation"
+            type="spinner">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.TabsRepresentation"
             type="tab">
       </representation>
@@ -90,10 +94,6 @@
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.ScrollBarRepresentation"
             type="scrollbar">
-      </representation>
-      <representation
-            class="org.csstudio.display.builder.representation.javafx.widgets.ScaledSliderRepresentation"
-            type="scaledslider">
       </representation>
    </extension>
 </plugin>
