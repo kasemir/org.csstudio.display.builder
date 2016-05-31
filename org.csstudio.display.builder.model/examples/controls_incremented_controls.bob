@@ -46,11 +46,10 @@
   </widget>
   <widget type="scaledslider" version="2.0.0">
     <name>Scaled Slider</name>
-    <x>81</x>
-    <y>201</y>
-    <width>30</width>
-    <height>205</height>
-    <horizontal>false</horizontal>
+    <x>61</x>
+    <y>211</y>
+    <width>220</width>
+    <height>70</height>
     <scale_format>#</scale_format>
     <pv_name>loc://number(0.0)</pv_name>
     <step_increment>5.0</step_increment>
