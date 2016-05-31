@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
+import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.MarkerAxis;
 import org.diirt.vtype.Display;
@@ -13,8 +14,12 @@ import org.diirt.vtype.ValueUtil;
 
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
@@ -25,9 +30,8 @@ import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
@@ -36,7 +40,7 @@ import javafx.util.converter.FormatStringConverter;
 
 @SuppressWarnings("nls")
 //big TODO: layout is very very strange
-public class ScaledSliderRepresentation extends RegionBaseRepresentation<Pane, ScaledSliderWidget>
+public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPane, ScaledSliderWidget>
 //TODO: consider placing under a ScaledWidgetBase superclass (with ProgressBar) or an IncrementedControl (with scrollbar, spinner)
     //consider also interfacing; perhaps make IncrementedControlWidget the interface
 {
@@ -49,7 +53,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<Pane, S
     private volatile double max = 100.0;
     private volatile double value = 50.0;
     private volatile double stepIncrement = 1.0;
-    private volatile int tickCount = 20;
+    private volatile double tickUnit = 20;
 
     //border for debugging layout //TODO: after debug layout, remove all setBorder() calls
     final Border blackborder = new Border(new BorderStroke(new Color(0, 0, 0, 1),
@@ -121,25 +125,17 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<Pane, S
     };
 
 
-    /** The jfx_node pane is a wrapper for a subpane, which is recreated
-     * as a new VBox or HBox as orientation changes. */
     @Override
-    protected Pane createJFXNode() throws Exception
+    protected GridPane createJFXNode() throws Exception
     {
-        final Pane pane = new Pane(createSubPane());
-        //axis.setBorder(blackborder);
+        final GridPane pane = new GridPane();
+        pane.setAlignment(Pos.CENTER);
+        GridPane.setVgrow(slider, Priority.NEVER);
+        GridPane.setHgrow(slider, Priority.NEVER);
+        GridPane.setConstraints(slider, 0, 1, 1, 1, HPos.CENTER, VPos.CENTER);
+        pane.getChildren().add(slider);
+        //pane.setBorder(blackborder);
         return pane;
-    }
-
-    private Pane createSubPane()
-    {
-        Pane newpane = slider.getOrientation()==Orientation.HORIZONTAL ? new VBox(axis, slider) : new HBox(axis, slider);
-        if (slider.getOrientation()==Orientation.HORIZONTAL)
-            ((VBox)newpane).setFillWidth(true);
-        else
-            ((HBox)newpane).setFillHeight(true);
-        newpane.setBorder(blackborder);
-        return newpane;
     }
 
     private Slider createSlider()
@@ -168,7 +164,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<Pane, S
         });
         slider.setValue(value);
         slider.setSnapToTicks(true);
-        slider.setBorder(blueborder);
+        //slider.setBorder(blueborder);
         return slider;
     }
 
@@ -180,7 +176,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<Pane, S
         model_widget.behaviorLimitsFromPV().addUntypedPropertyListener(this::limitsChanged);
         model_widget.behaviorMinimum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.behaviorMaximum().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.displayHorizontal().addPropertyListener(this::orientChanged);
+        model_widget.displayHorizontal().addUntypedPropertyListener(this::orientChanged);
         model_widget.behaviorStepIncrement().addPropertyListener(this::sizeChanged);
         model_widget.behaviorPageIncrement().addPropertyListener(this::sizeChanged);
         //model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
@@ -193,6 +189,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<Pane, S
         model_widget.displayLevelHiHi().addUntypedPropertyListener(this::sizeChanged);
         model_widget.displayLevelLo().addUntypedPropertyListener(this::sizeChanged);
         model_widget.displayLevelLoLo().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.displayShowMarkers().addUntypedPropertyListener(this::orientChanged);
 
         //Since both the widget's PV value and the JFX node's value property might be
         //written to independently during runtime, both must have listeners.
@@ -213,9 +210,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<Pane, S
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         stepIncrement = model_widget.behaviorStepIncrement().getValue();
-        //The node's majorTickUnit value should always be calculated from its
-        //minorTickCount in order to avoid errors caused by casting to int.
-        tickCount = (int) (calculateTickUnit() / stepIncrement) - 1;
+        tickUnit = calculateTickUnit(max-min);
         dirty_size.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -252,25 +247,41 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<Pane, S
 
         sizeChanged(null, null, null);
     }
-
-    /*  Method for calculating the slider's majorTickUnit property value. The actual value should
-     *  be calculated from the integer minorTickCount (tick count per major unit) to maintain
-     *  correct increments for snapping/stepping between minor ticks.
+    /** Nice looking steps for the distance between tick,
+     *  In general, the computed steps "fill" the axis.
+     *  @see #calculateNumMajUnits(double)
      */
-    private double calculateTickUnit()
+    final private static double[] NICE_STEPS = { 1.0, 2.0, 5.0, 10.0 };
+    /**
+     * Calculate a nice-looking step that displays with at least
+     * the size given by the major_tick_step_hint and fits nicely
+     * into the given span of data values.
+     * @param span Span, in data units, of widget values (i.e. max-min).
+     * @return Tick unit, in data units, for slider.
+     */
+    private double calculateTickUnit(double span)
     {
-        final int mtsh = model_widget.positionMajorTickStepHint().getValue();
-        final int length = (model_widget.displayHorizontal().getValue() ?
-                        model_widget.positionWidth().getValue() :
-                        model_widget.positionHeight().getValue());
-        final double range = max - min;
-        return (range > 0 ? range : 100) / (length / mtsh);
+        final double length = (model_widget.displayHorizontal().getValue() ?
+                model_widget.positionWidth().getValue() :
+                model_widget.positionHeight().getValue());
+        double dataDistance = (model_widget.positionMajorTickStepHint().getValue() / length) * span;
+            //dataDistance: min. distance, in data units, between major ticks
+        final double order_of_magnitude = Math.pow(10, Math.floor(Math.log10(dataDistance)));
+        double step = dataDistance / order_of_magnitude;
+        for (int i=0; i<NICE_STEPS.length; ++i)
+            if (NICE_STEPS[i] >= step)
+                 return NICE_STEPS[i] * order_of_magnitude;
+        return Math.abs(span); //note: may cause errors if span is 0
     }
 
     private void nodeValueChanged(ObservableValue<? extends Number> property, Number old_value, Number new_value)
     {
-        slider.getTooltip().setText(""+new_value);
-        toolkit.fireWrite(model_widget, new_value);
+            final double save_increment = stepIncrement;
+            final double save_min = min;
+            final double numStepsInValue = Math.round(((double)new_value-save_min) / save_increment);
+            new_value = save_min + numStepsInValue * save_increment;
+            slider.getTooltip().setText(""+new_value);
+            toolkit.fireWrite(model_widget, new_value);
     }
 
     private void valueChanged(final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value)
@@ -288,19 +299,15 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<Pane, S
             double w = model_widget.positionWidth().getValue();
             double h = model_widget.positionHeight().getValue();
             jfx_node.setPrefSize(w, h);
-            Pane subpane = (Pane) jfx_node.getChildren().get(0);
-            subpane.setMinSize(w, h);
-            subpane.setMaxSize(w, h);
             if (model_widget.displayHorizontal().getValue())
                 slider.setPrefWidth(w);
             else
                 slider.setPrefHeight(h);
-            subpane.requestLayout();
-            int save_count = tickCount;
+            double save_unit = tickUnit;
             slider.setMin(min);
             slider.setMax(max);
-            slider.setMinorTickCount(save_count);
-            slider.setMajorTickUnit((save_count + 1) * model_widget.behaviorStepIncrement().getValue());
+            slider.setMinorTickCount((int) Math.round(save_unit / stepIncrement) - 1);
+            slider.setMajorTickUnit(save_unit);
             slider.setBlockIncrement(model_widget.behaviorPageIncrement().getValue());
             axis.setHi(model_widget.displayLevelHi().getValue());
             axis.setHiHi(model_widget.displayLevelHiHi().getValue());
@@ -330,17 +337,21 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<Pane, S
         }
         if (dirty_orientation.checkAndClear())
         {
-            final boolean horizontal = model_widget.displayHorizontal().getValue();
-            slider.setOrientation(horizontal ? Orientation.HORIZONTAL : Orientation.VERTICAL);
-            Pane subpane = createSubPane();
-            if (horizontal)
-                slider.setPrefWidth(jfx_node.getPrefWidth());
+            Node slider = jfx_node.getChildren().get(0);
+            if (model_widget.displayShowMarkers().getValue())
+            {
+                if (model_widget.displayHorizontal().getValue())
+                    GridPane.setConstraints(slider, 0, 1, 1, 1, HPos.CENTER, VPos.CENTER);
+                else
+                    GridPane.setConstraints(slider, 1, 0, 1, 1, HPos.CENTER, VPos.CENTER);
+                if (!jfx_node.getChildren().contains(axis))
+                    jfx_node.add(axis, 0, 0);
+            }
             else
-                slider.setPrefHeight(jfx_node.getPrefHeight());
-            subpane.setMinSize(jfx_node.getPrefWidth(), jfx_node.getPrefHeight());
-            subpane.setMaxSize(jfx_node.getPrefWidth(), jfx_node.getPrefHeight());
-            jfx_node.getChildren().clear();
-            jfx_node.getChildren().add(subpane);
+            {
+                jfx_node.getChildren().removeIf((child)->child instanceof MarkerAxis);
+                GridPane.setConstraints(slider, 0, 0);
+            }
         }
     }
 }

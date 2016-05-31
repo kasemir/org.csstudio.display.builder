@@ -4,12 +4,17 @@ import org.csstudio.display.builder.representation.javafx.MarkerAxis;
 
 import javafx.application.Application;
 import javafx.beans.binding.DoubleBinding;
+import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -17,7 +22,7 @@ import javafx.stage.Stage;
 /**
  * @author Amanda Carpenter
  */
-public class SliderDemo1 extends Application
+public class SliderDemo2 extends Application
 {
     public static void main(String [] args)
     {
@@ -33,6 +38,7 @@ public class SliderDemo1 extends Application
         slider.setShowTickMarks(true);
         slider.setSnapToTicks(true);
         slider.setMinorTickCount(5);
+        slider.setPrefWidth(400);
 
         MarkerAxis<Slider> axis = new MarkerAxis<Slider>(slider)
         {
@@ -86,8 +92,6 @@ public class SliderDemo1 extends Application
             }
         };
 
-        Pane nodepane = new Pane();
-
         Button button = new Button("Rotate me.");
         button.setOnAction((event)->
             {
@@ -116,34 +120,42 @@ public class SliderDemo1 extends Application
                 slider.setValue(axis.getLo());
             }
         });
-        Button button4 = new Button("Relocate.");
-        button4.setOnAction((event)->
-        {
-            nodepane.relocate(127, 138);
-        });
 
-        HBox buttons = new HBox(10.0, new Text("[Slide to adjust.]"), button3, button, button2, button4);
+        HBox buttons = new HBox(10.0, new Text("[Slide to adjust.]"), button3, button, button2);
 
-        reorient(nodepane, axis, slider);
+        final GridPane pane = new GridPane();
+        pane.setAlignment(Pos.CENTER);
+        GridPane.setVgrow(slider, Priority.NEVER);
+        GridPane.setHgrow(slider, Priority.NEVER);
+        GridPane.setConstraints(slider, 0, 1, 1, 1, HPos.CENTER, VPos.CENTER);
+        pane.getChildren().add(slider);
+
+        final VBox root = new VBox(pane, buttons);
+
+        reorient(slider.getOrientation(), pane, axis);
         slider.orientationProperty().addListener((property, oldval, newval)->
         {
-            reorient(nodepane, axis, slider);
+            reorient(newval, pane, axis);
         });
-        slider.setPrefWidth(400);
         slider.valueProperty().addListener((observable, oldval, newval)->
         {
             if ("Adjust lo".equals(button3.getText()))
             {
                 if (slider.getOrientation()==Orientation.HORIZONTAL)
+                {
                     slider.setPrefWidth(400+newval.doubleValue());
+                    slider.setMaxWidth(400+newval.doubleValue());
+                }
                 else
+                {
                     slider.setPrefHeight(400+newval.doubleValue());
+                    slider.setMaxHeight(400+newval.doubleValue());
+                }
             }
             else
                 axis.setLo(newval.doubleValue());
         });
 
-        VBox root = new VBox(nodepane, buttons);
         final Scene scene = new Scene(root, 800, 700);
         stage.setScene(scene);
         stage.setTitle("Slider Demo");
@@ -151,20 +163,23 @@ public class SliderDemo1 extends Application
         stage.show();
     }
 
-    private void reorient(Pane nodepane, MarkerAxis axis, Slider slider)
+    private void reorient(Orientation newValue, GridPane pane, MarkerAxis<Slider> axis)
     {
-        boolean horizontal = slider.getOrientation() == Orientation.HORIZONTAL;
-        Pane newpane = horizontal ? new VBox(axis, slider) : new HBox(axis, slider);
-        if (horizontal)
-            ((VBox)newpane).setFillWidth(false);
+        boolean showMarkers = true;
+        Node slider = pane.getChildren().get(0);
+        if (showMarkers)
+        {
+            if (newValue == Orientation.HORIZONTAL)
+                GridPane.setConstraints(slider, 0, 1, 1, 1, HPos.CENTER, VPos.CENTER);
+            else
+                GridPane.setConstraints(slider, 1, 0, 1, 1, HPos.CENTER, VPos.CENTER);
+            if (!pane.getChildren().contains(axis))
+                pane.add(axis, 0, 0);
+        }
         else
-            ((HBox)newpane).setFillHeight(false);
-
-        final double oldwidth = slider.getPrefWidth();
-        slider.setPrefWidth(slider.getPrefHeight());
-        slider.setPrefHeight(oldwidth);
-
-        nodepane.getChildren().clear();
-        nodepane.getChildren().add(newpane);
+        {
+            pane.getChildren().removeIf((child)->child instanceof MarkerAxis);
+            GridPane.setConstraints(slider, 0, 0);
+        }
     }
 }
