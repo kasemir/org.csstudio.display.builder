@@ -25,24 +25,14 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeLineCap;
-import javafx.scene.shape.StrokeLineJoin;
-import javafx.scene.shape.StrokeType;
 import javafx.util.converter.FormatStringConverter;
 
 @SuppressWarnings("nls")
-//big TODO: layout is very very strange
 public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPane, ScaledSliderWidget>
-//TODO: consider placing under a ScaledWidgetBase superclass (with ProgressBar) or an IncrementedControl (with scrollbar, spinner)
-    //consider also interfacing; perhaps make IncrementedControlWidget the interface
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_value = new DirtyFlag();
@@ -54,22 +44,6 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
     private volatile double value = 50.0;
     private volatile double stepIncrement = 1.0;
     private volatile double tickUnit = 20;
-
-    //border for debugging layout //TODO: after debug layout, remove all setBorder() calls
-    final Border blackborder = new Border(new BorderStroke(new Color(0, 0, 0, 1),
-                                                            new BorderStrokeStyle(StrokeType.OUTSIDE,
-                                                                                  StrokeLineJoin.MITER,
-                                                                                  StrokeLineCap.BUTT,
-                                                                                  10, 0, null),
-                                                            CornerRadii.EMPTY,
-                                                            new BorderWidths(1)));
-    final Border blueborder = new Border(new BorderStroke(new Color(0, 0, 1, 1),
-                                                          new BorderStrokeStyle(StrokeType.OUTSIDE,
-                                                                                StrokeLineJoin.MITER,
-                                                                                StrokeLineCap.BUTT,
-                                                                                10, 0, null),
-                                                          CornerRadii.EMPTY,
-                                                          new BorderWidths(1)));
 
     private final Slider slider = createSlider();
     private final MarkerAxis<Slider> axis = new MarkerAxis<Slider>(slider)
@@ -92,9 +66,9 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
                 @Override
                 protected double computeValue()
                 {
-                    return node.getOrientation() == Orientation.HORIZONTAL ?
-                            node.getWidth() :
-                            node.getHeight();
+                    return (node.getOrientation() == Orientation.HORIZONTAL ?
+                            node.getWidth() : node.getHeight()) -
+                            15;
                 }
             };
             min = new DoubleBinding()
@@ -130,11 +104,9 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
     {
         final GridPane pane = new GridPane();
         pane.setAlignment(Pos.CENTER);
-        GridPane.setVgrow(slider, Priority.NEVER);
-        GridPane.setHgrow(slider, Priority.NEVER);
+        GridPane.setConstraints(axis, 0, 0, 1, 1, HPos.CENTER, VPos.CENTER);
         GridPane.setConstraints(slider, 0, 1, 1, 1, HPos.CENTER, VPos.CENTER);
         pane.getChildren().add(slider);
-        //pane.setBorder(blackborder);
         return pane;
     }
 
@@ -164,7 +136,6 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         });
         slider.setValue(value);
         slider.setSnapToTicks(true);
-        //slider.setBorder(blueborder);
         return slider;
     }
 
@@ -177,11 +148,9 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.behaviorMinimum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.behaviorMaximum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.displayHorizontal().addUntypedPropertyListener(this::orientChanged);
-        model_widget.behaviorStepIncrement().addPropertyListener(this::sizeChanged);
-        model_widget.behaviorPageIncrement().addPropertyListener(this::sizeChanged);
-        //model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.behaviorStepIncrement().addPropertyListener(this::limitsChanged);
+        model_widget.behaviorPageIncrement().addPropertyListener(this::limitsChanged);
         model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
-        //model_widget.displayFillColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayShowScale().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayShowMinorTicks().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayScaleFormat().addUntypedPropertyListener(this::styleChanged);
@@ -209,7 +178,6 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        stepIncrement = model_widget.behaviorStepIncrement().getValue();
         tickUnit = calculateTickUnit(max-min);
         dirty_size.mark();
         toolkit.scheduleUpdate(this);
@@ -223,6 +191,8 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
     private void limitsChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        stepIncrement = model_widget.behaviorStepIncrement().getValue();
+
         double min_val = model_widget.behaviorMinimum().getValue();
         double max_val = model_widget.behaviorMaximum().getValue();
         if (model_widget.behaviorLimitsFromPV().getValue())
@@ -247,6 +217,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
         sizeChanged(null, null, null);
     }
+
     /** Nice looking steps for the distance between tick,
      *  In general, the computed steps "fill" the axis.
      *  @see #calculateNumMajUnits(double)
@@ -298,11 +269,14 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         {
             double w = model_widget.positionWidth().getValue();
             double h = model_widget.positionHeight().getValue();
-            jfx_node.setPrefSize(w, h);
+            //if all prefSize is used, layout is not properly
+            //arranged when size changes in editor
+            jfx_node.setMaxSize(w, h);
+            jfx_node.setMinSize(w, h);
             if (model_widget.displayHorizontal().getValue())
-                slider.setPrefWidth(w);
+                slider.setMaxSize(w, Double.MAX_VALUE);
             else
-                slider.setPrefHeight(h);
+                slider.setMaxSize(Double.MAX_VALUE, h);
             double save_unit = tickUnit;
             slider.setMin(min);
             slider.setMax(max);
@@ -324,12 +298,8 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         }
         if (dirty_style.checkAndClear())
         {
-            //TODO: properly represent fg color, font
-            //final String color = JFXUtil.webRGB(model_widget.displayForegroundColor().getValue());
-            //jfx_node.setStyle("-fx-text-fill:" + color + ";-fx-stroke:" + color); //this doesn't do anything
             final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
             jfx_node.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
-            //jfx_node.setFont(JFXUtil.convert(model_widget.displayScaleFont().getValue()));
             final String format = model_widget.displayScaleFormat().getValue();
             slider.setLabelFormatter(new FormatStringConverter<Double>(new DecimalFormat(format)));
             slider.setShowTickLabels(model_widget.displayShowScale().getValue());
@@ -337,13 +307,23 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         }
         if (dirty_orientation.checkAndClear())
         {
+            final boolean horizontal = model_widget.displayHorizontal().getValue();
             Node slider = jfx_node.getChildren().get(0);
+            ((Slider)slider).setOrientation(horizontal ? Orientation.HORIZONTAL : Orientation.VERTICAL);
             if (model_widget.displayShowMarkers().getValue())
             {
-                if (model_widget.displayHorizontal().getValue())
-                    GridPane.setConstraints(slider, 0, 1, 1, 1, HPos.CENTER, VPos.CENTER);
+                if (horizontal)
+                {
+                    GridPane.setConstraints(slider, 0, 1);
+                    GridPane.setHgrow(slider, Priority.ALWAYS);
+                    GridPane.setVgrow(slider, Priority.NEVER);
+                }
                 else
-                    GridPane.setConstraints(slider, 1, 0, 1, 1, HPos.CENTER, VPos.CENTER);
+                {
+                    GridPane.setConstraints(slider, 1, 0);
+                    GridPane.setHgrow(slider, Priority.NEVER);
+                    GridPane.setVgrow(slider, Priority.ALWAYS);
+                }
                 if (!jfx_node.getChildren().contains(axis))
                     jfx_node.add(axis, 0, 0);
             }
@@ -351,6 +331,16 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
             {
                 jfx_node.getChildren().removeIf((child)->child instanceof MarkerAxis);
                 GridPane.setConstraints(slider, 0, 0);
+                if (horizontal)
+                {
+                    GridPane.setHgrow(slider, Priority.ALWAYS);
+                    GridPane.setVgrow(slider, Priority.NEVER);
+                }
+                else
+                {
+                    GridPane.setHgrow(slider, Priority.NEVER);
+                    GridPane.setVgrow(slider, Priority.ALWAYS);
+                }
             }
         }
     }
