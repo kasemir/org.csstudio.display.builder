@@ -256,6 +256,17 @@
                type="org.csstudio.opibuilder.widgets.spinner">
          </alternates>
       </widget>
+      <widget
+            category="MISC"
+            class="org.csstudio.display.builder.model.widgets.WebBrowserWidget"
+            description="%WebBrowserWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/web_browser.png"
+            name="%WebBrowserWidget_Name"
+            type="webbrowser">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.webbrowser">
+         </alternates>
+      </widget>
    </extension>
 
 </plugin>

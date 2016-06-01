@@ -42,6 +42,7 @@ import org.csstudio.display.builder.model.widgets.SpinnerWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
+import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -125,6 +126,7 @@ public class WidgetFactory
         addWidgetType(TabsWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextEntryWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextUpdateWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(WebBrowserWidget.WIDGET_DESCRIPTOR);
         addWidgetType(XYPlotWidget.WIDGET_DESCRIPTOR);
     }
 
