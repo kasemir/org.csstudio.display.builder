@@ -114,6 +114,22 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     public static final WidgetPropertyDescriptor<Double> displayLevelLoLo =
             newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_lolo", Messages.WidgetProperties_LevelLoLo);
 
+    /** Display 'show_hi': Whether to show HI marker*/
+    public static final WidgetPropertyDescriptor<Boolean> displayShowHi =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_hi", Messages.WidgetProperties_ShowHi);
+
+    /** Display 'show_hihi': Whether to show HIHI marker*/
+    public static final WidgetPropertyDescriptor<Boolean> displayShowHiHi =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_hihi", Messages.WidgetProperties_ShowHiHi);
+
+    /** Display 'show_lo': Whether to show LO marker*/
+    public static final WidgetPropertyDescriptor<Boolean> displayShowLo =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_lo", Messages.WidgetProperties_ShowLo);
+
+    /** Display 'show_lo': Whether to show LOLO marker*/
+    public static final WidgetPropertyDescriptor<Boolean> displayShowLoLo =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_lolo", Messages.WidgetProperties_ShowLoLo);
+
     private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<Boolean> horizontal;
     private volatile WidgetProperty<Double> page_increment;
@@ -136,6 +152,10 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     private volatile WidgetProperty<Double> level_hihi;
     private volatile WidgetProperty<Double> level_lo;
     private volatile WidgetProperty<Double> level_lolo;
+    private volatile WidgetProperty<Boolean> show_hi;
+    private volatile WidgetProperty<Boolean> show_hihi;
+    private volatile WidgetProperty<Boolean> show_lo;
+    private volatile WidgetProperty<Boolean> show_lolo;
 
     public ScaledSliderWidget()
     {
@@ -169,6 +189,10 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         properties.add(level_hi = displayLevelHi.createProperty(this, 80.0));
         properties.add(level_lo = displayLevelLo.createProperty(this, 20.0));
         properties.add(level_lolo = displayLevelLoLo.createProperty(this, 10.0));
+        properties.add(show_hihi = displayShowHiHi.createProperty(this, true));
+        properties.add(show_hi = displayShowHi.createProperty(this, true));
+        properties.add(show_lo = displayShowLo.createProperty(this, true));
+        properties.add(show_lolo = displayShowLoLo.createProperty(this, true));
     }
 
     /** @return Runtime 'value' */
@@ -292,4 +316,27 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         return level_lolo;
     }
 
+    /** @return Display 'show_hi' */
+    public WidgetProperty<Boolean> displayShowHi()
+    {
+        return show_hi;
+    }
+
+    /** @return Display 'show_hihi' */
+    public WidgetProperty<Boolean> displayShowHiHi()
+    {
+        return show_hihi;
+    }
+
+    /** @return Display 'show_lo' */
+    public WidgetProperty<Boolean> displayShowLo()
+    {
+        return show_lo;
+    }
+
+    /** @return Display 'show_lolo' */
+    public WidgetProperty<Boolean> displayShowLoLo()
+    {
+        return show_lolo;
+    }
 }

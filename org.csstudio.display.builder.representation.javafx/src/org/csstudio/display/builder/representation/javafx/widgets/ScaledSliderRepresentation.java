@@ -31,13 +31,16 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.util.converter.FormatStringConverter;
 
+/*
+ * @author Amanda Carpenter
+ */
 @SuppressWarnings("nls")
 public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPane, ScaledSliderWidget>
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_value = new DirtyFlag();
     private final DirtyFlag dirty_style = new DirtyFlag();
-    private final DirtyFlag dirty_orientation = new DirtyFlag();
+    private final DirtyFlag dirty_look = new DirtyFlag();
 
     private volatile double min = 0.0;
     private volatile double max = 100.0;
@@ -147,18 +150,22 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.behaviorLimitsFromPV().addUntypedPropertyListener(this::limitsChanged);
         model_widget.behaviorMinimum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.behaviorMaximum().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.displayHorizontal().addUntypedPropertyListener(this::orientChanged);
+        model_widget.displayHorizontal().addUntypedPropertyListener(this::lookChanged);
         model_widget.behaviorStepIncrement().addPropertyListener(this::limitsChanged);
         model_widget.behaviorPageIncrement().addPropertyListener(this::limitsChanged);
         model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayShowScale().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayShowMinorTicks().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayScaleFormat().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayLevelHi().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.displayLevelHiHi().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.displayLevelLo().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.displayLevelLoLo().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.displayShowMarkers().addUntypedPropertyListener(this::orientChanged);
+        model_widget.displayLevelHi().addUntypedPropertyListener(this::lookChanged);
+        model_widget.displayLevelHiHi().addUntypedPropertyListener(this::lookChanged);
+        model_widget.displayLevelLo().addUntypedPropertyListener(this::lookChanged);
+        model_widget.displayLevelLoLo().addUntypedPropertyListener(this::lookChanged);
+        model_widget.displayShowMarkers().addUntypedPropertyListener(this::lookChanged);
+        model_widget.displayShowHi().addUntypedPropertyListener(this::lookChanged);
+        model_widget.displayShowHiHi().addUntypedPropertyListener(this::lookChanged);
+        model_widget.displayShowLo().addUntypedPropertyListener(this::lookChanged);
+        model_widget.displayShowLoLo().addUntypedPropertyListener(this::lookChanged);
 
         //Since both the widget's PV value and the JFX node's value property might be
         //written to independently during runtime, both must have listeners.
@@ -167,12 +174,12 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
         limitsChanged(null, null, null);
         styleChanged(null, null, null);
-        orientChanged(null, null, null);
+        lookChanged(null, null, null);
     }
 
-    private void orientChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    private void lookChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        dirty_orientation.mark();
+        dirty_look.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -283,10 +290,6 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
             slider.setMinorTickCount((int) Math.round(save_unit / stepIncrement) - 1);
             slider.setMajorTickUnit(save_unit);
             slider.setBlockIncrement(model_widget.behaviorPageIncrement().getValue());
-            axis.setHi(model_widget.displayLevelHi().getValue());
-            axis.setHiHi(model_widget.displayLevelHiHi().getValue());
-            axis.setLo(model_widget.displayLevelLo().getValue());
-            axis.setLoLo(model_widget.displayLevelLoLo().getValue());
         }
         if (dirty_value.checkAndClear())
         {
@@ -305,7 +308,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
             slider.setShowTickLabels(model_widget.displayShowScale().getValue());
             slider.setShowTickMarks(model_widget.displayShowMinorTicks().getValue());
         }
-        if (dirty_orientation.checkAndClear())
+        if (dirty_look.checkAndClear())
         {
             final boolean horizontal = model_widget.displayHorizontal().getValue();
             Node slider = jfx_node.getChildren().get(0);
@@ -326,6 +329,14 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
                 }
                 if (!jfx_node.getChildren().contains(axis))
                     jfx_node.add(axis, 0, 0);
+                axis.setHi(model_widget.displayLevelHi().getValue());
+                axis.setHiHi(model_widget.displayLevelHiHi().getValue());
+                axis.setLo(model_widget.displayLevelLo().getValue());
+                axis.setLoLo(model_widget.displayLevelLoLo().getValue());
+                axis.setShowHi(model_widget.displayShowHi().getValue());
+                axis.setShowHiHi(model_widget.displayShowHiHi().getValue());
+                axis.setShowLo(model_widget.displayShowLo().getValue());
+                axis.setShowLoLo(model_widget.displayShowLoLo().getValue());
             }
             else
             {
