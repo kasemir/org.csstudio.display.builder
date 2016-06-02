@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Properties</name>
+  <x>-1</x>
+  <y>-1</y>
+  <widget type="scrollbar" version="2.0.0">
+    <name>Scrollbar</name>
+    <x>41</x>
+    <y>160</y>
+    <show_value_tip>false</show_value_tip>
+    <pv_name>loc://number(0.0)</pv_name>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry</name>
+    <x>40</x>
+    <y>100</y>
+    <pv_name>loc://number(0.0)</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <x>41</x>
+    <y>41</y>
+    <width>250</width>
+    <height>30</height>
+    <text>Incremented Controls</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <x>41</x>
+    <y>71</y>
+    <width>380</width>
+    <text>Some controls adjust PV values by increments.</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_2</name>
+    <x>40</x>
+    <y>130</y>
+    <text>Scrollbar</text>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="scaledslider" version="2.0.0">
+    <name>Scaled Slider</name>
+    <x>61</x>
+    <y>211</y>
+    <width>80</width>
+    <height>210</height>
+    <horizontal>false</horizontal>
+    <scale_format>#.##</scale_format>
+    <show_markers>true</show_markers>
+    <pv_name>loc://number(0.0)</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <x>51</x>
+    <y>191</y>
+    <width>110</width>
+    <text>Scaled Slider</text>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_4</name>
+    <x>181</x>
+    <y>130</y>
+    <text>Spinner</text>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="spinner" version="2.0.0">
+    <name>Spinner</name>
+    <x>181</x>
+    <y>161</y>
+    <pv_name>loc://number(0.0)</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_5</name>
+    <x>183</x>
+    <y>232</y>
+    <width>238</width>
+    <text>The value can be adjusted both with</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_6</name>
+    <x>183</x>
+    <y>252</y>
+    <width>238</width>
+    <text>the mouse and, when the widget is in</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_7</name>
+    <x>183</x>
+    <y>272</y>
+    <width>238</width>
+    <text>focus, using the arrow keys and page</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_8</name>
+    <x>183</x>
+    <y>292</y>
+    <width>198</width>
+    <text>up/page down keys.</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_9</name>
+    <x>183</x>
+    <y>331</y>
+    <width>238</width>
+    <text>These increments can be set using</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_10</name>
+    <x>183</x>
+    <y>351</y>
+    <width>238</width>
+    <text>the "step" and "page increment"</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_11</name>
+    <x>183</x>
+    <y>371</y>
+    <width>238</width>
+    <text>behavior properties, respectively.</text>
+  </widget>
+</display>

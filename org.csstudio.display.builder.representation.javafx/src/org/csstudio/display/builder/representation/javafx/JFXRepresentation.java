@@ -58,6 +58,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.PolylineRepres
 import org.csstudio.display.builder.representation.javafx.widgets.ProgressBarRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.RectangleRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ScrollBarRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.SpinnerRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation;
