@@ -134,22 +134,6 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         {
             switch (event.getCode())
             {
-            case DOWN:
-                if (slider.getOrientation()==Orientation.HORIZONTAL)
-                    slider.decrement();
-                break;
-            case LEFT:
-                if (slider.getOrientation()==Orientation.VERTICAL)
-                    slider.decrement();
-                break;
-            case UP:
-                if (slider.getOrientation()==Orientation.HORIZONTAL)
-                    slider.increment();
-                break;
-            case RIGHT:
-                if (slider.getOrientation()==Orientation.VERTICAL)
-                    slider.increment();
-                break;
             case PAGE_UP:
                 slider.adjustValue(value+slider.getBlockIncrement());
                 break;
