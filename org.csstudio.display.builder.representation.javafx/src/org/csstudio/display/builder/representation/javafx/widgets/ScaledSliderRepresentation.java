@@ -115,30 +115,51 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
     private Slider createSlider()
     {
-        Slider slider = new Slider();
+        Slider slider = new Slider()
+        {
+            @Override
+            public void increment()
+            {
+                adjustValue(value+stepIncrement);
+            }
+            @Override
+            public void decrement()
+            {
+                adjustValue(value-stepIncrement);
+            }
+        };
         slider.setFocusTraversable(true);
         slider.setTooltip(new Tooltip(""));
         slider.setOnKeyPressed((final KeyEvent event) ->
         {
             switch (event.getCode())
             {
-            case DOWN: case LEFT:
-                slider.adjustValue(value-stepIncrement);
+            case DOWN:
+                if (slider.getOrientation()==Orientation.HORIZONTAL)
+                    slider.decrement();
                 break;
-            case UP: case RIGHT:
-                slider.adjustValue(value+stepIncrement);
+            case LEFT:
+                if (slider.getOrientation()==Orientation.VERTICAL)
+                    slider.decrement();
+                break;
+            case UP:
+                if (slider.getOrientation()==Orientation.HORIZONTAL)
+                    slider.increment();
+                break;
+            case RIGHT:
+                if (slider.getOrientation()==Orientation.VERTICAL)
+                    slider.increment();
                 break;
             case PAGE_UP:
-                slider.decrement();
+                slider.adjustValue(value+slider.getBlockIncrement());
                 break;
             case PAGE_DOWN:
-                slider.increment();
+                slider.adjustValue(value-slider.getBlockIncrement());
                 break;
             default: break;
             }
         });
         slider.setValue(value);
-        slider.setSnapToTicks(true);
         return slider;
     }
 
