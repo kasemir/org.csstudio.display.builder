@@ -11,9 +11,9 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 
-import javafx.collections.ObservableList;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import javafx.event.Event;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
@@ -21,17 +21,17 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
  */
+@SuppressWarnings("nls")
 public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, WebBrowserWidget>
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
@@ -39,109 +39,7 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
     private volatile double width;
     private volatile double height;
 
-    class BrowserWithToolbar extends BrowserWithoutToolbar
-    {
-        //--toolbar controls
-        HBox toolbar;
-        final Button backButton = new Button();
-        final Button foreButton = new Button();
-        final Button stop = new Button();
-        final Button refresh  = new Button();
-        final ComboBox<String> addressBar = new ComboBox<String>();
-        final Button go = new Button();
-        Control [] controls = new Control []
-                {backButton, foreButton, stop, refresh, addressBar, go};
-        String [] iconFiles = new String []
-                {"arrow_left.png", "arrow_right.png", "green_chevron.png", "Player_stop.png", "refresh.png"};
-
-        //--toolbar event handlers
-        EventHandler<ActionEvent> backButtonEvent = (event) ->
-        {
-            try { webEngine.getHistory().go(-1); }
-            catch (IndexOutOfBoundsException e) {}
-        };
-        EventHandler<ActionEvent> foreButtonEvent = (event) ->
-        {
-            try { webEngine.getHistory().go(1); }
-            catch (IndexOutOfBoundsException e) {}
-        };
-        EventHandler<ActionEvent> stopEvent =
-                (event) -> webEngine.getLoadWorker().cancel();
-        EventHandler<ActionEvent> refreshEvent =
-                (event) -> goToURL(webEngine.getLocation());
-        EventHandler<ActionEvent> goEvent =
-                (event) -> goToURL(addressBar.getValue());
-
-        private void goToURL(String url)
-        {
-            if (!url.startsWith("http://"))
-                if (url.equals(""))
-                    url = "about:blank";
-                else
-                    url = "http://" + url;
-            webEngine.load(url);
-        }
-
-        //================
-        //--constructors
-        public BrowserWithToolbar(String url)
-        {
-            super(url);
-            //assemble toolbar controls
-            backButton.setOnAction(backButtonEvent);
-            foreButton.setOnAction(foreButtonEvent);
-            stop.setOnAction(stopEvent);
-            refresh.setOnAction(refreshEvent);
-            addressBar.setOnAction(goEvent);
-            go.setOnAction(goEvent);
-
-            addressBar.setEditable(true);
-            webEngine.locationProperty().addListener((observable, oldval, newval)->
-            {
-                addressBar.getEditor().setText(newval);
-                ObservableList<String> items = addressBar.getItems();
-                if (!items.contains(newval))
-                    items.add(0, newval);
-                foreButton.setDisable(items.get(0).equals(newval));
-                backButton.setDisable(items.get(items.size()-1).equals(newval));
-            });
-
-            final String imageDirectory =
-                    "platform:/plugin/org.csstudio.display.builder.model/icons/browser/";
-            for (int i = 0; i < controls.length; i++)
-            {
-                Control control = controls[i];
-                if (control instanceof ButtonBase)
-                {
-                    Image image = new Image(getClass().getResourceAsStream(imageDirectory+iconFiles[i]));
-                    ((ButtonBase)control).setGraphic(new ImageView(image));
-                    HBox.setHgrow(control, Priority.NEVER);
-                }
-                else //grow address bar
-                    HBox.setHgrow(control, Priority.ALWAYS);
-            }
-
-            toolbar = new HBox(controls);
-
-            //apply style
-            toolbar.getStyleClass().add("browser-toolbar");
-            //add component
-            getChildren().add(0, toolbar);
-        }
-
-        @Override protected void layoutChildren()
-        {
-            double w = getWidth();
-            double h = getHeight();
-            double tbHeight = toolbar.prefHeight(w);
-            addressBar.setPrefWidth( addressBar.prefWidth(tbHeight) +
-                                    (w - toolbar.prefWidth(h)) );
-            layoutInArea(browser, 0,tbHeight, w,h-tbHeight, 0, HPos.CENTER, VPos.CENTER);
-            layoutInArea(toolbar, 0,0, w,tbHeight, 0, HPos.CENTER,VPos.CENTER);
-        }
-    }
-
-    class BrowserWithoutToolbar extends Region
+    class Browser extends Region
     {
         //================
         //--fields
@@ -150,23 +48,32 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
 
         //================
         //--constructors
-        public BrowserWithoutToolbar(String url)
+        public Browser(String url)
         {
-            //apply styles
             getStyleClass().add("browser");
-
-            //add components
             getChildren().add(browser);
-
-            // load the web page
-            webEngine.load(url);
+            goToURL(url);
         }
 
+        //================
+        //--private methods
         private Node createSpacer()
         {
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
             return spacer;
+        }
+
+        //================
+        //--protected methods
+        protected void goToURL(String url)
+        {
+            if (!url.startsWith("http://"))
+                if (url.equals(""))
+                    url = "about:blank";
+                else
+                    url = "http://" + url;
+            webEngine.load(url);
         }
 
         @Override
@@ -190,12 +97,129 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         }
     }
 
+    class BrowserWithToolbar extends Browser
+    {
+        //================
+        //--fields
+        //--toolbar controls
+        //TODO: remove button text when icons work
+        HBox toolbar;
+        final Button backButton = new Button("<");
+        final Button foreButton = new Button(">");
+        final Button stop = new Button("X");
+        final Button refresh  = new Button("R");
+        final ComboBox<String> addressBar = new ComboBox<String>();
+        final Button go = new Button("->");
+        Control [] controls = new Control []
+                {backButton, foreButton, stop, refresh, addressBar, go};
+        String [] iconFiles = new String []
+                {"arrow_left.png", "arrow_right.png", "green_chevron.png", "Player_stop.png", "refresh.png"};
+
+        //--toolbar handlers and listeners
+        void handleBackButton(ActionEvent event)
+        {
+            try { webEngine.getHistory().go(-1); }
+            catch (IndexOutOfBoundsException e) {}
+        }
+        void handleForeButton(ActionEvent event)
+        {
+            try { webEngine.getHistory().go(1); }
+            catch (IndexOutOfBoundsException e) {}
+        }
+        void handleStop(ActionEvent event)
+        {
+            webEngine.getLoadWorker().cancel();
+        }
+        void handleRefresh(ActionEvent event)
+        {
+            goToURL(webEngine.getLocation());
+        }
+        void handleGo(ActionEvent event)
+        {
+            goToURL(addressBar.getValue());
+        }
+        void locationChanged(ObservableValue<? extends String> observable, String oldval, String newval)
+        {
+            addressBar.getEditor().setText(newval);
+            int index = addressBar.getItems().indexOf(newval);
+            foreButton.setDisable(index <= 0);
+            backButton.setDisable(index == addressBar.getItems().size()-1);
+        }
+        void handleShowing(Event event)
+        {
+            WebHistory history = webEngine.getHistory();
+            int size = history.getEntries().size();
+            if (history.getCurrentIndex() == size-1)
+            {
+                addressBar.getItems().clear();
+                for (int i = 0; i < size; i++)
+                {
+                    addressBar.getItems().add(0, history.getEntries().get(i).getUrl());
+                }
+            }
+        }
+
+        //================
+        //--constructor
+        public BrowserWithToolbar(String url)
+        {
+            super(url);
+            locationChanged(null, null, webEngine.getLocation());
+            //assemble toolbar controls
+            backButton.setOnAction(this::handleBackButton);
+            foreButton.setOnAction(this::handleForeButton);
+            stop.setOnAction(this::handleStop);
+            refresh.setOnAction(this::handleRefresh);
+            addressBar.setOnAction(this::handleGo);
+            go.setOnAction(this::handleGo);
+
+            addressBar.setEditable(true);
+            addressBar.setOnShowing(this::handleShowing);
+            webEngine.locationProperty().addListener(this::locationChanged);
+
+            final String imageDirectory =
+                    "platform:/plugin/org.csstudio.display.builder.model/icons/browser/";
+            for (int i = 0; i < controls.length; i++)
+            {
+                Control control = controls[i];
+                if (control instanceof ButtonBase)
+                {
+                    //TODO: image files aren't gotten; wrong directory?
+                    //Image image = new Image(getClass().getResourceAsStream(imageDirectory+iconFiles[i]));
+                    //((ButtonBase)control).setGraphic(new ImageView(image));
+                    HBox.setHgrow(control, Priority.NEVER);
+                }
+                else //grow address bar
+                    HBox.setHgrow(control, Priority.ALWAYS);
+            }
+
+            //add toolbar component
+            toolbar = new HBox(controls);
+            toolbar.getStyleClass().add("browser-toolbar");
+            getChildren().add(toolbar);
+        }
+
+        //================
+        //--protected methods
+        @Override
+        protected void layoutChildren()
+        {
+            double w = getWidth();
+            double h = getHeight();
+            double tbHeight = toolbar.prefHeight(w);
+            addressBar.setPrefWidth( addressBar.prefWidth(tbHeight) +
+                                    (w - toolbar.prefWidth(h)) );
+            layoutInArea(browser, 0,tbHeight, w,h-tbHeight, 0, HPos.CENTER, VPos.CENTER);
+            layoutInArea(toolbar, 0,0, w,tbHeight, 0, HPos.CENTER,VPos.CENTER);
+        }
+    }
+
     @Override
     public Region createJFXNode() throws Exception
     {
         return model_widget.displayShowToolbar().getValue() ?
                 new BrowserWithToolbar(model_widget.widgetURL().getValue()) :
-                new BrowserWithoutToolbar(model_widget.widgetURL().getValue());
+                new Browser(model_widget.widgetURL().getValue());
     }
 
     @Override
@@ -220,7 +244,7 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         {
             width = model_widget.positionWidth().getValue();
             height = model_widget.positionHeight().getValue();
-            //jfx_node.requestLayout(); //need this?
+            jfx_node.requestLayout(); //need this?
         }
     }
 }
