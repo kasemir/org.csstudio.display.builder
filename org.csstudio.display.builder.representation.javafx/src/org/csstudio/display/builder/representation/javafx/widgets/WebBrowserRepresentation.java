@@ -35,6 +35,7 @@ import javafx.scene.web.WebView;
 public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, WebBrowserWidget>
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
+    private final DirtyFlag dirty_url = new DirtyFlag();
 
     private volatile double width;
     private volatile double height;
@@ -228,11 +229,19 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         super.registerListeners();
         model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.widgetURL().addPropertyListener(this::urlChanged);
+        //the showToolbar property cannot be changed at runtime
    }
 
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_size.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+    private void urlChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
+    {
+        dirty_url.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -244,7 +253,11 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         {
             width = model_widget.positionWidth().getValue();
             height = model_widget.positionHeight().getValue();
-            jfx_node.requestLayout(); //need this?
+            jfx_node.requestLayout();
+        }
+        if (dirty_url.checkAndClear())
+        {
+            ((Browser)jfx_node).goToURL(model_widget.widgetURL().getValue());
         }
     }
 }
