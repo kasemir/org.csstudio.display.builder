@@ -3,6 +3,13 @@
   <name>Properties</name>
   <x>-1</x>
   <y>-1</y>
+  <widget type="scrollbar" version="2.0.0">
+    <name>Scrollbar</name>
+    <x>41</x>
+    <y>160</y>
+    <show_value_tip>false</show_value_tip>
+    <pv_name>loc://number(0.0)</pv_name>
+  </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry</name>
     <x>40</x>
