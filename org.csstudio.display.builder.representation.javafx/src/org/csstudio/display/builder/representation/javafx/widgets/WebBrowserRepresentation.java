@@ -7,9 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.io.InputStream;
+
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
+import org.csstudio.display.builder.util.ResourceUtil;
 
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -21,6 +24,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -105,16 +110,17 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         //--toolbar controls
         //TODO: remove button text when icons work
         HBox toolbar;
-        final Button backButton = new Button("<");
-        final Button foreButton = new Button(">");
-        final Button stop = new Button("X");
-        final Button refresh  = new Button("R");
+        final Button backButton = new Button();
+        final Button foreButton = new Button();
+        final Button stop = new Button();
+        final Button refresh  = new Button();
         final ComboBox<String> addressBar = new ComboBox<String>();
-        final Button go = new Button("->");
+        final Button go = new Button();
         Control [] controls = new Control []
                 {backButton, foreButton, stop, refresh, addressBar, go};
         String [] iconFiles = new String []
-                {"arrow_left.png", "arrow_right.png", "green_chevron.png", "Player_stop.png", "refresh.png"};
+                {"arrow_left.png", "arrow_right.png", "Player_stop.png", "refresh.png", null, "green_chevron.png"};
+        String [] iconSubstitutes = new String [] {"<", ">", "X", "R", null, "->"};
 
         //--toolbar handlers and listeners
         void handleBackButton(ActionEvent event)
@@ -185,10 +191,17 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
                 Control control = controls[i];
                 if (control instanceof ButtonBase)
                 {
-                    //TODO: image files aren't gotten; wrong directory?
-                    //Image image = new Image(getClass().getResourceAsStream(imageDirectory+iconFiles[i]));
-                    //((ButtonBase)control).setGraphic(new ImageView(image));
                     HBox.setHgrow(control, Priority.NEVER);
+                    InputStream stream = null;
+                    try
+                    {
+                        stream = ResourceUtil.openPlatformResource(imageDirectory+iconFiles[i]);
+	                    ((ButtonBase)control).setGraphic(new ImageView(new Image(stream)));
+                    }
+                    catch (Exception e)
+                    {
+                        ((ButtonBase)control).setText(iconSubstitutes[i]);
+                    }
                 }
                 else //grow address bar
                     HBox.setHgrow(control, Priority.ALWAYS);
