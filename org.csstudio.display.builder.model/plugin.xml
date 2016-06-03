@@ -127,6 +127,9 @@
          <alternates
                type="org.csstudio.opibuilder.widgets.progressbar">
          </alternates>
+         <alternates
+               type="org.csstudio.opibuilder.widgets.tank">
+         </alternates>
       </widget>
       <widget
             category="MONITOR"
