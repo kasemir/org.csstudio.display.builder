@@ -196,12 +196,13 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
                     try
                     {
                         stream = ResourceUtil.openPlatformResource(imageDirectory+iconFiles[i]);
-	                    ((ButtonBase)control).setGraphic(new ImageView(new Image(stream)));
                     }
                     catch (Exception e)
                     {
                         ((ButtonBase)control).setText(iconSubstitutes[i]);
+                        continue;
                     }
+                    ((ButtonBase)control).setGraphic(new ImageView(new Image(stream)));
                 }
                 else //grow address bar
                     HBox.setHgrow(control, Priority.ALWAYS);
