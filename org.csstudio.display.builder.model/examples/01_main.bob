@@ -362,4 +362,18 @@
     </actions>
     <pv_name></pv_name>
   </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_18</name>
+    <x>191</x>
+    <y>411</y>
+    <width>120</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>controls_spinner_slider_scrollbar.bob</file>
+        <target>replace</target>
+        <description>Incr. Controls</description>
+      </action>
+    </actions>
+  </widget>
 </display>
