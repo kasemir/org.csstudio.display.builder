@@ -16,6 +16,10 @@
             type="bool_button">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.ByteMonitorRepresentation"
+            type="byte_monitor">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.CheckBoxRepresentation"
             type="checkbox">
       </representation>
@@ -84,12 +88,12 @@
             type="image">
       </representation>
       <representation
-            class="org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation"
-            type="xyplot">
+            class="org.csstudio.display.builder.representation.javafx.widgets.WebBrowserRepresentation"
+            type="webbrowser">
       </representation>
       <representation
-            class="org.csstudio.display.builder.representation.javafx.widgets.ByteMonitorRepresentation"
-            type="byte_monitor">
+            class="org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation"
+            type="xyplot">
       </representation>
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.ScaledSliderRepresentation"

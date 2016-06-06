@@ -96,6 +96,8 @@ public class Messages extends NLS
     public static String Target_Window;
     public static String Top;
     public static String Vertical;
+    public static String WebBrowser_showToolbar;
+    public static String WebBrowser_URL;
     public static String WidgetCategory_Controls;
     public static String WidgetCategory_Graphics;
     public static String WidgetCategory_Miscellaneous;
