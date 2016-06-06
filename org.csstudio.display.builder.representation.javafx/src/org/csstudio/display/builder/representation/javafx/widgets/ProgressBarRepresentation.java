@@ -17,9 +17,12 @@ import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueUtil;
 
 import javafx.scene.control.ProgressBar;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Translate;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
+ *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
 public class ProgressBarRepresentation extends RegionBaseRepresentation<ProgressBar, ProgressBarWidget>
@@ -46,6 +49,7 @@ public class ProgressBarRepresentation extends RegionBaseRepresentation<Progress
         model_widget.behaviorMinimum().addUntypedPropertyListener(this::valueChanged);
         model_widget.behaviorMaximum().addUntypedPropertyListener(this::valueChanged);
         model_widget.runtimeValue().addUntypedPropertyListener(this::valueChanged);
+        model_widget.displayHorizontal().addUntypedPropertyListener(this::lookChanged);
     }
 
     private void lookChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -98,8 +102,21 @@ public class ProgressBarRepresentation extends RegionBaseRepresentation<Progress
         super.updateChanges();
         if (dirty_look.checkAndClear())
         {
-            jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
-                                 model_widget.positionHeight().getValue());
+            boolean horizontal = model_widget.displayHorizontal().getValue();
+            double width = model_widget.positionWidth().getValue();
+            double height = model_widget.positionHeight().getValue();
+            if (!horizontal)
+            {
+                jfx_node.setPrefSize(height, width);
+                jfx_node.getTransforms().setAll(
+                        new Translate(0, height),
+                        new Rotate(-90, 0, 0));
+            }
+            else
+            {
+                jfx_node.setPrefSize(width, height);
+                jfx_node.getTransforms().clear();
+            }
             // Could clear style and use setBackground(),
             // but result is very plain.
             // Tweaking the color used by CSS keeps overall style.
