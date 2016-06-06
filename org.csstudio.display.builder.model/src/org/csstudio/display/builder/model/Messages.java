@@ -131,8 +131,8 @@ public class Messages extends NLS
     public static String WidgetProperties_LineColor;
     public static String WidgetProperties_LineWidth;
     public static String WidgetProperties_Macros;
-    public static String WidgetProperties_Maximum;
     public static String WidgetProperties_MajorTickStepHint;
+    public static String WidgetProperties_Maximum;
     public static String WidgetProperties_Minimum;
     public static String WidgetProperties_Name;
     public static String WidgetProperties_OffColor;
@@ -146,6 +146,10 @@ public class Messages extends NLS
     public static String WidgetProperties_ScaleFactor;
     public static String WidgetProperties_ScaleFormat;
     public static String WidgetProperties_Scripts;
+    public static String WidgetProperties_ShowHi;
+    public static String WidgetProperties_ShowHiHi;
+    public static String WidgetProperties_ShowLo;
+    public static String WidgetProperties_ShowLoLo;
     public static String WidgetProperties_ShowMinorTicks;
     public static String WidgetProperties_ShowScale;
     public static String WidgetProperties_ShowMarkers;

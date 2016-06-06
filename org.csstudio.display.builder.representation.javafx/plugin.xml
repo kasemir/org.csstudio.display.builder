@@ -92,6 +92,10 @@
             type="byte_monitor">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.ScaledSliderRepresentation"
+            type="scaledslider">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.ScrollBarRepresentation"
             type="scrollbar">
       </representation>

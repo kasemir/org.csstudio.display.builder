@@ -11,25 +11,63 @@ import org.csstudio.display.builder.representation.javafx.MarkerAxis;
 
 import javafx.application.Application;
 import javafx.beans.binding.DoubleBinding;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeLineJoin;
+import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 /**
  * @author Amanda Carpenter
  */
-public class SliderDemo1 extends Application
+public class SliderDemo2 extends Application
 {
     public static void main(String [] args)
     {
         launch(args);
     }
+
+    final Border blackborder = new Border(new BorderStroke(Color.BLACK,
+            new BorderStrokeStyle(StrokeType.OUTSIDE,
+                                  StrokeLineJoin.MITER,
+                                  StrokeLineCap.BUTT,
+                                  10, 0, null),
+            CornerRadii.EMPTY,
+            new BorderWidths(1)));
+    final Border blueborder = new Border(new BorderStroke(Color.BLUE,
+            new BorderStrokeStyle(StrokeType.OUTSIDE,
+                                  StrokeLineJoin.MITER,
+                                  StrokeLineCap.BUTT,
+                                  10, 0, null),
+            CornerRadii.EMPTY,
+            new BorderWidths(1)));
+    final Border greenborder = new Border(new BorderStroke(Color.GREEN,
+            new BorderStrokeStyle(StrokeType.OUTSIDE,
+                                  StrokeLineJoin.MITER,
+                                  StrokeLineCap.BUTT,
+                                  10, 0, null),
+            CornerRadii.EMPTY,
+            new BorderWidths(1)));
 
     @SuppressWarnings("nls")
     @Override
@@ -40,6 +78,7 @@ public class SliderDemo1 extends Application
         slider.setShowTickMarks(true);
         slider.setSnapToTicks(true);
         slider.setMinorTickCount(5);
+        //slider.setBorder(blueborder);
 
         MarkerAxis<Slider> axis = new MarkerAxis<Slider>(slider)
         {
@@ -61,9 +100,9 @@ public class SliderDemo1 extends Application
                     @Override
                     protected double computeValue()
                     {
-                        return node.getOrientation() == Orientation.HORIZONTAL ?
-                                node.getWidth() :
-                                node.getHeight();
+                        return (node.getOrientation() == Orientation.HORIZONTAL ?
+                                node.getWidth() : node.getHeight()) -
+                                15;
                     }
                 };
                 min = new DoubleBinding()
@@ -92,8 +131,16 @@ public class SliderDemo1 extends Application
                 };
             }
         };
+        GridPane.setConstraints(axis, 0, 0, 1, 1, HPos.CENTER, VPos.CENTER, Priority.ALWAYS, Priority.NEVER);
+        //axis.setBorder(greenborder);
 
-        Pane nodepane = new Pane();
+        final GridPane pane = new GridPane();
+        pane.setAlignment(Pos.CENTER);
+        GridPane.setConstraints(slider, 0, 1, 1, 1, HPos.CENTER, VPos.CENTER, Priority.ALWAYS, Priority.NEVER);
+        pane.getChildren().add(slider);
+        pane.setPrefWidth(100);
+        pane.setMaxWidth(100);
+        //pane.setBorder(blackborder);
 
         Button button = new Button("Rotate me.");
         button.setOnAction((event)->
@@ -115,7 +162,7 @@ public class SliderDemo1 extends Application
             {   //adjusting length
                 button3.setText("Adjust lo");
                 slider.setValue(slider.getOrientation()==Orientation.HORIZONTAL ?
-                        slider.getPrefWidth()-400 : slider.getPrefHeight()-400);
+                        slider.getPrefWidth()/5-100 : slider.getPrefHeight()/5-100);
             }
             else
             {   //adjusting lo
@@ -126,31 +173,39 @@ public class SliderDemo1 extends Application
         Button button4 = new Button("Relocate.");
         button4.setOnAction((event)->
         {
-            nodepane.relocate(127, 138);
+            pane.relocate(127, 138);
         });
+
 
         HBox buttons = new HBox(10.0, new Text("[Slide to adjust.]"), button3, button, button2, button4);
 
-        reorient(nodepane, axis, slider);
+        final VBox root = new VBox(pane, buttons);
+        root.setPadding(new Insets(5));
+
+        reorient(slider.getOrientation(), pane, axis);
         slider.orientationProperty().addListener((property, oldval, newval)->
         {
-            reorient(nodepane, axis, slider);
+            reorient(newval, pane, axis);
         });
-        slider.setPrefWidth(400);
         slider.valueProperty().addListener((observable, oldval, newval)->
         {
             if ("Adjust lo".equals(button3.getText()))
             {
                 if (slider.getOrientation()==Orientation.HORIZONTAL)
-                    slider.setPrefWidth(400+newval.doubleValue());
+                {
+                    pane.setPrefWidth(100+5*newval.doubleValue());
+                    pane.setMaxWidth(100+5*newval.doubleValue());
+                }
                 else
-                    slider.setPrefHeight(400+newval.doubleValue());
+                {
+                    pane.setMaxHeight(100+5*newval.doubleValue());
+                    pane.setMinHeight(100+5*newval.doubleValue());
+                }
             }
             else
                 axis.setLo(newval.doubleValue());
         });
 
-        VBox root = new VBox(nodepane, buttons);
         final Scene scene = new Scene(root, 800, 700);
         stage.setScene(scene);
         stage.setTitle("Slider Demo");
@@ -158,20 +213,43 @@ public class SliderDemo1 extends Application
         stage.show();
     }
 
-    private void reorient(Pane nodepane, MarkerAxis axis, Slider slider)
+    private void reorient(Orientation newValue, GridPane pane, MarkerAxis<Slider> axis)
     {
-        boolean horizontal = slider.getOrientation() == Orientation.HORIZONTAL;
-        Pane newpane = horizontal ? new VBox(axis, slider) : new HBox(axis, slider);
-        if (horizontal)
-            ((VBox)newpane).setFillWidth(false);
+        boolean showMarkers = true;
+        Node slider = pane.getChildren().get(0);
+        if (showMarkers)
+        {
+            if (newValue == Orientation.HORIZONTAL)
+            {
+                GridPane.setConstraints(slider, 0, 1);
+                GridPane.setHgrow(slider, Priority.ALWAYS);
+                GridPane.setVgrow(slider, Priority.NEVER);
+                pane.setPrefHeight(Region.USE_COMPUTED_SIZE);
+            }
+            else
+            {
+                GridPane.setConstraints(slider, 1, 0);
+                GridPane.setHgrow(slider, Priority.NEVER);
+                GridPane.setVgrow(slider, Priority.ALWAYS);
+                pane.setPrefWidth(Region.USE_COMPUTED_SIZE);
+            }
+            if (!pane.getChildren().contains(axis))
+                pane.add(axis, 0, 0);
+        }
         else
-            ((HBox)newpane).setFillHeight(false);
-
-        final double oldwidth = slider.getPrefWidth();
-        slider.setPrefWidth(slider.getPrefHeight());
-        slider.setPrefHeight(oldwidth);
-
-        nodepane.getChildren().clear();
-        nodepane.getChildren().add(newpane);
+        {
+            pane.getChildren().removeIf((child)->child instanceof MarkerAxis);
+            GridPane.setConstraints(slider, 0, 0);
+            if (newValue == Orientation.HORIZONTAL)
+            {
+                GridPane.setHgrow(slider, Priority.ALWAYS);
+                GridPane.setVgrow(slider, Priority.NEVER);
+            }
+            else
+            {
+                GridPane.setHgrow(slider, Priority.NEVER);
+                GridPane.setVgrow(slider, Priority.ALWAYS);
+            }
+        }
     }
 }

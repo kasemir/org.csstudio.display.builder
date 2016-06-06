@@ -33,14 +33,14 @@ public abstract class MarkerAxis<T extends Region> extends Axis<String>
         {
             if (getSide().isHorizontal())
             {
-                setWidths(newval.doubleValue());
+                setWidths(length.get());
             }
         });
         node.heightProperty().addListener((property, oldval, newval) ->
         {
             if (getSide().isVertical())
             {
-                setHeights(newval.doubleValue());
+                setHeights(length.get());
             }
         });
     }
@@ -275,7 +275,18 @@ public abstract class MarkerAxis<T extends Region> extends Axis<String>
      */
     protected void makeVertical(boolean vertical)
     {
-        setSide(vertical ? Side.LEFT : Side.TOP);
+        if (vertical)
+        {
+            setSide(Side.LEFT);
+            setHeights(length.get());
+            setWidths(Region.USE_COMPUTED_SIZE);
+        }
+        else
+        {
+            setSide(Side.TOP);
+            setWidths(length.get());
+            setHeights(Region.USE_COMPUTED_SIZE);
+        }
         invalidateRange();
     }
 

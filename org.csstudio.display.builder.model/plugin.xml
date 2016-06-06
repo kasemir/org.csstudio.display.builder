@@ -267,6 +267,17 @@
                type="org.csstudio.opibuilder.widgets.scrollbar">
          </alternates>
       </widget>
+      <widget
+            category="CONTROL"
+            class="org.csstudio.display.builder.model.widgets.ScaledSliderWidget"
+            description="%ScaledSliderWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/scaled_slider.gif"
+            name="%ScaledSliderWidget_Name"
+            type="scaledslider">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.scaledslider">
+         </alternates>
+      </widget>
    </extension>
 
 </plugin>
