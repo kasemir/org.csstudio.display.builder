@@ -31,6 +31,7 @@ import org.csstudio.display.builder.model.widgets.PolygonWidget;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
+import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
 import org.csstudio.display.builder.model.widgets.SpinnerWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
