@@ -9,7 +9,6 @@ package org.csstudio.display.builder.model.properties;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
@@ -91,7 +90,7 @@ public class RuleToScript
      */
     protected static String TrueFortrue(final String instr)
     {
-        return instr.replaceAll("true", "True");
+        return instr.replaceAll("(\\W)(true)", "$1True");
     }
 
     public static String generatePy(final Widget attached_widget, final MacroValueProvider macros, final RuleInfo rule)
