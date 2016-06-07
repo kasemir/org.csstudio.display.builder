@@ -624,14 +624,17 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         propComboBox.valueProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-                if (!selected_rule_item.tryUpdatePropID(undo, getPropID(t1)))
+                if (t1 != null)
                 {
-                    Logger.getLogger(this.getClass().getName()).
-                    log(Level.FINE, "Did not update rule property ID to " + t1);
-                }
-                else
-                {
-                    expression_items.setAll(selected_rule_item.expressions);
+                    if (!selected_rule_item.tryUpdatePropID(undo, getPropID(t1)))
+                    {
+                        Logger.getLogger(this.getClass().getName()).
+                        log(Level.FINE, "Did not update rule property ID to " + t1);
+                    }
+                    else
+                    {
+                        expression_items.setAll(selected_rule_item.expressions);
+                    }
                 }
             }
         });
@@ -725,10 +728,31 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         btn_move_rule_up = new Button("Move up", JFXUtil.getIcon("up.png"));
         btn_move_rule_up.setMaxWidth(Double.MAX_VALUE);
         btn_move_rule_up.setDisable(true);
+        btn_move_rule_up.setOnAction(event ->
+        {
+            final int sel = rules_table.getSelectionModel().getSelectedIndex();
+            if (sel >= 1)
+            {
+                RuleItem prev = rule_items.set(sel-1, rule_items.get(sel));
+                rule_items.set(sel, prev);
+            }
+        });
 
         btn_move_rule_down = new Button("Move down", JFXUtil.getIcon("down.png"));
         btn_move_rule_down.setMaxWidth(Double.MAX_VALUE);
         btn_move_rule_down.setDisable(true);
+        btn_move_rule_down.setOnAction(event ->
+        {
+            final int sel = rules_table.getSelectionModel().getSelectedIndex();
+            if (sel >= 0)
+            {
+                if ((sel+1) < rule_items.size()) {
+                    RuleItem next = rule_items.set(sel+1, rule_items.get(sel));
+                    rule_items.set(sel, next);
+                }
+            }
+        });
+
 
 
         final VBox buttons = new VBox(10, add,

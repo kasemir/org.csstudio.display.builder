@@ -86,6 +86,14 @@ public class RuleToScript
         return ret;
     }
 
+    /**
+     * Substitute the string "True" for all instances of string "true" to update old javascript rules into Python
+     */
+    protected static String TrueFortrue(final String instr)
+    {
+        return instr.replaceAll("true", "True");
+    }
+
     public static String generatePy(final Widget attached_widget, final MacroValueProvider macros, final RuleInfo rule)
     {
         WidgetProperty<?> prop = attached_widget.getProperty(rule.getPropID());
@@ -172,11 +180,11 @@ public class RuleToScript
         for (ExpressionInfo<?> expr : rule.getExpressions())
         {
             script_str += (idx == 0) ? "if" : "elif";
-            script_str += " (" + expr.getBoolExp() + "):\n";
+            script_str += " (" + TrueFortrue(expr.getBoolExp()) + "):\n";
             script_str += indent + setPropStr;
             if (rule.getPropAsExprFlag())
             {
-                script_str += expr.getPropVal() + " )\n";
+                script_str += TrueFortrue(expr.getPropVal() + " )\n");
             }
             else
             {
