@@ -467,7 +467,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     private TableView<ExprItem<?>> expressions_table;
 
     /** Buttons for removing or reordering rules **/
-    private Button btn_remove_rule, btn_move_rule_up, btn_move_rule_down, btn_show_script;
+    private Button btn_dup_rule, btn_remove_rule, btn_move_rule_up, btn_move_rule_down, btn_show_script;
     /** Buttons for adding/removing PVs and expressions from the selected rule **/
     private Button btn_add_pv, btn_rm_pv, btn_add_exp, btn_rm_exp;
 
@@ -570,6 +570,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             if (selected == null)
             {
                 btn_remove_rule.setDisable(true);
+                btn_dup_rule.setDisable(true);
                 btn_move_rule_up.setDisable(true);
                 btn_move_rule_down.setDisable(true);
                 btn_show_script.setDisable(true);
@@ -586,6 +587,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             else
             {
                 btn_remove_rule.setDisable(false);
+                btn_dup_rule.setDisable(false);
                 btn_move_rule_up.setDisable(false);
                 btn_move_rule_down.setDisable(false);
                 btn_show_script.setDisable(false);
@@ -718,6 +720,18 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                     ));
         });
 
+        btn_dup_rule = new Button(Messages.Copy, JFXUtil.getIcon("embedded_script.png"));
+        btn_dup_rule.setMaxWidth(Double.MAX_VALUE);
+        btn_dup_rule.setDisable(true);
+        btn_dup_rule.setOnAction(event ->
+        {
+            if (selected_rule_item != null) {
+                rule_items.add( RuleItem.forInfo(attached_widget,
+                        selected_rule_item.getRuleInfo(),
+                        undo) );
+            }
+        });
+
         btn_remove_rule = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
         btn_remove_rule.setMaxWidth(Double.MAX_VALUE);
         btn_remove_rule.setDisable(true);
@@ -732,7 +746,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         });
 
         //TODO: Add Messages
-        btn_move_rule_up = new Button("Move up", JFXUtil.getIcon("up.png"));
+        btn_move_rule_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
         btn_move_rule_up.setMaxWidth(Double.MAX_VALUE);
         btn_move_rule_up.setDisable(true);
         btn_move_rule_up.setOnAction(event ->
@@ -745,7 +759,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             }
         });
 
-        btn_move_rule_down = new Button("Move down", JFXUtil.getIcon("down.png"));
+        btn_move_rule_down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
         btn_move_rule_down.setMaxWidth(Double.MAX_VALUE);
         btn_move_rule_down.setDisable(true);
         btn_move_rule_down.setOnAction(event ->
@@ -760,7 +774,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             }
         });
 
-        btn_show_script = new Button("Show Script");
+        btn_show_script = new Button(Messages.RulesDialog_ShowScript, JFXUtil.getIcon("embedded_script.png"));
         btn_show_script.setMaxWidth(Double.MAX_VALUE);
         btn_show_script.setAlignment(Pos.BOTTOM_CENTER);
         btn_show_script.setDisable(true);
@@ -779,6 +793,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         final VBox buttons = new VBox(10, add,
                 new Separator(Orientation.HORIZONTAL),
+                btn_dup_rule,
                 btn_remove_rule,
                 btn_move_rule_up,
                 btn_move_rule_down,
