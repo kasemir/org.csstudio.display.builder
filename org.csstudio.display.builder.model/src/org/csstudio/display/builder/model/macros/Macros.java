@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /** Macro information
@@ -24,6 +25,33 @@ import java.util.stream.Collectors;
 public class Macros implements MacroValueProvider
 {
     private final Map<String, String> macros = new ConcurrentHashMap<>();
+
+    private final static Pattern MACRO_NAME_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_]*");
+
+    /** Check macro name
+     *
+     *  <p>Permitted macro names are a subset of valid XML names:
+     *  <ul>
+     *  <li>Must start with character
+     *  <li>May then contain characters or numbers
+     *  <li>May also contain underscores
+     *  </ul>
+     * @param name Macro name to check
+     * @return Error message or <code>null</code> if name is valid
+     */
+    public static String checkMacroName(final String name)
+    {
+        // Could use one big reg.ex. but try to provide error message for each case.
+        if (name == null  ||  name.isEmpty())
+            return "Empty macro name";
+        if (name.indexOf('$') >= 0)
+            return "Macro name '" + name + "' contains recursive macro";
+        if (! MACRO_NAME_PATTERN.matcher(name).matches())
+            return "Invalid macro name '" + name + "': Must start with character, then contain characters, numbers or underscores";
+        if (name.toLowerCase().startsWith("xml"))
+            return "Invalid macro name '" + name + "': Must not start with 'XML' or 'xml'";
+        return null;
+    }
 
     /** Create empty macro map */
     public Macros()
@@ -53,9 +81,14 @@ public class Macros implements MacroValueProvider
     /** Add a macro
      *  @param name Name of the macro
      *  @param value Value of the macro
+     *  @throws IllegalArgumentException for illegal macro name
+     *  @see #checkMacroName(String)
      */
     public void add(final String name, final String value)
     {
+        final String error = checkMacroName(name);
+        if (error != null)
+            throw new IllegalArgumentException(error);
         macros.put(name, value);
     }
 
