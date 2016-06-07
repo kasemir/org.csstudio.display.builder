@@ -9,7 +9,6 @@ package org.csstudio.display.builder.model.properties;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
@@ -84,6 +83,14 @@ public class RuleToScript
         }
 
         return ret;
+    }
+
+    /**
+     * Substitute the string "True" for all instances of string "true" to update old javascript rules into Python
+     */
+    protected static String TrueFortrue(final String instr)
+    {
+        return instr.replaceAll("(\\W)(true)", "$1True");
     }
 
     public static String generatePy(final Widget attached_widget, final MacroValueProvider macros, final RuleInfo rule)
@@ -172,11 +179,11 @@ public class RuleToScript
         for (ExpressionInfo<?> expr : rule.getExpressions())
         {
             script_str += (idx == 0) ? "if" : "elif";
-            script_str += " (" + expr.getBoolExp() + "):\n";
+            script_str += " (" + TrueFortrue(expr.getBoolExp()) + "):\n";
             script_str += indent + setPropStr;
             if (rule.getPropAsExprFlag())
             {
-                script_str += expr.getPropVal() + " )\n";
+                script_str += TrueFortrue(expr.getPropVal() + " )\n");
             }
             else
             {
