@@ -111,11 +111,6 @@ public class RuleToScript
 
         boolean inquotes=false;
         while(m.find()) {
-            final String s1=m.group(1);
-            final String s0=m.group(0);
-            final String s2=m.group(2);
-            System.out.println(s1+s2+s0);
-
             if ((countMatches(m.group(1), '\"') % 2) == 1)
                 inquotes = !inquotes;
             if (inquotes)
