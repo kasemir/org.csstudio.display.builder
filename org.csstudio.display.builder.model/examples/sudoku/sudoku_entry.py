@@ -1,6 +1,3 @@
-display = widget.getDisplayModel()
-
-
 conflicts = []
 
 def getWidget(row, col):
@@ -23,8 +20,7 @@ def clearConflicts():
         cell = getWidget(row, col)
         if getValue(cell) == "#":
             writePVValue(" ", cell)
-        cell.setPropertyValue("foreground_color",
-                              WidgetColorService.getColor(NamedWidgetColors.TEXT))
+        cell.setPropertyValue("foreground_color", text)
 
 def findConflicts(row, col, value):
     for currCol in range(9):
@@ -41,10 +37,6 @@ def findConflicts(row, col, value):
                 conflicts.append((currRow,currCol))
     if len(conflicts) > 0:
         conflicts.append((row,col))
-
-from org.csstudio.display.builder.model.persist import WidgetColorService
-from org.csstudio.display.builder.model.properties import WidgetColor
-from org.csstudio.display.builder.model.persist import NamedWidgetColors
 
 selected = int(widget.getPropertyValue("name")[4:])
 value = int(PVUtil.getDouble(pvs[0]))

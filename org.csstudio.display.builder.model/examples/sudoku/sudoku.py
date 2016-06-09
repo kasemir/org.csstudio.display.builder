@@ -50,16 +50,28 @@ else:
 def writePVValue(value, cell):
     cell.setPropertyValue("pv_name", 'loc://cell("%s")' % value)
 
+
+from org.csstudio.display.builder.model.persist import WidgetColorService
+from org.csstudio.display.builder.model.properties import WidgetColor
+from org.csstudio.display.builder.model.persist import NamedWidgetColors
+
 display = widget.getDisplayModel()
-background = display.displayBackgroundColor().getValue()
-index = 0
-for row in range(9):
-    for col in range(9):
-        cell = display.runtimeChildren().getChildByName("cell%d%d" % (row,col))
-        value = board[row][col]
-        if value != 0:
-            cell.setPropertyValue("background_color", background)
-            writePVValue(value, cell)
-        else:
-            writePVValue(" ", cell)
-            cell.setPropertyValue("background_color", cell.displayBackgroundColor().getDefaultValue())
+text = WidgetColorService.getColor(NamedWidgetColors.TEXT)
+
+def createBoard():
+    background = display.displayBackgroundColor().getValue()
+    index = 0
+    for row in range(9):
+        for col in range(9):
+            cell = display.runtimeChildren().getChildByName("cell%d%d" % (row,col))
+            value = board[row][col]
+            if value != 0:
+                cell.setPropertyValue("background_color", background)
+                writePVValue(value, cell)
+            else:
+                writePVValue(" ", cell)
+                cell.setPropertyValue("background_color", cell.displayBackgroundColor().getDefaultValue())
+            cell.setPropertyValue("foreground_color", text)
+    pvs[1].write(0) #do not auto-solve
+
+createBoard()
