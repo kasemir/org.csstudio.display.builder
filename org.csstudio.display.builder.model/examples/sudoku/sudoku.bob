@@ -1,0 +1,5756 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Sudoku Solver</name>
+  <scripts>
+    <script file="sudoku.py">
+      <pv_name>loc://start(1)</pv_name>
+      <pv_name trigger="false">loc://solve(0)</pv_name>
+    </script>
+  </scripts>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <x>15</x>
+    <y>8</y>
+    <width>260</width>
+    <height>31</height>
+    <text>Sudoku Solver</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>box1</name>
+    <x>15</x>
+    <y>39</y>
+    <width>69</width>
+    <height>69</height>
+    <style>2</style>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>box2</name>
+    <x>83</x>
+    <y>39</y>
+    <width>69</width>
+    <height>69</height>
+    <style>2</style>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>box3</name>
+    <x>151</x>
+    <y>39</y>
+    <width>69</width>
+    <height>69</height>
+    <style>2</style>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>box8</name>
+    <x>83</x>
+    <y>175</y>
+    <width>69</width>
+    <height>69</height>
+    <style>2</style>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>box4</name>
+    <x>15</x>
+    <y>107</y>
+    <width>69</width>
+    <height>69</height>
+    <style>2</style>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>box7</name>
+    <x>15</x>
+    <y>175</y>
+    <width>69</width>
+    <height>69</height>
+    <style>2</style>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>box5</name>
+    <x>83</x>
+    <y>107</y>
+    <width>69</width>
+    <height>69</height>
+    <style>2</style>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>box6</name>
+    <x>151</x>
+    <y>107</y>
+    <width>69</width>
+    <height>69</height>
+    <style>2</style>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>box9</name>
+    <x>151</x>
+    <y>175</y>
+    <width>69</width>
+    <height>69</height>
+    <style>2</style>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Auto Solve</name>
+    <x>15</x>
+    <y>328</y>
+    <width>199</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://solve(0)</pv_name>
+        <value>1</value>
+        <description>Auto-Solve</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_solve.py">
+        <pv_name>loc://solve(0)</pv_name>
+        <pv_name trigger="false">loc://write00(-1)</pv_name>
+        <pv_name trigger="false">loc://write01(-1)</pv_name>
+        <pv_name trigger="false">loc://write02(-1)</pv_name>
+        <pv_name trigger="false">loc://write03(-1)</pv_name>
+        <pv_name trigger="false">loc://write04(-1)</pv_name>
+        <pv_name trigger="false">loc://write05(-1)</pv_name>
+        <pv_name trigger="false">loc://write06(-1)</pv_name>
+        <pv_name trigger="false">loc://write07(-1)</pv_name>
+        <pv_name trigger="false">loc://write08(-1)</pv_name>
+        <pv_name trigger="false">loc://write10(-1)</pv_name>
+        <pv_name trigger="false">loc://write11(-1)</pv_name>
+        <pv_name trigger="false">loc://write12(-1)</pv_name>
+        <pv_name trigger="false">loc://write13(-1)</pv_name>
+        <pv_name trigger="false">loc://write14(-1)</pv_name>
+        <pv_name trigger="false">loc://write15(-1)</pv_name>
+        <pv_name trigger="false">loc://write16(-1)</pv_name>
+        <pv_name trigger="false">loc://write17(-1)</pv_name>
+        <pv_name trigger="false">loc://write18(-1)</pv_name>
+        <pv_name trigger="false">loc://write20(-1)</pv_name>
+        <pv_name trigger="false">loc://write21(-1)</pv_name>
+        <pv_name trigger="false">loc://write22(-1)</pv_name>
+        <pv_name trigger="false">loc://write23(-1)</pv_name>
+        <pv_name trigger="false">loc://write24(-1)</pv_name>
+        <pv_name trigger="false">loc://write25(-1)</pv_name>
+        <pv_name trigger="false">loc://write26(-1)</pv_name>
+        <pv_name trigger="false">loc://write27(-1)</pv_name>
+        <pv_name trigger="false">loc://write28(-1)</pv_name>
+        <pv_name trigger="false">loc://write30(-1)</pv_name>
+        <pv_name trigger="false">loc://write31(-1)</pv_name>
+        <pv_name trigger="false">loc://write32(-1)</pv_name>
+        <pv_name trigger="false">loc://write33(-1)</pv_name>
+        <pv_name trigger="false">loc://write34(-1)</pv_name>
+        <pv_name trigger="false">loc://write35(-1)</pv_name>
+        <pv_name trigger="false">loc://write36(-1)</pv_name>
+        <pv_name trigger="false">loc://write37(-1)</pv_name>
+        <pv_name trigger="false">loc://write38(-1)</pv_name>
+        <pv_name trigger="false">loc://write40(-1)</pv_name>
+        <pv_name trigger="false">loc://write41(-1)</pv_name>
+        <pv_name trigger="false">loc://write42(-1)</pv_name>
+        <pv_name trigger="false">loc://write43(-1)</pv_name>
+        <pv_name trigger="false">loc://write44(-1)</pv_name>
+        <pv_name trigger="false">loc://write45(-1)</pv_name>
+        <pv_name trigger="false">loc://write46(-1)</pv_name>
+        <pv_name trigger="false">loc://write47(-1)</pv_name>
+        <pv_name trigger="false">loc://write48(-1)</pv_name>
+        <pv_name trigger="false">loc://write50(-1)</pv_name>
+        <pv_name trigger="false">loc://write51(-1)</pv_name>
+        <pv_name trigger="false">loc://write52(-1)</pv_name>
+        <pv_name trigger="false">loc://write53(-1)</pv_name>
+        <pv_name trigger="false">loc://write54(-1)</pv_name>
+        <pv_name trigger="false">loc://write55(-1)</pv_name>
+        <pv_name trigger="false">loc://write56(-1)</pv_name>
+        <pv_name trigger="false">loc://write57(-1)</pv_name>
+        <pv_name trigger="false">loc://write58(-1)</pv_name>
+        <pv_name trigger="false">loc://write60(-1)</pv_name>
+        <pv_name trigger="false">loc://write61(-1)</pv_name>
+        <pv_name trigger="false">loc://write62(-1)</pv_name>
+        <pv_name trigger="false">loc://write63(-1)</pv_name>
+        <pv_name trigger="false">loc://write64(-1)</pv_name>
+        <pv_name trigger="false">loc://write65(-1)</pv_name>
+        <pv_name trigger="false">loc://write66(-1)</pv_name>
+        <pv_name trigger="false">loc://write67(-1)</pv_name>
+        <pv_name trigger="false">loc://write68(-1)</pv_name>
+        <pv_name trigger="false">loc://write70(-1)</pv_name>
+        <pv_name trigger="false">loc://write71(-1)</pv_name>
+        <pv_name trigger="false">loc://write72(-1)</pv_name>
+        <pv_name trigger="false">loc://write73(-1)</pv_name>
+        <pv_name trigger="false">loc://write74(-1)</pv_name>
+        <pv_name trigger="false">loc://write75(-1)</pv_name>
+        <pv_name trigger="false">loc://write76(-1)</pv_name>
+        <pv_name trigger="false">loc://write77(-1)</pv_name>
+        <pv_name trigger="false">loc://write78(-1)</pv_name>
+        <pv_name trigger="false">loc://write80(-1)</pv_name>
+        <pv_name trigger="false">loc://write81(-1)</pv_name>
+        <pv_name trigger="false">loc://write82(-1)</pv_name>
+        <pv_name trigger="false">loc://write83(-1)</pv_name>
+        <pv_name trigger="false">loc://write84(-1)</pv_name>
+        <pv_name trigger="false">loc://write85(-1)</pv_name>
+        <pv_name trigger="false">loc://write86(-1)</pv_name>
+        <pv_name trigger="false">loc://write87(-1)</pv_name>
+        <pv_name trigger="false">loc://write88(-1)</pv_name>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_1</name>
+    <x>15</x>
+    <y>288</y>
+    <width>44</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://start(1)</pv_name>
+        <value>1</value>
+        <description>#1</description>
+      </action>
+    </actions>
+    <rules>
+      <rule name="selection rule" prop_id="background_color" out_exp="false">
+        <exp bool_exp="pv0==1">
+          <value>
+            <color name="Write_Background" red="128" green="255" blue="255">
+            </color>
+          </value>
+        </exp>
+        <exp bool_exp="pv0!=1">
+          <value>
+            <color name="Button_Background" red="210" green="210" blue="210">
+            </color>
+          </value>
+        </exp>
+        <pv_name>loc://start(1)</pv_name>
+      </rule>
+    </rules>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_2</name>
+    <x>92</x>
+    <y>288</y>
+    <width>44</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://start(1)</pv_name>
+        <value>2</value>
+        <description>#2</description>
+      </action>
+    </actions>
+    <rules>
+      <rule name="selection rule" prop_id="background_color" out_exp="false">
+        <exp bool_exp="pv0==2">
+          <value>
+            <color name="Write_Background" red="128" green="255" blue="255">
+            </color>
+          </value>
+        </exp>
+        <exp bool_exp="pv0!=2">
+          <value>
+            <color name="Button_Background" red="210" green="210" blue="210">
+            </color>
+          </value>
+        </exp>
+        <pv_name>loc://start(1)</pv_name>
+      </rule>
+    </rules>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_3</name>
+    <x>170</x>
+    <y>288</y>
+    <width>44</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://start(1)</pv_name>
+        <value>3</value>
+        <description>#3</description>
+      </action>
+    </actions>
+    <rules>
+      <rule name="selection rule" prop_id="background_color" out_exp="false">
+        <exp bool_exp="pv0==3">
+          <value>
+            <color name="Write_Background" red="128" green="255" blue="255">
+            </color>
+          </value>
+        </exp>
+        <exp bool_exp="pv0!=3">
+          <value>
+            <color name="Button_Background" red="210" green="210" blue="210">
+            </color>
+          </value>
+        </exp>
+        <pv_name>loc://start(1)</pv_name>
+      </rule>
+    </rules>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <x>15</x>
+    <y>258</y>
+    <width>199</width>
+    <text>Load puzzle</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+    <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_2</name>
+    <x>275</x>
+    <y>8</y>
+    <width>120</width>
+    <text>How to Play</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <x>275</x>
+    <y>39</y>
+    <width>370</width>
+    <height>205</height>
+    <text>Try to fill the squares so that every row, column, and
+3x3 block has exactly the digits 1-9.
+
+Right-click on the gray cells and select a value to
+input. Changing the white cells is allowed, but not
+recommended as it may make the puzzle
+unsolveable.
+
+Click "Auto-Solve", and the solver will try to complete
+the puzzle for you. You can load a new puzzle to
+play by clicking on the "Load puzzle" buttons, or
+re-load the current puzzle to re-set your answers.</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell00</name>
+    <x>18</x>
+    <y>42</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write00(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write00(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write00(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write00(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write00(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write00(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write00(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write00(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write00(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write00(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write00(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell01</name>
+    <x>40</x>
+    <y>42</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write01(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write01(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write01(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write01(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write01(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write01(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write01(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write01(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write01(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write01(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write01(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell02</name>
+    <x>62</x>
+    <y>42</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write02(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write02(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write02(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write02(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write02(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write02(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write02(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write02(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write02(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write02(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write02(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell10</name>
+    <x>18</x>
+    <y>64</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write10(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write10(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write10(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write10(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write10(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write10(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write10(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write10(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write10(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write10(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write10(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell11</name>
+    <x>40</x>
+    <y>64</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write11(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write11(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write11(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write11(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write11(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write11(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write11(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write11(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write11(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write11(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write11(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell12</name>
+    <x>62</x>
+    <y>64</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write12(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write12(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write12(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write12(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write12(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write12(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write12(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write12(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write12(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write12(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write12(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell20</name>
+    <x>18</x>
+    <y>86</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write20(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write20(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write20(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write20(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write20(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write20(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write20(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write20(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write20(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write20(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write20(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell21</name>
+    <x>40</x>
+    <y>86</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write21(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write21(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write21(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write21(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write21(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write21(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write21(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write21(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write21(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write21(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write21(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell22</name>
+    <x>62</x>
+    <y>86</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write22(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write22(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write22(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write22(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write22(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write22(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write22(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write22(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write22(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write22(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write22(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell03</name>
+    <x>86</x>
+    <y>42</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write03(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write03(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write03(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write03(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write03(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write03(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write03(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write03(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write03(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write03(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write03(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell04</name>
+    <x>108</x>
+    <y>42</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write04(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write04(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write04(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write04(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write04(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write04(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write04(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write04(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write04(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write04(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write04(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell05</name>
+    <x>130</x>
+    <y>42</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write05(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write05(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write05(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write05(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write05(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write05(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write05(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write05(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write05(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write05(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write05(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell13</name>
+    <x>86</x>
+    <y>64</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write13(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write13(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write13(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write13(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write13(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write13(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write13(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write13(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write13(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write13(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write13(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell14</name>
+    <x>108</x>
+    <y>64</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write14(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write14(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write14(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write14(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write14(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write14(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write14(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write14(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write14(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write14(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write14(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell15</name>
+    <x>130</x>
+    <y>64</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write15(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write15(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write15(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write15(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write15(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write15(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write15(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write15(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write15(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write15(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write15(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell23</name>
+    <x>86</x>
+    <y>86</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write23(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write23(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write23(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write23(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write23(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write23(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write23(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write23(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write23(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write23(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write23(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell24</name>
+    <x>108</x>
+    <y>86</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write24(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write24(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write24(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write24(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write24(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write24(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write24(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write24(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write24(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write24(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write24(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell25</name>
+    <x>130</x>
+    <y>86</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write25(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write25(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write25(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write25(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write25(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write25(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write25(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write25(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write25(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write25(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write25(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell06</name>
+    <x>154</x>
+    <y>42</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write06(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write06(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write06(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write06(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write06(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write06(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write06(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write06(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write06(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write06(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write06(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell07</name>
+    <x>176</x>
+    <y>42</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write07(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write07(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write07(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write07(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write07(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write07(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write07(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write07(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write07(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write07(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write07(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell08</name>
+    <x>198</x>
+    <y>42</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write08(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write08(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write08(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write08(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write08(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write08(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write08(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write08(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write08(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write08(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write08(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell16</name>
+    <x>154</x>
+    <y>64</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write16(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write16(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write16(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write16(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write16(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write16(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write16(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write16(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write16(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write16(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write16(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell17</name>
+    <x>176</x>
+    <y>64</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write17(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write17(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write17(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write17(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write17(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write17(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write17(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write17(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write17(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write17(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write17(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell18</name>
+    <x>198</x>
+    <y>64</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write18(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write18(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write18(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write18(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write18(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write18(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write18(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write18(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write18(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write18(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write18(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell26</name>
+    <x>154</x>
+    <y>86</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write26(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write26(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write26(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write26(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write26(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write26(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write26(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write26(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write26(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write26(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write26(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell27</name>
+    <x>176</x>
+    <y>86</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write27(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write27(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write27(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write27(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write27(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write27(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write27(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write27(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write27(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write27(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write27(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell28</name>
+    <x>198</x>
+    <y>86</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write28(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write28(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write28(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write28(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write28(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write28(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write28(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write28(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write28(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write28(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write28(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell63</name>
+    <x>86</x>
+    <y>178</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write63(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write63(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write63(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write63(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write63(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write63(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write63(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write63(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write63(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write63(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write63(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell64</name>
+    <x>108</x>
+    <y>178</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write64(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write64(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write64(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write64(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write64(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write64(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write64(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write64(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write64(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write64(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write64(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell65</name>
+    <x>130</x>
+    <y>178</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write65(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write65(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write65(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write65(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write65(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write65(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write65(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write65(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write65(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write65(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write65(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell73</name>
+    <x>86</x>
+    <y>200</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write73(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write73(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write73(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write73(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write73(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write73(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write73(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write73(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write73(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write73(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write73(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell74</name>
+    <x>108</x>
+    <y>200</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write74(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write74(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write74(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write74(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write74(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write74(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write74(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write74(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write74(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write74(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write74(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell75</name>
+    <x>130</x>
+    <y>200</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write75(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write75(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write75(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write75(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write75(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write75(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write75(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write75(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write75(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write75(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write75(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell83</name>
+    <x>86</x>
+    <y>222</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write83(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write83(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write83(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write83(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write83(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write83(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write83(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write83(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write83(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write83(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write83(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell84</name>
+    <x>108</x>
+    <y>222</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write84(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write84(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write84(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write84(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write84(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write84(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write84(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write84(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write84(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write84(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write84(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell85</name>
+    <x>130</x>
+    <y>222</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write85(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write85(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write85(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write85(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write85(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write85(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write85(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write85(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write85(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write85(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write85(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell30</name>
+    <x>18</x>
+    <y>110</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write30(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write30(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write30(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write30(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write30(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write30(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write30(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write30(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write30(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write30(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write30(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell31</name>
+    <x>40</x>
+    <y>110</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write31(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write31(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write31(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write31(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write31(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write31(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write31(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write31(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write31(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write31(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write31(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell32</name>
+    <x>62</x>
+    <y>110</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write32(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write32(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write32(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write32(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write32(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write32(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write32(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write32(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write32(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write32(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write32(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell40</name>
+    <x>18</x>
+    <y>132</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write40(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write40(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write40(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write40(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write40(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write40(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write40(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write40(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write40(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write40(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write40(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell41</name>
+    <x>40</x>
+    <y>132</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write41(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write41(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write41(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write41(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write41(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write41(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write41(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write41(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write41(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write41(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write41(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell42</name>
+    <x>62</x>
+    <y>132</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write42(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write42(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write42(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write42(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write42(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write42(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write42(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write42(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write42(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write42(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write42(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell50</name>
+    <x>18</x>
+    <y>154</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write50(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write50(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write50(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write50(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write50(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write50(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write50(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write50(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write50(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write50(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write50(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell51</name>
+    <x>40</x>
+    <y>154</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write51(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write51(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write51(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write51(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write51(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write51(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write51(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write51(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write51(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write51(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write51(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell52</name>
+    <x>62</x>
+    <y>154</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write52(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write52(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write52(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write52(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write52(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write52(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write52(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write52(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write52(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write52(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write52(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell81</name>
+    <x>40</x>
+    <y>222</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write81(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write81(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write81(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write81(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write81(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write81(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write81(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write81(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write81(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write81(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write81(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell82</name>
+    <x>62</x>
+    <y>222</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write82(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write82(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write82(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write82(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write82(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write82(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write82(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write82(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write82(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write82(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write82(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell72</name>
+    <x>62</x>
+    <y>200</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write72(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write72(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write72(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write72(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write72(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write72(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write72(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write72(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write72(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write72(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write72(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell71</name>
+    <x>40</x>
+    <y>200</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write71(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write71(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write71(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write71(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write71(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write71(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write71(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write71(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write71(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write71(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write71(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell80</name>
+    <x>18</x>
+    <y>222</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write80(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write80(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write80(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write80(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write80(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write80(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write80(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write80(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write80(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write80(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write80(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell70</name>
+    <x>18</x>
+    <y>200</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write70(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write70(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write70(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write70(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write70(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write70(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write70(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write70(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write70(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write70(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write70(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell62</name>
+    <x>62</x>
+    <y>178</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write62(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write62(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write62(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write62(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write62(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write62(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write62(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write62(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write62(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write62(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write62(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell61</name>
+    <x>40</x>
+    <y>178</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write61(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write61(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write61(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write61(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write61(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write61(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write61(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write61(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write61(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write61(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write61(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell60</name>
+    <x>18</x>
+    <y>178</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write60(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write60(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write60(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write60(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write60(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write60(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write60(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write60(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write60(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write60(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write60(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell33</name>
+    <x>86</x>
+    <y>110</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write33(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write33(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write33(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write33(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write33(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write33(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write33(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write33(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write33(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write33(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write33(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell34</name>
+    <x>108</x>
+    <y>110</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write34(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write34(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write34(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write34(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write34(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write34(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write34(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write34(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write34(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write34(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write34(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell35</name>
+    <x>130</x>
+    <y>110</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write34(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write35(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write35(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write35(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write35(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write35(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write35(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write35(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write35(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write35(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write35(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell43</name>
+    <x>86</x>
+    <y>132</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write43(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write43(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write43(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write43(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write43(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write43(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write43(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write43(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write43(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write43(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write43(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell44</name>
+    <x>108</x>
+    <y>132</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write44(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write44(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write44(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write44(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write44(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write44(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write44(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write44(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write44(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write44(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write44(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell45</name>
+    <x>130</x>
+    <y>132</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write45(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write45(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write45(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write45(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write45(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write45(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write45(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write45(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write45(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write45(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write45(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell53</name>
+    <x>86</x>
+    <y>154</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write53(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write53(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write53(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write53(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write53(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write53(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write53(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write53(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write53(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write53(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write53(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell54</name>
+    <x>108</x>
+    <y>154</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write54(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write54(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write54(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write54(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write54(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write54(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write54(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write54(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write54(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write54(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write54(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell55</name>
+    <x>130</x>
+    <y>154</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write55(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write55(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write55(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write55(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write55(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write55(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write55(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write55(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write55(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write55(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write55(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell36</name>
+    <x>154</x>
+    <y>110</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write36(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write36(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write36(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write36(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write36(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write36(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write36(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write36(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write36(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write36(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write36(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell37</name>
+    <x>176</x>
+    <y>110</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write37(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write37(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write37(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write37(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write37(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write37(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write37(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write37(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write37(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write37(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write37(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell38</name>
+    <x>198</x>
+    <y>110</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write38(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write38(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write38(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write38(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write38(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write38(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write38(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write38(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write38(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write38(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write38(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell46</name>
+    <x>154</x>
+    <y>132</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write46(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write46(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write46(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write46(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write46(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write46(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write46(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write46(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write46(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write46(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write46(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell47</name>
+    <x>176</x>
+    <y>132</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write47(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write47(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write47(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write47(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write47(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write47(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write47(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write47(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write47(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write47(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write47(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell48</name>
+    <x>198</x>
+    <y>132</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write48(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write48(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write48(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write48(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write48(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write48(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write48(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write48(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write48(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write48(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write48(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell56</name>
+    <x>154</x>
+    <y>154</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write56(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write56(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write56(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write56(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write56(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write56(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write56(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write56(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write56(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write56(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write56(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell57</name>
+    <x>176</x>
+    <y>154</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write57(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write57(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write57(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write57(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write57(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write57(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write57(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write57(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write57(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write57(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write57(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell58</name>
+    <x>198</x>
+    <y>154</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write58(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write58(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write58(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write58(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write58(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write58(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write58(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write58(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write58(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write58(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write58(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell88</name>
+    <x>198</x>
+    <y>222</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write88(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write88(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write88(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write88(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write88(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write88(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write88(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write88(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write88(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write88(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write88(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell87</name>
+    <x>176</x>
+    <y>222</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write87(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write87(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write87(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write87(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write87(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write87(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write87(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write87(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write87(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write87(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write87(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell86</name>
+    <x>154</x>
+    <y>222</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write86(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write86(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write86(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write86(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write86(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write86(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write86(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write86(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write86(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write86(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write86(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell78</name>
+    <x>198</x>
+    <y>200</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write78(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write78(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write78(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write78(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write78(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write78(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write78(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write78(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write78(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write78(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write78(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell77</name>
+    <x>176</x>
+    <y>200</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write77(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write77(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write77(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write77(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write77(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write77(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write77(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write77(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write77(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write77(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write77(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell76</name>
+    <x>154</x>
+    <y>200</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write76(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write76(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write76(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write76(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write76(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write76(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write76(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write76(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write76(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write76(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write76(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell68</name>
+    <x>198</x>
+    <y>178</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write68(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write68(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write68(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write68(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write68(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write68(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write68(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write68(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write68(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write68(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write68(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell67</name>
+    <x>176</x>
+    <y>178</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write67(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write67(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write67(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write67(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write67(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write67(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write67(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write67(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write67(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write67(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write67(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>cell66</name>
+    <x>154</x>
+    <y>178</y>
+    <width>20</width>
+    <precision>1</precision>
+    <show_units>false</show_units>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://write66(-1)</pv_name>
+        <value>0</value>
+        <description>Clear cell</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write66(-1)</pv_name>
+        <value>1</value>
+        <description>Enter 1</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write66(-1)</pv_name>
+        <value>2</value>
+        <description>Enter 2</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write66(-1)</pv_name>
+        <value>3</value>
+        <description>Enter 3</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write66(-1)</pv_name>
+        <value>4</value>
+        <description>Enter 4</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write66(-1)</pv_name>
+        <value>5</value>
+        <description>Enter 5</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write66(-1)</pv_name>
+        <value>6</value>
+        <description>Enter 6</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write66(-1)</pv_name>
+        <value>7</value>
+        <description>Enter 7</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write66(-1)</pv_name>
+        <value>8</value>
+        <description>Enter 8</description>
+      </action>
+      <action type="write_pv">
+        <pv_name>loc://write66(-1)</pv_name>
+        <value>9</value>
+        <description>Enter 9</description>
+      </action>
+    </actions>
+    <scripts>
+      <script file="sudoku_entry.py">
+        <pv_name>loc://write66(-1)</pv_name>
+        <pv_name trigger="false">loc://solve(0)</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://cell(" ")</pv_name>
+  </widget>
+</display>
