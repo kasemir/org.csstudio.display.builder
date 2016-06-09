@@ -9,6 +9,8 @@ package org.csstudio.display.builder.model.properties;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -84,6 +86,45 @@ public class RuleToScript
         }
 
         return ret;
+    }
+
+
+    private static int countMatches(String s, char c)
+    {
+        int counter = 0;
+        for( int i=0; i<s.length(); i++ ) {
+            if( s.charAt(i) == c ) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+    /**
+     * Substitute the string "True" for all instances of string "true" to update old javascript rules into Python
+     */
+    protected static String TrueFortrue(final String instr)
+    {
+        //return instr.replaceAll("(\\W|^)(true)", "$1True");
+        Matcher m = Pattern.compile("(.*?)((true)+)").matcher(instr);
+        StringBuffer sb = new StringBuffer();
+
+        boolean inquotes=false;
+        while(m.find()) {
+            if ((countMatches(m.group(1), '\"') % 2) == 1)
+                inquotes = !inquotes;
+            if (inquotes)
+                m.appendReplacement(sb, m.group(1) + m.group(2));
+            else if (m.group(1).matches(".*\\w"))
+                m.appendReplacement(sb, m.group(1) + m.group(2));
+            else if (m.group(2).matches("true(true)+"))
+                m.appendReplacement(sb, m.group(1) + m.group(2));
+            else
+                m.appendReplacement(sb, m.group(1) + "True");
+        }
+        m.appendTail(sb);
+
+        return sb.toString();
     }
 
     public static String generatePy(final Widget attached_widget, final MacroValueProvider macros, final RuleInfo rule)
@@ -172,11 +213,11 @@ public class RuleToScript
         for (ExpressionInfo<?> expr : rule.getExpressions())
         {
             script_str += (idx == 0) ? "if" : "elif";
-            script_str += " (" + expr.getBoolExp() + "):\n";
+            script_str += " (" + TrueFortrue(expr.getBoolExp()) + "):\n";
             script_str += indent + setPropStr;
             if (rule.getPropAsExprFlag())
             {
-                script_str += expr.getPropVal() + " )\n";
+                script_str += TrueFortrue(expr.getPropVal() + " )\n");
             }
             else
             {

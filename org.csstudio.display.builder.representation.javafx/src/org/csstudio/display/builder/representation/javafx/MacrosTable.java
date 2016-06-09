@@ -20,6 +20,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -100,8 +102,24 @@ public class MacrosTable
         name_col.setOnEditCommit(event ->
         {
             final int row = event.getTablePosition().getRow();
-            data.get(row).setName(event.getNewValue());
-            fixup(row);
+            final String name = event.getNewValue();
+            final String error = Macros.checkMacroName(name);
+            // Empty name is an error, but we allow that for deleting a row
+            if (name.isEmpty()  ||  error == null)
+            {
+                data.get(row).setName(name);
+                fixup(row);
+            }
+            else
+            {
+                final Alert alert = new Alert(AlertType.ERROR);
+                alert.setHeaderText(error);
+                alert.showAndWait();
+                // Table will continue to show the entered name,
+                // not the actual name. Hack to 'refresh' table.
+                name_col.setVisible(false);
+                name_col.setVisible(true);
+            }
         });
 
         final TableColumn<MacroItem, String> value_col = new TableColumn<>(Messages.MacrosDialog_ValueCol);

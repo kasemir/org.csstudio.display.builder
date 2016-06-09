@@ -38,10 +38,13 @@ import org.csstudio.display.builder.model.widgets.PolygonWidget;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
+import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
+import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
 import org.csstudio.display.builder.model.widgets.SpinnerWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
+import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -121,10 +124,13 @@ public class WidgetFactory
         addWidgetType(PolylineWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ProgressBarWidget.WIDGET_DESCRIPTOR);
         addWidgetType(RectangleWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(ScaledSliderWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(ScrollBarWidget.WIDGET_DESCRIPTOR);
         addWidgetType(SpinnerWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TabsWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextEntryWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextUpdateWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(WebBrowserWidget.WIDGET_DESCRIPTOR);
         addWidgetType(XYPlotWidget.WIDGET_DESCRIPTOR);
     }
 

@@ -41,6 +41,7 @@ public class Messages extends NLS
     public static String ColorMapDialog_Result;
     public static String ColorMapDialog_Title;
     public static String ColorMapDialog_Value;
+    public static String Copy;
     public static String FontDialog_ExampleText;
     public static String FontDialog_Family;
     public static String FontDialog_Info;
@@ -75,6 +76,7 @@ public class Messages extends NLS
     public static String RulesDialog_PVsTT;
     public static String RulesDialog_RulesTT;
     public static String RulesDialog_SelectRule;
+    public static String RulesDialog_ShowScript;
     public static String RulesDialog_Title;
     public static String ScriptsDialog_BtnEmbedJS;
     public static String ScriptsDialog_BtnEmbedPy;

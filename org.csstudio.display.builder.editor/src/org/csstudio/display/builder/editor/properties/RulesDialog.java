@@ -29,6 +29,7 @@ import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.Messages;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.MultiLineInputDialog;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -41,6 +42,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -465,7 +467,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     private TableView<ExprItem<?>> expressions_table;
 
     /** Buttons for removing or reordering rules **/
-    private Button btn_remove_rule, btn_move_rule_up, btn_move_rule_down;
+    private Button btn_dup_rule, btn_remove_rule, btn_move_rule_up, btn_move_rule_down, btn_show_script;
     /** Buttons for adding/removing PVs and expressions from the selected rule **/
     private Button btn_add_pv, btn_rm_pv, btn_add_exp, btn_rm_exp;
 
@@ -568,8 +570,10 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             if (selected == null)
             {
                 btn_remove_rule.setDisable(true);
+                btn_dup_rule.setDisable(true);
                 btn_move_rule_up.setDisable(true);
                 btn_move_rule_down.setDisable(true);
+                btn_show_script.setDisable(true);
                 btn_add_pv.setDisable(true);
                 btn_rm_pv.setDisable(true);
                 btn_add_exp.setDisable(true);
@@ -583,8 +587,10 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             else
             {
                 btn_remove_rule.setDisable(false);
+                btn_dup_rule.setDisable(false);
                 btn_move_rule_up.setDisable(false);
                 btn_move_rule_down.setDisable(false);
+                btn_show_script.setDisable(false);
                 btn_add_pv.setDisable(false);
                 btn_rm_pv.setDisable(false);
                 btn_add_exp.setDisable(false);
@@ -624,14 +630,17 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         propComboBox.valueProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-                if (!selected_rule_item.tryUpdatePropID(undo, getPropID(t1)))
+                if (t1 != null)
                 {
-                    Logger.getLogger(this.getClass().getName()).
-                    log(Level.FINE, "Did not update rule property ID to " + t1);
-                }
-                else
-                {
-                    expression_items.setAll(selected_rule_item.expressions);
+                    if (!selected_rule_item.tryUpdatePropID(undo, getPropID(t1)))
+                    {
+                        Logger.getLogger(this.getClass().getName()).
+                        log(Level.FINE, "Did not update rule property ID to " + t1);
+                    }
+                    else
+                    {
+                        expression_items.setAll(selected_rule_item.expressions);
+                    }
                 }
             }
         });
@@ -653,6 +662,9 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 }
             }
         });
+
+
+
 
         final HBox props = new HBox(10, valExpBox, new Separator(Orientation.VERTICAL), propLabel, propComboBox);
         final HBox subtabs = new HBox(10, pvs, exprs);
@@ -708,6 +720,18 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                     ));
         });
 
+        btn_dup_rule = new Button(Messages.Copy, JFXUtil.getIcon("embedded_script.png"));
+        btn_dup_rule.setMaxWidth(Double.MAX_VALUE);
+        btn_dup_rule.setDisable(true);
+        btn_dup_rule.setOnAction(event ->
+        {
+            if (selected_rule_item != null) {
+                rule_items.add( RuleItem.forInfo(attached_widget,
+                        selected_rule_item.getRuleInfo(),
+                        undo) );
+            }
+        });
+
         btn_remove_rule = new Button(Messages.Remove, JFXUtil.getIcon("delete.png"));
         btn_remove_rule.setMaxWidth(Double.MAX_VALUE);
         btn_remove_rule.setDisable(true);
@@ -722,20 +746,60 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         });
 
         //TODO: Add Messages
-        btn_move_rule_up = new Button("Move up", JFXUtil.getIcon("up.png"));
+        btn_move_rule_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
         btn_move_rule_up.setMaxWidth(Double.MAX_VALUE);
         btn_move_rule_up.setDisable(true);
+        btn_move_rule_up.setOnAction(event ->
+        {
+            final int sel = rules_table.getSelectionModel().getSelectedIndex();
+            if (sel >= 1)
+            {
+                RuleItem prev = rule_items.set(sel-1, rule_items.get(sel));
+                rule_items.set(sel, prev);
+            }
+        });
 
-        btn_move_rule_down = new Button("Move down", JFXUtil.getIcon("down.png"));
+        btn_move_rule_down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
         btn_move_rule_down.setMaxWidth(Double.MAX_VALUE);
         btn_move_rule_down.setDisable(true);
+        btn_move_rule_down.setOnAction(event ->
+        {
+            final int sel = rules_table.getSelectionModel().getSelectedIndex();
+            if (sel >= 0)
+            {
+                if ((sel+1) < rule_items.size()) {
+                    RuleItem next = rule_items.set(sel+1, rule_items.get(sel));
+                    rule_items.set(sel, next);
+                }
+            }
+        });
 
+        btn_show_script = new Button(Messages.RulesDialog_ShowScript, JFXUtil.getIcon("embedded_script.png"));
+        btn_show_script.setMaxWidth(Double.MAX_VALUE);
+        btn_show_script.setAlignment(Pos.BOTTOM_CENTER);
+        btn_show_script.setDisable(true);
+        btn_show_script.setOnAction(event ->
+        {
+            final int sel = rules_table.getSelectionModel().getSelectedIndex();
+            if (sel >= 0)
+            {
+                String content = rule_items.get(sel).getRuleInfo()
+                        .getTextPy(attached_widget, attached_widget.getEffectiveMacros());
+                final MultiLineInputDialog dialog = new MultiLineInputDialog(content);
+                dialog.setResizable(true);
+                dialog.show();
+            }
+        });
 
         final VBox buttons = new VBox(10, add,
                 new Separator(Orientation.HORIZONTAL),
+                btn_dup_rule,
                 btn_remove_rule,
                 btn_move_rule_up,
-                btn_move_rule_down);
+                btn_move_rule_down,
+                new Separator(Orientation.HORIZONTAL),
+                btn_show_script);
+
         final HBox content = new HBox(10, rules_table, buttons);
         HBox.setHgrow(rules_table, Priority.ALWAYS);
         return content;
