@@ -4,8 +4,7 @@ Sudoku board creator.
 @author Amanda Carpenter
 """
 
-"""deprecated"""
-from org.csstudio.opibuilder.scriptUtil import PVUtil
+from org.csstudio.display.builder.runtime.script import PVUtil
 
 from java.util.logging import Logger
 logger = Logger.getLogger("script")
