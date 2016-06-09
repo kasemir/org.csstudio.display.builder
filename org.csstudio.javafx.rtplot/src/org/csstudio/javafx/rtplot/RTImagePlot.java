@@ -30,7 +30,6 @@ import javafx.scene.text.Font;
  *  @param <XTYPE> Data type used for the {@link PlotDataItem}
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
 public class RTImagePlot extends BorderPane
 {
     final protected ImagePlot plot;
@@ -81,18 +80,12 @@ public class RTImagePlot extends BorderPane
             toolbar.selectMouseMode(MouseMode.NONE);
     }
 
-    // TODO
-//    /** @param listener Listener to add */
-//    public void addListener(final RTPlotListener<XTYPE> listener)
-//    {
-//        plot.addListener(listener);
-//    }
-//
-//    /** @param listener Listener to remove */
-//    public void removeListener(final RTPlotListener<XTYPE> listener)
-//    {
-//        plot.removeListener(listener);
-//    }
+    // TODO Add/remove listener?
+    /** @param plot_listener Plot listener */
+    public void setListener(final RTImagePlotListener plot_listener)
+    {
+        plot.setListener(plot_listener);
+    }
 
     /** @return <code>true</code> if toolbar is visible */
     public boolean isToolbarVisible()

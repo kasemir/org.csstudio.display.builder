@@ -24,6 +24,7 @@ import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
+import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
 import org.csstudio.javafx.rtplot.internal.util.LinearScreenTransform;
 import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
@@ -171,6 +172,8 @@ public class ImagePlot extends Canvas
         drawMouseModeFeedback(gc);
     };
 
+    private volatile RTImagePlotListener plot_listener = null;
+
     /** Constructor
      *  @param active Active mode where plot reacts to mouse/keyboard?
      */
@@ -208,6 +211,12 @@ public class ImagePlot extends Canvas
             setOnMouseExited(this::mouseExit);
             setOnScroll(this::wheelZoom);
         }
+    }
+
+    /** @param plot_listener Plot listener */
+    public void setListener(final RTImagePlotListener plot_listener)
+    {
+        this.plot_listener = plot_listener;
     }
 
     /** @return {@link UndoableActionManager} for this plot */
@@ -725,11 +734,13 @@ public class ImagePlot extends Canvas
      */
     private void updateLocationInfo(final double mouse_x, final double mouse_y)
     {
-        if (! image_area.contains(mouse_x, mouse_y))
-        {
-            System.out.println("Outside of image");
+        final RTImagePlotListener listener = plot_listener;
+        if (listener == null)
             return;
-        }
+
+        if (! image_area.contains(mouse_x, mouse_y))
+            listener.changedCursorLocation(Double.NaN, Double.NaN, Double.NaN);
+
         final int screen_x = (int) (mouse_x + 0.5);
         final int screen_y = (int) (mouse_y + 0.5);
         // Location on axes, i.e. what user configured as horizontal and vertical values
@@ -739,19 +750,20 @@ public class ImagePlot extends Canvas
         // Location as coordinate into image
         AxisRange<Double> range = x_axis.getValueRange();
         int image_x = (int) ((data_width-1) * (x_val - range.getLow()) / (range.getHigh() - range.getLow()) + 0.5);
-        if (image_x >= data_width)
+        if (image_x < 0)
+            image_x = 0;
+        else if (image_x >= data_width)
             image_x = data_width - 1;
         range = y_axis.getValueRange();
         int image_y = (int) ((data_height-1) * (1.0 - (y_val - range.getLow()) / (range.getHigh() - range.getLow())) + 0.5);
-        if (image_y >= data_height)
+        if (image_y < 0)
+            image_y = 0;
+        else if (image_y >= data_height)
             image_y = data_height - 1;
 
         final ListNumber data = image_data;
-        final double pixel = data == null ? -1 : data.getDouble(image_x + image_y * data_width);
-        final String info = formatLocationInfo(x_val, y_val, pixel);
-
-        // TODO Set 'info' text, and show that in the redraw_runnable
-        System.out.println(info);
+        final double pixel = data == null ? Double.NaN : data.getDouble(image_x + image_y * data_width);
+        listener.changedCursorLocation(x_val, y_val, pixel);
     }
 
     /** setOnMouseReleased */
@@ -876,12 +888,6 @@ public class ImagePlot extends Canvas
         final double new_high = fixed + (orig.getHigh() - fixed) * factor;
         axis.setValueRange(Math.max(min, new_low), Math.min(max, new_high));
         return orig;
-    }
-
-    private String formatLocationInfo(final double x, final double y, final double value)
-    {   // TODO Allow script to install alternate format,
-        // or send x, y and value to PVs
-        return "(" + x + ", " + y + ") = " + value;
     }
 
     /** Should be invoked when plot no longer used to release resources */

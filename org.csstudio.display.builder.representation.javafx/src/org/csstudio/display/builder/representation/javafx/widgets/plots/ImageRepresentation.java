@@ -21,6 +21,7 @@ import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.RTImagePlot;
+import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.diirt.util.array.ArrayByte;
 import org.diirt.vtype.VImage;
 import org.diirt.vtype.VNumberArray;
@@ -38,6 +39,16 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 
     /** Actual plotting delegated to {@link RTImagePlot} */
     private RTImagePlot image_plot;
+
+    private final RTImagePlotListener plot_listener = new RTImagePlotListener()
+    {
+        @Override
+        public void changedCursorLocation(double x, double y, double value)
+        {
+            // TODO Update a widget 'cursor_info' runtime property
+            System.out.println("X: " + x + ", Y: " + y + ", Pixel: " + value);
+        }
+    };
 
     @Override
     public Pane createJFXNode() throws Exception
@@ -70,6 +81,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.behaviorDataWidth().addUntypedPropertyListener(this::contentChanged);
         model_widget.behaviorDataHeight().addUntypedPropertyListener(this::contentChanged);
         model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
+
+        image_plot.setListener(plot_listener);
 
         // Initial update
         colormapChanged(null, null, model_widget.displayDataColormap().getValue());
