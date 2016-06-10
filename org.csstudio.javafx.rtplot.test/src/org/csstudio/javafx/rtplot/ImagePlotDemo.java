@@ -68,7 +68,7 @@ public class ImagePlotDemo extends Application
         for (Handler handler : Logger.getLogger("").getHandlers())
             handler.setLevel(level);
 
-        final ImagePlot plot = new ImagePlot();
+        final ImagePlot plot = new ImagePlot(true);
 
         plot.setColorMapping(ImagePlot.RAINBOW);
 
