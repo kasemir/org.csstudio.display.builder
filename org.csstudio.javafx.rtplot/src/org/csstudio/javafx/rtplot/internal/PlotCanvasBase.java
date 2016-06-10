@@ -1,0 +1,239 @@
+/*******************************************************************************
+ * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ ******************************************************************************/
+package org.csstudio.javafx.rtplot.internal;
+
+import java.awt.Rectangle;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
+
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.geometry.Point2D;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
+
+/** Base Canvas for plots
+ *
+ *  @author Kay Kasemir
+ */
+@SuppressWarnings("nls")
+abstract class PlotCanvasBase extends Canvas
+{
+    protected static final int ARROW_SIZE = 8;
+
+    protected static final double ZOOM_FACTOR = 1.5;
+
+    /** When using 'rubberband' to zoom in, need to select a region
+     *  at least this wide resp. high.
+     *  Smaller regions are likely the result of an accidental
+     *  click-with-jerk, which would result into a huge zoom step.
+     */
+    protected static final int ZOOM_PIXEL_THRESHOLD = 20;
+
+    /** Support for un-do and re-do */
+    protected final UndoableActionManager undo = new UndoableActionManager(50);
+
+    /** Area of this canvas */
+    protected volatile Rectangle area = new Rectangle(0, 0, 0, 0);
+
+    /** Suppress updates triggered by axis changes from layout or autoscale */
+    protected volatile boolean in_update = false;
+
+    /** Does layout need to be re-computed? */
+    protected final AtomicBoolean need_layout = new AtomicBoolean(true);
+
+    /** Throttle updates, enforcing a 'dormant' period */
+    private final RTPlotUpdateThrottle update_throttle;
+
+    /** Buffer for image and color bar
+     *
+     *  <p>UpdateThrottle calls updateImageBuffer() to set the image
+     *  in its thread, PaintListener draws it in UI thread.
+     *
+     *  <p>Synchronizing to access one and the same image
+     *  deadlocks on Linux, so a new image is created for updates.
+     *  To avoid access to disposed image, SYNC on the actual image during access.
+     */
+    private volatile Image plot_image = null;
+
+    /** Listener to {@link PlotPart}s, triggering refresh of canvas */
+    protected final PlotPartListener plot_part_listener = new PlotPartListener()
+    {
+        @Override
+        public void layoutPlotPart(final PlotPart plotPart)
+        {
+            need_layout.set(true);
+        }
+
+        @Override
+        public void refreshPlotPart(final PlotPart plotPart)
+        {
+            if (! in_update)
+                requestUpdate();
+        }
+    };
+
+    /** Redraw the canvas on UI thread by painting the 'plot_image' */
+    final private Runnable redraw_runnable = () ->
+    {
+        final GraphicsContext gc = getGraphicsContext2D();
+        final Image image = plot_image;
+        if (image != null)
+            synchronized (image)
+            {
+                gc.drawImage(image, 0, 0);
+            }
+        drawMouseModeFeedback(gc);
+    };
+
+    protected MouseMode mouse_mode = MouseMode.NONE;
+    protected Optional<Point2D> mouse_start = Optional.empty();
+    protected volatile Optional<Point2D> mouse_current = Optional.empty();
+
+    /** Constructor
+     *  @param active Active mode where plot reacts to mouse/keyboard?
+     */
+    protected PlotCanvasBase(final boolean active)
+    {
+        final ChangeListener<? super Number> resize_listener = (prop, old, value) ->
+        {
+            area = new Rectangle((int)getWidth(), (int)getHeight());
+            need_layout.set(true);
+            requestUpdate();
+        };
+        widthProperty().addListener(resize_listener);
+        heightProperty().addListener(resize_listener);
+
+        // 50Hz default throttle
+        update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
+        {
+            plot_image = updateImageBuffer();
+            redrawSafely();
+        });
+
+        if (active)
+        {
+            setOnMouseEntered(this::mouseEntered);
+            setOnScroll(this::wheelZoom);
+        }
+    }
+
+    /** @return {@link UndoableActionManager} for this plot */
+    public UndoableActionManager getUndoableActionManager()
+    {
+        return undo;
+    }
+
+    /** Update the dormant time between updates
+     *  @param dormant_time How long throttle remains dormant after a trigger
+     *  @param unit Units for the dormant period
+     */
+    public void setUpdateThrottle(final long dormant_time, final TimeUnit unit)
+    {
+        update_throttle.setDormantTime(dormant_time, unit);
+    }
+
+    /** Request a complete redraw of the plot with new layout */
+    final public void requestLayout()
+    {
+        need_layout.set(true);
+        update_throttle.trigger();
+    }
+
+    /** Request a complete redraw of the plot */
+    final public void requestUpdate()
+    {
+        update_throttle.trigger();
+    }
+
+    /** Redraw the current image and cursors
+     *  <p>May be called from any thread.
+     */
+    final void redrawSafely()
+    {
+        Platform.runLater(redraw_runnable);
+    }
+
+    /** Draw all components into image buffer
+     *  @return Latest image
+     */
+    protected abstract Image updateImageBuffer();
+
+    protected abstract void drawMouseModeFeedback(GraphicsContext gc);
+
+    /** @param mode New {@link MouseMode}
+     *  @throws IllegalArgumentException if mode is internal
+     */
+    public void setMouseMode(final MouseMode mode)
+    {
+        if (mode.ordinal() >= MouseMode.INTERNAL_MODES.ordinal())
+            throw new IllegalArgumentException("Not permitted to set " + mode);
+        mouse_mode = mode;
+        PlotCursors.setCursor(this, mouse_mode);
+    }
+
+    /** onMouseEntered */
+    protected void mouseEntered(final MouseEvent e)
+    {
+        getScene().setCursor(getCursor());
+    }
+
+    // TODO Get image for screenshot
+
+//  /** @return {@link Image} of current plot. Caller must dispose */
+//  public Image getImage()
+//  {
+//      Image image = plot_image.orElse(null);
+//      if (image != null)
+//          synchronized (image)
+//          {
+//              return new Image(display, image, SWT.IMAGE_COPY);
+//          }
+//      return new Image(display, 10, 10);
+//  }
+
+    /** Zoom in/out triggered by mouse wheel
+     *  @param event Scroll event
+     */
+    protected void wheelZoom(final ScrollEvent event)
+    {
+        // Invoked by mouse scroll wheel.
+        // Only allow zoom (with control), not pan.
+        if (! event.isControlDown())
+            return;
+
+        if (event.getDeltaY() > 0)
+            zoomInOut(event.getX(), event.getY(), 1.0/ZOOM_FACTOR);
+        else if (event.getDeltaY() < 0)
+            zoomInOut(event.getX(), event.getY(), ZOOM_FACTOR);
+        else
+            return;
+        event.consume();
+    }
+
+    /** Zoom 'in' or 'out' from where the mouse was clicked
+     *  @param x Mouse coordinate
+     *  @param y Mouse coordinate
+     *  @param factor Zoom factor, positive to zoom 'out'
+     */
+    protected abstract void zoomInOut(final double x, final double y, final double factor);
+
+    /** Should be invoked when plot no longer used to release resources */
+    public void dispose()
+    {   // Stop updates which could otherwise still use
+        // what's about to be disposed
+        update_throttle.dispose();
+    }
+}

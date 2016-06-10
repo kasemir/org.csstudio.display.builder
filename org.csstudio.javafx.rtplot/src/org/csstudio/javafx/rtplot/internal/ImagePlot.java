@@ -15,32 +15,24 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.DoubleFunction;
 import java.util.logging.Level;
 
-import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
 import org.csstudio.javafx.rtplot.internal.util.LinearScreenTransform;
-import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
 import org.diirt.util.array.IteratorNumber;
 import org.diirt.util.array.ListNumber;
 
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.text.Font;
 
 /** Plot for an image
@@ -51,33 +43,13 @@ import javafx.scene.text.Font;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class ImagePlot extends Canvas
+public class ImagePlot extends PlotCanvasBase
 {
-    final private static int ARROW_SIZE = 8;
-
-    private static final double ZOOM_FACTOR = 1.5;
-
-    /** When using 'rubberband' to zoom in, need to select a region
-     *  at least this wide resp. high.
-     *  Smaller regions are likely the result of an accidental
-     *  click-with-jerk, which would result into a huge zoom step.
-     */
-    private static final int ZOOM_PIXEL_THRESHOLD = 20;
-
-    /** Support for un-do and re-do */
-    final private UndoableActionManager undo = new UndoableActionManager(50);
-
     /** Gray scale color mapping */
     public final static DoubleFunction<Color> GRAYSCALE = value -> new Color((float)value, (float)value, (float)value);
 
     /** Rainbow color mapping */
     public final static DoubleFunction<Color> RAINBOW = value -> new Color(Color.HSBtoRGB((float)value, 1.0f, 1.0f));
-
-    /** Area of this canvas */
-    private volatile Rectangle area = new Rectangle(0, 0, 0, 0);
-
-    /** Does layout need to be re-computed? */
-    final private AtomicBoolean need_layout = new AtomicBoolean(true);
 
     /** Axis range for 'full' image */
     private volatile double min_x = 0.0, max_x = 100.0, min_y = 0.0, max_y = 100.0;
@@ -121,57 +93,6 @@ public class ImagePlot extends Canvas
     /** Is 'image_data' meant to be treated as 'unsigned'? */
     private volatile boolean unsigned_data = false;
 
-    /** Buffer for image and color bar
-     *
-     *  <p>UpdateThrottle calls updateImageBuffer() to set the image
-     *  in its thread, PaintListener draws it in UI thread.
-     *
-     *  <p>Synchronizing to access one and the same image
-     *  deadlocks on Linux, so a new image is created for updates.
-     *  To avoid access to disposed image, SYNC on the actual image during access.
-     */
-    private volatile Image plot_image = null;
-
-    /** Throttle updates, enforcing a 'dormant' period */
-    private final RTPlotUpdateThrottle update_throttle;
-
-    /** Suppress updates triggered by axis changes from layout or autoscale */
-    private volatile boolean in_update = false;
-
-    private MouseMode mouse_mode = MouseMode.ZOOM_IN;
-    private Optional<Point2D> mouse_start = Optional.empty();
-    private volatile Optional<Point2D> mouse_current = Optional.empty();
-
-
-    /** Listener to Axis {@link PlotPart} */
-    final private PlotPartListener axis_listener = new PlotPartListener()
-    {
-        @Override
-        public void layoutPlotPart(final PlotPart plotPart)
-        {
-            need_layout.set(true);
-        }
-
-        @Override
-        public void refreshPlotPart(final PlotPart plotPart)
-        {
-            if (! in_update)
-                requestUpdate();
-        }
-    };
-
-    final private Runnable redraw_runnable = () ->
-    {
-        final GraphicsContext gc = getGraphicsContext2D();
-        final Image image = plot_image;
-        if (image != null)
-            synchronized (image)
-            {
-                gc.drawImage(image, 0, 0);
-            }
-        drawMouseModeFeedback(gc);
-    };
-
     private volatile RTImagePlotListener plot_listener = null;
 
     /** Constructor
@@ -179,37 +100,22 @@ public class ImagePlot extends Canvas
      */
     public ImagePlot(final boolean active)
     {
-        x_axis = new HorizontalNumericAxis("X", axis_listener);
-        y_axis = new YAxisImpl<>("Y", axis_listener);
-        colorbar_axis =  new YAxisImpl<>("", axis_listener);
+        super(active);
+        x_axis = new HorizontalNumericAxis("X", plot_part_listener);
+        y_axis = new YAxisImpl<>("Y", plot_part_listener);
+        colorbar_axis =  new YAxisImpl<>("", plot_part_listener);
 
-        // 50Hz default throttle
-        update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
-        {
-            updateImageBuffer();
-            redrawSafely();
-        });
         x_axis.setValueRange(min_x, max_x);
         y_axis.setValueRange(min_y, max_y);
-
-        final ChangeListener<? super Number> resize_listener = (prop, old, value) ->
-        {
-            area = new Rectangle((int)getWidth(), (int)getHeight());
-            requestLayout();
-        };
-        widthProperty().addListener(resize_listener);
-        heightProperty().addListener(resize_listener);
 
         if (active)
         {
             setMouseMode(MouseMode.ZOOM_IN);
-            setOnMouseEntered(this::mouseEntered);
             setOnMousePressed(this::mouseDown);
             setOnMouseMoved(this::mouseMove);
             setOnMouseDragged(this::mouseMove);
             setOnMouseReleased(this::mouseUp);
             setOnMouseExited(this::mouseExit);
-            setOnScroll(this::wheelZoom);
         }
     }
 
@@ -217,12 +123,6 @@ public class ImagePlot extends Canvas
     public void setListener(final RTImagePlotListener plot_listener)
     {
         this.plot_listener = plot_listener;
-    }
-
-    /** @return {@link UndoableActionManager} for this plot */
-    public UndoableActionManager getUndoableActionManager()
-    {
-        return undo;
     }
 
     /** @param autoscale  Auto-scale the color mapping? */
@@ -320,29 +220,6 @@ public class ImagePlot extends Canvas
         requestUpdate();
     }
 
-    /** Request a complete redraw of the plot with new layout */
-    final public void requestLayout()
-    {
-        need_layout.set(true);
-        update_throttle.trigger();
-    }
-
-    /** Request a complete redraw of the plot */
-    final public void requestUpdate()
-    {
-        update_throttle.trigger();
-    }
-
-    /** Redraw the current image and cursors
-     *
-     *  <p>Like <code>redraw()</code>, but may be called
-     *  from any thread.
-     */
-    final void redrawSafely()
-    {
-        Platform.runLater(redraw_runnable);
-    }
-
     /** Compute layout of plot components */
     private void computeLayout(final Graphics2D gc, final Rectangle bounds,
                                final double min, final double max)
@@ -379,7 +256,8 @@ public class ImagePlot extends Canvas
     }
 
     /** Draw all components into image buffer */
-    private void updateImageBuffer()
+    @Override
+    protected Image updateImageBuffer()
     {
         // Would like to use JFX WritableImage,
         // but rendering problem on Linux (sandbox.ImageScaling),
@@ -391,7 +269,7 @@ public class ImagePlot extends Canvas
 
         final Rectangle area_copy = area;
         if (area_copy.width <= 0  ||  area_copy.height <= 0)
-            return;
+            return null;
 
         in_update = true;
         final BufferedImage image = new BufferedImage(area_copy.width, area_copy.height, BufferedImage.TYPE_INT_ARGB);
@@ -481,7 +359,7 @@ public class ImagePlot extends Canvas
         in_update = false;
 
         // Convert to JFX
-        plot_image = SwingFXUtils.toFXImage(image, null);
+        return SwingFXUtils.toFXImage(image, null);
     }
 
     private BufferedImage drawColorBar(final double min, final double max, final DoubleFunction<Color> color_mapping)
@@ -572,7 +450,8 @@ public class ImagePlot extends Canvas
      *  for current mouse mode
      *  @param gc GC
      */
-    private void drawMouseModeFeedback(final GraphicsContext gc)
+    @Override
+    protected void drawMouseModeFeedback(final GraphicsContext gc)
     {   // Safe copy, then check null (== isPresent())
         final Point2D current = mouse_current.orElse(null);
         if (current == null)
@@ -670,21 +549,6 @@ public class ImagePlot extends Canvas
                 gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x+ARROW_SIZE, bottom - ARROW_SIZE);
             }
         }
-    }
-
-    /** @param mode New {@link MouseMode}
-     *  @throws IllegalArgumentException if mode is internal
-     */
-    public void setMouseMode(final MouseMode mode)
-    {
-        mouse_mode = mode;
-        PlotCursors.setCursor(this, mouse_mode);
-    }
-
-    /** onMouseEntered */
-    private void mouseEntered(final MouseEvent e)
-    {
-        getScene().setCursor(getCursor());
     }
 
     /** onMousePressed */
@@ -832,29 +696,13 @@ public class ImagePlot extends Canvas
         updateLocationInfo(-1, -1);
     }
 
-    /** Zoom in/out triggered by mouse wheel
-     *  @param event Scroll event
-     */
-    private void wheelZoom(final ScrollEvent event)
-    {
-        // Invoked by mouse scroll wheel.
-        // Only allow zoom (with control), not pan.
-        if (! event.isControlDown())
-            return;
-
-        if (event.getDeltaY() > 0)
-            zoomInOut(event.getX(), event.getY(), 1.0/ZOOM_FACTOR);
-        else if (event.getDeltaY() < 0)
-            zoomInOut(event.getX(), event.getY(), ZOOM_FACTOR);
-
-    }
-
     /** Zoom 'in' or 'out' from where the mouse was clicked
      *  @param x Mouse coordinate
      *  @param y Mouse coordinate
      *  @param factor Zoom factor, positive to zoom 'out'
      */
-    public void zoomInOut(final double x, final double y, final double factor)
+    @Override
+    protected void zoomInOut(final double x, final double y, final double factor)
     {
         final boolean zoom_x = x_axis.getBounds().contains(x, y);
         final boolean zoom_y = y_axis.getBounds().contains(x, y);
@@ -902,12 +750,5 @@ public class ImagePlot extends Canvas
         final double new_high = fixed + (orig.getHigh() - fixed) * factor;
         axis.setValueRange(Math.max(min, new_low), Math.min(max, new_high));
         return orig;
-    }
-
-    /** Should be invoked when plot no longer used to release resources */
-    public void dispose()
-    {   // Stop updates which could otherwise still use
-        // what's about to be disposed
-        update_throttle.dispose();
     }
 }
