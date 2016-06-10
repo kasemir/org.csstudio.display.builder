@@ -77,12 +77,24 @@ public class ModelResourceUtil extends ResourceUtil
      *  @param path Path that may use Windows '\'
      *  @return Path with only '/'
      */
-    public static String normalize(final String path)
+    public static String normalize(String path)
     {
         // Pattern: '\(?!\)', i.e. backslash _not_ followed by another one.
         // Each \ is doubled as \\ to get one '\' into the string,
         // then doubled once more to tell regex that we want a '\'
-        return path.replaceAll("\\\\(?!\\\\)", "/");
+        path = path.replaceAll("\\\\(?!\\\\)", "/");
+        //collapse /../ file navigation
+        int up = path.indexOf("/../");
+        while (up >=0)
+        {
+            final int prev = path.lastIndexOf('/', up-1);
+            if (prev >= 0)
+                path = path.substring(0, prev) + path.substring(up+3);
+            else
+                break;
+            up = path.indexOf("/../");
+        }
+        return path;
     }
 
     /** Obtain location, i.e. directory of file or URL up to the last element
@@ -92,11 +104,12 @@ public class ModelResourceUtil extends ResourceUtil
      *  @param path Complete path, i.e. "/some/location/resource"
      *  @return Location, i.e. "/some/location" without trailing "/", or "."
      */
-    public static String getLocation(final String path)
+    public static String getLocation(String path)
     {
         if (path == null)
             return null;
         // Remove last segment from parent_display to get path
+        path = normalize(path);
         int sep = path.lastIndexOf('/');
         if (sep >= 0)
             return path.substring(0, sep);
