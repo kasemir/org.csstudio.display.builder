@@ -9,6 +9,8 @@ package org.csstudio.display.builder.representation.javafx.widgets.plots;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -42,16 +44,18 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     /** Actual plotting delegated to {@link RTImagePlot} */
     private RTImagePlot image_plot;
 
+    private final static List<String> cursor_info_names = Arrays.asList("X", "Y", "Value");
+    private final static List<Class<?>> cursor_info_types = Arrays.asList(Double.TYPE, Double.TYPE, Double.TYPE);
+
     private final RTImagePlotListener plot_listener = new RTImagePlotListener()
     {
         @Override
-        public void changedCursorLocation(double x, double y, double value)
+        public void changedCursorLocation(final double x, final double y, final double value)
         {
             model_widget.runtimeCursorInfo().setValue(
-                ValueFactory.newVDoubleArray(new ArrayDouble(x, y, value),
-                                             ValueFactory.alarmNone(),
-                                             ValueFactory.timeNow(),
-                                             ValueFactory.displayNone()));
+                ValueFactory.newVTable(cursor_info_types,
+                                       cursor_info_names,
+                                       Arrays.asList(new ArrayDouble(x), new ArrayDouble(y), new ArrayDouble(value))));
         }
     };
 
