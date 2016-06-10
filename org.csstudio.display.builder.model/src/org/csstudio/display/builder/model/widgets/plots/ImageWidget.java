@@ -140,6 +140,7 @@ public class ImageWidget extends VisibleWidget
         }
     };
 
+    /** Image data information */
     private static final WidgetPropertyDescriptor<Integer> dataWidth =
         new WidgetPropertyDescriptor<Integer>(
             WidgetPropertyCategory.BEHAVIOR, "data_width", Messages.WidgetProperties_DataWidth)
@@ -168,6 +169,14 @@ public class ImageWidget extends VisibleWidget
         CommonWidgetProperties.newBooleanPropertyDescriptor(
             WidgetPropertyCategory.BEHAVIOR, "unsigned", Messages.WidgetProperties_UnsignedData);
 
+    /** Runtime info about cursor location */
+    private static final WidgetPropertyDescriptor<String> cursorInfoPV =
+        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "cursor_info_pv", Messages.WidgetProperties_CursorInfoPV);
+
+    private static final WidgetPropertyDescriptor<VType> cursorInfo =
+        CommonWidgetProperties.newRuntimeValue("cursor_info", Messages.WidgetProperties_CursorInfo);
+
+    /** Configurator for legacy widgets */
     private class CustomWidgetConfigurator extends WidgetConfigurator
     {
         public CustomWidgetConfigurator(final Version xml_version)
@@ -205,14 +214,11 @@ public class ImageWidget extends VisibleWidget
                        .ifPresent(value -> image.y_axis.minimum().setValue(value));
                 XMLUtil.getChildDouble(xml, "y_axis_maximum")
                        .ifPresent(value -> image.y_axis.maximum().setValue(value));
-
-
             }
 
             return true;
         }
     }
-
 
     private volatile WidgetProperty<ColorMap> data_colormap;
     private volatile ColorBarProperty color_bar;
@@ -225,6 +231,8 @@ public class ImageWidget extends VisibleWidget
     private volatile WidgetProperty<Double> data_minimum;
     private volatile WidgetProperty<Double> data_maximum;
     private volatile WidgetProperty<Boolean> data_unsigned;
+    private volatile WidgetProperty<String> cursor_info_pv;
+    private volatile WidgetProperty<VType> cursor_info;
 
     private WidgetProperty<VType> value;
 
@@ -250,6 +258,8 @@ public class ImageWidget extends VisibleWidget
         properties.add(data_minimum = behaviorMinimum.createProperty(this, 0.0));
         properties.add(data_maximum = behaviorMaximum.createProperty(this, 255.0));
         properties.add(value = runtimeValue.createProperty(this, null));
+        properties.add(cursor_info_pv = cursorInfoPV.createProperty(this, ""));
+        properties.add(cursor_info = cursorInfo.createProperty(this, null));
     }
 
     @Override
@@ -329,5 +339,17 @@ public class ImageWidget extends VisibleWidget
     public WidgetProperty<VType> runtimeValue()
     {
         return value;
+    }
+
+    /** @return Behavior 'cursor_info_pv' */
+    public WidgetProperty<String> behaviorCursorInfoPV()
+    {
+        return cursor_info_pv;
+    }
+
+    /** @return Runtime 'cursor_info' */
+    public WidgetProperty<VType> runtimeCursorInfo()
+    {
+        return cursor_info;
     }
 }

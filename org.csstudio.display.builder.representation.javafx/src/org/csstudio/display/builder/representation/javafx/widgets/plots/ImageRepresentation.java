@@ -23,9 +23,11 @@ import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.RTImagePlot;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.diirt.util.array.ArrayByte;
+import org.diirt.util.array.ArrayDouble;
 import org.diirt.vtype.VImage;
 import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
+import org.diirt.vtype.ValueFactory;
 
 import javafx.scene.layout.Pane;
 
@@ -45,8 +47,11 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         @Override
         public void changedCursorLocation(double x, double y, double value)
         {
-            // TODO Update a widget 'cursor_info' runtime property
-            System.out.println("X: " + x + ", Y: " + y + ", Pixel: " + value);
+            model_widget.runtimeCursorInfo().setValue(
+                ValueFactory.newVDoubleArray(new ArrayDouble(x, y, value),
+                                             ValueFactory.alarmNone(),
+                                             ValueFactory.timeNow(),
+                                             ValueFactory.displayNone()));
         }
     };
 

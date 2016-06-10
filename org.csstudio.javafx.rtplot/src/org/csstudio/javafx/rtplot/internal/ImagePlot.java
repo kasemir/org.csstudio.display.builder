@@ -740,30 +740,32 @@ public class ImagePlot extends Canvas
 
         if (! image_area.contains(mouse_x, mouse_y))
             listener.changedCursorLocation(Double.NaN, Double.NaN, Double.NaN);
+        else
+        {
+            final int screen_x = (int) (mouse_x + 0.5);
+            final int screen_y = (int) (mouse_y + 0.5);
+            // Location on axes, i.e. what user configured as horizontal and vertical values
+            final double x_val = x_axis.getValue(screen_x);
+            final double y_val = y_axis.getValue(screen_y);
 
-        final int screen_x = (int) (mouse_x + 0.5);
-        final int screen_y = (int) (mouse_y + 0.5);
-        // Location on axes, i.e. what user configured as horizontal and vertical values
-        final double x_val = x_axis.getValue(screen_x);
-        final double y_val = y_axis.getValue(screen_y);
+            // Location as coordinate into image
+            AxisRange<Double> range = x_axis.getValueRange();
+            int image_x = (int) ((data_width-1) * (x_val - range.getLow()) / (range.getHigh() - range.getLow()) + 0.5);
+            if (image_x < 0)
+                image_x = 0;
+            else if (image_x >= data_width)
+                image_x = data_width - 1;
+            range = y_axis.getValueRange();
+            int image_y = (int) ((data_height-1) * (1.0 - (y_val - range.getLow()) / (range.getHigh() - range.getLow())) + 0.5);
+            if (image_y < 0)
+                image_y = 0;
+            else if (image_y >= data_height)
+                image_y = data_height - 1;
 
-        // Location as coordinate into image
-        AxisRange<Double> range = x_axis.getValueRange();
-        int image_x = (int) ((data_width-1) * (x_val - range.getLow()) / (range.getHigh() - range.getLow()) + 0.5);
-        if (image_x < 0)
-            image_x = 0;
-        else if (image_x >= data_width)
-            image_x = data_width - 1;
-        range = y_axis.getValueRange();
-        int image_y = (int) ((data_height-1) * (1.0 - (y_val - range.getLow()) / (range.getHigh() - range.getLow())) + 0.5);
-        if (image_y < 0)
-            image_y = 0;
-        else if (image_y >= data_height)
-            image_y = data_height - 1;
-
-        final ListNumber data = image_data;
-        final double pixel = data == null ? Double.NaN : data.getDouble(image_x + image_y * data_width);
-        listener.changedCursorLocation(x_val, y_val, pixel);
+            final ListNumber data = image_data;
+            final double pixel = data == null ? Double.NaN : data.getDouble(image_x + image_y * data_width);
+            listener.changedCursorLocation(x_val, y_val, pixel);
+        }
     }
 
     /** setOnMouseReleased */
