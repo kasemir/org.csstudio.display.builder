@@ -66,7 +66,7 @@ class JythonScriptSupport implements AutoCloseable
             // Locate the jython plugin for 'home' to allow use of /Lib in there
             final String home = getPluginPath("org.python.jython", "/");
             if (home == null)
-                throw new Exception("Cannot locate jython bundle");
+                throw new Exception("Cannot locate jython bundle. No OSGi?");
 
             // Jython 2.7(b3) needs these to set sys.prefix and sys.executable.
             // If left undefined, initialization of Lib/site.py fails with
