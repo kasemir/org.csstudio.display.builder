@@ -1,25 +1,12 @@
-import sys
-sys.path.append('/Users/cj5/git/org.csstudio.display.builder/org.csstudio.display.builder.model/examples/sudoku')
-
 from sudoku_lib import SudokuSolver
 
 display = widget.getDisplayModel()
-
-def writePVValue(value, cell):
-    cell.setPropertyValue("pv_name", 'loc://cell("%s")' % value)
-
-def getWidget(row, col):
-    return display.runtimeChildren().getChildByName("cell%d%d" % (row, col))
-
-def getValue(widget):
-    #since values written using loc://cell("*")
-    return widget.getPropertyValue("pv_name")[12:13]
 
 def readBoard():
     board = [[0] * 9 for x in range(9)]
     for row in range(9):
         for col in range(9):
-            value = getValue(getWidget(row,col))
+            value = PVUtil.getString(pvs[calcPVIndex(row, col)-1])
             if value == " " or value == "#":
                 value = 0
             else:
@@ -32,11 +19,14 @@ def writeBoard(board):
         for col in range(9):
             pv = pvs[1+row*9+col]
             cell = getWidget(row, col)
-            color = display.displayBackgroundColor().getValue()
             #only write into non-preset cells
             value = board[row][col]
-            if value > 0 and cell.getPropertyValue("background_color") != color:
-                pv.write(value)
+            strFromPV = PVUtil.getString(pv)
+            if value > 0 and (str(value) != strFromPV or strFromPV == "#"):
+                if value > 9:
+                    pv.write("#")
+                else:
+                    pv.write(str(value))
             #else: deliberately ignored
 def clearBoard():
     for index in range (1,82):
