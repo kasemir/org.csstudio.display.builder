@@ -130,6 +130,14 @@ public class RTImagePlot extends BorderPane
          plot.setMouseMode(mode);
     }
 
+    /** Zoom 'in' or 'out' from center
+     *  @param zoom_in Zoom 'in' or 'out'?
+     */
+    public void zoomInOut(final boolean zoom_in)
+    {
+        plot.zoomInOut(zoom_in);
+    }
+
     /** @return {@link UndoableActionManager} for this plot */
     public UndoableActionManager getUndoableActionManager()
     {

@@ -854,7 +854,7 @@ public class ImagePlot extends Canvas
      *  @param y Mouse coordinate
      *  @param factor Zoom factor, positive to zoom 'out'
      */
-    private void zoomInOut(final double x, final double y, final double factor)
+    public void zoomInOut(final double x, final double y, final double factor)
     {
         final boolean zoom_x = x_axis.getBounds().contains(x, y);
         final boolean zoom_y = y_axis.getBounds().contains(x, y);
@@ -871,6 +871,18 @@ public class ImagePlot extends Canvas
             undo.add(new ChangeImageZoom(x_axis, orig_x, x_axis.getValueRange(), null, null, null));
         else if (zoom_y)
             undo.add(new ChangeImageZoom(null, null, null, y_axis, orig_y, y_axis.getValueRange()));
+    }
+
+    /** Zoom 'in' or 'out' from center
+     *  @param zoom_in Zoom 'in' or 'out'?
+     */
+    public void zoomInOut(final boolean zoom_in)
+    {
+        final AxisRange<Integer> xrange = x_axis.getScreenRange();
+        final AxisRange<Integer> yrange = y_axis.getScreenRange();
+        zoomInOut((xrange.getLow() + xrange.getHigh())/2,
+                  (yrange.getLow() + yrange.getHigh())/2,
+                  zoom_in ? -ZOOM_FACTOR : ZOOM_FACTOR);
     }
 
     /** Zoom one axis 'in' or 'out' around a position on the axis

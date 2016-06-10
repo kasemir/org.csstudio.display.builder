@@ -110,6 +110,7 @@ public class ImageToolbarHandler
         {
             selectMouseMode(zoom_out);
             plot.setMouseMode(MouseMode.ZOOM_OUT);
+            plot.zoomInOut(false);
         });
         pointer.setOnAction(event ->
         {
