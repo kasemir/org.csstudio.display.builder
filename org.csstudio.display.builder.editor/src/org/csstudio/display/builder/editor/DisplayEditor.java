@@ -286,6 +286,9 @@ public class DisplayEditor
      */
     public List<Widget> copyToClipboard()
     {
+        if (selection_tracker.isInlineEditorActive())
+            return null;
+
         final List<Widget> widgets = selection.getSelection();
         if (widgets.isEmpty())
             return null;
@@ -309,7 +312,11 @@ public class DisplayEditor
 
     /** Cut (delete) selected widgets, placing them on the clipboard */
     public void cutToClipboard()
-    {   // Strictly speaking, delete would not copy to the clipboard...
+    {
+        if (selection_tracker.isInlineEditorActive())
+            return;
+
+        // Strictly speaking, delete would not copy to the clipboard...
         final List<Widget> widgets = copyToClipboard();
         if (widgets == null)
             return;
@@ -323,6 +330,9 @@ public class DisplayEditor
      */
     public void pasteFromClipboard(final int x, final int y)
     {
+        if (selection_tracker.isInlineEditorActive())
+            return;
+
         final String xml = Clipboard.getSystemClipboard().getString();
         // Anything on clipboard?
         if (xml == null)

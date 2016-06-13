@@ -320,6 +320,23 @@ public class SelectedWidgetUITracker extends Group
             endMouseDrag(event);
     }
 
+    /** Is the inline editor active?
+     *
+     *  <p>The 'global' key handlers for copy/paste/delete
+     *  must be suppressed when the inline editor is active,
+     *  because otherwise trying to paste a PV name will
+     *  paste a new widget, or deleting a part of a PV name
+     *  will delete the currently selected widget.
+     *
+     *  <p>Since both RCP and JavaFX listen to the keys,
+     *  the most practical solution was to have global actions
+     *  check this flag
+     */
+    public boolean isInlineEditorActive()
+    {
+        return inline_editor != null;
+    }
+
     /** Create an inline editor
      *
      *  <p>Depending on the widget's properties, it will edit
