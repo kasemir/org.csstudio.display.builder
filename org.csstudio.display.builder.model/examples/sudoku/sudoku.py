@@ -75,8 +75,6 @@ from org.csstudio.display.builder.model.persist import NamedWidgetColors
 display = widget.getDisplayModel()
 text = WidgetColorService.getColor(NamedWidgetColors.TEXT)
 
-possValList = [" ","1","2","3","4","5","6","7","8","9","#"]
-
 def createBoard():
     background = display.displayBackgroundColor().getValue()
     index = 0
