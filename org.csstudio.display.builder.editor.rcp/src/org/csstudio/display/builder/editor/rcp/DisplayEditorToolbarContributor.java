@@ -65,6 +65,16 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
     public void contributeToToolBar(final IToolBarManager manager)
     {
         final IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+
+        // Add copy/paste to the toolbar? (call addGlobalAction() for these?)
+        // -> No, since Eclipse text editor also doesn't to this.
+        //    Reduce number of toolbar icons.
+        global_actions.add(ActionFactory.CUT.create(window));
+        global_actions.add(ActionFactory.COPY.create(window));
+        global_actions.add(ActionFactory.PASTE.create(window));
+        global_actions.add(ActionFactory.DELETE.create(window));
+        global_actions.add(ActionFactory.SELECT_ALL.create(window));
+
         for (EditorPartAction epa : editor_actions)
             if (epa == null)
                 manager.add(new Separator());
@@ -74,11 +84,6 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         addGlobalAction(manager, ActionFactory.UNDO.create(window));
         addGlobalAction(manager, ActionFactory.REDO.create(window));
         manager.add(new Separator());
-        global_actions.add(ActionFactory.CUT.create(window));
-        global_actions.add(ActionFactory.COPY.create(window));
-        global_actions.add(ActionFactory.PASTE.create(window));
-        global_actions.add(ActionFactory.DELETE.create(window));
-        global_actions.add(ActionFactory.SELECT_ALL.create(window));
     }
 
     private void addGlobalAction(final IToolBarManager manager, final IWorkbenchAction action)
