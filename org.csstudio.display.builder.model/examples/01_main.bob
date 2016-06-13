@@ -362,4 +362,19 @@
     </actions>
     <pv_name></pv_name>
   </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_18</name>
+    <x>191</x>
+    <y>416</y>
+    <width>120</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>controls_combo.bob</file>
+        <target>replace</target>
+        <description>Combo Box</description>
+      </action>
+    </actions>
+  </widget>
 </display>
