@@ -12,13 +12,11 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.xml.stream.XMLStreamWriter;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.Messages;
@@ -29,23 +27,18 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
-import org.csstudio.display.builder.model.ArrayWidgetProperty.ElementFactory;
 import org.csstudio.display.builder.model.persist.ModelReader;
-import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
-import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
-import org.csstudio.display.builder.model.widgets.plots.PlotWidgetPointType;
 import org.diirt.vtype.VType;
 import org.osgi.framework.Version;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Text;
 
 /** Widget that writes to PV from selection of items
  *  @author Amanda Carpenter
@@ -56,7 +49,7 @@ public class ComboWidget extends VisibleWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("combo", WidgetCategory.CONTROL,
-            "ComboBox",
+            "Combo Box",
             "platform:/plugin/org.csstudio.display.builder.model/icons/combo.gif",
             "Writes one of a selection of options to a PV",
             Arrays.asList("org.csstudio.opibuilder.widgets.MenuButton",
@@ -84,14 +77,14 @@ public class ComboWidget extends VisibleWidget
             final boolean is_menu = typeId.equals("org.csstudio.opibuilder.widgets.MenuButton");
             if (is_menu)
             {
-                //Legacy Menu Buttons with actions from PV=false should be processed as action buttons, not combo boxes
                 final Element frompv_el = XMLUtil.getChildElement(xml, "actions_from_pv");
-                if ( frompv_el != null && !(XMLUtil.getString(frompv_el).equals("false")) )
-                    return false;
-
                 //Menu buttons used "actions_from_pv" instead of "items_from_pv"
                 if (frompv_el != null)
                 {
+                    //Legacy Menu Buttons with actions from PV=false should be processed as action buttons, not combo boxes
+                    if ( XMLUtil.getString(frompv_el).equalsIgnoreCase("false") )
+                        return false;
+
                     final Document doc = xml.getOwnerDocument();
                     Element items_from = doc.createElement(behaviorItemsFromPV.getName());
 
@@ -106,7 +99,7 @@ public class ComboWidget extends VisibleWidget
                     xml.appendChild(items_from);
                 }
                 
-                //TODO: read in actions as items? or just remove actions, let rep. handle?
+                //TODO: read in actions as items? or just remove actions, let rep. handle? actions get written?
             }
 
             super.configureFromXML(model_reader, widget, xml);
@@ -129,7 +122,7 @@ public class ComboWidget extends VisibleWidget
     public static final WidgetPropertyDescriptor< List<WidgetProperty<String>> > behaviorItems =
             new ArrayWidgetProperty.Descriptor< WidgetProperty<String> >(WidgetPropertyCategory.BEHAVIOR, "items", Messages.ComboWidget_Items,
                                                                          (widget, index) -> behaviorItem.createProperty(widget, "Item " + index));
-
+    
     /** Behavior 'items_from_pv': If PV is enum PV, get items from PV? */
     public static final WidgetPropertyDescriptor<Boolean> behaviorItemsFromPV =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "items_from_pv", Messages.ComboWidget_ItemsFromPV);
@@ -139,7 +132,7 @@ public class ComboWidget extends VisibleWidget
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<VType> value;
-    private volatile WidgetProperty< List<WidgetProperty<String>> > items;
+    private volatile WidgetProperty< List<WidgetProperty<String>> > items; //TODO: update to use type VEnum? or what type?
     private volatile WidgetProperty<Boolean> items_from_pv;
 
     public ComboWidget()
@@ -157,7 +150,7 @@ public class ComboWidget extends VisibleWidget
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.READ_BACKGROUND)));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(value = runtimeValue.createProperty(this, null));
-        properties.add(items = behaviorItems.createProperty(this, null));
+        properties.add(items = behaviorItems.createProperty(this,  new ArrayList<WidgetProperty<String>>()));
         properties.add(items_from_pv = behaviorItemsFromPV.createProperty(this, true));
     }
 
