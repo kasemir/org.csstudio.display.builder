@@ -50,7 +50,7 @@ public class ImageWidgetRuntime  extends WidgetRuntime<ImageWidget>
         super.start();
 
         // Connect cursor info PV
-        final String cursor_pv_name = widget.behaviorCursorInfoPV().getValue();
+        final String cursor_pv_name = widget.miscCursorInfoPV().getValue();
         if (! cursor_pv_name.isEmpty())
         {
             logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, cursor_pv_name });
