@@ -7,39 +7,37 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.widgets.ComboWidget;
-import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.util.Callback;
 
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
  */
-@SuppressWarnings("nls")
 public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<String>, ComboWidget>
 {
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
     private volatile List<String> items = new CopyOnWriteArrayList<String>();
+    private volatile Callback<ListView<String>,ListCell<String>> cellFactory = null;
 
     @Override
     public ComboBox<String> createJFXNode() throws Exception
@@ -49,9 +47,12 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         {
             String value = combo.getValue();
             if (value != null)
+            {
                 toolkit.fireWrite(model_widget, value);
                 combo.getEditor().setText(value);
+            }
         });
+        cellFactory = combo.getCellFactory();
         return combo;
     }
 
@@ -68,10 +69,37 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
         model_widget.behaviorItemsFromPV().addUntypedPropertyListener(this::contentChanged);
         model_widget.behaviorItems().addUntypedPropertyListener(this::contentChanged);
+        
+        styleChanged(null, null, null);
+    }
+
+    private Callback<ListView<String>,ListCell<String>> createCellFactory(Color fg, Color bg, Font font)
+    {
+        return (param)->
+        {
+            ListCell<String> cell = new ListCell<String>()
+            {
+                @Override
+                public void updateItem(String item, boolean empty)
+                {
+                    super.updateItem(item, empty);
+                    setText(item);
+                }
+            };
+            cell.setTextFill(fg);
+            cell.setBackground(new Background(new BackgroundFill(bg, CornerRadii.EMPTY, Insets.EMPTY)));
+            cell.setFont(font);
+            
+            return cell;
+        };
     }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        cellFactory = createCellFactory(JFXUtil.convert(model_widget.displayForegroundColor().getValue()),
+                                        JFXUtil.convert(model_widget.displayBackgroundColor().getValue()),
+                                        JFXUtil.convert(model_widget.displayFont().getValue()) );
+
         dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -112,30 +140,11 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         {
             jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
                                  model_widget.positionHeight().getValue());
-            
-            //final Font font = JFXUtil.convert(model_widget.displayFont().getValue());
-            
-            final Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
-            jfx_node.setCellFactory((listview_param)->
+            if (cellFactory != null)
             {
-                return new ListCell<String>()
-                {
-                    @Override
-                    public void updateItem(String item, boolean empty)
-                    {
-                        super.updateItem(item, empty);
-                        setText(item);
-                        setTextFill(color);
-                        //setFont(font);
-                    }
-                };
-            });
-            jfx_node.setButtonCell(jfx_node.getCellFactory().call(null));
-            
-            final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
-            jfx_node.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
-            
-            jfx_node.getEditor().setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+                //jfx_node.setCellFactory(cellFactory);
+                jfx_node.setButtonCell(cellFactory.call(null));
+            }
         }
         if (dirty_content.checkAndClear())
             jfx_node.setItems(FXCollections.observableArrayList(items));

@@ -147,7 +147,7 @@ public class ComboWidget extends VisibleWidget
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(displayBorderAlarmSensitive.createProperty(this, true));
         properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.READ_BACKGROUND)));
+        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(value = runtimeValue.createProperty(this, null));
         properties.add(items = behaviorItems.createProperty(this,  new ArrayList<WidgetProperty<String>>()));
