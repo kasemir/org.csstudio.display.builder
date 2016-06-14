@@ -7,8 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -35,9 +36,11 @@ import javafx.util.Callback;
  */
 public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<String>, ComboWidget>
 {
+    private volatile boolean active = false;
+
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
-    private volatile List<String> items = new CopyOnWriteArrayList<String>();
+    private volatile List<String> items = Collections.emptyList();
     private volatile int index = -1;
     private volatile Callback<ListView<String>,ListCell<String>> cellFactory = null;
 
@@ -46,7 +49,9 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
     {   // Start out 'disconnected' until first value arrives
         final ComboBox<String> combo = new ComboBox<String>();
         combo.setOnAction((event)->
-        {
+        {   // We are updating the UI, ignore
+            if (active)
+                return;
             String value = combo.getValue();
             if (value != null)
             {
@@ -73,7 +78,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
         model_widget.behaviorItemsFromPV().addUntypedPropertyListener(this::contentChanged);
         model_widget.behaviorItems().addUntypedPropertyListener(this::contentChanged);
-        
+
         styleChanged(null, null, null);
     }
 
@@ -93,7 +98,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
             cell.setTextFill(fg);
             cell.setBackground(new Background(new BackgroundFill(bg, CornerRadii.EMPTY, Insets.EMPTY)));
             cell.setFont(font);
-            
+
             return cell;
         };
     }
@@ -116,11 +121,11 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         if (fromPV)
         {
             index = ((VEnum)value).getIndex();
-            return ((VEnum)value).getLabels(); //TODO: is safe to return List, not CopyOnWriteArrayList?
+            return ((VEnum)value).getLabels();
         }
         else
         {
-            List<String> new_items = new CopyOnWriteArrayList<String>();
+            List<String> new_items = new ArrayList<String>();
             List<WidgetProperty<String>> itemProps = model_widget.behaviorItems().getValue();
             int new_index = -1;
             String currValue = VTypeUtil.getValueString(value, false);
@@ -165,8 +170,16 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         }
         if (dirty_content.checkAndClear())
         {
-            jfx_node.setItems(FXCollections.observableArrayList(items));
-            jfx_node.getSelectionModel().clearAndSelect(index);
+            active = true;
+            try
+            {
+                jfx_node.setItems(FXCollections.observableArrayList(items));
+                jfx_node.getSelectionModel().clearAndSelect(index);
+            }
+            finally
+            {
+                active = false;
+            }
         }
     }
 }
