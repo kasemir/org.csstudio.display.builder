@@ -14,7 +14,9 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.DoubleFunction;
 import java.util.logging.Level;
 
@@ -23,6 +25,7 @@ import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
+import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.LinearScreenTransform;
 import org.diirt.util.array.IteratorNumber;
 import org.diirt.util.array.ListNumber;
@@ -55,16 +58,16 @@ public class ImagePlot extends PlotCanvasBase
     private volatile double min_x = 0.0, max_x = 100.0, min_y = 0.0, max_y = 100.0;
 
     /** X Axis */
-    final private AxisPart<Double> x_axis;
+    private final AxisPart<Double> x_axis;
 
     /** Y Axis */
-    final private YAxisImpl<Double> y_axis;
+    private final YAxisImpl<Double> y_axis;
 
     /** Area used by the image */
     private volatile Rectangle image_area = new Rectangle(0, 0, 0, 0);
 
     /** Color bar Axis */
-    final private YAxisImpl<Double> colorbar_axis;
+    private final YAxisImpl<Double> colorbar_axis;
 
     /** Area used by the color bar. <code>null</code> if not visible */
     private volatile Rectangle colorbar_area = null;
@@ -93,6 +96,15 @@ public class ImagePlot extends PlotCanvasBase
     /** Is 'image_data' meant to be treated as 'unsigned'? */
     private volatile boolean unsigned_data = false;
 
+    /** Regions of interest
+     *  <p>
+     *  Some entries may be <code>null</code> if they're 'defined'
+     *  but currently not visible.
+     *
+     *  TODO Use Map<Integer, RegionOfInterest> ?
+     */
+    private final List<RegionOfInterest> rois = new CopyOnWriteArrayList<>();
+
     private volatile RTImagePlotListener plot_listener = null;
 
     /** Constructor
@@ -110,6 +122,9 @@ public class ImagePlot extends PlotCanvasBase
 
         if (active)
         {
+            // TODO Replace bogus ROI with API for real ones
+            rois.add(new RegionOfInterest("R.O.I.", javafx.scene.paint.Color.RED, 10.0, 20.0, 20.0, 10.0));
+
             setMouseMode(MouseMode.ZOOM_IN);
             setOnMousePressed(this::mouseDown);
             setOnMouseMoved(this::mouseMove);
@@ -353,6 +368,17 @@ public class ImagePlot extends PlotCanvasBase
 
         y_axis.paint(gc, image_area);
         x_axis.paint(gc, image_area);
+
+        // TODO Check for null roi?
+        for (RegionOfInterest roi : rois)
+        {
+            gc.setColor(GraphicsUtils.convert(roi.getColor()));
+            final int x = x_axis.getScreenCoord(roi.getX()),
+                      y = y_axis.getScreenCoord(roi.getY()),
+                      width = x_axis.getScreenCoord(roi.getWidth()),
+                      height = y_axis.getScreenCoord(roi.getHeight());
+            gc.drawRect(x, y, width, height);
+        }
 
         gc.dispose();
 
