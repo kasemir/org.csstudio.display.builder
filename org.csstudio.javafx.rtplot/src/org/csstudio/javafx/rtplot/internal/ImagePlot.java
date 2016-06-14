@@ -457,9 +457,7 @@ public class ImagePlot extends PlotCanvasBase
         if (current == null)
             return;
 
-
         final Point2D start = mouse_start.orElse(null);
-
         final Rectangle plot_bounds = image_area;
 
         if (mouse_mode == MouseMode.ZOOM_IN)
@@ -474,81 +472,11 @@ public class ImagePlot extends PlotCanvasBase
                 PlotCursors.setCursor(this, Cursor.DEFAULT);
         }
         else if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
-        {
-            final int left = (int) Math.min(start.getX(), current.getX());
-            final int right = (int) Math.max(start.getX(), current.getX());
-            final int width = right - left;
-            final int mid_y = plot_bounds.y + plot_bounds.height / 2;
-            // Range on axis
-            gc.strokeRect(left, start.getY(), width, 1);
-            // Left, right vertical bar
-            gc.strokeLine(left, plot_bounds.y, left, plot_bounds.y + plot_bounds.height);
-            gc.strokeLine(right, plot_bounds.y, right, plot_bounds.y + plot_bounds.height);
-            if (width >= 5*ARROW_SIZE)
-            {
-                gc.strokeLine(left, mid_y, left + 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(left+ARROW_SIZE, mid_y-ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(left+ARROW_SIZE, mid_y+ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
-
-                gc.strokeLine(right, mid_y, right - 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(right-ARROW_SIZE, mid_y-ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(right-ARROW_SIZE, mid_y+ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
-            }
-        }
+            drawZoomXMouseFeedback(gc, plot_bounds, start, current);
         else if (mouse_mode == MouseMode.ZOOM_IN_Y  &&  start != null)
-        {
-            final int top = (int) Math.min(start.getY(), current.getY());
-            final int bottom = (int) Math.max(start.getY(), current.getY());
-            final int height = bottom - top;
-            final int mid_x = plot_bounds.x + plot_bounds.width / 2;
-            // Range on axis
-            gc.strokeRect(start.getX(), top, 1, height);
-            // Top, bottom horizontal bar
-            gc.strokeLine(plot_bounds.x, top, plot_bounds.x + plot_bounds.width, top);
-            gc.strokeLine(plot_bounds.x, bottom, plot_bounds.x + plot_bounds.width, bottom);
-            if (height >= 5 * ARROW_SIZE)
-            {
-                gc.strokeLine(mid_x, top, mid_x, top + 2*ARROW_SIZE);
-                gc.strokeLine(mid_x-ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
-                gc.strokeLine(mid_x+ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
-
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x, bottom);
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x-ARROW_SIZE, bottom - ARROW_SIZE);
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x+ARROW_SIZE, bottom - ARROW_SIZE);
-            }
-        }
+            drawZoomYMouseFeedback(gc, plot_bounds, start, current);
         else if (mouse_mode == MouseMode.ZOOM_IN_PLOT  &&  start != null)
-        {
-            final int left = (int) Math.min(start.getX(), current.getX());
-            final int right = (int) Math.max(start.getX(), current.getX());
-            final int top = (int) Math.min(start.getY(), current.getY());
-            final int bottom = (int) Math.max(start.getY(), current.getY());
-            final int width = right - left;
-            final int height = bottom - top;
-            final int mid_x = left + width / 2;
-            final int mid_y = top + height / 2;
-            gc.strokeRect(left, top, width, height);
-            if (width >= 5*ARROW_SIZE)
-            {
-                gc.strokeLine(left, mid_y, left + 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(left+ARROW_SIZE, mid_y-ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(left+ARROW_SIZE, mid_y+ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
-
-                gc.strokeLine(right, mid_y, right - 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(right-ARROW_SIZE, mid_y-ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(right-ARROW_SIZE, mid_y+ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
-            }
-            if (height >= 5*ARROW_SIZE)
-            {
-                gc.strokeLine(mid_x, top, mid_x, top + 2*ARROW_SIZE);
-                gc.strokeLine(mid_x-ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
-                gc.strokeLine(mid_x+ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
-
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x, bottom);
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x-ARROW_SIZE, bottom - ARROW_SIZE);
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x+ARROW_SIZE, bottom - ARROW_SIZE);
-            }
-        }
+            drawZoomMouseFeedback(gc, plot_bounds, start, current);
     }
 
     /** onMousePressed */
