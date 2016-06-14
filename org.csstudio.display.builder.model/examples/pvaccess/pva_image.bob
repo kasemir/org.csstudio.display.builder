@@ -19,6 +19,35 @@
     <pv_name>pva://IMAGE</pv_name>
     <unsigned>false</unsigned>
     <cursor_info_pv>loc://cursor_info</cursor_info_pv>
+    <rois>
+      <roi>
+        <visible>true</visible>
+        <name>ROI 0</name>
+        <color>
+          <color red="255" green="0" blue="0">
+          </color>
+        </color>
+        <pv_name></pv_name>
+      </roi>
+      <roi>
+        <visible>true</visible>
+        <name>ROI 1</name>
+        <color>
+          <color red="255" green="0" blue="0">
+          </color>
+        </color>
+        <pv_name></pv_name>
+      </roi>
+      <roi>
+        <visible>true</visible>
+        <name>ROI 2</name>
+        <color>
+          <color red="255" green="0" blue="0">
+          </color>
+        </color>
+        <pv_name></pv_name>
+      </roi>
+    </rois>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update</name>
