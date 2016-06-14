@@ -376,4 +376,19 @@
       </action>
     </actions>
   </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_19</name>
+    <x>191</x>
+    <y>451</y>
+    <width>120</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>controls_combo.bob</file>
+        <target>replace</target>
+        <description>Combo Box</description>
+      </action>
+    </actions>
+  </widget>
 </display>

@@ -31,6 +31,9 @@ public class Messages extends NLS
     public static String Bottom;
     public static String Checkbox_Label;
     public static String Center;
+    public static String ComboWidget_Item;
+    public static String ComboWidget_Items;
+    public static String ComboWidget_ItemsFromPV;
     public static String FontStyle_Bold;
     public static String FontStyle_BoldItalic;
     public static String FontStyle_Italic;
