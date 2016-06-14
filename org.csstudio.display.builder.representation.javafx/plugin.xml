@@ -103,5 +103,9 @@
             class="org.csstudio.display.builder.representation.javafx.widgets.ScrollBarRepresentation"
             type="scrollbar">
       </representation>
+      <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.ComboRepresentation"
+            type="combo">
+      </representation>
    </extension>
 </plugin>
