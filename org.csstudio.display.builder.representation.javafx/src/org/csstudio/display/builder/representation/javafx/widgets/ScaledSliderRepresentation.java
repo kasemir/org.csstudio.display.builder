@@ -54,6 +54,8 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
     private volatile double value = 50.0;
     private volatile double stepIncrement = 1.0;
     private volatile double tickUnit = 20;
+    
+    private volatile boolean active = false;
 
     private final Slider slider = createSlider();
     private final MarkerAxis<Slider> axis = new MarkerAxis<Slider>(slider)
@@ -266,6 +268,8 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
     private void nodeValueChanged(ObservableValue<? extends Number> property, Number old_value, Number new_value)
     {
+            if (active)
+                return;
             final double save_increment = stepIncrement;
             final double save_min = min;
             final double numStepsInValue = Math.round(((double)new_value-save_min) / save_increment);
@@ -305,11 +309,19 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         }
         if (dirty_value.checkAndClear())
         {
-            double newval = VTypeUtil.getValueNumber( model_widget.runtimeValue().getValue() ).doubleValue();
-            if (newval < min) newval = min;
-            else if (newval > max) newval = max;
-            slider.setValue(newval);
-            value = newval;
+            active = true;
+            try
+            {
+                double newval = VTypeUtil.getValueNumber( model_widget.runtimeValue().getValue() ).doubleValue();
+                if (newval < min) newval = min;
+                else if (newval > max) newval = max;
+                slider.setValue(newval);
+                value = newval;
+            }
+            finally
+            {
+                active = false;
+            }
         }
         if (dirty_style.checkAndClear())
         {
