@@ -14,9 +14,9 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.DoubleFunction;
 import java.util.logging.Level;
 
@@ -96,14 +96,12 @@ public class ImagePlot extends PlotCanvasBase
     /** Is 'image_data' meant to be treated as 'unsigned'? */
     private volatile boolean unsigned_data = false;
 
-    /** Regions of interest
-     *  <p>
-     *  Some entries may be <code>null</code> if they're 'defined'
-     *  but currently not visible.
+    /** Regions of interest by 'index'.
      *
-     *  TODO Use Map<Integer, RegionOfInterest> ?
+     *  <p>Using Map<index, ROI> instead of List<ROI>
+     *  because some indices may not be used.
      */
-    private final List<RegionOfInterest> rois = new CopyOnWriteArrayList<>();
+    private final Map<Integer, RegionOfInterest> rois = new ConcurrentHashMap<>();
 
     private volatile RTImagePlotListener plot_listener = null;
 
@@ -123,7 +121,8 @@ public class ImagePlot extends PlotCanvasBase
         if (active)
         {
             // TODO Replace bogus ROI with API for real ones
-            rois.add(new RegionOfInterest("R.O.I.", javafx.scene.paint.Color.RED, 10.0, 20.0, 20.0, 10.0));
+            rois.put(0, new RegionOfInterest("ROI One", javafx.scene.paint.Color.RED, 10.0, 20.0, 20.0, 10.0));
+            rois.put(1, new RegionOfInterest("ROI Two", javafx.scene.paint.Color.PINK, 35.0, 34.0, 20.0, 10.0));
 
             setMouseMode(MouseMode.ZOOM_IN);
             setOnMousePressed(this::mouseDown);
@@ -336,13 +335,6 @@ public class ImagePlot extends PlotCanvasBase
 //        gc.drawLine(image_area.width-1, image_area.height-1, 0, image_area.height-1);
 //        gc.drawLine(0, image_area.height-1, 0, 0);
 
-        if (colorbar_area != null)
-        {
-            final BufferedImage bar = drawColorBar(min, max, color_mapping);
-            gc.drawImage(bar, colorbar_area.x, colorbar_area.y, colorbar_area.width, colorbar_area.height, null);
-            colorbar_axis.paint(gc, colorbar_area);
-        }
-
         // Paint the image
         final BufferedImage unscaled = drawData(data_width, data_height, numbers, unsigned, min, max, color_mapping);
         if (unscaled != null)
@@ -366,19 +358,22 @@ public class ImagePlot extends PlotCanvasBase
                          /* ImageObserver */ null);
         }
 
+        // Axes
         y_axis.paint(gc, image_area);
         x_axis.paint(gc, image_area);
 
-        // TODO Check for null roi?
-        for (RegionOfInterest roi : rois)
+        // Color bar
+        if (colorbar_area != null)
         {
-            gc.setColor(GraphicsUtils.convert(roi.getColor()));
-            final int x = x_axis.getScreenCoord(roi.getX()),
-                      y = y_axis.getScreenCoord(roi.getY()),
-                      width = x_axis.getScreenCoord(roi.getWidth()),
-                      height = y_axis.getScreenCoord(roi.getHeight());
-            gc.drawRect(x, y, width, height);
+            final BufferedImage bar = drawColorBar(min, max, color_mapping);
+            gc.drawImage(bar, colorbar_area.x, colorbar_area.y, colorbar_area.width, colorbar_area.height, null);
+            colorbar_axis.paint(gc, colorbar_area);
         }
+
+        // ROI uses X axis font
+        gc.setFont(x_axis.label_font);
+        for (RegionOfInterest roi : rois.values())
+            drawROI(gc, roi);
 
         gc.dispose();
 
@@ -386,6 +381,19 @@ public class ImagePlot extends PlotCanvasBase
 
         // Convert to JFX
         return SwingFXUtils.toFXImage(image, null);
+    }
+
+    private void drawROI(final Graphics2D gc, final RegionOfInterest roi)
+    {
+        gc.setColor(GraphicsUtils.convert(roi.getColor()));
+        final int x0 = x_axis.getScreenCoord(roi.getRegion().getMinX()),
+                  y0 = y_axis.getScreenCoord(roi.getRegion().getMinY()),
+                  x1 = x_axis.getScreenCoord(roi.getRegion().getMaxX()),
+                  y1 = y_axis.getScreenCoord(roi.getRegion().getMaxY());
+        final int x = Math.min(x0, x1);
+        final int y = Math.min(y0, y1);
+        gc.drawRect(x, y, Math.abs(x1-x0), Math.abs(y1-y0));
+        gc.drawString(roi.getName(), x, y);
     }
 
     private BufferedImage drawColorBar(final double min, final double max, final DoubleFunction<Color> color_mapping)
@@ -512,6 +520,18 @@ public class ImagePlot extends PlotCanvasBase
         if (! e.isPrimaryButtonDown()  ||  (PlatformInfo.is_mac_os_x && e.isControlDown()))
             return;
         final Point2D current = new Point2D(e.getX(), e.getY());
+        final double x = x_axis.getValue((int)current.getX());
+        final double y = y_axis.getValue((int)current.getY());
+        for (RegionOfInterest roi : rois.values())
+        {
+            if (roi.getRegion().contains(x, y))
+            {
+                System.out.println("Activate moving " + roi.getName()); // TODO
+                return;
+            }
+        }
+
+
         mouse_start = mouse_current = Optional.of(current);
 
         if (mouse_mode == MouseMode.ZOOM_IN)
