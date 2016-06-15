@@ -179,7 +179,7 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         //scaled-widget properties:
         properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
         properties.add(maximum = behaviorMaximum.createProperty(this, 100.0));
-        properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, false));
+        properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, true));
         properties.add(major_tick_step_hint = positionMajorTickStepHint.createProperty(this, 20));
         properties.add(show_scale = displayShowScale.createProperty(this, true));
         properties.add(show_minor_ticks = displayShowMinorTicks.createProperty(this, true));
