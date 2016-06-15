@@ -51,6 +51,10 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
     private volatile double min = 0.0;
     private volatile double max = 100.0;
+    private volatile double hi;
+    private volatile double lo;
+    private volatile double hihi;
+    private volatile double lolo;
     private volatile double value = 50.0;
     private volatile double stepIncrement = 1.0;
     private volatile double tickUnit = 20;
@@ -171,16 +175,17 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.displayShowScale().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayShowMinorTicks().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayScaleFormat().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayLevelHi().addUntypedPropertyListener(this::lookChanged);
-        model_widget.displayLevelHiHi().addUntypedPropertyListener(this::lookChanged);
-        model_widget.displayLevelLo().addUntypedPropertyListener(this::lookChanged);
-        model_widget.displayLevelLoLo().addUntypedPropertyListener(this::lookChanged);
+        model_widget.displayLevelHi().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.displayLevelHiHi().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.displayLevelLo().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.displayLevelLoLo().addUntypedPropertyListener(this::limitsChanged);
         model_widget.displayShowMarkers().addUntypedPropertyListener(this::lookChanged);
         model_widget.displayShowHi().addUntypedPropertyListener(this::lookChanged);
         model_widget.displayShowHiHi().addUntypedPropertyListener(this::lookChanged);
         model_widget.displayShowLo().addUntypedPropertyListener(this::lookChanged);
         model_widget.displayShowLoLo().addUntypedPropertyListener(this::lookChanged);
 
+        
         //Since both the widget's PV value and the JFX node's value property might be
         //written to independently during runtime, both must have listeners.
         model_widget.runtimeValue().addPropertyListener(this::valueChanged);
@@ -216,6 +221,10 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
         double min_val = model_widget.behaviorMinimum().getValue();
         double max_val = model_widget.behaviorMaximum().getValue();
+        double lo_val = model_widget.displayLevelLo().getValue(),
+                lolo_val = model_widget.displayLevelLoLo().getValue(),
+                hihi_val = model_widget.displayLevelHiHi().getValue(),
+                hi_val = model_widget.displayLevelHi().getValue();
         if (model_widget.behaviorLimitsFromPV().getValue())
         {
             //Try to get display range from PV
@@ -224,6 +233,10 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
             {
                 min_val = display_info.getLowerDisplayLimit();
                 max_val = display_info.getUpperDisplayLimit();
+                hihi_val = display_info.getUpperAlarmLimit();
+                hi_val = display_info.getUpperWarningLimit();
+                lo_val = display_info.getLowerWarningLimit();
+                lolo_val = display_info.getLowerAlarmLimit();
             }
         }
         //If invalid limits, fall back to 0..100 range
@@ -235,6 +248,11 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
         min = min_val;
         max = max_val;
+        
+        hi = hi_val;
+        hihi = hihi_val;
+        lo = lo_val;
+        lolo = lolo_val;
 
         sizeChanged(null, null, null);
     }
@@ -280,6 +298,8 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
     private void valueChanged(final WidgetProperty<? extends VType> property, final VType old_value, final VType new_value)
     {
+        if (model_widget.behaviorLimitsFromPV().getValue())
+            limitsChanged(null, null, null);
         dirty_value.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -303,6 +323,10 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
             double save_unit = tickUnit;
             slider.setMin(min);
             slider.setMax(max);
+            axis.setHi(hi);
+            axis.setHiHi(hihi);
+            axis.setLo(lo);
+            axis.setLoLo(lolo);
             slider.setMinorTickCount((int) Math.round(save_unit / stepIncrement) - 1);
             slider.setMajorTickUnit(save_unit);
             slider.setBlockIncrement(model_widget.behaviorPageIncrement().getValue());
@@ -353,10 +377,6 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
                 }
                 if (!jfx_node.getChildren().contains(axis))
                     jfx_node.add(axis, 0, 0);
-                axis.setHi(model_widget.displayLevelHi().getValue());
-                axis.setHiHi(model_widget.displayLevelHiHi().getValue());
-                axis.setLo(model_widget.displayLevelLo().getValue());
-                axis.setLoLo(model_widget.displayLevelLoLo().getValue());
                 axis.setShowHi(model_widget.displayShowHi().getValue());
                 axis.setShowHiHi(model_widget.displayShowHiHi().getValue());
                 axis.setShowLo(model_widget.displayShowLo().getValue());
