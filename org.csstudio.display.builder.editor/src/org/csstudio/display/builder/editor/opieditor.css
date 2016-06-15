@@ -21,6 +21,7 @@
     -fx-fill: rgb(255, 0, 0, 0.05);
 }
 
+/** Tracker (Selected widgets) */
 .tracker
 {
     -fx-stroke-width: 1;

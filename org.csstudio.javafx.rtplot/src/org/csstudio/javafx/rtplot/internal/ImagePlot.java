@@ -33,8 +33,8 @@ import org.diirt.util.array.ListNumber;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
-import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
@@ -385,17 +385,23 @@ public class ImagePlot extends PlotCanvasBase
         return SwingFXUtils.toFXImage(image, null);
     }
 
-    private void drawROI(final Graphics2D gc, final RegionOfInterest roi)
+    private Rectangle2D roiToScreen(final RegionOfInterest roi)
     {
-        gc.setColor(GraphicsUtils.convert(roi.getColor()));
         final int x0 = x_axis.getScreenCoord(roi.getRegion().getMinX()),
                   y0 = y_axis.getScreenCoord(roi.getRegion().getMinY()),
                   x1 = x_axis.getScreenCoord(roi.getRegion().getMaxX()),
                   y1 = y_axis.getScreenCoord(roi.getRegion().getMaxY());
         final int x = Math.min(x0, x1);
         final int y = Math.min(y0, y1);
-        gc.drawRect(x, y, Math.abs(x1-x0), Math.abs(y1-y0));
-        gc.drawString(roi.getName(), x, y);
+        return new Rectangle2D(x0, y0, Math.abs(x1-x0), Math.abs(y1-y0));
+    }
+
+    private void drawROI(final Graphics2D gc, final RegionOfInterest roi)
+    {
+        gc.setColor(GraphicsUtils.convert(roi.getColor()));
+        final Rectangle2D rect = roiToScreen(roi);
+        gc.drawRect((int)rect.getMinX(), (int)rect.getMinY(), (int)rect.getWidth(), (int)rect.getHeight());
+        gc.drawString(roi.getName(), (int)rect.getMinX(), (int)rect.getMinY());
     }
 
     private BufferedImage drawColorBar(final double min, final double max, final DoubleFunction<Color> color_mapping)
@@ -522,21 +528,19 @@ public class ImagePlot extends PlotCanvasBase
         if (! e.isPrimaryButtonDown()  ||  (PlatformInfo.is_mac_os_x && e.isControlDown()))
             return;
         final Point2D current = new Point2D(e.getX(), e.getY());
-        final double x = x_axis.getValue((int)current.getX());
-        final double y = y_axis.getValue((int)current.getY());
         for (RegionOfInterest roi : rois.values())
         {
-            if (roi.getRegion().contains(x, y))
+            final Rectangle2D rect = roiToScreen(roi);
+            if (rect.contains(current))
             {
-                System.out.println("Activate moving " + roi.getName()); // TODO
-
-                final Node tracker = null; // TODO get tracker
+                System.out.println("Activate moving " + roi.getName()); // TODO remove prinout
+                final Tracker tracker = new Tracker();
+                tracker.setPosition(rect);
                 ChildCare.addChild(getParent(), tracker);
-
+                // TODO Listen to tracker, update ROI, remove tracker
                 return;
             }
         }
-
 
         mouse_start = mouse_current = Optional.of(current);
 
