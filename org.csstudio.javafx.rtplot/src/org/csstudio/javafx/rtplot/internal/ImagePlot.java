@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.DoubleFunction;
 import java.util.logging.Level;
 
+import org.csstudio.javafx.ChildCare;
 import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
@@ -33,6 +34,7 @@ import org.diirt.util.array.ListNumber;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
@@ -527,6 +529,10 @@ public class ImagePlot extends PlotCanvasBase
             if (roi.getRegion().contains(x, y))
             {
                 System.out.println("Activate moving " + roi.getName()); // TODO
+
+                final Node tracker = null; // TODO get tracker
+                ChildCare.addChild(getParent(), tracker);
+
                 return;
             }
         }

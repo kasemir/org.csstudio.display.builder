@@ -10,6 +10,7 @@ package org.csstudio.javafx;
 /** Platform Info
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class PlatformInfo
 {
     /** Is JRE on Mac OS X ? */
