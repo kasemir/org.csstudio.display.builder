@@ -279,8 +279,11 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         final double order_of_magnitude = Math.pow(10, Math.floor(Math.log10(dataDistance)));
         double step = dataDistance / order_of_magnitude;
         for (int i=0; i<NICE_STEPS.length; ++i)
-            if (NICE_STEPS[i] >= step)
+        {
+            double quot = span / (NICE_STEPS[i] * order_of_magnitude);
+            if (NICE_STEPS[i] >= step && quot - (int)quot == 0)
                  return NICE_STEPS[i] * order_of_magnitude;
+        }
         return Math.abs(span); //note: may cause errors if span is 0
     }
 
