@@ -39,7 +39,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.util.converter.FormatStringConverter;
 
-/*
+/** Creates JavaFX item for model widget
  * @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
