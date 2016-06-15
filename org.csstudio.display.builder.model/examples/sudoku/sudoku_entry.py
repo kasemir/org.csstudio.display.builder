@@ -1,7 +1,7 @@
-selected = int(widget.getPropertyValue("name")[4:])
-value = PVUtil.getString(pvs[0])
 def findConflicts(row, col, value):
 	conflicts = []
+	if value == " " or value == "_":
+		return conflicts
 	for currCol in range(9):
 		if currCol != col and \
                 value == PVUtil.getString(pvs[calcPVIndex(row,currCol)]):
@@ -20,7 +20,7 @@ def findConflicts(row, col, value):
 		conflicts.append((row,col))
 	return conflicts
 
-def clearConflicts():
+def clearConflictsDisplay():
     if PVUtil.getDouble(pvs[1]) != 0: return
     for row in range(9):
         for col in range(9):
@@ -29,20 +29,22 @@ def clearConflicts():
             if PVUtil.getString(pv) == "#":
                 pv.write(" ")
             cell.setPropertyValue("foreground_color", text)
+    #logger.warning("finished clearing conflicts")
 
+selected = int(widget.getPropertyValue("name")[4:])
+value = PVUtil.getString(pvs[0])
+#logger.warning("*Entry for %d" % selected)
 if value != "#" and PVUtil.getDouble(pvs[1]) != -1:
     col = selected%10
     row = (selected-col)/10
-    conflicts = []
-    if not possValList.count(value) > 0:
-    	logger.warning("'%s' not in %r" % (value, possValList))
-        conflicts.append((row,col))
-    else:
-        clearConflicts()
-        if value!=" ":
-            conflicts = findConflicts(row, col, value)
-    if len(conflicts) > 0:
+    if value != " ":
+    	clearConflictsDisplay()
+    conflicts = findConflicts(row, col, value)
+    if value == "_":
+    	pvs[0].write(" ")
+    elif len(conflicts) > 0:
         pvs[0].write("#")
+        #logger.warning("conflicted (%d,%d)" % (row, col))
         for pos in conflicts:
             cell = getWidget(pos[0], pos[1])
             cell.setPropertyValue("foreground_color",
