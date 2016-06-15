@@ -48,13 +48,23 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         spinner.setValueFactory(createSVF());
         styleChanged(null, null, null);
         spinner.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
-        spinner.setEditable(true);
+        if (!toolkit.isEditMode())
+            spinner.setEditable(true);
         spinner.focusedProperty().addListener((property, oldval, newval)->
         {
             if (!spinner.isFocused())
                 restore();
             active = false;
         });
+        //don't respond to click in edit mode; instead, select widget
+        if (toolkit.isEditMode())
+        {
+            spinner.getEditor().setOnMousePressed((event) ->
+            {
+                event.consume();
+                toolkit.fireClick(model_widget, event.isControlDown());
+            });
+        }
         spinner.getEditor().setOnKeyPressed((final KeyEvent event) ->
         {
             switch (event.getCode())
@@ -91,7 +101,6 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
                 active = true;
             }
         });
-
         return spinner;
     }
 
