@@ -261,7 +261,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
      *  In general, the computed steps "fill" the axis.
      *  @see #calculateNumMajUnits(double)
      */
-    final private static double[] NICE_STEPS = { 1.0, 2.0, 5.0, 10.0 };
+    final private static double[] NICE_STEPS = { 1.0, 2.0, 2.5, 5.0, 10.0 };
     /**
      * Calculate a nice-looking step that displays with at least
      * the size given by the major_tick_step_hint and fits nicely
