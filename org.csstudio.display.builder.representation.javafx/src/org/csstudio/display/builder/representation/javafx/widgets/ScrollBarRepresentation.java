@@ -24,6 +24,7 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
 
     private volatile double min = 0.0;
     private volatile double max = 100.0;
+    private volatile boolean active = false;
 
     @Override
     protected ScrollBar createJFXNode() throws Exception
@@ -113,6 +114,7 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
 
     private void nodeValueChanged(ObservableValue<? extends Number> property, Number old_value, Number new_value)
     {
+        if (active) return;
         if (model_widget.displayShowValueTip().getValue())
             jfx_node.getTooltip().setText(""+new_value);
         toolkit.fireWrite(model_widget, new_value);
@@ -141,11 +143,19 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
         }
         if (dirty_value.checkAndClear())
         {
-            double newval = VTypeUtil.getValueNumber( model_widget.runtimeValue().getValue() ).doubleValue();
-            if (newval < min) newval = min;
-            else if (newval > max) newval = max;
-            jfx_node.setValue(newval);
+            active = true;
+            try
+            {
+                double newval = VTypeUtil.getValueNumber( model_widget.runtimeValue().getValue() ).doubleValue();
+                if (newval < min) newval = min;
+                else if (newval > max) newval = max;
+                jfx_node.setValue(newval);
+            }
+            finally
+            {
+                if (active)
+                    active = false;
+            }
         }
     }
-
 }
