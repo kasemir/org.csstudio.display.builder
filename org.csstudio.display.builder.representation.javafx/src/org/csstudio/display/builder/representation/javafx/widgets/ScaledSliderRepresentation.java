@@ -30,6 +30,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -123,6 +124,15 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         GridPane.setConstraints(axis, 0, 0, 1, 1, HPos.CENTER, VPos.CENTER);
         GridPane.setConstraints(slider, 0, 1, 1, 1, HPos.CENTER, VPos.CENTER);
         pane.getChildren().add(slider);
+        //do not respond to mouse clicks in edit mode
+        if (toolkit.isEditMode())
+        {
+            slider.setOnMousePressed((event) ->
+            {
+                event.consume();
+                toolkit.fireClick(model_widget, event.isControlDown());
+            });
+        }
         return pane;
     }
 
@@ -342,7 +352,8 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
                 double newval = VTypeUtil.getValueNumber( model_widget.runtimeValue().getValue() ).doubleValue();
                 if (newval < min) newval = min;
                 else if (newval > max) newval = max;
-                slider.setValue(newval);
+                if (!slider.isValueChanging())
+                    slider.setValue(newval);
                 value = newval;
             }
             finally
