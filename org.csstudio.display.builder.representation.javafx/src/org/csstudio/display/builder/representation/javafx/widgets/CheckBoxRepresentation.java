@@ -8,6 +8,7 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.CheckBoxWidget;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
 
 import javafx.scene.control.ButtonBase;
@@ -56,6 +57,7 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
 
         labelChanged(model_widget.displayLabel(), null, model_widget.displayLabel().getValue());
         model_widget.displayLabel().addPropertyListener(this::labelChanged);
+        model_widget.displayFont().addUntypedPropertyListener(this::fontChanged);
 
         bitChanged(model_widget.behaviorBit(), null, model_widget.behaviorBit().getValue());
         model_widget.behaviorBit().addPropertyListener(this::bitChanged);
@@ -71,6 +73,12 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
     private void labelChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
     {
         label = new_value != null ? new_value : model_widget.displayLabel().getValue();
+        dirty_label.mark();
+        toolkit.scheduleUpdate(this);
+    }
+    
+    private void fontChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
         dirty_label.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -112,6 +120,7 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
         if (dirty_label.checkAndClear())
         {
             jfx_node.setText(label);
+            jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
         }
     }
 }

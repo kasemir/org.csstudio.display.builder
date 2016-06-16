@@ -340,9 +340,9 @@
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>control_action_buttons.bob</file>
+        <file>controls_checkbox.bob</file>
         <target>replace</target>
-        <description>Action Buttons</description>
+        <description>Check Box</description>
       </action>
     </actions>
   </widget>
@@ -365,7 +365,7 @@
   <widget type="action_button" version="2.0.0">
     <name>Action Button_18</name>
     <x>191</x>
-    <y>441</y>
+    <y>481</y>
     <width>120</width>
     <text>$(actions)</text>
     <actions>
@@ -379,7 +379,7 @@
   <widget type="action_button" version="2.0.0">
     <name>Action Button_19</name>
     <x>191</x>
-    <y>481</y>
+    <y>521</y>
     <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
@@ -403,6 +403,21 @@
         <file>monitors_bytemonitor.bob</file>
         <target>replace</target>
         <description>Bytemonitor</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_21</name>
+    <x>191</x>
+    <y>441</y>
+    <width>120</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>control_action_buttons.bob</file>
+        <target>replace</target>
+        <description>Action Buttons</description>
       </action>
     </actions>
   </widget>
