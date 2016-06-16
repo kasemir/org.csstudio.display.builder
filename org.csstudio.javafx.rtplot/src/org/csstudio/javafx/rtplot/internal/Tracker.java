@@ -38,7 +38,7 @@ public class Tracker extends Group
     private double start_x = -1, start_y = -1;
 
     /** Tracker position at start of drag */
-    private double orig_x, orig_y, orig_width, orig_height;
+    private Rectangle2D orig;
 
 
     public Tracker(final TrackerListener listener)
@@ -83,11 +83,21 @@ public class Tracker extends Group
             if (start_x < 0)
                 return;
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
-            final Point2D pos = constrain(orig_x + dx, orig_y + dy);
-            setPosition(pos.getX(), pos.getY(), orig_width, orig_height);
+            final Point2D pos = constrain(orig.getMinX() + dx, orig.getMinY() + dy);
+            setPosition(pos.getX(), pos.getY(), orig.getWidth(), orig.getHeight());
         });
         tracker.addEventHandler(MouseEvent.MOUSE_RELEASED, this::mouseReleased);
+
         tracker.setOnKeyPressed(this::handleKeyEvent);
+
+        // Keep the keyboard focus to actually get key events.
+        // The RTImagePlot will also listen to mouse moves and try to keep the focus,
+        // so the active tracker uses an event filter to have higher priority
+        tracker.addEventFilter(MouseEvent.MOUSE_MOVED, event ->
+        {
+            event.consume();
+            tracker.requestFocus();
+        });
 
         handle_top_left.setCursor(Cursor.NW_RESIZE);
         handle_top_left.setOnMouseDragged((MouseEvent event) ->
@@ -95,10 +105,10 @@ public class Tracker extends Group
             if (start_x < 0)
                 return;
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
-            final Point2D tl = constrain(orig_x + dx, orig_y + dy);
+            final Point2D tl = constrain(orig.getMinX() + dx, orig.getMinY() + dy);
             setPosition(tl.getX(), tl.getY(),
-                        orig_width - (tl.getX() - orig_x),
-                        orig_height - (tl.getY() - orig_y));
+                        orig.getWidth() - (tl.getX() - orig.getMinX()),
+                        orig.getHeight() - (tl.getY() - orig.getMinY()));
         });
         handle_top.setCursor(Cursor.N_RESIZE);
         handle_top.setOnMouseDragged((MouseEvent event) ->
@@ -106,10 +116,10 @@ public class Tracker extends Group
             if (start_x < 0)
                 return;
             final double dy = event.getY() - start_y;
-            final Point2D t = constrain(orig_x, orig_y + dy);
+            final Point2D t = constrain(orig.getMinX(), orig.getMinY() + dy);
             setPosition(t.getX(), t.getY(),
-                        orig_width - (t.getX() - orig_x),
-                        orig_height - (t.getY() - orig_y));
+                        orig.getWidth() - (t.getX() - orig.getMinX()),
+                        orig.getHeight() - (t.getY() - orig.getMinY()));
         });
         handle_top_right.setCursor(Cursor.NE_RESIZE);
         handle_top_right.setOnMouseDragged((MouseEvent event) ->
@@ -117,9 +127,9 @@ public class Tracker extends Group
             if (start_x < 0)
                 return;
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
-            final Point2D tr = constrain(orig_x + orig_width + dx, orig_y + dy);
-            setPosition(orig_x, tr.getY(),
-                        tr.getX() - orig_x, orig_height - (tr.getY() - orig_y));
+            final Point2D tr = constrain(orig.getMinX() + orig.getWidth() + dx, orig.getMinY() + dy);
+            setPosition(orig.getMinX(), tr.getY(),
+                        tr.getX() - orig.getMinX(), orig.getHeight() - (tr.getY() - orig.getMinY()));
         });
         handle_right.setCursor(Cursor.E_RESIZE);
         handle_right.setOnMouseDragged((MouseEvent event) ->
@@ -127,8 +137,8 @@ public class Tracker extends Group
             if (start_x < 0)
                 return;
             final double dx = event.getX() - start_x;
-            final Point2D r = constrain(orig_x + orig_width + dx, orig_y);
-            setPosition(orig_x, orig_y, r.getX() - orig_x, orig_height);
+            final Point2D r = constrain(orig.getMinX() + orig.getWidth() + dx, orig.getMinY());
+            setPosition(orig.getMinX(), orig.getMinY(), r.getX() - orig.getMinX(), orig.getHeight());
         });
         handle_bottom_right.setCursor(Cursor.SE_RESIZE);
         handle_bottom_right.setOnMouseDragged((MouseEvent event) ->
@@ -136,8 +146,8 @@ public class Tracker extends Group
             if (start_x < 0)
                 return;
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
-            final Point2D br = constrain(orig_x + orig_width + dx, orig_y + orig_height + dy);
-            setPosition(orig_x, orig_y, br.getX() - orig_x, br.getY() - orig_y);
+            final Point2D br = constrain(orig.getMinX() + orig.getWidth() + dx, orig.getMinY() + orig.getHeight() + dy);
+            setPosition(orig.getMinX(), orig.getMinY(), br.getX() - orig.getMinX(), br.getY() - orig.getMinY());
         });
         handle_bottom.setCursor(Cursor.S_RESIZE);
         handle_bottom.setOnMouseDragged((MouseEvent event) ->
@@ -145,8 +155,8 @@ public class Tracker extends Group
             if (start_x < 0)
                 return;
             final double dy = event.getY() - start_y;
-            final Point2D b = constrain(orig_x, orig_y + orig_height + dy);
-            setPosition(orig_x, orig_y, orig_width, b.getY() - orig_y);
+            final Point2D b = constrain(orig.getMinX(), orig.getMinY() + orig.getHeight() + dy);
+            setPosition(orig.getMinX(), orig.getMinY(), orig.getWidth(), b.getY() - orig.getMinY());
         });
         handle_bottom_left.setCursor(Cursor.SW_RESIZE);
         handle_bottom_left.setOnMouseDragged((MouseEvent event) ->
@@ -154,10 +164,10 @@ public class Tracker extends Group
             if (start_x < 0)
                 return;
             final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
-            final Point2D bl = constrain(orig_x + dx, orig_y + orig_height + dy);
-            setPosition(bl.getX(), orig_y,
-                        orig_width - (bl.getX() - orig_x),
-                        bl.getY() - orig_y);
+            final Point2D bl = constrain(orig.getMinX() + dx, orig.getMinY() + orig.getHeight() + dy);
+            setPosition(bl.getX(), orig.getMinY(),
+                        orig.getWidth() - (bl.getX() - orig.getMinX()),
+                        bl.getY() - orig.getMinY());
         });
         handle_left.setCursor(Cursor.W_RESIZE);
         handle_left.setOnMouseDragged((MouseEvent event) ->
@@ -165,8 +175,8 @@ public class Tracker extends Group
             if (start_x < 0)
                 return;
             final double dx = event.getX() - start_x;
-            final Point2D l = constrain(orig_x + dx, orig_y);
-            setPosition(l.getX(), orig_y, orig_width - (l.getX() - orig_x), orig_height);
+            final Point2D l = constrain(orig.getMinX() + dx, orig.getMinY());
+            setPosition(l.getX(), orig.getMinY(), orig.getWidth() - (l.getX() - orig.getMinX()), orig.getHeight());
         });
 
     }
@@ -203,15 +213,9 @@ public class Tracker extends Group
             start_x = event.getX();
             start_y = event.getY();
         }
-        orig_x = tracker.getX();
-        orig_y = tracker.getY();
-        orig_width = tracker.getWidth();
-        orig_height = tracker.getHeight();
+        orig = new Rectangle2D(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight());
 
         // TODO Call listener that drag starts
-
-        // Get focus to allow use of arrow keys
-        tracker.requestFocus();
     }
 
     /** @param event {@link MouseEvent} */
@@ -223,8 +227,6 @@ public class Tracker extends Group
     /** @param event {@link MouseEvent} */
     private void endMouseDrag(final MouseEvent event)
     {
-        // Get focus to allow use of arrow keys
-        tracker.requestFocus();
         if (start_x < 0)
             return;
         if (event != null)
@@ -239,15 +241,9 @@ public class Tracker extends Group
      */
     private void handleKeyEvent(final KeyEvent event)
     {
-        // XXX There is a strange loss of key focus:
-        // Tracker does not receive key events unless one click/release
-        // in the tracker rectangle.
-        // Any mouse move after the click results in no more key events.
-
         // Consume handled event to keep the key focus,
         // which is otherwise lost to the 'tab-order' traversal
         final KeyCode code = event.getCode();
-        System.out.println(code);
         switch (code)
         {
         case UP:
@@ -283,10 +279,7 @@ public class Tracker extends Group
 
         // Reset tracker as if we started at this position.
         // That way, a sequence of cursor key moves turns into individual undo-able actions.
-        orig_x = tracker.getX();
-        orig_y = tracker.getY();
-        orig_width = tracker.getWidth();
-        orig_height = tracker.getHeight();
+        orig = new Rectangle2D(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight());
     }
 
     /** Update location and size of tracker
@@ -342,21 +335,12 @@ public class Tracker extends Group
         handle_left.setVisible(height > handle_size);
         handle_left.setX(x - handle_size);
         handle_left.setY(y + (height - handle_size)/2);
-
-        // Get focus to allow use of arrow keys
-        tracker.requestFocus();
     }
 
     private void notifyListenerOfChange()
     {
-        final double dx = tracker.getX()      - orig_x;
-        final double dy = tracker.getY()      - orig_y;
-        final double dw = tracker.getWidth()  - orig_width;
-        final double dh = tracker.getHeight() - orig_height;
-
-        if (dx == 0.0  &&  dy == 0.0  &&  dw == 0.0  &&  dh == 0.0)
-            return;
-
-        listener.trackerChanged(dx, dy, dw, dh);
+        final Rectangle2D current = new Rectangle2D(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight());
+        if (! current.equals(orig))
+            listener.trackerChanged(orig, current);
     }
 }

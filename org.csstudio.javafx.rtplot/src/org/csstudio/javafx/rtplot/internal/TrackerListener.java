@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import javafx.geometry.Rectangle2D;
+
 /** Listener to {@link Tracker}
  *  @author Kay Kasemir
  */
@@ -14,13 +16,11 @@ package org.csstudio.javafx.rtplot.internal;
 public interface TrackerListener
 {
     /** Tracker has changed
-     *  @param dx Change in X position
-     *  @param dy Change in Y position
-     *  @param dw Change in width
-     *  @param dh Change in height
+     *  @param original Original position
+     *  @param current Current position
      */
-    default public void trackerChanged(double dx, double dy, double dw, double dh)
+    default public void trackerChanged(final Rectangle2D original, final Rectangle2D current)
     {
-        System.out.println("Moved by " + dx + ", " + dy + ", resized by " + dw + ", " + dh);
+        System.out.println("Moved from " + original + " to " + current);
     }
 }
