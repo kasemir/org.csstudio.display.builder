@@ -534,10 +534,12 @@ public class ImagePlot extends PlotCanvasBase
             if (rect.contains(current))
             {
                 System.out.println("Activate moving " + roi.getName()); // TODO remove prinout
-                final Tracker tracker = new Tracker();
+                final Tracker tracker = new Tracker(new TrackerListener()
+                {
+                    // TODO Listen to tracker, update ROI, remove tracker
+                });
                 tracker.setPosition(rect);
                 ChildCare.addChild(getParent(), tracker);
-                // TODO Listen to tracker, update ROI, remove tracker
                 return;
             }
         }
