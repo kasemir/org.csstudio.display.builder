@@ -31,7 +31,6 @@ import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.Tracker;
-import org.csstudio.javafx.TrackerListener;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -67,18 +66,11 @@ public class SelectedWidgetUITracker extends Tracker
     /** Widgets to track */
     private List<Widget> widgets = Collections.emptyList();
 
-    /** Original widget position at start of a move/resize */
-    private List<Rectangle2D> orig_position = Collections.emptyList();
-
     /** Break update loops JFX change -> model change -> JFX change -> ... */
     private boolean updating = false;
 
     /** Update tracker to match changed widget position */
-    private final WidgetPropertyListener<Integer> position_listener = (p, o, n) ->
-    {
-        updateTrackerFromWidgets();
-    };
-
+    private final WidgetPropertyListener<Integer> position_listener = (p, o, n) -> updateTrackerFromWidgets();
 
     /** Construct a tracker.
      *
@@ -99,9 +91,15 @@ public class SelectedWidgetUITracker extends Tracker
 
         setVisible(false);
 
-
         // Track currently selected widgets
         selection.addListener(this::setSelectedWidgets);
+
+        // Pass control-click down to underlying widgets
+        addEventFilter(MouseEvent.MOUSE_PRESSED, event ->
+        {
+            if (event.isControlDown())
+                passClickToWidgets(event);
+        });
 
         // Allow 'dragging' selected widgets
         setOnDragDetected(event ->
@@ -135,16 +133,9 @@ public class SelectedWidgetUITracker extends Tracker
             event.consume();
         });
 
-        setListener(new TrackerListener()
-        {
-            @Override
-            public void trackerChanged(final Rectangle2D original, final Rectangle2D current)
-            {
-                updateWidgetsFromTracker(original, current);
-            }
-        });
+        // When tracker moved, update widgets
+        setListener(this::updateWidgetsFromTracker);
     }
-
 
     /** Apply enabled constraints to requested position
      *  @param x Requested X position
@@ -257,16 +248,6 @@ public class SelectedWidgetUITracker extends Tracker
         inline_editor = null;
     }
 
-    /** @param event {@link MouseEvent}; <code>null</code> if not triggered by mouse */
-    @Override
-    protected void startDrag(final MouseEvent event)
-    {
-        super.startDrag(event);
-
-        // Take snapshot of widget coords relative to parent, not absolute
-        orig_position = widgets.stream().map(GeometryTools::getBounds).collect(Collectors.toList());
-    }
-
     /** Tracker is in front of the widgets that it handles,
      *  so it receives all mouse clicks.
      *  When 'Control' key is down, that event should be passed
@@ -275,7 +256,7 @@ public class SelectedWidgetUITracker extends Tracker
      *  and fires a 'click' on them.
      *  @param event Mouse event that needs to be passed down
      */
-    private void passEventToWidgets(final MouseEvent event)
+    private void passClickToWidgets(final MouseEvent event)
     {
         for (Widget widget : widgets)
             if (GeometryTools.getDisplayBounds(widget).contains(event.getX(), event.getY()))
@@ -286,36 +267,25 @@ public class SelectedWidgetUITracker extends Tracker
     }
 
     @Override
-    protected void endMouseDrag(final MouseEvent event)
-    {
-        if (event != null  &&  event.isControlDown())
-            passEventToWidgets(event);
-        else
-            super.endMouseDrag(event);
-    }
-
-    /** Update tracker to provided location and size
-     *  @param x
-     *  @param y
-     *  @param width
-     *  @param height
-     */
-    @Override
     public void setPosition(final double x, final double y, double width, double height)
     {
         super.setPosition(x, y, width, height);
+        // As tracker is being moved, highlight group under tracker
         group_handler.locateParent(x, y, width, height);
     }
 
     /** Updates widgets to current tracker location and size */
     private void updateWidgetsFromTracker(final Rectangle2D original, final Rectangle2D current)
     {
-        if (updating  ||  widgets.isEmpty()  ||  orig_position.isEmpty())
+        if (updating)
             return;
         updating = true;
         try
         {
             group_handler.hide();
+
+            final List<Rectangle2D> orig_position =
+                widgets.stream().map(GeometryTools::getBounds).collect(Collectors.toList());
 
             // If there was only one widget, the tracker bounds represent
             // the desired widget location and size.
@@ -325,7 +295,7 @@ public class SelectedWidgetUITracker extends Tracker
             final double dy = current.getMinY()   - original.getMinY();
             final double dw = current.getWidth()  - original.getWidth();
             final double dh = current.getHeight() - original.getHeight();
-            final int N = Math.min(widgets.size(), orig_position.size());
+            final int N = orig_position.size();
             for (int i=0; i<N; ++i)
             {
                 final Widget widget = widgets.get(i);
@@ -355,8 +325,8 @@ public class SelectedWidgetUITracker extends Tracker
                     widget.positionX().setValue((int) (orig.getMinX() + dx + old_offset.getX() - new_offset.getX()));
                     widget.positionY().setValue((int) (orig.getMinY() + dy + old_offset.getY() - new_offset.getY()));
                 }
-                widget.positionWidth().setValue((int) (orig.getWidth() + dw));
-                widget.positionHeight().setValue((int) (orig.getHeight() + dh));
+                widget.positionWidth().setValue((int) Math.max(1, orig.getWidth() + dw));
+                widget.positionHeight().setValue((int) Math.max(1, orig.getHeight() + dh));
 
                 undo.add(new UpdateWidgetLocationAction(widget,
                                                         orig_parent_children,
@@ -379,18 +349,12 @@ public class SelectedWidgetUITracker extends Tracker
     {
         if (updating)
             return;
+        final Rectangle2D rect = widgets.stream()
+                                        .map(GeometryTools::getDisplayBounds)
+                                        .reduce(null, GeometryTools::join);
         updating = true;
-        try
-        {
-            final Rectangle2D rect = widgets.stream()
-                                            .map(GeometryTools::getDisplayBounds)
-                                            .reduce(null, GeometryTools::join);
-            setPosition(rect.getMinX(), rect.getMinY(), rect.getWidth(), rect.getHeight());
-        }
-        finally
-        {
-            updating = false;
-        }
+        setPosition(rect);
+        updating = false;
     }
 
     /** @param enable Enable grid? */
@@ -433,7 +397,7 @@ public class SelectedWidgetUITracker extends Tracker
 
         updateTrackerFromWidgets();
 
-        startDrag(null);
+        startDrag(null); // TODO Why?
 
         bindToWidgets();
 

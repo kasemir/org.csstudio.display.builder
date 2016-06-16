@@ -41,4 +41,9 @@ public class RegionOfInterest
     {
         return region;
     }
+
+    public void setRegion(final Rectangle2D region)
+    {
+        this.region = region;
+    }
 }

@@ -19,13 +19,12 @@ import javafx.scene.shape.Rectangle;
 /** Tracker is a 'rubberband' type rectangle with handles to move or resize.
  *
  *  TODO Check pixel by pixel if tracker has the correct size
- *  TODO Add style sheet
  *
  *  @author Kay Kasemir
  */
 public class Tracker extends Group
 {
-    private static final int handle_size = 15;
+    private static final int HANDLE_SIZE = 10;
 
     private TrackerListener listener;
 
@@ -74,7 +73,7 @@ public class Tracker extends Group
     /** @return 'Handle' type rectangle */
     private Rectangle createHandle()
     {
-        final Rectangle handle = new Rectangle(handle_size, handle_size);
+        final Rectangle handle = new Rectangle(HANDLE_SIZE, HANDLE_SIZE);
         handle.getStyleClass().add("tracker_handle"); // TODO Different class? Color?
         handle.setOnMousePressed(this::startDrag);
         handle.setOnMouseReleased(this::endMouseDrag);
@@ -310,33 +309,33 @@ public class Tracker extends Group
         tracker.setWidth(width);
         tracker.setHeight(height);
 
-        handle_top_left.setX(x - handle_size);
-        handle_top_left.setY(y - handle_size);
+        handle_top_left.setX(x - HANDLE_SIZE);
+        handle_top_left.setY(y - HANDLE_SIZE);
 
-        handle_top.setVisible(width > handle_size);
-        handle_top.setX(x + (width - handle_size) / 2);
-        handle_top.setY(y - handle_size);
+        handle_top.setVisible(width > HANDLE_SIZE);
+        handle_top.setX(x + (width - HANDLE_SIZE) / 2);
+        handle_top.setY(y - HANDLE_SIZE);
 
         handle_top_right.setX(x + width);
-        handle_top_right.setY(y - handle_size);
+        handle_top_right.setY(y - HANDLE_SIZE);
 
-        handle_right.setVisible(height > handle_size);
+        handle_right.setVisible(height > HANDLE_SIZE);
         handle_right.setX(x + width);
-        handle_right.setY(y + (height - handle_size)/2);
+        handle_right.setY(y + (height - HANDLE_SIZE)/2);
 
         handle_bottom_right.setX(x + width);
         handle_bottom_right.setY(y + height);
 
-        handle_bottom.setVisible(width > handle_size);
-        handle_bottom.setX(x + (width - handle_size)/2);
+        handle_bottom.setVisible(width > HANDLE_SIZE);
+        handle_bottom.setX(x + (width - HANDLE_SIZE)/2);
         handle_bottom.setY(y + height);
 
-        handle_bottom_left.setX(x - handle_size);
+        handle_bottom_left.setX(x - HANDLE_SIZE);
         handle_bottom_left.setY(y + height);
 
-        handle_left.setVisible(height > handle_size);
-        handle_left.setX(x - handle_size);
-        handle_left.setY(y + (height - handle_size)/2);
+        handle_left.setVisible(height > HANDLE_SIZE);
+        handle_left.setX(x - HANDLE_SIZE);
+        handle_left.setY(y + (height - HANDLE_SIZE)/2);
     }
 
     private void notifyListenerOfChange()

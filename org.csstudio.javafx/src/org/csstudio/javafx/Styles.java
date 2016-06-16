@@ -7,17 +7,15 @@
  ******************************************************************************/
 package org.csstudio.javafx;
 
-import javafx.geometry.Rectangle2D;
+import javafx.scene.Scene;
 
-/** Listener to {@link Tracker}
- *  @author Kay Kasemir
- */
-@FunctionalInterface
-public interface TrackerListener
+@SuppressWarnings("nls")
+public class Styles
 {
-    /** Tracker has changed
-     *  @param original Original position
-     *  @param current Current position
-     */
-    public void trackerChanged(final Rectangle2D original, final Rectangle2D current);
+    /** @param scene Scene where style sheet for csstudio is added */
+    public static void setSceneStyle(final Scene scene)
+    {
+        final String css = Styles.class.getResource("csstudio.css").toExternalForm();
+        scene.getStylesheets().add(css);
+    }
 }

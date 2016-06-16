@@ -1,12 +1,6 @@
 /* Style sheet used by Editor
  */
 
-/** Temporarily assigned to nodes to have them stand out during development */
-.debug
-{
-    -fx-background-color: rgb(255, 100, 0, 0.2);
-}
-
 .rubberband
 {
     -fx-stroke-width: 1;
@@ -21,24 +15,6 @@
     -fx-fill: rgb(255, 0, 0, 0.05);
 }
 
-/** Tracker (Selected widgets) */
-.tracker
-{
-    -fx-stroke-width: 1;
-    -fx-fill: rgb(0, 0, 255, 0.05);
-    -fx-stroke: blue;
-    -fx-stroke-dash-array: 5.0, 5.0;
-    -fx-effect: dropshadow(one-pass-box, black, 10, 0, 0, 0);
-}
-
-.tracker_handle
-{
-    -fx-stroke-width: 1;
-    -fx-fill: rgb(0, 0, 255, 0.2);
-    -fx-stroke: blue;
-    -fx-arc-width: 10;
-    -fx-arc-height: 10;
-}
 
 /** PointsEditor */
 .points_edit_line

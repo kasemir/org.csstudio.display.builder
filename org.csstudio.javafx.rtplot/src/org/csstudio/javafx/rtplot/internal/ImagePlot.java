@@ -394,7 +394,21 @@ public class ImagePlot extends PlotCanvasBase
                   y1 = y_axis.getScreenCoord(roi.getRegion().getMaxY());
         final int x = Math.min(x0, x1);
         final int y = Math.min(y0, y1);
-        return new Rectangle2D(x0, y0, Math.abs(x1-x0), Math.abs(y1-y0));
+        return new Rectangle2D(x, y, Math.abs(x1-x0), Math.abs(y1-y0));
+    }
+
+    private void updateRoiFromScreen(final RegionOfInterest roi, final Rectangle2D screen_pos)
+    {
+        final double x0 = x_axis.getValue((int)screen_pos.getMinX()),
+                     y0 = y_axis.getValue((int)screen_pos.getMinY()),
+                     x1 = x_axis.getValue((int)screen_pos.getMaxX()),
+                     y1 = y_axis.getValue((int)screen_pos.getMaxY());
+        final double x = Math.min(x0, x1);
+        final double y = Math.min(y0, y1);
+        final Rectangle2D region = new Rectangle2D(x, y, Math.abs(x1-x0), Math.abs(y1-y0));
+        roi.setRegion(region);
+        requestUpdate();
+        // TODO Notify a listener of ROI change
     }
 
     private void drawROI(final Graphics2D gc, final RegionOfInterest roi)
@@ -534,11 +548,11 @@ public class ImagePlot extends PlotCanvasBase
             final Rectangle2D rect = roiToScreen(roi);
             if (rect.contains(current))
             {
-                System.out.println("Activate moving " + roi.getName()); // TODO remove prinout
                 final Tracker tracker = new Tracker();
-                // TODO Listen to tracker, update ROI, remove tracker
                 tracker.setPosition(rect);
                 ChildCare.addChild(getParent(), tracker);
+                tracker.setListener((old_pos, new_pos) -> updateRoiFromScreen(roi, new_pos));
+                // TODO remove tracker
                 return;
             }
         }
