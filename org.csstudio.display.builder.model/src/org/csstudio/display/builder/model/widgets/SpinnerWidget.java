@@ -58,15 +58,6 @@ public class SpinnerWidget extends VisibleWidget
             CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "buttons_on_left", Messages.Spinner_ButtonsOnLeft);
 
     //TODO: spinner format uses only Decimal, Exponential, and Hex; also (new?) Engineering?
-    /*public static final WidgetPropertyDescriptor<FormatOption> displayFormat =
-            new WidgetPropertyDescriptor<Integer>(WidgetPropertyCategory.DISPLAY, "startBit", Messages.WidgetProperties_Format)
-            {
-                @Override
-                public WidgetProperty<FormatOption> createProperty(final Widget widget, final FormatOption value)
-                {
-                    return new EnumWidgetProperty(this, widget, value);
-                }
-            }*/
 
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<WidgetColor> background;
@@ -100,7 +91,7 @@ public class SpinnerWidget extends VisibleWidget
         properties.add(value = runtimeValue.createProperty(this, null));
         properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
         properties.add(maximum = behaviorMaximum.createProperty(this, 100.0));
-        properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, false));
+        properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, true));
         properties.add(step_increment = behaviorStepIncrement.createProperty(this, 1.0));
         properties.add(page_increment = behaviorPageIncrement.createProperty(this, 10.0));
         properties.add(buttons_on_left = displayButtonsOnLeft.createProperty(this, false));
