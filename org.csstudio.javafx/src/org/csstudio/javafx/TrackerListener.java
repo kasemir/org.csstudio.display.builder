@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package org.csstudio.javafx.rtplot.internal;
+package org.csstudio.javafx;
 
 import javafx.geometry.Rectangle2D;
 

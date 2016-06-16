@@ -22,6 +22,7 @@ import java.util.logging.Level;
 
 import org.csstudio.javafx.ChildCare;
 import org.csstudio.javafx.PlatformInfo;
+import org.csstudio.javafx.Tracker;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
@@ -534,10 +535,8 @@ public class ImagePlot extends PlotCanvasBase
             if (rect.contains(current))
             {
                 System.out.println("Activate moving " + roi.getName()); // TODO remove prinout
-                final Tracker tracker = new Tracker(new TrackerListener()
-                {
-                    // TODO Listen to tracker, update ROI, remove tracker
-                });
+                final Tracker tracker = new Tracker();
+                // TODO Listen to tracker, update ROI, remove tracker
                 tracker.setPosition(rect);
                 ChildCare.addChild(getParent(), tracker);
                 return;

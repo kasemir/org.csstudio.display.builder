@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package org.csstudio.javafx.rtplot.internal;
+package org.csstudio.javafx;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -18,16 +18,19 @@ import javafx.scene.shape.Rectangle;
 
 /** Tracker is a 'rubberband' type rectangle with handles to move or resize.
  *
+ *  TODO Check pixel by pixel if tracker has the correct size
+ *  TODO Add style sheet
+ *
  *  @author Kay Kasemir
  */
 public class Tracker extends Group
 {
     private static final int handle_size = 15;
 
-    private final TrackerListener listener;
+    private TrackerListener listener;
 
     /** Main rectangle of tracker */
-    private final Rectangle tracker = new Rectangle();
+    protected final Rectangle tracker = new Rectangle();
 
     /** Handles at corners and edges of tracker */
     private final Rectangle handle_top_left, handle_top, handle_top_right,
@@ -41,9 +44,8 @@ public class Tracker extends Group
     private Rectangle2D orig;
 
 
-    public Tracker(final TrackerListener listener)
+    public Tracker()
     {
-        this.listener = listener;
         setAutoSizeChildren(false);
 
         tracker.getStyleClass().add("tracker");
@@ -64,6 +66,11 @@ public class Tracker extends Group
         hookEvents();
     }
 
+    public void setListener(final TrackerListener listener)
+    {
+        this.listener = listener;
+    }
+
     /** @return 'Handle' type rectangle */
     private Rectangle createHandle()
     {
@@ -74,7 +81,7 @@ public class Tracker extends Group
         return handle;
     }
 
-    private void hookEvents()
+    void hookEvents()
     {
         tracker.setCursor(Cursor.MOVE);
         tracker.addEventHandler(MouseEvent.MOUSE_PRESSED, this::mousePressed);
@@ -192,14 +199,13 @@ public class Tracker extends Group
     }
 
     /** @param event {@link MouseEvent} */
-    private void mousePressed(final MouseEvent event)
+    protected void mousePressed(final MouseEvent event)
     {
-        if (event.getClickCount() == 1)
-            startDrag(event);
+        startDrag(event);
     }
 
     /** @param event {@link MouseEvent} */
-    private void startDrag(final MouseEvent event)
+    protected void startDrag(final MouseEvent event)
     {
         // Take snapshot of current positions
         if (event == null)
@@ -214,18 +220,16 @@ public class Tracker extends Group
             start_y = event.getY();
         }
         orig = new Rectangle2D(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight());
-
-        // TODO Call listener that drag starts
     }
 
     /** @param event {@link MouseEvent} */
-    private void mouseReleased(final MouseEvent event)
+    protected void mouseReleased(final MouseEvent event)
     {
         endMouseDrag(event);
     }
 
     /** @param event {@link MouseEvent} */
-    private void endMouseDrag(final MouseEvent event)
+    protected void endMouseDrag(final MouseEvent event)
     {
         if (start_x < 0)
             return;
@@ -282,13 +286,11 @@ public class Tracker extends Group
         orig = new Rectangle2D(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight());
     }
 
-    /** Update location and size of tracker
-     *  @param rect
-     */
-    public void setPosition(final Rectangle2D rect)
+    public final void setPosition(final Rectangle2D position)
     {
-        setPosition(rect.getMinX(), rect.getMinY(), rect.getWidth(), rect.getHeight());
+        setPosition(position.getMinX(), position.getMinY(), position.getWidth(), position.getHeight());
     }
+
 
     /** Update location and size of tracker
      *  @param x
@@ -296,7 +298,7 @@ public class Tracker extends Group
      *  @param width
      *  @param height
      */
-    private void setPosition(final double x, final double y, double width, double height)
+    public void setPosition(final double x, final double y, double width, double height)
     {
         if (width < 0)
             width = 0;
