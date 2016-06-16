@@ -9,6 +9,8 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.io.InputStream;
 
+import javafx.collections.ListChangeListener;
+
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
@@ -16,7 +18,6 @@ import org.csstudio.display.builder.util.ResourceUtil;
 
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
@@ -107,6 +108,8 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
     {
         //================
         //--fields
+        final WebHistory history = webEngine.getHistory();
+        
         //--toolbar controls
         //TODO: remove button text when icons work
         HBox toolbar;
@@ -125,13 +128,15 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         //--toolbar handlers and listeners
         void handleBackButton(ActionEvent event)
         {
-            try { webEngine.getHistory().go(-1); }
+            try { history.go(-1); }
             catch (IndexOutOfBoundsException e) {}
+            navArrowHelper();
         }
         void handleForeButton(ActionEvent event)
         {
-            try { webEngine.getHistory().go(1); }
+            try { history.go(1); }
             catch (IndexOutOfBoundsException e) {}
+            navArrowHelper();
         }
         void handleStop(ActionEvent event)
         {
@@ -148,24 +153,28 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         void locationChanged(ObservableValue<? extends String> observable, String oldval, String newval)
         {
             addressBar.getEditor().setText(newval);
-            int index = addressBar.getItems().indexOf(newval);
-            foreButton.setDisable(index <= 0);
-            backButton.setDisable(index == addressBar.getItems().size()-1);
         }
-        void handleShowing(Event event)
+        void entriesChanged(ListChangeListener.Change<? extends WebHistory.Entry> c)
         {
-            WebHistory history = webEngine.getHistory();
-            int size = history.getEntries().size();
-            if (history.getCurrentIndex() == size-1)
+            c.next();
+            for (WebHistory.Entry entry : c.getRemoved())
+                addressBar.getItems().remove(entry.getUrl());
+            int index = c.getFrom();
+            if (index == addressBar.getItems().size())
             {
-                addressBar.getItems().clear();
-                for (int i = 0; i < size; i++)
-                {
-                    addressBar.getItems().add(0, history.getEntries().get(i).getUrl());
-                }
+                foreButton.setDisable(true);
+                backButton.setDisable(false);
             }
+            for (WebHistory.Entry entry : c.getAddedSubList())
+                addressBar.getItems().add(index++, entry.getUrl());
         }
-
+        void navArrowHelper()
+        {
+            int index = history.getCurrentIndex();
+            foreButton.setDisable(index >= history.getEntries().size()-1);
+            backButton.setDisable(index == 0);
+        }
+        
         //================
         //--constructor
         public BrowserWithToolbar(String url)
@@ -181,9 +190,9 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
             go.setOnAction(this::handleGo);
 
             addressBar.setEditable(true);
-            addressBar.setOnShowing(this::handleShowing);
             webEngine.locationProperty().addListener(this::locationChanged);
-
+            history.getEntries().addListener(this::entriesChanged);
+            
             final String imageDirectory =
                     "platform:/plugin/org.csstudio.display.builder.model/icons/browser/";
             for (int i = 0; i < controls.length; i++)
@@ -192,6 +201,7 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
                 if (control instanceof ButtonBase)
                 {
                     HBox.setHgrow(control, Priority.NEVER);
+                    //add graphics/text to buttons
                     InputStream stream = null;
                     try
                     {
@@ -204,7 +214,7 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
                     }
                     ((ButtonBase)control).setGraphic(new ImageView(new Image(stream)));
                 }
-                else //grow address bar
+                else
                     HBox.setHgrow(control, Priority.ALWAYS);
             }
 
@@ -212,6 +222,14 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
             toolbar = new HBox(controls);
             toolbar.getStyleClass().add("browser-toolbar");
             getChildren().add(toolbar);
+        }
+
+        //================
+        //--public methods
+        public void disableToolbar()
+        {
+            for (Control control : controls)
+                control.setDisable(true);
         }
 
         //================
@@ -227,14 +245,29 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
             layoutInArea(browser, 0,tbHeight, w,h-tbHeight, 0, HPos.CENTER, VPos.CENTER);
             layoutInArea(toolbar, 0,0, w,tbHeight, 0, HPos.CENTER,VPos.CENTER);
         }
+
     }
 
     @Override
     public Region createJFXNode() throws Exception
     {
-        return model_widget.displayShowToolbar().getValue() ?
-                new BrowserWithToolbar(model_widget.widgetURL().getValue()) :
-                new Browser(model_widget.widgetURL().getValue());
+        boolean toolbar = model_widget.displayShowToolbar().getValue();
+        Region browser = toolbar ?
+                        new BrowserWithToolbar(model_widget.widgetURL().getValue()) :
+                        new Browser(model_widget.widgetURL().getValue());
+        if (toolkit.isEditMode())
+        {
+            browser.setOnMousePressed((event) ->
+            {
+                event.consume();
+                toolkit.fireClick(model_widget, event.isControlDown());
+            });
+            if (toolbar)
+            {
+                ((BrowserWithToolbar)browser).disableToolbar();
+            }
+        }
+        return browser;
     }
 
     @Override
@@ -243,7 +276,8 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         super.registerListeners();
         model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.widgetURL().addPropertyListener(this::urlChanged);
+        if (!toolkit.isEditMode())
+            model_widget.widgetURL().addPropertyListener(this::urlChanged);
         //the showToolbar property cannot be changed at runtime
    }
 

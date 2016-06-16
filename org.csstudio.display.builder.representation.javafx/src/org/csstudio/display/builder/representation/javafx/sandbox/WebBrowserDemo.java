@@ -1,7 +1,12 @@
 package org.csstudio.display.builder.representation.javafx.sandbox;
 
+import java.io.InputStream;
+
+import org.csstudio.display.builder.util.ResourceUtil;
+
 import javafx.application.Application;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.geometry.HPos;
@@ -12,6 +17,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -76,6 +83,7 @@ public class WebBrowserDemo extends Application
         //--protected methods
         protected void goToURL(String url)
         {
+            if (url == null) return;
             if (!url.startsWith("http://"))
                 if (url.equals(""))
                     url = "about:blank";
@@ -109,30 +117,35 @@ public class WebBrowserDemo extends Application
     {
         //================
         //--fields
+        final WebHistory history = webEngine.getHistory();
+        
         //--toolbar controls
         //TODO: remove button text when icons work
         HBox toolbar;
-        final Button backButton = new Button("<");
-        final Button foreButton = new Button(">");
-        final Button stop = new Button("X");
-        final Button refresh  = new Button("R");
+        final Button backButton = new Button();
+        final Button foreButton = new Button();
+        final Button stop = new Button();
+        final Button refresh  = new Button();
         final ComboBox<String> addressBar = new ComboBox<String>();
-        final Button go = new Button("->");
+        final Button go = new Button();
         Control [] controls = new Control []
                 {backButton, foreButton, stop, refresh, addressBar, go};
         String [] iconFiles = new String []
-                {"arrow_left.png", "arrow_right.png", "green_chevron.png", "Player_stop.png", "refresh.png"};
+                {"arrow_left.png", "arrow_right.png", "Player_stop.png", "refresh.png", null, "green_chevron.png"};
+        String [] iconSubstitutes = new String [] {"<", ">", "X", "R", null, "->"};
 
         //--toolbar handlers and listeners
         void handleBackButton(ActionEvent event)
         {
-            try { webEngine.getHistory().go(-1); }
+            try { history.go(-1); }
             catch (IndexOutOfBoundsException e) {}
+            navArrowHelper();
         }
         void handleForeButton(ActionEvent event)
         {
-            try { webEngine.getHistory().go(1); }
+            try { history.go(1); }
             catch (IndexOutOfBoundsException e) {}
+            navArrowHelper();
         }
         void handleStop(ActionEvent event)
         {
@@ -149,22 +162,26 @@ public class WebBrowserDemo extends Application
         void locationChanged(ObservableValue<? extends String> observable, String oldval, String newval)
         {
             addressBar.getEditor().setText(newval);
-            int index = addressBar.getItems().indexOf(newval);
-            foreButton.setDisable(index <= 0);
-            backButton.setDisable(index == addressBar.getItems().size()-1);
         }
-        void handleShowing(Event event)
+        void entriesChanged(ListChangeListener.Change<? extends WebHistory.Entry> c)
         {
-            WebHistory history = webEngine.getHistory();
-            int size = history.getEntries().size();
-            if (history.getCurrentIndex() == size-1)
+            c.next();
+            for (WebHistory.Entry entry : c.getRemoved())
+                addressBar.getItems().remove(entry.getUrl());
+            int index = c.getFrom();
+            if (index == addressBar.getItems().size())
             {
-                addressBar.getItems().clear();
-                for (int i = 0; i < size && i < 10; i++)
-                {
-                    addressBar.getItems().add(0, history.getEntries().get(i).getUrl());
-                }
+                foreButton.setDisable(true);
+                backButton.setDisable(false);
             }
+            for (WebHistory.Entry entry : c.getAddedSubList())
+                addressBar.getItems().add(index++, entry.getUrl());
+        }
+        void navArrowHelper()
+        {
+            int index = history.getCurrentIndex();
+            foreButton.setDisable(index >= history.getEntries().size()-1);
+            backButton.setDisable(index == 0);
         }
 
         //================
@@ -181,10 +198,14 @@ public class WebBrowserDemo extends Application
             addressBar.setOnAction(this::handleGo);
             go.setOnAction(this::handleGo);
 
-            addressBar.setEditable(true);
-            addressBar.setOnShowing(this::handleShowing);
-            webEngine.locationProperty().addListener(this::locationChanged);
+            foreButton.setDisable(true);
+            backButton.setDisable(true);
 
+            addressBar.setEditable(true);
+            //addressBar.setOnShowing(this::handleShowing);
+            webEngine.locationProperty().addListener(this::locationChanged);
+            history.getEntries().addListener(this::entriesChanged);
+            
             final String imageDirectory =
                     "platform:/plugin/org.csstudio.display.builder.model/icons/browser/";
             for (int i = 0; i < controls.length; i++)
@@ -192,12 +213,20 @@ public class WebBrowserDemo extends Application
                 Control control = controls[i];
                 if (control instanceof ButtonBase)
                 {
-                    //TODO: image files aren't gotten; wrong directory?
-                    //Image image = new Image(getClass().getResourceAsStream(imageDirectory+iconFiles[i]));
-                    //((ButtonBase)control).setGraphic(new ImageView(image));
                     HBox.setHgrow(control, Priority.NEVER);
+                    InputStream stream = null;
+                    try
+                    {
+                        stream = ResourceUtil.openPlatformResource(imageDirectory+iconFiles[i]);
+                    }
+                    catch (Exception e)
+                    {
+                        ((ButtonBase)control).setText(iconSubstitutes[i]);
+                        continue;
+                    }
+                    ((ButtonBase)control).setGraphic(new ImageView(new Image(stream)));
                 }
-                else //grow address bar
+                else
                     HBox.setHgrow(control, Priority.ALWAYS);
             }
 
@@ -205,6 +234,14 @@ public class WebBrowserDemo extends Application
             toolbar = new HBox(controls);
             toolbar.getStyleClass().add("browser-toolbar");
             getChildren().add(toolbar);
+        }
+
+        //================
+        //--public methods
+        public void disableToolbar()
+        {
+            for (Control control : controls)
+                control.setDisable(true);
         }
 
         //================
@@ -220,6 +257,7 @@ public class WebBrowserDemo extends Application
             layoutInArea(browser, 0,tbHeight, w,h-tbHeight, 0, HPos.CENTER, VPos.CENTER);
             layoutInArea(toolbar, 0,0, w,tbHeight, 0, HPos.CENTER,VPos.CENTER);
         }
+
     }
 
 }
