@@ -79,48 +79,14 @@
     <x>183</x>
     <y>232</y>
     <width>238</width>
-    <text>The value can be adjusted both with</text>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_6</name>
-    <x>183</x>
-    <y>252</y>
-    <width>238</width>
-    <text>the mouse and, when the widget is in</text>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_7</name>
-    <x>183</x>
-    <y>272</y>
-    <width>238</width>
-    <text>focus, using the arrow keys and page</text>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_8</name>
-    <x>183</x>
-    <y>292</y>
-    <width>198</width>
-    <text>up/page down keys.</text>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_9</name>
-    <x>183</x>
-    <y>331</y>
-    <width>238</width>
-    <text>These increments can be set using</text>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_10</name>
-    <x>183</x>
-    <y>351</y>
-    <width>238</width>
-    <text>the "step" and "page increment"</text>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_11</name>
-    <x>183</x>
-    <y>371</y>
-    <width>238</width>
-    <text>behavior properties, respectively.</text>
+    <height>189</height>
+    <text>The value can be adjusted both with
+the mouse and, when the widget is in
+focus, using the arrow keys and page
+up/page down keys.
+
+These increments can be set using
+the "step" and "page increment"
+behavior properties, respectively.</text>
   </widget>
 </display>
