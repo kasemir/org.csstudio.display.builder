@@ -17,13 +17,16 @@ public class RegionOfInterest
 {
     private final String name;
     private final Color color;
+    private volatile boolean visible;
     private volatile Rectangle2D region;
 
     public RegionOfInterest(final String name, final Color color,
+            final boolean visible,
             final double x, final double y, final double width, final double height)
     {
         this.name = name;
         this.color = color;
+        this.visible = visible;
         this.region = new Rectangle2D(x, y, width, height);
     }
 
@@ -35,6 +38,16 @@ public class RegionOfInterest
     public Color getColor()
     {
         return color;
+    }
+
+    public boolean isVisible()
+    {
+        return visible;
+    }
+
+    public void setVisible(final boolean visible)
+    {
+        this.visible = true;
     }
 
     public Rectangle2D getRegion()

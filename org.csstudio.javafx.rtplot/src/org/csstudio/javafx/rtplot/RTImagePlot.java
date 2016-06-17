@@ -8,6 +8,7 @@
 package org.csstudio.javafx.rtplot;
 
 import java.awt.Color;
+import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.DoubleFunction;
 
@@ -16,6 +17,7 @@ import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.internal.ImagePlot;
 import org.csstudio.javafx.rtplot.internal.ImageToolbarHandler;
 import org.csstudio.javafx.rtplot.internal.MouseMode;
+import org.csstudio.javafx.rtplot.internal.RegionOfInterest;
 import org.diirt.util.array.ListNumber;
 
 import javafx.application.Platform;
@@ -160,6 +162,31 @@ public class RTImagePlot extends BorderPane
     public Axis<Double> getYAxis()
     {
         return plot.getYAxis();
+    }
+
+    /** Add region of interest
+     *  @param name
+     *  @param color
+     *  @param visible
+     *  @return {@link RegionOfInterest}
+     */
+    public RegionOfInterest addROI(final String name, final javafx.scene.paint.Color color, final boolean visible)
+    {
+        return plot.addROI(name, color, visible);
+    }
+
+    /** @return Regions of interest */
+    public List<RegionOfInterest> getROIs()
+    {
+        return plot.getROIs();
+    }
+
+    /** @param index Index of R.O.I. to remove
+     *  @throws IndexOutOfBoundsException
+     */
+    public void removeROI(final int index)
+    {
+        plot.removeROI(index);
     }
 
     /** Request a complete redraw of the plot with new layout */

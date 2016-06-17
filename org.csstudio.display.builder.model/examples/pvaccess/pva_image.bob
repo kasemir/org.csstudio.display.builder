@@ -22,30 +22,27 @@
     <rois>
       <roi>
         <visible>true</visible>
-        <name>ROI 0</name>
+        <name>Measure</name>
         <color>
           <color red="255" green="0" blue="0">
           </color>
         </color>
-        <pv_name></pv_name>
+        <x_pv>loc://roi_x(10)</x_pv>
+        <y_pv>loc://roi_y(15)</y_pv>
+        <width_pv>loc://roi_w(30)</width_pv>
+        <height_pv>loc://roi_h(10)</height_pv>
       </roi>
       <roi>
         <visible>true</visible>
-        <name>ROI 1</name>
+        <name>Auto-Scale</name>
         <color>
-          <color red="255" green="0" blue="0">
+          <color red="153" green="204" blue="153">
           </color>
         </color>
-        <pv_name></pv_name>
-      </roi>
-      <roi>
-        <visible>true</visible>
-        <name>ROI 2</name>
-        <color>
-          <color red="255" green="0" blue="0">
-          </color>
-        </color>
-        <pv_name></pv_name>
+        <x_pv></x_pv>
+        <y_pv></y_pv>
+        <width_pv></width_pv>
+        <height_pv></height_pv>
       </roi>
     </rois>
   </widget>

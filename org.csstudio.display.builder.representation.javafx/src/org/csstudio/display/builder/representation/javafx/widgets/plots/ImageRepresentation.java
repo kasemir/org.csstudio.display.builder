@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget.AxisWidgetProperty;
+import org.csstudio.display.builder.model.widgets.plots.ImageWidget.ROIWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
@@ -31,6 +32,7 @@ import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueFactory;
 
+import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.Pane;
 
 /** Creates JavaFX item for model widget
@@ -57,6 +59,13 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
                                        cursor_info_names,
                                        Arrays.asList(new ArrayDouble(x), new ArrayDouble(y), new ArrayDouble(value))));
         }
+
+        @Override
+        public void changedROI(final String name, final Rectangle2D region)
+        {
+            // TODO Auto-generated method stub
+            System.out.println(name + " moved to " + region);
+        }
     };
 
     @Override
@@ -65,6 +74,20 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         // Plot is only active in runtime mode, not edit mode
         image_plot = new RTImagePlot(! toolkit.isEditMode());
         image_plot.setAutoscale(false);
+
+        if (! toolkit.isEditMode())
+        {
+            // Create ROIs once. Not allowing adding/removing ROIs in runtime.
+            for (ROIWidgetProperty roi : model_widget.miscROIs().getValue())
+            {
+                image_plot.addROI(roi.name().getValue(),
+                                  JFXUtil.convert(roi.color().getValue()),
+                                  roi.visible().getValue());
+                // TODO Show/hide ROI as roi.visible() changes
+                // TODO Bind, bidirectionally, ROI position to roi.x_value(), y_value(), wid, hei
+            }
+        }
+
         return new Pane(image_plot);
     }
 

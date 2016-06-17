@@ -181,7 +181,31 @@ public class ImageWidget extends VisibleWidget
 
     /** Structure for ROI */
     private static final WidgetPropertyDescriptor<WidgetColor> displayColor =
-            CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "color", Messages.PlotWidget_Color);
+        CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "color", Messages.PlotWidget_Color);
+
+    private static final WidgetPropertyDescriptor<String> behaviorXPVName =
+        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "x_pv", Messages.WidgetProperties_XPVName);
+
+    private static final WidgetPropertyDescriptor<String> behaviorYPVName =
+        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "y_pv", Messages.WidgetProperties_YPVName);
+
+    private static final WidgetPropertyDescriptor<String> behaviorWidthPVName =
+        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "width_pv", Messages.WidgetProperties_WidthPVName);
+
+    private static final WidgetPropertyDescriptor<String> behaviorHeightPVName =
+        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "height_pv", Messages.WidgetProperties_HeightPVName);
+
+    public static final WidgetPropertyDescriptor<VType> xValue =
+        CommonWidgetProperties.newRuntimeValue("x_value", Messages.WidgetProperties_X);
+
+    public static final WidgetPropertyDescriptor<VType> yValue =
+        CommonWidgetProperties.newRuntimeValue("y_value", Messages.WidgetProperties_Y);
+
+    public static final WidgetPropertyDescriptor<VType> widthValue =
+        CommonWidgetProperties.newRuntimeValue("width_value", Messages.WidgetProperties_Width);
+
+    public static final WidgetPropertyDescriptor<VType> heightValue =
+        CommonWidgetProperties.newRuntimeValue("height_value", Messages.WidgetProperties_Height);
 
     private final static StructuredWidgetProperty.Descriptor behaviorROI =
             new Descriptor(WidgetPropertyCategory.DISPLAY, "roi", "Region of Interest");
@@ -194,15 +218,27 @@ public class ImageWidget extends VisibleWidget
                   Arrays.asList(CommonWidgetProperties.positionVisible.createProperty(widget, true),
                                 CommonWidgetProperties.widgetName.createProperty(widget, name),
                                 displayColor.createProperty(widget, new WidgetColor(255, 0, 0)),
-                                CommonWidgetProperties.behaviorPVName.createProperty(widget, ""),
-                                CommonWidgetProperties.runtimeValue.createProperty(widget, null)));
+                                behaviorXPVName.createProperty(widget, ""),
+                                behaviorYPVName.createProperty(widget, ""),
+                                behaviorWidthPVName.createProperty(widget, ""),
+                                behaviorHeightPVName.createProperty(widget, ""),
+                                xValue.createProperty(widget, null),
+                                yValue.createProperty(widget, null),
+                                widthValue.createProperty(widget, null),
+                                heightValue.createProperty(widget, null) ));
         }
 
         public WidgetProperty<Boolean> visible()       { return getElement(0); }
         public WidgetProperty<String> name()           { return getElement(1); }
         public WidgetProperty<WidgetColor> color()     { return getElement(2); }
-        public WidgetProperty<String> pv_name()        { return getElement(3); }
-        public WidgetProperty<VType> value()           { return getElement(4); }
+        public WidgetProperty<String> x_pv()           { return getElement(3); }
+        public WidgetProperty<String> y_pv()           { return getElement(4); }
+        public WidgetProperty<String> width_pv()       { return getElement(5); }
+        public WidgetProperty<String> height_pv()      { return getElement(6); }
+        public WidgetProperty<VType> x_value()         { return getElement(7); }
+        public WidgetProperty<VType> y_value()         { return getElement(8); }
+        public WidgetProperty<VType> width_value()     { return getElement(9); }
+        public WidgetProperty<VType> height_value()    { return getElement(10); }
     };
 
     /** 'roi' array */
