@@ -7,7 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
+
 import java.text.DecimalFormat;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -349,11 +352,17 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
             active = true;
             try
             {
-                double newval = VTypeUtil.getValueNumber( model_widget.runtimeValue().getValue() ).doubleValue();
+                VType vtype = model_widget.runtimeValue().getValue();
+                double newval = VTypeUtil.getValueNumber(vtype).doubleValue();
                 if (newval < min) newval = min;
                 else if (newval > max) newval = max;
                 if (!slider.isValueChanging())
+                {
+                    if(Double.isNaN(newval))
+                        logger.log(Level.WARNING, "Slider widget '"+model_widget.getName()+
+                                "' has PV with invalid value ("+newval+"): "+vtype);
                     slider.setValue(newval);
+                }
                 value = newval;
             }
             finally
@@ -373,7 +382,6 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         if (dirty_look.checkAndClear())
         {
             final boolean horizontal = model_widget.displayHorizontal().getValue();
-            Node slider = jfx_node.getChildren().get(0);
             ((Slider)slider).setOrientation(horizontal ? Orientation.HORIZONTAL : Orientation.VERTICAL);
             if (model_widget.displayShowMarkers().getValue())
             {
