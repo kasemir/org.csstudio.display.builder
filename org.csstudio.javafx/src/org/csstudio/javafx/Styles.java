@@ -9,6 +9,9 @@ package org.csstudio.javafx;
 
 import javafx.scene.Scene;
 
+/** Helper for dealing with styles
+ *  @author Kay Kasemir
+ */
 @SuppressWarnings("nls")
 public class Styles
 {
