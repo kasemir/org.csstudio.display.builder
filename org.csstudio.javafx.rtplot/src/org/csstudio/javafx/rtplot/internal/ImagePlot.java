@@ -108,6 +108,8 @@ public class ImagePlot extends PlotCanvasBase
 
     private volatile RTImagePlotListener plot_listener = null;
 
+    private Tracker roi_tracker;
+
     /** Constructor
      *  @param active Active mode where plot reacts to mouse/keyboard?
      */
@@ -386,6 +388,9 @@ public class ImagePlot extends PlotCanvasBase
         return SwingFXUtils.toFXImage(image, null);
     }
 
+    /** @param roi RegionOfInterest
+     *  @return Screen coordinates
+     */
     private Rectangle2D roiToScreen(final RegionOfInterest roi)
     {
         final int x0 = x_axis.getScreenCoord(roi.getRegion().getMinX()),
@@ -397,6 +402,9 @@ public class ImagePlot extends PlotCanvasBase
         return new Rectangle2D(x, y, Math.abs(x1-x0), Math.abs(y1-y0));
     }
 
+    /** @param roi RegionOfInterest to move to new location
+     *  @param screen_pos Screen position, will be converted into axes' values
+     */
     private void updateRoiFromScreen(final RegionOfInterest roi, final Rectangle2D screen_pos)
     {
         final double x0 = x_axis.getValue((int)screen_pos.getMinX()),
@@ -409,8 +417,22 @@ public class ImagePlot extends PlotCanvasBase
         roi.setRegion(region);
         requestUpdate();
         // TODO Notify a listener of ROI change
+        System.out.println(roi.getName() + " moved to " + roi.getRegion());
     }
 
+    /** If there is a ROI tracker, remove it */
+    private void removeROITracker()
+    {
+        if (roi_tracker != null)
+        {
+            ChildCare.removeChild(getParent(), roi_tracker);
+            roi_tracker = null;
+        }
+    }
+
+    /** @param gc GC for off-screen image
+     *  @param roi RegionOfInterest to draw
+     */
     private void drawROI(final Graphics2D gc, final RegionOfInterest roi)
     {
         gc.setColor(GraphicsUtils.convert(roi.getColor()));
@@ -419,6 +441,11 @@ public class ImagePlot extends PlotCanvasBase
         gc.drawString(roi.getName(), (int)rect.getMinX(), (int)rect.getMinY());
     }
 
+    /** @param min Value ..
+     *  @param max .. range
+     *  @param color_mapping Color mapping info
+     *  @return Off-screen image
+     */
     private BufferedImage drawColorBar(final double min, final double max, final DoubleFunction<Color> color_mapping)
     {
         final BufferedImage image = new BufferedImage(1, 256, BufferedImage.TYPE_INT_ARGB);
@@ -542,17 +569,28 @@ public class ImagePlot extends PlotCanvasBase
         // Don't start mouse actions when user invokes context menu
         if (! e.isPrimaryButtonDown()  ||  (PlatformInfo.is_mac_os_x && e.isControlDown()))
             return;
+
+        // Received a click while a tacker is active
+        // -> User clicked outside of tracker. Remove it.
+        if (roi_tracker != null)
+        {
+            removeROITracker();
+            // Don't cause accidental 'zoom out' etc.
+            // User needs to click again for that.
+            return;
+        }
+
+        // Select any tracker
         final Point2D current = new Point2D(e.getX(), e.getY());
         for (RegionOfInterest roi : rois.values())
         {
             final Rectangle2D rect = roiToScreen(roi);
             if (rect.contains(current))
             {
-                final Tracker tracker = new Tracker();
-                tracker.setPosition(rect);
-                ChildCare.addChild(getParent(), tracker);
-                tracker.setListener((old_pos, new_pos) -> updateRoiFromScreen(roi, new_pos));
-                // TODO remove tracker
+                roi_tracker = new Tracker();
+                roi_tracker.setPosition(rect);
+                ChildCare.addChild(getParent(), roi_tracker);
+                roi_tracker.setListener((old_pos, new_pos) -> updateRoiFromScreen(roi, new_pos));
                 return;
             }
         }
@@ -656,7 +694,7 @@ public class ImagePlot extends PlotCanvasBase
         {   // Mouse 'y' increases going _down_ the screen
             if (Math.abs(start.getY() - current.getY()) > ZOOM_PIXEL_THRESHOLD)
             {
-                final int high = (int)Math.min(start.getY(), current.getY());
+                final int high = (int) Math.min(start.getY(), current.getY());
                 final int low = (int) Math.max(start.getY(), current.getY());
                 final AxisRange<Double> original_y_range = y_axis.getValueRange();
                 final AxisRange<Double> new_y_range = new AxisRange<>(Math.max(min_y, y_axis.getValue(low)),
@@ -703,6 +741,9 @@ public class ImagePlot extends PlotCanvasBase
     @Override
     protected void zoomInOut(final double x, final double y, final double factor)
     {
+        // In case ROI is visible, hide because zoom invalidates the tracker position on the screen
+        removeROITracker();
+
         final boolean zoom_x = x_axis.getBounds().contains(x, y);
         final boolean zoom_y = y_axis.getBounds().contains(x, y);
         final boolean zoom_both = image_area.getBounds().contains(x, y);
