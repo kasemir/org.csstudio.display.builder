@@ -13,18 +13,20 @@ import javafx.geometry.Orientation;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
  */
-public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, ScrollBarWidget>
+public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar, ScrollBarWidget>
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_value = new DirtyFlag();
 
     private volatile double min = 0.0;
     private volatile double max = 100.0;
-    private volatile boolean active = false;
+    private volatile boolean active = false; //is updating UI to match PV?
+    private volatile boolean isValueChanging = false; //is user interacting with UI (need to suppress UI updates)?
 
     @Override
     protected ScrollBar createJFXNode() throws Exception
@@ -32,7 +34,6 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
         ScrollBar scrollbar = new ScrollBar();
         scrollbar.setOrientation(model_widget.displayHorizontal().getValue() ? Orientation.VERTICAL : Orientation.HORIZONTAL);
         scrollbar.setFocusTraversable(true);
-        scrollbar.setTooltip(new Tooltip(""));
         scrollbar.setOnKeyPressed((final KeyEvent event) ->
         {
             switch (event.getCode())
@@ -52,6 +53,26 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
             default: break;
             }
         });
+        //do not respond to mouse clicks in edit mode
+        if (toolkit.isEditMode())
+        {
+            scrollbar.addEventFilter(MouseEvent.MOUSE_PRESSED,(event) ->
+            {
+                event.consume();
+                toolkit.fireClick(model_widget, event.isControlDown());
+            });
+        }
+        else //prevent UI value update while actively changing
+        {
+            scrollbar.addEventFilter(MouseEvent.MOUSE_PRESSED,(event) ->
+            {
+                isValueChanging = true;
+            });
+            scrollbar.addEventFilter(MouseEvent.MOUSE_RELEASED,(event) ->
+            {
+                isValueChanging = false;
+            });
+        }
         limitsChanged(null, null, null);
 
         return scrollbar;
@@ -71,8 +92,7 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
         model_widget.behaviorPageIncrement().addPropertyListener(this::sizeChanged);
 
         //Since both the widget's PV value and the ScrollBar node's value property might be
-        //written to independently during runtime, both must be listened to. Since ChangeListeners
-        //only fire with an actual change, the listeners will not endlessly trigger each other.
+        //written to independently during runtime, both must be listened to.
         model_widget.runtimeValue().addPropertyListener(this::valueChanged);
         jfx_node.valueProperty().addListener(this::nodeValueChanged);
 
@@ -116,7 +136,15 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
     {
         if (active) return;
         if (model_widget.displayShowValueTip().getValue())
-            jfx_node.getTooltip().setText(""+new_value);
+        {
+            Tooltip tip = jfx_node.getTooltip();
+            if (tip != null)
+                tip.setText(""+new_value);
+            else
+                jfx_node.setTooltip(new Tooltip(""+new_value));
+        }
+        else
+            jfx_node.setTooltip(null);
         toolkit.fireWrite(model_widget, new_value);
     }
 
@@ -149,7 +177,8 @@ public class ScrollBarRepresentation extends JFXBaseRepresentation<ScrollBar, Sc
                 double newval = VTypeUtil.getValueNumber( model_widget.runtimeValue().getValue() ).doubleValue();
                 if (newval < min) newval = min;
                 else if (newval > max) newval = max;
-                jfx_node.setValue(newval);
+                if (!isValueChanging)
+                    jfx_node.setValue(newval);
             }
             finally
             {
