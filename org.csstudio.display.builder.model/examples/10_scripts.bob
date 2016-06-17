@@ -323,7 +323,6 @@ and the "Active" label moves next to the selected mode.</text>
     <name>Action Button</name>
     <x>411</x>
     <y>791</y>
-    <width>110</width>
     <height>30</height>
     <text>$(actions)</text>
     <actions>
@@ -336,16 +335,15 @@ and the "Active" label moves next to the selected mode.</text>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_1</name>
-    <x>551</x>
+    <x>531</x>
     <y>791</y>
-    <width>110</width>
     <height>30</height>
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>t3/t3.bob</file>
         <target>replace</target>
-        <description>TTT</description>
+        <description>Tic-Tac-Toe</description>
       </action>
     </actions>
   </widget>
@@ -367,11 +365,10 @@ and the "Active" label moves next to the selected mode.</text>
     <y>701</y>
     <width>430</width>
     <height>83</height>
-    <text>These examples include scripts that remains active
-as long as the display is open, continuously updating
-the widgets in the display,
-or use a script that performs a comparably lengthy computation
-before updating the display.</text>
+    <text>These examples include scripts that remain active as long
+as the display is open, continuously updating the widgets
+in the display, or use a script that performs a comparably
+lengthy computation before updating the display.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_22</name>
@@ -445,9 +442,8 @@ from new locations.</text>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_2</name>
-    <x>691</x>
+    <x>643</x>
     <y>791</y>
-    <width>110</width>
     <height>30</height>
     <text>$(actions)</text>
     <actions>
@@ -455,6 +451,20 @@ from new locations.</text>
         <file>webservice/webservice.bob</file>
         <target>replace</target>
         <description>Web Service</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_3</name>
+    <x>771</x>
+    <y>791</y>
+    <height>30</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>sudoku/sudoku.bob</file>
+        <target>replace</target>
+        <description>Sudoku</description>
       </action>
     </actions>
   </widget>

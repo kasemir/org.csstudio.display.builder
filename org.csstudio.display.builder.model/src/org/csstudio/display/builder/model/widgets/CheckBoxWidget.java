@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorBit;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
@@ -23,6 +24,8 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
+import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.diirt.vtype.VType;
 
 @SuppressWarnings("nls")
@@ -56,6 +59,7 @@ public class CheckBoxWidget extends VisibleWidget
     private volatile WidgetProperty<Integer> bit;
     private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<String> label;
+    private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<Boolean> auto_size;
 
     @Override
@@ -66,6 +70,7 @@ public class CheckBoxWidget extends VisibleWidget
         properties.add(bit = behaviorBit.createProperty(this, 0));
         properties.add(value = runtimeValue.createProperty(this, null));
         properties.add(label = displayLabel.createProperty(this, Messages.Checkbox_Label));
+        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(auto_size = displayAutoSize.createProperty(this, false));
     }
 
@@ -90,6 +95,12 @@ public class CheckBoxWidget extends VisibleWidget
     public WidgetProperty<String> displayLabel()
     {
         return label;
+    }
+
+    /** @return Display 'font' */
+    public WidgetProperty<WidgetFont> displayFont()
+    {
+        return font;
     }
 
     /** @return Display 'auto_size' */
