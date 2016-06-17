@@ -62,13 +62,23 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
     public static class Descriptor<WPE extends WidgetProperty<?>> extends WidgetPropertyDescriptor<List<WPE>>
     {
         final private ElementFactory<WPE> factory;
+        final private int minimum_size;
 
         public Descriptor(final WidgetPropertyCategory category,
                           final String name, final String description,
                           final ElementFactory<WPE> factory)
         {
-            super(category, name, description);
-            this.factory = factory;
+            this(category, name, description, factory, 1);
+        }
+
+        public Descriptor(final WidgetPropertyCategory category,
+                final String name, final String description,
+                final ElementFactory<WPE> factory,
+                final int minimum_size)
+        {
+          super(category, name, description);
+          this.factory = factory;
+          this.minimum_size = minimum_size;
         }
 
         @Override
@@ -123,6 +133,12 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
         return value.size();
     }
 
+    /** @return Minimum array size */
+    public int getMinimumSize()
+    {
+        return ((Descriptor<WPE>)descriptor).minimum_size;
+    }
+
     /** Access element
      *  @param index Element index, 0 .. (<code>getValue().size()</code>-1)
      *  @return Element of array
@@ -137,7 +153,9 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
      *  @throws IndexOutOfBoundsException if list is empty
      */
     public WPE removeElement()
-    {
+    {   // Not fully thread safe. Two concurrent callers would each check, then remove the last element.
+        if (value.size()-1 < getMinimumSize())
+            throw new IndexOutOfBoundsException("Minimum list size is " + getMinimumSize());
         final WPE removed = value.remove(value.size()-1);
         firePropertyChange(Arrays.asList(removed), null);
         return removed;

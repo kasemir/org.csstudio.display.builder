@@ -29,20 +29,28 @@ one for the "X" and one for the "Y" axis.</text>
     <show_legend>false</show_legend>
     <traces>
       <trace>
+        <name></name>
         <x_pv>sim://sawtooth(0, 100, 100, 1, 0, 102)</x_pv>
         <y_pv>sim://sinewave(1, 50, 100, 0.1, 70, 90)</y_pv>
+        <axis>0</axis>
         <color>
           <color red="0" green="0" blue="255">
           </color>
         </color>
+        <point_type>0</point_type>
+        <point_size>10</point_size>
       </trace>
       <trace>
+        <name></name>
         <x_pv>sim://sawtooth(0, 100, 100, 1, 0, 102)</x_pv>
         <y_pv>sim://sinewave(1, 50, 100, 0.1, 10, 100)</y_pv>
+        <axis>0</axis>
         <color>
           <color red="0" green="255" blue="0">
           </color>
         </color>
+        <point_type>0</point_type>
+        <point_size>10</point_size>
       </trace>
     </traces>
   </widget>

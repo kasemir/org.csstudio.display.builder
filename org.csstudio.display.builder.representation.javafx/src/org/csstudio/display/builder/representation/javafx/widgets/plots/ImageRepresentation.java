@@ -9,6 +9,8 @@ package org.csstudio.display.builder.representation.javafx.widgets.plots;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -20,11 +22,14 @@ import org.csstudio.display.builder.model.widgets.plots.ImageWidget.AxisWidgetPr
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
-import org.csstudio.javafx.rtplot.ImagePlot;
+import org.csstudio.javafx.rtplot.RTImagePlot;
+import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.diirt.util.array.ArrayByte;
+import org.diirt.util.array.ArrayDouble;
 import org.diirt.vtype.VImage;
 import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
+import org.diirt.vtype.ValueFactory;
 
 import javafx.scene.layout.Pane;
 
@@ -36,12 +41,29 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 {
     private final DirtyFlag dirty_position = new DirtyFlag();
 
-    /** Actual plotting delegated to {@link ImagePlot} */
-    private final ImagePlot image_plot = new ImagePlot();
+    /** Actual plotting delegated to {@link RTImagePlot} */
+    private RTImagePlot image_plot;
+
+    private final static List<String> cursor_info_names = Arrays.asList("X", "Y", "Value");
+    private final static List<Class<?>> cursor_info_types = Arrays.asList(Double.TYPE, Double.TYPE, Double.TYPE);
+
+    private final RTImagePlotListener plot_listener = new RTImagePlotListener()
+    {
+        @Override
+        public void changedCursorLocation(final double x, final double y, final double value)
+        {
+            model_widget.runtimeCursorInfo().setValue(
+                ValueFactory.newVTable(cursor_info_types,
+                                       cursor_info_names,
+                                       Arrays.asList(new ArrayDouble(x), new ArrayDouble(y), new ArrayDouble(value))));
+        }
+    };
 
     @Override
     public Pane createJFXNode() throws Exception
     {
+        // Plot is only active in runtime mode, not edit mode
+        image_plot = new RTImagePlot(! toolkit.isEditMode());
         image_plot.setAutoscale(false);
         return new Pane(image_plot);
     }
@@ -68,6 +90,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.behaviorDataWidth().addUntypedPropertyListener(this::contentChanged);
         model_widget.behaviorDataHeight().addUntypedPropertyListener(this::contentChanged);
         model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
+
+        image_plot.setListener(plot_listener);
 
         // Initial update
         colormapChanged(null, null, model_widget.displayDataColormap().getValue());
@@ -104,6 +128,10 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         image_plot.showColorMap(model_widget.displayColorbar().visible().getValue());
         image_plot.setColorMapSize(model_widget.displayColorbar().barSize().getValue());
         image_plot.setColorMapFont(JFXUtil.convert(model_widget.displayColorbar().scaleFont().getValue()));
+        image_plot.setAxisRange(model_widget.displayXAxis().minimum().getValue(),
+                                model_widget.displayXAxis().maximum().getValue(),
+                                model_widget.displayYAxis().minimum().getValue(),
+                                model_widget.displayYAxis().maximum().getValue());
         axisChanged(model_widget.displayXAxis(), image_plot.getXAxis());
         axisChanged(model_widget.displayYAxis(), image_plot.getYAxis());
         image_plot.setAutoscale(model_widget.behaviorDataAutoscale().getValue());
@@ -115,7 +143,6 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     {
         axis.setVisible(property.visible().getValue());
         axis.setName(property.title().getValue());
-        axis.setValueRange(property.minimum().getValue(), property.maximum().getValue());
         axis.setLabelFont(JFXUtil.convert(property.titleFont().getValue()));
         axis.setScaleFont(JFXUtil.convert(property.scaleFont().getValue()));
     }
@@ -147,8 +174,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         {
             final int w = model_widget.positionWidth().getValue();
             final int h = model_widget.positionHeight().getValue();
-            image_plot.setWidth(w);
-            image_plot.setHeight(h);
+            image_plot.setPrefWidth(w);
+            image_plot.setPrefHeight(h);
         }
         image_plot.requestUpdate();
     }

@@ -23,13 +23,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 
-import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.PlatformInfo;
-import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.Messages;
@@ -40,20 +36,13 @@ import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeAxisRanges;
 import org.csstudio.javafx.rtplot.internal.undo.UpdateAnnotationAction;
 import org.csstudio.javafx.rtplot.internal.util.ScreenTransform;
-import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
 
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
-import javafx.scene.ImageCursor;
-import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 
 /** Plot with axes and area that displays the traces
  *
@@ -65,55 +54,18 @@ import javafx.scene.input.ScrollEvent;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements PaintListener, MouseListener, MouseMoveListener, MouseTrackListener
+public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 {
-    final private static int ARROW_SIZE = 8;
-
-    private static final double ZOOM_FACTOR = 1.5;
-
-    /** When using 'rubberband' to zoom in, need to select a region
-     *  at least this wide resp. high.
-     *  Smaller regions are likely the result of an accidental
-     *  click-with-jerk, which would result into a huge zoom step.
-     */
-    private static final int ZOOM_PIXEL_THRESHOLD = 20;
-
-    /** Support for un-do and re-do */
-    final private UndoableActionManager undo = new UndoableActionManager(50);
-
     /** Background color */
     private volatile Color background = Color.WHITE;
 
     public static final String FONT_FAMILY = "Liberation Sans";
-
-    // TODO Static cursors, init. once
-    private Cursor cursor_pan, cursor_zoom_in, cursor_zoom_out;
 
     /** Font to use for, well, title */
     private volatile Font title_font = new Font(FONT_FAMILY, Font.BOLD, 18);
 
     /** Font to use for legend */
     private volatile Font legend_font = new Font(FONT_FAMILY, Font.PLAIN, 12);
-
-    /** Area of this canvas */
-    private volatile Rectangle area = new Rectangle(0, 0, 0, 0);
-
-    /** Does layout need to be re-computed? */
-    final private AtomicBoolean need_layout = new AtomicBoolean(true);
-
-    /** Buffer for image of axes, plot area, but not mouse feedback.
-     *
-     *  <p>UpdateThrottle calls updateImageBuffer() to set the image
-     *  in its thread, PaintListener draws it in UI thread,
-     *  and getImage() may hand a safe copy for printing, saving, e-mailing.
-     *
-     *  <p>Synchronizing to access one and the same image
-     *  deadlocks on Linux, so a new image is created for updates.
-     *  To avoid access to disposed image, SYNC on the actual image during access.
-     */
-    private volatile Optional<Image> plot_image = Optional.empty();
-
-    final private RTPlotUpdateThrottle update_throttle;
 
     final private TitlePart title_part;
     final private List<Trace<XTYPE>> traces = new CopyOnWriteArrayList<>();
@@ -126,22 +78,8 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
 
     final private PlotProcessor<XTYPE> plot_processor;
 
-    final private Runnable redraw_runnable = () ->
-    {
-    	final GraphicsContext gc = getGraphicsContext2D();
-    	final Image image = plot_image.orElse(null);
-    	if (image != null)
-    		synchronized (image)
-    		{
-    			gc.drawImage(image, 0, 0);
-    		}
-    	drawMouseModeFeedback(gc);
-    };
-
     private boolean show_crosshair = false;
-    private MouseMode mouse_mode = MouseMode.NONE;
-    private Optional<Point2D> mouse_start = Optional.empty();
-    private volatile Optional<Point2D> mouse_current = Optional.empty();
+
     private AxisRange<XTYPE> mouse_start_x_range;
     private List<AxisRange<Double>> mouse_start_y_ranges = new ArrayList<>();
     private int mouse_y_axis = -1;
@@ -151,40 +89,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     private Point2D mouse_annotation_start_offset;
     private XTYPE mouse_annotation_start_position;
     private double mouse_annotation_start_value;
-
-
-    /** Listener to X Axis {@link PlotPart} */
-    private final PlotPartListener x_axis_listener = new PlotPartListener()
-    {
-        @Override
-        public void layoutPlotPart(final PlotPart plotPart)
-        {
-            need_layout.set(true);
-        }
-
-        @Override
-        public void refreshPlotPart(final PlotPart plotPart)
-        {
-//            updateCursor();
-            requestUpdate();
-        }
-    };
-
-    /** Listener to Title, Y Axis and plot area {@link PlotPart}s */
-    private final PlotPartListener plot_part_listener = new PlotPartListener()
-    {
-        @Override
-        public void layoutPlotPart(final PlotPart plotPart)
-        {
-            need_layout.set(true);
-        }
-
-        @Override
-        public void refreshPlotPart(final PlotPart plotPart)
-        {
-            requestUpdate();
-        }
-    };
 
     final private List<RTPlotListener<XTYPE>> listeners = new CopyOnWriteArrayList<>();
 
@@ -197,6 +101,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Plot(final Class<XTYPE> type, final boolean active)
     {
+        super(active);
         plot_processor = new PlotProcessor<XTYPE>(this);
 
         // To avoid unchecked cast, X axis would need to be passed in,
@@ -204,9 +109,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         // When passing X axis in, its listener needs to be set
         // in here, but an axis design with final listener was preferred.
         if (type == Double.class)
-            x_axis = (AxisPart) new HorizontalNumericAxis("X", x_axis_listener);
+            x_axis = (AxisPart) new HorizontalNumericAxis("X", plot_part_listener);
         else if (type == Instant.class)
-            x_axis = (AxisPart) TimeAxis.forDuration("Time", x_axis_listener, Duration.ofMinutes(2));
+            x_axis = (AxisPart) TimeAxis.forDuration("Time", plot_part_listener, Duration.ofMinutes(2));
         else
             throw new IllegalArgumentException("Cannot handle " + type.getName());
 
@@ -215,53 +120,15 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         plot_area = new PlotPart("main", plot_part_listener);
         legend = new LegendPart<XTYPE>("legend", plot_part_listener);
 
-        initializeCursors();
-
-        // 50Hz default throttle
-        update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
-        {
-            plot_processor.autoscale();
-            updateImageBuffer();
-            redrawSafely();
-        });
-
-        final ChangeListener<? super Number> resize_listener = (prop, old, value) ->
-        {
-        	area = new Rectangle((int)getWidth(), (int)getHeight());
-        	need_layout.set(true);
-        	requestUpdate();
-        };
-		widthProperty().addListener(resize_listener);
-		heightProperty().addListener(resize_listener);
-
 		if (active)
 		{
 		    setMouseMode(MouseMode.PAN);
-            setOnMouseEntered(this::mouseEntered);
     		setOnMousePressed(this::mouseDown);
     		setOnMouseMoved(this::mouseMove);
     		setOnMouseDragged(this::mouseMove);
     		setOnMouseReleased(this::mouseUp);
     		setOnMouseExited(this::mouseExit);
-    		setOnScroll(this::wheelZoom);
 		}
-    }
-
-    private void initializeCursors()
-    {
-        try
-        {
-            cursor_pan = new ImageCursor(Activator.getIcon("cursor_pan"));
-            cursor_zoom_in = new ImageCursor(Activator.getIcon("cursor_zoom_in"));
-            cursor_zoom_out = new ImageCursor(Activator.getIcon("cursor_zoom_out"));
-        }
-        catch (Exception ex)
-        {
-            logger.log(Level.WARNING, "Error loading cursors", ex);
-            cursor_pan = Cursor.HAND;
-            cursor_zoom_in = Cursor.DEFAULT;
-            cursor_zoom_out = Cursor.DEFAULT;
-        }
     }
 
     /** @param listener Listener to add */
@@ -276,12 +143,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     {
         Objects.requireNonNull(listener);
         listeners.remove(listener);
-    }
-
-    /** @return {@link UndoableActionManager} for this plot */
-    public UndoableActionManager getUndoableActionManager()
-    {
-        return undo;
     }
 
     /** @param color Background color */
@@ -422,52 +283,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         requestUpdate();
     }
 
-    // TODO Get image for screenshot
-
-//    /** @return {@link Image} of current plot. Caller must dispose */
-//    public Image getImage()
-//    {
-//        Image image = plot_image.orElse(null);
-//        if (image != null)
-//            synchronized (image)
-//            {
-//                return new Image(display, image, SWT.IMAGE_COPY);
-//            }
-//        return new Image(display, 10, 10);
-//    }
-
-    /** Update the dormant time between updates
-     *  @param dormant_time How long throttle remains dormant after a trigger
-     *  @param unit Units for the dormant period
-     */
-    public void setUpdateThrottle(final long dormant_time, final TimeUnit unit)
-    {
-        update_throttle.setDormantTime(dormant_time, unit);
-    }
-
-    /** Request a complete redraw of the plot with new layout */
-    final public void requestLayout()
-    {
-        need_layout.set(true);
-        update_throttle.trigger();
-    }
-
-    /** Request a complete redraw of the plot */
-    final public void requestUpdate()
-    {
-        update_throttle.trigger();
-    }
-
-    /** Redraw the current image and cursors
-     *
-     *  <p>Like <code>redraw()</code>, but may be called
-     *  from any thread.
-     */
-    final void redrawSafely()
-    {
-    	Platform.runLater(redraw_runnable);
-    }
-
     /** Add Annotation to a trace,
      *  determining initial position based on some
      *  sample of that trace
@@ -537,32 +352,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         annotations.remove(annotation);
         requestUpdate();
         fireAnnotationsChanged();
-    }
-
-    /** Set cursor.
-     *
-     *  <p>There is already <code>Node.setCursor()</code>
-     *  which sets the cursor for just this node.
-     *  But that has no affect when JFX is hosted
-     *  inside an SWT FXCanvas.
-     *  (https://bugs.openjdk.java.net/browse/JDK-8088147)
-     *
-     *  <p>We set the cursor of the _scene_, and monitor
-     *  the scene's cursor in the RCP code that creates the
-     *  FXCanvas to then update the SWT cursor.
-     *
-     *  @param cursor
-     */
-    private void doSetCursor(final Cursor cursor)
-    {
-        if (cursor == getCursor())
-            return;
-
-        setCursor(cursor);
-
-        final Scene scene = getScene();
-        if (scene != null)
-            scene.setCursor(cursor);
     }
 
     /** Select Annotation at mouse position?
@@ -650,11 +439,14 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     }
 
     /** Draw all components into image buffer */
-    private void updateImageBuffer()
+    @Override
+    protected Image updateImageBuffer()
     {
         final Rectangle area_copy = area;
         if (area_copy.width <= 0  ||  area_copy.height <= 0)
-            return;
+            return null;
+
+        plot_processor.autoscale();
 
         final BufferedImage image = new BufferedImage(area_copy.width, area_copy.height, BufferedImage.TYPE_INT_ARGB);
         final Graphics2D gc = image.createGraphics();
@@ -696,23 +488,22 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
 
         gc.dispose();
 
-        // Update image
-        // TODO Re-use existing plot_image? Then need to SYNC
-        plot_image = Optional.of(SwingFXUtils.toFXImage(image, null));
+        // Convert to JFX
+        return SwingFXUtils.toFXImage(image, null);
     }
 
     /** Draw visual feedback (rubber band rectangle etc.)
      *  for current mouse mode
      *  @param gc GC
      */
-    private void drawMouseModeFeedback(final GraphicsContext gc)
+    @Override
+    protected void drawMouseModeFeedback(final GraphicsContext gc)
     {   // Safe copy, then check null (== isPresent())
         final Point2D current = mouse_current.orElse(null);
         if (current == null)
             return;
 
         final Point2D start = mouse_start.orElse(null);
-
         final Rectangle plot_bounds = plot_area.getBounds();
 
         if (mouse_mode == MouseMode.PAN_X  ||  mouse_mode == MouseMode.PAN_Y || mouse_mode == MouseMode.PAN_PLOT)
@@ -736,96 +527,26 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         if (mouse_mode == MouseMode.ZOOM_IN  ||  mouse_mode == MouseMode.ZOOM_OUT)
         {   // Update mouse pointer in ready-to-zoom mode
             if (plot_bounds.contains(current.getX(), current.getY()))
-                doSetCursor(mouse_mode == MouseMode.ZOOM_IN ? cursor_zoom_in : cursor_zoom_out);
+                PlotCursors.setCursor(this, mouse_mode);
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
-                doSetCursor(Cursor.H_RESIZE);
+                PlotCursors.setCursor(this, Cursor.H_RESIZE);
             else
             {
                 for (YAxisImpl<XTYPE> axis : y_axes)
                     if (axis.getBounds().contains(current.getX(), current.getY()))
                     {
-                        doSetCursor(Cursor.V_RESIZE);
+                        PlotCursors.setCursor(this, Cursor.V_RESIZE);
                         return;
                     }
-                doSetCursor(Cursor.DEFAULT);
+                PlotCursors.setCursor(this, Cursor.DEFAULT);
             }
         }
         else if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
-        {
-            final int left = (int) Math.min(start.getX(), current.getX());
-            final int right = (int) Math.max(start.getX(), current.getX());
-            final int width = right - left;
-            final int mid_y = plot_bounds.y + plot_bounds.height / 2;
-            // Range on axis
-            gc.strokeRect(left, start.getY(), width, 1);
-            // Left, right vertical bar
-            gc.strokeLine(left, plot_bounds.y, left, plot_bounds.y + plot_bounds.height);
-            gc.strokeLine(right, plot_bounds.y, right, plot_bounds.y + plot_bounds.height);
-            if (width >= 5*ARROW_SIZE)
-            {
-                gc.strokeLine(left, mid_y, left + 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(left+ARROW_SIZE, mid_y-ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(left+ARROW_SIZE, mid_y+ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
-
-                gc.strokeLine(right, mid_y, right - 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(right-ARROW_SIZE, mid_y-ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(right-ARROW_SIZE, mid_y+ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
-            }
-        }
+            drawZoomXMouseFeedback(gc, plot_bounds, start, current);
         else if (mouse_mode == MouseMode.ZOOM_IN_Y  &&  start != null)
-        {
-            final int top = (int) Math.min(start.getY(), current.getY());
-            final int bottom = (int) Math.max(start.getY(), current.getY());
-            final int height = bottom - top;
-            final int mid_x = plot_bounds.x + plot_bounds.width / 2;
-            // Range on axis
-            gc.strokeRect(start.getX(), top, 1, height);
-            // Top, bottom horizontal bar
-            gc.strokeLine(plot_bounds.x, top, plot_bounds.x + plot_bounds.width, top);
-            gc.strokeLine(plot_bounds.x, bottom, plot_bounds.x + plot_bounds.width, bottom);
-            if (height >= 5 * ARROW_SIZE)
-            {
-                gc.strokeLine(mid_x, top, mid_x, top + 2*ARROW_SIZE);
-                gc.strokeLine(mid_x-ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
-                gc.strokeLine(mid_x+ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
-
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x, bottom);
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x-ARROW_SIZE, bottom - ARROW_SIZE);
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x+ARROW_SIZE, bottom - ARROW_SIZE);
-            }
-        }
+            drawZoomYMouseFeedback(gc, plot_bounds, start, current);
         else if (mouse_mode == MouseMode.ZOOM_IN_PLOT  &&  start != null)
-        {
-            final int left = (int) Math.min(start.getX(), current.getX());
-            final int right = (int) Math.max(start.getX(), current.getX());
-            final int top = (int) Math.min(start.getY(), current.getY());
-            final int bottom = (int) Math.max(start.getY(), current.getY());
-            final int width = right - left;
-            final int height = bottom - top;
-            final int mid_x = left + width / 2;
-            final int mid_y = top + height / 2;
-            gc.strokeRect(left, top, width, height);
-            if (width >= 5*ARROW_SIZE)
-            {
-                gc.strokeLine(left, mid_y, left + 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(left+ARROW_SIZE, mid_y-ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(left+ARROW_SIZE, mid_y+ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
-
-                gc.strokeLine(right, mid_y, right - 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(right-ARROW_SIZE, mid_y-ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(right-ARROW_SIZE, mid_y+ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
-            }
-            if (height >= 5*ARROW_SIZE)
-            {
-                gc.strokeLine(mid_x, top, mid_x, top + 2*ARROW_SIZE);
-                gc.strokeLine(mid_x-ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
-                gc.strokeLine(mid_x+ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
-
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x, bottom);
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x-ARROW_SIZE, bottom - ARROW_SIZE);
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x+ARROW_SIZE, bottom - ARROW_SIZE);
-            }
-        }
+            drawZoomMouseFeedback(gc, plot_bounds, start, current);
     }
 
     /** @param show Show the cross-hair cursor? */
@@ -838,37 +559,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     public boolean isCrosshairVisible()
     {
         return show_crosshair;
-    }
-
-    /** @param mode New {@link MouseMode}
-     *  @throws IllegalArgumentException if mode is internal
-     */
-    public void setMouseMode(final MouseMode mode)
-    {
-        if (mode.ordinal() >= MouseMode.INTERNAL_MODES.ordinal())
-            throw new IllegalArgumentException("Not permitted to set " + mode);
-        mouse_mode = mode;
-
-        switch (mode)
-        {
-        case PAN:
-        	doSetCursor(cursor_pan);
-            break;
-        case ZOOM_IN:
-            doSetCursor(cursor_zoom_in);
-            break;
-        case ZOOM_OUT:
-            doSetCursor(cursor_zoom_out);
-            break;
-        default:
-            doSetCursor(Cursor.DEFAULT);
-        }
-    }
-
-    /** onMouseEntered */
-    private void mouseEntered(final MouseEvent e)
-    {
-        getScene().setCursor(getCursor());
     }
 
     /** onMousePressed */
@@ -910,18 +600,18 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
                 {
                     mouse_y_axis = i;
                     mouse_mode = MouseMode.ZOOM_IN_Y;
-                    doSetCursor(Cursor.CROSSHAIR);
+                    PlotCursors.setCursor(this, mouse_mode);
                     return;
                 }
             if (plot_area.getBounds().contains(current.getX(), current.getY()))
             {
                 mouse_mode = MouseMode.ZOOM_IN_PLOT;
-                doSetCursor(Cursor.CROSSHAIR);
+                PlotCursors.setCursor(this, mouse_mode);
             }
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
             {
                 mouse_mode = MouseMode.ZOOM_IN_X;
-                doSetCursor(Cursor.CROSSHAIR);
+                PlotCursors.setCursor(this, mouse_mode);
             }
         }
         else if (mouse_mode == MouseMode.ZOOM_OUT)
@@ -1092,28 +782,13 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         }
     }
 
-    /** Zoom in/out triggered by mouse wheel
-     *  @param event Scroll event
-     */
-    private void wheelZoom(final ScrollEvent event)
-    {
-        // Invoked by mouse scroll wheel.
-        // Only allow zoom (with control), not pan.
-        if (! event.isControlDown())
-            return;
-
-        if (event.getDeltaY() > 0)
-            zoomInOut(event.getX(), event.getY(), 1.0/ZOOM_FACTOR);
-        else if (event.getDeltaY() < 0)
-            zoomInOut(event.getX(), event.getY(), ZOOM_FACTOR);
-    }
-
     /** Zoom 'in' or 'out' from where the mouse was clicked
      *  @param x Mouse coordinate
      *  @param y Mouse coordinate
      *  @param factor Zoom factor, positive to zoom 'out'
      */
-    private void zoomInOut(final double x, final double y, final double factor)
+    @Override
+    protected void zoomInOut(final double x, final double y, final double factor)
     {
         if (x_axis.getBounds().contains(x, y))
         {   // Zoom X axis
@@ -1164,9 +839,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
         if (show_crosshair)
         {
             mouse_current = Optional.empty();
-            redraw_runnable.run();
+            redrawSafely();
         }
-        doSetCursor(null);
+        PlotCursors.setCursor(this, Cursor.DEFAULT);
     }
 
     /** Stagger the range of axes */
@@ -1208,12 +883,5 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends Canvas // implements 
     {
         for (RTPlotListener<XTYPE> listener : listeners)
             listener.changedToolbar(show);
-    }
-
-    /** Should be invoked when plot no longer used to release resources */
-    public void dispose()
-    {   // Stop updates which could otherwise still use
-        // what's about to be disposed
-        update_throttle.dispose();
     }
 }

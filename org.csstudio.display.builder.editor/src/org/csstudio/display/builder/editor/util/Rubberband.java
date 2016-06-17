@@ -56,6 +56,7 @@ public class Rubberband
         rect.setWidth(1);
         rect.setHeight(1);
         parent.getChildren().add(rect);
+        event.consume();
     }
 
     private void handleDrag(final MouseEvent event)
@@ -68,6 +69,7 @@ public class Rubberband
         rect.setY(Math.min(y0, y1));
         rect.setWidth(Math.abs(x1 - x0));
         rect.setHeight(Math.abs(y1 - y0));
+        event.consume();
     }
 
     private void handleStop(final MouseEvent event)
@@ -80,5 +82,6 @@ public class Rubberband
         active = false;
         handler.accept(new Rectangle2D(Math.min(x0, x1), Math.min(y0, y1),
                                        Math.abs(x1 - x0), Math.abs(y1 - y0)));
+        event.consume();
     }
 }

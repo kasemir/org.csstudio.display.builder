@@ -12,6 +12,7 @@ import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
@@ -26,6 +27,7 @@ import org.diirt.vtype.VNumber;
 import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VString;
 import org.diirt.vtype.VStringArray;
+import org.diirt.vtype.VTable;
 import org.diirt.vtype.VType;
 
 /** Utility for formatting data as string.
@@ -108,6 +110,8 @@ public class FormatOptionHandler
             final VImage image = (VImage) value;
             return "VImage(" + image.getWidth() + " x " + image.getHeight() + ")";
         }
+        else if (value instanceof VTable)
+            return formatTable((VTable) value);
 
         return "<" + value.getClass().getName() + ">";
     }
@@ -213,11 +217,119 @@ public class FormatOptionHandler
             return value.toString();
     }
 
+    /** @param value {@link VEnum}
+     *  @param option How to format it
+     *  @return Either the enum label or the index
+     */
     private static String formatEnum(final VEnum value, final FormatOption option)
     {
         if (option == FormatOption.DEFAULT  ||  option == FormatOption.STRING)
             return value.getValue();
         return Integer.toString(value.getIndex());
+    }
+
+    /** Format table as text
+     *
+     *  <p>A single-row table is formatted as "Col1: value, Col2: value, ...".
+     *  Otherwise, table is formatted aligned by width of each column:
+     *
+     *  <pre>
+     *  X     Column 2 Names
+     *  3     On       Fred
+     *  3.14  Off      Jane
+     *  3.345 On       Alan
+     *  </pre>
+     *
+     *  @param table {@link VTable}
+     *  @return Textual dump of the table
+     */
+    private static String formatTable(final VTable table)
+    {
+        final int rows = table.getRowCount(),  cols = table.getColumnCount();
+        final String[][] cell = new String[rows+1][cols];
+        final int[] width = new int[cols];
+
+        // Determine string for headers and each table cell
+        for (int c=0; c<cols; ++c)
+        {
+            cell[0][c] = table.getColumnName(c);
+
+            // Table columns use ListNumber for ListDouble or an integer-typed ListNumber
+            // Otherwise it's a List<?> for String, Instant, alarm, ...
+            final Object col = table.getColumnData(c);
+            if (col instanceof ListNumber)
+            {
+                final ListNumber list = (ListNumber) col;
+                if (table.getColumnType(c).equals(Integer.TYPE))
+                    for (int r=0; r<list.size(); ++r)
+                        cell[1+r][c] = Integer.toString(list.getInt(r));
+                else
+                    for (int r=0; r<list.size(); ++r)
+                        cell[1+r][c] = Double.toString(list.getDouble(r));
+                for (int r=list.size(); r<rows; ++r)
+                    cell[1+r][c] = "";
+            }
+            else
+            {
+                final List<?> list = (List<?>) col;
+                for (int r=0; r<list.size(); ++r)
+                    cell[1+r][c] = Objects.toString(list.get(r)); // handle null
+                for (int r=list.size(); r<rows; ++r)
+                    cell[1+r][c] = "";
+            }
+
+            // Determine maximum width of all cells in this column
+            for (int r=0; r<rows+1; ++r)
+                width[c] = Math.max(width[c], cell[r][c].length());
+        }
+
+        // Format cells into one big string
+        final StringBuilder buf = new StringBuilder();
+        if (rows == 1)
+        {   // Single-row
+            for (int c=0; c<cols; ++c)
+            {
+                if (c > 0)
+                    buf.append(", ");
+                buf.append(cell[0][c]);
+                buf.append(": ");
+                buf.append(cell[1][c]);
+            }
+        }
+        else
+        {   // Table header followed by rows
+            for (int c=0; c<cols; ++c)
+            {
+                if (c > 0)
+                    buf.append(' ');
+                buf.append(pad(cell[0][c], width[c]));
+            }
+            for (int r=1; r<rows+1; ++r)
+            {
+                buf.append('\n');
+                for (int c=0; c<cols; ++c)
+                {
+                    if (c > 0)
+                        buf.append(' ');
+                    buf.append(pad(cell[r][c], width[c]));
+                }
+            }
+        }
+
+        return buf.toString();
+    }
+
+    /** @param text Text
+     *  @param width Desired width
+     *  @return Text padded to desired width
+     */
+    private static String pad(final String text, final int width)
+    {
+        final StringBuilder buf = new StringBuilder(width);
+        buf.append(text);
+        for (int p=text.length(); p<width; ++p)
+            buf.append(' ');
+        return buf.toString();
     }
 
     /** @param value Array of numbers

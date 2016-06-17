@@ -151,7 +151,7 @@ public class WidgetRuntime<MW extends Widget>
             try
             {
                 final RuntimePV pv = PVFactory.getPV(pv_name);
-                synchronized (this)
+                synchronized (WidgetRuntime.this)
                 {
                     primary_pv = Optional.of(pv);
                 }
@@ -265,7 +265,7 @@ public class WidgetRuntime<MW extends Widget>
         if ((script_infos.size() > 0) || (rule_infos.size() > 0))
         {
             final List<RuntimeScriptHandler> handlers = new ArrayList<>(script_infos.size() + rule_infos.size());
-            
+
             for (final ScriptInfo script_info : script_infos)
             {
                 try
@@ -278,7 +278,7 @@ public class WidgetRuntime<MW extends Widget>
                         "Widget " + widget.getName() + " script " + script_info.getPath() + " failed to initialize", ex);
                 }
             }
-            
+
             for (final RuleInfo rule_info : rule_infos)
             {
                 try
@@ -291,11 +291,11 @@ public class WidgetRuntime<MW extends Widget>
                         "Widget " + widget.getName() + " rule " + rule_info.getName() + " failed to initialize", ex);
                 }
             }
-            
+
             script_handlers = handlers;
         }
-        
-        
+
+
 
         // Compile scripts invoked by actions
         final List<ActionInfo> actions = widget.behaviorActions().getValue();

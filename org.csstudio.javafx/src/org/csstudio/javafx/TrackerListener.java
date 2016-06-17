@@ -7,12 +7,17 @@
  ******************************************************************************/
 package org.csstudio.javafx;
 
-/** Platform Info
+import javafx.geometry.Rectangle2D;
+
+/** Listener to {@link Tracker}
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
-public class PlatformInfo
+@FunctionalInterface
+public interface TrackerListener
 {
-    /** Is JRE on Mac OS X ? */
-    public final static boolean is_mac_os_x = System.getProperty("os.name").contains("Mac");
+    /** Tracker has changed
+     *  @param original Original position
+     *  @param current Current position
+     */
+    public void trackerChanged(final Rectangle2D original, final Rectangle2D current);
 }

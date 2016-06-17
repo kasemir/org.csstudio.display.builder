@@ -14,6 +14,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.javafx.rtplot.internal.ImagePlot;
 import org.diirt.util.array.ArrayDouble;
 import org.diirt.util.array.ListDouble;
 
@@ -67,7 +68,7 @@ public class ImagePlotDemo extends Application
         for (Handler handler : Logger.getLogger("").getHandlers())
             handler.setLevel(level);
 
-        final ImagePlot plot = new ImagePlot();
+        final ImagePlot plot = new ImagePlot(true);
 
         plot.setColorMapping(ImagePlot.RAINBOW);
 
@@ -86,7 +87,6 @@ public class ImagePlotDemo extends Application
             show_colorbar = ! show_colorbar;
             plot.showColorMap(show_colorbar);
         }, 5000, 5000, TimeUnit.MILLISECONDS);
-
 
 		final Pane root = new Pane(plot);
 		plot.widthProperty().bind(root.widthProperty());

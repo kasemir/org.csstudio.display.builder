@@ -7,12 +7,18 @@
  ******************************************************************************/
 package org.csstudio.javafx;
 
-/** Platform Info
+import javafx.scene.Scene;
+
+/** Helper for dealing with styles
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class PlatformInfo
+public class Styles
 {
-    /** Is JRE on Mac OS X ? */
-    public final static boolean is_mac_os_x = System.getProperty("os.name").contains("Mac");
+    /** @param scene Scene where style sheet for csstudio is added */
+    public static void setSceneStyle(final Scene scene)
+    {
+        final String css = Styles.class.getResource("csstudio.css").toExternalForm();
+        scene.getStylesheets().add(css);
+    }
 }

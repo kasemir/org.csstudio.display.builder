@@ -68,6 +68,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepr
 import org.csstudio.display.builder.representation.javafx.widgets.WebBrowserRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation;
+import org.csstudio.javafx.Styles;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.RegistryFactory;
@@ -226,6 +227,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         // Fetch css relative to JFXRepresentation, not derived class
         final String css = JFXRepresentation.class.getResource("opibuilder.css").toExternalForm();
         scene.getStylesheets().add(css);
+
+        Styles.setSceneStyle(scene);
     }
 
 

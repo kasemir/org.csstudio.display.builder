@@ -298,7 +298,7 @@ public class PropertyPanelSection extends GridPane
             final ArrayWidgetProperty<WidgetProperty<?>> array = (ArrayWidgetProperty<WidgetProperty<?>>) property;
 
             // UI for changing array size
-            final Spinner<Integer> spinner = new Spinner<>(1, 100, 0);
+            final Spinner<Integer> spinner = new Spinner<>(array.getMinimumSize(), 100, 0);
             final ArraySizePropertyBinding count_binding = new ArraySizePropertyBinding(this, undo, spinner, array, other);
             bindings.add(count_binding);
             count_binding.bind();

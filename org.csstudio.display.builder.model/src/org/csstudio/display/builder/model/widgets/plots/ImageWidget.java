@@ -14,8 +14,10 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.StructuredWidgetProperty.Descriptor;
@@ -33,6 +35,7 @@ import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
 import org.diirt.vtype.VType;
@@ -140,6 +143,7 @@ public class ImageWidget extends VisibleWidget
         }
     };
 
+    /** Image data information */
     private static final WidgetPropertyDescriptor<Integer> dataWidth =
         new WidgetPropertyDescriptor<Integer>(
             WidgetPropertyCategory.BEHAVIOR, "data_width", Messages.WidgetProperties_DataWidth)
@@ -168,6 +172,46 @@ public class ImageWidget extends VisibleWidget
         CommonWidgetProperties.newBooleanPropertyDescriptor(
             WidgetPropertyCategory.BEHAVIOR, "unsigned", Messages.WidgetProperties_UnsignedData);
 
+    /** Runtime info about cursor location */
+    private static final WidgetPropertyDescriptor<String> cursorInfoPV =
+        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.MISC, "cursor_info_pv", Messages.WidgetProperties_CursorInfoPV);
+
+    private static final WidgetPropertyDescriptor<VType> cursorInfo =
+        CommonWidgetProperties.newRuntimeValue("cursor_info", Messages.WidgetProperties_CursorInfo);
+
+    /** Structure for ROI */
+    private static final WidgetPropertyDescriptor<WidgetColor> displayColor =
+            CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "color", Messages.PlotWidget_Color);
+
+    private final static StructuredWidgetProperty.Descriptor behaviorROI =
+            new Descriptor(WidgetPropertyCategory.DISPLAY, "roi", "Region of Interest");
+
+    public static class ROIWidgetProperty extends StructuredWidgetProperty
+    {
+        protected ROIWidgetProperty(final Widget widget, final String name)
+        {
+            super(behaviorROI, widget,
+                  Arrays.asList(CommonWidgetProperties.positionVisible.createProperty(widget, true),
+                                CommonWidgetProperties.widgetName.createProperty(widget, name),
+                                displayColor.createProperty(widget, new WidgetColor(255, 0, 0)),
+                                CommonWidgetProperties.behaviorPVName.createProperty(widget, ""),
+                                CommonWidgetProperties.runtimeValue.createProperty(widget, null)));
+        }
+
+        public WidgetProperty<Boolean> visible()       { return getElement(0); }
+        public WidgetProperty<String> name()           { return getElement(1); }
+        public WidgetProperty<WidgetColor> color()     { return getElement(2); }
+        public WidgetProperty<String> pv_name()        { return getElement(3); }
+        public WidgetProperty<VType> value()           { return getElement(4); }
+    };
+
+    /** 'roi' array */
+    public static final ArrayWidgetProperty.Descriptor<ROIWidgetProperty> miscROIs =
+        new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.MISC, "rois", "Regions of Interest",
+                                             (widget, index) -> new ROIWidgetProperty(widget, "ROI " + index),
+                                             0);
+
+    /** Configurator for legacy widgets */
     private class CustomWidgetConfigurator extends WidgetConfigurator
     {
         public CustomWidgetConfigurator(final Version xml_version)
@@ -205,14 +249,11 @@ public class ImageWidget extends VisibleWidget
                        .ifPresent(value -> image.y_axis.minimum().setValue(value));
                 XMLUtil.getChildDouble(xml, "y_axis_maximum")
                        .ifPresent(value -> image.y_axis.maximum().setValue(value));
-
-
             }
 
             return true;
         }
     }
-
 
     private volatile WidgetProperty<ColorMap> data_colormap;
     private volatile ColorBarProperty color_bar;
@@ -225,6 +266,9 @@ public class ImageWidget extends VisibleWidget
     private volatile WidgetProperty<Double> data_minimum;
     private volatile WidgetProperty<Double> data_maximum;
     private volatile WidgetProperty<Boolean> data_unsigned;
+    private volatile WidgetProperty<String> cursor_info_pv;
+    private volatile WidgetProperty<VType> cursor_info;
+    private volatile ArrayWidgetProperty<ROIWidgetProperty> rois;
 
     private WidgetProperty<VType> value;
 
@@ -250,6 +294,9 @@ public class ImageWidget extends VisibleWidget
         properties.add(data_minimum = behaviorMinimum.createProperty(this, 0.0));
         properties.add(data_maximum = behaviorMaximum.createProperty(this, 255.0));
         properties.add(value = runtimeValue.createProperty(this, null));
+        properties.add(cursor_info_pv = cursorInfoPV.createProperty(this, ""));
+        properties.add(cursor_info = cursorInfo.createProperty(this, null));
+        properties.add(rois = miscROIs.createProperty(this, Collections.emptyList()));
     }
 
     @Override
@@ -329,5 +376,23 @@ public class ImageWidget extends VisibleWidget
     public WidgetProperty<VType> runtimeValue()
     {
         return value;
+    }
+
+    /** @return Misc. 'cursor_info_pv' */
+    public WidgetProperty<String> miscCursorInfoPV()
+    {
+        return cursor_info_pv;
+    }
+
+    /** @return Runtime 'cursor_info' */
+    public WidgetProperty<VType> runtimeCursorInfo()
+    {
+        return cursor_info;
+    }
+
+    /** @return Misc. 'rois' */
+    public ArrayWidgetProperty<ROIWidgetProperty> miscROIs()
+    {
+        return rois;
     }
 }

@@ -221,7 +221,6 @@ public class XYPlotWidget extends VisibleWidget
         }
     };
 
-   // private volatile WidgetProperty<String> title;
     private volatile WidgetProperty<String> title;
     private volatile WidgetProperty<WidgetFont> title_font;
     private volatile WidgetProperty<Boolean> show_legend;
