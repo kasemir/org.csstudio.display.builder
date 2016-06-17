@@ -391,4 +391,31 @@
       </action>
     </actions>
   </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_8</name>
+    <x>471</x>
+    <y>261</y>
+    <width>120</width>
+    <height>30</height>
+    <text>Miscellaneous</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_20</name>
+    <x>471</x>
+    <y>291</y>
+    <width>120</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>misc_webbrowser.bob</file>
+        <target>replace</target>
+        <description>Web Browser</description>
+      </action>
+    </actions>
+  </widget>
 </display>
