@@ -5,10 +5,8 @@ Sudoku board creator.
 """
 
 from org.csstudio.display.builder.runtime.script import PVUtil
-#from sudoku_lib import calcBlockRange
-
-from java.util.logging import Logger
-logger = Logger.getLogger("script")
+from org.csstudio.display.builder.runtime.scriptUtil import ScriptUtil
+logger = ScriptUtil.getLogger()
 
 pvVal = int(PVUtil.getDouble(pvs[0]))
 if pvVal == -1:

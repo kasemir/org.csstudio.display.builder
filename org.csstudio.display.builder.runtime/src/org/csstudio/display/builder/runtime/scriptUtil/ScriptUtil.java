@@ -26,6 +26,14 @@ public class ScriptUtil
     // ================
     // logging utils
     /**
+     * @return Logger for ScriptUtil
+     */
+    public static Logger getLogger()
+    {
+        return Logger.getLogger("ScriptUtil");
+    }
+
+    /**
      * Log a message at the given {@link Level}.
      * 
      * @param level
@@ -33,7 +41,7 @@ public class ScriptUtil
      */
     public static void log(Level level, String message)
     {
-        Logger.getLogger("ScriptUtil").log(level, message);
+        getLogger().log(level, message);
     }
 
     /**
@@ -43,7 +51,7 @@ public class ScriptUtil
      */
     public static void logInfo(String message)
     {
-        Logger.getLogger("ScriptUtil").info(message);
+        getLogger().info(message);
     }
 
     /**
@@ -53,7 +61,7 @@ public class ScriptUtil
      */
     public static void logWarning(String msg)
     {
-        Logger.getLogger("ScriptUtil").warning(msg);
+        getLogger().warning(msg);
     }
 
     /**
@@ -63,7 +71,7 @@ public class ScriptUtil
      */
     public static void logSevere(String msg)
     {
-        Logger.getLogger("ScriptUtil").severe(msg);
+        getLogger().severe(msg);
     }
 
     // ==================
