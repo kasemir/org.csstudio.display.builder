@@ -17,7 +17,6 @@ import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.internal.ImagePlot;
 import org.csstudio.javafx.rtplot.internal.ImageToolbarHandler;
 import org.csstudio.javafx.rtplot.internal.MouseMode;
-import org.csstudio.javafx.rtplot.internal.RegionOfInterest;
 import org.diirt.util.array.ListNumber;
 
 import javafx.application.Platform;

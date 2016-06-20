@@ -16,8 +16,20 @@
     <y>70</y>
     <width>504</width>
     <height>430</height>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[# Embedded python script
+from org.csstudio.display.builder.runtime.script import PVUtil
+
+show = PVUtil.getLong(pvs[0]) > 0
+
+widget.setPropertyValue("rois[0].visible", show)
+
+]]></text>
+        <pv_name>loc://show_roi(1)</pv_name>
+      </script>
+    </scripts>
     <pv_name>pva://IMAGE</pv_name>
-    <unsigned>false</unsigned>
     <cursor_info_pv>loc://cursor_info</cursor_info_pv>
     <rois>
       <roi>
@@ -85,5 +97,21 @@
     <y>550</y>
     <width>84</width>
     <text>Cursor Info:</text>
+  </widget>
+  <widget type="checkbox" version="2.0.0">
+    <name>CheckBox</name>
+    <x>84</x>
+    <y>580</y>
+    <width>216</width>
+    <label>Show Region of Interest</label>
+    <pv_name>loc://show_roi(1)</pv_name>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry</name>
+    <x>82</x>
+    <y>641</y>
+    <width>188</width>
+    <height>29</height>
+    <pv_name>loc://roi_x(10)</pv_name>
   </widget>
 </display>

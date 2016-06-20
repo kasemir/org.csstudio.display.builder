@@ -26,6 +26,7 @@ import org.csstudio.javafx.Tracker;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
+import org.csstudio.javafx.rtplot.RegionOfInterest;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.LinearScreenTransform;
@@ -440,8 +441,9 @@ public class ImagePlot extends PlotCanvasBase
     /** @param roi RegionOfInterest to move to new location
      *  @param screen_pos Screen position, will be converted into axes' values
      */
-    private void updateRoiFromScreen(final RegionOfInterest roi, final Rectangle2D screen_pos)
+    private void updateRoiFromScreen(final int index, final Rectangle2D screen_pos)
     {
+        final RegionOfInterest roi = rois.get(index);
         // Convert screen position to axis values
         final double x0 = x_axis.getValue((int)screen_pos.getMinX()),
                      y0 = y_axis.getValue((int)screen_pos.getMinY()),
@@ -456,7 +458,7 @@ public class ImagePlot extends PlotCanvasBase
         // Notify listener of ROI change
         final RTImagePlotListener listener = plot_listener;
         if (listener != null)
-            listener.changedROI(roi.getName(), roi.getRegion());
+            listener.changedROI(index, roi.getName(), roi.getRegion());
     }
 
     /** If there is a ROI tracker, remove it */
@@ -632,7 +634,8 @@ public class ImagePlot extends PlotCanvasBase
                     roi_tracker = new Tracker();
                     roi_tracker.setPosition(rect);
                     ChildCare.addChild(getParent(), roi_tracker);
-                    roi_tracker.setListener((old_pos, new_pos) -> updateRoiFromScreen(roi, new_pos));
+                    final int index = rois.indexOf(roi);
+                    roi_tracker.setListener((old_pos, new_pos) -> updateRoiFromScreen(index, new_pos));
                     return;
                 }
             }

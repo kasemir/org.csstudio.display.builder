@@ -26,8 +26,9 @@ public interface RTImagePlotListener
 
     /** Invoked when the user moves a region of interest
      *
+     *  @param index Index 0, .. of the R.O.I.
      *  @param name Name of the R.O.I.
      *  @param region Region in coordinates of X, Y axes
      */
-    default public void changedROI(String name, Rectangle2D region) {};
+    default public void changedROI(int index, String name, Rectangle2D region) {};
 }
