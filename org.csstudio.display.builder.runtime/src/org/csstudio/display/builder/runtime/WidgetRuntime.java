@@ -210,6 +210,12 @@ public class WidgetRuntime<MW extends Widget>
             return Collections.emptyList();
         return runtime_pvs.getPVs();
     }
+    
+    /** @return {@link Optional} containing primary PV of widget, if present. */
+    public Optional<RuntimePV> getPrimaryPV()
+    {
+        return primary_pv;
+    }
 
     /** Start: Connect to PVs, start scripts
      *  @throws Exception on error

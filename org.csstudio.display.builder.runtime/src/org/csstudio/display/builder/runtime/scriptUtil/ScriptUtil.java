@@ -1,123 +1,145 @@
 package org.csstudio.display.builder.runtime.scriptUtil;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javafx.scene.control.Alert;
-
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 
+/**
+ * Script Utilities
+ * 
+ * Contains static utility methods to be used in scripts. This class contains
+ * utilities for the following tasks: logging, obtaining PVs from widgets, and
+ * showing modal dialogs.
+ * 
+ * @author Amanda Carpenter
+ *
+ */
 @SuppressWarnings("nls")
 public class ScriptUtil
 {
-    //================
-    //logging utils
-    public static void log(String message)
+    // ================
+    // logging utils
+    /**
+     * Log a message at the given {@link Level}.
+     * 
+     * @param level
+     * @param message
+     */
+    public static void log(Level level, String message)
+    {
+        Logger.getLogger("ScriptUtil").log(level, message);
+    }
+
+    /**
+     * Log a message at Information ({@link Level.INFO}) level.
+     * 
+     * @param message
+     */
+    public static void logInfo(String message)
     {
         Logger.getLogger("ScriptUtil").info(message);
     }
-    public static void log(Level level, String msg)
+
+    /**
+     * Log a message at Warning ({@link Level.WARNING}) level.
+     * 
+     * @param message
+     */
+    public static void logWarning(String msg)
     {
-        Logger.getLogger("ScriptUtil").log(level, msg);
+        Logger.getLogger("ScriptUtil").warning(msg);
     }
 
-    //==================
-    //get PV utils
-    //these better if methods of widget
+    /**
+     * Log a message at Severe ({@link Level.SEVERE}) level.
+     * 
+     * @param message
+     */
+    public static void logSevere(String msg)
+    {
+        Logger.getLogger("ScriptUtil").severe(msg);
+    }
+
+    // ==================
+    // get PV utils
+    /**
+     * Get primary PV of given widget.
+     * 
+     * @param widget
+     *            Widget to get PV of.
+     * @return Primary PV of widget; otherwise, if not found, null.
+     */
+    public static RuntimePV getPV(Widget widget)
+    {
+        Optional<RuntimePV> pv = WidgetRuntime.ofWidget(widget).getPrimaryPV();
+        return pv.isPresent() ? pv.get() : null;
+    }
+
+    /**
+     * Get PV by name from widget's collection, including PVs from scripts and
+     * rules.
+     * 
+     * @param widget
+     *            Widget to get PV from
+     * @param name
+     *            Name of PV to get
+     * @return PV of given widget with given name; otherwise, if not found,
+     *         null.
+     */
     public static RuntimePV getPVByName(Widget widget, String name)
     {
         Collection<RuntimePV> pvs = WidgetRuntime.ofWidget(widget).getPVs();
         for (RuntimePV pv : pvs)
             if (name.equals(pv.getName()))
                 return pv;
-        Logger.getLogger("ScriptUtil").warning("Script Util: Could not find pv by name '"+name+"' for widget '"+widget.getName()+"' ("+widget.getType()+").");
+        Logger.getLogger("ScriptUtil").warning("Script Util: Could not find pv by name '" + name + "' for widget '"
+                + widget.getName() + "' (" + widget.getType() + ").");
         return null;
     }
-    public static RuntimePV getPV(Widget widget)
+
+    // ====================
+    // public alert dialog utils
+    /**
+     * Show an information-style dialog with a message.
+     * 
+     * @param message
+     *            Message for information dialog
+     * @param widget
+     *            Widget passed to obtain toolkit for representing dialog
+     */
+    public static void infoDialog(String message, Widget widget)
     {
-        //better if WidgetRuntime could getPrimaryPV()
         try
         {
-            String name = widget.getPropertyValue("pv_name");
-            return getPVByName(widget, name);
-        }
-        catch (IllegalArgumentException e)
+            ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showDialog(false, message);
+        } catch (Exception e)
         {
-            Logger.getLogger("ScriptUtil").warning("Script Util: Could not get PV for widget '"+
-                    widget.getName()+"' ("+widget.getType()+"): No 'pv_name' property");
-            return null;
-        }
-    }
-    
-    //====================
-    //public alert dialog utils
-    public static void informationDialog(String msg)
-    {
-        informationDialog(msg, null, null);
-    }
-    public static void informationDialog(String msg, String header)
-    {
-        informationDialog(msg, header, header);
-    }
-    public static void informationDialog(String msg, String header, String title)
-    {
-        submitRunnable(new InfoRunnable(msg, header, title));
-    }
-
-    public static void warningDialog(String msg)
-    {
-        warningDialog(msg, null, null);
-    }
-    public static void warningDialog(String msg, String header)
-    {
-        warningDialog(msg, header, header);
-    }
-    public static void warningDialog(String msg, String header, String title)
-    {
-        submitRunnable(new WarnRunnable(msg, header, title));
-    }
-    
-    //========================
-    //private utilities for alert dialogs
-    private static class InfoRunnable implements Runnable
-    {
-        Alert alert;
-        InfoRunnable(String content, String title, String header)
-        {
-            alert = new Alert(Alert.AlertType.INFORMATION, content);
-            alert.setHeaderText(header);
-            alert.setTitle(title);
-        }
-
-        @Override
-        public void run()
-        {
-            alert.showAndWait().ifPresent( (result)->alert.close() );
+            e.printStackTrace();
         }
     }
 
-    private static class WarnRunnable implements Runnable
+    /**
+     * Show a warning-style dialog with a message.
+     * 
+     * @param message
+     *            Message for warning dialog
+     * @param widget
+     *            Widget passed to obtain toolkit for representing dialog
+     */
+    public static void warningDialog(String message, Widget widget)
     {
-        Alert alert;
-        WarnRunnable(String content, String title, String header)
+        try
         {
-            alert = new Alert(Alert.AlertType.WARNING, content);
-            alert.setHeaderText(header);
-            alert.setTitle(title);
-        }
-
-        @Override
-        public void run()
+            ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showDialog(true, message);
+        } catch (Exception e)
         {
-            alert.showAndWait().ifPresent( (result)->alert.close() );
+            e.printStackTrace();
         }
-    }
-
-    private static void submitRunnable(Runnable object)
-    {
-        // TODO needs to "submit runnable to JFX UI thread"
     }
 }

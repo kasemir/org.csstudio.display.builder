@@ -334,6 +334,12 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     @Override
     abstract public void execute(final Runnable command);
 
+    /** Execute command to show dialog in toolkit's UI thread.
+     * @param is_warning Whether to style dialog as warning or information
+     * @param message Message to display on dialog
+     */
+    abstract public void showDialog(boolean is_warning, String message);
+    
     /** Execute callable in toolkit's UI thread.
      *  @param <T> Type to return
      *  @param callable Callable to execute

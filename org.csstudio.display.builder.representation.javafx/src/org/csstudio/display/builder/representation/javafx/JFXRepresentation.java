@@ -80,6 +80,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
 
@@ -303,5 +304,20 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     public void execute(final Runnable command)
     {
         Platform.runLater(command);
+    }
+
+    @Override
+    public void showDialog(boolean is_warning, String message)
+    {
+        execute( ()->
+        {
+            Alert alert = new Alert(is_warning ?
+                    Alert.AlertType.WARNING :
+                    Alert.AlertType.INFORMATION,
+                message);
+            alert.setHeaderText(null);
+            alert.setTitle(null);
+            alert.showAndWait().ifPresent((result)->alert.close());
+        });
     }
 }
