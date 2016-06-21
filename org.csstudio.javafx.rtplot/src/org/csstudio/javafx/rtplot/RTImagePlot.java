@@ -99,6 +99,7 @@ public class RTImagePlot extends BorderPane
     {
         if (isToolbarVisible() == show)
             return;
+        plot.removeROITracker();
         if (show)
             setTop(toolbar.getToolBar());
         else

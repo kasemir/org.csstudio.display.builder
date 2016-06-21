@@ -462,7 +462,7 @@ public class ImagePlot extends PlotCanvasBase
     }
 
     /** If there is a ROI tracker, remove it */
-    private void removeROITracker()
+    public void removeROITracker()
     {
         if (roi_tracker != null)
         {
