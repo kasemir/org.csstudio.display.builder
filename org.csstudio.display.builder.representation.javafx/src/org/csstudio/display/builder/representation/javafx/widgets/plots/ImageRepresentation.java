@@ -200,7 +200,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 
     private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        image_plot.setBackgroundColor(JFXUtil.convert(model_widget.displayBackground().getValue()));
+        image_plot.setBackground(JFXUtil.convert(model_widget.displayBackground().getValue()));
         image_plot.showColorMap(model_widget.displayColorbar().visible().getValue());
         image_plot.setColorMapSize(model_widget.displayColorbar().barSize().getValue());
         image_plot.setColorMapFont(JFXUtil.convert(model_widget.displayColorbar().scaleFont().getValue()));

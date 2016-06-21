@@ -16,10 +16,10 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.widgets.plots.PlotWidgetPointType;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.AxisWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.TraceWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.YAxisWidgetProperty;
-import org.csstudio.display.builder.model.widgets.plots.PlotWidgetPointType;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
@@ -164,6 +164,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     {
         super.registerListeners();
 
+        model_widget.displayBackground().addUntypedPropertyListener(config_listener);
         model_widget.displayTitle().addUntypedPropertyListener(config_listener);
         model_widget.displayTitleFont().addUntypedPropertyListener(config_listener);
         model_widget.displayLegend().addUntypedPropertyListener(config_listener);
@@ -279,6 +280,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
     private void updateConfig()
     {
+        plot.setBackground(JFXUtil.convert(model_widget.displayBackground().getValue()));
         plot.setTitleFont(JFXUtil.convert(model_widget.displayTitleFont().getValue()));
         plot.setTitle(model_widget.displayTitle().getValue());
 

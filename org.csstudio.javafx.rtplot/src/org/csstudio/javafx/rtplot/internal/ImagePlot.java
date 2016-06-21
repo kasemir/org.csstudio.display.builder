@@ -141,7 +141,7 @@ public class ImagePlot extends PlotCanvasBase
     }
 
     /** @param color Background color */
-    public void setBackgroundColor(final Color color)
+    public void setBackground(final Color color)
     {
         background  = color;
     }

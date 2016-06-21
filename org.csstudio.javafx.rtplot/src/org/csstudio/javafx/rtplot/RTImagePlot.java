@@ -210,9 +210,9 @@ public class RTImagePlot extends BorderPane
     }
 
     /** @param color Background color */
-    public void setBackgroundColor(final javafx.scene.paint.Color color)
+    public void setBackground(final javafx.scene.paint.Color color)
     {
-        plot.setBackgroundColor(GraphicsUtils.convert(color));
+        plot.setBackground(GraphicsUtils.convert(color));
     }
 
     /** @param color_mapping Function that returns {@link Color} for value 0.0 .. 1.0 */
