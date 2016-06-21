@@ -34,6 +34,7 @@ import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueFactory;
 
+import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.Pane;
 
@@ -69,7 +70,6 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         {
             if (changing_roi)
                 return;
-            System.out.println("ROI #" + index + " (" + name + ") moved to " + region + ", updating widget values"); // XXX
             final ROIWidgetProperty widget_roi = model_widget.miscROIs().getValue().get(index);
             changing_roi =  true;
             widget_roi.x_value().setValue(region.getMinX());
@@ -106,6 +106,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_roi.visible().addPropertyListener((prop, old, visible) ->
         {
             plot_roi.setVisible(visible);
+            Platform.runLater(() -> image_plot.removeROITracker());
             image_plot.requestUpdate();
         });
 
@@ -115,11 +116,10 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
             if (changing_roi)
                 return;
             Rectangle2D region = plot_roi.getRegion();
-            region = new Rectangle2D(updateRegion(region.getMinX(), model_roi.x_value()),
-                                     updateRegion(region.getMinY(), model_roi.y_value()),
-                                     updateRegion(region.getWidth(), model_roi.width_value()),
-                                     updateRegion(region.getHeight(), model_roi.height_value()));
-            System.out.println("Widget moves region " + plot_roi.getName() + " to " + region); // XXX
+            region = new Rectangle2D(existingOrProperty(region.getMinX(), model_roi.x_value()),
+                                     existingOrProperty(region.getMinY(), model_roi.y_value()),
+                                     existingOrProperty(region.getWidth(), model_roi.width_value()),
+                                     existingOrProperty(region.getHeight(), model_roi.height_value()));
             changing_roi = true;
             plot_roi.setRegion(region);
             changing_roi = false;
@@ -131,7 +131,11 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_roi.height_value().addPropertyListener(model_roi_listener);
     }
 
-    private double updateRegion(double old, WidgetProperty<Double> prop)
+    /** @param old Existing value
+     *  @param prop Property that may have new value, or <code>null</code>
+     *  @return Property's value, falling back to old value
+     */
+    private double existingOrProperty(final double old, final WidgetProperty<Double> prop)
     {
         final Double value = prop.getValue();
         if (value == null)
@@ -147,6 +151,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
 
         model_widget.displayDataColormap().addPropertyListener(this::colormapChanged);
+        model_widget.displayBackground().addUntypedPropertyListener(this::configChanged);
         model_widget.displayColorbar().visible().addUntypedPropertyListener(this::configChanged);
         model_widget.displayColorbar().barSize().addUntypedPropertyListener(this::configChanged);
         model_widget.displayColorbar().scaleFont().addUntypedPropertyListener(this::configChanged);
@@ -195,6 +200,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 
     private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        image_plot.setBackgroundColor(JFXUtil.convert(model_widget.displayBackground().getValue()));
         image_plot.showColorMap(model_widget.displayColorbar().visible().getValue());
         image_plot.setColorMapSize(model_widget.displayColorbar().barSize().getValue());
         image_plot.setColorMapFont(JFXUtil.convert(model_widget.displayColorbar().scaleFont().getValue()));

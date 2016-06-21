@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model.widgets.plots;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMinimum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
@@ -29,7 +30,9 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
@@ -291,6 +294,7 @@ public class ImageWidget extends VisibleWidget
         }
     }
 
+    private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<ColorMap> data_colormap;
     private volatile ColorBarProperty color_bar;
     private volatile AxisWidgetProperty x_axis;
@@ -318,6 +322,7 @@ public class ImageWidget extends VisibleWidget
     {
         super.defineProperties(properties);
         properties.add(displayBorderAlarmSensitive.createProperty(this, true));
+        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(data_colormap = dataColormap.createProperty(this, ColorMap.VIRIDIS));
         properties.add(color_bar = new ColorBarProperty(this));
         properties.add(x_axis = new XAxisWidgetProperty(this));
@@ -340,6 +345,12 @@ public class ImageWidget extends VisibleWidget
             throws Exception
     {
         return new CustomWidgetConfigurator(persisted_version);
+    }
+
+    /** @return Display 'background' */
+    public WidgetProperty<WidgetColor> displayBackground()
+    {
+        return background;
     }
 
     /** @return Display 'color_map' */

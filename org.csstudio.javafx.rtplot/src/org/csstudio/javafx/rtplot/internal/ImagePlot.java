@@ -58,6 +58,9 @@ public class ImagePlot extends PlotCanvasBase
     /** Rainbow color mapping */
     public final static DoubleFunction<Color> RAINBOW = value -> new Color(Color.HSBtoRGB((float)value, 1.0f, 1.0f));
 
+    /** Background color */
+    private volatile Color background = Color.WHITE;
+
     /** Axis range for 'full' image */
     private volatile double min_x = 0.0, max_x = 100.0, min_y = 0.0, max_y = 100.0;
 
@@ -135,6 +138,12 @@ public class ImagePlot extends PlotCanvasBase
     public void setListener(final RTImagePlotListener plot_listener)
     {
         this.plot_listener = plot_listener;
+    }
+
+    /** @param color Background color */
+    public void setBackgroundColor(final Color color)
+    {
+        background  = color;
     }
 
     /** @param autoscale  Auto-scale the color mapping? */
@@ -365,8 +374,8 @@ public class ImagePlot extends PlotCanvasBase
         if (need_layout.getAndSet(false))
             computeLayout(gc, area_copy, min, max);
 
-        // TODO Fill with a 'background' color instead of white
-        gc.setColor(Color.WHITE);
+        // Fill with a 'background' color
+        gc.setColor(background);
         gc.fillRect(0, 0, area_copy.width, area_copy.height);
 
         // Debug: Show exact outer rim
