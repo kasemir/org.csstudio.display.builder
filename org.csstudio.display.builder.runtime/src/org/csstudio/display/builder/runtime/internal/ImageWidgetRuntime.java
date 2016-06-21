@@ -17,6 +17,7 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
+import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget.ROIWidgetProperty;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
@@ -92,7 +93,7 @@ public class ImageWidgetRuntime  extends WidgetRuntime<ImageWidget>
      *  @param name_prop Property for the PV name
      *  @param value_prop Property for the value
      */
-    private void bindROI(final WidgetProperty<String> name_prop, final WidgetProperty<VType> value_prop)
+    private void bindROI(final WidgetProperty<String> name_prop, final WidgetProperty<Double> value_prop)
     {
         final String pv_name = name_prop.getValue();
         if (pv_name.isEmpty())
@@ -106,11 +107,13 @@ public class ImageWidgetRuntime  extends WidgetRuntime<ImageWidget>
             roi_pvs.add(pv);
 
             // Write value changes to the PV
-            final WidgetPropertyListener<VType> prop_listener = (prop, old, value) ->
+            final WidgetPropertyListener<Double> prop_listener = (prop, old, value) ->
             {
                 try
                 {
-                    System.out.println("Writing " + value_prop + " to PV " + pv_name);
+                    if (value == VTypeUtil.getValueNumber(pv.read()).doubleValue())
+                        return;
+                    // System.out.println("Writing " + value_prop + " to PV " + pv_name);
                     pv.write(value);
                 }
                 catch (Exception ex)
@@ -127,14 +130,15 @@ public class ImageWidgetRuntime  extends WidgetRuntime<ImageWidget>
                 @Override
                 public void valueChanged(final RuntimePV pv, final VType value)
                 {
-                    System.out.println("Writing from PV " + pv_name + " to " + value_prop);
-                    value_prop.setValue(value);
+                    final double number = VTypeUtil.getValueNumber(value).doubleValue();
+                    if (number == value_prop.getValue())
+                        return;
+                    // System.out.println("Writing from PV " + pv_name + " to " + value_prop);
+                    value_prop.setValue(number);
                 }
             };
             pv.addListener(pv_listener);
             roi_pv_listeners.put(pv, pv_listener);
-
-            // TODO Avoid loop
         }
         catch (Exception ex)
         {

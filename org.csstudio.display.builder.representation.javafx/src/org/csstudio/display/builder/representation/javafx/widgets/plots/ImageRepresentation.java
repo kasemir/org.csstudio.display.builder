@@ -18,7 +18,6 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget.AxisWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget.ROIWidgetProperty;
@@ -73,10 +72,10 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
             System.out.println("ROI #" + index + " (" + name + ") moved to " + region + ", updating widget values"); // XXX
             final ROIWidgetProperty widget_roi = model_widget.miscROIs().getValue().get(index);
             changing_roi =  true;
-            widget_roi.x_value().setValue(ValueFactory.newVDouble(region.getMinX()));
-            widget_roi.y_value().setValue(ValueFactory.newVDouble(region.getMinY()));
-            widget_roi.width_value().setValue(ValueFactory.newVDouble(region.getWidth()));
-            widget_roi.height_value().setValue(ValueFactory.newVDouble(region.getHeight()));
+            widget_roi.x_value().setValue(region.getMinX());
+            widget_roi.y_value().setValue(region.getMinY());
+            widget_roi.width_value().setValue(region.getWidth());
+            widget_roi.height_value().setValue(region.getHeight());
             changing_roi =  false;
         }
     };
@@ -111,7 +110,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         });
 
         // Listen to roi.x_value(), .. and update plot_roi
-        final WidgetPropertyListener<VType> model_roi_listener = (o, old, value) ->
+        final WidgetPropertyListener<Double> model_roi_listener = (o, old, value) ->
         {
             if (changing_roi)
                 return;
@@ -132,12 +131,12 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_roi.height_value().addPropertyListener(model_roi_listener);
     }
 
-    private double updateRegion(double old, WidgetProperty<VType> prop)
+    private double updateRegion(double old, WidgetProperty<Double> prop)
     {
-        final VType value = prop.getValue();
+        final Double value = prop.getValue();
         if (value == null)
             return old;
-        return VTypeUtil.getValueNumber(value).doubleValue();
+        return value;
     }
 
     @Override

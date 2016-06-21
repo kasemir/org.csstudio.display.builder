@@ -195,17 +195,17 @@ public class ImageWidget extends VisibleWidget
     private static final WidgetPropertyDescriptor<String> behaviorHeightPVName =
         CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "height_pv", Messages.WidgetProperties_HeightPVName);
 
-    public static final WidgetPropertyDescriptor<VType> xValue =
-        CommonWidgetProperties.newRuntimeValue("x_value", Messages.WidgetProperties_X);
+    public static final WidgetPropertyDescriptor<Double> xValue =
+        CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.RUNTIME, "x_value", Messages.WidgetProperties_X);
 
-    public static final WidgetPropertyDescriptor<VType> yValue =
-        CommonWidgetProperties.newRuntimeValue("y_value", Messages.WidgetProperties_Y);
+    public static final WidgetPropertyDescriptor<Double> yValue =
+        CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.RUNTIME, "y_value", Messages.WidgetProperties_Y);
 
-    public static final WidgetPropertyDescriptor<VType> widthValue =
-        CommonWidgetProperties.newRuntimeValue("width_value", Messages.WidgetProperties_Width);
+    public static final WidgetPropertyDescriptor<Double> widthValue =
+        CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.RUNTIME, "width_value", Messages.WidgetProperties_Width);
 
-    public static final WidgetPropertyDescriptor<VType> heightValue =
-        CommonWidgetProperties.newRuntimeValue("height_value", Messages.WidgetProperties_Height);
+    public static final WidgetPropertyDescriptor<Double> heightValue =
+        CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.RUNTIME, "height_value", Messages.WidgetProperties_Height);
 
     private final static StructuredWidgetProperty.Descriptor behaviorROI =
             new Descriptor(WidgetPropertyCategory.DISPLAY, "roi", "Region of Interest");
@@ -222,10 +222,10 @@ public class ImageWidget extends VisibleWidget
                                 behaviorYPVName.createProperty(widget, ""),
                                 behaviorWidthPVName.createProperty(widget, ""),
                                 behaviorHeightPVName.createProperty(widget, ""),
-                                xValue.createProperty(widget, null),
-                                yValue.createProperty(widget, null),
-                                widthValue.createProperty(widget, null),
-                                heightValue.createProperty(widget, null) ));
+                                xValue.createProperty(widget, Double.NaN),
+                                yValue.createProperty(widget, Double.NaN),
+                                widthValue.createProperty(widget, Double.NaN),
+                                heightValue.createProperty(widget, Double.NaN) ));
         }
 
         public WidgetProperty<Boolean> visible()       { return getElement(0); }
@@ -235,10 +235,10 @@ public class ImageWidget extends VisibleWidget
         public WidgetProperty<String> y_pv()           { return getElement(4); }
         public WidgetProperty<String> width_pv()       { return getElement(5); }
         public WidgetProperty<String> height_pv()      { return getElement(6); }
-        public WidgetProperty<VType> x_value()         { return getElement(7); }
-        public WidgetProperty<VType> y_value()         { return getElement(8); }
-        public WidgetProperty<VType> width_value()     { return getElement(9); }
-        public WidgetProperty<VType> height_value()    { return getElement(10); }
+        public WidgetProperty<Double> x_value()        { return getElement(7); }
+        public WidgetProperty<Double> y_value()        { return getElement(8); }
+        public WidgetProperty<Double> width_value()    { return getElement(9); }
+        public WidgetProperty<Double> height_value()   { return getElement(10); }
     };
 
     /** 'roi' array */
