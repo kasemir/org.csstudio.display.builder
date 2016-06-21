@@ -631,7 +631,7 @@ public class ImagePlot extends PlotCanvasBase
                 final Rectangle2D rect = roiToScreen(roi);
                 if (rect.contains(current))
                 {
-                    roi_tracker = new Tracker();
+                    roi_tracker = new Tracker(new Rectangle2D(image_area.x, image_area.y, image_area.width, image_area.height));
                     roi_tracker.setPosition(rect);
                     ChildCare.addChild(getParent(), roi_tracker);
                     final int index = rois.indexOf(roi);
