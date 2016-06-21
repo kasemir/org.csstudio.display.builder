@@ -86,6 +86,7 @@ public class ScriptUtil
     public static RuntimePV getPV(Widget widget)
     {
         Optional<RuntimePV> pv = WidgetRuntime.ofWidget(widget).getPrimaryPV();
+        Object value = pv.isPresent() ? pv.get().read() : null;
         return pv.isPresent() ? pv.get() : null;
     }
 
@@ -106,8 +107,7 @@ public class ScriptUtil
         for (RuntimePV pv : pvs)
             if (name.equals(pv.getName()))
                 return pv;
-        Logger.getLogger("ScriptUtil").warning("Script Util: Could not find pv by name '" + name + "' for widget '"
-                + widget.getName() + "' (" + widget.getType() + ").");
+        Logger.getLogger("ScriptUtil").warning("Could not find pv by name '" + name + "' for " + widget);
         return null;
     }
 

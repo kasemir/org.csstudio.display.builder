@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Display</name>
+  <scripts>
+    <script file="info_dialog.py">
+      <pv_name>loc://showDialog</pv_name>
+    </script>
+    <script file="getPVs.py">
+      <pv_name trigger="false">loc://getPV&lt;String&gt;</pv_name>
+      <pv_name trigger="false">loc://test1</pv_name>
+      <pv_name trigger="false">loc://test2</pv_name>
+      <pv_name trigger="false">loc://test3</pv_name>
+      <pv_name trigger="false">loc://test4</pv_name>
+      <pv_name>loc://writePV</pv_name>
+    </script>
+  </scripts>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <width>281</width>
+    <height>31</height>
+    <text>My Display</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button</name>
+    <x>50</x>
+    <y>90</y>
+    <width>120</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://showDialog</pv_name>
+        <value>1</value>
+        <description>Show Dialog</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry</name>
+    <x>50</x>
+    <y>50</y>
+    <width>120</width>
+    <pv_name>sim://ramp(0,4,1)</pv_name>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_1</name>
+    <x>50</x>
+    <y>130</y>
+    <width>120</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://showDialog</pv_name>
+        <value>2</value>
+        <description>Show Warning</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_2</name>
+    <x>50</x>
+    <y>170</y>
+    <width>120</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.scriptUtil import ScriptUtil
+
+ScriptUtil.logSevere("This is a severe log message.")]]></text>
+        </script>
+        <description>Log Severe</description>
+      </action>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.scriptUtil import ScriptUtil
+
+ScriptUtil.logWarning("This is a warning log message.")]]></text>
+        </script>
+        <description>Log Warning</description>
+      </action>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.scriptUtil import ScriptUtil
+
+ScriptUtil.logInfo("This is a warning log message.")]]></text>
+        </script>
+        <description>Log Info</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>Combo Box</name>
+    <x>220</x>
+    <y>130</y>
+    <width>140</width>
+    <pv_name>loc://getPV&lt;String&gt;</pv_name>
+    <items>
+      <item>loc://test1</item>
+      <item>loc://test2</item>
+      <item>loc://test3</item>
+      <item>loc://test4</item>
+    </items>
+    <items_from_pv>false</items_from_pv>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update</name>
+    <x>220</x>
+    <y>90</y>
+    <width>30</width>
+    <pv_name>loc://test1</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_1</name>
+    <x>255</x>
+    <y>90</y>
+    <width>30</width>
+    <pv_name>loc://test2</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_2</name>
+    <x>290</x>
+    <y>90</y>
+    <width>30</width>
+    <pv_name>loc://test3</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_3</name>
+    <x>325</x>
+    <y>90</y>
+    <width>30</width>
+    <pv_name>loc://test4</pv_name>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>textentry</name>
+    <x>220</x>
+    <y>50</y>
+    <width>135</width>
+    <show_units>false</show_units>
+    <pv_name>loc://test&lt;String&gt;</pv_name>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_3</name>
+    <x>220</x>
+    <y>170</y>
+    <width>135</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="write_pv">
+        <pv_name>loc://writePV</pv_name>
+        <value>1</value>
+        <description>Write PV</description>
+      </action>
+    </actions>
+  </widget>
+</display>
