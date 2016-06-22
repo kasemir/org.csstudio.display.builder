@@ -7,13 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime;
 
-import static org.csstudio.display.builder.model.ModelPlugin.logger;
-
-import java.io.InputStream;
-import java.util.logging.Level;
-
-import org.csstudio.display.builder.util.ResourceUtil;
-
 /** Widget runtime action
  *
  *  <p>The {@link WidgetRuntime} for a widget
@@ -42,17 +35,9 @@ public abstract class RuntimeAction implements Runnable
         return description;
     }
 
-    /** @return Stream for icon's content or <code>null</code> */
-    public InputStream getIconStream()
+    /** @return Full icon path, "platform:/.." */
+    public String getIconPath()
     {
-        try
-        {
-            return ResourceUtil.openPlatformResource(icon_path);
-        }
-        catch (Exception ex)
-        {
-            logger.log(Level.WARNING, "Cannot obtain icon", ex);
-            return null;
-        }
+        return icon_path;
     }
 }
