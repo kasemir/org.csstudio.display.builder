@@ -22,6 +22,7 @@ import org.eclipse.osgi.util.NLS;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Tab;
@@ -87,7 +88,9 @@ public class WidgetInfoDialog extends Dialog<Boolean>
             return new ReadOnlyStringWrapper(text);
         });
 
-        final TableView<RuntimePV> table = new TableView<>(FXCollections.observableArrayList(pvs));
+        final ObservableList<RuntimePV> pv_data = FXCollections.observableArrayList(pvs);
+        pv_data.sort((a, b) -> a.getName().compareTo(b.getName()));
+        final TableView<RuntimePV> table = new TableView<>(pv_data);
         table.getColumns().add(name);
         table.getColumns().add(value);
         table.setEditable(true);
