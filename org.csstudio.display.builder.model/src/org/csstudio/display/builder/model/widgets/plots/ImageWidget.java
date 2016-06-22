@@ -13,6 +13,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.displayToolbar;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -295,6 +296,7 @@ public class ImageWidget extends VisibleWidget
     }
 
     private volatile WidgetProperty<WidgetColor> background;
+    private volatile WidgetProperty<Boolean> show_toolbar;
     private volatile WidgetProperty<ColorMap> data_colormap;
     private volatile ColorBarProperty color_bar;
     private volatile AxisWidgetProperty x_axis;
@@ -323,6 +325,7 @@ public class ImageWidget extends VisibleWidget
         super.defineProperties(properties);
         properties.add(displayBorderAlarmSensitive.createProperty(this, true));
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(show_toolbar = displayToolbar.createProperty(this,false));
         properties.add(data_colormap = dataColormap.createProperty(this, ColorMap.VIRIDIS));
         properties.add(color_bar = new ColorBarProperty(this));
         properties.add(x_axis = new XAxisWidgetProperty(this));
@@ -351,6 +354,12 @@ public class ImageWidget extends VisibleWidget
     public WidgetProperty<WidgetColor> displayBackground()
     {
         return background;
+    }
+
+    /** @return Display 'show_toolbar' */
+    public WidgetProperty<Boolean> displayToolbar()
+    {
+        return show_toolbar;
     }
 
     /** @return Display 'color_map' */

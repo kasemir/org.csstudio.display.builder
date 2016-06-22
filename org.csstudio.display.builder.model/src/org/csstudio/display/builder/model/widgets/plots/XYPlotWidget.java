@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.widgets.plots;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
+import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.displayToolbar;
 
 import java.util.Arrays;
 import java.util.List;
@@ -229,6 +230,7 @@ public class XYPlotWidget extends VisibleWidget
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<String> title;
     private volatile WidgetProperty<WidgetFont> title_font;
+    private volatile WidgetProperty<Boolean> show_toolbar;
     private volatile WidgetProperty<Boolean> show_legend;
     private volatile AxisWidgetProperty x_axis;
     private volatile ArrayWidgetProperty<YAxisWidgetProperty> y_axes;
@@ -252,6 +254,7 @@ public class XYPlotWidget extends VisibleWidget
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(title = PlotWidgetProperties.displayTitle.createProperty(this, ""));
         properties.add(title_font = PlotWidgetProperties.titleFontProperty.createProperty(this, NamedWidgetFonts.HEADER2));
+        properties.add(show_toolbar = displayToolbar.createProperty(this,false));
         properties.add(show_legend = PlotWidgetProperties.displayLegend.createProperty(this, true));
         properties.add(x_axis = AxisWidgetProperty.create(this, Messages.PlotWidget_X));
         properties.add(y_axes = PlotWidgetProperties.behaviorYAxes.createProperty(this, Arrays.asList(YAxisWidgetProperty.create(this, Messages.PlotWidget_Y))));
@@ -274,6 +277,12 @@ public class XYPlotWidget extends VisibleWidget
     public WidgetProperty<WidgetFont> displayTitleFont()
     {
         return title_font;
+    }
+
+    /** @return Display 'show_toolbar' */
+    public WidgetProperty<Boolean> displayToolbar()
+    {
+        return show_toolbar;
     }
 
     /** @return Display 'show_legend' */

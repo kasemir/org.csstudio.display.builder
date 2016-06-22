@@ -33,6 +33,9 @@ import org.diirt.vtype.VType;
 public class PlotWidgetProperties
 {
     // Custom property types
+    public static final WidgetPropertyDescriptor<Boolean> displayToolbar =
+            CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_toolbar", Messages.PlotWidget_ShowToolbar);
+
     public static final WidgetPropertyDescriptor<Boolean> displayLegend =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_legend", Messages.PlotWidget_ShowLegend);
 
