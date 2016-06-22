@@ -105,4 +105,24 @@
       </action>
     </actions>
   </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <x>41</x>
+    <y>431</y>
+    <width>500</width>
+    <height>169</height>
+    <text>Actions can also be invoked from the context menu of the button.
+
+Actions can in fact be assigned to any widget, and the context menu
+then allows users to invoke them.
+
+The preferred way to offer actions, however, is via action buttons
+that the user can simply "click", while actions assigned to other
+widgets for invokation via the context menu are more suitable
+for "hidden" actions.</text>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+  </widget>
 </display>
