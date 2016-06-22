@@ -10,12 +10,14 @@ package org.csstudio.display.builder.runtime.internal;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.TraceWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
+import org.csstudio.display.builder.runtime.RuntimeAction;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.display.builder.runtime.pv.PVFactory;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
@@ -29,6 +31,8 @@ import org.diirt.vtype.VType;
 @SuppressWarnings("nls")
 public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
 {
+    private final List<RuntimeAction> runtime_actions = new ArrayList<>(1);
+
     private static class Subscription
     {
         final RuntimePV pv;
@@ -40,6 +44,19 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
         }
     }
     private final List<Subscription> subscriptions = new ArrayList<>();
+
+    @Override
+    public void initialize(final XYPlotWidget widget)
+    {
+        super.initialize(widget);
+        runtime_actions.add(new ToggleToolbarAction(widget));
+    }
+
+    @Override
+    public Collection<RuntimeAction> getRuntimeActions()
+    {
+        return runtime_actions;
+    }
 
     @Override
     public void start() throws Exception

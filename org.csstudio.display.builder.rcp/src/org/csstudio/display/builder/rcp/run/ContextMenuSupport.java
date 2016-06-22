@@ -8,9 +8,12 @@
 package org.csstudio.display.builder.rcp.run;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
+import static org.csstudio.display.builder.rcp.Plugin.logger;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.display.builder.model.ModelPlugin;
@@ -19,6 +22,9 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.runtime.ActionUtil;
+import org.csstudio.display.builder.runtime.RuntimeAction;
+import org.csstudio.display.builder.runtime.RuntimeUtil;
+import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -63,6 +69,28 @@ public class ContextMenuSupport
         }
     }
 
+    /** SWT/JFace Action for a model's RuntimeAction
+     *
+     *  <p>Shows the description and icon,
+     *  invokes it.
+     */
+    private static class RuntimeActionWrapper extends Action
+    {
+        private final RuntimeAction info;
+        public RuntimeActionWrapper(final Widget widget, final RuntimeAction info)
+        {
+            super(info.getDescription());
+            // TODO Show icon
+            this.info = info;
+        }
+
+        @Override
+        public void run()
+        {
+            info.run();
+        }
+    }
+
     private Widget context_menu_widget = null;
 
     /** Create SWT context menu
@@ -88,18 +116,24 @@ public class ContextMenuSupport
         final MenuManager mm = new MenuManager();
         mm.setRemoveAllWhenShown(true);
         mm.addMenuListener((manager) ->
-        {   // Widget info
-            manager.add(new WidgetInfoAction(context_menu_widget));
+        {
+            if (context_menu_widget == null)
+            {
+                logger.log(Level.WARNING, "Missing context_menu_widget");
+                manager.add(new Action("No widget") {});
+            }
+            else
+            {
+                // Widget info
+                manager.add(new WidgetInfoAction(context_menu_widget));
 
-            // Actions
-            addActions(manager, context_menu_widget, context_menu_widget.behaviorActions().getValue());
+                // Actions of the widget
+                addActions(manager, context_menu_widget, context_menu_widget.behaviorActions().getValue());
 
-            // TODO Eventually, widget's representation will want to
-            // add widget-specific menu items.
-            // Representation will need to provide list of
-            // { String label, String icon_url, Consumer<Widget> runnable }
-            // that can then be added to the menu manager right here.
-
+                // Actions of the widget runtime
+                final WidgetRuntime<Widget> runtime = RuntimeUtil.getRuntime(context_menu_widget);
+                addActions(manager, context_menu_widget, runtime.getRuntimeActions());
+            }
             // Placeholder for ProcessVariable object contributions
             manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
         });
@@ -146,5 +180,11 @@ public class ContextMenuSupport
     {
         for (ActionInfo info : actions)
             manager.add(new ActionInfoWrapper(widget, info));
+    }
+
+    private void addActions(final IMenuManager manager, final Widget widget, final Collection<RuntimeAction> actions)
+    {
+        for (RuntimeAction info : actions)
+            manager.add(new RuntimeActionWrapper(widget, info));
     }
 }

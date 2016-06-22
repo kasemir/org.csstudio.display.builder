@@ -9,6 +9,8 @@ package org.csstudio.display.builder.runtime.internal;
 
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,6 +22,7 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget.ROIWidgetProperty;
+import org.csstudio.display.builder.runtime.RuntimeAction;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.display.builder.runtime.pv.PVFactory;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
@@ -35,7 +38,10 @@ import org.diirt.vtype.VType;
 @SuppressWarnings("nls")
 public class ImageWidgetRuntime  extends WidgetRuntime<ImageWidget>
 {
+    private final List<RuntimeAction> runtime_actions = new ArrayList<>(1);
+
     private volatile RuntimePV cursor_pv = null;
+
     private final List<RuntimePV> roi_pvs = new CopyOnWriteArrayList<>();
 
     private final WidgetPropertyListener<VType> cursor_listener = (prop, old, value) ->
@@ -55,6 +61,18 @@ public class ImageWidgetRuntime  extends WidgetRuntime<ImageWidget>
     private final Map<WidgetProperty<?>, WidgetPropertyListener<?>> roi_prop_listeners = new ConcurrentHashMap<>();
     private final Map<RuntimePV, RuntimePVListener> roi_pv_listeners = new ConcurrentHashMap<>();
 
+    @Override
+    public void initialize(final ImageWidget widget)
+    {
+        super.initialize(widget);
+        runtime_actions.add(new ToggleToolbarAction(widget));
+    }
+
+    @Override
+    public Collection<RuntimeAction> getRuntimeActions()
+    {
+        return runtime_actions;
+    }
 
     @Override
     public void start() throws Exception
