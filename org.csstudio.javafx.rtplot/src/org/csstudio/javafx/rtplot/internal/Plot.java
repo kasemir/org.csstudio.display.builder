@@ -461,7 +461,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
         final Rectangle plot_bounds = plot_area.getBounds();
 
-        gc.setBackground(background);
+        gc.setColor(background);
         gc.fillRect(0, 0, area_copy.width, area_copy.height);
 
         title_part.paint(gc, title_font);

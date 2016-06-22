@@ -8,6 +8,7 @@
 package org.csstudio.javafx.rtplot;
 
 import java.awt.Color;
+import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.DoubleFunction;
 
@@ -16,6 +17,7 @@ import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.internal.ImagePlot;
 import org.csstudio.javafx.rtplot.internal.ImageToolbarHandler;
 import org.csstudio.javafx.rtplot.internal.MouseMode;
+import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.diirt.util.array.ListNumber;
 
 import javafx.application.Platform;
@@ -98,6 +100,7 @@ public class RTImagePlot extends BorderPane
     {
         if (isToolbarVisible() == show)
             return;
+        plot.removeROITracker();
         if (show)
             setTop(toolbar.getToolBar());
         else
@@ -162,6 +165,37 @@ public class RTImagePlot extends BorderPane
         return plot.getYAxis();
     }
 
+    /** Add region of interest
+     *  @param name
+     *  @param color
+     *  @param visible
+     *  @return {@link RegionOfInterest}
+     */
+    public RegionOfInterest addROI(final String name, final javafx.scene.paint.Color color, final boolean visible)
+    {
+        return plot.addROI(name, color, visible);
+    }
+
+    /** @return Regions of interest */
+    public List<RegionOfInterest> getROIs()
+    {
+        return plot.getROIs();
+    }
+
+    /** @param index Index of R.O.I. to remove
+     *  @throws IndexOutOfBoundsException
+     */
+    public void removeROI(final int index)
+    {
+        plot.removeROI(index);
+    }
+
+    /** If there is a ROI tracker, remove it */
+    public void removeROITracker()
+    {
+        plot.removeROITracker();
+    }
+
     /** Request a complete redraw of the plot with new layout */
     @Override
     public void requestLayout()
@@ -175,10 +209,10 @@ public class RTImagePlot extends BorderPane
         plot.requestUpdate();
     }
 
-    /** Should be invoked when plot no longer used to release resources */
-    public void dispose()
+    /** @param color Background color */
+    public void setBackground(final javafx.scene.paint.Color color)
     {
-    	plot.dispose();
+        plot.setBackground(GraphicsUtils.convert(color));
     }
 
     /** @param color_mapping Function that returns {@link Color} for value 0.0 .. 1.0 */
@@ -236,5 +270,11 @@ public class RTImagePlot extends BorderPane
     public void setValue(final int width, final int height, final ListNumber data, final boolean unsigned)
     {
         plot.setValue(width, height, data, unsigned);
+    }
+
+    /** Should be invoked when plot no longer used to release resources */
+    public void dispose()
+    {
+    	plot.dispose();
     }
 }

@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot;
 
+import javafx.geometry.Rectangle2D;
+
 /** Listener to changes in the image plot
  *  @author Kay Kasemir
  */
@@ -21,4 +23,12 @@ public interface RTImagePlotListener
      *  @param value Pixel value of image at that location
      */
     default public void changedCursorLocation(double x, double y, double value) {};
+
+    /** Invoked when the user moves a region of interest
+     *
+     *  @param index Index 0, .. of the R.O.I.
+     *  @param name Name of the R.O.I.
+     *  @param region Region in coordinates of X, Y axes
+     */
+    default public void changedROI(int index, String name, Rectangle2D region) {};
 }

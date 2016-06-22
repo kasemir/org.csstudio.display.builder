@@ -15,15 +15,18 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget.AxisWidgetProperty;
+import org.csstudio.display.builder.model.widgets.plots.ImageWidget.ROIWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.RTImagePlot;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
+import org.csstudio.javafx.rtplot.RegionOfInterest;
 import org.diirt.util.array.ArrayByte;
 import org.diirt.util.array.ArrayDouble;
 import org.diirt.vtype.VImage;
@@ -31,6 +34,8 @@ import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueFactory;
 
+import javafx.application.Platform;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.layout.Pane;
 
 /** Creates JavaFX item for model widget
@@ -43,6 +48,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 
     /** Actual plotting delegated to {@link RTImagePlot} */
     private RTImagePlot image_plot;
+
+    private volatile boolean changing_roi = false;
 
     private final static List<String> cursor_info_names = Arrays.asList("X", "Y", "Value");
     private final static List<Class<?>> cursor_info_types = Arrays.asList(Double.TYPE, Double.TYPE, Double.TYPE);
@@ -57,6 +64,20 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
                                        cursor_info_names,
                                        Arrays.asList(new ArrayDouble(x), new ArrayDouble(y), new ArrayDouble(value))));
         }
+
+        @Override
+        public void changedROI(final int index, final String name, final Rectangle2D region)
+        {
+            if (changing_roi)
+                return;
+            final ROIWidgetProperty widget_roi = model_widget.miscROIs().getValue().get(index);
+            changing_roi =  true;
+            widget_roi.x_value().setValue(region.getMinX());
+            widget_roi.y_value().setValue(region.getMinY());
+            widget_roi.width_value().setValue(region.getWidth());
+            widget_roi.height_value().setValue(region.getHeight());
+            changing_roi =  false;
+        }
     };
 
     @Override
@@ -65,7 +86,61 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         // Plot is only active in runtime mode, not edit mode
         image_plot = new RTImagePlot(! toolkit.isEditMode());
         image_plot.setAutoscale(false);
+
+        if (! toolkit.isEditMode())
+        {
+            // Create ROIs once. Not allowing adding/removing ROIs in runtime.
+            for (ROIWidgetProperty roi : model_widget.miscROIs().getValue())
+                createROI(roi);
+        }
+
         return new Pane(image_plot);
+    }
+
+    private void createROI(final ROIWidgetProperty model_roi)
+    {
+        final RegionOfInterest plot_roi = image_plot.addROI(model_roi.name().getValue(),
+                                                            JFXUtil.convert(model_roi.color().getValue()),
+                                                            model_roi.visible().getValue());
+        // Show/hide ROI as roi.visible() changes
+        model_roi.visible().addPropertyListener((prop, old, visible) ->
+        {
+            plot_roi.setVisible(visible);
+            Platform.runLater(() -> image_plot.removeROITracker());
+            image_plot.requestUpdate();
+        });
+
+        // Listen to roi.x_value(), .. and update plot_roi
+        final WidgetPropertyListener<Double> model_roi_listener = (o, old, value) ->
+        {
+            if (changing_roi)
+                return;
+            Rectangle2D region = plot_roi.getRegion();
+            region = new Rectangle2D(existingOrProperty(region.getMinX(), model_roi.x_value()),
+                                     existingOrProperty(region.getMinY(), model_roi.y_value()),
+                                     existingOrProperty(region.getWidth(), model_roi.width_value()),
+                                     existingOrProperty(region.getHeight(), model_roi.height_value()));
+            changing_roi = true;
+            plot_roi.setRegion(region);
+            changing_roi = false;
+            image_plot.requestUpdate();
+        };
+        model_roi.x_value().addPropertyListener(model_roi_listener);
+        model_roi.y_value().addPropertyListener(model_roi_listener);
+        model_roi.width_value().addPropertyListener(model_roi_listener);
+        model_roi.height_value().addPropertyListener(model_roi_listener);
+    }
+
+    /** @param old Existing value
+     *  @param prop Property that may have new value, or <code>null</code>
+     *  @return Property's value, falling back to old value
+     */
+    private double existingOrProperty(final double old, final WidgetProperty<Double> prop)
+    {
+        final Double value = prop.getValue();
+        if (value == null)
+            return old;
+        return value;
     }
 
     @Override
@@ -76,12 +151,12 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
 
         model_widget.displayDataColormap().addPropertyListener(this::colormapChanged);
+        model_widget.displayBackground().addUntypedPropertyListener(this::configChanged);
         model_widget.displayColorbar().visible().addUntypedPropertyListener(this::configChanged);
         model_widget.displayColorbar().barSize().addUntypedPropertyListener(this::configChanged);
         model_widget.displayColorbar().scaleFont().addUntypedPropertyListener(this::configChanged);
         addAxisListener(model_widget.displayXAxis());
         addAxisListener(model_widget.displayYAxis());
-
 
         model_widget.behaviorDataAutoscale().addUntypedPropertyListener(this::configChanged);
         model_widget.behaviorDataMinimum().addUntypedPropertyListener(this::configChanged);
@@ -125,6 +200,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 
     private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        image_plot.setBackground(JFXUtil.convert(model_widget.displayBackground().getValue()));
         image_plot.showColorMap(model_widget.displayColorbar().visible().getValue());
         image_plot.setColorMapSize(model_widget.displayColorbar().barSize().getValue());
         image_plot.setColorMapFont(JFXUtil.convert(model_widget.displayColorbar().scaleFont().getValue()));
