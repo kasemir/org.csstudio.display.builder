@@ -14,6 +14,7 @@ import java.awt.geom.AffineTransform;
 
 import com.sun.javafx.tk.Toolkit;
 
+import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -22,7 +23,7 @@ import javafx.scene.text.FontWeight;
 /** Utility methods for drawing graphics
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
+@SuppressWarnings({ "nls", "restriction" })
 public class GraphicsUtils
 {
     /** Convert color
@@ -77,6 +78,15 @@ public class GraphicsUtils
         return Font.font(font.getFamily(), weight, posture, font.getSize());
     }
 
+    /** Convert rectangle
+     *  @param rect AWT rectangle
+     *  @return JFX rectangle
+     */
+    public static Rectangle2D convert(final Rectangle rect)
+    {
+        return new Rectangle2D(rect.x, rect.y, rect.width, rect.height);
+    }
+
     /** Measure text
      *  @param gc JFX Graphics context. Font must be set.
      *  @param text Text to measure, may contain '\n' for multi-line text.
@@ -86,6 +96,9 @@ public class GraphicsUtils
      */
     public static Rectangle measureText(final GraphicsContext gc, final String text)
     {
+        // This is not public API for FontMetrics, see
+        // https://bugs.openjdk.java.net/browse/JDK-8098301
+        // https://bugs.openjdk.java.net/browse/JDK-8090775
         final com.sun.javafx.tk.FontMetrics metrics =
                 Toolkit.getToolkit().getFontLoader().getFontMetrics(gc.getFont());
 

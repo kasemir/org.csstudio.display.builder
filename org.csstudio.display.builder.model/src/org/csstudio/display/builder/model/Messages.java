@@ -58,6 +58,7 @@ public class Messages extends NLS
     public static String PlotWidget_PointType;
     public static String PlotWidget_ScaleFont;
     public static String PlotWidget_ShowLegend;
+    public static String PlotWidget_ShowToolbar;
     public static String PlotWidget_Title;
     public static String PlotWidget_TitleFont;
     public static String PlotWidget_Trace;

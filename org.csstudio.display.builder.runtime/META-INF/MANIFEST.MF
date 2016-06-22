@@ -12,7 +12,8 @@ Require-Bundle: org.eclipse.core.runtime;bundle-version="3.10.0",
  org.csstudio.platform.libs.epics;bundle-version="4.1.0",
  org.csstudio.vtype.pv;bundle-version="4.0.1",
  org.csstudio.display.builder.model;bundle-version="1.0.0",
- org.csstudio.display.builder.representation;bundle-version="1.0.0"
+ org.csstudio.display.builder.representation;bundle-version="1.0.0",
+ org.csstudio.display.builder.util
 Bundle-Vendor: Kay Kasemir - SNS
 Eclipse-RegisterBuddy: org.python.jython
 Export-Package: org.csstudio.display.builder.runtime,
