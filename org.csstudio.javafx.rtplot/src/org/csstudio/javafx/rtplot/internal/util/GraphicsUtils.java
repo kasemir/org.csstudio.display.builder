@@ -23,7 +23,7 @@ import javafx.scene.text.FontWeight;
 /** Utility methods for drawing graphics
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
+@SuppressWarnings({ "nls", "restriction" })
 public class GraphicsUtils
 {
     /** Convert color
@@ -96,6 +96,9 @@ public class GraphicsUtils
      */
     public static Rectangle measureText(final GraphicsContext gc, final String text)
     {
+        // This is not public API for FontMetrics, see
+        // https://bugs.openjdk.java.net/browse/JDK-8098301
+        // https://bugs.openjdk.java.net/browse/JDK-8090775
         final com.sun.javafx.tk.FontMetrics metrics =
                 Toolkit.getToolkit().getFontLoader().getFontMetrics(gc.getFont());
 
