@@ -49,8 +49,8 @@
     <y_axis>
       <visible>false</visible>
       <title>Y</title>
-      <minimum>0.0</minimum>
-      <maximum>100.0</maximum>
+      <minimum>100.0</minimum>
+      <maximum>0.0</maximum>
       <title_font>
         <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
         </font>
@@ -63,6 +63,8 @@
     <pv_name>sim://sawtooth(10, 50, 10000, 0.5)</pv_name>
     <minimum>-1.0</minimum>
     <maximum>1.0</maximum>
+    <rois>
+    </rois>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
@@ -138,6 +140,8 @@ impacts on overall perception. </text>
     <pv_name>sim://sawtooth(10, 50, 10000, 0.5)</pv_name>
     <minimum>-1.0</minimum>
     <maximum>1.0</maximum>
+    <rois>
+    </rois>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
@@ -196,7 +200,7 @@ the value range.</text>
       <visible>true</visible>
       <title>Y</title>
       <minimum>0.0</minimum>
-      <maximum>10.0</maximum>
+      <maximum>80.0</maximum>
       <title_font>
         <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
         </font>
@@ -210,14 +214,31 @@ the value range.</text>
     <autoscale>false</autoscale>
     <minimum>-1.0</minimum>
     <maximum>1.0</maximum>
+    <cursor_info_pv>loc://cursor_info</cursor_info_pv>
+    <rois>
+      <roi>
+        <visible>true</visible>
+        <name>ROI 0</name>
+        <color>
+          <color red="255" green="168" blue="0">
+          </color>
+        </color>
+        <x_pv>loc://roi_x(10)</x_pv>
+        <y_pv>loc://roi_y(10)</y_pv>
+        <width_pv>loc://roi_w(10)</width_pv>
+        <height_pv>loc://roi_h(10)</height_pv>
+      </roi>
+    </rois>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
     <y>921</y>
     <width>271</width>
-    <height>60</height>
+    <height>140</height>
     <text>- Horizontal, vertical axes
-- Color bar</text>
+- Color bar
+- Regions of interest
+- Cursor Info PV</text>
     <font>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
@@ -238,9 +259,12 @@ the value range.</text>
     <x>271</x>
     <y>921</y>
     <width>561</width>
-    <height>180</height>
-    <text>For PVAccess, the data can be an NTNDArray PV
-(currently limited to byte[]).
+    <height>260</height>
+    <text>For PVAccess, a PV that serves an NTNDArray will provide
+both the image data and the width &amp; height information.
+(This is currently limited to byte[] data.
+ For NTNDArray with short, int, etc., you need to read pva://that_pv/value
+ to get just the data array, and configure the data width and height).
 
 For PVAccess or Channel Access, the data can be a waveform that contains
 the pixels values starting with the top-left pixel,
@@ -259,5 +283,133 @@ For NTNDArray PVs, the image size is provided by the PV.</text>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
     </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_10</name>
+    <x>651</x>
+    <y>521</y>
+    <width>149</width>
+    <text>Region of Interest</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_11</name>
+    <x>651</x>
+    <y>637</y>
+    <width>25</width>
+    <text>X:</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry</name>
+    <x>686</x>
+    <y>637</y>
+    <format>1</format>
+    <precision>2</precision>
+    <pv_name>loc://roi_x(10)</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_13</name>
+    <x>651</x>
+    <y>669</y>
+    <width>25</width>
+    <text>Y:</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_1</name>
+    <x>686</x>
+    <y>669</y>
+    <format>1</format>
+    <precision>2</precision>
+    <pv_name>loc://roi_y(10)</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_14</name>
+    <x>811</x>
+    <y>637</y>
+    <width>25</width>
+    <text>W:</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_2</name>
+    <x>846</x>
+    <y>637</y>
+    <format>1</format>
+    <precision>2</precision>
+    <pv_name>loc://roi_w(10)</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_15</name>
+    <x>811</x>
+    <y>669</y>
+    <width>25</width>
+    <text>H:</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_3</name>
+    <x>846</x>
+    <y>669</y>
+    <format>1</format>
+    <precision>2</precision>
+    <pv_name>loc://roi_h(10)</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_16</name>
+    <x>651</x>
+    <y>546</y>
+    <width>330</width>
+    <height>81</height>
+    <text>Image can have one or more regions of interest.
+Each ROI is shown on the plot.
+You can move it interactively.
+PVs can be assigned to the X/Y position and size.</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_12</name>
+    <x>651</x>
+    <y>711</y>
+    <width>149</width>
+    <text>Cursor Info</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_17</name>
+    <x>651</x>
+    <y>771</y>
+    <width>390</width>
+    <height>100</height>
+    <text>A cursor info PV is updated with the current mouse position
+in the image and the pixel value at that location.
+
+The value is of type VTable and can be displayed directly,
+or used in a script for customized formatting.</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update</name>
+    <x>651</x>
+    <y>741</y>
+    <width>390</width>
+    <pv_name>loc://cursor_info</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_18</name>
+    <x>651</x>
+    <y>861</y>
+    <width>330</width>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+    <transparent>false</transparent>
+    <scripts>
+      <script file="scripts/cursor_info.py">
+        <pv_name>loc://cursor_info</pv_name>
+      </script>
+    </scripts>
   </widget>
 </display>

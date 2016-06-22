@@ -161,13 +161,13 @@
   <widget type="action_button" version="2.0.0">
     <name>Action Button_5</name>
     <x>332</x>
-    <y>201</y>
+    <y>361</y>
     <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>monitors_image.bob</file>
+        <file>plots_image.bob</file>
         <target>replace</target>
         <description>Image</description>
       </action>
@@ -421,7 +421,7 @@
   <widget type="action_button" version="2.0.0">
     <name>Action Button_20</name>
     <x>332</x>
-    <y>241</y>
+    <y>201</y>
     <width>120</width>
     <height>26</height>
     <text>$(actions)</text>
@@ -429,7 +429,7 @@
       <action type="open_display">
         <file>monitors_bytemonitor.bob</file>
         <target>replace</target>
-        <description>Bytemonitor</description>
+        <description>Byte Monitor</description>
       </action>
     </actions>
   </widget>
