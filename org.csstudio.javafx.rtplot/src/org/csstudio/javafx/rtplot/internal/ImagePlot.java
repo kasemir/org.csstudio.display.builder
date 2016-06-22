@@ -436,7 +436,7 @@ public class ImagePlot extends PlotCanvasBase
     /** @param roi RegionOfInterest
      *  @return Screen coordinates
      */
-    private Rectangle2D roiToScreen(final RegionOfInterest roi)
+    private Rectangle roiToScreen(final RegionOfInterest roi)
     {
         final int x0 = x_axis.getScreenCoord(roi.getRegion().getMinX()),
                   y0 = y_axis.getScreenCoord(roi.getRegion().getMinY()),
@@ -444,7 +444,7 @@ public class ImagePlot extends PlotCanvasBase
                   y1 = y_axis.getScreenCoord(roi.getRegion().getMaxY());
         final int x = Math.min(x0, x1);
         final int y = Math.min(y0, y1);
-        return new Rectangle2D(x, y, Math.abs(x1-x0), Math.abs(y1-y0));
+        return new Rectangle(x, y, Math.abs(x1-x0), Math.abs(y1-y0));
     }
 
     /** @param roi RegionOfInterest to move to new location
@@ -488,7 +488,7 @@ public class ImagePlot extends PlotCanvasBase
         if (! roi.isVisible())
             return;
         gc.setColor(GraphicsUtils.convert(roi.getColor()));
-        final Rectangle2D rect = roiToScreen(roi);
+        final java.awt.geom.Rectangle2D rect = image_area.createIntersection(roiToScreen(roi));
         gc.drawRect((int)rect.getMinX(), (int)rect.getMinY(), (int)rect.getWidth(), (int)rect.getHeight());
         gc.drawString(roi.getName(), (int)rect.getMinX(), (int)rect.getMinY());
     }
@@ -637,15 +637,21 @@ public class ImagePlot extends PlotCanvasBase
         for (RegionOfInterest roi : rois)
             if (roi.isVisible())
             {
-                final Rectangle2D rect = roiToScreen(roi);
-                if (rect.contains(current))
-                {
-                    roi_tracker = new Tracker(new Rectangle2D(image_area.x, image_area.y, image_area.width, image_area.height));
-                    roi_tracker.setPosition(rect);
-                    ChildCare.addChild(getParent(), roi_tracker);
-                    final int index = rois.indexOf(roi);
-                    roi_tracker.setListener((old_pos, new_pos) -> updateRoiFromScreen(index, new_pos));
-                    return;
+                final Rectangle rect = roiToScreen(roi);
+                if (rect.contains(current.getX(), current.getY()))
+                {   // Check if complete ROI is visible,
+                    // because otherwise tracker would extend beyond the
+                    // current image viewport
+                    final Rectangle2D image_rect = GraphicsUtils.convert(image_area);
+                    if (image_rect.contains(rect.x, rect.y, rect.width, rect.height))
+                    {
+                        roi_tracker = new Tracker(image_rect);
+                        roi_tracker.setPosition(rect.x, rect.y, rect.width, rect.height);
+                        ChildCare.addChild(getParent(), roi_tracker);
+                        final int index = rois.indexOf(roi);
+                        roi_tracker.setListener((old_pos, new_pos) -> updateRoiFromScreen(index, new_pos));
+                        return;
+                    }
                 }
             }
 

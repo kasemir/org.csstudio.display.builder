@@ -14,6 +14,7 @@ import java.awt.geom.AffineTransform;
 
 import com.sun.javafx.tk.Toolkit;
 
+import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -75,6 +76,15 @@ public class GraphicsUtils
         final FontWeight weight = font.isBold() ? FontWeight.BOLD : FontWeight.NORMAL;
         final FontPosture posture = font.isItalic() ? FontPosture.ITALIC : FontPosture.REGULAR;
         return Font.font(font.getFamily(), weight, posture, font.getSize());
+    }
+
+    /** Convert rectangle
+     *  @param rect AWT rectangle
+     *  @return JFX rectangle
+     */
+    public static Rectangle2D convert(final Rectangle rect)
+    {
+        return new Rectangle2D(rect.x, rect.y, rect.width, rect.height);
     }
 
     /** Measure text
