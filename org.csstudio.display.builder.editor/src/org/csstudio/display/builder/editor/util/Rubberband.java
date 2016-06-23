@@ -9,6 +9,7 @@ package org.csstudio.display.builder.editor.util;
 
 import java.util.function.Consumer;
 
+import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -49,8 +50,15 @@ public class Rubberband
     private void handleStart(final MouseEvent event)
     {
         active = true;
-        x0 = event.getX();
-        y0 = event.getY();
+
+        // Event originates from a node that allows 'clicking' beyond the
+        // model elements, i.e. the size of the 'parent'.
+        // The 'parent', however, may be scrolled, and the rubber band needs
+        // to show up in the 'parent', so convert coordinates
+        // from event to the parent:
+        final Point2D in_parent = parent.sceneToLocal(event.getSceneX(), event.getSceneY());
+        x0 = in_parent.getX();
+        y0 = in_parent.getY();
         rect.setX(x0);
         rect.setY(y0);
         rect.setWidth(1);
@@ -63,8 +71,9 @@ public class Rubberband
     {
         if (! active)
             return;
-        x1 = event.getX();
-        y1 = event.getY();
+        final Point2D in_parent = parent.sceneToLocal(event.getSceneX(), event.getSceneY());
+        x1 = in_parent.getX();
+        y1 = in_parent.getY();
         rect.setX(Math.min(x0, x1));
         rect.setY(Math.min(y0, y1));
         rect.setWidth(Math.abs(x1 - x0));
@@ -76,8 +85,9 @@ public class Rubberband
     {
         if (! active)
             return;
-        x1 = event.getX();
-        y1 = event.getY();
+        final Point2D in_parent = parent.sceneToLocal(event.getSceneX(), event.getSceneY());
+        x1 = in_parent.getX();
+        y1 = in_parent.getY();
         parent.getChildren().remove(rect);
         active = false;
         handler.accept(new Rectangle2D(Math.min(x0, x1), Math.min(y0, y1),
