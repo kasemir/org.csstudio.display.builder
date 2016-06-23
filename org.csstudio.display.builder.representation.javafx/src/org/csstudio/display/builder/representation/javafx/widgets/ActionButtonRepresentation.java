@@ -19,8 +19,11 @@ import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
+import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.csstudio.display.builder.representation.javafx.Messages;
+import org.eclipse.osgi.util.NLS;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
@@ -31,6 +34,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 /** Creates JavaFX item for model widget
+ *  @author Megan Grodowitz
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -43,9 +47,9 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
     // ChoiceBox is not derived from ButtonBase, plus it has currently selected 'value',
     // and with action buttons it wouldn't make sense to select one of the actions.
     //
-    // Current implementation does not allow changing the actions at runtime.
-    // Specifically, if the action count changed between 1 and >1,
-    // it won't update between Button and MenuButton.
+    // The 'base' button is wrapped in a 'pane'
+    // to allow replacing the button as actions change from single actions (or zero)
+    // to multiple actions.
 
     private final DirtyFlag dirty_representation = new DirtyFlag();
     private final DirtyFlag dirty_actionls = new DirtyFlag();
@@ -57,23 +61,15 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
 
     /** Optional modifier of the open display 'target */
     private Optional<OpenDisplayActionInfo.Target> target_modifier = Optional.empty();
-    private Pane pane;
 
+    private Pane pane;
 
 
     @Override
     public Pane createJFXNode() throws Exception
     {
         updateColors();
-        makeBaseButton();
-
-        // Model has width/height, but JFX widget has min, pref, max size.
-        // updateChanges() will set the 'pref' size, so make min use that as well.
-        base.setMinSize(ButtonBase.USE_PREF_SIZE, ButtonBase.USE_PREF_SIZE);
-
-        // Monitor keys that modify the OpenDisplayActionInfo.Target.
-        // Use filter to capture event that's otherwise already handled.
-        base.addEventFilter(MouseEvent.MOUSE_PRESSED, this::checkModifiers);
+        base = makeBaseButton();
 
         pane = new Pane();
         pane.getChildren().add(base);
@@ -100,6 +96,95 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             logger.log(Level.FINE, "{0} modifier: {1}", new Object[] { model_widget, target_modifier.get() });
             base.arm();
         }
+    }
+
+    /** Create <code>base</code>, either single-action button
+     *  or menu for selecting one out of N actions
+     */
+    private ButtonBase makeBaseButton()
+    {
+        final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
+        final ButtonBase result;
+        if (actions.size() < 2)
+        {
+            final Button button = new Button();
+            if (actions.size() > 0)
+            {
+                final ActionInfo the_action = actions.get(0);
+                button.setOnAction(event -> handleAction(the_action));
+            }
+            result = button;
+        }
+        else
+        {
+            final MenuButton button = new MenuButton();
+            for (final ActionInfo action : actions)
+            {
+                final MenuItem item = new MenuItem(makeActionText(action));
+                //item.setStyle("-fx-background-color: slateblue; -fx-text-fill: white;");
+                item.setStyle(background + " " + text_fill);
+                item.setOnAction(event -> handleAction(action));
+                button.getItems().add(item);
+            }
+            result = button;
+        }
+        result.setStyle(background + " " + fx_base);
+
+        // Model has width/height, but JFX widget has min, pref, max size.
+        // updateChanges() will set the 'pref' size, so make min use that as well.
+        result.setMinSize(ButtonBase.USE_PREF_SIZE, ButtonBase.USE_PREF_SIZE);
+
+        // Monitor keys that modify the OpenDisplayActionInfo.Target.
+        // Use filter to capture event that's otherwise already handled.
+        result.addEventFilter(MouseEvent.MOUSE_PRESSED, this::checkModifiers);
+
+        if (toolkit.isEditMode())
+            result.setOnMousePressed((event) ->
+            {
+                event.consume();
+                toolkit.fireClick(model_widget, event.isControlDown());
+            });
+
+        return result;
+    }
+
+    private String makeButtonText()
+    {
+        // If text is "$(actions)", evaluate the actions ourself because
+        // a) That way we can format it beyond just "[ action1, action2, ..]"
+        // b) Macro won't be re-evaluated as actions change,
+        //    while this code will always use current actions
+        final StringWidgetProperty text_prop = (StringWidgetProperty)model_widget.displayText();
+        if ("$(actions)".equals(text_prop.getSpecification()))
+        {
+            final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
+            if (actions.size() < 1)
+                return Messages.ActionButton_NoActions;
+            if (actions.size() > 1)
+                return NLS.bind(Messages.ActionButton_N_ActionsFmt, actions.size());
+            return makeActionText(actions.get(0));
+        }
+        else
+            return text_prop.getValue();
+    }
+
+    private String makeActionText(final ActionInfo action)
+    {
+        String action_str = action.getDescription();
+        if (action_str.isEmpty())
+            action_str = action.toString();
+        String expanded;
+        try
+        {
+            final MacroValueProvider macros = model_widget.getMacrosOrProperties();
+            expanded = MacroHandler.replace(macros, action_str);
+        }
+        catch (final Exception ex)
+        {
+            logger.log(Level.WARNING, model_widget + " action " + action + " cannot expand macros for " + action_str, ex);
+            expanded = action_str;
+        }
+        return expanded;
     }
 
     /** @param action Action that the user invoked */
@@ -137,10 +222,8 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
 
     private void buttonChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        updateColors();
         dirty_actionls.mark();
-        dirty_representation.mark();
-        toolkit.scheduleUpdate(this);
+        representationChanged(property, old_value, new_value);
     }
 
     private void updateColors()
@@ -155,111 +238,23 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         background = JFXUtil.shadedStyle(model_widget.displayBackgroundColor().getValue());
     }
 
-    private String makeActionText(ActionInfo action)
-    {
-        String action_str = action.getDescription();
-        String expanded;
-        if (action_str.length() == 0)
-        {
-            action_str = action.toString();
-        }
-        final MacroValueProvider macros = model_widget.getMacrosOrProperties();
-
-        try
-        {
-            expanded = MacroHandler.replace(macros, action_str);
-        }
-        catch (final Exception ex)
-        {
-            logger.log(Level.WARNING, model_widget + " action " + action + " cannot expand macros for " + action_str, ex);
-            expanded = action_str;
-        }
-        return expanded;
-    }
-
-    private void makeButtonText()
-    {
-        button_text = model_widget.displayText().getValue();
-        if (button_text.length() > 0)
-            return;
-
-        final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
-        if (actions.size() < 1)
-        {
-            button_text = "EMPTY";
-            return;
-        }
-        if (actions.size() > 1)
-        {
-            button_text = "Choose 1 of " + String.valueOf(actions.size());
-            return;
-        }
-        button_text = makeActionText(actions.get(0));
-    }
-
-    private void makeBaseButton()
-    {
-        final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
-        // Create either single-action button or menu for selecting one out of N actions
-        if (actions.size() < 2)
-        {
-            final Button button = new Button();
-            if (actions.size() > 0)
-            {
-                final ActionInfo the_action = actions.get(0);
-                button.setOnAction(event -> handleAction(the_action));
-            }
-            base = button;
-        }
-        else
-        {
-            final MenuButton button = new MenuButton();
-            for (final ActionInfo action : actions)
-            {
-                final MenuItem item = new MenuItem(makeActionText(action));
-                //item.setStyle("-fx-background-color: slateblue; -fx-text-fill: white;");
-                item.setStyle(background + " " + text_fill);
-                item.setOnAction(event -> handleAction(action));
-                button.getItems().add(item);
-            }
-            base = button;
-        }
-        //button1.setStyle("-fx-font: 22 arial; -fx-base: #b6e7c9;");
-        base.setStyle(background + " " + fx_base);
-
-        if (toolkit.isEditMode())
-        {
-            //base.setOnMouseReleased(event -> {});
-            base.setOnMousePressed((event) ->
-            {
-                event.consume();
-                toolkit.fireClick(model_widget, event.isControlDown());
-            });
-        }
-
-
-    }
-
     @Override
     public void updateChanges()
     {
         super.updateChanges();
         if (dirty_actionls.checkAndClear())
         {
-            makeBaseButton();
-            jfx_node.getChildren().clear();
-            jfx_node.getChildren().add(base);
+            base = makeBaseButton();
+            jfx_node.getChildren().setAll(base);
         }
         if (dirty_representation.checkAndClear())
         {
-            makeButtonText();
+            button_text = makeButtonText();
             base.setText(button_text);
             base.setTextFill(foreground);
             base.setPrefSize(model_widget.positionWidth().getValue(),
-                    model_widget.positionHeight().getValue());
+                             model_widget.positionHeight().getValue());
             base.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
-            jfx_node.getChildren().clear();
-            jfx_node.getChildren().add(base);
         }
     }
 }
