@@ -52,21 +52,23 @@ import javafx.scene.layout.Pane;
  *
  *  <p>Extends the basic JFXRepresentation scene layout:
  *  <pre>
- *  root
+ *  root (SplitPane)
  *   |
  *   +----------------------+
  *   |                      |
- *  model_root           palette
+ *  model_root (Scroll)    palette
  *   |
- *  scroll_body
+ *  scroll_body (Pane)
  *   |
- *   +----------------------+
- *   |                      |
- *  model_parent          edit_tools
- *  (model rep. in back)  (on top)
+ *   +----------------------------+
+ *   |                            |
+ *  model_parent (Group)      edit_tools
+ *  (model rep. in back)      (on top)
+ *   |                            |
+ *  widget representations    selection tracker, points, rubberband
  *  </pre>
  *
- *  <p>model_parent hosts representation of model widgets
+ *  <p>model_parent hosts representations of model widgets
  *
  *  <p>edit_tools holds GroupHandler, SelectionTracker
  *
