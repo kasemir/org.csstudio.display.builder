@@ -130,6 +130,8 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
         model_widget.displayPrecision().addUntypedPropertyListener(this::contentChanged);
         model_widget.displayShowUnits().addUntypedPropertyListener(this::contentChanged);
         model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
+
+        model_widget.behaviorPVName().addPropertyListener(this::pvnameChanged);
     }
 
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -155,6 +157,17 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
                                           model_widget.displayFormat().getValue(),
                                           model_widget.displayPrecision().getValue(),
                                           model_widget.displayShowUnits().getValue());
+    }
+
+    private void pvnameChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
+    {   // PV name typically changes in edit mode.
+        // -> Show new PV name.
+        // Runtime could deal with disconnect/reconnect for new PV name
+        // -> Also OK to show disconnected state until runtime
+        //    subscribes to new PV, so we eventually get values from new PV.
+        value_text = computeText(null);
+        dirty_content.mark();
+        toolkit.scheduleUpdate(this);
     }
 
     private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
