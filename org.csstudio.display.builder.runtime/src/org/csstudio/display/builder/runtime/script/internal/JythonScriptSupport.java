@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.runtime.script;
+package org.csstudio.display.builder.runtime.script.internal;
 
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
