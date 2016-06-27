@@ -4,11 +4,10 @@ Sudoku board creator.
 @author Amanda Carpenter
 """
 
-from org.csstudio.display.builder.runtime.script import PVUtil
-#from sudoku_lib import calcBlockRange
+from org.csstudio.display.builder.runtime.script import PVUtil, ScriptUtil
+logger = ScriptUtil.getLogger()
 
-from java.util.logging import Logger
-logger = Logger.getLogger("script")
+logger.info("Loading sudoku.py")
 
 pvVal = int(PVUtil.getDouble(pvs[0]))
 if pvVal == -1:

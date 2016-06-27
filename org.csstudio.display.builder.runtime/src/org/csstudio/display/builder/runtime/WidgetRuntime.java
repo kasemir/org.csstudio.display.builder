@@ -35,9 +35,9 @@ import org.csstudio.display.builder.runtime.internal.RuntimePVs;
 import org.csstudio.display.builder.runtime.pv.PVFactory;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.csstudio.display.builder.runtime.pv.RuntimePVListener;
-import org.csstudio.display.builder.runtime.script.RuntimeScriptHandler;
-import org.csstudio.display.builder.runtime.script.Script;
-import org.csstudio.display.builder.runtime.script.ScriptSupport;
+import org.csstudio.display.builder.runtime.script.internal.RuntimeScriptHandler;
+import org.csstudio.display.builder.runtime.script.internal.Script;
+import org.csstudio.display.builder.runtime.script.internal.ScriptSupport;
 import org.diirt.vtype.VType;
 
 /** Common Widget runtime.
@@ -212,6 +212,12 @@ public class WidgetRuntime<MW extends Widget>
         if (runtime_pvs == null)
             return Collections.emptyList();
         return runtime_pvs.getPVs();
+    }
+    
+    /** @return {@link Optional} containing primary PV of widget, if present. */
+    public Optional<RuntimePV> getPrimaryPV()
+    {
+        return primary_pv;
     }
 
     /** Runtime actions

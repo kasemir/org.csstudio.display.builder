@@ -128,4 +128,17 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     {
         return new Color(display, color.getRed(), color.getGreen(), color.getBlue());
     }
+
+    @Override
+    public void showMessageDialog(final boolean is_warning, final String message)
+    {
+        logger.log(Level.WARNING, "showMessageDialog('" + message + "') is not implemented");
+    }
+
+    @Override
+    public boolean showConfirmationDialog(final String question)
+    {
+        logger.log(Level.WARNING, "showConfirmationDialog('" + question + "') is not implemented");
+        return false;
+    }
 }

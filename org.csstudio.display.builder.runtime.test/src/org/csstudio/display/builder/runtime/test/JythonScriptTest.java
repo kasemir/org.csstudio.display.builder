@@ -15,8 +15,8 @@ import java.io.FileInputStream;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
-import org.csstudio.display.builder.runtime.script.Script;
-import org.csstudio.display.builder.runtime.script.ScriptSupport;
+import org.csstudio.display.builder.runtime.script.internal.Script;
+import org.csstudio.display.builder.runtime.script.internal.ScriptSupport;
 import org.junit.Test;
 
 /** JUnit test of script support

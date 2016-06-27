@@ -24,7 +24,7 @@ import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
-import org.csstudio.display.builder.runtime.script.ScriptSupport;
+import org.csstudio.display.builder.runtime.script.internal.ScriptSupport;
 
 /** Runtime Helper
  *

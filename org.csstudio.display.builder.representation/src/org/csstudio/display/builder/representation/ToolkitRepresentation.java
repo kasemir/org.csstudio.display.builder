@@ -334,6 +334,27 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     @Override
     abstract public void execute(final Runnable command);
 
+    /** Show message dialog.
+     *
+     *  <p>Calling thread is blocked until user closes the dialog
+     *  by pressing "OK".
+     *
+     *  @param is_warning Whether to style dialog as warning or information
+     *  @param message Message to display on dialog
+     */
+    abstract public void showMessageDialog(boolean is_warning, String message);
+
+    /** Show confirmation dialog.
+     *
+     *  <p>Calling thread is blocked until user closes the dialog
+     *  by selecting either "Yes" or "No"
+     *  ("Confirm", "Cancel", depending on implementation).
+     *
+     *  @param mesquestionsage Message to display on dialog
+     *  @return <code>true</code> if user selected "Yes" ("Confirm")
+     */
+    abstract public boolean showConfirmationDialog(String question);
+
     /** Execute callable in toolkit's UI thread.
      *  @param <T> Type to return
      *  @param callable Callable to execute
