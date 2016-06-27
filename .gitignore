@@ -5,6 +5,9 @@ org.csstudio.display.builder.runtime.test/cachedir/
 build.log
 *.class
 
+# Ignore generated Javadoc
+org.csstudio.display.builder.editor.rcp/doc/java/
+
 # Ignore files created by IDE on Maven import
 .project
 .settings

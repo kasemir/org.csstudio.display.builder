@@ -47,6 +47,24 @@ import org.osgi.framework.Version;
  *  <p>A Widget has properties, supporting read access, subscription
  *  and for most properties also write access.
  *
+ *  <p>Properties can be accessed in a most generic way based on the
+ *  property name:
+ *  <pre>
+ *  getPropertyValue("text")
+ *  setPropertyValue("text", "Hello")
+ *  getPropertyValue("x")
+ *  setPropertyValue("x", 60)
+ *  </pre>
+ *
+ *  <p>While this is ideal for access from scripts,
+ *  Java code that deals with a specific widget can access
+ *  properties in the type-safe way:
+ *  <pre>
+ *  LabelWidget label;
+ *  label.positionX().getValue();
+ *  label.positionX().setValue(60);
+ *  </pre>
+ *
  *  <p>Widgets are part of a hierarchy.
  *  Their parent is either the {@link DisplayModel} or another
  *  widget with a {@link ChildrenProperty}
