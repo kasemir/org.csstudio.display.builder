@@ -359,7 +359,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
                 break;
             }
 
-        return new OpenDisplayActionInfo(open_display_description.getText().trim(),
+        return new OpenDisplayActionInfo(open_display_description.getText(),
                                          open_display_path.getText().trim(),
                                          open_display_macros.getMacros(),
                                          target);
