@@ -17,6 +17,8 @@ public class Messages extends NLS
     private static final String BUNDLE_NAME = "org.csstudio.display.builder.representation.javafx.messages"; //$NON-NLS-1$
 
     // Keep in alphabetical order, synchronized with messages.properties
+    public static String ActionButton_N_ActionsFmt;
+    public static String ActionButton_NoActions;
     public static String ActionsDialog_Actions;
     public static String ActionsDialog_Description;
     public static String ActionsDialog_Detail;

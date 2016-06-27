@@ -16,36 +16,45 @@
     <y>70</y>
     <width>504</width>
     <height>430</height>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[# Embedded python script
+from org.csstudio.display.builder.runtime.script import PVUtil
+
+show = PVUtil.getLong(pvs[0]) > 0
+
+widget.setPropertyValue("rois[0].visible", show)
+
+]]></text>
+        <pv_name>loc://show_roi(1)</pv_name>
+      </script>
+    </scripts>
     <pv_name>pva://IMAGE</pv_name>
-    <unsigned>false</unsigned>
     <cursor_info_pv>loc://cursor_info</cursor_info_pv>
     <rois>
       <roi>
         <visible>true</visible>
-        <name>ROI 0</name>
+        <name>Measure</name>
         <color>
           <color red="255" green="0" blue="0">
           </color>
         </color>
-        <pv_name></pv_name>
+        <x_pv>loc://roi_x(10)</x_pv>
+        <y_pv>loc://roi_y(10)</y_pv>
+        <width_pv>loc://roi_w(10)</width_pv>
+        <height_pv>loc://roi_h(10)</height_pv>
       </roi>
       <roi>
         <visible>true</visible>
-        <name>ROI 1</name>
+        <name>Auto-Scale</name>
         <color>
-          <color red="255" green="0" blue="0">
+          <color red="153" green="204" blue="153">
           </color>
         </color>
-        <pv_name></pv_name>
-      </roi>
-      <roi>
-        <visible>true</visible>
-        <name>ROI 2</name>
-        <color>
-          <color red="255" green="0" blue="0">
-          </color>
-        </color>
-        <pv_name></pv_name>
+        <x_pv></x_pv>
+        <y_pv></y_pv>
+        <width_pv></width_pv>
+        <height_pv></height_pv>
       </roi>
     </rois>
   </widget>
@@ -88,5 +97,55 @@
     <y>550</y>
     <width>84</width>
     <text>Cursor Info:</text>
+  </widget>
+  <widget type="checkbox" version="2.0.0">
+    <name>CheckBox</name>
+    <x>84</x>
+    <y>580</y>
+    <width>216</width>
+    <label>Show Region of Interest</label>
+    <pv_name>loc://show_roi(1)</pv_name>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry</name>
+    <x>84</x>
+    <y>620</y>
+    <width>96</width>
+    <height>29</height>
+    <format>1</format>
+    <pv_name>loc://roi_x(10)</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_4</name>
+    <y>620</y>
+    <width>84</width>
+    <text>R.O.I.:</text>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_1</name>
+    <x>84</x>
+    <y>659</y>
+    <width>96</width>
+    <height>29</height>
+    <format>1</format>
+    <pv_name>loc://roi_y(10)</pv_name>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_2</name>
+    <x>84</x>
+    <y>702</y>
+    <width>96</width>
+    <height>29</height>
+    <format>1</format>
+    <pv_name>loc://roi_w(10)</pv_name>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_3</name>
+    <x>84</x>
+    <y>742</y>
+    <width>96</width>
+    <height>29</height>
+    <format>1</format>
+    <pv_name>loc://roi_h(10)</pv_name>
   </widget>
 </display>

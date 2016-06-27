@@ -142,10 +142,20 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
     /** Access element
      *  @param index Element index, 0 .. (<code>getValue().size()</code>-1)
      *  @return Element of array
+     *  @throws IndexOutOfBoundsException
      */
-    public  WPE getElement(final int index)
+    public WPE getElement(final int index)
     {
-        return value.get(index);
+        try
+        {
+            return value.get(index);
+        }
+        catch (IndexOutOfBoundsException ex)
+        {
+            throw new IndexOutOfBoundsException("Cannot get element " + index + " of " +
+                                                getWidget().getName() + "." + getName() +
+                                                " (Size: " + value.size() + ")");
+        }
     }
 
     /** Remove the last element

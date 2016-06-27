@@ -14,9 +14,9 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.DoubleFunction;
 import java.util.logging.Level;
 
@@ -26,6 +26,7 @@ import org.csstudio.javafx.Tracker;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
+import org.csstudio.javafx.rtplot.RegionOfInterest;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.LinearScreenTransform;
@@ -56,6 +57,9 @@ public class ImagePlot extends PlotCanvasBase
 
     /** Rainbow color mapping */
     public final static DoubleFunction<Color> RAINBOW = value -> new Color(Color.HSBtoRGB((float)value, 1.0f, 1.0f));
+
+    /** Background color */
+    private volatile Color background = Color.WHITE;
 
     /** Axis range for 'full' image */
     private volatile double min_x = 0.0, max_x = 100.0, min_y = 0.0, max_y = 100.0;
@@ -99,14 +103,12 @@ public class ImagePlot extends PlotCanvasBase
     /** Is 'image_data' meant to be treated as 'unsigned'? */
     private volatile boolean unsigned_data = false;
 
-    /** Regions of interest by 'index'.
-     *
-     *  <p>Using Map<index, ROI> instead of List<ROI>
-     *  because some indices may not be used.
-     */
-    private final Map<Integer, RegionOfInterest> rois = new ConcurrentHashMap<>();
+    /** Regions of interest */
+    private final List<RegionOfInterest> rois = new CopyOnWriteArrayList<>();
 
     private volatile RTImagePlotListener plot_listener = null;
+
+    private Tracker roi_tracker;
 
     /** Constructor
      *  @param active Active mode where plot reacts to mouse/keyboard?
@@ -123,10 +125,6 @@ public class ImagePlot extends PlotCanvasBase
 
         if (active)
         {
-            // TODO Replace bogus ROI with API for real ones
-            rois.put(0, new RegionOfInterest("ROI One", javafx.scene.paint.Color.RED, 10.0, 20.0, 20.0, 10.0));
-            rois.put(1, new RegionOfInterest("ROI Two", javafx.scene.paint.Color.PINK, 35.0, 34.0, 20.0, 10.0));
-
             setMouseMode(MouseMode.ZOOM_IN);
             setOnMousePressed(this::mouseDown);
             setOnMouseMoved(this::mouseMove);
@@ -140,6 +138,12 @@ public class ImagePlot extends PlotCanvasBase
     public void setListener(final RTImagePlotListener plot_listener)
     {
         this.plot_listener = plot_listener;
+    }
+
+    /** @param color Background color */
+    public void setBackground(final Color color)
+    {
+        background  = color;
     }
 
     /** @param autoscale  Auto-scale the color mapping? */
@@ -219,6 +223,49 @@ public class ImagePlot extends PlotCanvasBase
     {
         colorbar_axis.setScaleFont(font);
         requestLayout();
+    }
+
+    /** Add region of interest
+     *  @param name
+     *  @param color
+     *  @param visible
+     *  @return {@link RegionOfInterest}
+     */
+    public RegionOfInterest addROI(final String name, final javafx.scene.paint.Color color, final boolean visible)
+    {   // Return a ROI that triggers a redraw as it's moved
+        final RegionOfInterest roi = new RegionOfInterest(name, color, visible, 0, 0, 10, 10)
+        {
+            @Override
+            public void setVisible(boolean visible)
+            {
+                super.setVisible(visible);
+                requestUpdate();
+            }
+
+            @Override
+            public void setRegion(Rectangle2D region)
+            {
+                super.setRegion(region);
+                requestUpdate();
+            }
+        };
+        rois.add(roi);
+        return roi;
+    }
+
+    /** @return Regions of interest */
+    public List<RegionOfInterest> getROIs()
+    {
+        return rois;
+    }
+
+    /** @param index Index of R.O.I. to remove
+     *  @throws IndexOutOfBoundsException
+     */
+    public void removeROI(final int index)
+    {
+        rois.remove(index);
+        requestUpdate();
     }
 
     /** Set the data to display
@@ -327,8 +374,8 @@ public class ImagePlot extends PlotCanvasBase
         if (need_layout.getAndSet(false))
             computeLayout(gc, area_copy, min, max);
 
-        // TODO Fill with a 'background' color instead of white
-        gc.setColor(Color.WHITE);
+        // Fill with a 'background' color
+        gc.setColor(background);
         gc.fillRect(0, 0, area_copy.width, area_copy.height);
 
         // Debug: Show exact outer rim
@@ -375,7 +422,7 @@ public class ImagePlot extends PlotCanvasBase
 
         // ROI uses X axis font
         gc.setFont(x_axis.label_font);
-        for (RegionOfInterest roi : rois.values())
+        for (RegionOfInterest roi : rois)
             drawROI(gc, roi);
 
         gc.dispose();
@@ -386,7 +433,10 @@ public class ImagePlot extends PlotCanvasBase
         return SwingFXUtils.toFXImage(image, null);
     }
 
-    private Rectangle2D roiToScreen(final RegionOfInterest roi)
+    /** @param roi RegionOfInterest
+     *  @return Screen coordinates
+     */
+    private Rectangle roiToScreen(final RegionOfInterest roi)
     {
         final int x0 = x_axis.getScreenCoord(roi.getRegion().getMinX()),
                   y0 = y_axis.getScreenCoord(roi.getRegion().getMinY()),
@@ -394,11 +444,16 @@ public class ImagePlot extends PlotCanvasBase
                   y1 = y_axis.getScreenCoord(roi.getRegion().getMaxY());
         final int x = Math.min(x0, x1);
         final int y = Math.min(y0, y1);
-        return new Rectangle2D(x, y, Math.abs(x1-x0), Math.abs(y1-y0));
+        return new Rectangle(x, y, Math.abs(x1-x0), Math.abs(y1-y0));
     }
 
-    private void updateRoiFromScreen(final RegionOfInterest roi, final Rectangle2D screen_pos)
+    /** @param roi RegionOfInterest to move to new location
+     *  @param screen_pos Screen position, will be converted into axes' values
+     */
+    private void updateRoiFromScreen(final int index, final Rectangle2D screen_pos)
     {
+        final RegionOfInterest roi = rois.get(index);
+        // Convert screen position to axis values
         final double x0 = x_axis.getValue((int)screen_pos.getMinX()),
                      y0 = y_axis.getValue((int)screen_pos.getMinY()),
                      x1 = x_axis.getValue((int)screen_pos.getMaxX()),
@@ -408,17 +463,41 @@ public class ImagePlot extends PlotCanvasBase
         final Rectangle2D region = new Rectangle2D(x, y, Math.abs(x1-x0), Math.abs(y1-y0));
         roi.setRegion(region);
         requestUpdate();
-        // TODO Notify a listener of ROI change
+
+        // Notify listener of ROI change
+        final RTImagePlotListener listener = plot_listener;
+        if (listener != null)
+            listener.changedROI(index, roi.getName(), roi.getRegion());
     }
 
+    /** If there is a ROI tracker, remove it */
+    public void removeROITracker()
+    {
+        if (roi_tracker != null)
+        {
+            ChildCare.removeChild(getParent(), roi_tracker);
+            roi_tracker = null;
+        }
+    }
+
+    /** @param gc GC for off-screen image
+     *  @param roi RegionOfInterest to draw
+     */
     private void drawROI(final Graphics2D gc, final RegionOfInterest roi)
     {
+        if (! roi.isVisible())
+            return;
         gc.setColor(GraphicsUtils.convert(roi.getColor()));
-        final Rectangle2D rect = roiToScreen(roi);
+        final java.awt.geom.Rectangle2D rect = image_area.createIntersection(roiToScreen(roi));
         gc.drawRect((int)rect.getMinX(), (int)rect.getMinY(), (int)rect.getWidth(), (int)rect.getHeight());
         gc.drawString(roi.getName(), (int)rect.getMinX(), (int)rect.getMinY());
     }
 
+    /** @param min Value ..
+     *  @param max .. range
+     *  @param color_mapping Color mapping info
+     *  @return Off-screen image
+     */
     private BufferedImage drawColorBar(final double min, final double max, final DoubleFunction<Color> color_mapping)
     {
         final BufferedImage image = new BufferedImage(1, 256, BufferedImage.TYPE_INT_ARGB);
@@ -542,20 +621,39 @@ public class ImagePlot extends PlotCanvasBase
         // Don't start mouse actions when user invokes context menu
         if (! e.isPrimaryButtonDown()  ||  (PlatformInfo.is_mac_os_x && e.isControlDown()))
             return;
-        final Point2D current = new Point2D(e.getX(), e.getY());
-        for (RegionOfInterest roi : rois.values())
+
+        // Received a click while a tacker is active
+        // -> User clicked outside of tracker. Remove it.
+        if (roi_tracker != null)
         {
-            final Rectangle2D rect = roiToScreen(roi);
-            if (rect.contains(current))
-            {
-                final Tracker tracker = new Tracker();
-                tracker.setPosition(rect);
-                ChildCare.addChild(getParent(), tracker);
-                tracker.setListener((old_pos, new_pos) -> updateRoiFromScreen(roi, new_pos));
-                // TODO remove tracker
-                return;
-            }
+            removeROITracker();
+            // Don't cause accidental 'zoom out' etc.
+            // User needs to click again for that.
+            return;
         }
+
+        // Select any tracker
+        final Point2D current = new Point2D(e.getX(), e.getY());
+        for (RegionOfInterest roi : rois)
+            if (roi.isVisible())
+            {
+                final Rectangle rect = roiToScreen(roi);
+                if (rect.contains(current.getX(), current.getY()))
+                {   // Check if complete ROI is visible,
+                    // because otherwise tracker would extend beyond the
+                    // current image viewport
+                    final Rectangle2D image_rect = GraphicsUtils.convert(image_area);
+                    if (image_rect.contains(rect.x, rect.y, rect.width, rect.height))
+                    {
+                        roi_tracker = new Tracker(image_rect);
+                        roi_tracker.setPosition(rect.x, rect.y, rect.width, rect.height);
+                        ChildCare.addChild(getParent(), roi_tracker);
+                        final int index = rois.indexOf(roi);
+                        roi_tracker.setListener((old_pos, new_pos) -> updateRoiFromScreen(index, new_pos));
+                        return;
+                    }
+                }
+            }
 
         mouse_start = mouse_current = Optional.of(current);
 
@@ -656,7 +754,7 @@ public class ImagePlot extends PlotCanvasBase
         {   // Mouse 'y' increases going _down_ the screen
             if (Math.abs(start.getY() - current.getY()) > ZOOM_PIXEL_THRESHOLD)
             {
-                final int high = (int)Math.min(start.getY(), current.getY());
+                final int high = (int) Math.min(start.getY(), current.getY());
                 final int low = (int) Math.max(start.getY(), current.getY());
                 final AxisRange<Double> original_y_range = y_axis.getValueRange();
                 final AxisRange<Double> new_y_range = new AxisRange<>(Math.max(min_y, y_axis.getValue(low)),
@@ -703,6 +801,9 @@ public class ImagePlot extends PlotCanvasBase
     @Override
     protected void zoomInOut(final double x, final double y, final double factor)
     {
+        // In case ROI is visible, hide because zoom invalidates the tracker position on the screen
+        removeROITracker();
+
         final boolean zoom_x = x_axis.getBounds().contains(x, y);
         final boolean zoom_y = y_axis.getBounds().contains(x, y);
         final boolean zoom_both = image_area.getBounds().contains(x, y);

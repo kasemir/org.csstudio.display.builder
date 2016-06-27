@@ -67,20 +67,23 @@ public class DoubleWidgetProperty extends MacroizedWidgetProperty<Double>
         {
             return Double.valueOf(text);
         }
-        catch (final NumberFormatException ex2)
+        catch (final NumberFormatException ex)
         {
             throw new Exception("Double property '" + getName() +
-                                "' has invalid value " + text);
+                                "' has invalid value " + text, ex);
         }
     }
 
     @Override
     protected Double restrictValue(final Double requested_value)
     {
-        if (requested_value.compareTo(min) < 0)
-            return min;
-        if (requested_value.compareTo(max) > 0)
-            return max;
+        if (Double.isFinite(requested_value))
+        {   // Only check limits for finite value. NaN is passed through.
+            if (requested_value.compareTo(min) < 0)
+                return min;
+            if (requested_value.compareTo(max) > 0)
+                return max;
+        }
         return requested_value;
     }
 

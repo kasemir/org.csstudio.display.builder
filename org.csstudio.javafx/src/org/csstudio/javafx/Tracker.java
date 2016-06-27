@@ -22,9 +22,12 @@ import javafx.scene.shape.Rectangle;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class Tracker extends Group
 {
     private static final int HANDLE_SIZE = 10;
+
+    private final Rectangle2D restriction;
 
     private TrackerListener listener;
 
@@ -42,9 +45,18 @@ public class Tracker extends Group
     /** Tracker position at start of drag */
     private Rectangle2D orig;
 
-
+    /** Create tracker */
     public Tracker()
     {
+        this(null);
+    }
+
+    /** Create tracker with restricted position range
+     *  @param restriction Bounds within which tracker will stay
+     */
+    public Tracker(final Rectangle2D restriction)
+    {
+        this.restriction = restriction;
         setAutoSizeChildren(false);
 
         tracker.getStyleClass().add("tracker");
@@ -74,7 +86,7 @@ public class Tracker extends Group
     private Rectangle createHandle()
     {
         final Rectangle handle = new Rectangle(HANDLE_SIZE, HANDLE_SIZE);
-        handle.getStyleClass().add("tracker_handle"); // TODO Different class? Color?
+        handle.getStyleClass().add("tracker_handle");
         handle.setOnMousePressed(this::startDrag);
         handle.setOnMouseReleased(this::endMouseDrag);
         return handle;
@@ -297,12 +309,25 @@ public class Tracker extends Group
      *  @param width
      *  @param height
      */
-    public void setPosition(final double x, final double y, double width, double height)
+    public void setPosition(double x, double y, double width, double height)
     {
+        // Enforce valid position
         if (width < 0)
             width = 0;
         if (height < 0)
             height = 0;
+        if (restriction != null)
+        {
+            if (x < restriction.getMinX())
+                x = restriction.getMinX();
+            if (y < restriction.getMinY())
+                y = restriction.getMinY();
+            if (x + width > restriction.getMaxX())
+                x = restriction.getMaxX() - width;
+            if (y + height > restriction.getMaxY())
+                y = restriction.getMaxY() - height;
+        }
+
         // relocate() will _not_ update Rectangle.x, y!
         tracker.setX(x);
         tracker.setY(y);

@@ -232,7 +232,7 @@ class JythonScriptSupport implements AutoCloseable
             }
             catch (final Throwable ex)
             {
-                logger.log(Level.WARNING, "Execution of '" + script + "' failed", ex);
+                logger.log(Level.WARNING, "Execution of '" + script + "' failed for " + widget, ex);
             }
             // System.out.println("Finished " + script);
             return null;

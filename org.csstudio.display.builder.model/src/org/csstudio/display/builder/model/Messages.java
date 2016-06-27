@@ -58,6 +58,7 @@ public class Messages extends NLS
     public static String PlotWidget_PointType;
     public static String PlotWidget_ScaleFont;
     public static String PlotWidget_ShowLegend;
+    public static String PlotWidget_ShowToolbar;
     public static String PlotWidget_Title;
     public static String PlotWidget_TitleFont;
     public static String PlotWidget_Trace;
@@ -128,6 +129,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ForegroundColor;
     public static String WidgetProperties_Format;
     public static String WidgetProperties_Height;
+    public static String WidgetProperties_HeightPVName;
     public static String WidgetProperties_HorizontalAlignment;
     public static String WidgetProperties_Insets;
     public static String WidgetProperties_LevelHi;
@@ -170,8 +172,11 @@ public class Messages extends NLS
     public static String WidgetProperties_VerticalAlignment;
     public static String WidgetProperties_Visible;
     public static String WidgetProperties_Width;
+    public static String WidgetProperties_WidthPVName;
     public static String WidgetProperties_X;
+    public static String WidgetProperties_XPVName;
     public static String WidgetProperties_Y;
+    public static String WidgetProperties_YPVName;
     public static String WidgetPropertyCategory_Behavior;
     public static String WidgetPropertyCategory_Display;
     public static String WidgetPropertyCategory_Misc;

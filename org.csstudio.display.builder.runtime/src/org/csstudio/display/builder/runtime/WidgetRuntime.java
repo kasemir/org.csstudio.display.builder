@@ -45,7 +45,10 @@ import org.diirt.vtype.VType;
  *  <p>Connects to scripts and PVs.
  *
  *  <p>Widgets with additional needs can implement
- *  a derived runtime and register with {@link WidgetRuntimeFactory}
+ *  a derived runtime and register with {@link WidgetRuntimeFactory}.
+ *
+ *  <p>Derived runtimes can provide {@link RuntimeAction}s
+ *  that will be offered in the context menu of the widget.
  *
  *  @author Kay Kasemir
  *  @param <MW> Model widget
@@ -215,6 +218,19 @@ public class WidgetRuntime<MW extends Widget>
     public Optional<RuntimePV> getPrimaryPV()
     {
         return primary_pv;
+    }
+
+    /** Runtime actions
+     *
+     *  <p>Representation (RCP) will present them in widget's
+     *  context menu.
+     *
+     *  @return Runtime actions
+     */
+    public Collection<RuntimeAction> getRuntimeActions()
+    {
+        // Derived class can provide actions. Default has none.
+        return Collections.emptyList();
     }
 
     /** Start: Connect to PVs, start scripts
