@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Display Builder" link_to="../org.csstudio.ui.help/tocApps.xml#display">
+    <topic label="Display Builder" href="doc/display.builder.html">
+        <topic label="Overview" href="doc/display.builder.html#overview"/>
+        <topic label="Programmatic Access" href="doc/display.builder.html#programmatic"/>
+    </topic>
+</toc>
