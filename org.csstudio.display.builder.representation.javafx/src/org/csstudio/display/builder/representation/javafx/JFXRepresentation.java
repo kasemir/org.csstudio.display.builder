@@ -9,6 +9,9 @@ package org.csstudio.display.builder.representation.javafx;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -81,6 +84,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
 
@@ -307,17 +311,55 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public void showDialog(boolean is_warning, String message)
+    public void showMessageDialog(final boolean is_warning, final String message)
     {
+        final CountDownLatch done = new CountDownLatch(1);
         execute( ()->
         {
-            Alert alert = new Alert(is_warning ?
-                    Alert.AlertType.WARNING :
-                    Alert.AlertType.INFORMATION,
-                message);
+            final Alert alert = new Alert(is_warning
+                                          ? Alert.AlertType.WARNING
+                                          : Alert.AlertType.INFORMATION,
+                                          message);
+            alert.setTitle(is_warning ? "Warning" : "Information");
             alert.setHeaderText(null);
-            alert.setTitle(null);
-            alert.showAndWait().ifPresent((result)->alert.close());
+            alert.showAndWait();
+            done.countDown();
         });
+        try
+        {
+            done.await();
+        }
+        catch (InterruptedException ex)
+        {
+            // Ignore
+        }
+    }
+
+    @Override
+    public boolean showConfirmationDialog(final String question)
+    {
+        final CompletableFuture<Boolean> done = new CompletableFuture<>();
+        execute( ()->
+        {
+            final Alert alert = new Alert(Alert.AlertType.CONFIRMATION, question);
+            alert.setTitle("Please Confirm");
+            alert.setHeaderText(null);
+            // Setting "Yes", "No" buttons
+            alert.getButtonTypes().clear();
+            alert.getButtonTypes().add(ButtonType.YES);
+            alert.getButtonTypes().add(ButtonType.NO);
+            Optional<ButtonType> result = alert.showAndWait();
+            // NOTE that button type OK/YES/APPLY checked in here must match!
+            done.complete(result.isPresent()  &&  result.get() == ButtonType.YES);
+        });
+        try
+        {
+            return done.get();
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Confirmation dialog ('" + question + "') failed", ex);
+        }
+        return false;
     }
 }

@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
-  <name>Display</name>
+  <name>Scripts</name>
   <scripts>
-    <script file="info_dialog.py">
-      <pv_name>loc://showDialog</pv_name>
-    </script>
     <script file="getPVs.py">
       <pv_name trigger="false">loc://getPV&lt;String&gt;</pv_name>
       <pv_name trigger="false">loc://test1</pv_name>
@@ -18,7 +15,7 @@
     <name>Label</name>
     <width>281</width>
     <height>31</height>
-    <text>My Display</text>
+    <text>Script Utilities</text>
     <font>
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
@@ -26,67 +23,58 @@
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button</name>
-    <x>50</x>
-    <y>90</y>
+    <y>400</y>
     <width>120</width>
+    <height>30</height>
     <text>$(actions)</text>
     <actions>
-      <action type="write_pv">
-        <pv_name>loc://showDialog</pv_name>
-        <value>1</value>
-        <description>Show Dialog</description>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+ScriptUtil.showMessageDialog(widget, False, "Hello!")
+]]></text>
+        </script>
+        <description>Show Info</description>
       </action>
     </actions>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry</name>
-    <x>50</x>
-    <y>50</y>
+    <x>330</x>
+    <y>450</y>
     <width>120</width>
+    <height>30</height>
     <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
   <widget type="action_button" version="2.0.0">
-    <name>Action Button_1</name>
-    <x>50</x>
-    <y>130</y>
-    <width>120</width>
-    <text>$(actions)</text>
-    <actions>
-      <action type="write_pv">
-        <pv_name>loc://showDialog</pv_name>
-        <value>2</value>
-        <description>Show Warning</description>
-      </action>
-    </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
     <name>Action Button_2</name>
-    <x>50</x>
-    <y>170</y>
-    <width>120</width>
-    <text>$(actions)</text>
+    <y>240</y>
+    <width>149</width>
+    <height>30</height>
+    <text>Log a message</text>
     <actions>
       <action type="execute">
         <script file="EmbeddedPy">
-          <text><![CDATA[from org.csstudio.display.builder.runtime.scriptUtil import ScriptUtil
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
 
-ScriptUtil.logSevere("This is a severe log message.")]]></text>
+ScriptUtil.getLogger().severe("This is a severe log message.")]]></text>
         </script>
         <description>Log Severe</description>
       </action>
       <action type="execute">
         <script file="EmbeddedPy">
-          <text><![CDATA[from org.csstudio.display.builder.runtime.scriptUtil import ScriptUtil
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
 
-ScriptUtil.logWarning("This is a warning log message.")]]></text>
+ScriptUtil.getLogger().warning("This is a warning log message.")]]></text>
         </script>
         <description>Log Warning</description>
       </action>
       <action type="execute">
         <script file="EmbeddedPy">
-          <text><![CDATA[from org.csstudio.display.builder.runtime.scriptUtil import ScriptUtil
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
 
-ScriptUtil.logInfo("This is a warning log message.")]]></text>
+ScriptUtil.getLogger().info("This is a warning log message.")]]></text>
         </script>
         <description>Log Info</description>
       </action>
@@ -94,8 +82,8 @@ ScriptUtil.logInfo("This is a warning log message.")]]></text>
   </widget>
   <widget type="combo" version="2.0.0">
     <name>Combo Box</name>
-    <x>220</x>
-    <y>130</y>
+    <x>320</x>
+    <y>580</y>
     <width>140</width>
     <pv_name>loc://getPV&lt;String&gt;</pv_name>
     <items>
@@ -108,51 +96,152 @@ ScriptUtil.logInfo("This is a warning log message.")]]></text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update</name>
-    <x>220</x>
-    <y>90</y>
+    <x>320</x>
+    <y>540</y>
     <width>30</width>
+    <height>30</height>
     <pv_name>loc://test1</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_1</name>
-    <x>255</x>
-    <y>90</y>
+    <x>355</x>
+    <y>540</y>
     <width>30</width>
+    <height>30</height>
     <pv_name>loc://test2</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_2</name>
-    <x>290</x>
-    <y>90</y>
+    <x>390</x>
+    <y>540</y>
     <width>30</width>
+    <height>30</height>
     <pv_name>loc://test3</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_3</name>
-    <x>325</x>
-    <y>90</y>
+    <x>425</x>
+    <y>540</y>
     <width>30</width>
+    <height>30</height>
     <pv_name>loc://test4</pv_name>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>textentry</name>
-    <x>220</x>
-    <y>50</y>
+    <x>320</x>
+    <y>500</y>
     <width>135</width>
+    <height>30</height>
     <show_units>false</show_units>
     <pv_name>loc://test&lt;String&gt;</pv_name>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_3</name>
-    <x>220</x>
-    <y>170</y>
+    <x>320</x>
+    <y>620</y>
     <width>135</width>
+    <height>30</height>
     <text>$(actions)</text>
     <actions>
       <action type="write_pv">
         <pv_name>loc://writePV</pv_name>
         <value>1</value>
         <description>Write PV</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_1</name>
+    <x>130</x>
+    <y>400</y>
+    <width>120</width>
+    <height>30</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+ScriptUtil.showMessageDialog(widget, True, "Test!")
+]]></text>
+        </script>
+        <description>Show Warning</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <y>31</y>
+    <width>369</width>
+    <height>49</height>
+    <text>The package org.csstudio.display.builder.runtime.script
+contains several helper classes meant for use in scripts.</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_2</name>
+    <y>70</y>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <y>90</y>
+    <width>479</width>
+    <height>160</height>
+    <text>On Linux and Mac OS X one can often use plain 'print' statements
+in the script code to log debug messages.
+They appear on the console, i.e. the terminal from which the display
+was started.
+On Windows, there is typically no console.
+An overall more reliable way for logging is the Logger, which results
+in log messages that CS-Studio can show in the Console view, and/or
+redirect to files, JMS etc.</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_4</name>
+    <y>299</y>
+    <width>385</width>
+    <height>101</height>
+    <text>In extreme cases, scripts can use dialogs to
+force the user's attention, or to prompt for confirmation.
+
+The use of such dialogs should be limited, however,
+because it can disrupt a user's workflow.</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_5</name>
+    <y>279</y>
+    <text>Dialogs</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_4</name>
+    <x>260</x>
+    <y>400</y>
+    <width>120</width>
+    <height>30</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+ScriptUtil.getLogger().warning("Prompting..")
+
+if ScriptUtil.showConfirmationDialog(widget, "Does this make sense?"):
+    ScriptUtil.showMessageDialog(widget, False, "Excellent!")
+else:
+    ScriptUtil.showMessageDialog(widget, True, "Well, too bad")
+
+ScriptUtil.getLogger().warning("Done")
+]]></text>
+        </script>
+        <description>Ask</description>
       </action>
     </actions>
   </widget>
