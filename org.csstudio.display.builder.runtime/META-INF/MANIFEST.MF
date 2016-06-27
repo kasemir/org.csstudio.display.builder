@@ -18,4 +18,5 @@ Bundle-Vendor: Kay Kasemir - SNS
 Eclipse-RegisterBuddy: org.python.jython
 Export-Package: org.csstudio.display.builder.runtime,
  org.csstudio.display.builder.runtime.pv,
- org.csstudio.display.builder.runtime.script
+ org.csstudio.display.builder.runtime.script,
+ org.csstudio.display.builder.runtime.script.internal
