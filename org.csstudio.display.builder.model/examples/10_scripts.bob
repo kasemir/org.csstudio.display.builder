@@ -335,7 +335,7 @@ and the "Active" label moves next to the selected mode.</text>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_1</name>
-    <x>531</x>
+    <x>521</x>
     <y>791</y>
     <height>30</height>
     <text>$(actions)</text>
@@ -442,7 +442,7 @@ from new locations.</text>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_2</name>
-    <x>643</x>
+    <x>631</x>
     <y>791</y>
     <height>30</height>
     <text>$(actions)</text>
@@ -456,7 +456,7 @@ from new locations.</text>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_3</name>
-    <x>771</x>
+    <x>741</x>
     <y>791</y>
     <height>30</height>
     <text>$(actions)</text>
@@ -465,6 +465,20 @@ from new locations.</text>
         <file>sudoku/sudoku.bob</file>
         <target>replace</target>
         <description>Sudoku</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_4</name>
+    <x>851</x>
+    <y>791</y>
+    <height>30</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>script_util/script_util.bob</file>
+        <target>replace</target>
+        <description>Script Utils</description>
       </action>
     </actions>
   </widget>

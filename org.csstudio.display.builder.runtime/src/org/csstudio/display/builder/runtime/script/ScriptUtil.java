@@ -95,38 +95,53 @@ public class ScriptUtil
     // ==================
     // get PV utils
 
-    /**
-     * Get primary PV of given widget.
+    /** Get primary PV of given widget.
      *
-     * @param widget
-     *            Widget to get PV of.
-     * @return Primary PV of widget; otherwise, if not found, null.
+     *  <p>This is the PV that a Text Update widget displays,
+     *  or the one that a Text Entry widget writes.
+     *
+     *  <p>Some widgets have no primary PV (Label, Rectangle),
+     *  or more then one PV (XY Plot).
+     *
+     *  @param widget Widget to get PV of.
+     *  @return Primary PV of widget; otherwise, if not found, null.
      */
-    public static RuntimePV getPV(Widget widget)
+    public static RuntimePV getPrimaryPV(final Widget widget)
     {
         Optional<RuntimePV> pv = WidgetRuntime.ofWidget(widget).getPrimaryPV();
-        Object value = pv.isPresent() ? pv.get().read() : null;
-        return pv.isPresent() ? pv.get() : null;
+        return pv.orElse(null);
     }
 
-    /**
-     * Get PV by name from widget's collection, including PVs from scripts and
-     * rules.
+    /** Get all PVs of a widget.
      *
-     * @param widget
-     *            Widget to get PV from
-     * @param name
-     *            Name of PV to get
-     * @return PV of given widget with given name; otherwise, if not found,
-     *         null.
+     *  <p>This includes the primary PV of a widget as well as
+     *  PVs from scripts and rules assigned to the widget.
+     *
+     *  @param widget Widget of which to get PVs
+     *  @return List of PVs.
      */
-    public static RuntimePV getPVByName(Widget widget, String name)
+    public static Collection<RuntimePV> getPVs(final Widget widget)
     {
-        Collection<RuntimePV> pvs = WidgetRuntime.ofWidget(widget).getPVs();
+        return WidgetRuntime.ofWidget(widget).getPVs();
+    }
+
+    /** Get widget's PV by name
+     *
+     *  <p>Locates widget's PV by name, including the primary PV
+     *  as well as PVs from scripts and rules.
+     *
+     *  @param widget Widget to get PV from
+     *  @param name  Name of PV to get
+     *  @return PV of given widget with given name; otherwise, if not found,
+     *          <code>null</code>
+     */
+    public static RuntimePV getPVByName(final Widget widget, final String name)
+    {
+        final Collection<RuntimePV> pvs = getPVs(widget);
         for (RuntimePV pv : pvs)
             if (name.equals(pv.getName()))
                 return pv;
-        Logger.getLogger("ScriptUtil").warning("Could not find pv by name '" + name + "' for " + widget);
+        logger.warning("Could not find PV with name '" + name + "' for " + widget);
         return null;
     }
 }

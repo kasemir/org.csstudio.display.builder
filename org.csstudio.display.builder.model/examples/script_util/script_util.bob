@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Scripts</name>
-  <scripts>
-    <script file="getPVs.py">
-      <pv_name trigger="false">loc://getPV&lt;String&gt;</pv_name>
-      <pv_name trigger="false">loc://test1</pv_name>
-      <pv_name trigger="false">loc://test2</pv_name>
-      <pv_name trigger="false">loc://test3</pv_name>
-      <pv_name trigger="false">loc://test4</pv_name>
-      <pv_name>loc://writePV</pv_name>
-    </script>
-  </scripts>
   <widget type="label" version="2.0.0">
     <name>Label</name>
     <width>281</width>
@@ -23,7 +13,7 @@
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button</name>
-    <y>400</y>
+    <y>811</y>
     <width>120</width>
     <height>30</height>
     <text>$(actions)</text>
@@ -39,17 +29,9 @@ ScriptUtil.showMessageDialog(widget, False, "Hello!")
       </action>
     </actions>
   </widget>
-  <widget type="textentry" version="3.0.0">
-    <name>Text Entry</name>
-    <x>330</x>
-    <y>450</y>
-    <width>120</width>
-    <height>30</height>
-    <pv_name>sim://ramp(0,4,1)</pv_name>
-  </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_2</name>
-    <y>240</y>
+    <y>640</y>
     <width>149</width>
     <height>30</height>
     <text>Log a message</text>
@@ -81,11 +63,11 @@ ScriptUtil.getLogger().info("This is a warning log message.")]]></text>
     </actions>
   </widget>
   <widget type="combo" version="2.0.0">
-    <name>Combo Box</name>
-    <x>320</x>
-    <y>580</y>
+    <name>pv_name</name>
+    <x>600</x>
+    <y>680</y>
     <width>140</width>
-    <pv_name>loc://getPV&lt;String&gt;</pv_name>
+    <pv_name>loc://getPV&lt;String&gt;("loc://test1")</pv_name>
     <items>
       <item>loc://test1</item>
       <item>loc://test2</item>
@@ -95,57 +77,57 @@ ScriptUtil.getLogger().info("This is a warning log message.")]]></text>
     <items_from_pv>false</items_from_pv>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>Text Update</name>
-    <x>320</x>
-    <y>540</y>
-    <width>30</width>
+    <name>test1</name>
+    <x>840</x>
+    <y>680</y>
+    <width>50</width>
     <height>30</height>
     <pv_name>loc://test1</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>Text Update_1</name>
-    <x>355</x>
-    <y>540</y>
-    <width>30</width>
+    <name>test2</name>
+    <x>840</x>
+    <y>720</y>
+    <width>50</width>
     <height>30</height>
     <pv_name>loc://test2</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>Text Update_2</name>
-    <x>390</x>
-    <y>540</y>
-    <width>30</width>
+    <name>test3</name>
+    <x>840</x>
+    <y>760</y>
+    <width>50</width>
     <height>30</height>
     <pv_name>loc://test3</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
-    <name>Text Update_3</name>
-    <x>425</x>
-    <y>540</y>
-    <width>30</width>
+    <name>test4</name>
+    <x>840</x>
+    <y>800</y>
+    <width>50</width>
     <height>30</height>
     <pv_name>loc://test4</pv_name>
   </widget>
   <widget type="textentry" version="3.0.0">
-    <name>textentry</name>
-    <x>320</x>
-    <y>500</y>
+    <name>pv_value</name>
+    <x>600</x>
+    <y>717</y>
     <width>135</width>
     <height>30</height>
     <show_units>false</show_units>
-    <pv_name>loc://test&lt;String&gt;</pv_name>
+    <pv_name>loc://the_value(42.0)</pv_name>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_3</name>
-    <x>320</x>
-    <y>620</y>
+    <x>600</x>
+    <y>766</y>
     <width>135</width>
     <height>30</height>
     <text>$(actions)</text>
     <actions>
-      <action type="write_pv">
-        <pv_name>loc://writePV</pv_name>
-        <value>1</value>
+      <action type="execute">
+        <script file="write_pv.py">
+        </script>
         <description>Write PV</description>
       </action>
     </actions>
@@ -153,7 +135,7 @@ ScriptUtil.getLogger().info("This is a warning log message.")]]></text>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_1</name>
     <x>130</x>
-    <y>400</y>
+    <y>811</y>
     <width>120</width>
     <height>30</height>
     <text>$(actions)</text>
@@ -171,7 +153,7 @@ ScriptUtil.showMessageDialog(widget, True, "Test!")
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
-    <y>31</y>
+    <y>220</y>
     <width>369</width>
     <height>49</height>
     <text>The package org.csstudio.display.builder.runtime.script
@@ -179,7 +161,9 @@ contains several helper classes meant for use in scripts.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
-    <y>70</y>
+    <y>470</y>
+    <width>250</width>
+    <text>ScriptUtil: Logging</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -187,7 +171,7 @@ contains several helper classes meant for use in scripts.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
-    <y>90</y>
+    <y>490</y>
     <width>479</width>
     <height>160</height>
     <text>On Linux and Mac OS X one can often use plain 'print' statements
@@ -201,19 +185,20 @@ redirect to files, JMS etc.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
-    <y>299</y>
+    <y>710</y>
     <width>385</width>
     <height>101</height>
-    <text>In extreme cases, scripts can use dialogs to
-force the user's attention, or to prompt for confirmation.
+    <text>Scripts can use dialogs to force the user's attention,
+or to prompt for confirmation.
 
 The use of such dialogs should be limited, however,
 because it can disrupt a user's workflow.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
-    <y>279</y>
-    <text>Dialogs</text>
+    <y>690</y>
+    <width>170</width>
+    <text>ScriptUtil: Dialogs</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -222,7 +207,7 @@ because it can disrupt a user's workflow.</text>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_4</name>
     <x>260</x>
-    <y>400</y>
+    <y>811</y>
     <width>120</width>
     <height>30</height>
     <text>$(actions)</text>
@@ -244,5 +229,149 @@ ScriptUtil.getLogger().warning("Done")
         <description>Ask</description>
       </action>
     </actions>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_6</name>
+    <y>51</y>
+    <width>590</width>
+    <height>169</height>
+    <text>Scripts are invoked with
+ 1) 'widget' - The widget to which the script was assigned
+ 2) 'pvs' - An array of PVs
+
+The script can set the property of a widget like this:
+    widget.setPropertyValue("text", "Hello");
+
+The script can locate other widgets in the display like this:
+    widget.getDisplayModel().runtimeChildren().getChildByName("Some Name")</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_7</name>
+    <y>31</y>
+    <text>Basics</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_8</name>
+    <y>269</y>
+    <width>210</width>
+    <text>PVUtil: PV Values</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_9</name>
+    <y>289</y>
+    <width>479</width>
+    <height>61</height>
+    <text>The PVUtil can read the value of a PV.
+In this example, a Label widget shows the value of a PV
+because a script updates its text.</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_10</name>
+    <y>350</y>
+    <width>180</width>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+    <transparent>false</transparent>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[from org.csstudio.display.builder.runtime.script import PVUtil
+widget.setPropertyValue("text", "Value is: " + PVUtil.getString(pvs[0]))
+]]></text>
+        <pv_name>sim://sine</pv_name>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_11</name>
+    <y>380</y>
+    <width>509</width>
+    <height>40</height>
+    <text>A regular Text Update widget could have used instead.
+It's easier to configure, and automatically shows the alarm state of the PV:</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_4</name>
+    <y>420</y>
+    <pv_name>sim://sine</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_12</name>
+    <x>490</x>
+    <y>490</y>
+    <width>450</width>
+    <height>180</height>
+    <text>Scripts are typically called with all the PVs that they need to access.
+
+In rare cases, it can be helpful to fetch PVs from other widgets,
+i.e. access PVs that are not directly associated with the script.
+
+In no case should scripts themself create new PVs.
+The complete life cycle of creating a PV, awaiting the connection,
+and finally also disposing the PV when the display is closed
+is best handled by the display runtime, so scripts simply
+access PVs that have already been created.</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_13</name>
+    <x>490</x>
+    <y>470</y>
+    <width>250</width>
+    <text>ScriptUtil: Widget PVs</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_14</name>
+    <x>770</x>
+    <y>686</y>
+    <width>80</width>
+    <text>Test PV 1:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_15</name>
+    <x>770</x>
+    <y>726</y>
+    <width>80</width>
+    <text>Test PV 2:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_16</name>
+    <x>770</x>
+    <y>766</y>
+    <width>80</width>
+    <text>Test PV 3:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_17</name>
+    <x>770</x>
+    <y>806</y>
+    <width>80</width>
+    <text>Test PV 4:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_18</name>
+    <x>490</x>
+    <y>686</y>
+    <width>80</width>
+    <text>PV to write:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_19</name>
+    <x>490</x>
+    <y>723</y>
+    <width>110</width>
+    <text>Value (number):</text>
   </widget>
 </display>

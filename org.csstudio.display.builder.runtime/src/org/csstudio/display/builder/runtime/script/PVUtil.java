@@ -41,6 +41,15 @@ public class PVUtil
         return VTypeUtil.getValueNumber(getVType(pv)).longValue();
     }
 
+    /** Try to get an integer from the PV.
+     *  @param pv PV
+     *  @return Current value as int
+     */
+    public static int getInt(final RuntimePV pv)
+    {
+        return VTypeUtil.getValueNumber(getVType(pv)).intValue();
+    }
+
     /** Try to get a long integer from the PV.
      *  @param pv PV
      *  @return Current value as long
