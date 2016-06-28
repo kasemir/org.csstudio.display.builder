@@ -42,6 +42,7 @@ import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
 import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
 import org.csstudio.display.builder.model.widgets.SpinnerWidget;
+import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
@@ -129,6 +130,7 @@ public class WidgetFactory
         addWidgetType(ScaledSliderWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ScrollBarWidget.WIDGET_DESCRIPTOR);
         addWidgetType(SpinnerWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(TableWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TabsWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextEntryWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextUpdateWidget.WIDGET_DESCRIPTOR);
