@@ -37,7 +37,7 @@ public class TableDemo extends Application
         // Example data
         final List<String> headers = Arrays.asList("Left", "Middle", "Right");
         final List<List<String>> data = Arrays.asList(
-                Arrays.asList("One", "Two", "Three"),
+                Arrays.asList("One", "Two" ),
                 Arrays.asList("Uno", "Due", "Tres"));
 
         // Table
@@ -68,6 +68,10 @@ public class TableDemo extends Application
         {   // Fetch data from table view
             System.out.println(table.getHeaders());
             for (List<String> row : table.getData())
+                System.out.println(row);
+
+            System.out.println("Original data:");
+            for (List<String> row : data)
                 System.out.println(row);
         });
         stage.show();

@@ -7,21 +7,32 @@
  *******************************************************************************/
 package org.csstudio.javafx;
 
+import static org.csstudio.javafx.Activator.logger;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Bounds;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
@@ -36,8 +47,11 @@ import javafx.util.converter.DefaultStringConverter;
  *
  *  <p>Data can be changed at runtime, columns will
  *  then be re-created.
- *
+
  *  <p>User can edit the cells.
+ *  While inefficient, the table creates a deep copy
+ *  of the data submitted to it for display, so changes
+ *  in the table will not affect the original data.
  *
  *  <p>Toolbar and key shortcuts can be used to add/remove
  *  rows or columns:
@@ -90,10 +104,12 @@ public class StringTable extends BorderPane
         }
     }
 
-    // TODO Toolbar to add/remove rows and columns
-    private final Node toolbar = new Label("Toolbar");
+    private final ToolBar toolbar = new ToolBar();
 
-    private final TableView<List<String>> table = new TableView<>();
+    /** Data shown in the table, includes MAGIC_LAST_ROW */
+    private final ObservableList<List<String>> data = FXCollections.observableArrayList();
+
+    private final TableView<List<String>> table = new TableView<>(data);
 
     /** Currently editing a cell? */
     private boolean editing = false;
@@ -101,14 +117,43 @@ public class StringTable extends BorderPane
     /** Constructor */
     public StringTable()
     {
-        super();
+        fillToolbar();
         setTop(toolbar);
         setCenter(table);
 
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        table.getSelectionModel().setCellSelectionEnabled(true);
         table.setPlaceholder(new Label("Empty"));
         table.setEditable(true);
-        table.setOnKeyPressed(this::handleKey);
+
+        // Check for keys in both toolbar and table
+        setOnKeyPressed(this::handleKey);
+    }
+
+    private void fillToolbar()
+    {
+        toolbar.getItems().add(createToolbarButton("add_row", "Add Row", event -> addRow()));
+        toolbar.getItems().add(createToolbarButton("remove_row", "Remove Row", event -> deleteRow()));
+        toolbar.getItems().add(createToolbarButton("rename_col", "Rename Column", event -> renameColumn()));
+        toolbar.getItems().add(createToolbarButton("add_col", "Add Column", event -> addColumn()));
+        toolbar.getItems().add(createToolbarButton("remove_col", "Remove Column", event -> deleteColumn()));
+    }
+
+    private Button createToolbarButton(final String id, final String tool_tip, final EventHandler<ActionEvent> handler)
+    {
+        final Button button = new Button();
+        try
+        {
+            button.setGraphic(new ImageView(Activator.getIcon(id)));
+            button.setTooltip(new Tooltip(tool_tip));
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot load icon for " + id, ex);
+            button.setText(tool_tip);
+        }
+        button.setOnAction(handler);
+        return button;
     }
 
     /** @return <code>true</code> if toolbar is visible */
@@ -150,44 +195,51 @@ public class StringTable extends BorderPane
     public void setHeaders(final List<String> headers)
     {
         table.getColumns().clear();
+        data.clear();
+        data.add(MAGIC_LAST_ROW);
 
-        int column = 0;
         for (String header : headers)
         {
-            final int col_index = column++;
-            final TableColumn<List<String>, String> table_column = new TableColumn<>(header);
-            table_column.setCellValueFactory(param ->
-            {
-                List<String> value = param.getValue();
-                final String text;
-                if (value == MAGIC_LAST_ROW)
-                    text = col_index == 0 ? MAGIC_LAST_ROW.get(0): "";
-                else
-                    text = value.get(col_index);
-                return new SimpleStringProperty(text);
-            });
-            table_column.setCellFactory(list -> new StringTextCell());
-            table_column.setOnEditStart(event -> editing = true);
-            table_column.setOnEditCommit(event ->
-            {
-                editing = false;
-                final int col = event.getTablePosition().getColumn();
-                List<String> row = event.getRowValue();
-                if (row == MAGIC_LAST_ROW)
-                {
-                    // Entered in last row? Create new row
-                    final int size = table.getColumns().size();
-                    row = new ArrayList<>(size);
-                    for (int i=0; i<size; ++i)
-                        row.add("");
-                    final List<List<String>> data = table.getItems();
-                    data.add(data.size()-1, row);
-                }
-                row.set(col, event.getNewValue());
-            });
-            table_column.setOnEditCancel(event -> editing = false);
+            final TableColumn<List<String>, String> table_column =
+                createTableColumn(header);
             table.getColumns().add(table_column);
         }
+    }
+
+    private TableColumn<List<String>, String> createTableColumn(final String header)
+    {
+        final TableColumn<List<String>, String> table_column = new TableColumn<>(header);
+        table_column.setCellValueFactory(param ->
+        {
+            final int col_index = table.getColumns().indexOf(param.getTableColumn());
+            List<String> value = param.getValue();
+            final String text;
+            if (value == MAGIC_LAST_ROW)
+                text = col_index == 0 ? MAGIC_LAST_ROW.get(0): "";
+            else
+                text = value.get(col_index);
+            return new SimpleStringProperty(text);
+        });
+        table_column.setCellFactory(list -> new StringTextCell());
+        table_column.setOnEditStart(event -> editing = true);
+        table_column.setOnEditCommit(event ->
+        {
+            editing = false;
+            final int col = event.getTablePosition().getColumn();
+            List<String> row = event.getRowValue();
+            if (row == MAGIC_LAST_ROW)
+            {
+                // Entered in last row? Create new row
+                row = createEmptyRow();
+                final List<List<String>> data = table.getItems();
+                data.add(data.size()-1, row);
+            }
+            row.set(col, event.getNewValue());
+        });
+        table_column.setOnEditCancel(event -> editing = false);
+        table_column.setSortable(false);
+
+        return table_column;
     }
 
     /** @return Header labels */
@@ -196,17 +248,44 @@ public class StringTable extends BorderPane
         return table.getColumns().stream().map(col -> col.getText()).collect(Collectors.toList());
     }
 
+    private List<String> createEmptyRow()
+    {
+        final int size = getColumnCount();
+        final List<String> row = new ArrayList<>(size);
+        for (int i=0; i<size; ++i)
+            row.add("");
+        return row;
+    }
+
+    private int getColumnCount()
+    {
+        return table.getColumns().size();
+    }
+
     /** Set or update data
      *
-     *  @param data Rows of data,
-     *              where each row must contain the same number
-     *              of elements as the column headers
+     *  @param new_data Rows of data,
+     *                  where each row must contain the same number
+     *                  of elements as the column headers
      */
-    public void setData(final List<List<String>> data)
+    public void setData(final List<List<String>> new_data)
     {
-        final ObservableList<List<String>> list = FXCollections.observableArrayList(data);
-        list.add(MAGIC_LAST_ROW);
-        table.setItems(list);
+        final int columns = getColumnCount();
+        data.clear();
+        for (List<String> new_row : new_data)
+        {
+            final ArrayList<String> row = new ArrayList<>(new_row);
+            if (row.size() < columns)
+            {
+                logger.log(Level.WARNING, "Table needs " + columns +
+                           " columns but got row with just " + row.size());
+                for (int i=row.size(); i<columns; ++i)
+                    row.add("");
+            }
+            data.add(row);
+        }
+
+        data.add(MAGIC_LAST_ROW);
     }
 
     /** @return List of rows, where each row contains the list of cell strings */
@@ -235,6 +314,95 @@ public class StringTable extends BorderPane
             break;
         default:
         }
+    }
+
+    /** Add a row above the selected column,
+     *  or on the very bottom if nothing selected
+     */
+    private void addRow()
+    {
+        int row = table.getSelectionModel().getSelectedIndex();
+        final List<List<String>> data = table.getItems();
+        final int len = data.size();
+        if (row < 0  ||  row > len-1)
+            row = len-1;
+        data.add(row, createEmptyRow());
+    }
+
+    /** Delete currently selected row */
+    private void deleteRow()
+    {
+        int row = table.getSelectionModel().getSelectedIndex();
+        final List<List<String>> data = table.getItems();
+        final int len = data.size();
+        if (row < 0  ||  row >= len-1)
+            return;
+        data.remove(row);
+    }
+
+    /** @return Currently selected table column or -1 */
+    private int getSelectedColumn()
+    {
+        @SuppressWarnings("rawtypes")
+        final ObservableList<TablePosition> cells = table.getSelectionModel().getSelectedCells();
+        if (cells.isEmpty())
+            return -1;
+        return cells.get(0).getColumn();
+    }
+
+    /** Prompt for column name
+     *  @param name Suggested name
+     *  @return Name entered by user or <code>null</code>
+     */
+    private String getColumnName(final String name)
+    {
+        final TextInputDialog dialog = new TextInputDialog(name);
+        // Position dialog near table
+        final Bounds absolute = localToScreen(getBoundsInLocal());
+        dialog.setX(absolute.getMinX() + 10);
+        dialog.setY(absolute.getMinY() + 10);
+        dialog.setTitle("Column Name");
+        dialog.setHeaderText("Please enter desired column name");
+        return dialog.showAndWait().orElse(null);
+    }
+
+    /** Renames the currently selected column */
+    private void renameColumn()
+    {
+        final int column = getSelectedColumn();
+        if (column < 0)
+            return;
+        final TableColumn<List<String>, ?> table_col = table.getColumns().get(column);
+        final String name = getColumnName(table_col.getText());
+        if (name != null)
+            table_col.setText(name);
+    }
+
+    /** Add a column to the left of the selected column,
+     *  or on the very right if nothing selected
+     */
+    private void addColumn()
+    {
+        int column = getSelectedColumn();
+        final String name = getColumnName("New Column");
+        if (name == null)
+            return;
+        if (column < 0)
+            column = table.getColumns().size();
+        table.getColumns().add(column, createTableColumn(name));
+        for (List<String> row : data)
+            if (row != MAGIC_LAST_ROW)
+                row.add(column, "");
+    }
+
+    /** Delete currently selected column */
+    private void deleteColumn()
+    {
+        final int column = getSelectedColumn();
+        table.getColumns().remove(column);
+        for (List<String> row : data)
+            if (row != MAGIC_LAST_ROW)
+                row.remove(column);
     }
 }
 
