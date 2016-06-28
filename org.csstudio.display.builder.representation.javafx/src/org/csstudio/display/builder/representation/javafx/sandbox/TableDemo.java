@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.csstudio.javafx.StringTable;
+import org.csstudio.javafx.StringTableListener;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -44,6 +45,15 @@ public class TableDemo extends Application
         final StringTable table = new StringTable();
         table.setHeaders(headers);
         table.setData(data);
+
+        table.setListener(new StringTableListener()
+        {
+            @Override
+            public void dataChanged(StringTable table)
+            {
+                System.out.println("Data has changed");
+            }
+        });
 
         // Example scene
         final Label label = new Label("Demo:");

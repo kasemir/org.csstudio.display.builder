@@ -24,7 +24,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
@@ -64,7 +63,7 @@ import javafx.util.converter.DefaultStringConverter;
  *
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
+// TODO @SuppressWarnings("nls")
 public class StringTable extends BorderPane
 {
     /** Value used for the last row
@@ -114,6 +113,8 @@ public class StringTable extends BorderPane
     /** Currently editing a cell? */
     private boolean editing = false;
 
+    private volatile StringTableListener listener = null;
+
     /** Constructor */
     public StringTable()
     {
@@ -123,11 +124,16 @@ public class StringTable extends BorderPane
 
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.getSelectionModel().setCellSelectionEnabled(true);
-        table.setPlaceholder(new Label("Empty"));
         table.setEditable(true);
 
         // Check for keys in both toolbar and table
         setOnKeyPressed(this::handleKey);
+    }
+
+    /** @param listener Listener to notify of changes */
+    public void setListener(final StringTableListener listener)
+    {
+        this.listener = listener;
     }
 
     private void fillToolbar()
@@ -235,6 +241,7 @@ public class StringTable extends BorderPane
                 data.add(data.size()-1, row);
             }
             row.set(col, event.getNewValue());
+            fireDataChanged();
         });
         table_column.setOnEditCancel(event -> editing = false);
         table_column.setSortable(false);
@@ -286,6 +293,7 @@ public class StringTable extends BorderPane
         }
 
         data.add(MAGIC_LAST_ROW);
+        fireDataChanged();
     }
 
     /** @return List of rows, where each row contains the list of cell strings */
@@ -327,6 +335,7 @@ public class StringTable extends BorderPane
         if (row < 0  ||  row > len-1)
             row = len-1;
         data.add(row, createEmptyRow());
+        fireDataChanged();
     }
 
     /** Delete currently selected row */
@@ -338,6 +347,7 @@ public class StringTable extends BorderPane
         if (row < 0  ||  row >= len-1)
             return;
         data.remove(row);
+        fireDataChanged();
     }
 
     /** @return Currently selected table column or -1 */
@@ -374,8 +384,10 @@ public class StringTable extends BorderPane
             return;
         final TableColumn<List<String>, ?> table_col = table.getColumns().get(column);
         final String name = getColumnName(table_col.getText());
-        if (name != null)
-            table_col.setText(name);
+        if (name == null)
+            return;
+        table_col.setText(name);
+        fireDataChanged();
     }
 
     /** Add a column to the left of the selected column,
@@ -393,16 +405,27 @@ public class StringTable extends BorderPane
         for (List<String> row : data)
             if (row != MAGIC_LAST_ROW)
                 row.add(column, "");
+        fireDataChanged();
     }
 
     /** Delete currently selected column */
     private void deleteColumn()
     {
         final int column = getSelectedColumn();
+        if (column < 0)
+            return;
         table.getColumns().remove(column);
         for (List<String> row : data)
             if (row != MAGIC_LAST_ROW)
                 row.remove(column);
+        fireDataChanged();
+    }
+
+    private void fireDataChanged()
+    {
+        final StringTableListener copy = listener;
+        if (copy != null)
+            copy.dataChanged(this);
     }
 }
 
