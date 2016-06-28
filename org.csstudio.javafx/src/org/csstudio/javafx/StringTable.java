@@ -63,7 +63,7 @@ import javafx.util.converter.DefaultStringConverter;
  *
  *  @author Kay Kasemir
  */
-// TODO @SuppressWarnings("nls")
+@SuppressWarnings("nls")
 public class StringTable extends BorderPane
 {
     /** Value used for the last row
@@ -75,7 +75,7 @@ public class StringTable extends BorderPane
      *
      *  <p>Table data is compared as exact identity (== MAGIC_LAST_ROW).
      */
-    private static final List<String> MAGIC_LAST_ROW = Arrays.asList("Click to add row");
+    private static final List<String> MAGIC_LAST_ROW = Arrays.asList(Messages.MagicLastRow);
 
     private Paint text_color = Color.BLACK;
 
@@ -138,11 +138,11 @@ public class StringTable extends BorderPane
 
     private void fillToolbar()
     {
-        toolbar.getItems().add(createToolbarButton("add_row", "Add Row", event -> addRow()));
-        toolbar.getItems().add(createToolbarButton("remove_row", "Remove Row", event -> deleteRow()));
-        toolbar.getItems().add(createToolbarButton("rename_col", "Rename Column", event -> renameColumn()));
-        toolbar.getItems().add(createToolbarButton("add_col", "Add Column", event -> addColumn()));
-        toolbar.getItems().add(createToolbarButton("remove_col", "Remove Column", event -> deleteColumn()));
+        toolbar.getItems().add(createToolbarButton("add_row", Messages.AddRow, event -> addRow()));
+        toolbar.getItems().add(createToolbarButton("remove_row", Messages.RemoveRow, event -> deleteRow()));
+        toolbar.getItems().add(createToolbarButton("rename_col", Messages.RenameColumn, event -> renameColumn()));
+        toolbar.getItems().add(createToolbarButton("add_col", Messages.AddColumn, event -> addColumn()));
+        toolbar.getItems().add(createToolbarButton("remove_col", Messages.RemoveColumn, event -> deleteColumn()));
     }
 
     private Button createToolbarButton(final String id, final String tool_tip, final EventHandler<ActionEvent> handler)
@@ -371,8 +371,8 @@ public class StringTable extends BorderPane
         final Bounds absolute = localToScreen(getBoundsInLocal());
         dialog.setX(absolute.getMinX() + 10);
         dialog.setY(absolute.getMinY() + 10);
-        dialog.setTitle("Column Name");
-        dialog.setHeaderText("Please enter desired column name");
+        dialog.setTitle(Messages.RenameColumnTitle);
+        dialog.setHeaderText(Messages.RenameColumnInfo);
         return dialog.showAndWait().orElse(null);
     }
 
@@ -396,7 +396,7 @@ public class StringTable extends BorderPane
     private void addColumn()
     {
         int column = getSelectedColumn();
-        final String name = getColumnName("New Column");
+        final String name = getColumnName(Messages.DefaultNewColumnName);
         if (name == null)
             return;
         if (column < 0)
