@@ -122,7 +122,7 @@ public class ActionButtonWidget extends VisibleWidget
 
     public ActionButtonWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType());
+        super(WIDGET_DESCRIPTOR.getType(), 100, 30);
     }
 
     @Override

@@ -98,7 +98,7 @@ public class ComboWidget extends VisibleWidget
                     }
                     xml.appendChild(items_from);
                 }
-                
+
                 //TODO: read in actions as items? or just remove actions, let rep. handle? actions get written?
             }
 
@@ -113,7 +113,7 @@ public class ComboWidget extends VisibleWidget
     {
         return new ComboConfigurator(persisted_version);
     }
-    
+
     /** Behavior 'item': element for list of 'items' property */
     private static final WidgetPropertyDescriptor<String> behaviorItem =
             CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "item", Messages.ComboWidget_Item);
@@ -122,7 +122,7 @@ public class ComboWidget extends VisibleWidget
     public static final WidgetPropertyDescriptor< List<WidgetProperty<String>> > behaviorItems =
             new ArrayWidgetProperty.Descriptor< WidgetProperty<String> >(WidgetPropertyCategory.BEHAVIOR, "items", Messages.ComboWidget_Items,
                                                                          (widget, index) -> behaviorItem.createProperty(widget, "Item " + index));
-    
+
     /** Behavior 'items_from_pv': If PV is enum PV, get items from PV? */
     public static final WidgetPropertyDescriptor<Boolean> behaviorItemsFromPV =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "items_from_pv", Messages.ComboWidget_ItemsFromPV);
@@ -137,7 +137,7 @@ public class ComboWidget extends VisibleWidget
 
     public ComboWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType());
+        super(WIDGET_DESCRIPTOR.getType(), 100, 30);
     }
 
     @Override
