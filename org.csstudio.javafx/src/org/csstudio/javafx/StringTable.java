@@ -24,6 +24,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
@@ -77,6 +78,8 @@ public class StringTable extends BorderPane
      */
     private static final List<String> MAGIC_LAST_ROW = Arrays.asList(Messages.MagicLastRow);
 
+    private final boolean editable;
+
     private Paint text_color = Color.BLACK;
 
     private Paint last_row_color = Color.GRAY;
@@ -116,14 +119,16 @@ public class StringTable extends BorderPane
     private volatile StringTableListener listener = null;
 
     /** Constructor
-     *  @param active Allow user interaction (toolbar, edit), or just display data?
+     *  @param editable Allow user interaction (toolbar, edit), or just display data?
      */
-    public StringTable(final boolean active)
+    public StringTable(final boolean editable)
     {
+        this.editable = editable;
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.getSelectionModel().setCellSelectionEnabled(true);
+        table.setPlaceholder(new Label());
 
-        if (active)
+        if (editable)
         {
             table.setEditable(true);
             // Check for keys in both toolbar and table
@@ -207,7 +212,8 @@ public class StringTable extends BorderPane
     {
         table.getColumns().clear();
         data.clear();
-        data.add(MAGIC_LAST_ROW);
+        if (editable)
+            data.add(MAGIC_LAST_ROW);
 
         for (String header : headers)
         {
@@ -310,7 +316,8 @@ public class StringTable extends BorderPane
             data.add(row);
         }
 
-        data.add(MAGIC_LAST_ROW);
+        if (editable)
+            data.add(MAGIC_LAST_ROW);
         fireDataChanged();
     }
 

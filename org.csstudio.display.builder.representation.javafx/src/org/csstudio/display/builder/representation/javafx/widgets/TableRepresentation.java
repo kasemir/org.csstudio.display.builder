@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -37,7 +38,7 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
     private final DirtyFlag dirty_columns = new DirtyFlag();
     private final DirtyFlag dirty_data = new DirtyFlag();
 
-    private volatile List<List<String>> data;
+    private volatile List<List<String>> data = new ArrayList<>();
 
     private final UntypedWidgetPropertyListener column_listener = (WidgetProperty<?> property, Object old_value, Object new_value) ->
     {
@@ -49,7 +50,9 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
     public StringTable createJFXNode() throws Exception
     {
         // In edit mode, table is passive.
-        final StringTable table = new StringTable(! toolkit.isEditMode());
+        // Change of overall 'editable' at runtime is not supported
+        final boolean editable = ! toolkit.isEditMode()  &&  model_widget.behaviorEditable().getValue();
+        final StringTable table = new StringTable(editable);
         if (toolkit.isEditMode())
         {   // Capture clicks and use to select widget in editor,
             // instead of interacting with the table

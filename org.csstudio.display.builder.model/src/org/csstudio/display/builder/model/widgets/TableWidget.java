@@ -69,7 +69,7 @@ public class TableWidget extends VisibleWidget
         }
     };
 
-    private final static WidgetPropertyDescriptor<Boolean> displayEdit =
+    private final static WidgetPropertyDescriptor<Boolean> behaviorEditable =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "editable", "Editable");
 
     private final static StructuredWidgetProperty.Descriptor displayColumn =
@@ -83,7 +83,7 @@ public class TableWidget extends VisibleWidget
             super(displayColumn, widget,
                   Arrays.asList(CommonWidgetProperties.widgetName.createProperty(widget, name),
                                 CommonWidgetProperties.positionWidth.createProperty(widget, 0),
-                                displayEdit.createProperty(widget, true)));
+                                behaviorEditable.createProperty(widget, true)));
         }
 
         public WidgetProperty<String> name()        { return getElement(0); }
@@ -199,6 +199,7 @@ public class TableWidget extends VisibleWidget
     private volatile ArrayWidgetProperty<ColumnProperty> columns;
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<Object> value;
+    private volatile WidgetProperty<Boolean> editable;
 
     public TableWidget()
     {
@@ -215,6 +216,7 @@ public class TableWidget extends VisibleWidget
         properties.add(columns = displayColumns.createProperty(this, Arrays.asList(  new ColumnProperty(this, "Column 1") )));
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(value = runtimeValue.createProperty(this, null));
+        properties.add(editable = behaviorEditable.createProperty(this, true));
     }
 
     @Override
@@ -251,5 +253,11 @@ public class TableWidget extends VisibleWidget
     public WidgetProperty<Object> runtimeValue()
     {
         return value;
+    }
+
+    /** @return Behavior 'editable' */
+    public WidgetProperty<Boolean> behaviorEditable()
+    {
+        return editable;
     }
 }

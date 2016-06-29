@@ -68,5 +68,6 @@ widget.setPropertyValue("value", data)]]></text>
         <pv_name>sim://noise</pv_name>
       </script>
     </scripts>
+    <editable>true</editable>
   </widget>
 </display>
