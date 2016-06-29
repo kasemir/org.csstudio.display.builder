@@ -72,6 +72,10 @@
             type="spinner">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.TableRepresentation"
+            type="table">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.TabsRepresentation"
             type="tab">
       </representation>

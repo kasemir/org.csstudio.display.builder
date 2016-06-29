@@ -13,7 +13,8 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.runtime.Messages;
 import org.csstudio.display.builder.runtime.RuntimeAction;
 
-/** Action for runtime of Image or XY plot widget
+/** Action for runtime of Table, Image, XY plot,
+ *  any widget with a "show_toolbar" property.
  *
  *  <p>Hides/shows the toolbar
  *

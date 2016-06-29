@@ -9,6 +9,8 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
+import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.displayToolbar;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +24,6 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.diirt.vtype.VType;
 
 /** Widget that displays a string table
  *
@@ -68,32 +69,36 @@ public class TableWidget extends VisibleWidget
                     @Override
                     public void setValueFromObject(final Object value) throws Exception
                     {
-                        if (value instanceof VType)
-                            setValue(value);
-                        else if (value instanceof List)
-                            setValue(value);
-                        else
-                            throw new Exception("Need VType or List<List<String>, got " + value);
+                        System.out.println("Table received value " + value);
+//                        if (value instanceof VType)
+//                            setValue(value);
+//                        else if (value instanceof List)
+//                            setValue(value);
+//                        else
+//                            throw new Exception("Need VType or List<List<String>, got " + value);
                     }
                 };
             }
         };
 
     private volatile WidgetProperty<WidgetColor> background;
+    private volatile WidgetProperty<Boolean> show_toolbar;
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<Object> value;
     // TODO Headers
 
     public TableWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType());
+        super(WIDGET_DESCRIPTOR.getType(), 500, 300);
     }
 
     @Override
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
+        properties.add(displayBorderAlarmSensitive.createProperty(this, true));
         properties.add(background = displayBackgroundColor.createProperty(this, new WidgetColor(30, 144, 255)));
+        properties.add(show_toolbar = displayToolbar.createProperty(this,false));
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(value = runtimeValue.createProperty(this, null));
     }
@@ -103,4 +108,11 @@ public class TableWidget extends VisibleWidget
     {
         return background;
     }
+
+    /** @return Display 'show_toolbar' */
+    public WidgetProperty<Boolean> displayToolbar()
+    {
+        return show_toolbar;
+    }
+
 }

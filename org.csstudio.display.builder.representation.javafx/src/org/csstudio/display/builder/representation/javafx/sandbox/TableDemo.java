@@ -42,7 +42,7 @@ public class TableDemo extends Application
                 Arrays.asList("Uno", "Due", "Tres"));
 
         // Table
-        final StringTable table = new StringTable();
+        final StringTable table = new StringTable(true);
         table.setHeaders(headers);
         table.setData(data);
 

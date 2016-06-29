@@ -261,7 +261,7 @@ public class XYPlotWidget extends VisibleWidget
         properties.add(traces = PlotWidgetProperties.behaviorTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this))));
     }
 
-    /** @return Display 'background' */
+    /** @return Display 'background_color' */
     public WidgetProperty<WidgetColor> displayBackground()
     {
         return background;

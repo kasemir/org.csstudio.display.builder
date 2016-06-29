@@ -115,8 +115,8 @@ public class WidgetFactory
         addWidgetType(ByteMonitorWidget.WIDGET_DESCRIPTOR);
         addWidgetType(CheckBoxWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ComboWidget.WIDGET_DESCRIPTOR);
-        addWidgetType(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR);
         addWidgetType(EllipseWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR);
         addWidgetType(GroupWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ImageWidget.WIDGET_DESCRIPTOR);
         addWidgetType(LabelWidget.WIDGET_DESCRIPTOR);

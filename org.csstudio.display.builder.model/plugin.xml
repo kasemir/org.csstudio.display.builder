@@ -5,6 +5,20 @@
    <extension
          point="org.csstudio.display.builder.model.widgets">
       <widget
+            category="CONTROL"
+            class="org.csstudio.display.builder.model.widgets.ActionButtonWidget"
+            description="%ActionButtonWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/action_button.png"
+            name="%ActionButtonWidget_Name"
+            type="action_button">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.ActionButton">
+         </alternates>
+         <alternates
+               type="org.csstudio.opibuilder.widgets.MenuButton">
+         </alternates>
+      </widget>
+      <widget
             category="GRAPHIC"
             class="org.csstudio.display.builder.model.widgets.ArcWidget"
             description="%ArcWidget_Description"
@@ -15,29 +29,53 @@
                type="org.csstudio.opibuilder.widgets.arc">
          </alternates>
       </widget>
+
+
       <widget
-            category="GRAPHIC"
-            class="org.csstudio.display.builder.model.widgets.LabelWidget"
-            description="%LabelWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/label.png"
-            name="%LabelWidget_Name"
-            type="label">
+            category="CONTROL"
+            class="org.csstudio.display.builder.model.widgets.BoolButtonWidget"
+            description="%BoolButtonWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/bool_button.gif"
+            name="%BoolButtonWidget_Name"
+            type="bool_button">
          <alternates
-               type="org.csstudio.opibuilder.widgets.Label">
+               type="org.csstudio.opibuilder.widgets.BoolButton">
          </alternates>
       </widget>
       <widget
-            category="GRAPHIC"
-            class="org.csstudio.display.builder.model.widgets.RectangleWidget"
-            description="%RectangleWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/rectangle.png"
-            name="%RectangleWidget_Name"
-            type="rectangle">
+            category="MONITOR"
+            class="org.csstudio.display.builder.model.widgets.ByteMonitorWidget"
+            description="%ByteMonitorWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/byte_monitor.png"
+            name="%ByteMonitorWidget_Name"
+            type="byte_monitor">
          <alternates
-               type="org.csstudio.opibuilder.widgets.Rectangle">
+               type="org.csstudio.opibuilder.widgets.bytemonitor">
+         </alternates>
+      </widget>
+      <widget
+            category="CONTROL"
+            class="org.csstudio.display.builder.model.widgets.CheckBoxWidget"
+            description="%CheckBoxWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/checkbox.gif"
+            name="%CheckBoxWidget_Name"
+            type="checkbox">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.checkbox">
+         </alternates>
+      </widget>
+      <widget
+            category="CONTROL"
+            class="org.csstudio.display.builder.model.widgets.ComboWidget"
+            description="%ComboWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/combo.gif"
+            name="%ComboWidget_Name"
+            type="combo">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.MenuButton">
          </alternates>
          <alternates
-               type="org.csstudio.opibuilder.widgets.RoundedRectangle">
+               type="org.csstudio.opibuilder.widgets.combo">
          </alternates>
       </widget>
       <widget
@@ -52,47 +90,25 @@
          </alternates>
       </widget>
       <widget
-            category="GRAPHIC"
-            class="org.csstudio.display.builder.model.widgets.PictureWidget"
-            description="%PictureWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif"
-            name="%PictureWidget_Name"
-            type="picture">
+            category="STRUCTURE"
+            class="org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget"
+            description="%EmbeddedDisplayWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/embedded.png"
+            name="%EmbeddedDisplayWidget_Name"
+            type="embedded">
          <alternates
-               type="org.csstudio.opibuilder.widgets.Image">
+               type="org.csstudio.opibuilder.widgets.linkingContainer">
          </alternates>
       </widget>
       <widget
             category="GRAPHIC"
-            class="org.csstudio.display.builder.model.widgets.PolylineWidget"
-            description="%PolylineWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/polyline.png"
-            name="%PolylineWidget_Name"
-            type="polyline">
+            class="org.csstudio.display.builder.model.widgets.LabelWidget"
+            description="%LabelWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/label.png"
+            name="%LabelWidget_Name"
+            type="label">
          <alternates
-               type="org.csstudio.opibuilder.widgets.polyline">
-         </alternates>
-      </widget>
-      <widget
-            category="GRAPHIC"
-            class="org.csstudio.display.builder.model.widgets.PolygonWidget"
-            description="%PolygonWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/polygon.png"
-            name="%PolygonWidget_Name"
-            type="polygon">
-         <alternates
-               type="org.csstudio.opibuilder.widgets.polygon">
-         </alternates>
-      </widget>
-      <widget
-            category="MONITOR"
-            class="org.csstudio.display.builder.model.widgets.plots.ImageWidget"
-            description="%ImageWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/image.png"
-            name="%ImageWidget_Name"
-            type="image">
-         <alternates
-               type="org.csstudio.opibuilder.widgets.intensityGraph">
+               type="org.csstudio.opibuilder.widgets.Label">
          </alternates>
       </widget>
       <widget
@@ -118,14 +134,36 @@
          </alternates>
       </widget>
       <widget
-            category="MONITOR"
-            class="org.csstudio.display.builder.model.widgets.TableWidget"
-            description="%TableWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/table.gif"
-            name="%TableWidget_Name"
-            type="table">
+            category="GRAPHIC"
+            class="org.csstudio.display.builder.model.widgets.PictureWidget"
+            description="%PictureWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif"
+            name="%PictureWidget_Name"
+            type="picture">
          <alternates
-               type="org.csstudio.opibuilder.widgets.table">
+               type="org.csstudio.opibuilder.widgets.Image">
+         </alternates>
+      </widget>
+      <widget
+            category="GRAPHIC"
+            class="org.csstudio.display.builder.model.widgets.PolygonWidget"
+            description="%PolygonWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/polygon.png"
+            name="%PolygonWidget_Name"
+            type="polygon">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.polygon">
+         </alternates>
+      </widget>
+      <widget
+            category="GRAPHIC"
+            class="org.csstudio.display.builder.model.widgets.PolylineWidget"
+            description="%PolylineWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/polyline.png"
+            name="%PolylineWidget_Name"
+            type="polyline">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.polyline">
          </alternates>
       </widget>
       <widget
@@ -143,41 +181,83 @@
          </alternates>
       </widget>
       <widget
+            category="GRAPHIC"
+            class="org.csstudio.display.builder.model.widgets.RectangleWidget"
+            description="%RectangleWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/rectangle.png"
+            name="%RectangleWidget_Name"
+            type="rectangle">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.Rectangle">
+         </alternates>
+         <alternates
+               type="org.csstudio.opibuilder.widgets.RoundedRectangle">
+         </alternates>
+      </widget>
+      <widget
+            category="STRUCTURE"
+            class="org.csstudio.display.builder.model.widgets.GroupWidget"
+            description="%GroupWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/group.png"
+            name="%GroupWidget_Name"
+            type="group">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.groupingContainer">
+         </alternates>
+      </widget>
+      <widget
+            category="CONTROL"
+            class="org.csstudio.display.builder.model.widgets.ScaledSliderWidget"
+            description="%ScaledSliderWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/scaled_slider.gif"
+            name="%ScaledSliderWidget_Name"
+            type="scaledslider">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.scaledslider">
+         </alternates>
+      </widget>
+      <widget
+            category="CONTROL"
+            class="org.csstudio.display.builder.model.widgets.ScrollBarWidget"
+            description="%ScrollBarWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/scrollbar.png"
+            name="%ScrollBarWidget_Name"
+            type="scrollbar">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.scrollbar">
+         </alternates>
+      </widget>
+      <widget
+            category="CONTROL"
+            class="org.csstudio.display.builder.model.widgets.SpinnerWidget"
+            description="%SpinnerWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/Spinner.gif"
+            name="%SpinnerWidget_Name"
+            type="spinner">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.spinner">
+         </alternates>
+      </widget>
+      <widget
             category="MONITOR"
-            class="org.csstudio.display.builder.model.widgets.TextUpdateWidget"
-            description="%TextUpdateWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/textupdate.png"
-            name="%TextUpdateWidget_Name"
-            type="textupdate">
+            class="org.csstudio.display.builder.model.widgets.TableWidget"
+            description="%TableWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/table.gif"
+            name="%TableWidget_Name"
+            type="table">
          <alternates
-               type="org.csstudio.opibuilder.widgets.TextUpdate">
+               type="org.csstudio.opibuilder.widgets.table">
          </alternates>
       </widget>
       <widget
-            category="CONTROL"
-            class="org.csstudio.display.builder.model.widgets.ActionButtonWidget"
-            description="%ActionButtonWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/action_button.png"
-            name="%ActionButtonWidget_Name"
-            type="action_button">
+            category="STRUCTURE"
+            class="org.csstudio.display.builder.model.widgets.TabsWidget"
+            description="%TabsWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/tabs.png"
+            name="%TabsWidget_Name"
+            type="tabs">
          <alternates
-               type="org.csstudio.opibuilder.widgets.ActionButton">
-         </alternates>
-         <alternates
-               type="org.csstudio.opibuilder.widgets.MenuButton">
-         </alternates>
-      </widget>
-
-
-      <widget
-            category="CONTROL"
-            class="org.csstudio.display.builder.model.widgets.BoolButtonWidget"
-            description="%BoolButtonWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/bool_button.gif"
-            name="%BoolButtonWidget_Name"
-            type="bool_button">
-         <alternates
-               type="org.csstudio.opibuilder.widgets.BoolButton">
+               type="org.csstudio.opibuilder.widgets.tab">
          </alternates>
       </widget>
 
@@ -194,116 +274,14 @@
          </alternates>
       </widget>
       <widget
-            category="PLOT"
-            class="org.csstudio.display.builder.model.widgets.plots.XYPlotWidget"
-            description="%XYPlotWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/xyplot.png"
-            name="%XYPlotWidget_Name"
-            type="xyplot">
-         <alternates
-               type="org.csstudio.opibuilder.widgets.xyGraph">
-         </alternates>
-      </widget>
-      <widget
-            category="STRUCTURE"
-            class="org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget"
-            description="%EmbeddedDisplayWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/embedded.png"
-            name="%EmbeddedDisplayWidget_Name"
-            type="embedded">
-         <alternates
-               type="org.csstudio.opibuilder.widgets.linkingContainer">
-         </alternates>
-      </widget>
-      <widget
-            category="STRUCTURE"
-            class="org.csstudio.display.builder.model.widgets.GroupWidget"
-            description="%GroupWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/group.png"
-            name="%GroupWidget_Name"
-            type="group">
-         <alternates
-               type="org.csstudio.opibuilder.widgets.groupingContainer">
-         </alternates>
-      </widget>
-      <widget
-            category="STRUCTURE"
-            class="org.csstudio.display.builder.model.widgets.TabsWidget"
-            description="%TabsWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/tabs.png"
-            name="%TabsWidget_Name"
-            type="tabs">
-         <alternates
-               type="org.csstudio.opibuilder.widgets.tab">
-         </alternates>
-      </widget>
-      <widget
-            category="CONTROL"
-            class="org.csstudio.display.builder.model.widgets.CheckBoxWidget"
-            description="%CheckBoxWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/checkbox.gif"
-            name="%CheckBoxWidget_Name"
-            type="checkbox">
-         <alternates
-               type="org.csstudio.opibuilder.widgets.checkbox">
-         </alternates>
-      </widget>
-      <widget
             category="MONITOR"
-            class="org.csstudio.display.builder.model.widgets.ByteMonitorWidget"
-            description="%ByteMonitorWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/byte_monitor.png"
-            name="%ByteMonitorWidget_Name"
-            type="byte_monitor">
+            class="org.csstudio.display.builder.model.widgets.TextUpdateWidget"
+            description="%TextUpdateWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/textupdate.png"
+            name="%TextUpdateWidget_Name"
+            type="textupdate">
          <alternates
-               type="org.csstudio.opibuilder.widgets.bytemonitor">
-         </alternates>
-      </widget>
-      <widget
-            category="CONTROL"
-            class="org.csstudio.display.builder.model.widgets.SpinnerWidget"
-            description="%SpinnerWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/Spinner.gif"
-            name="%SpinnerWidget_Name"
-            type="spinner">
-         <alternates
-               type="org.csstudio.opibuilder.widgets.spinner">
-         </alternates>
-      </widget>
-      <widget
-            category="CONTROL"
-            class="org.csstudio.display.builder.model.widgets.ComboWidget"
-            description="%ComboWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/combo.gif"
-            name="%ComboWidget_Name"
-            type="combo">
-         <alternates
-               type="org.csstudio.opibuilder.widgets.MenuButton">
-         </alternates>
-         <alternates
-               type="org.csstudio.opibuilder.widgets.combo">
-         </alternates>
-      </widget>
-      <widget
-            category="CONTROL"
-            class="org.csstudio.display.builder.model.widgets.ScrollBarWidget"
-            description="%ScrollBarWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/scrollbar.png"
-            name="%ScrollBarWidget_Name"
-            type="scrollbar">
-         <alternates
-               type="org.csstudio.opibuilder.widgets.scrollbar">
-         </alternates>
-      </widget>
-      <widget
-            category="CONTROL"
-            class="org.csstudio.display.builder.model.widgets.ScaledSliderWidget"
-            description="%ScaledSliderWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/scaled_slider.gif"
-            name="%ScaledSliderWidget_Name"
-            type="scaledslider">
-         <alternates
-               type="org.csstudio.opibuilder.widgets.scaledslider">
+               type="org.csstudio.opibuilder.widgets.TextUpdate">
          </alternates>
       </widget>
       <widget
@@ -315,6 +293,28 @@
             type="webbrowser">
          <alternates
                type="org.csstudio.opibuilder.widgets.webbrowser">
+         </alternates>
+      </widget>
+      <widget
+            category="PLOT"
+            class="org.csstudio.display.builder.model.widgets.plots.XYPlotWidget"
+            description="%XYPlotWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/xyplot.png"
+            name="%XYPlotWidget_Name"
+            type="xyplot">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.xyGraph">
+         </alternates>
+      </widget>
+      <widget
+            category="MONITOR"
+            class="org.csstudio.display.builder.model.widgets.plots.ImageWidget"
+            description="%ImageWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/image.png"
+            name="%ImageWidget_Name"
+            type="image">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.intensityGraph">
          </alternates>
       </widget>
    </extension>

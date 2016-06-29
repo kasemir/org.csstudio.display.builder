@@ -18,6 +18,10 @@
             type="image">
       </runtime>
       <runtime
+            class="org.csstudio.display.builder.runtime.internal.TableWidgetRuntime"
+            type="table">
+      </runtime>
+      <runtime
             class="org.csstudio.display.builder.runtime.internal.XYPlotWidgetRuntime"
             type="xyplot">
       </runtime>

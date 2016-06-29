@@ -350,7 +350,7 @@ public class ImageWidget extends VisibleWidget
         return new CustomWidgetConfigurator(persisted_version);
     }
 
-    /** @return Display 'background' */
+    /** @return Display 'background_color' */
     public WidgetProperty<WidgetColor> displayBackground()
     {
         return background;

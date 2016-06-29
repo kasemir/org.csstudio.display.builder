@@ -13,11 +13,13 @@ import java.util.Map;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.csstudio.display.builder.runtime.internal.DisplayRuntime;
 import org.csstudio.display.builder.runtime.internal.EmbeddedDisplayRuntime;
 import org.csstudio.display.builder.runtime.internal.ImageWidgetRuntime;
+import org.csstudio.display.builder.runtime.internal.TableWidgetRuntime;
 import org.csstudio.display.builder.runtime.internal.XYPlotWidgetRuntime;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
@@ -53,6 +55,7 @@ public class WidgetRuntimeFactory
             runtimes.put(DisplayModel.WIDGET_TYPE, () -> new DisplayRuntime());
             runtimes.put(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getType(), () -> new EmbeddedDisplayRuntime());
             runtimes.put(ImageWidget.WIDGET_DESCRIPTOR.getType(), () -> new ImageWidgetRuntime());
+            runtimes.put(TableWidget.WIDGET_DESCRIPTOR.getType(), () -> new TableWidgetRuntime());
             runtimes.put(XYPlotWidget.WIDGET_DESCRIPTOR.getType(), () -> new XYPlotWidgetRuntime());
         }
         else

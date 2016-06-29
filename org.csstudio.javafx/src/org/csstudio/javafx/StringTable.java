@@ -115,19 +115,24 @@ public class StringTable extends BorderPane
 
     private volatile StringTableListener listener = null;
 
-    /** Constructor */
-    public StringTable()
+    /** Constructor
+     *  @param active Allow user interaction (toolbar, edit), or just display data?
+     */
+    public StringTable(final boolean active)
     {
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        table.getSelectionModel().setCellSelectionEnabled(true);
+
+        if (active)
+        {
+            table.setEditable(true);
+            // Check for keys in both toolbar and table
+            setOnKeyPressed(this::handleKey);
+        }
         fillToolbar();
         setTop(toolbar);
         setCenter(table);
-
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        table.getSelectionModel().setCellSelectionEnabled(true);
-        table.setEditable(true);
-
-        // Check for keys in both toolbar and table
-        setOnKeyPressed(this::handleKey);
+        setData(Arrays.asList(Arrays.asList()));
     }
 
     /** @param listener Listener to notify of changes */

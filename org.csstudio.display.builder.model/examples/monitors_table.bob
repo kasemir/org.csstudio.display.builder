@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Table</name>
+  <x>-1</x>
+  <y>-1</y>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <width>181</width>
+    <height>31</height>
+    <text>Table Widget</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <y>31</y>
+    <width>441</width>
+    <height>180</height>
+    <text>The Table widget displays a table of values.
+
+It is typically used with scripts that set the "value",
+allowing the user to edit the table cells,
+and finally another script fetches the "value"
+and uses the data.
+
+Alternatively, a PV that provides a VTable can be used
+to display the current value of the PV.</text>
+  </widget>
+  <widget type="table" version="2.0.0">
+    <name>Table</name>
+    <y>261</y>
+    <width>491</width>
+    <height>390</height>
+    <background_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </background_color>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[# Embedded python script
+from org.csstudio.display.builder.runtime.script import PVUtil
+
+# Create matrix (2D array) of strings
+data = []
+row =  [ pvs[0].getName(), PVUtil.getString(pvs[0]) ]
+data.append(row)
+
+widget.setPropertyValue("value", data)]]></text>
+        <pv_name>sim://sine</pv_name>
+      </script>
+    </scripts>
+  </widget>
+</display>
