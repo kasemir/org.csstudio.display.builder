@@ -7,9 +7,16 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.TableWidget;
+import org.csstudio.display.builder.model.widgets.TableWidget.ColumnProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.javafx.StringTable;
 
@@ -27,8 +34,16 @@ import javafx.scene.paint.Color;
 public class TableRepresentation extends RegionBaseRepresentation<StringTable, TableWidget>
 {
     private final DirtyFlag dirty_style = new DirtyFlag();
-    private final DirtyFlag dirty_content = new DirtyFlag();
-    private volatile String value_text = "<?>";
+    private final DirtyFlag dirty_columns = new DirtyFlag();
+    private final DirtyFlag dirty_data = new DirtyFlag();
+
+    private volatile List<List<String>> data;
+
+    private final UntypedWidgetPropertyListener column_listener = (WidgetProperty<?> property, Object old_value, Object new_value) ->
+    {
+        dirty_columns.mark();
+        toolkit.scheduleUpdate(this);
+    };
 
     @Override
     public StringTable createJFXNode() throws Exception
@@ -56,32 +71,63 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayToolbar().addUntypedPropertyListener(this::styleChanged);
 
-//        model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
+        columnsChanged(model_widget.displayColumns(), null, model_widget.displayColumns().getValue());
+        model_widget.displayColumns().addPropertyListener(this::columnsChanged);
+
+        model_widget.runtimeValue().addPropertyListener(this::valueChanged);
     }
 
+    /** Location, toolbar changed */
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
 
-//    /** @param value Current value of PV
-//     *  @return Text to show, "<pv name>" if disconnected (no value)
-//     */
-//    private String computeText(final VType value)
-//    {
-//        if (value == null)
-//            return "<" + model_widget.behaviorPVName().getValue() + ">";
-//        return FormatOptionHandler.format(value,
-//                                          model_widget.displayFormat().getValue(),
-//                                          model_widget.displayPrecision().getValue(),
-//                                          model_widget.displayShowUnits().getValue());
-//    }
-
-    private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    /** Columns were added or removed */
+    private void columnsChanged(final WidgetProperty<List<ColumnProperty>> property,
+                                final List<ColumnProperty> removed, final List<ColumnProperty> added)
     {
-//        value_text = computeText(model_widget.runtimeValue().getValue());
-        dirty_content.mark();
+        // Remove columns
+        if (removed != null)
+            for (ColumnProperty column : removed)
+                ignoreColumnChanges(column);
+
+        // Add columns
+        if (added != null)
+            for (ColumnProperty column : added)
+                trackColumnChanges(column);
+        column_listener.propertyChanged(null, null, null);
+    }
+
+    /** @param column Column where changes need to be monitored */
+    private void trackColumnChanges(final ColumnProperty column)
+    {
+        column.name().addUntypedPropertyListener(column_listener);
+        column.width().addUntypedPropertyListener(column_listener);
+        column.editable().addUntypedPropertyListener(column_listener);
+    }
+
+    /** @param column Column where changes should be ignored */
+    private void ignoreColumnChanges(final ColumnProperty column)
+    {
+        column.name().removePropertyListener(column_listener);
+        column.width().removePropertyListener(column_listener);
+        column.editable().removePropertyListener(column_listener);
+    }
+
+    private void valueChanged(final WidgetProperty<Object> property, final Object old_value, final Object new_value)
+    {
+        System.out.println("Table rep. reveived value " + new_value);
+
+        if (new_value instanceof List)
+        {
+            // TODO Check for List<List<String>>?
+            data = (List)new_value;
+        }
+        else
+            data = Arrays.asList(Arrays.asList(Objects.toString(new_value)));
+        dirty_data.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -102,7 +148,17 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
 
             jfx_node.showToolbar(model_widget.displayToolbar().getValue());
         }
-//        if (dirty_content.checkAndClear())
-//            jfx_node.setText(value_text);
+
+        if (dirty_columns.checkAndClear())
+        {
+            final List<ColumnProperty> columns = model_widget.displayColumns().getValue();
+            final List<String> headers = columns.stream().map(c -> c.name().getValue())
+                                                         .collect(Collectors.toList());
+            jfx_node.setHeaders(headers);
+            for (int col=0; col<columns.size(); ++col)
+                jfx_node.setColumnEditable(col, columns.get(col).editable().getValue());
+        }
+        if (dirty_data.checkAndClear())
+            jfx_node.setData(data);
     }
 }

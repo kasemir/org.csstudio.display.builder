@@ -217,6 +217,19 @@ public class StringTable extends BorderPane
         }
     }
 
+    /** Allow editing a column
+     *
+     *  <p>By default, all columns of an 'active' table
+     *  are editable, but this method can change it.
+     *
+     *  @param column Column index, 0 .. <code>getHeaders().size()-1</code>
+     *  @param value
+     */
+    public void setColumnEditable(final int column, boolean editable)
+    {
+        table.getColumns().get(column).setEditable(editable);
+    }
+
     private TableColumn<List<String>, String> createTableColumn(final String header)
     {
         final TableColumn<List<String>, String> table_column = new TableColumn<>(header);

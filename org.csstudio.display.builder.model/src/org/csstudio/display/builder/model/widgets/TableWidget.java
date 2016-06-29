@@ -31,17 +31,19 @@ import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.diirt.vtype.VType;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
 
 /** Widget that displays a string table
  *
  *  <p>The 'value' can be either a VTable
- *  or a <code>List&lt;List&lt;String>></code>
+ *  or a <code>List&lt;List&lt;String>></code>.
+ *  The latter includes 2-D string arrays written
+ *  by Jython scripts.
  *
  *  TODO setData(VTable)
- *  TODO setData(String[][])
- *  TODO setData(Collection<Collection<String>>)
+ *  TODO setData(List<List<String>>)
  *  TODO Some API for script to setCellText(row, column)
  *  TODO Some API for script to setCellBackground(row, column)
  *  TODO Some API for script to setCellColor(row, column)
@@ -107,13 +109,14 @@ public class TableWidget extends VisibleWidget
                     @Override
                     public void setValueFromObject(final Object value) throws Exception
                     {
-                        System.out.println("Table received value " + value);
-//                        if (value instanceof VType)
-//                            setValue(value);
-//                        else if (value instanceof List)
-//                            setValue(value);
-//                        else
-//                            throw new Exception("Need VType or List<List<String>, got " + value);
+                        if (value instanceof VType)
+                            setValue(value);
+                        else if (value instanceof List)
+                            setValue(value);
+                        else if (value == null)
+                            setValue(null);
+                        else
+                            throw new Exception("Need VType or List<List<String>, got " + value);
                     }
                 };
             }
@@ -170,14 +173,16 @@ public class TableWidget extends VisibleWidget
                 {
                 case 0: column.name().setValue(XMLUtil.getString(item));
                         break;
-                case 1: try
-                        {
-                            column.width().setValue(Integer.parseInt(XMLUtil.getString(item)));
-                        }
-                        catch (NumberFormatException ex)
-                        {
-                            throw new Exception("Error in legacy table column width", ex);
-                        }
+                case 1: final String text = XMLUtil.getString(item);
+                        if (text.length() > 0)
+                            try
+                            {
+                                column.width().setValue(Integer.parseInt(text));
+                            }
+                            catch (NumberFormatException ex)
+                            {
+                                throw new Exception("Error in legacy table column width", ex);
+                            }
                         break;
                 case 2: if ("No".equalsIgnoreCase(XMLUtil.getString(item)))
                             column.editable().setValue(false);
@@ -234,5 +239,17 @@ public class TableWidget extends VisibleWidget
     public ArrayWidgetProperty<ColumnProperty> displayColumns()
     {
         return columns;
+    }
+
+    /** @return Behavior 'pv_name' */
+    public WidgetProperty<String> behaviorPVName()
+    {
+        return pv_name;
+    }
+
+    /** @return Runtime 'value' */
+    public WidgetProperty<Object> runtimeValue()
+    {
+        return value;
     }
 }

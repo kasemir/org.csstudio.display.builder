@@ -37,6 +37,19 @@ to display the current value of the PV.</text>
       <color name="Attention" red="255" green="160" blue="0">
       </color>
     </background_color>
+    <show_toolbar>true</show_toolbar>
+    <columns>
+      <column>
+        <name>First</name>
+        <width>0</width>
+        <editable>true</editable>
+      </column>
+      <column>
+        <name>Second</name>
+        <width>0</width>
+        <editable>true</editable>
+      </column>
+    </columns>
     <scripts>
       <script file="EmbeddedPy">
         <text><![CDATA[# Embedded python script
@@ -44,11 +57,15 @@ from org.csstudio.display.builder.runtime.script import PVUtil
 
 # Create matrix (2D array) of strings
 data = []
-row =  [ pvs[0].getName(), PVUtil.getString(pvs[0]) ]
-data.append(row)
+
+for pv in pvs:
+    row =  [ pv.getName(), PVUtil.getString(pv) ]
+    data.append(row)
 
 widget.setPropertyValue("value", data)]]></text>
         <pv_name>sim://sine</pv_name>
+        <pv_name>sim://ramp</pv_name>
+        <pv_name>sim://noise</pv_name>
       </script>
     </scripts>
   </widget>
