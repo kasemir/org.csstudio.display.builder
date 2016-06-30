@@ -9,9 +9,9 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
@@ -20,6 +20,9 @@ import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TableWidget.ColumnProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.javafx.StringTable;
+import org.diirt.util.array.ListDouble;
+import org.diirt.util.array.ListNumber;
+import org.diirt.vtype.VTable;
 
 import javafx.geometry.Insets;
 import javafx.scene.input.MouseEvent;
@@ -31,17 +34,33 @@ import javafx.scene.paint.Color;
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
 public class TableRepresentation extends RegionBaseRepresentation<StringTable, TableWidget>
 {
+    /** Position, toolbar changed */
     private final DirtyFlag dirty_style = new DirtyFlag();
+
+    /** Columns changed */
     private final DirtyFlag dirty_columns = new DirtyFlag();
+
+    /** Data changed */
     private final DirtyFlag dirty_data = new DirtyFlag();
 
+    /** Most recent column headers */
+    private volatile List<String> headers = Collections.emptyList();
+
+    /** Most recent table data, row by row */
     private volatile List<List<String>> data = new ArrayList<>();
 
+    /** Listener for any changes in any column
+     *
+     *  Triggers update of headers and column configuration
+     */
     private final UntypedWidgetPropertyListener column_listener = (WidgetProperty<?> property, Object old_value, Object new_value) ->
     {
+        final List<String> new_headers = new ArrayList<>();
+        for (ColumnProperty column : model_widget.displayColumns().getValue())
+            new_headers.add(column.name().getValue());
+        headers = new_headers;
         dirty_columns.mark();
         toolkit.scheduleUpdate(this);
     };
@@ -119,14 +138,49 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         column.editable().removePropertyListener(column_listener);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void valueChanged(final WidgetProperty<Object> property, final Object old_value, final Object new_value)
     {
-        System.out.println("Table rep. reveived value " + new_value);
-
         if (new_value instanceof List)
-        {
-            // TODO Check for List<List<String>>?
+        {   // Check for List<List<String>>?
             data = (List)new_value;
+        }
+        else if (new_value instanceof VTable)
+        {
+            final VTable table = (VTable) new_value;
+            final int rows = table.getRowCount();
+            final int cols = table.getColumnCount();
+            // Extract 2D string matrix for data
+            final List<List<String>> new_data = new ArrayList<>(rows);
+            for (int r=0; r<rows; ++r)
+            {
+                final List<String> row = new ArrayList<>(cols);
+                for (int c=0; c<cols; ++c)
+                {
+                    final Object col_data = table.getColumnData(c);
+                    if (col_data instanceof List)
+                        row.add( Objects.toString(((List)col_data).get(r)) );
+                    else if (col_data instanceof ListDouble)
+                        row.add( Double.toString(((ListDouble)col_data).getDouble(r)) );
+                    else if (col_data instanceof ListNumber)
+                        row.add( Long.toString(((ListNumber)col_data).getLong(r)) );
+                    else
+                        row.add( Objects.toString(col_data) );
+                }
+                new_data.add(row);
+            }
+
+            // Use table's column headers
+            final List<String> new_headers = new ArrayList<>(table.getColumnCount());
+            for (int c=0; c<cols; ++c)
+                new_headers.add(table.getColumnName(c));
+            if (! new_headers.equals(headers))
+            {
+                headers = new_headers;
+                dirty_columns.mark();
+            }
+
+            data = new_data;
         }
         else
             data = Arrays.asList(Arrays.asList(Objects.toString(new_value)));
@@ -154,11 +208,10 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
 
         if (dirty_columns.checkAndClear())
         {
-            final List<ColumnProperty> columns = model_widget.displayColumns().getValue();
-            final List<String> headers = columns.stream().map(c -> c.name().getValue())
-                                                         .collect(Collectors.toList());
             jfx_node.setHeaders(headers);
-            for (int col=0; col<columns.size(); ++col)
+            final List<ColumnProperty> columns = model_widget.displayColumns().getValue();
+            final int num = Math.min(headers.size(), columns.size());
+            for (int col=0; col<num; ++col)
                 jfx_node.setColumnEditable(col, columns.get(col).editable().getValue());
         }
         if (dirty_data.checkAndClear())

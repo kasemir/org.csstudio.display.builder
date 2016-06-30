@@ -17,7 +17,7 @@
     <name>Label_1</name>
     <y>31</y>
     <width>441</width>
-    <height>180</height>
+    <height>190</height>
     <text>The Table widget displays a table of values.
 
 It is typically used with scripts that set the "value",
@@ -25,27 +25,27 @@ allowing the user to edit the table cells,
 and finally another script fetches the "value"
 and uses the data.
 
-Alternatively, a PV that provides a VTable can be used
-to display the current value of the PV.</text>
+In this example, a script sets the value to
+a two-dimensional string array, i.e. a
+List&lt;List&lt;String&gt;&gt;:</text>
   </widget>
   <widget type="table" version="2.0.0">
     <name>Table</name>
-    <y>261</y>
+    <y>211</y>
     <width>491</width>
-    <height>390</height>
+    <height>200</height>
     <background_color>
       <color name="Attention" red="255" green="160" blue="0">
       </color>
     </background_color>
-    <show_toolbar>true</show_toolbar>
     <columns>
       <column>
-        <name>First</name>
+        <name>PV</name>
         <width>0</width>
         <editable>true</editable>
       </column>
       <column>
-        <name>Second</name>
+        <name>Value</name>
         <width>0</width>
         <editable>true</editable>
       </column>
@@ -68,6 +68,58 @@ widget.setPropertyValue("value", data)]]></text>
         <pv_name>sim://noise</pv_name>
       </script>
     </scripts>
+    <editable>true</editable>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_2</name>
+    <y>431</y>
+    <width>491</width>
+    <height>70</height>
+    <text>Alternatively, a PV can provide a VTable.
+
+In this example, a script updates that PV:</text>
+  </widget>
+  <widget type="table" version="2.0.0">
+    <name>Table_1</name>
+    <y>511</y>
+    <width>491</width>
+    <height>200</height>
+    <background_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </background_color>
+    <show_toolbar>true</show_toolbar>
+    <columns>
+      <column>
+        <name>Columns taken from PV</name>
+        <width>0</width>
+        <editable>true</editable>
+      </column>
+    </columns>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[# Embedded python script
+from org.csstudio.display.builder.runtime.script import PVUtil
+
+target = pvs[0]
+inputs = pvs[1:]
+
+# Create matrix (2D array) of strings
+data = []
+for pv in inputs:
+    row =  [ pv.getName(), PVUtil.getString(pv) ]
+    data.append(row)
+
+table = PVUtil.createStringTableFromRows([ "PV", "Value" ], data)
+widget.setPropertyValue("value", table)
+]]></text>
+        <pv_name trigger="false">loc://table_pv&lt;VTable&gt;</pv_name>
+        <pv_name>sim://sine</pv_name>
+        <pv_name>sim://ramp</pv_name>
+        <pv_name>sim://noise</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://table_pv&lt;VTable&gt;</pv_name>
     <editable>true</editable>
   </widget>
 </display>
