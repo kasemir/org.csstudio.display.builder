@@ -19,7 +19,6 @@ import org.csstudio.display.builder.runtime.WidgetRuntime;
  *
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
 public class TableWidgetRuntime  extends WidgetRuntime<TableWidget>
 {
     private final List<RuntimeAction> runtime_actions = new ArrayList<>(1);
@@ -28,7 +27,8 @@ public class TableWidgetRuntime  extends WidgetRuntime<TableWidget>
     public void initialize(final TableWidget widget)
     {
         super.initialize(widget);
-        runtime_actions.add(new ToggleToolbarAction(widget));
+        if (widget.behaviorEditable().getValue())
+            runtime_actions.add(new ToggleToolbarAction(widget));
     }
 
     @Override

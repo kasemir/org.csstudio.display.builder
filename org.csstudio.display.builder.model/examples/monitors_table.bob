@@ -34,10 +34,10 @@ List&lt;List&lt;String&gt;&gt;:</text>
     <y>211</y>
     <width>491</width>
     <height>200</height>
-    <background_color>
-      <color name="Attention" red="255" green="160" blue="0">
-      </color>
-    </background_color>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
     <columns>
       <column>
         <name>PV</name>
@@ -68,7 +68,7 @@ widget.setPropertyValue("value", data)]]></text>
         <pv_name>sim://noise</pv_name>
       </script>
     </scripts>
-    <editable>true</editable>
+    <editable>false</editable>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>

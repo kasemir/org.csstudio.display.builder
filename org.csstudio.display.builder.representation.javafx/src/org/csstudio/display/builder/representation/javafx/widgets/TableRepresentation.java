@@ -24,12 +24,7 @@ import org.diirt.util.array.ListDouble;
 import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.VTable;
 
-import javafx.geometry.Insets;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -88,10 +83,14 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::styleChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayToolbar().addUntypedPropertyListener(this::styleChanged);
+
+        UntypedWidgetPropertyListener listener = this::styleChanged;
+        model_widget.positionWidth().addUntypedPropertyListener(listener);
+        model_widget.positionHeight().addUntypedPropertyListener(listener);
+        model_widget.displayBackgroundColor().addUntypedPropertyListener(listener);
+        model_widget.displayForegroundColor().addUntypedPropertyListener(listener);
+        model_widget.displayFont().addUntypedPropertyListener(listener);
+        model_widget.displayToolbar().addUntypedPropertyListener(listener);
 
         columnsChanged(model_widget.displayColumns(), null, model_widget.displayColumns().getValue());
         model_widget.displayColumns().addPropertyListener(this::columnsChanged);
@@ -197,12 +196,9 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
             jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
                                  model_widget.positionHeight().getValue());
 
-//            Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
-//            jfx_node.setTextFill(color);
-            Color color = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
-            jfx_node.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
-//            jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
-
+            jfx_node.setBackgroundColor(JFXUtil.convert(model_widget.displayBackgroundColor().getValue()));
+            jfx_node.setTextColor(JFXUtil.convert(model_widget.displayForegroundColor().getValue()));
+            jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
             jfx_node.showToolbar(model_widget.displayToolbar().getValue());
         }
 

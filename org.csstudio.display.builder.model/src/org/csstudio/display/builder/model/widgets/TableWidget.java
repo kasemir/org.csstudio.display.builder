@@ -10,6 +10,8 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.displayToolbar;
 
 import java.util.Arrays;
@@ -28,9 +30,13 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.diirt.vtype.VType;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
@@ -195,6 +201,8 @@ public class TableWidget extends VisibleWidget
     }
 
     private volatile WidgetProperty<WidgetColor> background;
+    private volatile WidgetProperty<WidgetColor> foreground;
+    private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<Boolean> show_toolbar;
     private volatile ArrayWidgetProperty<ColumnProperty> columns;
     private volatile WidgetProperty<String> pv_name;
@@ -211,7 +219,9 @@ public class TableWidget extends VisibleWidget
     {
         super.defineProperties(properties);
         properties.add(displayBorderAlarmSensitive.createProperty(this, true));
-        properties.add(background = displayBackgroundColor.createProperty(this, new WidgetColor(30, 144, 255)));
+        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(show_toolbar = displayToolbar.createProperty(this,false));
         properties.add(columns = displayColumns.createProperty(this, Arrays.asList(  new ColumnProperty(this, "Column 1") )));
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
@@ -229,6 +239,18 @@ public class TableWidget extends VisibleWidget
     public WidgetProperty<WidgetColor> displayBackgroundColor()
     {
         return background;
+    }
+
+    /** @return Display 'foreground_color' */
+    public WidgetProperty<WidgetColor> displayForegroundColor()
+    {
+        return foreground;
+    }
+
+    /** @return Display 'font' */
+    public WidgetProperty<WidgetFont> displayFont()
+    {
+        return font;
     }
 
     /** @return Display 'show_toolbar' */

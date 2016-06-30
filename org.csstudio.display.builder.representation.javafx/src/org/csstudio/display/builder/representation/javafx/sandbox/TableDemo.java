@@ -18,6 +18,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 /** Table demo
@@ -45,6 +47,9 @@ public class TableDemo extends Application
         final StringTable table = new StringTable(true);
         table.setHeaders(headers);
         table.setData(data);
+        table.setBackgroundColor(Color.PINK);
+        table.setTextColor(Color.GREEN);
+        table.setFont(Font.font("Liberation Serif", 12.0));
 
         table.setListener(new StringTableListener()
         {

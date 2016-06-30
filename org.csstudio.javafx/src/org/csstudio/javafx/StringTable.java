@@ -37,7 +37,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
+import javafx.scene.text.Font;
 import javafx.util.converter.DefaultStringConverter;
 
 /** Table of strings
@@ -80,9 +80,13 @@ public class StringTable extends BorderPane
 
     private final boolean editable;
 
-    private Paint text_color = Color.BLACK;
+    private Color background_color = Color.WHITE;
 
-    private Paint last_row_color = Color.GRAY;
+    private Color text_color = Color.BLACK;
+
+    private Color last_row_color = text_color.deriveColor(0, 0, 0, 0.5);
+
+    private Font font = Font.font(12);
 
     /** Table cell that displays a String,
      *  with special coloring of the MAGIC_LAST_ROW
@@ -134,9 +138,11 @@ public class StringTable extends BorderPane
             // Check for keys in both toolbar and table
             setOnKeyPressed(this::handleKey);
         }
+        updateStyle();
         fillToolbar();
         setTop(toolbar);
         setCenter(table);
+
         setData(Arrays.asList(Arrays.asList()));
     }
 
@@ -203,6 +209,37 @@ public class StringTable extends BorderPane
                 Platform.runLater(() -> layoutChildren() );
                 return null;
             });
+    }
+
+    /** @param color Background color */
+    public void setBackgroundColor(final Color color)
+    {
+        background_color = color;
+        updateStyle();
+    }
+
+    /** @param color Text color */
+    public void setTextColor(final Color color)
+    {
+        text_color = color;
+        last_row_color = color.deriveColor(0, 0, 0, 0.5);
+        updateStyle();
+    }
+
+    /** @param font Font */
+    public void setFont(final Font font)
+    {
+        this.font = font;
+        updateStyle();
+    }
+
+    /** Update style for colors and font */
+    private void updateStyle()
+    {
+        table.setStyle("-fx-base: " + JFXUtil.webRGB(background_color) + "; " +
+                       "-fx-text-background-color: " + JFXUtil.webRGB(text_color) + "; " +
+                       "-fx-font-family: \"" + font.getFamily() + "\"; " +
+                       "-fx-font-size: " + font.getSize()/12 + "em");
     }
 
     /** Set or update headers, i.e. define the columns
