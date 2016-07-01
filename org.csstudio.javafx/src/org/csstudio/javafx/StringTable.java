@@ -264,15 +264,25 @@ public class StringTable extends BorderPane
         }
     }
 
-    /** Allow editing a column
+    /** Set (minimum) column width
+     *
+     *  @param column Column index, 0 .. <code>getHeaders().size()-1</code>
+     *  @param width Width
+     */
+    public void setColumnWidth(final int column, final int width)
+    {
+        table.getColumns().get(column).setMinWidth(width);
+    }
+
+   /** Allow editing a column
      *
      *  <p>By default, all columns of an 'active' table
      *  are editable, but this method can change it.
      *
      *  @param column Column index, 0 .. <code>getHeaders().size()-1</code>
-     *  @param value
+     *  @param editable
      */
-    public void setColumnEditable(final int column, boolean editable)
+    public void setColumnEditable(final int column, final boolean editable)
     {
         table.getColumns().get(column).setEditable(editable);
     }
@@ -291,6 +301,7 @@ public class StringTable extends BorderPane
                 text = value.get(col_index);
             return new SimpleStringProperty(text);
         });
+
         table_column.setCellFactory(list -> new StringTextCell());
         table_column.setOnEditStart(event -> editing = true);
         table_column.setOnEditCommit(event ->

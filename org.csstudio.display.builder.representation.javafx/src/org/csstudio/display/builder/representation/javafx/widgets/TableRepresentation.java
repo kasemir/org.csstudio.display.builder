@@ -244,7 +244,10 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
             final List<ColumnProperty> columns = model_widget.displayColumns().getValue();
             final int num = Math.min(headers.size(), columns.size());
             for (int col=0; col<num; ++col)
+            {
+                jfx_node.setColumnWidth(col, columns.get(col).width().getValue());
                 jfx_node.setColumnEditable(col, columns.get(col).editable().getValue());
+            }
         }
         if (dirty_data.checkAndClear())
             jfx_node.setData(data);

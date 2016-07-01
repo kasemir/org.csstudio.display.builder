@@ -51,7 +51,6 @@ import org.w3c.dom.Element;
  *  TODO Some API for script to setCellText(row, column)
  *  TODO Some API for script to setCellBackground(row, column)
  *  TODO Some API for script to setCellColor(row, column)
- *  TODO Column width
  *  TODO Column editor: Text, Drop-down
  *
  *  @author Kay Kasemir
@@ -87,7 +86,7 @@ public class TableWidget extends VisibleWidget
         {
             super(displayColumn, widget,
                   Arrays.asList(CommonWidgetProperties.widgetName.createProperty(widget, name),
-                                CommonWidgetProperties.positionWidth.createProperty(widget, 0),
+                                CommonWidgetProperties.positionWidth.createProperty(widget, 50),
                                 behaviorEditable.createProperty(widget, true)));
         }
 
