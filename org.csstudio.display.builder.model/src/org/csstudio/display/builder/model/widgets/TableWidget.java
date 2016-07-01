@@ -12,9 +12,15 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newRuntimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
 import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.displayToolbar;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
@@ -34,7 +40,6 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
-import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.diirt.vtype.VType;
@@ -51,7 +56,6 @@ import org.w3c.dom.Element;
  *  TODO Some API for script to setCellText(row, column)
  *  TODO Some API for script to setCellBackground(row, column)
  *  TODO Some API for script to setCellColor(row, column)
- *  TODO Column editor: Text, Drop-down
  *
  *  @author Kay Kasemir
  */
@@ -73,26 +77,34 @@ public class TableWidget extends VisibleWidget
         }
     };
 
+    /** Structure for column configuration */
     private final static WidgetPropertyDescriptor<Boolean> behaviorEditable =
-        CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "editable", "Editable");
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "editable", "Editable");
+
+    private static final ArrayWidgetProperty.Descriptor<WidgetProperty<String>> columnOptions =
+        new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.DISPLAY, "options", "Options",
+                                             (widget, index) ->
+                                             widgetName.createProperty(widget, "Option " + (index + 1)),
+                                             /* minimum size */ 0);
 
     private final static StructuredWidgetProperty.Descriptor displayColumn =
         new Descriptor(WidgetPropertyCategory.DISPLAY, "column", "Column");
 
-    /** Structure for column configuration */
     public static class ColumnProperty extends StructuredWidgetProperty
     {
         public ColumnProperty(final Widget widget, final String name)
         {
             super(displayColumn, widget,
-                  Arrays.asList(CommonWidgetProperties.widgetName.createProperty(widget, name),
-                                CommonWidgetProperties.positionWidth.createProperty(widget, 50),
-                                behaviorEditable.createProperty(widget, true)));
+                  Arrays.asList(widgetName.createProperty(widget, name),
+                                positionWidth.createProperty(widget, 50),
+                                behaviorEditable.createProperty(widget, true),
+                                columnOptions.createProperty(widget, Collections.emptyList())));
         }
 
-        public WidgetProperty<String> name()        { return getElement(0); }
-        public WidgetProperty<Integer> width()      { return getElement(1); }
-        public WidgetProperty<Boolean> editable()   { return getElement(2); }
+        public WidgetProperty<String> name()                          { return getElement(0); }
+        public WidgetProperty<Integer> width()                        { return getElement(1); }
+        public WidgetProperty<Boolean> editable()                     { return getElement(2); }
+        public WidgetProperty<List<WidgetProperty<String>>> options() { return getElement(3); }
     };
 
     /** 'columns' array */
@@ -102,6 +114,7 @@ public class TableWidget extends VisibleWidget
                                              new ColumnProperty(widget, "Column " + (index + 1)));
 
 
+    /** 'value', but compared to usual value not limited to VType */
     private static final WidgetPropertyDescriptor<Object> runtimeValue =
         new WidgetPropertyDescriptor<Object>(WidgetPropertyCategory.RUNTIME, "value", Messages.WidgetProperties_Value)
         {
@@ -126,12 +139,13 @@ public class TableWidget extends VisibleWidget
             }
         };
 
-    /** Runtime info about selection */
+    /** PV for runtime info about selection */
     private static final WidgetPropertyDescriptor<String> selectionPV =
-        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.MISC, "selection_pv", Messages.WidgetProperties_SelectionPV);
+        newStringPropertyDescriptor(WidgetPropertyCategory.MISC, "selection_pv", Messages.WidgetProperties_SelectionPV);
 
+    /** Runtime info about selection */
     private static final WidgetPropertyDescriptor<VType> selectionInfo =
-        CommonWidgetProperties.newRuntimeValue("selection", Messages.WidgetProperties_Selection);
+        newRuntimeValue("selection", Messages.WidgetProperties_Selection);
 
     /** Configurator for legacy XML files */
     private static class CustomConfigurator extends WidgetConfigurator

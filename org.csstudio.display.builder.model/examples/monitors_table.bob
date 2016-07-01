@@ -43,11 +43,15 @@ List&lt;List&lt;String&gt;&gt;:</text>
         <name>PV</name>
         <width>0</width>
         <editable>true</editable>
+        <options>
+        </options>
       </column>
       <column>
         <name>Value</name>
         <width>0</width>
         <editable>true</editable>
+        <options>
+        </options>
       </column>
     </columns>
     <scripts>
@@ -93,6 +97,8 @@ In this example, a script updates that PV:</text>
         <name>Columns taken from PV</name>
         <width>0</width>
         <editable>true</editable>
+        <options>
+        </options>
       </column>
     </columns>
     <scripts>
@@ -137,16 +143,26 @@ Information on selected cells is written to a PV.</text>
         <name>Item</name>
         <width>0</width>
         <editable>true</editable>
+        <options>
+        </options>
       </column>
       <column>
         <name>Size</name>
         <width>0</width>
         <editable>true</editable>
+        <options>
+        </options>
       </column>
       <column>
-        <name>Number of Inputs</name>
+        <name>Condition</name>
         <width>0</width>
         <editable>true</editable>
+        <options>
+          <name>Terrific</name>
+          <name>Adequate</name>
+          <name>Poor</name>
+          <name>Pathetic</name>
+        </options>
       </column>
     </columns>
     <scripts>
@@ -155,9 +171,9 @@ Information on selected cells is written to a PV.</text>
 
 # Create matrix (2D array) of strings for initial table values
 data = [
-  [ "Container", "100x10",   "1" ],
-  [ "House",      "200x100", "3" ],
-  [ "Shed",        "3x4",         "1" ],
+  [ "Container", "100x10",   "Poor" ],
+  [ "House",      "200x100", "Good" ],
+  [ "Shed",        "3x4",         "Excellent" ],
 ]
 
 widget.setPropertyValue("value", data)]]></text>
@@ -177,6 +193,8 @@ widget.setPropertyValue("value", data)]]></text>
         <name>Selection</name>
         <width>0</width>
         <editable>true</editable>
+        <options>
+        </options>
       </column>
     </columns>
     <pv_name>loc://table_selection&lt;VTable&gt;</pv_name>

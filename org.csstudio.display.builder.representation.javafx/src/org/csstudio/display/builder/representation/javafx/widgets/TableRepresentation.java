@@ -163,6 +163,7 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         column.name().addUntypedPropertyListener(column_listener);
         column.width().addUntypedPropertyListener(column_listener);
         column.editable().addUntypedPropertyListener(column_listener);
+        column.options().addUntypedPropertyListener(column_listener);
     }
 
     /** @param column Column where changes should be ignored */
@@ -171,6 +172,7 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         column.name().removePropertyListener(column_listener);
         column.width().removePropertyListener(column_listener);
         column.editable().removePropertyListener(column_listener);
+        column.options().removePropertyListener(column_listener);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -245,8 +247,20 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
             final int num = Math.min(headers.size(), columns.size());
             for (int col=0; col<num; ++col)
             {
-                jfx_node.setColumnWidth(col, columns.get(col).width().getValue());
-                jfx_node.setColumnEditable(col, columns.get(col).editable().getValue());
+                final ColumnProperty column = columns.get(col);
+                jfx_node.setColumnWidth(col, column.width().getValue());
+                jfx_node.setColumnEditable(col, column.editable().getValue());
+
+                final List<WidgetProperty<String>> options_value = column.options().getValue();
+                if (options_value.isEmpty())
+                    jfx_node.setColumnOptions(col, Collections.emptyList());
+                else
+                {
+                    final List<String> options = new ArrayList<>();
+                    for (WidgetProperty<String> option : options_value)
+                        options.add(option.getValue());
+                    jfx_node.setColumnOptions(col, options);
+                }
             }
         }
         if (dirty_data.checkAndClear())

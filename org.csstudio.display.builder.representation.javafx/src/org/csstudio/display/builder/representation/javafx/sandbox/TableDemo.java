@@ -46,6 +46,7 @@ public class TableDemo extends Application
         // Table
         final StringTable table = new StringTable(true);
         table.setHeaders(headers);
+        table.setColumnOptions(1, Arrays.asList("Two", "Due", "Zwo", "1+2-1"));
         table.setData(data);
         table.setBackgroundColor(Color.PINK);
         table.setTextColor(Color.GREEN);

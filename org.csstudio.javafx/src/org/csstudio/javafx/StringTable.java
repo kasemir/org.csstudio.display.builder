@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -27,12 +28,15 @@ import javafx.geometry.Bounds;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
@@ -40,6 +44,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.util.Callback;
 import javafx.util.converter.DefaultStringConverter;
 
 /** Table of strings
@@ -80,6 +85,23 @@ public class StringTable extends BorderPane
      */
     private static final List<String> MAGIC_LAST_ROW = Arrays.asList(Messages.MagicLastRow);
 
+    /** Cell factory for displaying the text
+     *
+     *  <p>special coloring of MAGIC_LAST_ROW which only has one column
+     */
+    private static final Callback<CellDataFeatures<List<String>, String>, ObservableValue<String>> CELL_FACTORY = param ->
+    {
+        final TableView<List<String>> table = param.getTableView();
+        final int col_index = table.getColumns().indexOf(param.getTableColumn());
+        List<String> value = param.getValue();
+        final String text;
+        if (value == MAGIC_LAST_ROW)
+            text = col_index == 0 ? MAGIC_LAST_ROW.get(0): "";
+        else
+            text = value.get(col_index);
+        return new SimpleStringProperty(text);
+    };
+
     private final boolean editable;
 
     private Color background_color = Color.WHITE;
@@ -111,6 +133,16 @@ public class StringTable extends BorderPane
             setTextFill(data.get(row) == MAGIC_LAST_ROW ? last_row_color : text_color);
         }
     }
+
+    private class ComboCell extends ComboBoxTableCell<List<String>, String>
+    {
+        public ComboCell(final List<String> options)
+        {
+            super(FXCollections.observableArrayList(options));
+            setComboBoxEditable(true);
+        }
+    };
+
 
     private final ToolBar toolbar = new ToolBar();
 
@@ -274,7 +306,7 @@ public class StringTable extends BorderPane
         table.getColumns().get(column).setMinWidth(width);
     }
 
-   /** Allow editing a column
+    /** Allow editing a column
      *
      *  <p>By default, all columns of an 'active' table
      *  are editable, but this method can change it.
@@ -287,21 +319,38 @@ public class StringTable extends BorderPane
         table.getColumns().get(column).setEditable(editable);
     }
 
+    /** Configure column options.
+     *
+     *  <p>If the list of options is empty,
+     *  the cells in the column will offer a generic text field
+     *  for entering values.
+     *
+     *  <p>If there are options, the column will use a drop-down
+     *  list (combo box) for selecting one of the options.
+     *
+     *  @param column Column index, 0 .. <code>getHeaders().size()-1</code>
+     *  @param options
+     */
+    public void setColumnOptions(final int column, final List<String> options)
+    {
+        @SuppressWarnings("unchecked")
+        final TableColumn<List<String>, String> table_column = (TableColumn<List<String>, String>) table.getColumns().get(column);
+        final Callback<TableColumn<List<String>, String>, TableCell<List<String>, String>> factory;
+
+        // XXX Use checkbox if there are only two options True/False or Yes/No?
+        if (options == null || options.isEmpty())
+            factory = list -> new StringTextCell();
+        else
+            factory = list -> new ComboCell(options);
+        table_column.setCellFactory(factory);
+    }
+
     private TableColumn<List<String>, String> createTableColumn(final String header)
     {
         final TableColumn<List<String>, String> table_column = new TableColumn<>(header);
-        table_column.setCellValueFactory(param ->
-        {
-            final int col_index = table.getColumns().indexOf(param.getTableColumn());
-            List<String> value = param.getValue();
-            final String text;
-            if (value == MAGIC_LAST_ROW)
-                text = col_index == 0 ? MAGIC_LAST_ROW.get(0): "";
-            else
-                text = value.get(col_index);
-            return new SimpleStringProperty(text);
-        });
+        table_column.setCellValueFactory(CELL_FACTORY);
 
+        // By default, use text field editor. setColumnOptions() can replace
         table_column.setCellFactory(list -> new StringTextCell());
         table_column.setOnEditStart(event -> editing = true);
         table_column.setOnEditCommit(event ->
