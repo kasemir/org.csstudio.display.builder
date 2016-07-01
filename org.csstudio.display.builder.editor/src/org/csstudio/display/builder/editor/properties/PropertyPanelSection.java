@@ -142,27 +142,27 @@ public class PropertyPanelSection extends GridPane
         else if (property instanceof EnumWidgetProperty<?>)
         {
             final EnumWidgetProperty<?> enum_prop = (EnumWidgetProperty<?>) property;
-            final ComboBox<String> check = new ComboBox<>();
-            check.setPromptText(property.getDefaultValue().toString());
-            check.setEditable(true);
-            check.getItems().addAll(enum_prop.getLabels());
+            final ComboBox<String> combo = new ComboBox<>();
+            combo.setPromptText(property.getDefaultValue().toString());
+            combo.setEditable(true);
+            combo.getItems().addAll(enum_prop.getLabels());
             final EnumWidgetPropertyBinding binding =
-                    new EnumWidgetPropertyBinding(undo, check, enum_prop, other);
+                    new EnumWidgetPropertyBinding(undo, combo, enum_prop, other);
             bindings.add(binding);
             binding.bind();
-            field = check;
+            field = combo;
         }
         else if (property instanceof BooleanWidgetProperty)
         {
-            final ComboBox<String> check = new ComboBox<>();
-            check.setPromptText(property.getDefaultValue().toString());
-            check.setEditable(true);
-            check.getItems().addAll("true", "false");
+            final ComboBox<String> combo = new ComboBox<>();
+            combo.setPromptText(property.getDefaultValue().toString());
+            combo.setEditable(true);
+            combo.getItems().addAll("true", "false");
             final BooleanWidgetPropertyBinding binding =
-                    new BooleanWidgetPropertyBinding(undo, check, (BooleanWidgetProperty)property, other);
+                    new BooleanWidgetPropertyBinding(undo, combo, (BooleanWidgetProperty)property, other);
             bindings.add(binding);
             binding.bind();
-            field = check;
+            field = combo;
         }
         else if (property instanceof ColorMapWidgetProperty)
         {
