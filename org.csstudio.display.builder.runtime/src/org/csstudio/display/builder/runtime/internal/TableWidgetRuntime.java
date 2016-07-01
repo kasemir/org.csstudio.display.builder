@@ -7,21 +7,46 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
+import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.runtime.RuntimeAction;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
+import org.csstudio.display.builder.runtime.pv.PVFactory;
+import org.csstudio.display.builder.runtime.pv.RuntimePV;
+import org.diirt.vtype.VType;
 
 /** Runtime for the TableWidget
  *
  *  @author Kay Kasemir
  */
-public class TableWidgetRuntime  extends WidgetRuntime<TableWidget>
+@SuppressWarnings("nls")
+public class TableWidgetRuntime extends WidgetRuntime<TableWidget>
 {
     private final List<RuntimeAction> runtime_actions = new ArrayList<>(1);
+
+    private volatile RuntimePV selection_pv = null;
+
+    private final WidgetPropertyListener<VType> selection_listener = (prop, old, value) ->
+    {
+        final RuntimePV pv = selection_pv;
+        if (pv == null)
+            return;
+        try
+        {
+            pv.write(value);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Error writing " + value + " to " + pv, ex);
+        }
+    };
 
     @Override
     public void initialize(final TableWidget widget)
@@ -41,11 +66,39 @@ public class TableWidgetRuntime  extends WidgetRuntime<TableWidget>
     public void start() throws Exception
     {
         super.start();
+
+        // Connect selection info PV
+        final String selection_pv_name = widget.miscSelectionPV().getValue();
+        if (! selection_pv_name.isEmpty())
+        {
+            logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, selection_pv_name });
+            try
+            {
+                final RuntimePV pv = PVFactory.getPV(selection_pv_name);
+                addPV(pv);
+                widget.runtimeSelection().addPropertyListener(selection_listener);
+                selection_pv = pv;
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Error connecting PV " + selection_pv_name, ex);
+            }
+        }
     }
 
     @Override
     public void stop()
     {
+        // Disconnect selection info PV
+        final RuntimePV pv = selection_pv;
+        selection_pv = null;
+        if (pv != null)
+        {
+            widget.runtimeSelection().removePropertyListener(selection_listener);
+            removePV(pv);
+            PVFactory.releasePV(pv);
+        }
+
         super.stop();
     }
 }

@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TableWidget.ColumnProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.javafx.StringTable;
+import org.csstudio.javafx.StringTableListener;
 import org.diirt.util.array.ListDouble;
 import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.VTable;
@@ -66,23 +67,40 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         // In edit mode, table is passive.
         // Change of overall 'editable' at runtime is not supported
         final boolean editable = ! toolkit.isEditMode()  &&  model_widget.behaviorEditable().getValue();
-        final StringTable table = new StringTable(editable);
-        if (toolkit.isEditMode())
-        {   // Capture clicks and use to select widget in editor,
-            // instead of interacting with the table
-            table.addEventFilter(MouseEvent.MOUSE_PRESSED, event ->
-            {
-                event.consume();
-                toolkit.fireClick(model_widget, event.isControlDown());
-            });
-        }
-        return table;
+        return new StringTable(editable);
     }
 
     @Override
     protected void registerListeners()
     {
         super.registerListeners();
+
+        if (toolkit.isEditMode())
+        {   // Capture clicks and use to select widget in editor,
+            // instead of interacting with the table
+            jfx_node.addEventFilter(MouseEvent.MOUSE_PRESSED, event ->
+            {
+                event.consume();
+                toolkit.fireClick(model_widget, event.isControlDown());
+            });
+        }
+        else
+        {
+            jfx_node.setListener(new StringTableListener()
+            {
+                @Override
+                public void dataChanged(final StringTable table)
+                {
+                    // XXX Do anything with data changes?
+                }
+
+                @Override
+                public void selectionChanged(final StringTable table, final int[] rows, final int[] cols)
+                {
+                    updateSelection(rows, cols);
+                }
+            });
+        }
 
         UntypedWidgetPropertyListener listener = this::styleChanged;
         model_widget.positionWidth().addUntypedPropertyListener(listener);
@@ -96,6 +114,24 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         model_widget.displayColumns().addPropertyListener(this::columnsChanged);
 
         model_widget.runtimeValue().addPropertyListener(this::valueChanged);
+    }
+
+    private void updateSelection(final int[] rows, final int[] cols)
+    {
+        // Create VTable that holds the selection
+        final List<String> headers = jfx_node.getHeaders();
+        final int num_cols = headers.size();
+        final List<List<String>> columns = new ArrayList<>(num_cols);
+        for (int c=0; c<num_cols; ++c)
+        {
+            final List<String> column = new ArrayList<>(rows.length);
+            for (int r : rows)
+                column.add(jfx_node.getCell(r, c));
+            columns.add(column);
+        }
+
+        final VTable selection = new SelectionVTable(headers, rows, cols, columns);
+        model_widget.runtimeSelection().setValue(selection);
     }
 
     /** Location, toolbar changed */

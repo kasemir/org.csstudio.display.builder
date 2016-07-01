@@ -17,6 +17,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import javafx.application.Platform;
+import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,6 +26,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
@@ -130,6 +132,8 @@ public class StringTable extends BorderPane
         this.editable = editable;
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.getSelectionModel().setCellSelectionEnabled(true);
+        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        table.getSelectionModel().getSelectedIndices().addListener(this::selectionChanged);
         table.setPlaceholder(new Label());
 
         if (editable)
@@ -358,13 +362,35 @@ public class StringTable extends BorderPane
         fireDataChanged();
     }
 
-    /** @return List of rows, where each row contains the list of cell strings */
+    /** Get complete table content
+     *  @return List of rows, where each row contains the list of cell strings
+     */
     public List<List<String>> getData()
     {
         final List<List<String>> data = new ArrayList<>(table.getItems());
         while (data.size() > 0  &&  data.get(data.size()-1) == MAGIC_LAST_ROW)
             data.remove(data.size()-1);
         return data;
+    }
+
+    /** Get data of one table cell
+     *  @param row Table row
+     *  @param col Table column
+     *  @return Value of that cell or "" for invalid row, column
+     */
+    public String getCell(final int row, final int col)
+    {
+        try
+        {
+            final List<String> row_data = table.getItems().get(row);
+            if (row_data == MAGIC_LAST_ROW)
+                return "";
+            return row_data.get(col);
+        }
+        catch (IndexOutOfBoundsException ex)
+        {
+            return "";
+        }
     }
 
     /** Handle key pressed on the table
@@ -410,6 +436,28 @@ public class StringTable extends BorderPane
             return;
         data.remove(row);
         fireDataChanged();
+    }
+
+    /** Listener to table selection */
+    private void selectionChanged(final Observable what)
+    {
+        final StringTableListener copy = listener;
+        if (copy == null)
+            return;
+
+        @SuppressWarnings("rawtypes")
+        final ObservableList<TablePosition> cells = table.getSelectionModel().getSelectedCells();
+        int num = cells.size();
+        // Don't select the magic last row
+        if (num > 0  &&  data.get(cells.get(num-1).getRow()) == MAGIC_LAST_ROW)
+            --num;
+        final int[] rows = new int[num], cols = new int[num];
+        for (int i=0; i<num; ++i)
+        {
+            rows[i] = cells.get(i).getRow();
+            cols[i] = cells.get(i).getColumn();
+        }
+        copy.selectionChanged(this, rows, cols);
     }
 
     /** @return Currently selected table column or -1 */

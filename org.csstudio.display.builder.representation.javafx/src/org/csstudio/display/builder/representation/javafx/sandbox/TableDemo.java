@@ -54,9 +54,15 @@ public class TableDemo extends Application
         table.setListener(new StringTableListener()
         {
             @Override
-            public void dataChanged(StringTable table)
+            public void dataChanged(final StringTable table)
             {
                 System.out.println("Data has changed");
+            }
+
+            @Override
+            public void selectionChanged(final StringTable table, final int[] rows, final int[] cols)
+            {
+                System.out.println("Selection: rows " + Arrays.toString(rows) + ", cols " + Arrays.toString(cols));
             }
         });
 

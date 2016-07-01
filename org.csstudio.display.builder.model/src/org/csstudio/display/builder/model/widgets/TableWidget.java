@@ -48,12 +48,11 @@ import org.w3c.dom.Element;
  *  The latter includes 2-D string arrays written
  *  by Jython scripts.
  *
- *  TODO setData(VTable)
- *  TODO setData(List<List<String>>)
  *  TODO Some API for script to setCellText(row, column)
  *  TODO Some API for script to setCellBackground(row, column)
  *  TODO Some API for script to setCellColor(row, column)
- *  TODO Track selected row, col via listener or PV
+ *  TODO Column width
+ *  TODO Column editor: Text, Drop-down
  *
  *  @author Kay Kasemir
  */
@@ -128,7 +127,14 @@ public class TableWidget extends VisibleWidget
             }
         };
 
+    /** Runtime info about selection */
+    private static final WidgetPropertyDescriptor<String> selectionPV =
+        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.MISC, "selection_pv", Messages.WidgetProperties_SelectionPV);
 
+    private static final WidgetPropertyDescriptor<VType> selectionInfo =
+        CommonWidgetProperties.newRuntimeValue("selection", Messages.WidgetProperties_Selection);
+
+    /** Configurator for legacy XML files */
     private static class CustomConfigurator extends WidgetConfigurator
     {
         public CustomConfigurator(final Version xml_version)
@@ -208,6 +214,8 @@ public class TableWidget extends VisibleWidget
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<Object> value;
     private volatile WidgetProperty<Boolean> editable;
+    private volatile WidgetProperty<String> selection_pv;
+    private volatile WidgetProperty<VType> selection;
 
     public TableWidget()
     {
@@ -227,6 +235,8 @@ public class TableWidget extends VisibleWidget
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(value = runtimeValue.createProperty(this, null));
         properties.add(editable = behaviorEditable.createProperty(this, true));
+        properties.add(selection_pv = selectionPV.createProperty(this, ""));
+        properties.add(selection = selectionInfo.createProperty(this, null));
     }
 
     @Override
@@ -281,5 +291,17 @@ public class TableWidget extends VisibleWidget
     public WidgetProperty<Boolean> behaviorEditable()
     {
         return editable;
+    }
+
+    /** @return Misc. 'selection_pv' */
+    public WidgetProperty<String> miscSelectionPV()
+    {
+        return selection_pv;
+    }
+
+    /** @return Runtime 'selection' */
+    public WidgetProperty<VType> runtimeSelection()
+    {
+        return selection;
     }
 }

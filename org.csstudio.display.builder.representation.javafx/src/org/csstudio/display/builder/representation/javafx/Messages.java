@@ -43,6 +43,7 @@ public class Messages extends NLS
     public static String ColorMapDialog_Result;
     public static String ColorMapDialog_Title;
     public static String ColorMapDialog_Value;
+    public static String Column;
     public static String Copy;
     public static String FontDialog_ExampleText;
     public static String FontDialog_Family;
@@ -69,6 +70,7 @@ public class Messages extends NLS
     public static String PointsTable_Y;
     public static String Red;
     public static String Remove;
+    public static String Row;
     public static String RulesDialog_ColName;
     public static String RulesDialog_ColBoolExp;
     public static String RulesDialog_ColValExp;

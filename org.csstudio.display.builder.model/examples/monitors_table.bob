@@ -81,14 +81,13 @@ In this example, a script updates that PV:</text>
   </widget>
   <widget type="table" version="2.0.0">
     <name>Table_1</name>
-    <y>511</y>
+    <y>501</y>
     <width>491</width>
     <height>200</height>
     <background_color>
-      <color name="Attention" red="255" green="160" blue="0">
+      <color red="210" green="212" blue="253">
       </color>
     </background_color>
-    <show_toolbar>true</show_toolbar>
     <columns>
       <column>
         <name>Columns taken from PV</name>
@@ -120,6 +119,75 @@ widget.setPropertyValue("value", table)
       </script>
     </scripts>
     <pv_name>loc://table_pv&lt;VTable&gt;</pv_name>
-    <editable>true</editable>
+    <editable>false</editable>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <y>721</y>
+    <width>491</width>
+    <height>41</height>
+    <text>Table that user can edit.
+Information on selected cells is written to a PV.</text>
+  </widget>
+  <widget type="table" version="2.0.0">
+    <name>Table_2</name>
+    <y>762</y>
+    <columns>
+      <column>
+        <name>Item</name>
+        <width>0</width>
+        <editable>true</editable>
+      </column>
+      <column>
+        <name>Size</name>
+        <width>0</width>
+        <editable>true</editable>
+      </column>
+      <column>
+        <name>Number of Inputs</name>
+        <width>0</width>
+        <editable>true</editable>
+      </column>
+    </columns>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[# Embedded python script
+
+# Create matrix (2D array) of strings for initial table values
+data = [
+  [ "Container", "100x10",   "1" ],
+  [ "House",      "200x100", "3" ],
+  [ "Shed",        "3x4",         "1" ],
+]
+
+widget.setPropertyValue("value", data)]]></text>
+        <pv_name>loc://init(1)</pv_name>
+      </script>
+    </scripts>
+    <selection_pv>loc://table_selection&lt;VTable&gt;</selection_pv>
+  </widget>
+  <widget type="table" version="2.0.0">
+    <name>Table_3</name>
+    <x>521</x>
+    <y>762</y>
+    <width>570</width>
+    <height>110</height>
+    <columns>
+      <column>
+        <name>Selection</name>
+        <width>0</width>
+        <editable>true</editable>
+      </column>
+    </columns>
+    <pv_name>loc://table_selection&lt;VTable&gt;</pv_name>
+    <editable>false</editable>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_4</name>
+    <x>521</x>
+    <y>721</y>
+    <width>491</width>
+    <height>41</height>
+    <text>Currently selection items of the left table:</text>
   </widget>
 </display>

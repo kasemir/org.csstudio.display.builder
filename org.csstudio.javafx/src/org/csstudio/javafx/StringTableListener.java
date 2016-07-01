@@ -21,4 +21,15 @@ public interface StringTableListener
      *  @param table Table that changed
      */
     public void dataChanged(StringTable table);
+
+    /** Invoked when cells in the table are selected
+     *
+     *  <p>Both arrays will have the same length,
+     *  i.e. rows[i] and cols[i] represent the ith selected cell.
+     *
+     *  @param table Table where cells were selected
+     *  @param rows Indices of selected rows
+     *  @param cols Indices of selected columns
+     */
+    public void selectionChanged(StringTable table, int[] rows, int[] cols);
 }

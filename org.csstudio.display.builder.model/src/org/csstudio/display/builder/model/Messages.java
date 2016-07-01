@@ -154,6 +154,8 @@ public class Messages extends NLS
     public static String WidgetProperties_ScaleFactor;
     public static String WidgetProperties_ScaleFormat;
     public static String WidgetProperties_Scripts;
+    public static String WidgetProperties_Selection;
+    public static String WidgetProperties_SelectionPV;
     public static String WidgetProperties_ShowHi;
     public static String WidgetProperties_ShowHiHi;
     public static String WidgetProperties_ShowLo;
