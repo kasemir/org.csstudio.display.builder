@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.representation.javafx.WidgetFontDialog;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.DialogHelper;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -38,6 +39,7 @@ public class WidgetFontPropertyBinding
     private EventHandler<ActionEvent> action_handler = event ->
     {
         final WidgetFontDialog dialog = new WidgetFontDialog(widget_property.getValue());
+        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
         final Optional<WidgetFont> result = dialog.showAndWait();
         if (result.isPresent())
         {

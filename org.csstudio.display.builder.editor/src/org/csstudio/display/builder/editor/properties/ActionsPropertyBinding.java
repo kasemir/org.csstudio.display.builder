@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.ActionsDialog;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.DialogHelper;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -38,6 +39,7 @@ public class ActionsPropertyBinding
     private EventHandler<ActionEvent> action_handler = event ->
     {
         final ActionsDialog dialog = new ActionsDialog(widget_property.getValue());
+        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
         final Optional<List<ActionInfo>> result = dialog.showAndWait();
         if (result.isPresent())
         {
