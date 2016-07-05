@@ -145,10 +145,12 @@ You can then edit the cells:</text>
         </options>
       </column>
       <column>
-        <name>Size</name>
+        <name>Small</name>
         <width>0</width>
         <editable>true</editable>
         <options>
+          <option>false</option>
+          <option>true</option>
         </options>
       </column>
       <column>
@@ -176,9 +178,9 @@ widget.setColumnOptions(2, options)
 
 # Create matrix (2D array) of strings for initial table values
 data = [
-  [ "Container", "100x10",   "Poor" ],
-  [ "House",      "200x100", "Good" ],
-  [ "Shed",        "3x4",         "Excellent" ],
+  [ "Container", "false",   "Poor" ],
+  [ "House",      "false", "Good" ],
+  [ "Shed",        "true",         "Excellent" ],
 ]
 
 widget.setValue(data)]]></text>

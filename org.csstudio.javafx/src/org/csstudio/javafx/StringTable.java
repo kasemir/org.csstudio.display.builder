@@ -26,6 +26,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
@@ -134,6 +135,36 @@ public class StringTable extends BorderPane
         }
     }
 
+    /** Cell with checkbox, sets data to "true"/"false" */
+    private class BooleanCell extends TableCell<List<String>, String>
+    {
+        private final CheckBox checkBox = new CheckBox();
+
+        public BooleanCell()
+        {
+            getStyleClass().add("check-box-table-cell");
+        }
+
+        @Override
+        protected void updateItem(final String item, final boolean empty)
+        {
+            super.updateItem(item, empty);
+            if (empty)
+                setGraphic(null);
+            else
+            {
+                setGraphic(checkBox);
+                checkBox.setSelected(item.equalsIgnoreCase("true"));
+                checkBox.setOnAction(event ->
+                {
+                    // TODO Auto-generated method stub
+                    System.out.println("TODO: Check box was clicked in row " + getIndex() + " of " + getTableColumn().getText());
+                });
+            }
+        }
+    };
+
+    /** Cell that allows selecting options from a combo */
     private class ComboCell extends ComboBoxTableCell<List<String>, String>
     {
         public ComboCell(final List<String> options)
@@ -337,9 +368,11 @@ public class StringTable extends BorderPane
         final TableColumn<List<String>, String> table_column = (TableColumn<List<String>, String>) table.getColumns().get(column);
         final Callback<TableColumn<List<String>, String>, TableCell<List<String>, String>> factory;
 
-        // XXX Use checkbox if there are only two options True/False or Yes/No?
         if (options == null || options.isEmpty())
             factory = list -> new StringTextCell();
+        else if (options.equals(Arrays.asList("false", "true")))
+            // XXX Use checkbox if there are only two options True/False or Yes/No?
+            factory = list -> new BooleanCell();
         else
             factory = list -> new ComboCell(options);
         table_column.setCellFactory(factory);
