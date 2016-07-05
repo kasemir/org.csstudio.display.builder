@@ -26,7 +26,7 @@ import javafx.scene.text.FontWeight;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class JFXUtil
+public class JFXUtil extends org.csstudio.javafx.JFXUtil
 {
     private static double font_calibration = 1.0;
 
@@ -76,7 +76,7 @@ public class JFXUtil
         //     -fx-outer-border and -fx-inner-border for the, well, border,
         // and -fx-background for the selected tab,
         // so re-define those.
-        final String bg = JFXUtil.webRGB(color);
+        final String bg = webRGB(color);
 
         return  "-fx-color: derive(" + bg + ", 50%);" +
         "-fx-outer-border: derive(" + bg + ", -23%);" +

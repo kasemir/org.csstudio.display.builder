@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.representation.javafx.WidgetColorDialog;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.DialogHelper;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -37,6 +38,7 @@ public class WidgetColorPropertyBinding
     private EventHandler<ActionEvent> action_handler = event ->
     {
         final WidgetColorDialog dialog = new WidgetColorDialog(widget_property.getValue());
+        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
         final Optional<WidgetColor> result = dialog.showAndWait();
         if (result.isPresent())
         {

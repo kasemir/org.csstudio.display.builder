@@ -16,7 +16,6 @@ public class Messages extends NLS
 {
     private static final String BUNDLE_NAME = "org.csstudio.display.builder.model.messages"; //$NON-NLS-1$
 
-    // Keep in alphabetical order, matching the order in messages.properties
     public static String Actions_Zero;
     public static String Actions_N_Fmt;
     public static String ActiveTab;
@@ -155,6 +154,8 @@ public class Messages extends NLS
     public static String WidgetProperties_ScaleFactor;
     public static String WidgetProperties_ScaleFormat;
     public static String WidgetProperties_Scripts;
+    public static String WidgetProperties_Selection;
+    public static String WidgetProperties_SelectionPV;
     public static String WidgetProperties_ShowHi;
     public static String WidgetProperties_ShowHiHi;
     public static String WidgetProperties_ShowLo;

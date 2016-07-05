@@ -378,7 +378,31 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             }
         });
 
-        final VBox buttons = new VBox(10, add, remove);
+        final Button up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
+        up.setMaxWidth(Double.MAX_VALUE);
+        up.setOnAction(event ->
+        {
+            final int sel = pvs_table.getSelectionModel().getSelectedIndex();
+            if (sel < 0  ||  sel >= pv_items.size())
+                return;
+            final PVItem pv = pv_items.remove(sel);
+            pv_items.add(sel-1, pv);
+            pvs_table.getSelectionModel().select(pv);
+        });
+
+        final Button down = new Button(Messages.MoveDown, JFXUtil.getIcon("down.png"));
+        down.setMaxWidth(Double.MAX_VALUE);
+        down.setOnAction(event ->
+        {
+            final int sel = pvs_table.getSelectionModel().getSelectedIndex();
+            if (sel < 0  ||  sel >= pv_items.size())
+                return;
+            final PVItem pv = pv_items.remove(sel);
+            pv_items.add(sel+1, pv);
+            pvs_table.getSelectionModel().select(pv);
+        });
+
+        final VBox buttons = new VBox(10, add, remove, up, down);
         final HBox content = new HBox(10, pvs_table, buttons);
         HBox.setHgrow(pvs_table, Priority.ALWAYS);
         return content;

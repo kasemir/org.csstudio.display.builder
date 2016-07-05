@@ -37,6 +37,7 @@ import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
 import org.csstudio.display.builder.model.widgets.SpinnerWidget;
+import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
@@ -65,6 +66,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.ProgressBarRep
 import org.csstudio.display.builder.representation.javafx.widgets.RectangleRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ScaledSliderRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.SpinnerRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.TableRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TabsRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepresentation;
@@ -187,6 +189,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(RectangleWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new RectangleRepresentation());
         factories.put(ScaledSliderWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ScaledSliderRepresentation());
         factories.put(SpinnerWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new SpinnerRepresentation());
+        factories.put(TableWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TableRepresentation());
         factories.put(TabsWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TabsRepresentation());
         factories.put(TextEntryWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextEntryRepresentation());
         factories.put(TextUpdateWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextUpdateRepresentation());

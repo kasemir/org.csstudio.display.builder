@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Table</name>
+  <x>-1</x>
+  <y>-1</y>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <width>181</width>
+    <height>31</height>
+    <text>Table Widget</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <y>31</y>
+    <width>461</width>
+    <height>110</height>
+    <text>This widget displays a table of values.
+
+It is typically used with scripts that set the "value".
+It may allow the user to edit the table cells,
+and finally another script can fetch the data and use it in some way.
+</text>
+  </widget>
+  <widget type="table" version="2.0.0">
+    <name>Table</name>
+    <y>271</y>
+    <width>491</width>
+    <height>200</height>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
+    <columns>
+      <column>
+        <name>PV</name>
+        <width>0</width>
+        <editable>true</editable>
+        <options>
+        </options>
+      </column>
+      <column>
+        <name>Value</name>
+        <width>0</width>
+        <editable>true</editable>
+        <options>
+        </options>
+      </column>
+    </columns>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[# Embedded python script
+from org.csstudio.display.builder.runtime.script import PVUtil
+
+# Create matrix (2D array) of strings
+data = []
+
+for pv in pvs:
+    row =  [ pv.getName(), PVUtil.getString(pv) ]
+    data.append(row)
+
+widget.setValue(data)]]></text>
+        <pv_name>sim://sine</pv_name>
+        <pv_name>sim://ramp</pv_name>
+        <pv_name>sim://noise</pv_name>
+      </script>
+    </scripts>
+    <editable>false</editable>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_2</name>
+    <x>511</x>
+    <y>201</y>
+    <width>491</width>
+    <height>70</height>
+    <text>Alternatively, a PV can provide a VTable.
+One example is the 'cursor info' PV written by the image widget.
+In this example, a script updates that PV:</text>
+  </widget>
+  <widget type="table" version="2.0.0">
+    <name>Table_1</name>
+    <x>511</x>
+    <y>271</y>
+    <width>491</width>
+    <height>200</height>
+    <background_color>
+      <color red="210" green="212" blue="253">
+      </color>
+    </background_color>
+    <columns>
+      <column>
+        <name>Columns taken from PV</name>
+        <width>0</width>
+        <editable>true</editable>
+        <options>
+        </options>
+      </column>
+    </columns>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[# Embedded python script
+from org.csstudio.display.builder.runtime.script import PVUtil
+
+target = pvs[0]
+inputs = pvs[1:]
+
+# Create matrix (2D array) of strings
+data = []
+for pv in inputs:
+    row =  [ pv.getName(), PVUtil.getString(pv) ]
+    data.append(row)
+
+table = PVUtil.createStringTableFromRows([ "PV", "Value" ], data)
+widget.setPropertyValue("value", table)
+]]></text>
+        <pv_name trigger="false">loc://table_pv&lt;VTable&gt;</pv_name>
+        <pv_name>sim://sine</pv_name>
+        <pv_name>sim://ramp</pv_name>
+        <pv_name>sim://noise</pv_name>
+      </script>
+    </scripts>
+    <pv_name>loc://table_pv&lt;VTable&gt;</pv_name>
+    <editable>false</editable>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <y>542</y>
+    <width>491</width>
+    <height>41</height>
+    <text>This table receives an initial value from a script.
+You can then edit the cells:</text>
+  </widget>
+  <widget type="table" version="2.0.0">
+    <name>user_table</name>
+    <y>600</y>
+    <columns>
+      <column>
+        <name>Item</name>
+        <width>0</width>
+        <editable>true</editable>
+        <options>
+        </options>
+      </column>
+      <column>
+        <name>Size</name>
+        <width>0</width>
+        <editable>true</editable>
+        <options>
+        </options>
+      </column>
+      <column>
+        <name>Condition</name>
+        <width>0</width>
+        <editable>true</editable>
+        <options>
+          <option>Terrific</option>
+          <option>Adequate</option>
+          <option>Poor</option>
+          <option>Pathetic</option>
+        </options>
+      </column>
+    </columns>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[# Embedded python script
+
+# Adjust options for the 3rd column
+print("Original Options: ")
+options = widget.getColumnOptions(2)
+print(options)
+options.insert(0, "Outstanding")
+widget.setColumnOptions(2, options)
+
+# Create matrix (2D array) of strings for initial table values
+data = [
+  [ "Container", "100x10",   "Poor" ],
+  [ "House",      "200x100", "Good" ],
+  [ "Shed",        "3x4",         "Excellent" ],
+]
+
+widget.setValue(data)]]></text>
+        <pv_name>loc://init(1)</pv_name>
+      </script>
+    </scripts>
+    <selection_pv>loc://table_selection&lt;VTable&gt;</selection_pv>
+  </widget>
+  <widget type="table" version="2.0.0">
+    <name>Table_3</name>
+    <x>521</x>
+    <y>600</y>
+    <width>570</width>
+    <height>110</height>
+    <columns>
+      <column>
+        <name>Selection</name>
+        <width>0</width>
+        <editable>true</editable>
+        <options>
+        </options>
+      </column>
+    </columns>
+    <pv_name>loc://table_selection&lt;VTable&gt;</pv_name>
+    <editable>false</editable>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_4</name>
+    <x>521</x>
+    <y>542</y>
+    <width>491</width>
+    <height>59</height>
+    <text>Information about the currently selected cells in the table
+are written to a PV.
+That value can itself be displayed in a table:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_5</name>
+    <y>911</y>
+    <width>500</width>
+    <height>100</height>
+    <text>The "Condition" column of this table uses a list of options,
+presented in a combo-box when editing a cell.
+
+The options are first set on the widget, then modified by a script to demonstrate
+how a script can configure the table.</text>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button</name>
+    <x>521</x>
+    <y>821</y>
+    <text>$(actions)</text>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[table = widget.getDisplayModel().runtimeChildren().getChildByName("user_table")
+
+data = table.getValue()
+print(data)
+
+for r in range(len(data)):
+    data[r][0] = "New " + data[r][0]
+print(data)
+
+table.setValue(data)
+]]></text>
+        </script>
+        <description>Handle Data</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_6</name>
+    <y>201</y>
+    <width>441</width>
+    <height>60</height>
+    <text>In this example, a script sets the value to
+a two-dimensional string array, i.e. a
+List&lt;List&lt;String&gt;&gt;:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_7</name>
+    <y>151</y>
+    <width>321</width>
+    <height>31</height>
+    <text>Read-only Tables</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_8</name>
+    <y>511</y>
+    <width>191</width>
+    <height>31</height>
+    <text>Editable Table</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_9</name>
+    <x>521</x>
+    <y>731</y>
+    <width>491</width>
+    <height>80</height>
+    <text>Finally, a script invoked by this button
+will 'handle' the data by fetching the current
+table content, modifying the first column,
+and writing the result back to the table.</text>
+  </widget>
+</display>

@@ -24,6 +24,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
@@ -109,6 +110,7 @@ public class Palette
                 button.setGraphic(new ImageView(icon));
             button.setPrefWidth(PREFERRED_WIDTH);
             button.setAlignment(Pos.BASELINE_LEFT);
+            button.setTooltip(new Tooltip(desc.getDescription()));
             palette_groups.get(desc.getCategory()).getChildren().add(button);
 
             WidgetTransfer.addDragSupport(button, selection, desc, icon);

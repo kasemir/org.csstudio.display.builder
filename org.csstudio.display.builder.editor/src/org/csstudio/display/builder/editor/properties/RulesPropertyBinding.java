@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.RuleInfo;
 import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.DialogHelper;
 import org.eclipse.osgi.util.NLS;
 
 import javafx.event.ActionEvent;
@@ -39,6 +40,7 @@ extends WidgetPropertyBinding<Button, RulesWidgetProperty>
     private EventHandler<ActionEvent> action_handler = event ->
     {
         final RulesDialog dialog = new RulesDialog(undo, widget_property.getValue(), widget_property.getWidget());
+        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
         //ScenicView.show(dialog.getDialogPane());
         final Optional<List<RuleInfo>> result = dialog.showAndWait();
 

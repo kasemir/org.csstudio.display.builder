@@ -116,7 +116,10 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
             alarm_sensitive_border_prop = border.get();
             // Start 'OK'
             computeAlarmBorder(AlarmSeverity.NONE);
-            value_prop.addPropertyListener(this::valueChanged);
+            // runtimeValue should be a VType,
+            // but some widgets may allow other data types (Table),
+            // so use Object and then check for VType
+            value_prop.addUntypedPropertyListener(this::valueChanged);
         }
 
         model_widget.runtimeConnected().addPropertyListener(this::connectionChanged);
@@ -135,12 +138,12 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
             computeAlarmBorder(AlarmSeverity.UNDEFINED);
     }
 
-    private void valueChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
+    private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         computeValueBorder(new_value);
     }
 
-    private void computeValueBorder(final VType value)
+    private void computeValueBorder(final Object value)
     {
         AlarmSeverity severity;
         if (alarm_sensitive_border_prop.getValue())
@@ -150,6 +153,9 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
                 severity = ((Alarm)value).getAlarmSeverity();
             else if (value instanceof VType)
                 // VType that doesn't provide alarm, always OK
+                severity = AlarmSeverity.NONE;
+            else if (value != null)
+                // Not a vtype, but non-null, assume OK
                 severity = AlarmSeverity.NONE;
             else// null
                 severity = AlarmSeverity.UNDEFINED;

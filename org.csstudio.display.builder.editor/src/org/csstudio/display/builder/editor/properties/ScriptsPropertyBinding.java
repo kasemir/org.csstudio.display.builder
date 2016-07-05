@@ -18,6 +18,7 @@ import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.ScriptsDialog;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.DialogHelper;
 import org.eclipse.osgi.util.NLS;
 
 import javafx.event.ActionEvent;
@@ -36,10 +37,12 @@ public class ScriptsPropertyBinding
         jfx_node.setText(NLS.bind(Messages.ScriptCountFMT, widget_property.getValue().size()));
     };
 
+
     /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event ->
     {
         final ScriptsDialog dialog = new ScriptsDialog(widget_property.getValue());
+        DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
         final Optional<List<ScriptInfo>> result = dialog.showAndWait();
         if (result.isPresent())
         {

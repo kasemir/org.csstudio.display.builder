@@ -70,7 +70,7 @@ public class BoolButtonWidget extends VisibleWidget
 
     public BoolButtonWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType());
+        super(WIDGET_DESCRIPTOR.getType(), 100, 30);
     }
 
     @Override

@@ -40,7 +40,7 @@ public class EditorPartAction extends Action
         final ImageDescriptor icon =
                 AbstractUIPlugin.imageDescriptorFromPlugin(org.csstudio.display.builder.editor.Plugin.ID,
                                                            action.getIcon());
-        return new EditorPartAction(action.getToolTip(), icon, Action.AS_CHECK_BOX)
+        final EditorPartAction epa = new EditorPartAction(action.getToolTip(), icon, Action.AS_CHECK_BOX)
         {
             @Override
             public void run()
@@ -49,6 +49,8 @@ public class EditorPartAction extends Action
                 action.run(editor, isChecked());
             }
         };
+        epa.setChecked(true);
+        return epa;
     }
 
 
