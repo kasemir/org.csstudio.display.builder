@@ -158,10 +158,10 @@ Information on selected cells is written to a PV.</text>
         <width>0</width>
         <editable>true</editable>
         <options>
-          <name>Terrific</name>
-          <name>Adequate</name>
-          <name>Poor</name>
-          <name>Pathetic</name>
+          <option>Terrific</option>
+          <option>Adequate</option>
+          <option>Poor</option>
+          <option>Pathetic</option>
         </options>
       </column>
     </columns>
@@ -175,6 +175,15 @@ data = [
   [ "House",      "200x100", "Good" ],
   [ "Shed",        "3x4",         "Excellent" ],
 ]
+
+print("Original Options: ")
+options = widget.getColumnOptions(2)
+print(options)
+print("About to add")
+options.insert(0, "Outstanding")
+print("Added")
+
+widget.setColumnOptions(2, options)
 
 widget.setPropertyValue("value", data)]]></text>
         <pv_name>loc://init(1)</pv_name>
@@ -207,5 +216,18 @@ widget.setPropertyValue("value", data)]]></text>
     <width>491</width>
     <height>41</height>
     <text>Currently selection items of the left table:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_5</name>
+    <x>521</x>
+    <y>901</y>
+    <width>491</width>
+    <height>140</height>
+    <text>In this example, the "Condition" column uses a list of options,
+presented in a combo-box when editing a cell.
+
+The options are first set on the widget,
+then modified by a script to demonstrate
+how a script can configure the table.</text>
   </widget>
 </display>

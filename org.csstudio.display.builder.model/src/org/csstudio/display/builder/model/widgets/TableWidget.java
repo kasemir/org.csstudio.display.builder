@@ -19,9 +19,11 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
 import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.displayToolbar;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.Messages;
@@ -78,16 +80,19 @@ public class TableWidget extends VisibleWidget
     };
 
     /** Structure for column configuration */
-    private final static WidgetPropertyDescriptor<Boolean> behaviorEditable =
+    private static final WidgetPropertyDescriptor<Boolean> behaviorEditable =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "editable", "Editable");
+
+    private static final WidgetPropertyDescriptor<String> columnOption =
+            newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "option", "Option");
 
     private static final ArrayWidgetProperty.Descriptor<WidgetProperty<String>> columnOptions =
         new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.DISPLAY, "options", "Options",
                                              (widget, index) ->
-                                             widgetName.createProperty(widget, "Option " + (index + 1)),
+                                             columnOption.createProperty(widget, "Option " + (index + 1)),
                                              /* minimum size */ 0);
 
-    private final static StructuredWidgetProperty.Descriptor displayColumn =
+    private static final StructuredWidgetProperty.Descriptor displayColumn =
         new Descriptor(WidgetPropertyCategory.DISPLAY, "column", "Column");
 
     public static class ColumnProperty extends StructuredWidgetProperty
@@ -104,7 +109,9 @@ public class TableWidget extends VisibleWidget
         public WidgetProperty<String> name()                          { return getElement(0); }
         public WidgetProperty<Integer> width()                        { return getElement(1); }
         public WidgetProperty<Boolean> editable()                     { return getElement(2); }
-        public WidgetProperty<List<WidgetProperty<String>>> options() { return getElement(3); }
+        public ArrayWidgetProperty<WidgetProperty<String>> options()  { final WidgetProperty<List<WidgetProperty<String>>> prop = getElement(3);
+                                                                        return (ArrayWidgetProperty<WidgetProperty<String>>)prop;
+                                                                      }
     };
 
     /** 'columns' array */
@@ -286,6 +293,43 @@ public class TableWidget extends VisibleWidget
     public ArrayWidgetProperty<ColumnProperty> displayColumns()
     {
         return columns;
+    }
+
+    // Convenience routines for displayColumns()
+    /** Get options for a column's values
+     *  @param column Column index, must be 0 .. <code>displayColumns().size()-1</code>
+     *  @return Options that combo editor will present for the cells in that column
+     */
+    public  List<String> getColumnOptions(final int column)
+    {
+        final List<WidgetProperty<String>> options = columns.getElement(column).options().getValue();
+        if (options.isEmpty())
+            return Collections.emptyList();
+        final List<String> values = new ArrayList<>(options.size());
+        for (WidgetProperty<String> option : options)
+            values.add(option.getValue());
+        return values;
+    }
+
+    /** Set options for a column's values
+     *  @param column Column index, must be 0 .. <code>displayColumns().size()-1</code>
+     *  @param options Options to present in combo editor for the cells in that column
+     */
+    public void setColumnOptions(final int column, final List<String> options)
+    {
+        final ArrayWidgetProperty<WidgetProperty<String>> options_prop = columns.getElement(column).options();
+        final int num = options.size();
+        while (options_prop.size() > num)
+            options_prop.removeElement();
+        while (options_prop.size() < num)
+            options_prop.addElement();
+        // Received list is supposed to contain strings,
+        // but script might actually send PyString, or anything else.
+        // Calling toString on the object will allow anything
+        // to be passed without errors like
+        // "org.python.core.PyString cannot be cast to java.lang.String"
+        for (int i=0; i<num; ++i)
+            options_prop.getElement(i).setValue(Objects.toString(options.get(i)));
     }
 
     /** @return Behavior 'pv_name' */
