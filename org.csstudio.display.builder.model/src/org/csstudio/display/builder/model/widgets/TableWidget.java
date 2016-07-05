@@ -44,6 +44,9 @@ import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.diirt.util.array.ListDouble;
+import org.diirt.util.array.ListNumber;
+import org.diirt.vtype.VTable;
 import org.diirt.vtype.VType;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
@@ -295,8 +298,10 @@ public class TableWidget extends VisibleWidget
         return columns;
     }
 
-    // Convenience routines for displayColumns()
     /** Get options for a column's values
+     *
+     *  <p>Convenience routines for <code>displayColumns()</code>
+     *
      *  @param column Column index, must be 0 .. <code>displayColumns().size()-1</code>
      *  @return Options that combo editor will present for the cells in that column
      */
@@ -312,6 +317,9 @@ public class TableWidget extends VisibleWidget
     }
 
     /** Set options for a column's values
+     *
+     *  <p>Convenience routines for <code>displayColumns()</code>
+     *
      *  @param column Column index, must be 0 .. <code>displayColumns().size()-1</code>
      *  @param options Options to present in combo editor for the cells in that column
      */
@@ -342,6 +350,77 @@ public class TableWidget extends VisibleWidget
     public WidgetProperty<Object> runtimeValue()
     {
         return value;
+    }
+
+    /** Set value, i.e. content of cells in table
+     *
+     *  <p>Convenience routine for <code>runtimeValue()</code>.
+     *  and converting the data to a 2D list of strings.
+     *
+     *  <p>Accepts either a {@link List} of rows,
+     *  where each row is a {@link List} of column {@link String}s,
+     *  or a {@link VTable}
+     *
+     *  @param data {@link List} of rows, or {@link VTable}
+     */
+    public void setValue(final Object data)
+    {
+        value.setValue(data);
+    }
+
+    /** Fetch value, i.e. content of cells in table
+     *
+     *  <p>Convenience routine for <code>runtimeValue()</code>
+     *  and converting the data to a 2D list of strings.
+     *
+     *  @return {@link List} of rows, where each row is a {@link List} of column {@link String}s
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public List<List<String>> getValue()
+    {
+        final Object the_value = value.getValue();
+        if (the_value instanceof List)
+        {   // Create deep copy:
+            // * Avoid changes to widget's value
+            // * If a script fetches the value, modifies it, then sets that as a new value,
+            //   passing out a deep copy asserts that the 'new' value is indeed recognized
+            //   as new, instead of referencing the old value and thus seem a no-change OP.
+            final List<List<String>> deep_copy = new ArrayList<>(((List)the_value).size());
+            for (List<String> row : (List<List<String>>)the_value)
+            {
+                final List<String> row_copy = new ArrayList<>(row);
+                deep_copy.add(row_copy);
+            }
+            return deep_copy;
+        }
+        else if (the_value instanceof VTable)
+        {
+            final VTable table = (VTable) the_value;
+            final int rows = table.getRowCount();
+            final int cols = table.getColumnCount();
+            // Extract 2D string matrix for data
+            final List<List<String>> data = new ArrayList<>(rows);
+            for (int r=0; r<rows; ++r)
+            {
+                final List<String> row = new ArrayList<>(cols);
+                for (int c=0; c<cols; ++c)
+                {
+                    final Object col_data = table.getColumnData(c);
+                    if (col_data instanceof List)
+                        row.add( Objects.toString(((List)col_data).get(r)) );
+                    else if (col_data instanceof ListDouble)
+                        row.add( Double.toString(((ListDouble)col_data).getDouble(r)) );
+                    else if (col_data instanceof ListNumber)
+                        row.add( Long.toString(((ListNumber)col_data).getLong(r)) );
+                    else
+                        row.add( Objects.toString(col_data) );
+                }
+                data.add(row);
+            }
+            return data;
+        }
+        else
+            return Arrays.asList(Arrays.asList(Objects.toString(the_value)));
     }
 
     /** @return Behavior 'editable' */

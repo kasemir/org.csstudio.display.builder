@@ -406,7 +406,11 @@ public class StringTable extends BorderPane
         data.clear();
         for (List<String> new_row : new_data)
         {
-            final ArrayList<String> row = new ArrayList<>(new_row);
+            final ArrayList<String> row;
+            if (new_row instanceof ArrayList)
+                row = (ArrayList<String>)new_row;
+            else
+                row = new ArrayList<>(new_row);
             if (row.size() < columns)
             {
                 logger.log(Level.WARNING, "Table needs " + columns +
@@ -419,7 +423,8 @@ public class StringTable extends BorderPane
 
         if (editable)
             data.add(MAGIC_LAST_ROW);
-        fireDataChanged();
+        // Don't fire, since external source changed data, not user
+        // fireDataChanged();
     }
 
     /** Get complete table content

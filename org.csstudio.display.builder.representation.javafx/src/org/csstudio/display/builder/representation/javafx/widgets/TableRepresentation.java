@@ -8,10 +8,8 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
@@ -21,8 +19,6 @@ import org.csstudio.display.builder.model.widgets.TableWidget.ColumnProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.javafx.StringTable;
 import org.csstudio.javafx.StringTableListener;
-import org.diirt.util.array.ListDouble;
-import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.VTable;
 
 import javafx.scene.input.MouseEvent;
@@ -46,6 +42,11 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
 
     /** Most recent table data, row by row */
     private volatile List<List<String>> data = new ArrayList<>();
+
+    /** Is user setting data, which in turn updates the widget value
+     *  --> Ignore widget value change
+     */
+    private boolean setting_data = false;
 
     /** Listener for any changes in any column
      *
@@ -91,7 +92,15 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
                 @Override
                 public void dataChanged(final StringTable table)
                 {
-                    // XXX Do anything with data changes?
+                    setting_data = true;
+                    try
+                    {
+                        model_widget.setValue(table.getData());
+                    }
+                    finally
+                    {
+                        setting_data = false;
+                    }
                 }
 
                 @Override
@@ -175,40 +184,16 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         column.options().removePropertyListener(column_listener);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void valueChanged(final WidgetProperty<Object> property, final Object old_value, final Object new_value)
     {
-        if (new_value instanceof List)
-        {   // Check for List<List<String>>?
-            data = (List)new_value;
-        }
-        else if (new_value instanceof VTable)
-        {
+        if (setting_data)
+            return;
+        data = model_widget.getValue();
+        if (new_value instanceof VTable)
+        {   // Use table's column headers
             final VTable table = (VTable) new_value;
-            final int rows = table.getRowCount();
             final int cols = table.getColumnCount();
-            // Extract 2D string matrix for data
-            final List<List<String>> new_data = new ArrayList<>(rows);
-            for (int r=0; r<rows; ++r)
-            {
-                final List<String> row = new ArrayList<>(cols);
-                for (int c=0; c<cols; ++c)
-                {
-                    final Object col_data = table.getColumnData(c);
-                    if (col_data instanceof List)
-                        row.add( Objects.toString(((List)col_data).get(r)) );
-                    else if (col_data instanceof ListDouble)
-                        row.add( Double.toString(((ListDouble)col_data).getDouble(r)) );
-                    else if (col_data instanceof ListNumber)
-                        row.add( Long.toString(((ListNumber)col_data).getLong(r)) );
-                    else
-                        row.add( Objects.toString(col_data) );
-                }
-                new_data.add(row);
-            }
-
-            // Use table's column headers
-            final List<String> new_headers = new ArrayList<>(table.getColumnCount());
+            final List<String> new_headers = new ArrayList<>(cols);
             for (int c=0; c<cols; ++c)
                 new_headers.add(table.getColumnName(c));
             if (! new_headers.equals(headers))
@@ -216,11 +201,7 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
                 headers = new_headers;
                 dirty_columns.mark();
             }
-
-            data = new_data;
         }
-        else
-            data = Arrays.asList(Arrays.asList(Objects.toString(new_value)));
         dirty_data.mark();
         toolkit.scheduleUpdate(this);
     }
