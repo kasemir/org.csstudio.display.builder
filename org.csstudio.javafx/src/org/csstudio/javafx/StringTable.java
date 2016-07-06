@@ -26,6 +26,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
@@ -134,6 +135,51 @@ public class StringTable extends BorderPane
         }
     }
 
+    /** Cell with checkbox, sets data to "true"/"false" */
+    private class BooleanCell extends TableCell<List<String>, String>
+    {
+        private final CheckBox checkbox = new CheckBox();
+
+        public BooleanCell()
+        {
+            getStyleClass().add("check-box-table-cell");
+
+            checkbox.setOnAction(event ->
+            {
+                final int col = getTableView().getColumns().indexOf(getTableColumn());
+                final int row = getIndex();
+                final String value = Boolean.toString(checkbox.isSelected());
+                data.get(row).set(col, value);
+                fireDataChanged();
+            });
+        }
+
+        @Override
+        protected void updateItem(final String item, final boolean empty)
+        {
+            super.updateItem(item, empty);
+
+            final int row = getIndex();
+            if (empty)
+                setGraphic(null);
+            else
+            {
+                if (data.get(row) == MAGIC_LAST_ROW)
+                {
+                    setText(item);
+                    setGraphic(null);
+                }
+                else
+                {
+                    setText(null);
+                    setGraphic(checkbox);
+                    checkbox.setSelected(item.equalsIgnoreCase("true"));
+                }
+            }
+        }
+    };
+
+    /** Cell that allows selecting options from a combo */
     private class ComboCell extends ComboBoxTableCell<List<String>, String>
     {
         public ComboCell(final List<String> options)
@@ -337,12 +383,24 @@ public class StringTable extends BorderPane
         final TableColumn<List<String>, String> table_column = (TableColumn<List<String>, String>) table.getColumns().get(column);
         final Callback<TableColumn<List<String>, String>, TableCell<List<String>, String>> factory;
 
-        // XXX Use checkbox if there are only two options True/False or Yes/No?
         if (options == null || options.isEmpty())
             factory = list -> new StringTextCell();
+        else if (optionsAreBoolean(options))
+            factory = list -> new BooleanCell();
         else
             factory = list -> new ComboCell(options);
         table_column.setCellFactory(factory);
+    }
+
+    /** Check if list of options suggest a boolean value
+     *
+     *  @param options Possible values of a column
+     *  @return <code>true</code> if options are some variation of "true", "false"
+     */
+    private boolean optionsAreBoolean(final List<String> options)
+    {
+        return options.size() == 2   &&
+               options.containsAll(Arrays.asList("false", "true"));
     }
 
     private TableColumn<List<String>, String> createTableColumn(final String header)
