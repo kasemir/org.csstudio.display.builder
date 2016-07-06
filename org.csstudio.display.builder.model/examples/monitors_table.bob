@@ -221,12 +221,15 @@ That value can itself be displayed in a table:</text>
     <name>Label_5</name>
     <y>911</y>
     <width>500</width>
-    <height>100</height>
+    <height>160</height>
     <text>The "Condition" column of this table uses a list of options,
 presented in a combo-box when editing a cell.
 
 The options are first set on the widget, then modified by a script to demonstrate
-how a script can configure the table.</text>
+how a script can configure the table.
+
+The "Small" column uses options "true"/"false",
+which are represented by a checkbox.</text>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button</name>
