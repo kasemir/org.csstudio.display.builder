@@ -15,6 +15,7 @@ import org.csstudio.display.builder.model.properties.FormatOption;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
+import org.diirt.vtype.VByteArray;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VTable;
 import org.diirt.vtype.VType;
@@ -67,7 +68,24 @@ public class PVUtil
      */
     public static String getString(final RuntimePV pv)
     {
-        return FormatOptionHandler.format(getVType(pv), FormatOption.DEFAULT, 0, true);
+        return getString(pv, false);
+    }
+
+    /** Get value of PV as string.
+     *
+     *  <p>Optionally, byte arrays can be requested as a (long) string,
+     *  instead of "[ 1, 2, 3, .. ]"
+     *  @param pv PV
+     *  @param byte_array_as_string Decode byte arrays as string?
+     *  @return Current value as string
+     */
+    public static String getString(final RuntimePV pv, final boolean byte_array_as_string)
+    {
+        final VType vtype = getVType(pv);
+        final FormatOption option = vtype instanceof VByteArray
+                                  ? FormatOption.STRING
+                                  : FormatOption.DEFAULT;
+        return FormatOptionHandler.format(vtype, option, 0, true);
     }
 
     /** Get labels for an enum value
