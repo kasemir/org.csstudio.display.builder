@@ -7,7 +7,7 @@ import org.csstudio.display.builder.runtime.script.internal.PythonGatewaySupport
 import org.junit.Assert;
 import org.junit.Test;
 
-@SuppressWarnings({ "restriction", "nls" }) //restriction: make access resolution (Properties, Java Build Path, ...)
+@SuppressWarnings("nls")
 public class PythonGatewaySupportTest
 {
     @Test
@@ -18,7 +18,7 @@ public class PythonGatewaySupportTest
         map.put("1", -1);
         map.put("obj", new TestObject());
 
-        String testPath = "C:/Users/cj5/git/org.csstudio.display.builder/org.csstudio.display.builder.runtime/scripts/";
+        String testPath = "../org.csstudio.display.builder.runtime/scripts/";
         PythonGatewaySupport.run(map, testPath + "test-script.py");
 
         Assert.assertEquals(0, map.get("0")); //map does not change unchanged elements
