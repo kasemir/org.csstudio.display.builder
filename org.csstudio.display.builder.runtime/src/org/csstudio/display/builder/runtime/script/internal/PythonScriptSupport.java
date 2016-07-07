@@ -58,7 +58,7 @@ public class PythonScriptSupport
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put("widget", widget);
                 map.put("pv", pvs);
-                //here: run script using e.g. PythonGatewaySupport.run(map, script.dir + File.separator + script.name)
+                PythonGatewaySupport.run(map, script.getName());
             } catch (final Throwable ex)
             {
                 logger.log(Level.WARNING, "Execution of '" + script + "' failed for " + widget, ex);
