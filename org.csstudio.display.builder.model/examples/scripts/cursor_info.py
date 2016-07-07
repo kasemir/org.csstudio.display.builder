@@ -2,13 +2,16 @@
 #
 # Value is a VTable with columns X, Y, Value, one row of data
 
-table = pvs[0].read()
+from org.csstudio.display.builder.runtime.script import PVUtil
+
 try:
-    x = table.getColumnData(0).getDouble(0)
+    x = PVUtil.getTableCell(pvs[0], 0, 0)
     xt = "left" if x < 50 else "right"
-    y = table.getColumnData(1).getDouble(0)
+
+    y = PVUtil.getTableCell(pvs[0], 0, 1)
     yt = "top" if y > 40 else "bottom"
-    v = table.getColumnData(2).getDouble(0)
+
+    v = PVUtil.getTableCell(pvs[0], 0, 2)
     text = "X: %.1f (%s) Y: %.1f (%s) Value: %.1f" % (x, xt, y, yt, v)
 except:
     text = ""
