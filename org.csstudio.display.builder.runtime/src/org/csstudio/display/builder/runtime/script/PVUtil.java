@@ -179,7 +179,7 @@ public class PVUtil
      *  @param pv PV
      *  @param row Row index, 0..
      *  @param column Column index, 0..
-     *  @return Either String or Number for the cell's value
+     *  @return Either String or Number for the cell's value, null if invalid row/column
      */
     @SuppressWarnings("rawtypes")
     public static Object getTableCell(final RuntimePV pv, final int row, final int column)
@@ -188,6 +188,9 @@ public class PVUtil
         if (value instanceof VTable)
         {
             final VTable table = (VTable) value;
+            if (column >= table.getColumnCount() ||
+                row >= table.getRowCount())
+                return null;
             final Object col_data = table.getColumnData(column);
             if (col_data instanceof List)
                 return Objects.toString(((List)col_data).get(row));
