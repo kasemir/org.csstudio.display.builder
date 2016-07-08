@@ -1,11 +1,11 @@
-#from sqlite3 import collections
 import sys
 
-from connect2j import connectToMap, updateMap, shutdown
+from connect2j import updateMap, shutdown, connectToJava, getMap
 
 if (len(sys.argv) > 1):
-    map = connectToMap(int(sys.argv[1]))
-    map['1'] = 1 #change
-    updateMap(map)
+    gateway = connectToJava(sys.argv[1])
+    map = getMap(gateway)
+    map['1'] = 1
+    updateMap(gateway, map)
     map["obj"].setValue("Hello")
-    shutdown()
+    shutdown(gateway)
