@@ -7,14 +7,18 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.macros;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.util.Collection;
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.WidgetProperty;
 
 /** Provides values from macros, falling back to widget properties
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class MacroOrPropertyProvider implements MacroValueProvider
 {
     private final MacroValueProvider macros;
@@ -34,6 +38,37 @@ public class MacroOrPropertyProvider implements MacroValueProvider
     @Override
     public String getValue(final String name)
     {
+        // Automatic macro for Display ID,
+        // uniquely identifies the display
+        if ("DID".equals(name))
+        {
+            int id;
+            try
+            {
+                id = System.identityHashCode(properties.get("name").getWidget().getDisplayModel());
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot obtain display ID for $(DID)", ex);
+                return "DP00";
+            }
+            return "DP" + Integer.toHexString(id);
+        }
+
+        // Automatic macro for Display NAME
+        if ("DNAME".equals(name))
+        {
+            try
+            {
+                return properties.get("name").getWidget().getDisplayModel().widgetName().getValue();
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot obtain display name", ex);
+                return "Unknown";
+            }
+        }
+
         String value = macros.getValue(name);
         if (value != null)
             return value;

@@ -14,7 +14,7 @@
     <x>371</x>
     <y>171</y>
     <width>410</width>
-    <height>210</height>
+    <height>330</height>
     <file>embedded.bob</file>
   </widget>
   <widget type="label" version="2.0.0">
@@ -51,7 +51,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
-    <y>651</y>
+    <y>881</y>
     <width>540</width>
     <height>100</height>
     <text>Actions that open displays, usually defined on an Action Button,
@@ -64,7 +64,7 @@ The follwing buttons open the same display:</text>
     <name>Label_5</name>
     <y>231</y>
     <width>321</width>
-    <height>180</height>
+    <height>130</height>
     <text>Each display can add or replace macros:
 
 MY_MACRO = $(MY_MACRO)
@@ -75,7 +75,7 @@ to update the EXAMPLE_MACRO.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
-    <y>431</y>
+    <y>661</y>
     <width>351</width>
     <height>50</height>
     <text>Each group within a display can add or replace macros
@@ -86,17 +86,18 @@ which are then visible to the widgets within the group.</text>
     <macros>
       <MY_MACRO>replaced by group</MY_MACRO>
     </macros>
-    <y>501</y>
+    <y>721</y>
     <width>351</width>
-    <height>90</height>
+    <height>100</height>
     <widget type="label" version="2.0.0">
       <name>Label_7</name>
       <x>5</x>
       <y>4</y>
       <width>310</width>
-      <height>50</height>
+      <height>55</height>
       <text>EXAMPLE_MACRO = $(EXAMPLE_MACRO)
-MY_MACRO = $(MY_MACRO)</text>
+MY_MACRO = $(MY_MACRO)
+DID = $(DID)</text>
     </widget>
   </widget>
   <widget type="group" version="2.0.0">
@@ -105,17 +106,18 @@ MY_MACRO = $(MY_MACRO)</text>
       <EXAMPLE_MACRO>replaced by group</EXAMPLE_MACRO>
     </macros>
     <x>371</x>
-    <y>501</y>
+    <y>721</y>
     <width>351</width>
-    <height>90</height>
+    <height>100</height>
     <widget type="label" version="2.0.0">
-      <name>Label_8</name>
+      <name>Label_16</name>
       <x>4</x>
       <y>4</y>
       <width>310</width>
-      <height>40</height>
+      <height>55</height>
       <text>EXAMPLE_MACRO = $(EXAMPLE_MACRO)
-MY_MACRO = $(MY_MACRO)</text>
+MY_MACRO = $(MY_MACRO)
+DID = $(DID)</text>
     </widget>
   </widget>
   <widget type="label" version="2.0.0">
@@ -132,7 +134,7 @@ MY_MACRO = $(MY_MACRO)</text>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button</name>
-    <y>761</y>
+    <y>981</y>
     <width>181</width>
     <text>$(actions)</text>
     <actions>
@@ -145,8 +147,8 @@ MY_MACRO = $(MY_MACRO)</text>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_1</name>
-    <x>201</x>
-    <y>761</y>
+    <x>200</x>
+    <y>981</y>
     <width>181</width>
     <text>$(actions)</text>
     <actions>
@@ -162,8 +164,8 @@ MY_MACRO = $(MY_MACRO)</text>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_2</name>
-    <x>401</x>
-    <y>761</y>
+    <x>400</x>
+    <y>981</y>
     <width>210</width>
     <text>$(actions)</text>
     <actions>
@@ -212,7 +214,7 @@ In this example, MY_MACRO is set to ".. from embedding widget"</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_13</name>
-    <y>401</y>
+    <y>621</y>
     <width>169</width>
     <height>30</height>
     <text>4) Group</text>
@@ -223,12 +225,39 @@ In this example, MY_MACRO is set to ".. from embedding widget"</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_14</name>
-    <y>611</y>
+    <y>841</y>
     <width>169</width>
     <height>30</height>
     <text>5) Actions</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_15</name>
+    <y>391</y>
+    <width>341</width>
+    <height>190</height>
+    <text>Each display automatically defines a few macros.
+
+DID uniquely identifies the display.
+It can be used to create unique,
+display-specific local variables.
+
+DNAME provides the display name.
+
+For this display, DID = $(DID),
+and DNAME = $(DNAME).</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_17</name>
+    <y>361</y>
+    <width>241</width>
+    <height>30</height>
+    <text>Automatic Display  Macros</text>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
     </font>
   </widget>
