@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.properties;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
@@ -42,19 +43,20 @@ public class ScriptInfo
     private final List<ScriptPV> pvs;
 
     /**
-     * @param path Path to the script.
+     * @param path Path (excluding name and file separator) to the script
+     * @param name Name of the script
      * @return <code>true</code> if Python; that is, if *.py file with "python"
      *         (as in #!/usr/bin/env python) in first line
      */
-    public static boolean isPython(final String path)
+    public static boolean isPython(final String path, final String name)
     {
-        if (!path.endsWith(".py"))
+        if (!name.endsWith(".py"))
             return false;
         String firstline = null;
         BufferedReader br = null;
         try
         {
-            br = new BufferedReader(new FileReader(path));
+            br = new BufferedReader(new FileReader(path + File.separator + name));
             firstline = br.readLine();
         }
         catch (IOException e)
@@ -63,12 +65,11 @@ public class ScriptInfo
         }
         finally //close finally, in case exception occurs at readLine()
         {
-            try
-            {
-                br.close();
-            } catch (IOException e)
-            {
-            }
+            if (br != null)
+                try
+                {
+                    br.close();
+                } catch (IOException e) {}
         }
         return firstline != null && firstline.contains("python");
     }

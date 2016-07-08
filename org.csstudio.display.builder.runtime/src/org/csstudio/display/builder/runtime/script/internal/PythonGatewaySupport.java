@@ -13,7 +13,9 @@ import py4j.GatewayServer;
 public class PythonGatewaySupport
 {
     /**
-     * Runs a Python script, with the given map accessible within the script
+     * Runs a Python script, with the given map accessible within the script.
+     * The port which the gateway server is listening to is passed as an
+     * argument to the script.
      * 
      * @param map Map which is to be accessed by script
      * @param script Path (including name) of script which is to be run
@@ -27,7 +29,6 @@ public class PythonGatewaySupport
         server.start();
         
         int port = server.getListeningPort();
-        System.out.println("port= " + port);
         if (port == -1)
         {
             server.shutdown();

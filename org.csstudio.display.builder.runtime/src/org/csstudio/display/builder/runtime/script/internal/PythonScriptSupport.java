@@ -67,8 +67,9 @@ public class PythonScriptSupport
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put("widget", widget);
                 map.put("pv", pvs);
-                PythonGatewaySupport.run(map, script.getName());
-            } catch (final Throwable ex)
+                PythonGatewaySupport.run(map, script.getPath());
+            }
+            catch (final Throwable ex)
             {
                 logger.log(Level.WARNING, "Execution of '" + script + "' failed for " + widget, ex);
             }
@@ -86,13 +87,12 @@ public class PythonScriptSupport
      * @return {@link Script}
      * @throws Exception on error
      */
-    //Since compile is only called after checking the type of the script,
-    //and for ScriptInfo.isPython() to return true, the file must exist
-    //and be readable, it seems redundant to check the file exists.
-    PythonScript compile(String name) throws Exception
+    @SuppressWarnings("nls")
+    PythonScript compile(String path, String name) throws Exception
     {
-        if (new File(name).exists())
-            return new PythonScript(this, name);
-        throw new Exception("Python script file " + name + " does not exist."); //$NON-NLS-1$
+        path += File.separator + name;
+        if (new File(path).exists())
+            return new PythonScript(this, path, name);
+        throw new Exception("Python script file " + path + " does not exist.");
     }
 }

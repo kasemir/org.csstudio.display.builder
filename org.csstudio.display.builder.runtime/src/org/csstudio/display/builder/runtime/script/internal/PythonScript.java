@@ -10,23 +10,32 @@ public class PythonScript implements Script
 {
     private final PythonScriptSupport support;
     private final String name;
+    private final String path;
 
     /**
      * Prepare submittable script object
      *
      * @param support {@link PythonScriptSupport} that will execute this script
-     * @param name Name of script (file name, URL)
+     * @param name Name of script (file name)
+     * @param path Path (including name) of script
      */
-    public PythonScript(final PythonScriptSupport support, final String name)
+    public PythonScript(final PythonScriptSupport support, final String name, final String path)
     {
         this.support = support;
         this.name = name;
+        this.path = name;
     }
 
     /** @return Name of script (file name, URL) */
     public String getName()
     {
         return name;
+    }
+
+    /** @return Path (including name) of script */
+    public String getPath()
+    {
+        return path;
     }
 
     @Override

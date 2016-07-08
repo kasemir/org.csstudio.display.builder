@@ -72,9 +72,9 @@ public class ScriptSupport
      */
     public Script compile(final String path, final String name, final InputStream stream) throws Exception
     {
+        if (ScriptInfo.isPython(path, name))
+            return python.compile(path, name);
         final InputStream script_stream = patchScript(name, stream);
-        if (ScriptInfo.isPython(name))
-            return python.compile(name);
         if (ScriptInfo.isJython(name))
             return jython.compile(path, name, script_stream);
         else if (ScriptInfo.isJavaScript(name))
