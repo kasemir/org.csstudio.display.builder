@@ -102,8 +102,6 @@ public class DisplayModel extends Widget
     @Override
     public Macros getEffectiveMacros()
     {
-        // TODO: Check order
-
         // 1) Lowest priority are either
         // 1.a) .. global macros from preferences
         // 1.b) .. macros from embedding widget,

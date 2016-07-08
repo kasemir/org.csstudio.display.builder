@@ -37,7 +37,7 @@ by opening the display with appropriate macro values.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
-    <y>211</y>
+    <y>191</y>
     <width>331</width>
     <height>30</height>
     <text>Defining Macros</text>
@@ -48,15 +48,16 @@ by opening the display with appropriate macro values.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
-    <y>241</y>
-    <width>561</width>
-    <height>330</height>
+    <y>221</y>
+    <width>661</width>
+    <height>340</height>
     <text>Macros can be defined at 
 
-  1. In the 'Action' that opens a display
-  2. In the properties of an 'Embedded Display' widget
-  3. In a *.bob display
-  4. In a 'Group' widget
+ 1) In Preferences
+ 2) In the 'Embedded Display' widget that embeds other displays
+ 3) In the properties of each display 
+ 4) In each 'Group' widget
+ 5) On each 'Action' that opens a display
 
 Macros are added respectively overwritten in the above hierarchy.
 
@@ -72,7 +73,7 @@ A widget inside that 'Group' widget will see macros "PV=MyPV, TITLE=Welcome, VIS
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
-    <y>600</y>
+    <y>631</y>
     <width>331</width>
     <height>30</height>
     <text>Using Macros</text>
@@ -83,7 +84,7 @@ A widget inside that 'Group' widget will see macros "PV=MyPV, TITLE=Welcome, VIS
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
-    <y>630</y>
+    <y>661</y>
     <width>541</width>
     <height>180</height>
     <text>When entering the property of a widget, most places
@@ -100,7 +101,7 @@ equals "true" resp. "false".</text>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
     <x>571</x>
-    <y>600</y>
+    <y>631</y>
     <width>331</width>
     <height>30</height>
     <text>Access to Widget Properties</text>
@@ -112,7 +113,7 @@ equals "true" resp. "false".</text>
   <widget type="label" version="2.0.0">
     <name>Label_10</name>
     <x>571</x>
-    <y>630</y>
+    <y>661</y>
     <width>541</width>
     <height>191</height>
     <text>When evaluating a macro, if the macro has not been defined,
@@ -125,5 +126,18 @@ will be used.
 Note that this mechanism uses the internal, non-localized name of
 the property as it is for example found in the *.bob file.
 The 'X Position' property for example has an internal name 'x'.</text>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button</name>
+    <y>561</y>
+    <width>270</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>macros/macros.bob</file>
+        <target>replace</target>
+        <description>More Macro Hierarchy Examples</description>
+      </action>
+    </actions>
   </widget>
 </display>
