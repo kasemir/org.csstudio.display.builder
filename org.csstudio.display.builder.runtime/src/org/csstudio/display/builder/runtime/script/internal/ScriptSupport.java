@@ -47,16 +47,18 @@ public class ScriptSupport
     // Could provide two executors, one for jython and one for javascript,
     // but each one needs to be single-threaded because there's only one interpreter
     // with only one global variable for 'window' etc.
+    private final PythonScriptSupport python;
     private final JythonScriptSupport jython;
     private final JavaScriptSupport javascript;
 
     public ScriptSupport() throws Exception
     {
+        python = new PythonScriptSupport(this);
         jython = new JythonScriptSupport(this);
         javascript = new JavaScriptSupport(this);
     }
 
-    /** Parse and compile script file
+    /** Prepare script file for submission
      *
      *  @param path Path to the script. May be <code>null</null>.
      *              Added to the script engine's search path
@@ -71,6 +73,8 @@ public class ScriptSupport
     public Script compile(final String path, final String name, final InputStream stream) throws Exception
     {
         final InputStream script_stream = patchScript(name, stream);
+        if (ScriptInfo.isPython(name))
+            return python.compile(name);
         if (ScriptInfo.isJython(name))
             return jython.compile(path, name, script_stream);
         else if (ScriptInfo.isJavaScript(name))

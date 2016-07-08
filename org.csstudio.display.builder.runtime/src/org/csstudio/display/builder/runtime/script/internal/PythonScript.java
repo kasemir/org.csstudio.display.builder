@@ -10,10 +10,9 @@ public class PythonScript implements Script
 {
     private final PythonScriptSupport support;
     private final String name;
-    //TODO: can add compiled script?
 
     /**
-     * Parse and compile script file
+     * Prepare submittable script object
      *
      * @param support {@link PythonScriptSupport} that will execute this script
      * @param name Name of script (file name, URL)

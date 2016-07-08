@@ -2,6 +2,7 @@ package org.csstudio.display.builder.runtime.script.internal;
 
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,14 @@ public class PythonScriptSupport
         this.support = support;
     }
 
+    /**
+     * Request that a script gets executed
+     * 
+     * @param script {@link PythonScript}
+     * @param widget Widget that requests execution
+     * @param pvs PVs that are available to the script
+     * @return Future for script that was just submitted
+     */
     @SuppressWarnings("nls")
     public Future<Object> submit(PythonScript script, Widget widget, RuntimePV[] pvs)
     {
@@ -65,5 +74,25 @@ public class PythonScriptSupport
             }
             return null;
         });
+    }
+
+    /**
+     * Obtain a Python script object which can be submitted for execution. This
+     * naming scheme is consistent with {@link JythonScriptSupport} and
+     * {@link JavaScriptSupport}.
+     * 
+     * @param path Path to script file
+     * @param name Name of script file
+     * @return {@link Script}
+     * @throws Exception on error
+     */
+    //Since compile is only called after checking the type of the script,
+    //and for ScriptInfo.isPython() to return true, the file must exist
+    //and be readable, it seems redundant to check the file exists.
+    PythonScript compile(String name) throws Exception
+    {
+        if (new File(name).exists())
+            return new PythonScript(this, name);
+        throw new Exception("Python script file " + name + " does not exist."); //$NON-NLS-1$
     }
 }
