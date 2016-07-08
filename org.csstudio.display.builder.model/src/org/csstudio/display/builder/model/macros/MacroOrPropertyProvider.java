@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.macros;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
 
 import java.util.Collection;
 import java.util.Map;
@@ -42,10 +43,12 @@ public class MacroOrPropertyProvider implements MacroValueProvider
         // uniquely identifies the display
         if ("DID".equals(name))
         {
+            // Every widget must have a 'type' property,
+            // so fetch that to get the widget and then the display
             int id;
             try
             {
-                id = System.identityHashCode(properties.get("name").getWidget().getDisplayModel());
+                id = System.identityHashCode(properties.get(widgetType.getName()).getWidget().getDisplayModel());
             }
             catch (Exception ex)
             {
@@ -60,7 +63,7 @@ public class MacroOrPropertyProvider implements MacroValueProvider
         {
             try
             {
-                return properties.get("name").getWidget().getDisplayModel().widgetName().getValue();
+                return properties.get(widgetType.getName()).getWidget().getDisplayModel().widgetName().getValue();
             }
             catch (Exception ex)
             {
