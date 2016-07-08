@@ -120,6 +120,23 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
         // TODO Custom table editor for display Name, path, macros
         addField(new TextAreaFieldEditor(org.csstudio.display.builder.rcp.Preferences.TOP_DISPLAYS,
                                          "Top Displays:", getFieldEditorParent(), 50, 10));
+
+        // TODO Custom table editor for macro name, value
+        addField(new TextAreaFieldEditor(org.csstudio.display.builder.model.Preferences.MACROS,
+                "Macros:", getFieldEditorParent(), 50, 10)
+        {
+            @Override
+            public IPreferenceStore getPreferenceStore()
+            {
+                return model_prefs;
+            }
+
+            @Override
+            public void store()
+            {
+                doStore();
+            }
+        });
     }
 
     @Override
