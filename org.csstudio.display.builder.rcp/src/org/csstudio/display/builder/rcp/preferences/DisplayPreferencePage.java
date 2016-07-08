@@ -122,6 +122,7 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
                                          "Top Displays:", getFieldEditorParent(), 50, 10));
 
         // TODO Custom table editor for macro name, value
+        // See also StringButtonFieldEditor: Could open separate editor for macros
         addField(new TextAreaFieldEditor(org.csstudio.display.builder.model.Preferences.MACROS,
                 "Macros:", getFieldEditorParent(), 50, 10)
         {
@@ -129,6 +130,44 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
             public IPreferenceStore getPreferenceStore()
             {
                 return model_prefs;
+            }
+
+            @Override
+            public void store()
+            {
+                doStore();
+            }
+        });
+
+        addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.LEGACY_FONT_CALIBRATION,
+                 "Legacy Font Calibration:", getFieldEditorParent())
+        {
+            @Override
+            public IPreferenceStore getPreferenceStore()
+            {
+                return model_prefs;
+            }
+
+            private double getFactor()
+            {
+                try
+                {
+                    return Double.parseDouble(getStringValue());
+                }
+                catch (NumberFormatException ex)
+                {
+                    return Double.NaN;
+                }
+            }
+
+            @Override
+            protected boolean doCheckState()
+            {
+                final double factor = getFactor();
+                if (factor > 0.0)
+                    return true;
+                setErrorMessage("Invalid font scaling, must be > 0");
+                return false;
             }
 
             @Override
