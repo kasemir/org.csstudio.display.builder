@@ -48,7 +48,7 @@ public class ScriptInfo
      * @return <code>true</code> if Python; that is, if *.py file with "python"
      *         (as in #!/usr/bin/env python) in first line
      */
-    public static boolean isPython(final String path, final String name)
+    public static boolean isPython(final String path, String name)
     {
         if (!name.endsWith(".py"))
             return false;
@@ -56,6 +56,7 @@ public class ScriptInfo
         BufferedReader br = null;
         try
         {
+            name = new File(name).getName();
             br = new BufferedReader(new FileReader(path + File.separator + name));
             firstline = br.readLine();
         }

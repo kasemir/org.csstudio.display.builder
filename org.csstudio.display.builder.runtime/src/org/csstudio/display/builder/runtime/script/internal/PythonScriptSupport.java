@@ -13,6 +13,8 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
+import org.csstudio.display.builder.runtime.script.PVUtil;
+import org.csstudio.display.builder.runtime.script.ScriptUtil;
 
 /**
  * Python script support. Unlike Jython, executes Python scripts through a
@@ -66,7 +68,18 @@ public class PythonScriptSupport
             {
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put("widget", widget);
-                map.put("pv", pvs);
+                map.put("pvs", pvs);
+                //put script-related utilities into map
+                //Using an instance rather than the class because accessing static methods
+                //becomes needlessly complex.
+                //For example, calling PVUtil.getMethod(String, Class<?>...) for PVUtil.getDouble()
+                //requires that RuntimePV.class is put on the map as well, for the parameterTypes
+                //parameter of getMethod().
+                //If classes in Eclipse plugins could be accessed through the proper py4j
+                //proxies, this would become unnecessary.
+                map.put("PVUtil", new PVUtil());
+                map.put("ScriptUtil", new ScriptUtil());
+
                 PythonGatewaySupport.run(map, script.getPath());
             }
             catch (final Throwable ex)
@@ -88,9 +101,10 @@ public class PythonScriptSupport
      * @throws Exception on error
      */
     @SuppressWarnings("nls")
-    PythonScript compile(String path, String name) throws Exception
+    PythonScript compile(String path, final String name) throws Exception
     {
-        path += File.separator + name;
+        String filename = new File(name).getName();
+        path += File.separator + filename;
         if (new File(path).exists())
             return new PythonScript(this, path, name);
         throw new Exception("Python script file " + path + " does not exist.");
