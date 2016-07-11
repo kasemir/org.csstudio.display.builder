@@ -16,14 +16,14 @@ public class PythonScript implements Script
      * Prepare submittable script object
      *
      * @param support {@link PythonScriptSupport} that will execute this script
-     * @param name Name of script (file name)
      * @param path Path (including name) of script
+     * @param name Name of script (file name)
      */
-    public PythonScript(final PythonScriptSupport support, final String name, final String path)
+    public PythonScript(final PythonScriptSupport support, final String path, final String name)
     {
         this.support = support;
         this.name = name;
-        this.path = name;
+        this.path = path;
     }
 
     /** @return Name of script (file name, URL) */
