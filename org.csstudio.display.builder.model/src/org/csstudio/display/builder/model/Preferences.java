@@ -7,15 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
-import java.io.ByteArrayInputStream;
-
 import org.csstudio.display.builder.model.macros.MacroXMLUtil;
 import org.csstudio.display.builder.model.macros.Macros;
-import org.csstudio.display.builder.model.persist.XMLTags;
-import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
-import org.w3c.dom.Element;
 
 /** Preference settings
  *
@@ -54,7 +49,7 @@ public class Preferences
     public static Macros getMacros()
     {
         // Fall-back value used in MacroHierarchyUnitTest
-        String macro_def = "<macros><EXAMPLE_MACRO>Value from Preferences</EXAMPLE_MACRO><TEST>true</TEST></macros>";
+        String macro_def = "<EXAMPLE_MACRO>Value from Preferences</EXAMPLE_MACRO><TEST>true</TEST>";
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs != null)
             macro_def = prefs.getString(ModelPlugin.ID, MACROS, macro_def, null);
@@ -62,9 +57,7 @@ public class Preferences
             return null;
         try
         {
-            final ByteArrayInputStream stream = new ByteArrayInputStream(macro_def.getBytes());
-            final Element root = XMLUtil.openXMLDocument(stream, XMLTags.MACROS);
-            return MacroXMLUtil.readMacros(root);
+            return MacroXMLUtil.readMacros(macro_def);
         }
         catch (Exception ex)
         {

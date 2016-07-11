@@ -69,8 +69,9 @@ public class WidgetInfoDialog extends Dialog<Boolean>
         setResultConverter(button -> true);
     }
 
-    private Tab createMacros(final Macros macros)
+    private Tab createMacros(Macros orig_macros)
     {
+        final Macros macros = (orig_macros == null) ? new Macros() : orig_macros;
         // Use text field to allow copying the name and value
         // Table uses list of macro names as input
         // Name column just displays the macro name,..

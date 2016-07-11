@@ -65,19 +65,20 @@ public class MacroXMLUtil
         return macros;
     }
 
-    /** Read content of "&ltmacros>", must contain the surrounding "&ltmacros>
+    /** Read content of "&ltmacros>", without the surrounding "&ltmacros>
      *  @param macros_xml Text that contains XML for macros
      *  @throws Exception on error in XML
      */
     public static Macros readMacros(final String macros_xml) throws Exception
     {
-        final ByteArrayInputStream stream = new ByteArrayInputStream(macros_xml.getBytes());
+        final String full_xml = "<" + XMLTags.MACROS + ">" + macros_xml + "</" + XMLTags.MACROS + ">";
+        final ByteArrayInputStream stream = new ByteArrayInputStream(full_xml.getBytes());
         final Element root = XMLUtil.openXMLDocument(stream, XMLTags.MACROS);
         return readMacros(root);
     }
 
     /** @param macros Macros to write
-     *  @return XML for macros (with surrounding "&ltmacros>")
+     *  @return XML for macros (without surrounding "&ltmacros>")
      */
     public static String toString(final Macros macros)
     {
@@ -85,9 +86,7 @@ public class MacroXMLUtil
         try
         {
             final XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(xml, XMLUtil.ENCODING);
-            writer.writeStartElement(XMLTags.MACROS);
             writeMacros(writer, macros);
-            writer.writeEndElement();
             writer.close();
         }
         catch (Exception ex)
