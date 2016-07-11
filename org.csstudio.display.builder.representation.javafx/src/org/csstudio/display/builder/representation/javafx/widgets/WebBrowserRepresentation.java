@@ -9,14 +9,13 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.io.InputStream;
 
-import javafx.collections.ListChangeListener;
-
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.util.ResourceUtil;
 
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -75,7 +74,7 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         //--protected methods
         protected void goToURL(String url)
         {
-            if (!url.startsWith("http://"))
+            if (!url.startsWith("http://") && !url.startsWith("https://"))
                 if (url.equals(""))
                     url = "about:blank";
                 else
