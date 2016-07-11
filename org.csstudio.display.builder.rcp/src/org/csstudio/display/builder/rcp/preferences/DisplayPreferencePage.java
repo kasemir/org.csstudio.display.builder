@@ -121,10 +121,8 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
         addField(new TextAreaFieldEditor(org.csstudio.display.builder.rcp.Preferences.TOP_DISPLAYS,
                                          "Top Displays:", getFieldEditorParent(), 50, 10));
 
-        // TODO Custom table editor for macro name, value
-        // See also StringButtonFieldEditor: Could open separate editor for macros
-        addField(new TextAreaFieldEditor(org.csstudio.display.builder.model.Preferences.MACROS,
-                "Macros:", getFieldEditorParent(), 50, 10)
+        addField(new MacrosFieldEditor(org.csstudio.display.builder.model.Preferences.MACROS,
+                "Macros:", getFieldEditorParent())
         {
             @Override
             public IPreferenceStore getPreferenceStore()

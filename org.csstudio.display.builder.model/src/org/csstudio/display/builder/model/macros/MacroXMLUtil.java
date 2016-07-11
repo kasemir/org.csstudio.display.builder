@@ -7,8 +7,16 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.macros;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.logging.Level;
+
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.w3c.dom.Element;
 
@@ -55,5 +63,37 @@ public class MacroXMLUtil
             macros.add(name, value);
         }
         return macros;
+    }
+
+    /** Read content of "&ltmacros>", must contain the surrounding "&ltmacros>
+     *  @param macros_xml Text that contains XML for macros
+     *  @throws Exception on error in XML
+     */
+    public static Macros readMacros(final String macros_xml) throws Exception
+    {
+        final ByteArrayInputStream stream = new ByteArrayInputStream(macros_xml.getBytes());
+        final Element root = XMLUtil.openXMLDocument(stream, XMLTags.MACROS);
+        return readMacros(root);
+    }
+
+    /** @param macros Macros to write
+     *  @return XML for macros (with surrounding "&ltmacros>")
+     */
+    public static String toString(final Macros macros)
+    {
+        final ByteArrayOutputStream xml = new ByteArrayOutputStream();
+        try
+        {
+            final XMLStreamWriter writer = XMLOutputFactory.newInstance().createXMLStreamWriter(xml, XMLUtil.ENCODING);
+            writer.writeStartElement(XMLTags.MACROS);
+            writeMacros(writer, macros);
+            writer.writeEndElement();
+            writer.close();
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot serialize macros " + macros, ex);
+        }
+        return xml.toString();
     }
 }
