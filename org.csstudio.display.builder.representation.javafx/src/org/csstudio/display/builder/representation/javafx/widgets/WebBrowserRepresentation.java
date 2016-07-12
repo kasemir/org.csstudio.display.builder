@@ -74,7 +74,7 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         //--protected methods
         protected void goToURL(String url)
         {
-            if (!url.startsWith("http://"))
+            if (!url.startsWith("http://") && !url.startsWith("https://"))
                 if (url.equals(""))
                     url = "about:blank";
                 else
