@@ -21,6 +21,7 @@ public class Preferences
     public static final String FONT_FILE = "font_file";
     public static final String TOP_DISPLAYS = "top_displays";
     public static final String UNDO_SIZE = "undo_size";
+    public static final String SHOW_RUNTIME_STACKS = "show_runtime_stacks";
 
     public static String getColorFile()
     {
@@ -42,6 +43,11 @@ public class Preferences
     public static int getUndoSize()
     {
         return Integer.parseInt(getPreference(UNDO_SIZE, "100"));
+    }
+
+    public static boolean showPlaceholders()
+    {
+        return Boolean.parseBoolean(getPreference(SHOW_RUNTIME_STACKS, "false"));
     }
 
     /** @param key Preference key

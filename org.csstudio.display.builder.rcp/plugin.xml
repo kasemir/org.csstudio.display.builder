@@ -7,7 +7,14 @@
             class="org.csstudio.display.builder.rcp.run.RuntimeViewPart"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
             id="org.csstudio.display.builder.rcp.run.RuntimeViewPart"
-            name="%RuntimeView"
+            name="%Runtime"
+            restorable="true">
+      </view>
+      <view
+            class="org.csstudio.display.builder.rcp.run.PlaceHolderView"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
+            id="org.csstudio.display.builder.rcp.run.placeHolder"
+            name="%Runtime"
             restorable="true">
       </view>
    </extension>
@@ -41,6 +48,15 @@
             launcher="org.csstudio.display.builder.rcp.run.RuntimeLauncher"
             name="%RuntimeView">
       </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.csstudio.display.builder.rcp.RuntimePerspectiveFactory"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
+            id="org.csstudio.display.builder.rcp.runperspective"
+            name="%Runtime">
+      </perspective>
    </extension>
 
 </plugin>
