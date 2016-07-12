@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Python vs Jython</name>
+  <x>-1</x>
+  <y>-1</y>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <width>180</width>
+    <height>31</height>
+    <text>Python Scripts</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_2</name>
+    <y>61</y>
+    <width>301</width>
+    <text>The use of scripts should be limited!</text>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update</name>
+    <x>11</x>
+    <y>481</y>
+    <width>70</width>
+    <pv_name>sim://ramp(-5,5,.1)</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_7</name>
+    <x>141</x>
+    <y>481</y>
+    <foreground_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </foreground_color>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+    <scripts>
+      <script file="scripts/python/update_text.py">
+        <pv_name>sim://ramp(-5,5,.1)</pv_name>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_6</name>
+    <y>451</y>
+    <width>180</width>
+    <height>30</height>
+    <text>Update Label Text</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_1</name>
+    <x>11</x>
+    <y>551</y>
+    <width>70</width>
+    <pv_name>sim://ramp(-5,5,0.1)</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_11</name>
+    <y>521</y>
+    <width>281</width>
+    <height>30</height>
+    <text>Update Label Position</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_10</name>
+    <x>141</x>
+    <y>551</y>
+    <width>90</width>
+    <text>I'm moving!</text>
+    <foreground_color>
+      <color name="STOP" red="255" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </background_color>
+    <transparent>false</transparent>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+    <scripts>
+      <script file="scripts/python/update_x.py">
+        <pv_name>sim://ramp(-5,5,0.1)</pv_name>
+        <pv_name trigger="false">loc://pos(160)</pv_name>
+        <pv_name trigger="false">loc://scale(10)</pv_name>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry</name>
+    <x>541</x>
+    <y>481</y>
+    <width>210</width>
+    <pv_name>loc://pv_name("sim://sine")</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_14</name>
+    <x>411</x>
+    <y>451</y>
+    <width>180</width>
+    <height>30</height>
+    <text>Update PV Name</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_15</name>
+    <x>411</x>
+    <y>481</y>
+    <width>120</width>
+    <text>Enter PV Name:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_16</name>
+    <x>411</x>
+    <y>511</y>
+    <width>330</width>
+    <height>30</height>
+    <text>Script will update the PV name of the Text Update:</text>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_2</name>
+    <x>541</x>
+    <y>541</y>
+    <width>210</width>
+    <height>26</height>
+    <scripts>
+      <script file="scripts/update_pv_name.py">
+        <pv_name>loc://pv_name("sim://sine")</pv_name>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_17</name>
+    <x>411</x>
+    <y>541</y>
+    <width>120</width>
+    <text>Value of PV:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_19</name>
+    <x>191</x>
+    <y>590</y>
+    <width>90</width>
+    <text>&lt;- Active</text>
+    <foreground_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </foreground_color>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+    <scripts>
+      <script file="scripts/python/update_x.py">
+        <pv_name>loc://mode(0)</pv_name>
+        <pv_name trigger="false">loc://pos(200)</pv_name>
+        <pv_name trigger="false">loc://scale(150)</pv_name>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_1</name>
+    <x>11</x>
+    <y>590</y>
+    <pv_name>loc://mode(0)</pv_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_20</name>
+    <x>141</x>
+    <y>590</y>
+    <width>60</width>
+    <text>Mode 1</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_21</name>
+    <x>291</x>
+    <y>590</y>
+    <width>60</width>
+    <text>Mode 2</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_24</name>
+    <y>629</y>
+    <width>361</width>
+    <height>22</height>
+    <text>Enter mode values 0 or 1, and the "Active" label moves.</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_22</name>
+    <y>671</y>
+    <width>130</width>
+    <text>Search Path</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_27</name>
+    <y>701</y>
+    <width>452</width>
+    <height>60</height>
+    <text>Since the scripts are executed using Python, the location of each
+invoked script is added to the path in order to allow "import" from
+files in the same location.
+</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_28</name>
+    <y>791</y>
+    <width>690</width>
+    <height>170</height>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+    <transparent>false</transparent>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[# Embedded python script
+import sys
+
+path = "\n".join(sys.path)
+
+widget.setPropertyValue("text", path)]]></text>
+        <pv_name>loc://trigger_path_script(1)</pv_name>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_29</name>
+    <y>761</y>
+    <width>232</width>
+    <height>30</height>
+    <text>Current search path:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <y>181</y>
+    <width>521</width>
+    <height>90</height>
+    <text>Python scripts are characterized by the following:
+	(1) .py file extension and first line containing "python"
+	(2) actual files, not embedded scripts or scripts from URL
+Embedded Python scripts and other scripts ending in .py are
+executed as Jython scripts.</text>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_5</name>
+    <y>31</y>
+    <width>221</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>10_scripts.bob</file>
+        <target>replace</target>
+        <description>Return to Main Scripts Display</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_4</name>
+    <y>81</y>
+    <width>521</width>
+    <height>80</height>
+    <text>Scripts should only be employed to solve very few and specific cases.
+
+The script API cannot be guaranteed to remain available as the display builder
+evolves. Scripts may need to be updated as the API changes.
+</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_5</name>
+    <y>161</y>
+    <text>Basics</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_33</name>
+    <y>271</y>
+    <width>161</width>
+    <text>Map of Java Objects</text>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_34</name>
+    <y>291</y>
+    <width>452</width>
+    <height>130</height>
+    <text>The Java gateway exposes a map (Python base class
+MutableMapping) with 4 keys, 'widget', 'pvs', 'PVUtil', and
+'ScriptUtil'. The values of 'widget' and 'pvs' correspond to the
+widget and pvs variables of Jython and JavaScript scripts.
+'PVUtil' and 'ScriptUtil' provide instances of the PVUtil
+and ScriptUtil classes, which gives access to their utility methods.</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_35</name>
+    <y>406</y>
+    <width>161</width>
+    <height>25</height>
+    <text>Examples</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <x>452</x>
+    <y>181</y>
+    <width>521</width>
+    <height>230</height>
+    <text>Python scripts use Py4J to connect to the display program.
+A Python module, connect2j, provides functions to easily
+connect to the Java gateway provded by Display Builder.
+The most useful of these is connectToGateway(port), which
+returns a py4j JavaGateway connected to the given port. The
+port is passed as an argument to the script on execution.
+
+The gateway can then be interacted with as a Py4J JavaGateway.
+Of note are the following methods:
+ - gateway.getMap(): returns the map of Java objects assigned to
+    the script's entry point (calls the Java method getMap())
+ - gateway.shutdown(): disconnects the gateway; not calling this
+    could prevent the script's execution from completing</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_36</name>
+    <x>452</x>
+    <y>161</y>
+    <width>161</width>
+    <text>Connecting to Java</text>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_37</name>
+    <y>431</y>
+    <width>541</width>
+    <text>For more detailed explanations of these examples, see the main Scripts display</text>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
+  </widget>
+</display>

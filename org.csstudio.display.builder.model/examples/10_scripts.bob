@@ -32,7 +32,8 @@ that go beyond the usual PV-based update of a widget.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
-    <y>331</y>
+    <x>381</x>
+    <y>201</y>
     <width>381</width>
     <height>80</height>
     <text>Bad examples of using a script:
@@ -323,7 +324,6 @@ and the "Active" label moves next to the selected mode.</text>
     <name>Action Button</name>
     <x>411</x>
     <y>791</y>
-    <height>30</height>
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
@@ -337,7 +337,6 @@ and the "Active" label moves next to the selected mode.</text>
     <name>Action Button_1</name>
     <x>521</x>
     <y>791</y>
-    <height>30</height>
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
@@ -444,7 +443,6 @@ from new locations.</text>
     <name>Action Button_2</name>
     <x>631</x>
     <y>791</y>
-    <height>30</height>
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
@@ -458,7 +456,6 @@ from new locations.</text>
     <name>Action Button_3</name>
     <x>741</x>
     <y>791</y>
-    <height>30</height>
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
@@ -472,7 +469,6 @@ from new locations.</text>
     <name>Action Button_4</name>
     <x>851</x>
     <y>791</y>
-    <height>30</height>
     <text>$(actions)</text>
     <actions>
       <action type="open_display">
@@ -481,5 +477,24 @@ from new locations.</text>
         <description>Script Utils</description>
       </action>
     </actions>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_32</name>
+    <y>361</y>
+    <width>521</width>
+    <height>40</height>
+    <text>The examples on this page use Jython. To see similar examples implemented
+using "real" Python, click the button below.
+</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_33</name>
+    <y>341</y>
+    <width>151</width>
+    <text>Python vs Jython</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
   </widget>
 </display>
