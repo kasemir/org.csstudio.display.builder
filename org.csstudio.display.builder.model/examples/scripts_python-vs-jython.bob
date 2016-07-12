@@ -347,7 +347,7 @@ A Python module, connect2j, provides functions to easily
 connect to the Java gateway provded by Display Builder.
 The most useful of these is connectToGateway(port), which
 returns a py4j JavaGateway connected to the given port. The
-port is passed as an argument on execution.
+port is passed as an argument to the script on execution.
 
 The gateway can then be interacted with as a Py4J JavaGateway.
 Of note are the following methods:
