@@ -29,11 +29,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
-import javafx.scene.Node;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -232,40 +230,58 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
     {
         stepIncrement = model_widget.behaviorStepIncrement().getValue();
 
-        double min_val = model_widget.behaviorMinimum().getValue();
-        double max_val = model_widget.behaviorMaximum().getValue();
-        double lo_val = model_widget.displayLevelLo().getValue(),
-                lolo_val = model_widget.displayLevelLoLo().getValue(),
-                hihi_val = model_widget.displayLevelHiHi().getValue(),
-                hi_val = model_widget.displayLevelHi().getValue();
+        double vals [] = null;
         if (model_widget.behaviorLimitsFromPV().getValue())
         {
             //Try to get display range from PV
             final Display display_info = ValueUtil.displayOf(model_widget.runtimeValue().getValue());
             if (display_info != null)
             {
-                min_val = display_info.getLowerDisplayLimit();
-                max_val = display_info.getUpperDisplayLimit();
-                hihi_val = display_info.getUpperAlarmLimit();
-                hi_val = display_info.getUpperWarningLimit();
-                lo_val = display_info.getLowerWarningLimit();
-                lolo_val = display_info.getLowerAlarmLimit();
+                vals = new double []
+                {
+                    display_info.getLowerCtrlLimit(),
+                    display_info.getUpperCtrlLimit(),
+                    display_info.getUpperAlarmLimit(),
+                    display_info.getUpperWarningLimit(),
+                    display_info.getLowerWarningLimit(),
+                    display_info.getLowerAlarmLimit(),
+                };
+                for (double x : vals)
+                {
+                    if (Double.isNaN(x))
+                    {
+                        vals = null;
+                        break;
+                    }
+                }
             }
         }
-        //If invalid limits, fall back to 0..100 range
-        if (min_val >= max_val)
+        if (vals == null)
         {
-            min_val = 0.0;
-            max_val = 100.0;
+            vals = new double[]
+            {
+                    model_widget.behaviorMinimum().getValue(),
+                    model_widget.behaviorMaximum().getValue(),
+                    model_widget.displayLevelLo().getValue(),
+                    model_widget.displayLevelLoLo().getValue(),
+                    model_widget.displayLevelHiHi().getValue(),
+                    model_widget.displayLevelHi().getValue()
+            };
+        }
+        //If invalid limits, fall back to 0..100 range
+        if (vals[0] >= vals[1])
+        {
+            vals[0] = 0.0;
+            vals[1] = 100.0;
         }
 
-        min = min_val;
-        max = max_val;
+        min = vals[0];
+        max = vals[1];
         
-        hi = hi_val;
-        hihi = hihi_val;
-        lo = lo_val;
-        lolo = lolo_val;
+        hi = vals[2];
+        hihi = vals[3];
+        lo = vals[4];
+        lolo = vals[5];
 
         sizeChanged(null, null, null);
     }
