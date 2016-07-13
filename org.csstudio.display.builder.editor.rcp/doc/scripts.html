@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
+  <title>Scripts</title>
+  <link rel="stylesheet" href="PLUGINS_ROOT/PRODUCT_PLUGIN/book.css" type="text/css"></link>
+</head>
+<body>
+
+<h1>Scripts</h1>
+
+<h2>Purpose</h2>
+
+<p>Ideally, a control system display can be created by
+simply adding several widgets and configuring their
+properties. In many cases, only the location, size
+and PV name of a widget needs to be configured.
+</p>
+
+<p>There are cases, however, where the built-in
+widget functionality is not sufficient.
+Traditionally, this would be handled by developing a custom,
+site-specific user interface tool.
+The display builder script support often allows you
+to avoid the creation of such a custom tool.
+</p>
+
+
+<h2>Basic Functionality</h2>
+
+<p>Scripts are invoked from
+</p>
+
+<ul>
+<li>PV changes</li>
+<li>Actions</li>
+</ul>
+
+<p>The script always receives the <code>widget</code> which invoked it.
+A script associated with PVs also receives the <code>pvs</code>
+which might have triggered its invocation.
+</p>
+
+
+<h2>PV Scripts</h2>
+
+<p>Example of invoking a script from PV changes:
+</p>
+
+<ol>
+<li>Create a Label widget</li>
+<li>On its Scripts property, add a script by either specifying the path to the script,
+    typically in a form relative to the location of the *.bob file,
+    or enter the "embedded" script text.
+</li>
+<li>Add at least one PV. Enter its name, note that "Trigger" is by default selected.</li>
+<li>You may add more PVs. Assert that at least one has the "Trigger" selected.</li>
+</ol>
+
+<p>At runtime, a connection is established to all PVs.
+Whenever PVs marked as a "Trigger" change their value,
+the script is invoked.
+The script will receive a <code>widget</code> parameter
+that holds the Label, and a <code>pvs</code> parameter
+that holds a list of all PVs assigned to the script.
+</p>
+
+<p>A typical example is a script that reads the values of its PVs,
+computes something, and uses the result to update one or more properties of the
+widget:
+</p>
+
+<pre>
+value = PVUtil.getDouble(pvs[0]);
+if value >= 0:
+    result = "Positive"
+else:
+    result = "Negative"
+widget.setPropertyValue("text", result)
+</pre>
+
+
+<h2>Action Scripts</h2>
+
+<p>Example of invoking a script from an Action:
+</p>
+
+<ol>
+<li>Create an Action Button widget</li>
+<li>On its Actions property, add an "Execute Script" action</li>
+<li>Enter the path to the script, typically in a form relative to the location of the *.bob file,
+    or enter the "embedded" script text.
+</li>
+</ol>
+
+<p>At runtime, pushing the button will invoke the script.
+The script receives a <code>widget</code> parameter
+that holds the Action Button.
+</p>
+
+<p>A typical example is a script that performs some
+action outside of the display tool,
+then maybe displays the result in other widgets
+which it locates based on their name:
+</p>
+
+<pre>
+result = InvokeSomeCodeThatDoesSomething()
+
+children = widget.getDisplayModel().runtimeChildren()
+other = children.getChildByName("name_of_other_widget")
+
+other.setPropertyValue("text", result)
+</pre>
+
+
+<h2>Jython Script</h2>
+
+<p>Jython scripts are written in Python syntax, i.e. a very well designed, robust language.
+They execute within the same Java instance that also executes the display builder
+and have access to the complete API, including undocumented code.
+</p>
+
+<p>Any script file with a name that ends in ".py" which does not contain the word "python"
+in its first line is executed as a Jython script.
+In addition, the code of Jython scripts can be embedded in the *.bob file.
+</p>
+
+<p>As a downside, Jython scripts do not have access to the complete set of
+native Python libraries, for example numpy.
+</p>
+
+
+<h2>Python Scripts</h2>
+
+<p>Python scripts are executed by a native Python interpreter outside of the display builder.
+They access key Display Builder API via networked proxies.
+Python scripts have access to all native Python libraries, for example numpy.
+</p>
+
+<p>Any script file with a name that ends in ".py" which contains the word "python"
+in its first line is executed as a Python script.
+This is typically accomplished via the usual Python shebang
+</p>
+
+<pre>
+#!/usr/bin/env python 
+</pre>
+
+<p>Python scripts must be in *.py files, they cannot be embedded in the *.bob file.
+</p>
+
+<p>As a downside, Python scripts incur some overhead at startup and whenever they
+access the Display Builder API, because this is done via networked proxies.
+They also depend on python being installed on the computer.
+</p>
+
+
+<h2>JavaScript Scripts</h2>
+
+<p>Similar to Jython, JavaScript can be used as a language
+with execution inside the Java instance that also runs the Display builder.
+</p>
+
+<p>Any script file with a name that ends in ".js" executed as JavaScript.
+In addition, the JavaScript code can be embedded in the *.bob file.
+</p>
+
+<p>As a downside, JavaScript sucks as a language and will damage your brain.
+</p>
+
+
+<h2>Threading</h2>
+
+<p>Each *.bob display has one script execution thread and one instance of the
+Jython, Python and JavaScript support.
+This allows scripts to run in the background without negatively impacting the user interface thread.
+It also allows scripts for different *.bob displays to execute in parallel.
+</p>
+
+<p>
+To limit the use of resources, however, at most <u>one</u> script executes for a given *.bob
+display at a time.
+Furthermore, if a specific script is triggered by either an action or a PV change,
+further invocations of that same script are ignored until the current execution of the script finishes.
+</p>
+
+
+<h2>API</h2>
+
+<p>For details refer to the examples
+and the
+<a href="java/overview-summary.html">Java documentation</a>
+</p>
+
+</body>
+</html>
