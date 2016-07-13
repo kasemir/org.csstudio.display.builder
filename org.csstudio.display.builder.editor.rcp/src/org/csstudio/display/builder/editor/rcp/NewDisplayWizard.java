@@ -36,6 +36,9 @@ import org.eclipse.ui.ide.IDE;
 @SuppressWarnings("nls")
 public class NewDisplayWizard extends Wizard implements INewWizard
 {
+    /** Wizard ID registered in plugin.xml */
+    public static final String ID = "org.csstudio.display.builder.editor.rcp.NewDisplayWizard";
+
     private NewDisplayWizardPage page;
     private ISelection selection;
 

@@ -57,5 +57,14 @@
             primary="true">
       </toc>
    </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.csstudio.display.builder.editor.rcp.EditorPerspective"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
+            id="org.csstudio.display.builder.editor.rcp.perspective"
+            name="%DisplayEditor">
+      </perspective>
+   </extension>
 
 </plugin>

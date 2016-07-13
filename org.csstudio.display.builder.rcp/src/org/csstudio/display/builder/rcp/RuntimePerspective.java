@@ -25,17 +25,22 @@ import org.eclipse.ui.IPerspectiveFactory;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class RuntimePerspectiveFactory implements IPerspectiveFactory
+public class RuntimePerspective implements IPerspectiveFactory
 {
     /** Perspective ID registered in plugin.xml */
-    public static final String ID = "org.csstudio.display.builder.rcp.runperspective";
+    public static final String ID = "org.csstudio.display.builder.rcp.runtimeperspective";
 
-    private static final String LEGACY_VIEW_ID = "org.csstudio.opibuilder.opiView";
+    public static final String NEW_FOLDER_WIZARD_ID = "org.eclipse.ui.wizards.new.folder";
 
-    private static final String ID_CONSOLE_VIEW = "org.eclipse.ui.console.ConsoleView";
+    public static final String LEGACY_VIEW_ID = "org.csstudio.opibuilder.opiView";
 
+    public static final String ID_CONSOLE_VIEW = "org.eclipse.ui.console.ConsoleView";
+
+    /** ID of navigator view.
+     *  This one is deprecated, but don't know what else to use.
+     */
     @SuppressWarnings("deprecation")
-    final static String ID_NAVIGATOR = IPageLayout.ID_RES_NAV;
+    public static final String ID_NAVIGATOR = IPageLayout.ID_RES_NAV;
 
     @Override
     public void createInitialLayout(final IPageLayout layout)
@@ -87,8 +92,14 @@ public class RuntimePerspectiveFactory implements IPerspectiveFactory
         }
 
         bottom.addPlaceholder(ID_CONSOLE_VIEW);
-        layout.addShowViewShortcut(ID_CONSOLE_VIEW);
         left.addPlaceholder(ID_NAVIGATOR);
+
+        // Populate menu entries for "Window/Views..." etc.
+        layout.addNewWizardShortcut(RuntimePerspective.NEW_FOLDER_WIZARD_ID);
+
+        layout.addPerspectiveShortcut("org.csstudio.display.builder.editor.rcp.perspective");
+
         layout.addShowViewShortcut(ID_NAVIGATOR);
+        layout.addShowViewShortcut(ID_CONSOLE_VIEW);
     }
 }

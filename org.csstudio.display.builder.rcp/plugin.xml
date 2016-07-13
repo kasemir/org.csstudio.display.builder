@@ -46,15 +46,15 @@
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
             id="org.csstudio.display.builder.rcp.RuntimeLauncher"
             launcher="org.csstudio.display.builder.rcp.run.RuntimeLauncher"
-            name="%RuntimeView">
+            name="%Runtime">
       </editor>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="org.csstudio.display.builder.rcp.RuntimePerspectiveFactory"
+            class="org.csstudio.display.builder.rcp.RuntimePerspective"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
-            id="org.csstudio.display.builder.rcp.runperspective"
+            id="org.csstudio.display.builder.rcp.runtimeperspective"
             name="%Runtime">
       </perspective>
    </extension>
