@@ -17,26 +17,33 @@ based on py4j tutorial code at:
 """
 def connectToJava(port):
     port = int(port)
+    gateway = None
     if port > 0:
-        # connect python side to Java side with Java dynamic port and start python
-        # callback server with a dynamic port
-        gateway = JavaGateway(
-                          gateway_parameters=GatewayParameters(port=port),
-                          callback_server_parameters=CallbackServerParameters(port=0))
-
-        # retrieve the port to which the python callback server was bound
-        python_port = gateway.get_callback_server().get_listening_port()
-
-        # tell the Java side to connect to the python callback server with the new
-        # python port, using the java_gateway_server attribute that retrieves the
-        # GatewayServer instance
-        gateway.java_gateway_server.resetCallbackClient(
-                            gateway.java_gateway_server.getCallbackClient().getAddress(),
-                            python_port)
-        return gateway
-    else:
-        return None
+        try:
+            # connect python side to Java side with Java dynamic port and start python
+            # callback server with a dynamic port
+            gateway = JavaGateway(
+                              gateway_parameters=GatewayParameters(port=port),
+                              callback_server_parameters=CallbackServerParameters(port=0))
+    
+            # retrieve the port to which the python callback server was bound
+            python_port = gateway.get_callback_server().get_listening_port()
+    
+            # tell the Java side to connect to the python callback server with the new
+            # python port, using the java_gateway_server attribute that retrieves the
+            # GatewayServer instance
+            test = gateway.java_gateway_server
+            #test = test.getCallbackClient()
+            #test = test.getAddess()
+            addr = gateway.java_gateway_server.getCallbackClient().getAddress()
+            gateway.java_gateway_server.resetCallbackClient(addr, python_port)
+        except:
+            if gateway != None:
+                gateway.shutdown()
+            raise
+    #else:
         #raise connect2jException
+    return gateway
 
 """
 Get a map from the gateway. (Gateway must be connected, and
@@ -59,8 +66,3 @@ def updateMap(gateway, map):
         gateway.entry_point.setMap(map)
     #else:
         #raise c2jException
-
-def shutdown(gateway):
-    if gateway != None:
-        gateway.shutdown_callback_server()
-        gateway.shutdown()

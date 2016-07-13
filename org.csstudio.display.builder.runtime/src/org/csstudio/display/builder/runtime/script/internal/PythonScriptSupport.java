@@ -27,16 +27,18 @@ import org.csstudio.display.builder.runtime.script.ScriptUtil;
  * @author Amanda Carpenter
  *
  */
-public class PythonScriptSupport
+public class PythonScriptSupport implements AutoCloseable
 {
     ScriptSupport support;
+    PythonGatewaySupport gateway;
 
     // See comments on queued_scripts in JythonScriptSupport
     private final Set<PythonScript> queued_scripts = Collections.newSetFromMap(new ConcurrentHashMap<PythonScript, Boolean>());
 
-    public PythonScriptSupport(final ScriptSupport support)
+    public PythonScriptSupport(final ScriptSupport support) throws Exception
     {
         this.support = support;
+        gateway = new PythonGatewaySupport();
     }
 
     /**
@@ -80,7 +82,8 @@ public class PythonScriptSupport
                 map.put("PVUtil", new PVUtil());
                 map.put("ScriptUtil", new ScriptUtil());
 
-                PythonGatewaySupport.run(map, script.getPath());
+                gateway.run(map, script.getPath());
+                return null;
             }
             catch (final Throwable ex)
             {
@@ -108,5 +111,12 @@ public class PythonScriptSupport
         if (new File(path).exists())
             return new PythonScript(this, path, name);
         throw new Exception("Python script file " + path + " does not exist.");
+    }
+
+    /** Release resources */
+    @Override
+    public void close() throws Exception
+    {
+        gateway.close();
     }
 }
