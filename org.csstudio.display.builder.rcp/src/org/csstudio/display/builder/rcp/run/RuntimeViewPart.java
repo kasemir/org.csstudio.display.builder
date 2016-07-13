@@ -154,6 +154,8 @@ public class RuntimeViewPart extends ViewPart
         // Load persisted DisplayInfo
         if (display_info.isPresent())
         	loadDisplayFile(display_info.get());
+
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
     }
 
 	/** @param zoom Zoom level, 1.0 for 100%, -1 to 'fit'

@@ -57,6 +57,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.EditorPart;
@@ -142,6 +143,8 @@ public class DisplayEditorPart extends EditorPart
             loadModel(file);
 
         editor.getUndoableActionManager().addListener(undo_redo_listener);
+
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
     }
 
     private void loadModel(final IFile file)
