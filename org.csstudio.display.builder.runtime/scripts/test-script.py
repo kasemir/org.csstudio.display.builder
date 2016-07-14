@@ -1,17 +1,15 @@
 import sys
 
-from connect2j import updateMap, connectToJava, getMap
+from connect2j import connectToJava
 
 if (len(sys.argv) > 1):
     gateway = None
     try:
         gateway = connectToJava(sys.argv[1])
-        map = getMap(gateway)
+        map = gateway.getMap()
         map['1'] = 1
-        updateMap(gateway, map)
+        gateway.setMap(map)
         map["obj"].setValue("Hello")
-    except Exception as inst:
+    finally:
         if gateway != None:
             gateway.shutdown()
-        raise
-    gateway.shutdown()

@@ -20,7 +20,7 @@ import py4j.GatewayServer;
  * @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
-public class PythonGatewaySupport //implements AutoCloseable
+public class PythonGatewaySupport
 {
 
     /**
