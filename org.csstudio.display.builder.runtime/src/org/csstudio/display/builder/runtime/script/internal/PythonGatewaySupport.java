@@ -49,39 +49,45 @@ public class PythonGatewaySupport
         });
         final Process process = process_builder.start();
 
-        final Thread error_log = new ErrorLogger(process.getErrorStream());
+        final Thread error_log = new StreamLogger("PythonErrors", process.getErrorStream(), Level.WARNING);
         error_log.start();
-        //final Thread python_out = new StreamLogger("PythonOutStream", process.getInputStream());
-        //python_out.start();
+        final Thread python_out = new StreamLogger("PythonPrint", process.getInputStream(), Level.INFO);
+        python_out.start();
+
         process.waitFor();
+
         error_log.join();
-        //python_out.join
+        python_out.join();
         server.shutdown();
     }
 
-    static class ErrorLogger extends Thread
+    static class StreamLogger extends Thread
     {
         private final InputStream stream;
+        private final Level log_level;
 
-        public ErrorLogger(final InputStream stream)
+        public StreamLogger(final String name, final InputStream stream, final Level log_level)
         {
-            super("PythonErrors");
+            super(name);
             setDaemon(true);
             this.stream = stream;
+            this.log_level = log_level;
         }
 
         @Override
         public void run()
         {
             try (
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));)
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                )
             {
                 String line;
                 while ((line = reader.readLine()) != null)
-                    logger.log(Level.WARNING, "Python: " + line);
-            } catch (Exception ex)
+                    logger.log(log_level, "Python: " + line);
+            }
+            catch (Exception ex)
             {
-                logger.log(Level.WARNING, "Python error stream failed", ex);
+                logger.log(Level.WARNING, this.getName() + " stream failed", ex);
             }
         }
     }
@@ -106,12 +112,6 @@ public class PythonGatewaySupport
         public void setMap(Map<String, Object> map)
         {
             this.map = map;
-        }
-
-        //print messages for debugging purposes
-        public void printJava(String str)
-        {
-            System.out.print(str);
         }
     }
 }
