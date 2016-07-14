@@ -1,13 +1,21 @@
 package org.csstudio.display.builder.runtime.script.internal;
 
+import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Map;
+import java.util.logging.Level;
 
 import py4j.GatewayServer;
 
 /**
  * Provides a gateway through which to run Python scripts. Java objects are made
  * accessible to Python through the gateway using a map.
+ * 
+ * Error logging written with suggestions from Kay Kasemir.
  * 
  * @author Amanda Carpenter
  */
@@ -49,7 +57,16 @@ public class PythonGatewaySupport implements AutoCloseable
     public void run(Map<String, Object> map, String script) throws Exception
     {
         entryPoint.setMap(map);
-        Runtime.getRuntime().exec("python " + script + " " + port).waitFor();
+        //start Python process, passing port used to connect to Py4J Java Gateway
+        final ProcessBuilder process_builder = new ProcessBuilder(new String[] {
+                "python", script, Integer.toString(port)
+        });
+        final Process process = process_builder.start();
+
+        final Thread error_log = new ErrorLogger(process.getErrorStream());
+        error_log.start();
+        process.waitFor();
+        error_log.join();
     }
 
     /**
@@ -60,6 +77,33 @@ public class PythonGatewaySupport implements AutoCloseable
     {
         port = -1;
         server.shutdown();
+    }
+
+    static class ErrorLogger extends Thread
+    {
+        private final InputStream stream;
+
+        public ErrorLogger(final InputStream stream)
+        {
+            super("PythonErrors");
+            setDaemon(true);
+            this.stream = stream;
+        }
+
+        @Override
+        public void run()
+        {
+            try (
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));)
+            {
+                String line;
+                while ((line = reader.readLine()) != null)
+                    logger.log(Level.WARNING, "Python: " + line);
+            } catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Python error stream failed", ex);
+            }
+        }
     }
 
     /** Wrapper class which allows access to map for PythonGatewaySupport */
