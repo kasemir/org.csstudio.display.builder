@@ -27,10 +27,11 @@ import org.csstudio.display.builder.runtime.script.ScriptUtil;
  * @author Amanda Carpenter
  *
  */
-public class PythonScriptSupport implements AutoCloseable
+public class PythonScriptSupport
 {
     ScriptSupport support;
-    PythonGatewaySupport gateway;
+    static PVUtil pvutil = new PVUtil();
+    static ScriptUtil scriptutil = new ScriptUtil();
 
     // See comments on queued_scripts in JythonScriptSupport
     private final Set<PythonScript> queued_scripts = Collections.newSetFromMap(new ConcurrentHashMap<PythonScript, Boolean>());
@@ -38,7 +39,6 @@ public class PythonScriptSupport implements AutoCloseable
     public PythonScriptSupport(final ScriptSupport support) throws Exception
     {
         this.support = support;
-        gateway = new PythonGatewaySupport();
     }
 
     /**
@@ -79,11 +79,10 @@ public class PythonScriptSupport implements AutoCloseable
                 //parameter of getMethod().
                 //If classes in Eclipse plugins could be accessed through the proper py4j
                 //proxies, this would become unnecessary.
-                map.put("PVUtil", new PVUtil());
-                map.put("ScriptUtil", new ScriptUtil());
+                map.put("PVUtil", pvutil);
+                map.put("ScriptUtil", scriptutil);
 
-                gateway.run(map, script.getPath());
-                return null;
+                PythonGatewaySupport.run(map, script.getPath());
             }
             catch (final Throwable ex)
             {
@@ -111,12 +110,5 @@ public class PythonScriptSupport implements AutoCloseable
         if (new File(path).exists())
             return new PythonScript(this, path, name);
         throw new Exception("Python script file " + path + " does not exist.");
-    }
-
-    /** Release resources */
-    @Override
-    public void close() throws Exception
-    {
-        gateway.close();
     }
 }
