@@ -75,6 +75,9 @@ import javafx.scene.Scene;
 @SuppressWarnings("nls")
 public class DisplayEditorPart extends EditorPart
 {
+    /** Editor ID registered in plugin.xml */
+    public static final String ID = "org.csstudio.display.builder.editor.rcp.editor";
+
     private final JFXRepresentation toolkit = new JFXRepresentation(true);
 
     private FXCanvas fx_canvas;

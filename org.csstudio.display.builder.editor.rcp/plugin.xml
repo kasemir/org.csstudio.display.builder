@@ -24,7 +24,7 @@
             default="false"
             extensions="opi"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
-            id="org.csstudio.display.builder.editor.rcp.editor1"
+            id="org.csstudio.display.builder.editor.rcp.legacy_editor"
             name="%DisplayEditor">
       </editor>
    </extension>
