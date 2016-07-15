@@ -18,6 +18,8 @@ public class Messages extends NLS
     private static final String BUNDLE_NAME = "org.csstudio.display.builder.editor.rcp.messages";
 
     // Keep in alphabetical order!
+    public static String DownloadPromptFMT;
+    public static String DownloadTitle;
     public static String ExecuteDisplay;
     public static String NewDisplay_Browse;
     public static String NewDisplay_BrowseTitle;

@@ -88,7 +88,7 @@
          <command
                commandId="org.csstudio.display.builder.editor.rcp.OpenInEditor"
                icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
-               label="%DisplayEditor"
+               label="%OpenInEditor"
                style="push"
                tooltip="Open display in editor">
          </command>

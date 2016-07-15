@@ -103,6 +103,7 @@ public class RuntimeViewPart extends ViewPart
     	final DisplayInfo info = new DisplayInfo(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE),
     			                                 model.getName(),
     			                                 model.widgetMacros().getValue());
+        display_info = Optional.of(info);
         setPartName(info.getName());
         setTitleToolTip(info.getPath());
         navigation.setCurrentDisplay(info);
@@ -221,8 +222,6 @@ public class RuntimeViewPart extends ViewPart
         showMessage("Loading " + info);
         // If already executing another display, shut it down
         disposeModel();
-
-        display_info = Optional.of(info);
 
         // Load model off UI thread
         RuntimeUtil.getExecutor().execute(() -> loadModel(info));

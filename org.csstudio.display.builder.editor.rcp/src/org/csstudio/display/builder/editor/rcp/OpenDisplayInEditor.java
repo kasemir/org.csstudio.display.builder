@@ -74,8 +74,8 @@ public class OpenDisplayInEditor extends AbstractHandler implements IHandler
 
             // If that succeeds, prompt for local file name
             final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-            if (! MessageDialog.openQuestion(shell, "Download?",
-                    NLS.bind("Do you want to download {0} into a local file so you can edit it?", info.getPath())))
+            if (! MessageDialog.openQuestion(shell, Messages.DownloadTitle,
+                    NLS.bind(Messages.DownloadPromptFMT, info.getPath())))
             {
                 stream.close();
                 return;
