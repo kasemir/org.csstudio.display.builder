@@ -28,6 +28,9 @@ import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 @SuppressWarnings("nls")
 public class DisplayModel extends Widget
 {
+    /** File extension used for display files */
+    public static final String FILE_EXTENSION = "bob";
+
     public static final String WIDGET_TYPE = "display";
 
     /** Reserved DisplayModel user data key for name of input file */
@@ -77,7 +80,14 @@ public class DisplayModel extends Widget
         return children;
     }
 
-    /** @return Child widgets */
+    /** Get read-only list of children
+     *
+     *  <p>Convenience method.
+     *  Use <code>runtimeChildren()</code>
+     *  for full access.
+     *
+     *  @return Child widgets
+     */
     public List<Widget> getChildren()
     {
         return children.getValue();
@@ -95,16 +105,19 @@ public class DisplayModel extends Widget
     @Override
     public Macros getEffectiveMacros()
     {
-        final Macros my_macros = widgetMacros().getValue();
+        // 1) Lowest priority are either
+        // 1.a) .. global macros from preferences
+        // 1.b) .. macros from embedding widget,
+        //      which may in turn be embedded elsewhere,
+        //      ultimately fetching the macros from preferences.
         final Widget embedder = getUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET);
-        if (embedder != null)
-            return Macros.merge(embedder.getEffectiveMacros(), my_macros);
-        else
-        {
-            // TODO Merge macros from preferences with my_macros
-            // return Macros.merge(Preferences.getMacros(), my_macros);
-            return my_macros;
-        }
+        Macros result = (embedder == null)
+            ? Preferences.getMacros()
+            : embedder.getEffectiveMacros();
+
+        // 2) This display may provide added macros or replacement values
+        result = Macros.merge(result, widgetMacros().getValue());
+        return result;
     }
 
     /** @return Display 'background_color' */

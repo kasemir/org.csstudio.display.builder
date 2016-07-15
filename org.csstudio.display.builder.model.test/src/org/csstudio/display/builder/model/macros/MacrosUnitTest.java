@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.macros;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -90,5 +91,21 @@ public class MacrosUnitTest
         {
             assertThat(ex.getMessage(), containsString(/* [Rr] */ "ecursive"));
         }
+    }
+
+    @Test
+    public void testXML() throws Exception
+    {
+        final Macros macros = new Macros();
+        macros.add("S", "System");
+        macros.add("N", "42");
+
+        final String xml = MacroXMLUtil.toString(macros);
+        System.out.println(xml);
+        assertThat(xml, equalTo("<N>42</N><S>System</S>"));
+
+        final Macros readback = MacroXMLUtil.readMacros(xml);
+        assertThat(readback.getValue("S"), equalTo("System"));
+        assertThat(readback.getNames(), hasItems("S", "N"));
     }
 }

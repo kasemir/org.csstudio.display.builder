@@ -38,16 +38,16 @@ import java.util.logging.Level;
 public class RepresentationUpdateThrottle
 {
     /** Period in seconds for logging update performance */
-    private static final int PERFORMANCE_LOG_PERIOD_SEC = 5;
+    private static final int performance_log_period_secs = Preferences.getLogPeriodSeconds();
 
     /** UI thread durations above this threshold are logged */
-    private static final int PERFORMANCE_LOG_THRESHOLD_MS = 20;
+    private static final int performance_log_threshold_ms = Preferences.getLogThresholdMillisec();
 
     /** Time waited after a trigger to allow for more updates to accumulate */
-    private static final long update_accumulation_time = TimeUnit.MILLISECONDS.toMillis(20);
+    private static final long update_accumulation_time = Preferences.getUpdateAccumulationMillisec();
 
     /** Pause between updates to prevent flooding the UI thread */
-    private static final long update_delay = TimeUnit.MILLISECONDS.toMillis(100);
+    private static final long update_delay = Preferences.getUpdateDelayMillisec();
 
     /** Executor for UI thread */
     private final Executor gui_executor;
@@ -151,9 +151,9 @@ public class RepresentationUpdateThrottle
                 final Instant now = Instant.now();
                 if (now.isAfter(next_update_log))
                 {
-                    if (update_ms > PERFORMANCE_LOG_THRESHOLD_MS)
+                    if (update_ms > performance_log_threshold_ms)
                         logger.log(Level.FINE, "Averange update duration: {0} ms", update_ms);
-                    next_update_log = now.plusSeconds(PERFORMANCE_LOG_PERIOD_SEC);
+                    next_update_log = now.plusSeconds(performance_log_period_secs);
                 }
             }
         }

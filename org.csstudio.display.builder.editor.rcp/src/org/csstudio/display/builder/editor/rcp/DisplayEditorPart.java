@@ -57,6 +57,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.EditorPart;
@@ -74,9 +75,6 @@ import javafx.scene.Scene;
 @SuppressWarnings("nls")
 public class DisplayEditorPart extends EditorPart
 {
-    /** File extension used to save files */
-    final private static String FILE_EXTENSION = "bob";
-
     private final JFXRepresentation toolkit = new JFXRepresentation(true);
 
     private FXCanvas fx_canvas;
@@ -145,6 +143,8 @@ public class DisplayEditorPart extends EditorPart
             loadModel(file);
 
         editor.getUndoableActionManager().addListener(undo_redo_listener);
+
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
     }
 
     private void loadModel(final IFile file)
@@ -254,7 +254,7 @@ public class DisplayEditorPart extends EditorPart
     public void doSave(final IProgressMonitor monitor)
     {
         IFile file = getInputFile();
-        if (file != null   &&  FILE_EXTENSION.equals(file.getFileExtension()))
+        if (file != null   &&  DisplayModel.FILE_EXTENSION.equals(file.getFileExtension()))
             saveModelToFile(monitor, file);
         else
         {   // No file name, or using legacy file extension -> prompt for name
@@ -366,8 +366,8 @@ public class DisplayEditorPart extends EditorPart
         {
             IPath orig_path = ((FileEditorInput)input).getFile().getFullPath();
             // Propose new file extension
-            if (! FILE_EXTENSION.equals(orig_path.getFileExtension()))
-                orig_path = orig_path.removeFileExtension().addFileExtension(FILE_EXTENSION);
+            if (! DisplayModel.FILE_EXTENSION.equals(orig_path.getFileExtension()))
+                orig_path = orig_path.removeFileExtension().addFileExtension(DisplayModel.FILE_EXTENSION);
             dlg.setOriginalFile(root.getFile(orig_path));
         }
         if (dlg.open() != Window.OK)
@@ -378,8 +378,8 @@ public class DisplayEditorPart extends EditorPart
         if (path == null)
             return null;
         // Assert correct file extension
-        if (! FILE_EXTENSION.equals(path.getFileExtension()))
-            path = path.removeFileExtension().addFileExtension(FILE_EXTENSION);
+        if (! DisplayModel.FILE_EXTENSION.equals(path.getFileExtension()))
+            path = path.removeFileExtension().addFileExtension(DisplayModel.FILE_EXTENSION);
         return root.getFile(path);
     }
 

@@ -17,6 +17,7 @@ import org.csstudio.display.builder.rcp.Plugin;
 import org.csstudio.display.builder.runtime.RuntimePlugin;
 import org.csstudio.display.builder.runtime.pv.PVFactory;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
@@ -120,6 +121,63 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
         // TODO Custom table editor for display Name, path, macros
         addField(new TextAreaFieldEditor(org.csstudio.display.builder.rcp.Preferences.TOP_DISPLAYS,
                                          "Top Displays:", getFieldEditorParent(), 50, 10));
+
+        addField(new MacrosFieldEditor(org.csstudio.display.builder.model.Preferences.MACROS,
+                "Macros:", getFieldEditorParent())
+        {
+            @Override
+            public IPreferenceStore getPreferenceStore()
+            {
+                return model_prefs;
+            }
+
+            @Override
+            public void store()
+            {
+                doStore();
+            }
+        });
+
+        addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.LEGACY_FONT_CALIBRATION,
+                 "Legacy Font Calibration:", getFieldEditorParent())
+        {
+            @Override
+            public IPreferenceStore getPreferenceStore()
+            {
+                return model_prefs;
+            }
+
+            private double getFactor()
+            {
+                try
+                {
+                    return Double.parseDouble(getStringValue());
+                }
+                catch (NumberFormatException ex)
+                {
+                    return Double.NaN;
+                }
+            }
+
+            @Override
+            protected boolean doCheckState()
+            {
+                final double factor = getFactor();
+                if (factor > 0.0)
+                    return true;
+                setErrorMessage("Invalid font scaling, must be > 0");
+                return false;
+            }
+
+            @Override
+            public void store()
+            {
+                doStore();
+            }
+        });
+
+        addField(new BooleanFieldEditor(org.csstudio.display.builder.rcp.Preferences.SHOW_RUNTIME_STACKS,
+                "Show Runtime Perspective Placeholders", getFieldEditorParent()));
     }
 
     @Override

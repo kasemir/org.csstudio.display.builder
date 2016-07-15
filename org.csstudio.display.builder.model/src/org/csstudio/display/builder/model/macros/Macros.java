@@ -60,6 +60,10 @@ public class Macros implements MacroValueProvider
 
     /** Merge two macro maps
      *
+     *  <p>Optimized for cases where <code>base</code> or <code>addition</code> are empty,
+     *  but will never _change_ any macros.
+     *  If a merge is necessary, it returns a new <code>Macros</code> instance.
+     *
      *  @param base Base macros
      *  @param addition Additional macros that may override 'base'
      *  @return Merged macros

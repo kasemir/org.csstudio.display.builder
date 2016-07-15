@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Preferences;
 import org.csstudio.display.builder.util.ResourceUtil;
 
@@ -172,6 +173,9 @@ public class ModelResourceUtil extends ResourceUtil
     }
 
     /** Attempt to resolve a resource relative to a display
+     *
+     *  <p>For *.opi files, checks if there is an updated .bob file.
+     *
      *  @param parent_display Path to a 'parent' file, may be <code>null</code>
      *  @param resource_name Resource path. If relative, it is resolved relative to the parent display
      *  @return Resolved file name. May also be the original name if no idea how to adjust it
@@ -180,8 +184,40 @@ public class ModelResourceUtil extends ResourceUtil
     {
         logger.log(Level.FINE, "Resolving {0} relative to {1}", new Object[] { resource_name, parent_display });
 
-        // Appears to be URL?
-        if (isURL(resource_name))
+        if (resource_name.endsWith(".opi"))
+        {   // Check if there is an updated file for a legacy resource
+            final String updated_resource = resource_name.substring(0, resource_name.length()-3) + DisplayModel.FILE_EXTENSION;
+            final String test = doResolveResource(parent_display, updated_resource);
+            if (test != null)
+            {
+                logger.log(Level.FINE, "Using updated {0} instead of {1}", new Object[] { test, resource_name });
+                return test;
+            }
+        }
+        final String result = doResolveResource(parent_display, resource_name);
+        if (result != null)
+            return result;
+
+        // TODO Search along a configurable list of lookup paths?
+
+        // Give up, returning original name
+        return resource_name;
+    }
+
+    /** Attempt to resolve a resource relative to a display
+     *
+     *  <p>Checks for URL, including somewhat expensive access test,
+     *  workspace resource,
+     *  and finally plain file.
+     *
+     * @param parent_display
+     * @param resource_name
+     * @return
+     */
+    private static String doResolveResource(final String parent_display, final String resource_name)
+    {
+        // Actual, existing URL?
+        if (canOpenUrl(resource_name))
         {
             logger.log(Level.FINE, "Using URL {0}", resource_name);
             return resource_name;
@@ -189,7 +225,7 @@ public class ModelResourceUtil extends ResourceUtil
 
         // .. relative to parent?
         final String combined = combineDisplayPaths(parent_display, resource_name);
-        if (isURL(combined))
+        if (canOpenUrl(combined))
         {
             logger.log(Level.FINE, "Using URL {0}", combined);
             return combined;
@@ -199,10 +235,15 @@ public class ModelResourceUtil extends ResourceUtil
         if (workspace_helper != null)
         {
             if (workspace_helper.isWorkspaceResource(resource_name))
+            {
+                logger.log(Level.FINE, "Using worspace resource {0}", resource_name);
                 return resource_name;
-
+            }
             if (workspace_helper.isWorkspaceResource(combined))
+            {
+                logger.log(Level.FINE, "Using worspace resource {0}", combined);
                 return combined;
+            }
         }
 
         // Can display be opened as file?
@@ -220,10 +261,46 @@ public class ModelResourceUtil extends ResourceUtil
             return file.getAbsolutePath();
         }
 
-        // TODO Search along a configurable list of lookup paths
+        // Give up
+        return null;
+    }
 
-        // Give up, return the original name
-        return resource_name;
+    /** Check if a resource doesn't just look like a URL
+     *  but can actually be opened
+     *  @param resource_name Path to resource, presumably "http://.."
+     *  @return <code>true</code> if indeed an exiting URL
+     */
+    private static boolean canOpenUrl(final String resource_name)
+    {
+        if (! isURL(resource_name))
+            return false;
+        // This implementation is expensive:
+        // On success, caller will soon open the URL again.
+        // In practice, not too bad because second time around
+        // is usually quite fast as result of web server cache.
+        //
+        // Alternative would be to always return the stream as
+        // a result, updating all callers from
+        //
+        //  resolved = ModelResourceUtil.resolveResource(parent_display, display_file);
+        //  stream = ModelResourceUtil.openResourceStream(resolved)
+        //
+        // to just
+        //
+        //  stream = ModelResourceUtil.resolveResource(parent_display, display_file);
+        //
+        // This can break code which really just needs the resolved name.
+
+        try
+        {
+            final InputStream stream = openURL(resource_name);
+            stream.close();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
     }
 
     /** Open a file, web location, ..

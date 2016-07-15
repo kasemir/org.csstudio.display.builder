@@ -78,14 +78,15 @@ public class DisplayInfoXMLUtil
         return readDisplayInfo(root);
     }
 
-    /** @param xml XML for "&lt;displays>", containing zero or more display infos
+    /** @param xml XML for display infos, without a surrounding "&lt;displays>"
      *  @return List of {@link DisplayInfo}s
      *  @throws Exception on error
      */
     public static List<DisplayInfo> fromDisplaysXML(final String xml) throws Exception
     {
+        final String full_xml = "<displays>" + xml + "</displays>";
         final List<DisplayInfo> displays = new ArrayList<>();
-        final ByteArrayInputStream stream = new ByteArrayInputStream(xml.getBytes());
+        final ByteArrayInputStream stream = new ByteArrayInputStream(full_xml.getBytes());
         final Element root = XMLUtil.openXMLDocument(stream, "displays");
         for (Element display : XMLUtil.getChildElements(root, XMLTags.DISPLAY))
             displays.add(readDisplayInfo(display));

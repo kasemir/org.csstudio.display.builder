@@ -15,6 +15,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.diirt.vtype.VType;
@@ -57,7 +58,7 @@ public class WidgetInfoDialog extends Dialog<Boolean>
         {
             // No icon, no problem
         }
-        final TabPane tabs = new TabPane(createProperties(widget), createPVs(pvs));
+        final TabPane tabs = new TabPane(createProperties(widget), createPVs(pvs), createMacros(widget.getEffectiveMacros()));
         tabs.getTabs().forEach(tab -> tab.setClosable(false));
 
         getDialogPane().setContent(tabs);
@@ -66,6 +67,31 @@ public class WidgetInfoDialog extends Dialog<Boolean>
         tabs.setMinWidth(800);
 
         setResultConverter(button -> true);
+    }
+
+    private Tab createMacros(Macros orig_macros)
+    {
+        final Macros macros = (orig_macros == null) ? new Macros() : orig_macros;
+        // Use text field to allow copying the name and value
+        // Table uses list of macro names as input
+        // Name column just displays the macro name,..
+        final TableColumn<String, String> name = new TableColumn<>(Messages.WidgetInfoDialog_Name);
+        name.setCellFactory(TextFieldTableCell.forTableColumn());
+        name.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue()));
+
+        // .. value column fetches the macro value
+        final TableColumn<String, String> value = new TableColumn<>(Messages.WidgetInfoDialog_Value);
+        value.setCellFactory(TextFieldTableCell.forTableColumn());
+        value.setCellValueFactory(param -> new ReadOnlyStringWrapper(macros.getValue(param.getValue())));
+
+        final TableView<String> table =
+            new TableView<>(FXCollections.observableArrayList(macros.getNames()));
+        table.getColumns().add(name);
+        table.getColumns().add(value);
+        table.setEditable(true);
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        return new Tab(Messages.WidgetInfoDialog_TabMacros, table);
     }
 
     private Tab createPVs(final Collection<RuntimePV> pvs)

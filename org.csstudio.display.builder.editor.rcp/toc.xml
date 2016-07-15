@@ -3,7 +3,8 @@
 
 <toc label="Display Builder" link_to="../org.csstudio.ui.help/tocApps.xml#display">
     <topic label="Display Builder" href="doc/display.builder.html">
-        <topic label="Overview" href="doc/display.builder.html#overview"/>
-        <topic label="Programmatic Access" href="doc/display.builder.html#programmatic"/>
+        <!-- Topics are duplicated in display.builder.html -->
+        <topic label="Overview" href="doc/overview.html"/>
+        <topic label="Scripts" href="doc/scripts.html"/>
     </topic>
 </toc>

@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import org.csstudio.display.builder.model.macros.MacroXMLUtil;
+import org.csstudio.display.builder.model.macros.Macros;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 
@@ -20,6 +22,8 @@ public class Preferences
     public static final String READ_TIMEOUT = "read_timeout";
 
     public static final String LEGACY_FONT_CALIBRATION = "legacy_font_calibration";
+
+    public static final String MACROS = "macros";
 
     /** @return Read timeout [ms] */
     public static int getReadTimeout()
@@ -39,5 +43,25 @@ public class Preferences
         if (prefs != null)
             factor = prefs.getDouble(ModelPlugin.ID, LEGACY_FONT_CALIBRATION, factor, null);
         return factor;
+    }
+
+    /** @return Global macros set in preferences, or <code>null</code> */
+    public static Macros getMacros()
+    {
+        // Fall-back value used in MacroHierarchyUnitTest
+        String macro_def = "<EXAMPLE_MACRO>Value from Preferences</EXAMPLE_MACRO><TEST>true</TEST>";
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs != null)
+            macro_def = prefs.getString(ModelPlugin.ID, MACROS, macro_def, null);
+        if (macro_def.isEmpty())
+            return null;
+        try
+        {
+            return MacroXMLUtil.readMacros(macro_def);
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
     }
 }
