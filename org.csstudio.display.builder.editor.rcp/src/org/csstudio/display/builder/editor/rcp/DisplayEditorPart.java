@@ -56,6 +56,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
@@ -75,6 +76,9 @@ import javafx.scene.Scene;
 @SuppressWarnings("nls")
 public class DisplayEditorPart extends EditorPart
 {
+    /** Editor ID registered in plugin.xml */
+    public static final String ID = "org.csstudio.display.builder.editor.rcp.editor";
+
     private final JFXRepresentation toolkit = new JFXRepresentation(true);
 
     private FXCanvas fx_canvas;
@@ -98,6 +102,18 @@ public class DisplayEditorPart extends EditorPart
         toolkit.execute(() ->  setPartName(property.getValue()));
     };
 
+    /** Open editor on a file
+     *
+     *  @param file Workspace file
+     *  @return Editor part
+     *  @throws Exception on error
+     */
+    public static DisplayEditorPart openDisplayFile(final IFile file) throws Exception
+    {
+        final IEditorInput input = new FileEditorInput(file);
+        final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        return (DisplayEditorPart) page.openEditor(input, DisplayEditorPart.ID);
+    }
 
     public DisplayEditorPart()
     {
@@ -258,7 +274,7 @@ public class DisplayEditorPart extends EditorPart
             saveModelToFile(monitor, file);
         else
         {   // No file name, or using legacy file extension -> prompt for name
-            file = promptForFile();
+            file = promptForFile(getSite().getShell(), getEditorInput());
             if (file == null)
             {
                 monitor.setCanceled(true);
@@ -272,7 +288,7 @@ public class DisplayEditorPart extends EditorPart
     @Override
     public void doSaveAs()
     {
-        final IFile file = promptForFile();
+        final IFile file = promptForFile(getSite().getShell(), getEditorInput());
         if (file != null)
             saveModelToFile(new NullProgressMonitor(), file);
     }
@@ -353,18 +369,19 @@ public class DisplayEditorPart extends EditorPart
     }
 
     /** Prompt for file name used to 'save'
+     *  @param shell Shell
+     *  @param orig_input Original input
      *  @return File in workspace or <code>null</code>
      */
-    private IFile promptForFile()
+    public static IFile promptForFile(final Shell shell, final IEditorInput orig_input)
     {
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 
-        final SaveAsDialog dlg = new SaveAsDialog(getSite().getShell());
+        final SaveAsDialog dlg = new SaveAsDialog(shell);
         dlg.setBlockOnOpen(true);
-        final IEditorInput input = getEditorInput();
-        if (input instanceof FileEditorInput)
+        if (orig_input instanceof FileEditorInput)
         {
-            IPath orig_path = ((FileEditorInput)input).getFile().getFullPath();
+            IPath orig_path = ((FileEditorInput)orig_input).getFile().getFullPath();
             // Propose new file extension
             if (! DisplayModel.FILE_EXTENSION.equals(orig_path.getFileExtension()))
                 orig_path = orig_path.removeFileExtension().addFileExtension(DisplayModel.FILE_EXTENSION);

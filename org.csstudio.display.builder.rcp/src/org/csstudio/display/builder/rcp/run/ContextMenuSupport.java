@@ -138,6 +138,10 @@ public class ContextMenuSupport
         }
         // Placeholder for ProcessVariable object contributions
         manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+
+        // Placeholder for the display editor.
+        // If editor.rcp plugin is included, it adds "Open in editor"
+        manager.add(new Separator("display_editor"));
     };
 
     /** Create SWT context menu

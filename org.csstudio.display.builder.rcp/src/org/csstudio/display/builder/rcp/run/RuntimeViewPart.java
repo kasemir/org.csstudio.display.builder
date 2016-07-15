@@ -103,6 +103,7 @@ public class RuntimeViewPart extends ViewPart
     	final DisplayInfo info = new DisplayInfo(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE),
     			                                 model.getName(),
     			                                 model.widgetMacros().getValue());
+        display_info = Optional.of(info);
         setPartName(info.getName());
         setTitleToolTip(info.getPath());
         navigation.setCurrentDisplay(info);
@@ -221,8 +222,15 @@ public class RuntimeViewPart extends ViewPart
         showMessage("Loading " + info);
         // If already executing another display, shut it down
         disposeModel();
+
         // Load model off UI thread
         RuntimeUtil.getExecutor().execute(() -> loadModel(info));
+    }
+
+    /** @return Info about current display or <code>null</code> */
+    public DisplayInfo getDisplayInfo()
+    {
+        return display_info.orElse(null);
     }
 
     /** Load display model, schedule representation
@@ -265,6 +273,14 @@ public class RuntimeViewPart extends ViewPart
         {
             JFXRepresentation.getChildren(root).clear();
             representation.representModel(root, model);
+
+            // Representation for each widget adds a context menu just for the widget.
+            // Add another context menu to scene, tied to the model.
+            fx_canvas.getScene().setOnContextMenuRequested(event ->
+            {
+                event.consume();
+                representation.fireContextMenu(model);
+            });
         }
         catch (Exception ex)
         {
