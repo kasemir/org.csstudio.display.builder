@@ -9,8 +9,10 @@ package org.csstudio.display.builder.editor.rcp;
 
 import static org.csstudio.display.builder.editor.rcp.Plugin.logger;
 
+import java.io.InputStream;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.run.RuntimeViewPart;
 import org.eclipse.core.commands.AbstractHandler;
@@ -18,13 +20,16 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.ui.IEditorInput;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.FileEditorInput;
 
 /** Open display of currently active view in editor
  *
@@ -43,20 +48,10 @@ public class OpenDisplayInEditor extends AbstractHandler implements IHandler
         final IWorkbenchPart part = page.getActivePart();
         if (part instanceof RuntimeViewPart)
         {
-            final RuntimeViewPart view = (RuntimeViewPart) part;
-            final DisplayInfo info = view.getDisplayInfo();
-
+            final DisplayInfo info = ((RuntimeViewPart) part).getDisplayInfo();
             try
             {
-                final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(info.getPath()));
-                if (! file.exists())
-                {
-                    // TODO Check for URL, download into file?
-                    throw new Exception("Cannot locate " + info.getPath() + " in workspace");
-                }
-
-                final IEditorInput input = new FileEditorInput(file);
-                page.openEditor(input, DisplayEditorPart.ID);
+                openDisplay(info);
             }
             catch (Exception ex)
             {
@@ -66,5 +61,36 @@ public class OpenDisplayInEditor extends AbstractHandler implements IHandler
         else
             logger.log(Level.WARNING, "Cannot locate active display, got " + part);
         return null;
+    }
+
+    private void openDisplay(final DisplayInfo info) throws Exception
+    {
+        // Locate workspace file
+        IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(info.getPath()));
+        if (! file.exists())
+        {
+            // If there is no file, try to open the stream for the web URL or external file
+            final InputStream stream = ModelResourceUtil.openResourceStream(info.getPath());
+
+            // If that succeeds, prompt for local file name
+            final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+            if (! MessageDialog.openQuestion(shell, "Download?",
+                    NLS.bind("Do you want to download {0} into a local file so you can edit it?", info.getPath())))
+            {
+                stream.close();
+                return;
+            }
+            file = DisplayEditorPart.promptForFile(shell, null);
+            if (file == null)
+                return;
+
+            // Write local copy, then proceed as if we had a workspace file to begin with
+            if (file.exists())
+                file.setContents(stream, IResource.FORCE, new NullProgressMonitor());
+            else
+                file.create(stream, IResource.FORCE, new NullProgressMonitor());
+        }
+
+        DisplayEditorPart.openDisplayFile(file);
     }
 }
