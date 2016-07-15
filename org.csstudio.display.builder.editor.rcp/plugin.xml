@@ -72,5 +72,27 @@
             file="help_contexts.xml">
       </contexts>
    </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.csstudio.display.builder.editor.rcp.OpenDisplayInEditor"
+            id="org.csstudio.display.builder.editor.rcp.OpenInEditor"
+            name="%DisplayEditor">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.ui.popup.any?after=display_editor">
+         <command
+               commandId="org.csstudio.display.builder.editor.rcp.OpenInEditor"
+               icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
+               label="%DisplayEditor"
+               style="push"
+               tooltip="Open display in editor">
+         </command>
+      </menuContribution>
+   </extension>
 
 </plugin>

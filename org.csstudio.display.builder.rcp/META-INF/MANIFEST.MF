@@ -27,5 +27,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.csstudio.display.builder.runtime;bundle-version="1.0.0",
  org.csstudio.display.builder.util;bundle-version="1.0.0"
 Import-Package: javax.annotation
-Export-Package: org.csstudio.display.builder.rcp
+Export-Package: org.csstudio.display.builder.rcp,
+ org.csstudio.display.builder.rcp.run
 Bundle-Activator: org.csstudio.display.builder.rcp.Plugin

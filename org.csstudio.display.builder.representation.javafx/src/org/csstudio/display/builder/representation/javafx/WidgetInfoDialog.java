@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Objects;
 
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
@@ -48,15 +49,18 @@ public class WidgetInfoDialog extends Dialog<Boolean>
         setTitle(Messages.WidgetInfoDialog_Title);
         setHeaderText(NLS.bind(Messages.WidgetInfoDialog_Info_Fmt, new Object[] { widget.getName(), widget.getType() }));
 
-        final WidgetDescriptor descriptor = WidgetFactory.getInstance().getWidgetDescriptor(widget.getType());
-        try
-        {
-            final InputStream icon = descriptor.getIconStream();
-            setGraphic(new ImageView(new Image(icon)));
-        }
-        catch (Exception ex)
-        {
-            // No icon, no problem
+        if (! (widget instanceof DisplayModel))
+        {   // Widgets (but not the DisplayModel!) have a descriptor for their icon
+            try
+            {
+                final WidgetDescriptor descriptor = WidgetFactory.getInstance().getWidgetDescriptor(widget.getType());
+                final InputStream icon = descriptor.getIconStream();
+                setGraphic(new ImageView(new Image(icon)));
+            }
+            catch (Exception ex)
+            {
+                // No icon, no problem
+            }
         }
         final TabPane tabs = new TabPane(createProperties(widget), createPVs(pvs), createMacros(widget.getEffectiveMacros()));
         tabs.getTabs().forEach(tab -> tab.setClosable(false));

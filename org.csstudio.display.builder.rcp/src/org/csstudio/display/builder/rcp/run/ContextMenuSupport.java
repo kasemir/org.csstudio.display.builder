@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 import org.csstudio.csdata.ProcessVariable;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -138,6 +139,13 @@ public class ContextMenuSupport
         }
         // Placeholder for ProcessVariable object contributions
         manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+
+        if (context_menu_widget instanceof DisplayModel)
+        {
+            // Placeholder for the display editor.
+            // If editor.rcp plugin is included, it adds "Open in editor"
+            manager.add(new Separator("display_editor"));
+        }
     };
 
     /** Create SWT context menu
