@@ -8,7 +8,6 @@
 package org.csstudio.display.builder.rcp;
 
 import org.csstudio.display.builder.rcp.run.PlaceHolderView;
-import org.csstudio.display.builder.rcp.run.RuntimeViewPart;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;

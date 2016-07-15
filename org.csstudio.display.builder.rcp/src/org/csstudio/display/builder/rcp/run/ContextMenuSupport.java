@@ -25,6 +25,7 @@ import org.csstudio.display.builder.runtime.RuntimeAction;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -137,11 +138,12 @@ public class ContextMenuSupport
                 manager.add(new RuntimeActionWrapper(context_menu_widget, info));
         }
         // Placeholder for ProcessVariable object contributions
-        manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+        manager.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
 
         // Placeholder for the display editor.
         // If editor.rcp plugin is included, it adds "Open in editor"
         manager.add(new Separator("display_editor"));
+        manager.add(new ReloadDisplayAction());
     };
 
     /** Create SWT context menu
@@ -149,7 +151,7 @@ public class ContextMenuSupport
      *  @param parent Parent SWT widget
      *  @param representation Representation
      */
-    ContextMenuSupport(final IWorkbenchPartSite site, final Composite parent, final RCP_JFXRepresentation representation)
+    public ContextMenuSupport(final IWorkbenchPartSite site, final Composite parent, final RCP_JFXRepresentation representation)
     {
         // Tried to use a JFX context menu on the individual items,
         // but adding the existing PV contributions requires parsing

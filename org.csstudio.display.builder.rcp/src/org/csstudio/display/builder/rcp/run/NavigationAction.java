@@ -12,6 +12,7 @@ import java.util.List;
 import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.Messages;
+import org.csstudio.display.builder.rcp.RuntimeViewPart;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;

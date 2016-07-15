@@ -12,7 +12,6 @@ import static org.csstudio.display.builder.rcp.Plugin.logger;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.ModelPlugin;
-import org.csstudio.display.builder.rcp.run.RuntimeViewPart;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;

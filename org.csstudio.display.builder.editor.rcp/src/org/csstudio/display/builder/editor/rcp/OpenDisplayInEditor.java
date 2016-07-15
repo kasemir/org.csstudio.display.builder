@@ -14,7 +14,7 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.rcp.DisplayInfo;
-import org.csstudio.display.builder.rcp.run.RuntimeViewPart;
+import org.csstudio.display.builder.rcp.RuntimeViewPart;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -27,8 +27,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 
 /** Open display of currently active view in editor
@@ -44,11 +42,10 @@ public class OpenDisplayInEditor extends AbstractHandler implements IHandler
     @Override
     public Object execute(final ExecutionEvent event) throws ExecutionException
     {
-        final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-        final IWorkbenchPart part = page.getActivePart();
-        if (part instanceof RuntimeViewPart)
+        final RuntimeViewPart view = RuntimeViewPart.getActiveDisplay();
+        if (view != null)
         {
-            final DisplayInfo info = ((RuntimeViewPart) part).getDisplayInfo();
+            final DisplayInfo info = view.getDisplayInfo();
             try
             {
                 openDisplay(info);
@@ -58,8 +55,6 @@ public class OpenDisplayInEditor extends AbstractHandler implements IHandler
                 logger.log(Level.WARNING, "Cannot open in editor: " + info, ex);
             }
         }
-        else
-            logger.log(Level.WARNING, "Cannot locate active display, got " + part);
         return null;
     }
 

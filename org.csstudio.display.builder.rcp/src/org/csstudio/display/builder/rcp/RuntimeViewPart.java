@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.rcp.run;
+package org.csstudio.display.builder.rcp;
 
 import static org.csstudio.display.builder.rcp.Plugin.logger;
 
@@ -18,9 +18,11 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.macros.Macros;
-import org.csstudio.display.builder.rcp.DisplayInfo;
-import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
-import org.csstudio.display.builder.rcp.JFXCursorFix;
+import org.csstudio.display.builder.rcp.run.ContextMenuSupport;
+import org.csstudio.display.builder.rcp.run.DisplayNavigation;
+import org.csstudio.display.builder.rcp.run.NavigationAction;
+import org.csstudio.display.builder.rcp.run.RCP_JFXRepresentation;
+import org.csstudio.display.builder.rcp.run.ZoomAction;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
@@ -32,6 +34,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -57,7 +60,7 @@ public class RuntimeViewPart extends ViewPart
 	public static final String ID = "org.csstudio.display.builder.rcp.run.RuntimeViewPart";
 
     /** Property on the 'root' Group of the JFX scene that holds RuntimeViewPart */
-    static final String ROOT_RUNTIME_VIEW_PART = "_runtime_view_part";
+    public static final String ROOT_RUNTIME_VIEW_PART = "_runtime_view_part";
 
     /** Memento key for DisplayInfo */
     private static final String MEMENTO_DISPLAY_INFO = "DISPLAY_INFO";
@@ -90,6 +93,18 @@ public class RuntimeViewPart extends ViewPart
         final RuntimeViewPart part = (RuntimeViewPart) page.showView(ID, UUID.randomUUID().toString(), IWorkbenchPage.VIEW_ACTIVATE);
         part.close_handler = close_handler;
         return part;
+    }
+
+    /** Locate the currently active display
+     *  @return {@link RuntimeViewPart} or <code>null</code> when nothing found
+     */
+    public static RuntimeViewPart getActiveDisplay()
+    {
+        final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        final IWorkbenchPart part = page.getActivePart();
+        if (part instanceof RuntimeViewPart)
+            return(RuntimeViewPart) part;
+        return null;
     }
 
     public Parent getRoot()

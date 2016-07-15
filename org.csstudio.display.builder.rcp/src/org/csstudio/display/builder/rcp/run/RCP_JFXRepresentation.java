@@ -10,6 +10,7 @@ package org.csstudio.display.builder.rcp.run;
 import java.util.function.Consumer;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.rcp.RuntimeViewPart;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 
