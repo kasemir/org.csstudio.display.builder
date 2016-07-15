@@ -9,14 +9,13 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.io.InputStream;
 
-import javafx.collections.ListChangeListener;
-
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.util.ResourceUtil;
 
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -75,7 +74,7 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         //--protected methods
         protected void goToURL(String url)
         {
-            if (!url.startsWith("http://"))
+            if (!url.startsWith("http://") && !url.startsWith("https://"))
                 if (url.equals(""))
                     url = "about:blank";
                 else
@@ -252,22 +251,25 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
     public Region createJFXNode() throws Exception
     {
         boolean toolbar = model_widget.displayShowToolbar().getValue();
-        Region browser = toolbar ?
-                        new BrowserWithToolbar(model_widget.widgetURL().getValue()) :
-                        new Browser(model_widget.widgetURL().getValue());
         if (toolkit.isEditMode())
         {
+            BrowserWithToolbar browser = new BrowserWithToolbar(model_widget.widgetURL().getValue())
+            {
+                @Override
+                protected void goToURL(String url)
+                {
+                } //prevent navigation while editing position/properties/etc
+            };
             browser.setOnMousePressed((event) ->
             {
                 event.consume();
                 toolkit.fireClick(model_widget, event.isControlDown());
             });
-            if (toolbar)
-            {
-                ((BrowserWithToolbar)browser).disableToolbar();
-            }
+            browser.disableToolbar();
+            return browser;
         }
-        return browser;
+        return toolbar ? new BrowserWithToolbar(model_widget.widgetURL().getValue())
+                : new Browser(model_widget.widgetURL().getValue());
     }
 
     @Override
