@@ -1,4 +1,4 @@
-#python script
+#executed with native python
 """ Input:
     pvs[0] - Value around -5 .. 5
     pvs[1] - Default value for X
@@ -6,8 +6,7 @@
 """
 from connect2j import scriptContext
 
-with scriptContext(True, False):
-    from connect2j import widget, pvs, PVUtil
+with scriptContext('widget', 'pvs', 'PVUtil', dict=globals()):
     value = PVUtil.getDouble(pvs[0]);
     x0 = PVUtil.getDouble(pvs[1]);
     scale = PVUtil.getDouble(pvs[2]);

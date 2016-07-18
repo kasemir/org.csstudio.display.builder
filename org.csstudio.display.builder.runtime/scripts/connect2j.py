@@ -6,17 +6,14 @@ Author: Amanda Carpenter
 
 import sys
 from contextlib import contextmanager
+from traceback import format_exc
 
+isPy4J = False
 try:
     from py4j.java_gateway import JavaGateway, GatewayParameters, CallbackServerParameters
+    isPy4J = True
 except ImportError:
-    logging.error(" Please install py4j.")
-    raise
-
-widget = None
-pvs = None
-PVUtil = None
-ScriptUtil = None
+    None #ignore for now
 
 """
 Connect to Java using the given port. (Connect to a GatewayServer listening to the port.)
@@ -24,6 +21,8 @@ based on py4j tutorial code at:
     https://www.py4j.org/advanced_topics.html#using-py4j-without-pre-determined-ports-dynamic-port-number
 """
 def connectToJava(port):
+    if not isPy4J:
+        sys.stderr.write("Please install py4j to run scripts in native Python.\n")
     port = int(port)
     if port > 0:
         # connect python side to Java side with Java dynamic port and start python
@@ -46,55 +45,78 @@ def connectToJava(port):
     return gateway
 
 """
-Initializes and connects the variables 'widgets' and 'pvs' for native Python scripts and
-initializes and connects 'PVUtil' and/or 'ScriptUtil', (or, for Jython, imports them) as
-configured by the parameters.
+Ensures the given string keys are in the dict given with keyword argument 'dict',
+or, by default, in the module's global dict. Imports classes (for Jython) or
+assigns and connects variables to Java (in native Python). The name used in
+the given dict can be dictated with keyword arguments; the '=' in key='name'
+is analogous to 'as', in that the value obtained (connected or imported) using
+the key is placed in a dict entry named 'name'.
 
 In greater detail:
 native Python:
-Creates a context for the script, where the global variables
-'widget' and 'pvs' are connected to the widget and array of pvs
-associated with the script. If the InitPVUtil parameter is True,
-the global variable PVUtil is connected to an instance of the PVUtil
-class, and likewise ScriptUtil if InitScriptUtil is True. Yields a
-Py4J JavaGateway, which gives access to static Java classes and methods
-through the gateway's jvm attribute.
+Creates a context for the script, where the global variables with the
+given names/keyword values are connected to the corresponding Java
+objects (provided that those objects were made available in a map
+whose keys include the names/keyword keys). Yields a Py4J JavaGateway,
+which gives access to static Java classes and methods through the
+gateway's jvm attribute. (For details, see
+https://www.py4j.org/faq.html#how-to-call-a-static-method.)
 
 Jython:
-Imports PVUtil and/or ScriptUtil from org.csstudio.display.builder.runtime.script if
-InitPVUtil and/or InitScriptUtil is/are True, respectively.
+Imports the class(es) with the given name(s) from the package
+org.csstudio.display.builder.runtime.script, and places imported
+classes in dict.
+
+The arguments 'widget' and 'pvs' have no effect, and arguments of
+the form widget='widgetname' and pvs='pvsname' rely on a dict parameter
+that includes 'widget' and 'pvs'; it is recommended to use, for example,
+widgetname = widget in the calling module, if these variables absolutely
+must be used with a different name.
 """
 @contextmanager
-def scriptContext(InitPVUtil=True, InitScriptUtil=True):
+def scriptContext(*varnames, **kwargs):
+    mydict = globals()
+    if 'dict' in kwargs:
+        mydict = kwargs['dict']
     if len(sys.argv) > 1: #treat as native Python script
-        global widget; global pvs;
         gateway = None
         try:
-            #logging.info("connecting to Java...")
-            #connect the gateway
             gateway = connectToJava(sys.argv[1])
-            #logging.info("connected on port %s" % sys.argv[1])
-            #get the map of Java objects from the gateway
             map = gateway.getMap()
-            #initialize the global variables
-            widget = map['widget']
-            pvs = map['pvs']
-            if InitPVUtil:
-                global PVUtil; PVUtil = map['PVUtil']
-            if InitScriptUtil:
-                global ScriptUtil; ScriptUtil = map['ScriptUtil']
-            #yield to the caller
+            for name in varnames:
+                try:
+                    mydict[name] = map[name]
+                except:
+                    sys.stderr.write(format_exc())
+            for key, val in kwargs.items():
+                if key != 'dict':
+                    try:
+                        mydict[val] = map[key]
+                    except:
+                        sys.stderr.write(format_exc())
             yield gateway
         finally:
-            #shutdown the gateway
             if gateway != None:
-                #logging.info("shutting down gateway")
                 gateway.shutdown(True)
-                #logging.info("gateway shutdown")
-                gateway = None
-    elif sys.platform.lower().startswith('java'):
-        if PVUtil:
-            from org.csstudio.display.builder.runtime.script import PVUtil
-        if ScriptUtil:
-            from org.csstudio.display.builder.runtime.script import ScriptUtil
+    else:
+        if sys.platform.lower().startswith('java'): #treat as Jython script
+            for name in varnames:
+                if name != 'widget' and name != 'pvs' and name not in mydict:
+                    try:
+                        exec("from org.csstudio.display.builder.runtime.script import %s" % name)
+                        mydict[name] = vars()[name]
+                    except ImportError:
+                        sys.stderr.write(format_exc())
+            for key, val in kwargs.items():
+                if key != 'dict':
+                    if key != 'widget' and key != 'pvs':
+                        try:
+                            exec("from org.csstudio.display.builder.runtime.script import %s as %s" % (key, val))
+                            mydict[val] = vars()[val]
+                        except ImportError:
+                            sys.stderr.write(format_exc())
+                    elif key in mydict:
+                        mydict[val] = mydict[key]
+        else:
+            sys.stderr.write("connect2j: script did not meet conditions for known script context\n")
         yield

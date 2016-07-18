@@ -54,7 +54,14 @@ public class PythonGatewaySupport
         final Thread python_out = new StreamLogger("PythonPrint", process.getInputStream(), Level.INFO);
         python_out.start();
 
-        process.waitFor();
+        try
+        {
+            process.waitFor();
+        }
+        catch (InterruptedException ex)
+        {
+            //ignore; closing display creates interruption
+        }
 
         error_log.join();
         python_out.join();

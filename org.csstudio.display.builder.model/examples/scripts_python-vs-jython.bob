@@ -198,7 +198,7 @@
     <width>210</width>
     <height>26</height>
     <scripts>
-      <script file="scripts/update_pv_name.py">
+      <script file="scripts/python/update_pv_name.py">
         <pv_name>loc://pv_name("sim://sine")</pv_name>
       </script>
     </scripts>
