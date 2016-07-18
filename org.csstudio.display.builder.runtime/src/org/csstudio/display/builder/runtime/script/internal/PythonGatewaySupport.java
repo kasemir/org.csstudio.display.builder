@@ -62,6 +62,10 @@ public class PythonGatewaySupport
         {
             //ignore; closing display creates interruption
         }
+        finally
+        {
+            process.destroyForcibly();
+        }
 
         error_log.join();
         python_out.join();
