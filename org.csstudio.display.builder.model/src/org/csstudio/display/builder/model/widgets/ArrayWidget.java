@@ -7,8 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
 
 import java.util.Arrays;
@@ -22,10 +23,9 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
-import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.diirt.vtype.VType;
 
 /**
  * An Array Widget contains copies of a child widget. Each copy is assigned the
@@ -52,9 +52,10 @@ public class ArrayWidget extends VisibleWidget
     };
 
     private volatile WidgetProperty<Macros> macros;
+    private volatile WidgetProperty<String> pv_name;
     private volatile ChildrenProperty children;
     private volatile WidgetProperty<WidgetColor> background;
-    private volatile WidgetProperty<WidgetFont> font;
+    private volatile WidgetProperty<VType> value;
 
     public ArrayWidget()
     {
@@ -66,15 +67,22 @@ public class ArrayWidget extends VisibleWidget
     {
         super.defineProperties(properties);
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
+        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(children = new ChildrenProperty(this));
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(value = runtimeValue.createProperty(this, null));
     }
     
     /** @return Widget 'macros' */
     public WidgetProperty<Macros> widgetMacros()
     {
         return macros;
+    }
+
+    /** @return Behavior 'pv_name' */
+    public WidgetProperty<String> behaviorPVName()
+    {
+        return pv_name;
     }
 
     /** @return Runtime 'children' */
@@ -89,6 +97,12 @@ public class ArrayWidget extends VisibleWidget
         return background;
     }
 
+    /** @return Runtime 'value' */
+    public WidgetProperty<VType> runtimeValue()
+    {
+        return value;
+    }
+
     /** Array widget extends parent macros
      *  @return {@link Macros}
      */
@@ -100,9 +114,4 @@ public class ArrayWidget extends VisibleWidget
         return Macros.merge(base, my_macros);
     }
 
-    /** @return Display 'font' */
-    public WidgetProperty<WidgetFont> displayFont()
-    {
-        return font;
-    }
 }
