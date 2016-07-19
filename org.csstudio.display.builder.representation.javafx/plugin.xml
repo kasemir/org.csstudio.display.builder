@@ -4,12 +4,16 @@
    <extension
          point="org.csstudio.display.builder.representation.widgets">
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.ActionButtonRepresentation"
+            type="action_button">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.ArcRepresentation"
             type="arc">
       </representation>
       <representation
-            class="org.csstudio.display.builder.representation.javafx.widgets.ActionButtonRepresentation"
-            type="action_button">
+            class="org.csstudio.display.builder.representation.javafx.widgets.ArrayRepresentation"
+            type="array">
       </representation>
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.BoolButtonRepresentation"
