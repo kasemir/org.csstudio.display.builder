@@ -9,7 +9,6 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
 
 import java.util.Arrays;
@@ -54,7 +53,6 @@ public class ArrayWidget extends VisibleWidget
 
     private volatile WidgetProperty<Macros> macros;
     private volatile ChildrenProperty children;
-    private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
 
@@ -69,7 +67,6 @@ public class ArrayWidget extends VisibleWidget
         super.defineProperties(properties);
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(children = new ChildrenProperty(this));
-        properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
     }
@@ -84,12 +81,6 @@ public class ArrayWidget extends VisibleWidget
     public ChildrenProperty runtimeChildren()
     {
         return children;
-    }
-
-    /** @return Display 'foreground_color' */
-    public WidgetProperty<WidgetColor> displayForegroundColor()
-    {
-        return foreground;
     }
 
     /** @return Display 'background_color' */
