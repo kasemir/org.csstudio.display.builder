@@ -98,7 +98,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
             {
                 int index = 0;
                 List<Widget> children = new_model.runtimeChildren().getValue();
-                while(!children.isEmpty())
+                while (!children.isEmpty() && index < children.size())
                 {
                     Widget child = children.get(index);
                     if (child.getType().equals(GroupWidget.WIDGET_DESCRIPTOR.getType()) &&
