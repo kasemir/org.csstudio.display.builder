@@ -10,7 +10,6 @@ package org.csstudio.display.builder.editor;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,7 +30,6 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
-import org.csstudio.display.builder.model.widgets.ArrayWidget;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
@@ -222,44 +220,19 @@ public class DisplayEditor
         ChildrenProperty target = group_handler.getActiveParentChildren();
         if (target == null)
             target = model.runtimeChildren();
-        Widget container = target.getWidget();
+        final Widget container = target.getWidget();
         // Correct all dropped widget locations relative to container
-        Point2D offset = GeometryTools.getContainerOffset(container);
+        final Point2D offset = GeometryTools.getContainerOffset(container);
         // Also account for scroll pane
-        Point2D origin = JFXGeometryTools.getContentOrigin(model_root);
-        int dx = (int) (offset.getX() - origin.getX());
-        int dy = (int) (offset.getY() - origin.getY());
+        final Point2D origin = JFXGeometryTools.getContentOrigin(model_root);
+        final int dx = (int) (offset.getX() - origin.getX());
+        final int dy = (int) (offset.getY() - origin.getY());
 
         // Add dropped widgets
         try
         {
-            final ListIterator<Widget> it = widgets.listIterator();
-            if (container instanceof ArrayWidget)
+            for (Widget widget : widgets)
             {
-                if (target.getValue().isEmpty())
-                { //drop first widget into ArrayWidget
-                    Widget widget = it.next();
-                    widget.positionX().setValue(widget.positionX().getValue() - dx);
-                    widget.positionY().setValue(widget.positionY().getValue() - dy);
-                    widget_naming.setDefaultName(container.getDisplayModel(), widget);
-                    undo.execute(new AddWidgetAction(target, widget));
-                }
-
-                //hide highlight, since not adding to ArrayWidget container
-                if (it.hasNext())
-                    group_handler.hide();
-
-                //re-assign target, container, etc. to use ArrayWidget's parent
-                target = ChildrenProperty.getParentsChildren(container);
-                container = target.getWidget();
-                offset = GeometryTools.getContainerOffset(container);
-                origin = JFXGeometryTools.getContentOrigin(model_root);
-                dx = (int) (offset.getX() - origin.getX());
-                dy = (int) (offset.getY() - origin.getY());
-            }
-            while (it.hasNext())
-            {
-                Widget widget = it.next();
                 widget.positionX().setValue(widget.positionX().getValue() - dx);
                 widget.positionY().setValue(widget.positionY().getValue() - dy);
                 widget_naming.setDefaultName(container.getDisplayModel(), widget);
