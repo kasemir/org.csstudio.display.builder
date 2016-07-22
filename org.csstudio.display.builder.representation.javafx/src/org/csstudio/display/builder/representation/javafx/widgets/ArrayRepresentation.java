@@ -420,35 +420,38 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     private List<?> readValues(VType vtype)
     {
-        toolkit.logger.finer("Reading values from " + vtype);
+        final int n = numChildren;
+        toolkit.logger.finer("Reading "+n+"values from "+vtype);
         if (vtype == null)
             return Collections.emptyList();
         if (vtype instanceof Array)
         {
             //require one-dimensional? ((Array)vtype).getSizes().size() == 1?
-            //limit to getting only needed number of values?
             if (vtype instanceof VNumberArray)
             {
                 ListNumber dataList = (ListNumber) ((VNumberArray) vtype).getData();
                 if (vtype instanceof VByteArray)
-                    return readBytes(dataList.iterator());
+                    return readBytes(dataList.iterator(), n);
                 else if (vtype instanceof VIntArray)
-                    return readInts(dataList.iterator());
+                    return readInts(dataList.iterator(), n);
                 else if (vtype instanceof VLongArray)
-                    return readLongs(dataList.iterator());
+                    return readLongs(dataList.iterator(), n);
                 else if (vtype instanceof VShortArray)
-                    return readShorts(dataList.iterator());
+                    return readShorts(dataList.iterator(), n);
                 else if (vtype instanceof VFloatArray)
-                    return readFloats(dataList.iterator());
+                    return readFloats(dataList.iterator(), n);
                 else if (vtype instanceof VDoubleArray)
-                    return readDoubles(dataList.iterator());
+                    return readDoubles(dataList.iterator(), n);
                 else
                 {
                     //throw Exception: Unsupported VNumberArray sub-type?
                 }
             }
             else
-                return ((List<?>) ((Array) vtype).getData()); //.subList(fromIndex, fromIndex+size)
+            {
+                List<?> data = (List<?>) ((Array) vtype).getData();
+                return (data).subList(0, Math.min(n, data.size() - 1));
+            }
         }
         else //vtype not instanceof Array; could treat as single-element array, but ignoring for now
         {
@@ -460,50 +463,50 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     //Since there is no generic next() or nextNumber() method for
     //the iterator over the list given by a VNumberArray, there can
     //be no generic read or readNumber
-    private List<Byte> readBytes(IteratorNumber it)
+    private List<Byte> readBytes(IteratorNumber it, int n)
     {
-        List<Byte> list = new ArrayList<Byte>();
-        while (it.hasNext())
+        List<Byte> list = new ArrayList<Byte>(n);
+        while (it.hasNext() && n-- > 0)
             list.add(it.nextByte());
         return list;
     }
 
-    private List<Integer> readInts(IteratorNumber it)
+    private List<Integer> readInts(IteratorNumber it, int n)
     {
-        List<Integer> list = new ArrayList<Integer>();
-        while (it.hasNext())
+        List<Integer> list = new ArrayList<Integer>(n);
+        while (it.hasNext() && n-- > 0)
             list.add(it.nextInt());
         return list;
     }
 
-    private List<Long> readLongs(IteratorNumber it)
+    private List<Long> readLongs(IteratorNumber it, int n)
     {
-        List<Long> list = new ArrayList<Long>();
-        while (it.hasNext())
+        List<Long> list = new ArrayList<Long>(n);
+        while (it.hasNext() && n-- > 0)
             list.add(it.nextLong());
         return list;
     }
 
-    private List<Short> readShorts(IteratorNumber it)
+    private List<Short> readShorts(IteratorNumber it, int n)
     {
-        List<Short> list = new ArrayList<Short>();
-        while (it.hasNext())
+        List<Short> list = new ArrayList<Short>(n);
+        while (it.hasNext() && n-- > 0)
             list.add(it.nextShort());
         return list;
     }
 
-    private List<Float> readFloats(IteratorNumber it)
+    private List<Float> readFloats(IteratorNumber it, int n)
     {
-        List<Float> list = new ArrayList<Float>();
-        while (it.hasNext())
+        List<Float> list = new ArrayList<Float>(n);
+        while (it.hasNext() && n-- > 0)
             list.add(it.nextFloat());
         return list;
     }
 
-    private List<Double> readDoubles(IteratorNumber it)
+    private List<Double> readDoubles(IteratorNumber it, int n)
     {
-        List<Double> list = new ArrayList<Double>();
-        while (it.hasNext())
+        List<Double> list = new ArrayList<Double>(n);
+        while (it.hasNext() && n-- > 0)
             list.add(it.nextDouble());
         return list;
     }
