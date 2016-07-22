@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
@@ -49,7 +50,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     private static final int inset = 10;
 
-    private volatile List<?> values;
+    private volatile List<?> values = Collections.emptyList();
     private CopyOnWriteArrayList<Widget> children = new CopyOnWriteArrayList<>();
     private volatile int numChildren = 0, width = 0, height = 0;
     private volatile boolean isArranging = false, isAddingRemoving = false;
@@ -58,6 +59,9 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     @Override
     protected Pane createJFXNode() throws Exception
     {
+        //TODO note to self: remove this line before pushing branch
+        toolkit.logger.setLevel(Level.FINER);
+
         model_widget.runtimeInsets().setValue(new int[] { inset, inset });
         pane = new Pane();
         height = model_widget.positionHeight().getValue();
@@ -94,7 +98,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        values = readValues();
+        values = readValues(model_widget.runtimeValue().getValue());
         dirty_value.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -105,7 +109,6 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         {
             width = model_widget.positionWidth().getValue();
             height = model_widget.positionHeight().getValue();
-            List<Widget> children = model_widget.runtimeChildren().getValue();
             adjustNumberByLength();
 
             dirty_look.mark();
@@ -118,12 +121,18 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             final List<Widget> added)
     {
         List<Widget> newval = new ArrayList<Widget>(model_widget.runtimeChildren().getValue());
-        toolkit.logger.warning("Children changed: " + removed + " / " + added);
+        toolkit.logger.fine("Children changed: " + removed + " / " + added);
         if (!isAddingRemoving)
         {
             numChildren = newval.size();
             dirty_number.mark();
             toolkit.scheduleUpdate(this);
+            if (added != null && !added.get(0).checkProperty("pv_name").isPresent())
+            {
+                toolkit.logger
+                        .warning("Child widget " + added.get(0) + " added to ArrayWidget " + model_widget
+                                + " has no 'pv_name' property.");
+            }
         }
         if (added != null)
         {
@@ -148,9 +157,10 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             if (!prop.getCategory().equals(model_widget.runtimeChildren().getCategory())
                     && (!prop.getCategory().equals(model_widget.positionHeight().getCategory())
                             || prop.getName().equals(model_widget.positionVisible().getName()))
-                    && !prop.getCategory().equals(model_widget.widgetName().getCategory()))
+                    && !prop.getCategory().equals(model_widget.widgetName().getCategory())
+                    && !prop.getName().equals(model_widget.behaviorPVName().getName()))
             {
-                toolkit.logger.warning("Adding listener to " + widget + " " + prop);
+                toolkit.logger.finest("Adding listener to " + widget + " " + prop);
                 prop.addUntypedPropertyListener(listener);
             }
         }
@@ -167,9 +177,10 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             if (!prop.getCategory().equals(model_widget.runtimeChildren().getCategory())
                     && (!prop.getCategory().equals(model_widget.positionHeight().getCategory())
                             || prop.getName().equals(model_widget.positionVisible().getName()))
-                    && !prop.getCategory().equals(model_widget.widgetName().getCategory()))
+                    && !prop.getCategory().equals(model_widget.widgetName().getCategory())
+                    && !prop.getName().equals(model_widget.behaviorPVName().getName()))
             {
-                toolkit.logger.warning("Removing listener from " + widget + " " + prop);
+                toolkit.logger.finest("Removing listener from " + widget + " " + prop);
                 prop.removePropertyListener(listener);
             }
         }
@@ -200,7 +211,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     WidgetPropertyListener<Integer> rearrange = (p, o, n) ->
     {
-        toolkit.logger.warning("Rearrange called");
+        toolkit.logger.finer("Rearrange called");
         if (!isArranging)
             arrangeChildren(p.getWidget());
     };
@@ -222,7 +233,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     private void arrangeChildren(Widget master, List<Widget> children)
     {
         isArranging = true;
-        toolkit.logger.warning("Arranging children");
+        toolkit.logger.fine("Arranging children");
         numChildren = children.size();
 
         //Checking horizontal:
@@ -265,14 +276,14 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         final int l = vertical ? children.get(0).positionHeight().getValue()
                 : children.get(0).positionWidth().getValue();
         numChildren = vertical ? (height - inset * 2) / l : (width - inset * 2) / l;
-        toolkit.logger.warning("Length changed; numChildren=" + numChildren);
+        toolkit.logger.fine("Length changed; numChildren=" + numChildren);
         dirty_number.mark();
         toolkit.scheduleUpdate(this);
     }
 
     private void addChildren(List<Widget> children, int number)
     {
-        toolkit.logger.warning("Adding children; " + number + " left");
+        toolkit.logger.finer("Adding children; " + number + " left");
         if (number > 0 && !children.isEmpty())
         {
             Widget child = copyWidget(children.get(0));
@@ -287,7 +298,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     private void removeChildren(List<Widget> children, int number)
     {
-        toolkit.logger.warning("Removing children; " + number + " left");
+        toolkit.logger.finer("Removing children; " + number + " left");
         if (number > 0 && children.size() > 1)
         {
             Widget child = children.remove(children.size() - 1);
@@ -371,12 +382,45 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     void setChildrenValues()
     {
-        //TODO implement this properly
+        Object[] vals = values.toArray();
+        //children is CopyOnWrite
+        if (vals.length < 1)
+            return;
+
+        //Set values of children widgets using local pvs delivered through the 'pv_name'
+        //property. This makes the child widgets essentially read-only, but this is acceptable,
+        //as it was also the behavior of the previous version's array representation.
+        String pvprefix = pvPrefix(vals[0]);
+        toolkit.logger.finer("Setting " + model_widget + " children pvs with format " + pvprefix + "{...})");
+        for (int i = 0; i < vals.length && i < children.size(); i++)
+        {
+            try
+            {
+                children.get(i).setPropertyValue("pv_name", pvprefix + vals[i] + ')');
+            } catch (IllegalArgumentException e)
+            { //thrown by setPropertyValue if "pv_name" is unknown
+                break;
+            } catch (IndexOutOfBoundsException e)
+            {
+                break;
+            } catch (Exception e)
+            { //if new pv_name value is unsuitable; unlikely, since "pv_name" should be a String
+                e.printStackTrace();
+            }
+        }
     }
 
-    private List<?> readValues()
+    private String pvPrefix(Object value)
     {
-        VType vtype = model_widget.runtimeValue().getValue();
+        if (value instanceof String)
+            return "loc://arrayPV<VString>(";
+        else //if (value instanceof Number), etc.
+            return "loc://arrayPV(";
+    }
+
+    private List<?> readValues(VType vtype)
+    {
+        toolkit.logger.finer("Reading values from " + vtype);
         if (vtype == null)
             return Collections.emptyList();
         if (vtype instanceof Array)
@@ -409,10 +453,6 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         else //vtype not instanceof Array; could treat as single-element array, but ignoring for now
         {
             return Collections.emptyList();
-            //((VNumber) vtype).getValue();
-            //((VString) vtype).getValue();
-            //((VEnum) vtype).getValue();
-            //((VBoolean) vtype).getValue();
         }
         return null;
     }
