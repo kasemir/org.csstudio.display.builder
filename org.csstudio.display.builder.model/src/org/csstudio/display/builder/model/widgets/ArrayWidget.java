@@ -17,6 +17,8 @@ import static org.csstudio.display.builder.model.properties.InsetsWidgetProperty
 import java.util.Arrays;
 import java.util.List;
 
+import javax.xml.stream.XMLStreamWriter;
+
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
@@ -24,6 +26,7 @@ import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.WidgetColor;
@@ -53,6 +56,22 @@ public class ArrayWidget extends VisibleWidget
         }
     };
 
+    /** {@link ChildrenProperty} wrapper that adjusts writing to XML*/
+    public static class ArrayWidgetChildrenProperty extends ChildrenProperty
+    {
+        public ArrayWidgetChildrenProperty(Widget widget)
+        {
+            super(widget);
+        }
+
+        @Override
+        public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
+        {
+            if (!getValue().isEmpty())
+                model_writer.writeWidgets(getValue().subList(0, 1));
+        }
+    }
+
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<String> pv_name;
     private volatile ChildrenProperty children;
@@ -72,7 +91,7 @@ public class ArrayWidget extends VisibleWidget
         super.defineProperties(properties);
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
-        properties.add(children = new ChildrenProperty(this));
+        properties.add(children = new ArrayWidgetChildrenProperty(this));
         properties.add(foreground = displayForegroundColor.createProperty(this,
                 WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = displayBackgroundColor.createProperty(this,
