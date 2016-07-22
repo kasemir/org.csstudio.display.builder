@@ -54,7 +54,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     private CopyOnWriteArrayList<Widget> children = new CopyOnWriteArrayList<>();
     private volatile int numChildren = 0, width = 0, height = 0;
     private volatile boolean isArranging = false, isAddingRemoving = false;
-    private Pane pane;
+    private Pane inner_pane;
 
     @Override
     protected Pane createJFXNode() throws Exception
@@ -63,16 +63,17 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         toolkit.logger.setLevel(Level.FINER);
 
         model_widget.runtimeInsets().setValue(new int[] { inset, inset });
-        pane = new Pane();
+        inner_pane = new Pane();
+        inner_pane.relocate(inset, inset);
         height = model_widget.positionHeight().getValue();
         width = model_widget.positionWidth().getValue();
-        return pane;
+        return new Pane(inner_pane);
     }
 
     @Override
     protected Parent getChildParent(final Parent parent)
     {
-        return pane;
+        return inner_pane;
     }
 
     @Override
@@ -358,11 +359,11 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             if (width > 0)
                 jfx_node.setPrefWidth(width);
             Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
-            pane.setBorder(new Border(
+            jfx_node.setBorder(new Border(
                     new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,
                             new Insets(inset / 2))));
             color = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
-            pane.setBackground(new Background(new BackgroundFill(color, null, null)));
+            jfx_node.setBackground(new Background(new BackgroundFill(color, null, null)));
         }
         if (dirty_number.checkAndClear())
         {
