@@ -13,7 +13,6 @@ import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.widgets.ArrayWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.util.array.IteratorNumber;
@@ -43,14 +42,12 @@ import javafx.scene.paint.Color;
 @SuppressWarnings({ "nls", "static-access" })
 public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget>
 {
-    //TODO note to self: remove logger warnings
     private final DirtyFlag dirty_value = new DirtyFlag(); //values of child widgets
     private final DirtyFlag dirty_number = new DirtyFlag(); //number of child widgets
     private final DirtyFlag dirty_look = new DirtyFlag(); //size/color of JavaFX Node
 
     private static final int inset = 10;
 
-    private volatile List<?> values = Collections.emptyList();
     private CopyOnWriteArrayList<Widget> children = new CopyOnWriteArrayList<>();
     private volatile int numChildren = 0, width = 0, height = 0;
     private volatile boolean isArranging = false, isAddingRemoving = false;
@@ -59,9 +56,6 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     @Override
     protected Pane createJFXNode() throws Exception
     {
-        //TODO note to self: remove this line before pushing branch
-        toolkit.logger.setLevel(Level.FINE);
-
         model_widget.runtimeInsets().setValue(new int[] { inset, inset });
         inner_pane = new Pane();
         inner_pane.relocate(inset, inset);
@@ -89,6 +83,43 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
         childrenChanged(null, null, model_widget.runtimeChildren().getValue());
         adjustNumberByLength();
+    }
+
+    @Override
+    public void updateChanges()
+    {
+        super.updateChanges();
+        if (dirty_value.checkAndClear())
+        {
+            setChildrenValues();
+        }
+        if (dirty_look.checkAndClear())
+        {
+            if (height > 0)
+                jfx_node.setPrefHeight(height);
+            if (width > 0)
+                jfx_node.setPrefWidth(width);
+            Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
+            jfx_node.setBorder(new Border(
+                    new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,
+                            new Insets(inset / 2))));
+            color = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
+            jfx_node.setBackground(new Background(new BackgroundFill(color, null, null)));
+        }
+        if (dirty_number.checkAndClear())
+        {
+            final int diff = children.size() - numChildren;
+            if (diff != 0)
+            {
+                isAddingRemoving = true;
+                if (diff > 0)
+                    removeChildren(children, diff);
+                else
+                    addChildren(children, -diff);
+                isAddingRemoving = false;
+            }
+            arrangeChildren();
+        }
     }
 
     private void colorChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -121,7 +152,6 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             final List<Widget> added)
     {
         List<Widget> newval = new ArrayList<Widget>(model_widget.runtimeChildren().getValue());
-        toolkit.logger.fine("Children changed: - " + removed + " / + " + added);
         if (!isAddingRemoving)
         {
             numChildren = newval.size();
@@ -163,12 +193,15 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
                     && !prop.getCategory().equals(model_widget.widgetName().getCategory())
                     && !prop.getName().equals(model_widget.behaviorPVName().getName()))
             {
-                toolkit.logger.finest("Adding listener to " + widget + " " + prop);
+                //toolkit.logger.finest("Array widget adding listener to " + widget + " " + prop);
                 prop.addUntypedPropertyListener(listener);
             }
+            else if (prop.getCategory().equals(model_widget.positionHeight().getCategory())
+                    && !prop.getName().equals(model_widget.positionVisible().getCategory()))
+            {
+                prop.addUntypedPropertyListener(rearrange);
+            }
         }
-        widget.positionHeight().addPropertyListener(rearrange);
-        widget.positionWidth().addPropertyListener(rearrange);
     }
 
     private void removeChildListeners(Widget widget)
@@ -183,7 +216,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
                     && !prop.getCategory().equals(model_widget.widgetName().getCategory())
                     && !prop.getName().equals(model_widget.behaviorPVName().getName()))
             {
-                toolkit.logger.finest("Removing listener from " + widget + " " + prop);
+                //toolkit.logger.finest("Array widget emoving listener from " + widget + " " + prop);
                 prop.removePropertyListener(listener);
             }
         }
@@ -193,7 +226,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     UntypedWidgetPropertyListener listener = (p, o, n) ->
     {
-        toolkit.logger.finest("Listener called: " + p.getWidget() + ": " + p);
+        //toolkit.logger.finest("Array widget listener called: " + p.getWidget() + " " + p);
         if (!isArranging)
         {
             final String name = p.getName();
@@ -212,9 +245,8 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         }
     };
 
-    WidgetPropertyListener<Integer> rearrange = (p, o, n) ->
+    UntypedWidgetPropertyListener rearrange = (p, o, n) ->
     {
-        toolkit.logger.finer("Rearrange called");
         if (!isArranging)
             arrangeChildren(p.getWidget());
     };
@@ -236,7 +268,6 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     private void arrangeChildren(Widget master, List<Widget> children)
     {
         isArranging = true;
-        toolkit.logger.fine("Arranging children");
         numChildren = children.size();
 
         //Checking horizontal:
@@ -279,14 +310,12 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         final int l = vertical ? children.get(0).positionHeight().getValue()
                 : children.get(0).positionWidth().getValue();
         numChildren = vertical ? (height - inset * 2) / l : (width - inset * 2) / l;
-        toolkit.logger.fine("Length changed; numChildren=" + numChildren);
         dirty_number.mark();
         toolkit.scheduleUpdate(this);
     }
 
     private void addChildren(List<Widget> children, int number)
     {
-        toolkit.logger.finer("Adding children; " + number + " left");
         if (number > 0 && !children.isEmpty())
         {
             Widget child = copyWidget(children.get(0));
@@ -301,7 +330,6 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     private void removeChildren(List<Widget> children, int number)
     {
-        toolkit.logger.finer("Removing children; " + number + " left");
         if (number > 0 && children.size() > 1)
         {
             Widget child = children.remove(children.size() - 1);
@@ -345,43 +373,6 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         }
     }
 
-    @Override
-    public void updateChanges()
-    {
-        super.updateChanges();
-        if (dirty_value.checkAndClear())
-        {
-            setChildrenValues();
-        }
-        if (dirty_look.checkAndClear())
-        {
-            if (height > 0)
-                jfx_node.setPrefHeight(height);
-            if (width > 0)
-                jfx_node.setPrefWidth(width);
-            Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
-            jfx_node.setBorder(new Border(
-                    new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,
-                            new Insets(inset / 2))));
-            color = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
-            jfx_node.setBackground(new Background(new BackgroundFill(color, null, null)));
-        }
-        if (dirty_number.checkAndClear())
-        {
-            final int diff = children.size() - numChildren;
-            if (diff != 0)
-            {
-                isAddingRemoving = true;
-                if (diff > 0)
-                    removeChildren(children, diff);
-                else
-                    addChildren(children, -diff);
-                isAddingRemoving = false;
-            }
-            arrangeChildren();
-        }
-    }
-
     void setChildrenValues()
     {
         List<?> values = readValues(model_widget.runtimeValue().getValue());
@@ -393,7 +384,6 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         //property. This makes the child widgets essentially read-only, but this is acceptable,
         //as it was also the behavior of the previous version's array representation.
         String pvprefix = pvPrefix(values.get(0));
-        toolkit.logger.finer("Setting " + model_widget + " children pvs with format " + pvprefix + "{...})");
         for (int i = 0; i < values.size() && i < children.size(); i++)
         {
             try
