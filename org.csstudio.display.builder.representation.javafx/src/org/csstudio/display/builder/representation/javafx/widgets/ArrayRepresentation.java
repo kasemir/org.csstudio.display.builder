@@ -60,7 +60,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     protected Pane createJFXNode() throws Exception
     {
         //TODO note to self: remove this line before pushing branch
-        toolkit.logger.setLevel(Level.FINER);
+        toolkit.logger.setLevel(Level.FINE);
 
         model_widget.runtimeInsets().setValue(new int[] { inset, inset });
         inner_pane = new Pane();
@@ -99,7 +99,6 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        values = readValues(model_widget.runtimeValue().getValue());
         dirty_value.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -122,13 +121,13 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             final List<Widget> added)
     {
         List<Widget> newval = new ArrayList<Widget>(model_widget.runtimeChildren().getValue());
-        toolkit.logger.fine("Children changed: " + removed + " / " + added);
+        toolkit.logger.fine("Children changed: - " + removed + " / + " + added);
         if (!isAddingRemoving)
         {
             numChildren = newval.size();
             dirty_number.mark();
             toolkit.scheduleUpdate(this);
-            if (added != null && !added.get(0).checkProperty("pv_name").isPresent())
+            if (added != null && !added.isEmpty() && !added.get(0).checkProperty("pv_name").isPresent())
             {
                 toolkit.logger
                         .warning("Child widget " + added.get(0) + " added to ArrayWidget " + model_widget
@@ -140,8 +139,11 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             for (Widget widget : added)
                 addChildListeners(widget);
             //trigger child listeners to copy properties of existing widgets
-            Widget widget = added.get(0);
-            copyProperties(newval.get(0), widget);
+            if (!added.isEmpty()) //implies !newval.isEmpty()
+            {
+                Widget widget = added.get(0);
+                copyProperties(newval.get(0), widget);
+            }
         }
         else //removed != null
             for (Widget widget : removed)
@@ -191,7 +193,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     UntypedWidgetPropertyListener listener = (p, o, n) ->
     {
-        toolkit.logger.warning("Listener called: " + p.getWidget() + ": " + p);
+        toolkit.logger.finest("Listener called: " + p.getWidget() + ": " + p);
         if (!isArranging)
         {
             final String name = p.getName();
@@ -338,8 +340,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
                 prop.setValue(original.getPropertyValue(name));
             } catch (Exception e)
             {
-                // TODO auto-generated
-                e.printStackTrace();
+                toolkit.logger.log(Level.WARNING, "Cannot copy " + original + " " + prop, e);
             }
         }
     }
@@ -383,21 +384,21 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     void setChildrenValues()
     {
-        Object[] vals = values.toArray();
+        List<?> values = readValues(model_widget.runtimeValue().getValue());
         //children is CopyOnWrite
-        if (vals.length < 1)
+        if (values.size() < 1)
             return;
 
         //Set values of children widgets using local pvs delivered through the 'pv_name'
         //property. This makes the child widgets essentially read-only, but this is acceptable,
         //as it was also the behavior of the previous version's array representation.
-        String pvprefix = pvPrefix(vals[0]);
+        String pvprefix = pvPrefix(values.get(0));
         toolkit.logger.finer("Setting " + model_widget + " children pvs with format " + pvprefix + "{...})");
-        for (int i = 0; i < vals.length && i < children.size(); i++)
+        for (int i = 0; i < values.size() && i < children.size(); i++)
         {
             try
             {
-                children.get(i).setPropertyValue("pv_name", pvprefix + vals[i] + ')');
+                children.get(i).setPropertyValue("pv_name", pvprefix + values.get(i) + ')');
             } catch (IllegalArgumentException e)
             { //thrown by setPropertyValue if "pv_name" is unknown
                 break;
@@ -422,7 +423,6 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     private List<?> readValues(VType vtype)
     {
         final int n = numChildren;
-        toolkit.logger.finer("Reading "+n+"values from "+vtype);
         if (vtype == null)
             return Collections.emptyList();
         if (vtype instanceof Array)
@@ -451,7 +451,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             else
             {
                 List<?> data = (List<?>) ((Array) vtype).getData();
-                return (data).subList(0, Math.min(n, data.size() - 1));
+                return (data).subList(0, Math.min(n, data.size()));
             }
         }
         else //vtype not instanceof Array; could treat as single-element array, but ignoring for now
@@ -467,7 +467,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     private List<Byte> readBytes(IteratorNumber it, int n)
     {
         List<Byte> list = new ArrayList<Byte>(n);
-        while (it.hasNext() && n-- > 0)
+        while (it.hasNext() && n-- > -1)
             list.add(it.nextByte());
         return list;
     }
