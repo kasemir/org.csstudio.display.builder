@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
-  <name>Tabs</name>
+  <name>Group</name>
   <x>-1</x>
   <y>-1</y>
   <widget type="label" version="2.0.0">
@@ -25,7 +25,6 @@ Visually, the Group widget adds a border and label to a group of widgets.
 Logically, the Group widget and its contained widgets can be moved,
 copied, deleted as a whole in the editor.
 At runtime, a group can apply macros to its child widgets.</text>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="group" version="2.0.0">
     <name>Group 1</name>
@@ -167,6 +166,5 @@ but pass different values for macros 'TEXT' and 'PV'.</text>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
 </display>
