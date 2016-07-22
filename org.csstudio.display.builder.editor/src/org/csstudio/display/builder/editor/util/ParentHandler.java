@@ -140,7 +140,7 @@ public class ParentHandler
                 else if (widget instanceof ArrayWidget)
                 {
                     List<Widget> widgets = ((ArrayWidget) widget).runtimeChildren().getValue();
-                    if (widgets.isEmpty() || widgets.containsAll(ignore))
+                    if (widgets.isEmpty() || (!ignore.isEmpty() && widgets.get(0).getType().equals(ignore.get(0).getType())))
                         child_prop = ((ArrayWidget) widget).runtimeChildren();
                     else
                         continue;
