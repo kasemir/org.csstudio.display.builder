@@ -14,6 +14,7 @@ import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.widgets.ArrayWidget;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.util.array.IteratorNumber;
 import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.Array;
@@ -42,9 +43,9 @@ import javafx.scene.paint.Color;
 public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget>
 {
     //TODO note to self: remove logger warnings
-    private final DirtyFlag dirty_value = new DirtyFlag(); //values of widgets
-    private final DirtyFlag dirty_number = new DirtyFlag(); //number of widgets
-    private final DirtyFlag dirty_size = new DirtyFlag();
+    private final DirtyFlag dirty_value = new DirtyFlag(); //values of child widgets
+    private final DirtyFlag dirty_number = new DirtyFlag(); //number of child widgets
+    private final DirtyFlag dirty_look = new DirtyFlag(); //size/color of JavaFX Node
 
     private static final int inset = 10;
 
@@ -59,12 +60,6 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     {
         model_widget.runtimeInsets().setValue(new int[] { inset, inset });
         pane = new Pane();
-        //TODO use FG color, have listener
-        pane.setBorder(new Border(
-                new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,
-                        new Insets(inset / 2))));
-        //TODO use BG color, have listener
-        pane.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
         height = model_widget.positionHeight().getValue();
         width = model_widget.positionWidth().getValue();
         return pane;
@@ -84,10 +79,17 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         model_widget.runtimeChildren().addPropertyListener(this::childrenChanged);
         model_widget.positionHeight().addPropertyListener(this::sizeChanged);
         model_widget.positionWidth().addPropertyListener(this::sizeChanged);
-        //TODO color changed
+        model_widget.displayForegroundColor().addPropertyListener(this::colorChanged);
+        model_widget.displayBackgroundColor().addPropertyListener(this::colorChanged);
 
         childrenChanged(null, null, model_widget.runtimeChildren().getValue());
         adjustNumberByLength();
+    }
+
+    private void colorChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        dirty_look.mark();
+        toolkit.scheduleUpdate(this);
     }
 
     private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -106,7 +108,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             List<Widget> children = model_widget.runtimeChildren().getValue();
             adjustNumberByLength();
 
-            dirty_size.mark();
+            dirty_look.mark();
             toolkit.scheduleUpdate(this);
         } else
             isArranging = false;
@@ -124,8 +126,13 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             toolkit.scheduleUpdate(this);
         }
         if (added != null)
+        {
             for (Widget widget : added)
                 addChildListeners(widget);
+            //trigger child listeners to copy properties of existing widgets
+            Widget widget = added.get(0);
+            copyProperties(newval.get(0), widget);
+        }
         else //removed != null
             for (Widget widget : removed)
                 removeChildListeners(widget);
@@ -244,7 +251,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             model_widget.positionWidth().setValue(width = len);
         else
             isArranging = false;
-        dirty_size.mark();
+        dirty_look.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -269,6 +276,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         if (number > 0 && !children.isEmpty())
         {
             Widget child = copyWidget(children.get(0));
+            child.widgetName().setValue("Auto-"+child.getType()+"-"+this.children.size());
             if (child != null)
             {
                 model_widget.runtimeChildren().addChild(child);
@@ -332,12 +340,18 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         {
             setChildrenValues();
         }
-        if (dirty_size.checkAndClear())
+        if (dirty_look.checkAndClear())
         {
             if (height > 0)
                 jfx_node.setPrefHeight(height);
             if (width > 0)
                 jfx_node.setPrefWidth(width);
+            Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
+            pane.setBorder(new Border(
+                    new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,
+                            new Insets(inset / 2))));
+            color = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
+            pane.setBackground(new Background(new BackgroundFill(color, null, null)));
         }
         if (dirty_number.checkAndClear())
         {
@@ -349,7 +363,6 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
                     removeChildren(children, diff);
                 else
                     addChildren(children, -diff);
-                children = new CopyOnWriteArrayList<Widget>(model_widget.runtimeChildren().getValue());
                 isAddingRemoving = false;
             }
             arrangeChildren();

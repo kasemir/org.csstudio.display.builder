@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
 import static org.csstudio.display.builder.model.properties.InsetsWidgetProperty.runtimeInsets;
@@ -55,6 +56,7 @@ public class ArrayWidget extends VisibleWidget
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<String> pv_name;
     private volatile ChildrenProperty children;
+    private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<int[]> insets;
@@ -71,7 +73,10 @@ public class ArrayWidget extends VisibleWidget
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(children = new ChildrenProperty(this));
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(foreground = displayForegroundColor.createProperty(this,
+                WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(background = displayBackgroundColor.createProperty(this,
+                WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(value = runtimeValue.createProperty(this, null));
         properties.add(insets = runtimeInsets.createProperty(this, new int[] { 0, 0 }));
     }
@@ -105,6 +110,12 @@ public class ArrayWidget extends VisibleWidget
     public ChildrenProperty runtimeChildren()
     {
         return children;
+    }
+
+    /** @return Display 'foreground_color' */
+    public WidgetProperty<WidgetColor> displayForegroundColor()
+    {
+        return foreground;
     }
 
     /** @return Display 'background_color' */
