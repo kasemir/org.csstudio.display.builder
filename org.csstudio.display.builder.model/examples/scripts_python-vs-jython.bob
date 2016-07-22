@@ -6,55 +6,10 @@
   <widget type="group" version="2.0.0">
     <name>Group</name>
     <x>452</x>
-    <y>251</y>
+    <y>241</y>
     <width>521</width>
-    <height>134</height>
+    <height>114</height>
     <style>2</style>
-    <widget type="label" version="2.0.0">
-      <name>Label_8</name>
-      <x>10</x>
-      <y>15</y>
-      <width>521</width>
-      <height>50</height>
-      <text>from connect2j import scriptContext
-	with scriptContext():
-		from connect2j import widget, pvs, PVUtil
-</text>
-      <background_color>
-        <color name="Read_Background" red="240" green="240" blue="240">
-        </color>
-      </background_color>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>Label_18</name>
-      <x>10</x>
-      <y>65</y>
-      <width>521</width>
-      <height>35</height>
-      <text>		if (PVUtil.getDouble(pvs[0]) &lt; 0)
-			widget.setProperty("x", 0)
-</text>
-      <background_color>
-        <color name="Read_Background" red="240" green="240" blue="240">
-        </color>
-      </background_color>
-    </widget>
-    <widget type="label" version="2.0.0">
-      <name>Label_23</name>
-      <x>10</x>
-      <y>100</y>
-      <width>521</width>
-      <height>19</height>
-      <text>	#the variables widget, pvs, PVUtil, and ScriptUtil have been disconnected</text>
-      <background_color>
-        <color name="Read_Background" red="240" green="240" blue="240">
-        </color>
-      </background_color>
-      <font>
-        <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
-        </font>
-      </font>
-    </widget>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
@@ -397,11 +352,11 @@ scripts. Assigment (=) has no effect on the Java object.
     <x>452</x>
     <y>181</y>
     <width>521</width>
-    <height>70</height>
-    <text>The function scriptContext(InitPVUtil=True, InitScriptUtil=False) connects
-to Display Builder and initializes 'widgets', 'pvs', and (optionally) 'PVUtil'
-and 'ScriptUtil'. These variables and scriptContext are located in the
-module connect2j.</text>
+    <height>60</height>
+    <text>The function scriptContext(*args, **kwargs) connects its arguments (example:
+'widgets', 'pvs', 'PVUtil', and/or 'ScriptUtil') to Display Builder and places the
+corresponding entries in the dict given with the 'dict' keyword argument.
+</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_36</name>
@@ -429,12 +384,74 @@ module connect2j.</text>
     </font>
   </widget>
   <widget type="label" version="2.0.0">
-    <name>Label_12</name>
+    <name>Label_26</name>
     <x>452</x>
-    <y>391</y>
+    <y>371</y>
     <width>521</width>
-    <height>40</height>
-    <text>The function scriptContext has two (boolean, default True) parameters, InitPVUtil
-and InitScriptUtil, which determine whether or not PVUtil or ScriptUtil are initialized.</text>
+    <height>76</height>
+    <text>If no dict is given, the variables created are made global to the connect2j module,
+and must be imported. Additional keyword args of the form key='name', such as
+PVUtil='util', import or connect the variable with the key "key" (PVUtil), but enter it
+under the name "name" (util).</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_8</name>
+    <x>463</x>
+    <y>251</y>
+    <width>521</width>
+    <height>50</height>
+    <text>from connect2j import scriptContext
+	with scriptContext('widget','pvs','PVUtil',dict=globals()):
+</text>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_18</name>
+    <x>463</x>
+    <y>301</y>
+    <width>521</width>
+    <height>35</height>
+    <text>		if (PVUtil.getDouble(pvs[0]) &lt; 0)
+			widget.setProperty("x", 0)
+</text>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_23</name>
+    <x>452</x>
+    <y>336</y>
+    <width>521</width>
+    <height>19</height>
+    <text>	#the variables widget, pvs, PVUtil, and ScriptUtil have been disconnected</text>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_25</name>
+    <x>452</x>
+    <y>285</y>
+    <width>521</width>
+    <height>19</height>
+    <text>	#the variables listed have been placed in this module's global dict</text>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
   </widget>
 </display>
