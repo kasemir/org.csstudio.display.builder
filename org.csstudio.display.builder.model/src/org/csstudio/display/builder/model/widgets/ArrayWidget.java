@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
+import static org.csstudio.display.builder.model.properties.InsetsWidgetProperty.runtimeInsets;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,7 +41,7 @@ public class ArrayWidget extends VisibleWidget
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("array", WidgetCategory.STRUCTURE,
             Messages.ArrayWidget_Name,
-            "platform:/plugin/org.csstudio.display.builder.model/icons/array.png",
+                    "platform:/plugin/org.csstudio.display.builder.model/icons/array.png",
             Messages.ArrayWidget_Description,
             Arrays.asList("org.csstudio.opibuilder.widgets.array"))
     {
@@ -56,6 +57,7 @@ public class ArrayWidget extends VisibleWidget
     private volatile ChildrenProperty children;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<VType> value;
+    private volatile WidgetProperty<int[]> insets;
 
     public ArrayWidget()
     {
@@ -71,8 +73,22 @@ public class ArrayWidget extends VisibleWidget
         properties.add(children = new ChildrenProperty(this));
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(value = runtimeValue.createProperty(this, null));
+        properties.add(insets = runtimeInsets.createProperty(this, new int[] { 0, 0 }));
     }
-    
+
+    /**
+     * Array widget extends parent macros
+     * 
+     * @return {@link Macros}
+     */
+    @Override
+    public Macros getEffectiveMacros()
+    {
+        final Macros base = super.getEffectiveMacros();
+        final Macros my_macros = widgetMacros().getValue();
+        return Macros.merge(base, my_macros);
+    }
+
     /** @return Widget 'macros' */
     public WidgetProperty<Macros> widgetMacros()
     {
@@ -103,15 +119,9 @@ public class ArrayWidget extends VisibleWidget
         return value;
     }
 
-    /** Array widget extends parent macros
-     *  @return {@link Macros}
-     */
-    @Override
-    public Macros getEffectiveMacros()
+    /** @return Runtime 'insets' */
+    public WidgetProperty<int[]> runtimeInsets()
     {
-        final Macros base = super.getEffectiveMacros();
-        final Macros my_macros = widgetMacros().getValue();
-        return Macros.merge(base, my_macros);
+        return insets;
     }
-
 }
