@@ -9,7 +9,7 @@ package org.csstudio.trends.databrowser3.ui;
 
 import org.csstudio.apputil.time.StartEndTimeParser;
 import org.csstudio.apputil.ui.time.StartEndDialog;
-import org.csstudio.swt.rtplot.undo.UndoableActionManager;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.propsheet.ChangeTimerangeCommand;
 import org.eclipse.jface.window.Window;
@@ -51,7 +51,7 @@ public class StartEndTimeAction
     {
         // Parsing somewhat redundant, but gives exception 'right away' for better error display
         final StartEndTimeParser parser =
-            new StartEndTimeParser(start_time, end_time);
+                new StartEndTimeParser(start_time, end_time);
         new ChangeTimerangeCommand(model, operations_manager, parser.isEndNow(), start_time, end_time);
     }
 }

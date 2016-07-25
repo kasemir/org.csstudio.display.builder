@@ -3,8 +3,9 @@ package org.csstudio.trends.databrowser3.propsheet;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.csstudio.swt.rtplot.TraceType;
+import org.csstudio.javafx.rtplot.TraceType;
 import org.csstudio.trends.databrowser3.Messages;
+import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.trends.databrowser3.model.AxisConfig;
 import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.model.ModelItem;
@@ -264,8 +265,9 @@ public class EditItemsDialog extends Dialog
 
         blobColor = new ColorBlob(composite, new RGB(0, 0, 0));
         blobColor.setToolTipText(Messages.ColorTT);
+        //TODO: this should probably use Javafx color instead of SWT...
         if (! items.isEmpty())
-            blobColor.setColor(items.get(0).getColor());
+            blobColor.setColor(SWTMediaPool.getRGB(items.get(0).getColor()));
         blobColor.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDown(MouseEvent e) {

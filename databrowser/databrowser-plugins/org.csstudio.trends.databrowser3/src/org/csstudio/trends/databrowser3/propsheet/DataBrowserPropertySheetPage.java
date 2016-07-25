@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.csstudio.apputil.time.RelativeTime;
-import org.csstudio.swt.rtplot.SWTMediaPool;
-import org.csstudio.swt.rtplot.undo.UndoableActionManager;
+import org.csstudio.trends.databrowser3.SWTMediaPool;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
 import org.csstudio.trends.databrowser3.model.ArchiveRescale;
@@ -97,7 +97,7 @@ import org.eclipse.ui.views.properties.IPropertySheetPage;
  *  @author Kay Kasemir
  */
 public class DataBrowserPropertySheetPage extends Page
-    implements IPropertySheetPage
+implements IPropertySheetPage
 {
     /** Model to display/edit in property sheet */
     final private Model model;
@@ -387,12 +387,12 @@ public class DataBrowserPropertySheetPage extends Page
             public void mouseDown(MouseEvent e)
             {
                 final Object item =
-                    ((IStructuredSelection) trace_table.getSelection()).getFirstElement();
+                        ((IStructuredSelection) trace_table.getSelection()).getFirstElement();
                 if (! (item instanceof FormulaItem))
                     return;
                 final FormulaItem formula = (FormulaItem) item;
                 final EditFormulaDialog dlg =
-                    new EditFormulaDialog(operations_manager, formula_txt.getShell(), formula);
+                        new EditFormulaDialog(operations_manager, formula_txt.getShell(), formula);
                 dlg.open();
             }
 
@@ -509,10 +509,10 @@ public class DataBrowserPropertySheetPage extends Page
                 if (pvs.length == 1) {
                     // Determine selected archives
                     final IStructuredSelection arch_sel =
-                        (IStructuredSelection)archive_table.getSelection();
+                            (IStructuredSelection)archive_table.getSelection();
                     if (!arch_sel.isEmpty()) {
                         final Object[] objects =
-                            arch_sel.toArray();
+                                arch_sel.toArray();
                         final ArchiveDataSource archives[] = new ArchiveDataSource[objects.length];
                         for (int i = 0; i < archives.length; i++)
                             archives[i] = (ArchiveDataSource) objects[i];
@@ -531,7 +531,7 @@ public class DataBrowserPropertySheetPage extends Page
     protected PVItem[] getSelectedPVs()
     {
         final IStructuredSelection selection =
-            (IStructuredSelection)trace_table.getSelection();
+                (IStructuredSelection)trace_table.getSelection();
         if (selection.isEmpty())
             return new PVItem[0];
         final Object obj[] = selection.toArray();
@@ -831,7 +831,7 @@ public class DataBrowserPropertySheetPage extends Page
                 try
                 {
                     final Duration step = Duration.ofMillis(
-                        Math.round( Double.parseDouble(scroll_step.getText().trim()) * 1000.0 ) );
+                            Math.round( Double.parseDouble(scroll_step.getText().trim()) * 1000.0 ) );
                     new ChangeScrollStepCommand(model, operations_manager, step);
                 }
                 catch (Exception ex)

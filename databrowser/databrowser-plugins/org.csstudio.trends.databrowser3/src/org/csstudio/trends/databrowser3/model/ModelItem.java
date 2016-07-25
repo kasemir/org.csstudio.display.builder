@@ -14,12 +14,13 @@ import java.util.Optional;
 
 import org.csstudio.apputil.xml.DOMHelper;
 import org.csstudio.apputil.xml.XMLWriter;
-import org.csstudio.swt.rtplot.PointType;
-import org.csstudio.swt.rtplot.TraceType;
-import org.csstudio.swt.rtplot.data.PlotDataItem;
+import org.csstudio.javafx.rtplot.PointType;
+import org.csstudio.javafx.rtplot.TraceType;
+import org.csstudio.javafx.rtplot.data.PlotDataItem;
+import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
 import org.csstudio.trends.databrowser3.preferences.Preferences;
-import org.eclipse.swt.graphics.RGB;
+import javafx.scene.paint.Color;
 import org.w3c.dom.Element;
 
 /** Base of {@link PVItem} and {@link FormulaItem},
@@ -52,7 +53,7 @@ abstract public class ModelItem
      *  As long as the Model can still run without a Display
      *  or Shell, this might be OK.
      */
-    private volatile RGB rgb = null;
+    private volatile Color color = null;
 
     /** How to display the trace */
     private volatile TraceType trace_type = Preferences.getTraceType();
@@ -204,17 +205,17 @@ abstract public class ModelItem
      *  @return Item's color
      *  @see #setColor(RGB)
      */
-    public RGB getColor()
+    public Color getColor()
     {
-        return rgb;
+        return color;
     }
 
-    /** @param new_rgb New color for this item */
-    public void setColor(final RGB new_rgb)
+    /** @param new_col New color for this item */
+    public void setColor(final Color new_col)
     {
-        if (new_rgb.equals(rgb))
+        if (new_col.equals(color))
             return;
-        rgb = new_rgb;
+        color = new_col;
         fireItemLookChanged();
     }
 
@@ -354,7 +355,7 @@ abstract public class ModelItem
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_VISIBLE, Boolean.toString(isVisible()));
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_NAME, getName());
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_AXIS, getAxisIndex());
-        XMLPersistence.writeColor(writer, 3, XMLPersistence.TAG_COLOR, getColor());
+        XMLPersistence.writeColor(writer, 3, XMLPersistence.TAG_COLOR, SWTMediaPool.getRGB(getColor()));
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_TRACE_TYPE, getTraceType().name());
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_LINEWIDTH, getLineWidth());
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_POINT_TYPE, getPointType().name());
@@ -378,7 +379,7 @@ abstract public class ModelItem
         axis = model.getAxis(axis_index);
         line_width = DOMHelper.getSubelementInt(node, XMLPersistence.TAG_LINEWIDTH, line_width);
         point_size = DOMHelper.getSubelementInt(node, XMLPersistence.TAG_POINT_SIZE, point_size);
-        rgb = XMLPersistence.loadColorFromDocument(node).orElse(null);
+        color = SWTMediaPool.getJFX(XMLPersistence.loadColorFromDocument(node).orElse(null));
 
         // First load PointType, which may be replaced by legacy point-in-TraceType below
         try

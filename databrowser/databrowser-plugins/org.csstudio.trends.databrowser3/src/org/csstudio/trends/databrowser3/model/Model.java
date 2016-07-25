@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+import javafx.scene.paint.Color;
 
 import org.csstudio.apputil.macros.IMacroTableProvider;
 import org.csstudio.apputil.macros.InfiniteLoopException;
@@ -28,7 +29,7 @@ import org.csstudio.apputil.time.PeriodFormat;
 import org.csstudio.apputil.time.RelativeTime;
 import org.csstudio.apputil.time.StartEndTimeParser;
 import org.csstudio.archive.vtype.TimestampHelper;
-import org.csstudio.swt.rtplot.util.RGBFactory;
+import org.csstudio.javafx.rtplot.util.RGBFactory;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.imports.ImportArchiveReaderFactory;
@@ -392,10 +393,10 @@ public class Model
     /** Called by items to set their initial color
      *  @return 'Next' suggested item color
      */
-    private RGB getNextItemColor()
+    private Color getNextItemColor()
     {
         boolean already_used;
-        RGB color;
+        Color color;
         int attempts = 10;
         do
         {
@@ -582,9 +583,9 @@ public class Model
             throw new Exception("Scroll steps are too small: " + step);
         if (step.compareTo(scroll_step) == 0)
             return;
-       scroll_step = step;
-       for (ModelListener listener : listeners)
-           listener.changedTiming();
+        scroll_step = step;
+        for (ModelListener listener : listeners)
+            listener.changedTiming();
     }
 
     /** @return time span of data
@@ -639,7 +640,7 @@ public class Model
             synchronized (this)
             {
                 if (this.start_spec.equals(start_spec)  &&
-                    this.end_spec.equals(end_spec))
+                        this.end_spec.equals(end_spec))
                     return;
                 this.start_spec = start_spec;
                 this.end_spec = end_spec;
@@ -897,14 +898,14 @@ public class Model
         for (ModelItem item : items)
         {
             if (item instanceof FormulaItem  &&
-                ((FormulaItem)item).reevaluate())
-                    anything_new = true;
+                    ((FormulaItem)item).reevaluate())
+                anything_new = true;
         }
         // Check and reset PV Items
         for (ModelItem item : items)
         {
             if (item instanceof PVItem  &&
-                item.getSamples().testAndClearNewSamplesFlag())
+                    item.getSamples().testAndClearNewSamplesFlag())
                 anything_new = true;
         }
         return anything_new;

@@ -7,7 +7,7 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.imports;
 
-import org.csstudio.swt.rtplot.undo.UndoableActionManager;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
@@ -38,7 +38,7 @@ public class SampleImportAction extends Action
     public SampleImportAction(final UndoableActionManager op_manager, final Shell shell, final Model model, final String type, final String description)
     {
         super(NLS.bind(Messages.ImportActionLabelFmt, description),
-            Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/import.gif")); //$NON-NLS-1$
+                Activator.imageDescriptorFromPlugin(Activator.PLUGIN_ID, "icons/import.gif")); //$NON-NLS-1$
         this.op_manager = op_manager;
         this.shell = shell;
         this.model = model;

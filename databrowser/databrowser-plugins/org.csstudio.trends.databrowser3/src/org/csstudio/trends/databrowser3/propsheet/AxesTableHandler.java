@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.csstudio.swt.rtplot.undo.UndoableActionManager;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.model.AxisConfig;
@@ -144,7 +144,7 @@ public class AxesTableHandler implements IStructuredContentProvider
             {
                 final AxisConfig axis = (AxisConfig)element;
                 final ChangeAxisConfigCommand command =
-                    new ChangeAxisConfigCommand(operations_manager, axis);
+                        new ChangeAxisConfigCommand(operations_manager, axis);
                 axis.setVisible(((Boolean)value).booleanValue());
                 command.rememberNewConfig();
             }
@@ -177,7 +177,7 @@ public class AxesTableHandler implements IStructuredContentProvider
                 if (name.equals(axis.getName()))
                     return;
                 final ChangeAxisConfigCommand config =
-                    new ChangeAxisConfigCommand(operations_manager, axis);
+                        new ChangeAxisConfigCommand(operations_manager, axis);
                 axis.setName(name);
                 config.rememberNewConfig();
             }
@@ -216,7 +216,7 @@ public class AxesTableHandler implements IStructuredContentProvider
             {
                 final AxisConfig axis = (AxisConfig)element;
                 final ChangeAxisConfigCommand command =
-                    new ChangeAxisConfigCommand(operations_manager, axis);
+                        new ChangeAxisConfigCommand(operations_manager, axis);
                 axis.useAxisName(((Boolean)value).booleanValue());
                 command.rememberNewConfig();
             }
@@ -255,7 +255,7 @@ public class AxesTableHandler implements IStructuredContentProvider
             {
                 final AxisConfig axis = (AxisConfig)element;
                 final ChangeAxisConfigCommand command =
-                    new ChangeAxisConfigCommand(operations_manager, axis);
+                        new ChangeAxisConfigCommand(operations_manager, axis);
                 axis.useTraceNames(((Boolean)value).booleanValue());
                 command.rememberNewConfig();
             }
@@ -294,7 +294,7 @@ public class AxesTableHandler implements IStructuredContentProvider
             {
                 final AxisConfig axis = (AxisConfig)element;
                 final ChangeAxisConfigCommand command =
-                    new ChangeAxisConfigCommand(operations_manager, axis);
+                        new ChangeAxisConfigCommand(operations_manager, axis);
                 axis.setGridVisible(((Boolean)value).booleanValue());
                 command.rememberNewConfig();
             }
@@ -333,7 +333,7 @@ public class AxesTableHandler implements IStructuredContentProvider
             {
                 final AxisConfig axis = (AxisConfig)element;
                 final ChangeAxisConfigCommand command =
-                    new ChangeAxisConfigCommand(operations_manager, axis);
+                        new ChangeAxisConfigCommand(operations_manager, axis);
                 axis.setOnRight(((Boolean)value).booleanValue());
                 command.rememberNewConfig();
             }
@@ -346,7 +346,7 @@ public class AxesTableHandler implements IStructuredContentProvider
             @Override
             protected Color getColor(final AxisConfig axis)
             {
-                return color_registry.createColor(axis.getColor());
+                return color_registry.createColor(axis.getRGB());
             }
         });
         col.setEditingSupport(new EditSupportBase(axes_table)
@@ -368,7 +368,7 @@ public class AxesTableHandler implements IStructuredContentProvider
             {
                 final AxisConfig axis = (AxisConfig)element;
                 final ChangeAxisConfigCommand command =
-                    new ChangeAxisConfigCommand(operations_manager, axis);
+                        new ChangeAxisConfigCommand(operations_manager, axis);
                 axis.setColor((RGB)value);
                 command.rememberNewConfig();
             }
@@ -403,7 +403,7 @@ public class AxesTableHandler implements IStructuredContentProvider
                     if (limit == axis.getMin())
                         return;
                     final ChangeAxisConfigCommand command =
-                        new ChangeAxisConfigCommand(operations_manager, axis);
+                            new ChangeAxisConfigCommand(operations_manager, axis);
                     axis.setRange(limit, axis.getMax());
                     command.rememberNewConfig();
                 }
@@ -443,7 +443,7 @@ public class AxesTableHandler implements IStructuredContentProvider
                     if (limit == axis.getMax())
                         return;
                     final ChangeAxisConfigCommand command =
-                        new ChangeAxisConfigCommand(operations_manager, axis);
+                            new ChangeAxisConfigCommand(operations_manager, axis);
                     axis.setRange(axis.getMin(), limit);
                     command.rememberNewConfig();
                 }
@@ -487,7 +487,7 @@ public class AxesTableHandler implements IStructuredContentProvider
             {
                 final AxisConfig axis = (AxisConfig)element;
                 final ChangeAxisConfigCommand command =
-                    new ChangeAxisConfigCommand(operations_manager, axis);
+                        new ChangeAxisConfigCommand(operations_manager, axis);
                 axis.setAutoScale(((Boolean)value).booleanValue());
                 command.rememberNewConfig();
             }
@@ -526,7 +526,7 @@ public class AxesTableHandler implements IStructuredContentProvider
             {
                 final AxisConfig axis = (AxisConfig)element;
                 final ChangeAxisConfigCommand command =
-                    new ChangeAxisConfigCommand(operations_manager, axis);
+                        new ChangeAxisConfigCommand(operations_manager, axis);
                 axis.setLogScale(((Boolean)value).booleanValue());
                 command.rememberNewConfig();
             }

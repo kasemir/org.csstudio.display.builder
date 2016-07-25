@@ -9,7 +9,7 @@ package org.csstudio.trends.databrowser3.preferences;
 
 import java.time.Duration;
 
-import org.csstudio.swt.rtplot.TraceType;
+import org.csstudio.javafx.rtplot.TraceType;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.model.ArchiveRescale;

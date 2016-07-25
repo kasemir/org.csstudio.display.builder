@@ -3,16 +3,17 @@ package org.csstudio.trends.databrowser3.propsheet;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.csstudio.swt.rtplot.TraceType;
-import org.csstudio.swt.rtplot.undo.UndoableAction;
-import org.csstudio.swt.rtplot.undo.UndoableActionManager;
+import org.csstudio.javafx.rtplot.TraceType;
+import org.csstudio.display.builder.util.undo.UndoableAction;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.trends.databrowser3.Messages;
+import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.trends.databrowser3.model.AxisConfig;
 import org.csstudio.trends.databrowser3.model.ModelItem;
 import org.csstudio.trends.databrowser3.model.PVItem;
 import org.csstudio.trends.databrowser3.model.RequestType;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
-import org.eclipse.swt.graphics.RGB;
+import javafx.scene.paint.Color;
 
 /** Undo-able command for edit item properties.
  *  @author Takashi Nakamoto - Original implementation that 'cloned' ModelItem
@@ -25,7 +26,7 @@ public class EditItemsCommand extends UndoableAction
     final private List<Boolean> wasVisible = new ArrayList<>();
     final private List<String> oldName = new ArrayList<>();
     final private List<String> oldDisplayName = new ArrayList<>();
-    final private List<RGB> oldColor = new ArrayList<>();
+    final private List<Color> oldColor = new ArrayList<>();
     final private List<Integer> oldLineWidth = new ArrayList<>();
     final private List<AxisConfig> oldAxis = new ArrayList<>();
     final private List<TraceType> oldTraceType = new ArrayList<>();
@@ -90,7 +91,7 @@ public class EditItemsCommand extends UndoableAction
                 if (result.appliedDisplayName())
                     item.setDisplayName(result.getDisplayName());
                 if (result.appliedColor())
-                    item.setColor(result.getColor());
+                    item.setColor(SWTMediaPool.getJFX(result.getColor()));
                 if (result.appliedWidth())
                     item.setLineWidth(result.getWidth());
                 if (result.appliedAxis())

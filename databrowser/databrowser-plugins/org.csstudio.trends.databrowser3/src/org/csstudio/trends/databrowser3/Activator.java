@@ -12,7 +12,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
-import org.csstudio.swt.rtplot.util.NamedThreadFactory;
+import org.csstudio.display.builder.util.ResourceUtil;
+import org.csstudio.javafx.rtplot.util.NamedThreadFactory;
 import org.csstudio.utility.singlesource.SingleSourcePlugin;
 import org.csstudio.utility.singlesource.UIHelper.UI;
 import org.eclipse.core.runtime.Platform;
@@ -20,7 +21,7 @@ import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.graphics.Image;
+import javafx.scene.image.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -35,7 +36,7 @@ public class Activator extends AbstractUIPlugin
 
     /** Checkbox images */
     final public static String ICON_UNCHECKED = "icons/unchecked.gif",
-                               ICON_CHECKED = "icons/checked.gif";
+            ICON_CHECKED = "icons/checked.gif";
 
     /** Singleton instance */
     private static Activator plugin;
@@ -56,14 +57,14 @@ public class Activator extends AbstractUIPlugin
             // RAPCorePlugin adds the "server" scope for all plugins,
             // but starts too late...
             Platform.getPreferencesService().setDefaultLookupOrder(
-                PLUGIN_ID, null,
-                new String[]
-                {
-                        InstanceScope.SCOPE,
-                        ConfigurationScope.SCOPE,
-                        "server",
-                        DefaultScope.SCOPE
-                });
+                    PLUGIN_ID, null,
+                    new String[]
+                            {
+                                    InstanceScope.SCOPE,
+                                    ConfigurationScope.SCOPE,
+                                    "server",
+                                    DefaultScope.SCOPE
+                            });
         }
         plugin = this;
     }
@@ -102,15 +103,26 @@ public class Activator extends AbstractUIPlugin
      *  @param path Path within plugin to image file
      *  @return {@link Image}
      */
-    public Image getImage(final String path)
+    public org.eclipse.swt.graphics.Image getImage(final String path)
     {
-        Image image = getImageRegistry().get(path);
+        org.eclipse.swt.graphics.Image image = getImageRegistry().get(path);
         if (image == null)
         {
             image = getImageDescriptor(path).createImage();
             getImageRegistry().put(path, image);
         }
         return image;
+    }
+
+
+    /** @param base_name Icon base name (no path, no extension)
+     *  @return Image
+     *  @throws Exception on error
+     */
+    public static Image getIcon(final String base_name) throws Exception
+    {
+        String path = "platform:/plugin/org.csstudio.trends.databrowser3/icons/" + base_name + ".png";
+        return new Image(ResourceUtil.openPlatformResource(path));
     }
 
     /** @return Version code */

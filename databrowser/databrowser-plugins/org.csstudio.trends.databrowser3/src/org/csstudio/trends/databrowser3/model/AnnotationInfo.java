@@ -7,6 +7,7 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.model;
 
+import javafx.geometry.Point2D;
 import java.io.PrintWriter;
 import java.time.Instant;
 
@@ -14,7 +15,7 @@ import org.csstudio.apputil.xml.DOMHelper;
 import org.csstudio.apputil.xml.XMLWriter;
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
 import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
-import org.eclipse.swt.graphics.Point;
+//import org.eclipse.swt.graphics.Point;
 import org.w3c.dom.Element;
 
 /** Information about a Plot Annotation
@@ -34,16 +35,16 @@ public class AnnotationInfo
     final int item_index;
     final private Instant time;
     final private double value;
-    final private Point offset;
+    final private Point2D offset;
     final private String text;
 
-    public AnnotationInfo(final int item_index, final Instant time, final double value, final Point offset, final String text)
+    public AnnotationInfo(final int item_index, final Instant time, final double value, final Point2D point2d, final String text)
     {
 
         this.item_index = item_index;
         this.time = time;
         this.value = value;
-        this.offset = offset;
+        this.offset = point2d;
         this.text = text;
     }
 
@@ -66,7 +67,7 @@ public class AnnotationInfo
     }
 
     /** @return Offset */
-    public Point getOffset()
+    public Point2D getOffset()
     {
         return offset;
     }
@@ -96,8 +97,8 @@ public class AnnotationInfo
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_VALUE, value);
         XMLWriter.start(writer, 3, XMLPersistence.TAG_OFFSET);
         writer.println();
-        XMLWriter.XML(writer, 4, XMLPersistence.TAG_X, offset.x);
-        XMLWriter.XML(writer, 4, XMLPersistence.TAG_Y, offset.y);
+        XMLWriter.XML(writer, 4, XMLPersistence.TAG_X, offset.getX());
+        XMLWriter.XML(writer, 4, XMLPersistence.TAG_Y, offset.getY());
         XMLWriter.end(writer, 3, XMLPersistence.TAG_OFFSET);
         writer.println();
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_TEXT, text);
@@ -126,6 +127,6 @@ public class AnnotationInfo
             x = DOMHelper.getSubelementInt(offset, XMLPersistence.TAG_X, x);
             y = DOMHelper.getSubelementInt(offset, XMLPersistence.TAG_Y, y);
         }
-        return new AnnotationInfo(item_index, time, value, new Point(x, y), text);
+        return new AnnotationInfo(item_index, time, value, new Point2D(x, y), text);
     }
 }

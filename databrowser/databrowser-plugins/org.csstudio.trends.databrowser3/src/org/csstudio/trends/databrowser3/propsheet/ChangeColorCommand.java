@@ -7,11 +7,11 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.propsheet;
 
-import org.csstudio.swt.rtplot.undo.UndoableAction;
-import org.csstudio.swt.rtplot.undo.UndoableActionManager;
+import org.csstudio.display.builder.util.undo.UndoableAction;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.model.ModelItem;
-import org.eclipse.swt.graphics.RGB;
+import javafx.scene.paint.Color;
 
 /** Undo-able command to change item's color
  *  @author Kay Kasemir
@@ -19,7 +19,7 @@ import org.eclipse.swt.graphics.RGB;
 public class ChangeColorCommand extends UndoableAction
 {
     final private ModelItem item;
-    final private RGB old_color, new_color;
+    final private Color old_color, new_color;
 
     /** Register and perform the command
      *  @param operations_manager OperationsManager where command will be reg'ed
@@ -27,7 +27,7 @@ public class ChangeColorCommand extends UndoableAction
      *  @param new_color New value
      */
     public ChangeColorCommand(final UndoableActionManager operations_manager,
-            final ModelItem item, final RGB new_color)
+            final ModelItem item, final Color new_color)
     {
         super(Messages.Color);
         this.item = item;

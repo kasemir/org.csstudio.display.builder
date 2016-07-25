@@ -15,13 +15,15 @@ import java.util.Optional;
 
 import org.csstudio.apputil.xml.DOMHelper;
 import org.csstudio.apputil.xml.XMLWriter;
-import org.csstudio.swt.rtplot.SWTMediaPool;
+import org.csstudio.trends.databrowser3.SWTMediaPool;
+//import org.csstudio.javafx.rtplot.SWTMediaPool;
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
 import org.csstudio.trends.databrowser3.preferences.Preferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.w3c.dom.Element;
+import javafx.scene.paint.Color;
 
 /** Information about configuration of an axis
  *  @author Kay Kasemir
@@ -47,7 +49,7 @@ public class AxisConfig
     private boolean is_right = false;
 
     /** Color */
-    private RGB color;
+    private Color color;
 
     /** Label Font */
     private FontData label_font;
@@ -72,7 +74,7 @@ public class AxisConfig
      */
     public AxisConfig(final String name)
     {
-        this(true, name, !Preferences.useTraceNames(), Preferences.useTraceNames(), false, new RGB(0, 0, 0), new FontData("", 10, 0), new FontData("", 10, 0),0.0, 10.0, false, Preferences.useAutoScale(), false);
+        this(true, name, !Preferences.useTraceNames(), Preferences.useTraceNames(), false, Color.rgb(0, 0, 0), new FontData("", 10, 0), new FontData("", 10, 0),0.0, 10.0, false, Preferences.useAutoScale(), false);
     }
 
     /** Initialize
@@ -91,7 +93,7 @@ public class AxisConfig
             final boolean use_axis_name,
             final boolean use_trace_names,
             final boolean is_right,
-            final RGB rgb,
+            final Color col,
             final FontData label_font,
             final FontData scale_font,
             final double min,
@@ -105,7 +107,7 @@ public class AxisConfig
         this.use_axis_name = use_axis_name;
         this.use_trace_names = use_trace_names;
         this.is_right = is_right;
-        this.color = Objects.requireNonNull(rgb);
+        this.color = Objects.requireNonNull(col);
         this.label_font = label_font;
         this.scale_font = scale_font;
         this.min = min;
@@ -114,6 +116,8 @@ public class AxisConfig
         this.auto_scale = auto_scale;
         this.log_scale = log_scale;
     }
+
+
 
     /** @param model Model to which this item belongs */
     void setModel(final Model model)
@@ -196,16 +200,28 @@ public class AxisConfig
     }
 
     /** @return Color */
-    public RGB getColor()
+    public Color getColor()
     {
         return color;
+    }
+
+    public RGB getRGB()
+    {
+        return new RGB((int)color.getRed(), (int)color.getGreen(), (int)color.getBlue());
+    }
+
+    /** @param color New color */
+    public void setColor(final Color color)
+    {
+        this.color = Objects.requireNonNull(color);
+        fireAxisChangeEvent();
     }
 
     /** @param color New color */
     public void setColor(final RGB color)
     {
-        this.color = Objects.requireNonNull(color);
-        fireAxisChangeEvent();
+        final RGB rgbc = Objects.requireNonNull(color);
+        this.setColor(Color.rgb(rgbc.red, rgbc.green, rgbc.blue));
     }
 
     public FontData getLabelFont() {
@@ -318,7 +334,9 @@ public class AxisConfig
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_USE_TRACE_NAMES, Boolean.toString(use_trace_names));
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_RIGHT, Boolean.toString(is_right));
         if (color != null)
-            XMLPersistence.writeColor(writer, 3, XMLPersistence.TAG_COLOR, color);
+            XMLPersistence.writeColor(writer, 3, XMLPersistence.TAG_COLOR, new RGB((int)color.getRed(), (int)color.getGreen(), (int)color.getBlue()));
+
+        //TODO: write out font descriptions
         if (label_font != null)
             XMLWriter.XML(writer, 3, XMLPersistence.TAG_LABEL_FONT, SWTMediaPool.getFontDescription(label_font));
         if (scale_font != null)
@@ -356,14 +374,14 @@ public class AxisConfig
         final boolean show_grid = DOMHelper.getSubelementBoolean(node, XMLPersistence.TAG_GRID, false);
         final boolean auto_scale = DOMHelper.getSubelementBoolean(node, XMLPersistence.TAG_AUTO_SCALE, Preferences.useAutoScale());
         final boolean log_scale = DOMHelper.getSubelementBoolean(node, XMLPersistence.TAG_LOG_SCALE, false);
-        return new AxisConfig(visible, name, use_axis_name, use_trace_names, right, rgb, label_font, scale_font, min, max, show_grid, auto_scale, log_scale);
+        return new AxisConfig(visible, name, use_axis_name, use_trace_names, right, Color.rgb(rgb.red, rgb.green, rgb.blue), label_font, scale_font, min, max, show_grid, auto_scale, log_scale);
     }
 
     /** @return Copied axis configuration. Not associated with a model */
     public AxisConfig copy()
     {
         return new AxisConfig(visible, name, use_axis_name, use_trace_names,
-                              is_right, color, label_font, scale_font, min, max, show_grid, auto_scale, log_scale);
+                is_right, color, label_font, scale_font, min, max, show_grid, auto_scale, log_scale);
     }
 
     /** @return String representation for debugging */

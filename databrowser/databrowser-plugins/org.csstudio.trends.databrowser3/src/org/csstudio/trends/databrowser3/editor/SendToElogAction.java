@@ -17,8 +17,9 @@ import org.csstudio.logbook.Attachment;
 import org.csstudio.logbook.AttachmentBuilder;
 import org.csstudio.logbook.LogEntryBuilder;
 import org.csstudio.logbook.LogbookClientManager;
-import org.csstudio.swt.rtplot.RTTimePlot;
+import org.csstudio.javafx.rtplot.RTTimePlot;
 import org.csstudio.trends.databrowser3.Messages;
+import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.ui.util.CustomMediaFactory;
 import org.csstudio.ui.util.thread.UIBundlingThread;
 import org.eclipse.core.commands.Command;
@@ -71,12 +72,12 @@ public class SendToElogAction extends Action {
     public void run() {
         UIBundlingThread.getInstance().addRunnable(shell.getDisplay(),
                 new Runnable() {
-                    @Override
-                    public void run() {
-                        // Display dialog, create entry
-                        makeLogEntry();
-                    }
-                });
+            @Override
+            public void run() {
+                // Display dialog, create entry
+                makeLogEntry();
+            }
+        });
 
     }
 
@@ -101,7 +102,7 @@ public class SendToElogAction extends Action {
             Event event = new Event();
             event.data = logList;
             // execute the command
-            IHandlerService handlerService = (IHandlerService) window
+            IHandlerService handlerService = window
                     .getService(IHandlerService.class);
             handlerService.executeCommand(OPEN_LOGENTRY_BUILDER_DIALOG_ID,
                     event);
@@ -117,7 +118,7 @@ public class SendToElogAction extends Action {
                 return false;
 
             // Check if logbook dialog is available
-            ICommandService commandService = (ICommandService) PlatformUI
+            ICommandService commandService = PlatformUI
                     .getWorkbench().getActiveWorkbenchWindow()
                     .getService(ICommandService.class);
             Command command = commandService
@@ -140,7 +141,7 @@ public class SendToElogAction extends Action {
     private Attachment createImageAttachment() throws Exception {
         // Dump image into buffer
         ImageLoader loader = new ImageLoader();
-        Image image = graph.getImage();
+        Image image = SWTMediaPool.get(graph.getImage());
         loader.data = new ImageData[] { image.getImageData() };
         image.dispose();
         image = null;

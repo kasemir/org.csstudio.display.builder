@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.csstudio.archive.vtype.VTypeHelper;
-import org.csstudio.swt.rtplot.data.PlotDataItem;
+import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.diirt.vtype.AlarmSeverity;
 import org.diirt.vtype.Time;
 import org.diirt.vtype.VStatistics;
@@ -82,15 +82,15 @@ public class PlotSample implements PlotDataItem<Instant>
     public PlotSample(final String source, final String info)
     {
         this(default_waveform_index, source,
-             ValueFactory.newVString(info, ValueFactory.newAlarm(AlarmSeverity.UNDEFINED, info), ValueFactory.timeNow()),
-             info);
+                ValueFactory.newVString(info, ValueFactory.newAlarm(AlarmSeverity.UNDEFINED, info), ValueFactory.timeNow()),
+                info);
     }
 
     /** Package-level constructor, only used in unit tests */
     PlotSample(final double x, final double y)
     {
         this("Test",
-             ValueFactory.newVDouble(y, ValueFactory.newTime(Instant.ofEpochSecond((int) x, 0))));
+                ValueFactory.newVDouble(y, ValueFactory.newTime(Instant.ofEpochSecond((int) x, 0))));
     }
 
     /** @param index Waveform index to plot */
@@ -127,7 +127,7 @@ public class PlotSample implements PlotDataItem<Instant>
     @Override
     public Instant getPosition()
     {
-    	return getTime();
+        return getTime();
     }
 
     /** {@inheritDoc} */

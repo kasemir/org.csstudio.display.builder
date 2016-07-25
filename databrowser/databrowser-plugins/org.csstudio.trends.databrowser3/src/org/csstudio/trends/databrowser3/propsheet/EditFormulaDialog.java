@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 import org.csstudio.apputil.ui.formula.FormulaDialog;
 import org.csstudio.apputil.ui.formula.InputItem;
-import org.csstudio.swt.rtplot.undo.UndoableActionManager;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.model.FormulaInput;
 import org.csstudio.trends.databrowser3.model.FormulaItem;

@@ -16,13 +16,14 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.csstudio.csdata.ProcessVariable;
-import org.csstudio.swt.rtplot.Annotation;
-import org.csstudio.swt.rtplot.Axis;
-import org.csstudio.swt.rtplot.AxisRange;
-import org.csstudio.swt.rtplot.RTPlotListener;
-import org.csstudio.swt.rtplot.RTTimePlot;
-import org.csstudio.swt.rtplot.Trace;
-import org.csstudio.swt.rtplot.YAxis;
+import org.csstudio.javafx.rtplot.Annotation;
+import org.csstudio.javafx.rtplot.Axis;
+import org.csstudio.javafx.rtplot.AxisRange;
+import org.csstudio.javafx.rtplot.RTPlotListener;
+import org.csstudio.javafx.rtplot.RTTimePlot;
+import org.csstudio.javafx.rtplot.Trace;
+import org.csstudio.javafx.rtplot.YAxis;
+import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.model.AnnotationInfo;
@@ -35,12 +36,9 @@ import org.csstudio.trends.databrowser3.preferences.Preferences;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
 import org.csstudio.ui.util.dnd.ControlSystemDropTarget;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.ToolItem;
+import javafx.scene.control.Button;
 
 /** Data Browser 'Plot' that displays the samples in a {@link Model}.
  *  <p>
@@ -63,26 +61,36 @@ public class ModelBasedPlot
 
     final private Map<Trace<Instant>, ModelItem> items_by_trace = new ConcurrentHashMap<>();
 
+    //final private SWTMediaPool media;
+
     /** Initialize plot
      *  @param parent Parent widget
+     * @throws Exception
      */
-    public ModelBasedPlot(final Composite parent)
+    public ModelBasedPlot(final Composite parent) throws Exception
     {
+        //media = new SWTMediaPool(parent.getDisplay());
+
         this.display = parent.getDisplay();
-        plot = new RTTimePlot(parent);
+        //plot = new RTTimePlot(parent);
+        plot = new RTTimePlot(false);
 
         plot.setOpacity(Preferences.getOpacity());
 
-        final ToolItem time_config_button =
-                plot.addToolItem(SWT.PUSH, Activator.getDefault().getImage("icons/time_range.png"), Messages.StartEndDialogTT);
-        time_config_button.addSelectionListener(new SelectionAdapter()
-        {
-            @Override
-            public void widgetSelected(SelectionEvent e)
-            {
-                listener.ifPresent((l) -> l.timeConfigRequested());
-            }
-        });
+        //final ToolItem time_config_button =
+        //      plot.addToolItem(SWT.PUSH, Activator.getDefault().getImage("icons/time_range.png"), Messages.StartEndDialogTT);
+        final Button time_config_button =
+                plot.addToolItem(Activator.getIcon("time_range.png"), Messages.StartEndDialogTT);
+
+        //TODO: add time config button listener
+        //time_config_button.addSelectionListener(new SelectionAdapter()
+        //{
+        //  @Override
+        // public void widgetSelected(SelectionEvent e)
+        //{
+        //    listener.ifPresent((l) -> l.timeConfigRequested());
+        //}
+        //});
 
         // Configure axes
         final Axis<Instant> time_axis = plot.getXAxis();
@@ -119,8 +127,8 @@ public class ModelBasedPlot
                 {
                     final int item_index = traces.indexOf(annotation.getTrace());
                     annotations.add(new AnnotationInfo(item_index,
-                                                       annotation.getPosition(), annotation.getValue(),
-                                                       annotation.getOffset(), annotation.getText()));
+                            annotation.getPosition(), annotation.getValue(),
+                            annotation.getOffset(), annotation.getText()));
                 }
                 listener.ifPresent((l) -> l.changedAnnotations(annotations));
             }
@@ -146,7 +154,8 @@ public class ModelBasedPlot
             }
         });
 
-        hookDragAndDrop(plot);
+        //TODO: attach to drag and drop
+        //hookDragAndDrop(plot);
     }
 
     /** @return RTTimePlot */
@@ -282,8 +291,8 @@ public class ModelBasedPlot
         axis.useAxisName(config.isUsingAxisName());
         axis.useTraceNames(config.isUsingTraceNames());
         axis.setColor(config.getColor());
-        axis.setLabelFont(config.getLabelFont());
-        axis.setScaleFont(config.getScaleFont());
+        axis.setLabelFont(SWTMediaPool.getJFX(config.getLabelFont()));
+        axis.setScaleFont(SWTMediaPool.getJFX(config.getScaleFont()));
         axis.setLogarithmic(config.isLogScale());
         axis.setGridVisible(config.isGridVisible());
         axis.setAutoscale(config.isAutoScale());
@@ -293,7 +302,7 @@ public class ModelBasedPlot
     }
 
     /** Add a trace to the plot
-      *  @param item ModelItem for which to add a trace
+     *  @param item ModelItem for which to add a trace
      *  @author Laurent PHILIPPE
      */
     public void addTrace(final ModelItem item)

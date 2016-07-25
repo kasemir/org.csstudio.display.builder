@@ -9,8 +9,9 @@ package org.csstudio.trends.databrowser3.editor;
 
 import java.util.logging.Logger;
 
-import org.csstudio.swt.rtplot.RTTimePlot;
+import org.csstudio.javafx.rtplot.RTTimePlot;
 import org.csstudio.trends.databrowser3.Messages;
+import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
@@ -40,7 +41,7 @@ public class PrintAction extends Action
     public PrintAction(final Shell shell, final RTTimePlot graph)
     {
         super(Messages.PrintSnapshot,
-            PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_PRINT_EDIT));
+                PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_PRINT_EDIT));
         this.shell = shell;
         this.graph = graph;
 
@@ -73,7 +74,8 @@ public class PrintAction extends Action
     public void run()
     {
         // Get snapshot. Disposed at end of printing
-        final Image snapshot = graph.getImage();
+        //TODO: Implement image retrieval and transform functions
+        final Image snapshot = SWTMediaPool.get(graph.getImage());
         if (snapshot == null)
         {
             Logger.getLogger(getClass().getName()).fine("Cannot obtain image");
@@ -116,13 +118,13 @@ public class PrintAction extends Action
                 // Try to scale height according to on-screen aspect ratio.
                 final int max_height = area.height - 2*top_bottom;
                 final int printed_height = Math.min(max_height,
-                   image_rect.height * printed_width / image_rect.width);
+                        image_rect.height * printed_width / image_rect.width);
 
                 // Print one page
                 printer.startPage();
                 final GC gc = new GC(printer);
                 gc.drawImage(snapshot, 0, 0, image_rect.width, image_rect.height,
-                            left_right, top_bottom, printed_width, printed_height);
+                        left_right, top_bottom, printed_width, printed_height);
                 printer.endPage();
             }
             finally

@@ -7,7 +7,7 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.propsheet;
 
-import org.csstudio.swt.rtplot.undo.UndoableActionManager;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.model.PVItem;
@@ -33,7 +33,7 @@ public class AddArchiveAction extends Action
             final Shell shell, final PVItem pvs[])
     {
         super(Messages.AddArchive,
-              Activator.getDefault().getImageDescriptor("icons/archive.gif")); //$NON-NLS-1$
+                Activator.getDefault().getImageDescriptor("icons/archive.gif")); //$NON-NLS-1$
         this.operations_manager = operations_manager;
         this.shell = shell;
         this.pvs = pvs;

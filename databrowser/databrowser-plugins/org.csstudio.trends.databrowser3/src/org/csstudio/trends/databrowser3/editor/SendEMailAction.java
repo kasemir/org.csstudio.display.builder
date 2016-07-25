@@ -8,7 +8,7 @@
 package org.csstudio.trends.databrowser3.editor;
 
 import org.csstudio.email.ui.AbstractSendEMailAction;
-import org.csstudio.swt.rtplot.RTTimePlot;
+import org.csstudio.javafx.rtplot.RTTimePlot;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.preferences.Preferences;
 import org.eclipse.jface.dialogs.MessageDialog;

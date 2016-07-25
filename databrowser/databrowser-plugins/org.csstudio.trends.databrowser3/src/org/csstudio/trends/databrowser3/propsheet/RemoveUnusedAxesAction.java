@@ -9,7 +9,7 @@ package org.csstudio.trends.databrowser3.propsheet;
 
 import java.util.Optional;
 
-import org.csstudio.swt.rtplot.undo.UndoableActionManager;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.model.AxisConfig;

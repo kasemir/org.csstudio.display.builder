@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import org.csstudio.apputil.xml.DOMHelper;
 import org.csstudio.apputil.xml.XMLWriter;
 import org.csstudio.archive.vtype.VTypeHelper;
-import org.csstudio.swt.rtplot.util.NamedThreadFactory;
+import org.csstudio.javafx.rtplot.util.NamedThreadFactory;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.imports.ImportArchiveReaderFactory;
@@ -61,7 +61,7 @@ public class PVItem extends ModelItem implements PVReaderListener<List<VType>>
 
     /** Where to get archived data for this item. */
     private ArrayList<ArchiveDataSource> archives
-        = new ArrayList<ArchiveDataSource>();
+    = new ArrayList<ArchiveDataSource>();
 
     /** Control system PV, set when running */
     private PVReader<List<VType>> pv = null;
@@ -191,7 +191,7 @@ public class PVItem extends ModelItem implements PVReaderListener<List<VType>>
     /** @return Archive data sources for this item */
     public ArchiveDataSource[] getArchiveDataSources()
     {
-        return (ArchiveDataSource[]) archives.toArray(new ArchiveDataSource[archives.size()]);
+        return archives.toArray(new ArchiveDataSource[archives.size()]);
     }
 
     /** Replace archives with settings from preferences */
@@ -379,8 +379,8 @@ public class PVItem extends ModelItem implements PVReaderListener<List<VType>>
             if (getUnits() == null)
                 updateUnits(current_value);
             if (automaticRefresh && added &&
-                model.isPresent() &&
-                samples.isHistoryRefreshNeeded(model.get().getStartTime(), model.get().getEndTime()))
+                    model.isPresent() &&
+                    samples.isHistoryRefreshNeeded(model.get().getStartTime(), model.get().getEndTime()))
                 model.get().fireItemRefreshRequested(this);
         }
     }
@@ -415,7 +415,7 @@ public class PVItem extends ModelItem implements PVReaderListener<List<VType>>
             if (size > 0)
             {
                 final String last =
-                    VTypeHelper.getMessage(samples.get(size - 1).getVType());
+                        VTypeHelper.getMessage(samples.get(size - 1).getVType());
                 // Does last sample already have 'disconnected' status?
                 if (Messages.Model_Disconnected.equals(last))
                     return;
@@ -441,7 +441,7 @@ public class PVItem extends ModelItem implements PVReaderListener<List<VType>>
         {
             samples.mergeArchivedData(server_name, new_samples);
             need_refresh = automaticRefresh && model.isPresent() &&
-                           samples.isHistoryRefreshNeeded(model.get().getStartTime(), model.get().getEndTime());
+                    samples.isHistoryRefreshNeeded(model.get().getStartTime(), model.get().getEndTime());
         }
         finally
         {

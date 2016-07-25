@@ -22,7 +22,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.csstudio.apputil.xml.DOMHelper;
 import org.csstudio.apputil.xml.XMLWriter;
-import org.csstudio.swt.rtplot.SWTMediaPool;
+import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.model.AnnotationInfo;
 import org.csstudio.trends.databrowser3.model.ArchiveRescale;
@@ -309,7 +309,10 @@ public class XMLPersistence
                 if (! model_items.hasNext())
                     break;
                 final ModelItem pv = model_items.next();
-                loadColorFromDocument(item, "traceColor").ifPresent(pv::setColor);
+                Optional<RGB> rgb = loadColorFromDocument(item, "traceColor");
+                if (rgb.isPresent()) {
+                    pv.setColor(SWTMediaPool.getJFX(rgb.get()));
+                }
                 pv.setLineWidth(DOMHelper.getSubelementInt(item, "lineWidth", pv.getLineWidth()));
                 pv.setDisplayName(DOMHelper.getSubelementString(item, "name", pv.getDisplayName()));
                 item = DOMHelper.findNextElementNode(item, "traceSettingsList");
@@ -336,7 +339,7 @@ public class XMLPersistence
         if (node == null)
             return Optional.of(new RGB(0, 0, 0));
         final Element color =
-            DOMHelper.findFirstElementNode(node.getFirstChild(), color_tag);
+                DOMHelper.findFirstElementNode(node.getFirstChild(), color_tag);
         if (color == null)
             return Optional.empty();
         final int red = DOMHelper.getSubelementInt(color, TAG_RED, 0);

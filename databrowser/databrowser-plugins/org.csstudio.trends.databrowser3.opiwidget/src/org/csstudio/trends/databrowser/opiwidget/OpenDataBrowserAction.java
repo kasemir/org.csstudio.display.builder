@@ -32,7 +32,7 @@ public class OpenDataBrowserAction extends Action
     public OpenDataBrowserAction(final DataBrowserWidgedEditPart edit_part)
     {
         super(Messages.OpenDataBrowser,
-              AbstractUIPlugin.imageDescriptorFromPlugin(Activator.ID, "icons/databrowser.png"));
+                AbstractUIPlugin.imageDescriptorFromPlugin(Activator.ID, "icons/databrowser.png"));
         this.edit_part = edit_part;
     }
 
@@ -54,9 +54,9 @@ public class OpenDataBrowserAction extends Action
         catch (Exception ex)
         {
             ExceptionDetailsErrorDialog.openError(page.getActivePart().getSite().getShell(),
-                Messages.Error,
-                NLS.bind(Messages.OpenDataBrowserErrorFmt, filename.toString()),
-                ex);
+                    Messages.Error,
+                    NLS.bind(Messages.OpenDataBrowserErrorFmt, filename.toString()),
+                    ex);
         }
     }
 }

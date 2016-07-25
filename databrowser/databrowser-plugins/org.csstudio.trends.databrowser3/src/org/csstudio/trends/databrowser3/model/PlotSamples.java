@@ -13,7 +13,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import org.csstudio.swt.rtplot.data.PlotDataProvider;
+import org.csstudio.javafx.rtplot.data.PlotDataProvider;
 
 /** Base for classes that hold plot samples
  *  in a way accessible as {@link PlotDataProvider}

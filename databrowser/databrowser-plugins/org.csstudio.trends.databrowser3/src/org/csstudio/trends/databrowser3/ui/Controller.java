@@ -28,12 +28,13 @@ import org.csstudio.apputil.time.AbsoluteTimeParser;
 import org.csstudio.apputil.time.PeriodFormat;
 import org.csstudio.apputil.time.RelativeTime;
 import org.csstudio.csdata.ProcessVariable;
-import org.csstudio.swt.rtplot.Annotation;
-import org.csstudio.swt.rtplot.Trace;
-import org.csstudio.swt.rtplot.undo.UndoableActionManager;
-import org.csstudio.swt.rtplot.util.NamedThreadFactory;
+import org.csstudio.javafx.rtplot.Annotation;
+import org.csstudio.javafx.rtplot.Trace;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.rtplot.util.NamedThreadFactory;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
+import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.trends.databrowser3.archive.ArchiveFetchJob;
 import org.csstudio.trends.databrowser3.archive.ArchiveFetchJobListener;
 import org.csstudio.trends.databrowser3.imports.FileImportDialog;
@@ -107,7 +108,7 @@ public class Controller
      *  for the same model item.
      */
     final private ArrayList<ArchiveFetchJob> archive_fetch_jobs =
-        new ArrayList<ArchiveFetchJob>();
+            new ArrayList<ArchiveFetchJob>();
 
     /** Is the window (shell) iconized? */
     private volatile boolean window_is_iconized = false;
@@ -165,7 +166,7 @@ public class Controller
 
         @Override
         public void channelNotFound(final ArchiveFetchJob job, final boolean channelFoundAtLeastOnce,
-            final ArchiveDataSource[] archivesThatFailed)
+                final ArchiveDataSource[] archivesThatFailed)
         {
             // no need to reuse this source if the channel is not in it, but it has to happen in the UI thread, because
             // of the way the listeners of the pv item are implemented
@@ -177,7 +178,7 @@ public class Controller
                     reportError(job.getPVItem().getResolvedDisplayName(), null);
                 else
                     Logger.getLogger(getClass().getName()).log(Level.FINE,
-                        "Channel " + job.getPVItem().getResolvedDisplayName() + " not found in any of the archived sources.");
+                            "Channel " + job.getPVItem().getResolvedDisplayName() + " not found in any of the archived sources.");
             }
         }
     };
@@ -262,7 +263,7 @@ public class Controller
                 catch (Exception ex)
                 {
                     Logger.getLogger(Controller.class.getName()).log(Level.WARNING,
-                        "Cannot adjust time range to " + start_spec + " .. " + end_spec, ex);
+                            "Cannot adjust time range to " + start_spec + " .. " + end_spec, ex);
                 }
                 // Controller's ModelListener will fetch new archived data
             }
@@ -395,7 +396,7 @@ public class Controller
             @Override
             public void changedTitle()
             {
-                plot.getPlot().setTitle(model.getTitle());
+                plot.getPlot().setTitle(model.getTitle().get());
             }
 
             @Override
@@ -416,11 +417,12 @@ public class Controller
             @Override
             public void changedColorsOrFonts()
             {
-                plot.getPlot().setBackground(model.getPlotBackground());
-                plot.getPlot().setTitleFont(model.getTitleFont());
-                plot.getPlot().setLabelFont(model.getLabelFont());
-                plot.getPlot().setScaleFont(model.getScaleFont());
-                plot.getPlot().setLegendFont(model.getLegendFont());
+                plot.getPlot().setBackground(SWTMediaPool.getJFX(model.getPlotBackground()));
+                plot.getPlot().setTitleFont(SWTMediaPool.getJFX(model.getTitleFont()));
+                //TODO: label and scale font
+                //plot.getPlot().setLabelFont(SWTMediaPool.getJFX(model.getLabelFont()));
+                //plot.getPlot().setScaleFont(SWTMediaPool.getJFX(model.getScaleFont()));
+                plot.getPlot().setLegendFont(SWTMediaPool.getJFX(model.getLegendFont()));
             }
 
             @Override
@@ -552,15 +554,16 @@ public class Controller
         if (isRunning())
             throw new IllegalStateException("Already started");
 
-        plot.getPlot().setBackground(model.getPlotBackground());
+        plot.getPlot().setBackground(SWTMediaPool.getJFX(model.getPlotBackground()));
         plot.getPlot().getXAxis().setGridVisible(model.isGridVisible());
         plot.getPlot().showToolbar(model.isToolbarVisible());
         plot.getPlot().showLegend(model.isLegendVisible());
-        plot.getPlot().setTitleFont(model.getTitleFont());
-        plot.getPlot().setLabelFont(model.getLabelFont());
-        plot.getPlot().setScaleFont(model.getScaleFont());
-        plot.getPlot().setLegendFont(model.getLegendFont());
-        plot.getPlot().setTitle(model.getTitle());
+        plot.getPlot().setTitleFont(SWTMediaPool.getJFX(model.getTitleFont()));
+        //TODO: label and scal font
+        //plot.getPlot().setLabelFont(SWTMediaPool.getJFX(model.getLabelFont()));
+        //plot.getPlot().setScaleFont(SWTMediaPool.getJFX(model.getScaleFont()));
+        plot.getPlot().setLegendFont(SWTMediaPool.getJFX(model.getLegendFont()));
+        plot.getPlot().setTitle(model.getTitle().get());
         plot.getPlot().setScrollStep(model.getScrollStep());
 
         final List<Trace<Instant>> traces = new ArrayList<>();
@@ -570,7 +573,7 @@ public class Controller
         {
             final Trace<Instant> trace = traces.get(info.getItemIndex());
             final Annotation<Instant> annotation =
-                new Annotation<Instant>(trace , info.getTime(), info.getValue(), info.getOffset(), info.getText());
+                    new Annotation<Instant>(trace , info.getTime(), info.getValue(), info.getOffset(), info.getText());
             plot.getPlot().addAnnotation(annotation);
         }
         createUpdateTask();

@@ -15,12 +15,13 @@ import java.util.Optional;
 import org.csstudio.apputil.time.RelativeTime;
 import org.csstudio.apputil.ui.swt.TableColumnSortHelper;
 import org.csstudio.archive.vtype.DefaultVTypeFormat;
-import org.csstudio.swt.rtplot.PointType;
-import org.csstudio.swt.rtplot.TraceType;
-import org.csstudio.swt.rtplot.data.PlotDataItem;
-import org.csstudio.swt.rtplot.undo.UndoableActionManager;
+import org.csstudio.javafx.rtplot.PointType;
+import org.csstudio.javafx.rtplot.TraceType;
+import org.csstudio.javafx.rtplot.data.PlotDataItem;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
+import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.trends.databrowser3.model.AxisConfig;
 import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.model.ModelItem;
@@ -120,10 +121,10 @@ public class TraceTableHandler implements IStructuredContentProvider
         {
             if (!editing)
                 trace_table.getTable().getDisplay().asyncExec(() ->
-            {
-                if (!trace_table.getTable().isDisposed())
-                    trace_table.refresh();
-            });
+                {
+                    if (!trace_table.getTable().isDisposed())
+                        trace_table.refresh();
+                });
         }
     };
 
@@ -149,7 +150,7 @@ public class TraceTableHandler implements IStructuredContentProvider
                 final ModelItem item = (ModelItem) cell.getElement();
                 cell.setImage(item.isVisible()
                         ? Activator.getDefault().getImage(Activator.ICON_CHECKED)
-                        : Activator.getDefault().getImage(Activator.ICON_UNCHECKED));
+                                : Activator.getDefault().getImage(Activator.ICON_UNCHECKED));
             }
 
             @Override
@@ -196,7 +197,7 @@ public class TraceTableHandler implements IStructuredContentProvider
                     if (!MessageDialog.openQuestion(shell,
                             Messages.HideTraceWarning,
                             Messages.HideTraceWarningDetail))
-                            return;
+                        return;
                     prompt_for_not_visible = false;
                 }
                 new ChangeVisibilityCommand(operations_manager, item, visible);
@@ -314,7 +315,7 @@ public class TraceTableHandler implements IStructuredContentProvider
             @Override
             protected Color getColor(ModelItem item)
             {
-                return color_registry.createColor(item.getColor());
+                return color_registry.createColor(SWTMediaPool.getRGB(item.getColor()));
             }
         });
         view_col.setEditingSupport(new EditSupportBase(table_viewer)
@@ -336,7 +337,7 @@ public class TraceTableHandler implements IStructuredContentProvider
             protected void setValue(final Object element, final Object value)
             {
                 new ChangeColorCommand(operations_manager,
-                        (ModelItem) element, (RGB)value);
+                        (ModelItem) element, SWTMediaPool.getJFX((RGB)value));
                 editing = false;
             }
         });
@@ -447,7 +448,7 @@ public class TraceTableHandler implements IStructuredContentProvider
                     final double period = Double.parseDouble(value.toString().trim());
                     if (period != pv.getScanPeriod())
                         new ChangeSamplePeriodCommand(shell,
-                                                operations_manager, pv, period);
+                                operations_manager, pv, period);
                     editing = false;
                 }
                 catch (NumberFormatException ex)
@@ -627,7 +628,7 @@ public class TraceTableHandler implements IStructuredContentProvider
             protected void setValue(final Object element, final Object value)
             {
                 final TraceType trace_type =
-                    TraceType.fromOrdinal(((Integer)value).intValue());
+                        TraceType.fromOrdinal(((Integer)value).intValue());
                 final ModelItem item = (ModelItem)element;
                 if (trace_type != item.getTraceType())
                     new ChangeTraceTypeCommand(operations_manager, item, trace_type);
@@ -834,7 +835,7 @@ public class TraceTableHandler implements IStructuredContentProvider
                     if (!MessageDialog.openQuestion(shell,
                             Messages.RequestTypeWarning,
                             Messages.RequestTypeWarningDetail))
-                            return;
+                        return;
                     prompt_for_raw_data_request = false;
                 }
                 new ChangeRequestTypeCommand(operations_manager, item, request_type);

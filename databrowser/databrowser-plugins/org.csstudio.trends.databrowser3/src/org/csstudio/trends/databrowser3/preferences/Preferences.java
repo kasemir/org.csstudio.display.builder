@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
-import org.csstudio.swt.rtplot.TraceType;
+import org.csstudio.javafx.rtplot.TraceType;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
 import org.csstudio.trends.databrowser3.model.ArchiveRescale;
@@ -254,7 +254,7 @@ public class Preferences
         {
             return ArchiveRescale.valueOf(
                     prefs.getString(Activator.PLUGIN_ID, ARCHIVE_RESCALE,
-                                    ArchiveRescale.STAGGER.name(), null));
+                            ArchiveRescale.STAGGER.name(), null));
         }
         catch (Throwable ex)
         {

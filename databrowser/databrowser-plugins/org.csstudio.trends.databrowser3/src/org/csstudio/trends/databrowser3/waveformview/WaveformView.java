@@ -12,10 +12,10 @@ import java.util.List;
 
 import org.csstudio.archive.vtype.TimestampHelper;
 import org.csstudio.archive.vtype.VTypeHelper;
-import org.csstudio.swt.rtplot.PointType;
-import org.csstudio.swt.rtplot.RTValuePlot;
-import org.csstudio.swt.rtplot.Trace;
-import org.csstudio.swt.rtplot.TraceType;
+import org.csstudio.javafx.rtplot.PointType;
+import org.csstudio.javafx.rtplot.RTValuePlot;
+import org.csstudio.javafx.rtplot.Trace;
+import org.csstudio.javafx.rtplot.TraceType;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.editor.DataBrowserAwareView;
@@ -51,7 +51,7 @@ public class WaveformView extends DataBrowserAwareView
 {
     /** View ID registered in plugin.xml */
     final public static String ID =
-        "org.csstudio.trends.databrowser.waveformview.WaveformView"; //$NON-NLS-1$
+            "org.csstudio.trends.databrowser.waveformview.WaveformView"; //$NON-NLS-1$
 
     /** PV Name selector */
     private Combo pv_name;
@@ -137,7 +137,7 @@ public class WaveformView extends DataBrowserAwareView
             @Override
             public void widgetDefaultSelected(final SelectionEvent e)
             {   // First item is "--select PV name--"
-                 if (pv_name.getSelectionIndex() == 0)
+                if (pv_name.getSelectionIndex() == 0)
                     selectPV(null);
                 else
                     selectPV(model.getItem(pv_name.getText()));
@@ -160,10 +160,11 @@ public class WaveformView extends DataBrowserAwareView
         // =====================
         // ======= Plot ========
         // =====================
-        plot = new RTValuePlot(parent);
+        //plot = new RTValuePlot(parent);
+        plot = new RTValuePlot(true);
         plot.getXAxis().setName(Messages.WaveformIndex);
         plot.getYAxes().get(0).setName(Messages.WaveformAmplitude);
-        plot.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
+        //plot.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
 
         // <<<<<< Slider >>>>>>
         sample_index = new Slider(parent, SWT.HORIZONTAL);

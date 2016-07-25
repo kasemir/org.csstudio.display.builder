@@ -9,7 +9,8 @@ package org.csstudio.trends.databrowser3.editor;
 
 import java.io.File;
 
-import org.csstudio.swt.rtplot.RTTimePlot;
+import org.csstudio.javafx.rtplot.RTTimePlot;
+import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -45,7 +46,7 @@ public class Screenshot
         try
         {
             final ImageLoader loader = new ImageLoader();
-            final Image image = graph.getImage();
+            final Image image = SWTMediaPool.get(graph.getImage());
             loader.data = new ImageData[]{image.getImageData()};
             image.dispose();
             loader.save(getFilename(), SWT.IMAGE_PNG);

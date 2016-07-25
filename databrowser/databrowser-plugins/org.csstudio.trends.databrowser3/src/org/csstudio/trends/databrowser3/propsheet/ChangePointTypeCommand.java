@@ -7,9 +7,9 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.propsheet;
 
-import org.csstudio.swt.rtplot.PointType;
-import org.csstudio.swt.rtplot.undo.UndoableAction;
-import org.csstudio.swt.rtplot.undo.UndoableActionManager;
+import org.csstudio.javafx.rtplot.PointType;
+import org.csstudio.display.builder.util.undo.UndoableAction;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.model.ModelItem;
 

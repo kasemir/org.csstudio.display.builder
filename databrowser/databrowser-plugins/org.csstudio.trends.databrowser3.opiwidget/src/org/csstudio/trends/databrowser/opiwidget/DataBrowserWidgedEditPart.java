@@ -18,9 +18,9 @@ import java.util.logging.Logger;
 
 import org.csstudio.opibuilder.editparts.AbstractWidgetEditPart;
 import org.csstudio.opibuilder.editparts.ExecutionMode;
-import org.csstudio.swt.rtplot.RTPlotListener;
-import org.csstudio.swt.rtplot.Trace;
-import org.csstudio.swt.rtplot.data.PlotDataItem;
+import org.csstudio.javafx.rtplot.RTPlotListener;
+import org.csstudio.javafx.rtplot.Trace;
+import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.trends.databrowser3.model.TimeHelper;
 import org.csstudio.trends.databrowser3.ui.Controller;
 import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
@@ -33,8 +33,6 @@ import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueFactory;
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Menu;
 
 /** EditPart that interfaces between the {@link DataBrowserWidgetFigure} visible on the screen
  *  and the {@link DataBrowserWidgedModel} that stores the persistent configuration.
@@ -90,9 +88,9 @@ public class DataBrowserWidgedEditPart extends AbstractWidgetEditPart
                 }
             }
             final VType value = ValueFactory.newVTable(
-                Arrays.asList(String.class, String.class, double.class),
-                Arrays.asList("Trace", "Timestamp", "Value"),
-                Arrays.<Object>asList(names,times, convert(values)));
+                    Arrays.asList(String.class, String.class, double.class),
+                    Arrays.asList("Trace", "Timestamp", "Value"),
+                    Arrays.<Object>asList(names,times, convert(values)));
 
             final PVWriter<Object> safe_pv = pv.get();
             if (safe_pv != null)
@@ -139,13 +137,13 @@ public class DataBrowserWidgedEditPart extends AbstractWidgetEditPart
     {
         // Show hover value labels
         setPropertyChangeHandler(DataBrowserWidgedModel.PROP_SHOW_VALUE_LABELS,
-            (Object oldValue, Object newValue, IFigure figure) ->
-            {
-                getWidgetFigure().setShowValueLabels((boolean) newValue);
-                return false;
-            });
+                (Object oldValue, Object newValue, IFigure figure) ->
+        {
+            getWidgetFigure().setShowValueLabels((boolean) newValue);
+            return false;
+        });
 
-}
+    }
 
     /** {@inheritDoc}} */
     @Override
@@ -171,12 +169,14 @@ public class DataBrowserWidgedEditPart extends AbstractWidgetEditPart
                 }
 
                 final MenuManager mm = new MenuManager();
-                mm.add(plot_widget.getPlot().getToolbarAction());
-                mm.add(plot_widget.getPlot().getLegendAction());
+                //TODO: toolbar and legend actions
+                //mm.add(plot_widget.getPlot().getToolbarAction());
+                //mm.add(plot_widget.getPlot().getLegendAction());
                 mm.add(new OpenDataBrowserAction(this));
-                final Control control = plot_widget.getPlot().getPlotControl();
-                final Menu menu = mm.createContextMenu(control);
-                control.setMenu(menu);
+                //TODO: control object in plot
+                //final Control control = plot_widget.getPlot().getPlotControl();
+                //final Menu menu = mm.createContextMenu(control);
+                //control.setMenu(menu);
             }
             catch (Exception ex)
             {

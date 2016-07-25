@@ -12,9 +12,9 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.csstudio.archive.vtype.VTypeHelper;
-import org.csstudio.swt.rtplot.data.PlotDataItem;
-import org.csstudio.swt.rtplot.data.PlotDataProvider;
-import org.csstudio.swt.rtplot.data.SimpleDataItem;
+import org.csstudio.javafx.rtplot.data.PlotDataItem;
+import org.csstudio.javafx.rtplot.data.PlotDataProvider;
+import org.csstudio.javafx.rtplot.data.SimpleDataItem;
 import org.diirt.util.array.ArrayDouble;
 import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.VNumberArray;

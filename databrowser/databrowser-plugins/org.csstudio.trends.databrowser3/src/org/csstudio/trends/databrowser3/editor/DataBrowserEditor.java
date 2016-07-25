@@ -14,7 +14,7 @@ import java.util.logging.Level;
 
 import org.csstudio.apputil.ui.workbench.OpenViewAction;
 import org.csstudio.email.EMailSender;
-import org.csstudio.swt.rtplot.undo.UndoableActionManager;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.Perspective;
@@ -180,8 +180,8 @@ public class DataBrowserEditor extends EditorPart
             // Load model content from file
             try
             (
-                final InputStream stream = SingleSourcePlugin.getResourceHelper().getInputStream(input);
-            )
+                    final InputStream stream = SingleSourcePlugin.getResourceHelper().getInputStream(input);
+                    )
             {
                 if (stream != null)
                     new XMLPersistence().load(model, stream);
@@ -287,7 +287,15 @@ public class DataBrowserEditor extends EditorPart
     {
         // Create GUI elements (Plot)
         parent.setLayout(new FillLayout());
-        plot = new ModelBasedPlot(parent);
+        try
+        {
+            plot = new ModelBasedPlot(parent);
+        }
+        catch (Exception e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         // Create and start controller
         controller = new Controller(parent.getShell(), model, plot);
@@ -345,7 +353,8 @@ public class DataBrowserEditor extends EditorPart
             public void partActivated(final IWorkbenchPartReference part)    { /* NOP */ }
         });
 
-        createContextMenu(plot.getPlot().getPlotControl());
+        //TODO: Plot control context menu
+        //createContextMenu(plot.getPlot().getPlotControl());
     }
 
     /** Create context menu */
@@ -367,8 +376,9 @@ public class DataBrowserEditor extends EditorPart
         final Activator activator = Activator.getDefault();
         final Shell shell = getSite().getShell();
         final UndoableActionManager op_manager = plot.getPlot().getUndoableActionManager();
-        manager.add(plot.getPlot().getToolbarAction());
-        manager.add(plot.getPlot().getLegendAction());
+        //TODO: Toolbar and Legend actions in context menu
+        //manager.add(plot.getPlot().getToolbarAction());
+        //manager.add(plot.getPlot().getLegendAction());
         manager.add(new Separator());
         manager.add(new AddPVAction(op_manager, shell, model, false));
         manager.add(new AddPVAction(op_manager, shell, model, true));
@@ -378,7 +388,7 @@ public class DataBrowserEditor extends EditorPart
             try
             {
                 for (IAction imp : SampleImporters.createImportActions(op_manager, shell, model))
-                        manager.add(imp);
+                    manager.add(imp);
             }
             catch (Exception ex)
             {
@@ -391,7 +401,7 @@ public class DataBrowserEditor extends EditorPart
 
         manager.add(new OpenPropertiesAction());
         manager.add(new OpenViewAction(SearchView.ID, Messages.OpenSearchView,
-                    activator.getImageDescriptor("icons/search.gif")));
+                activator.getImageDescriptor("icons/search.gif")));
         if (is_rcp)
             manager.add(new OpenViewAction(ExportView.ID, Messages.OpenExportView,
                     activator.getImageDescriptor("icons/export.png")));
@@ -403,7 +413,7 @@ public class DataBrowserEditor extends EditorPart
                 Messages.OpenDataBrowserPerspective, Perspective.ID));
         manager.add(new OpenViewAction(WaveformView.ID,
                 Messages.OpenWaveformView, activator
-                        .getImageDescriptor("icons/wavesample.gif")));
+                .getImageDescriptor("icons/wavesample.gif")));
 
         manager.add(new Separator());
         manager.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
@@ -411,7 +421,8 @@ public class DataBrowserEditor extends EditorPart
         if (is_rcp)
         {
             manager.add(new Separator());
-            manager.add(plot.getPlot().getSnapshotAction());
+            //TODO: plot snapshot function
+            //manager.add(plot.getPlot().getSnapshotAction());
             if (EMailSender.isEmailSupported())
                 manager.add(new SendEMailAction(shell, plot.getPlot()));
             manager.add(new PrintAction(shell, plot.getPlot()));
@@ -437,7 +448,8 @@ public class DataBrowserEditor extends EditorPart
     @Override
     public void setFocus()
     {
-        plot.getPlot().setFocus();
+        //TODO: plot set focus
+        //plot.getPlot().setFocus();
     }
 
     /** {@inheritDoc} */
@@ -478,8 +490,8 @@ public class DataBrowserEditor extends EditorPart
             {
                 try
                 (
-                    final OutputStream stream = resources.getOutputStream(getEditorInput());
-                )
+                        final OutputStream stream = resources.getOutputStream(getEditorInput());
+                        )
                 {
                     save(monitor, stream);
                 }
@@ -510,8 +522,8 @@ public class DataBrowserEditor extends EditorPart
                 final PathEditorInput new_input = new PathEditorInput(file);
                 try
                 (
-                    final OutputStream stream = resources.getOutputStream(new_input);
-                )
+                        final OutputStream stream = resources.getOutputStream(new_input);
+                        )
                 {
                     save(new NullProgressMonitor(), stream);
                 }

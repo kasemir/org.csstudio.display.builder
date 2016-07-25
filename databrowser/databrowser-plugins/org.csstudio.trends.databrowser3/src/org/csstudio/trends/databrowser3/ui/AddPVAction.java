@@ -9,7 +9,7 @@ package org.csstudio.trends.databrowser3.ui;
 
 import java.util.Optional;
 
-import org.csstudio.swt.rtplot.undo.UndoableActionManager;
+import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
@@ -42,8 +42,8 @@ public class AddPVAction extends Action
             final Shell shell, final Model model, final boolean formula)
     {
         super(formula ? Messages.AddFormula : Messages.AddPV,
-              Activator.getDefault().getImageDescriptor(
-                      formula ? "icons/add_formula.gif" : "icons/add.gif"));
+                Activator.getDefault().getImageDescriptor(
+                        formula ? "icons/add_formula.gif" : "icons/add.gif"));
         this.operations_manager = operations_manager;
         this.shell = shell;
         this.model = model;
@@ -80,18 +80,18 @@ public class AddPVAction extends Action
         if (formula)
         {
             final Optional<AddModelItemCommand> command = AddModelItemCommand.forFormula(
-                        shell, operations_manager, model, dlg.getName(0), axis);
+                    shell, operations_manager, model, dlg.getName(0), axis);
             if (! command.isPresent())
                 return false;
             // Open configuration dialog
             final FormulaItem formula = (FormulaItem) command.get().getItem();
             final EditFormulaDialog edit =
-                new EditFormulaDialog(operations_manager, shell, formula);
+                    new EditFormulaDialog(operations_manager, shell, formula);
             edit.open();
         }
         else
             AddModelItemCommand.forPV(shell, operations_manager, model,
-                dlg.getName(0), dlg.getScanPeriod(0), axis, archive);
+                    dlg.getName(0), dlg.getScanPeriod(0), axis, archive);
         return true;
     }
 }
