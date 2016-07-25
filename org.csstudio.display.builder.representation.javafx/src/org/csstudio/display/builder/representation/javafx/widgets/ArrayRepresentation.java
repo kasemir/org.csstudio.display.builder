@@ -228,6 +228,11 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
                 //toolkit.logger.finest("Array widget removing listener from " + widget + " " + prop);
                 prop.removePropertyListener(listener);
             }
+            else if (prop.getCategory().equals(model_widget.positionHeight().getCategory())
+                    && !prop.getName().equals(model_widget.positionVisible().getCategory()))
+            {
+                prop.removePropertyListener(rearrange);
+            }
             if (prop.getName().equals("horizontal"))
             {
                 prop.removePropertyListener(rearrange);
