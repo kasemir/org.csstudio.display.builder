@@ -27,7 +27,7 @@ public class MacroHandler
     // Pattern for $(xxx) or ${xxx}, or $(x=y) or ${x=y}, asserting that there is NO leading '\' to escape it
     // "=" is matched with any number of whitespace characters (space, tab, etc.) on either side
     private static final Pattern spec = Pattern
-            .compile("(?<!\\\\)\\$\\((\\w+)((\\s*=\\s*).+)?\\)" + "|" + "(?<!\\\\)\\$\\{(\\w+)((\\s*=\\s*).+)?\\}");
+            .compile("(?<!\\\\)\\$\\((\\w+)((\\s*=\\s*).*)?\\)" + "|" + "(?<!\\\\)\\$\\{(\\w+)((\\s*=\\s*).*)?\\}");
 
     /** Check if input contains unresolved macros
      *  @param input Text that may contain macros "$(NAME)" or "${NAME}",

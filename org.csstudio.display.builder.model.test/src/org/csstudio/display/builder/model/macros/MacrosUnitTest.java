@@ -86,7 +86,7 @@ public class MacrosUnitTest
         macros.add("A", "a");
         System.out.println(macros);
 
-        assertThat(MacroHandler.replace(macros, "Empty default ${S=} value"), equalTo("Empty default value"));
+        assertThat(MacroHandler.replace(macros, "Empty default ${S=} value"), equalTo("Empty default  value"));
         assertThat(MacroHandler.replace(macros, "Invalid-name default ${ S=X}"), equalTo("Invalid-name default ${ S=X}"));
         assertThat(MacroHandler.replace(macros, "Default ${S=X} value"), equalTo("Default X value"));
         assertThat(MacroHandler.replace(macros, "Default ${S = X + Y = Z} value"), equalTo("Default X + Y = Z value"));
