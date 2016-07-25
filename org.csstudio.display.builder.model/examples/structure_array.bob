@@ -56,12 +56,12 @@ it has one, is essentially superseded by the Array's PV.</text>
     <x>5</x>
     <y>423</y>
     <width>242</width>
-    <height>160</height>
+    <height>150</height>
     <pv_name>sim://sawtooth(10, 50, 10000, 0.5, -1, 1)</pv_name>
     <widget type="progressbar" version="2.0.0">
       <name>Progress Bar_1</name>
       <width>37</width>
-      <height>140</height>
+      <height>130</height>
       <horizontal>false</horizontal>
       <limits_from_pv>false</limits_from_pv>
       <minimum>-1.0</minimum>
