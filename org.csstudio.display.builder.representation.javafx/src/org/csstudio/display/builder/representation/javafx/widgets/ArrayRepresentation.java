@@ -46,6 +46,8 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     private final DirtyFlag dirty_number = new DirtyFlag(); //number of child widgets
     private final DirtyFlag dirty_look = new DirtyFlag(); //size/color of JavaFX Node
 
+    private String did;
+
     private static final int inset = 10;
 
     private CopyOnWriteArrayList<Widget> children = new CopyOnWriteArrayList<>();
@@ -83,6 +85,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
         childrenChanged(null, null, model_widget.runtimeChildren().getValue());
         adjustNumberByLength();
+        did = model_widget.getDID();
     }
 
     @Override
@@ -160,7 +163,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             if (added != null && !added.isEmpty() && !added.get(0).checkProperty("pv_name").isPresent())
             {
                 toolkit.logger
-                        .warning("Child widget " + added.get(0) + " added to ArrayWidget " + model_widget
+                        .warning("Child " + added.get(0) + " added to " + model_widget
                                 + " has no 'pv_name' property.");
             }
         }
@@ -201,6 +204,10 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             {
                 prop.addUntypedPropertyListener(rearrange);
             }
+            if (prop.getName().equals("horizontal"))
+            {
+                prop.addUntypedPropertyListener(rearrange);
+            }
         }
     }
 
@@ -216,12 +223,14 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
                     && !prop.getCategory().equals(model_widget.widgetName().getCategory())
                     && !prop.getName().equals(model_widget.behaviorPVName().getName()))
             {
-                //toolkit.logger.finest("Array widget emoving listener from " + widget + " " + prop);
+                //toolkit.logger.finest("Array widget removing listener from " + widget + " " + prop);
                 prop.removePropertyListener(listener);
             }
+            if (prop.getName().equals("horizontal"))
+            {
+                prop.removePropertyListener(rearrange);
+            }
         }
-        widget.positionHeight().removePropertyListener(rearrange);
-        widget.positionWidth().removePropertyListener(rearrange);
     }
 
     UntypedWidgetPropertyListener listener = (p, o, n) ->
@@ -319,7 +328,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         if (number > 0 && !children.isEmpty())
         {
             Widget child = copyWidget(children.get(0));
-            child.widgetName().setValue("Auto-"+child.getType()+"-"+this.children.size());
+            child.widgetName().setValue(model_widget.getName() + "-" + child.getType() + "-" + this.children.size());
             if (child != null)
             {
                 model_widget.runtimeChildren().addChild(child);
@@ -376,19 +385,19 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     void setChildrenValues()
     {
         List<?> values = readValues(model_widget.runtimeValue().getValue());
-        //children is CopyOnWrite
         if (values.size() < 1)
             return;
 
         //Set values of children widgets using local pvs delivered through the 'pv_name'
-        //property. This makes the child widgets essentially read-only, but this is acceptable,
-        //as it was also the behavior of the previous version's array representation.
-        String pvprefix = pvPrefix(values.get(0));
+        //property. This makes the child widgets essentially read-only.
+        final String pvPrefix = "loc://arr" + did + "_el";
+        final String pvtype = pvType(values.get(0));
         for (int i = 0; i < values.size() && i < children.size(); i++)
         {
             try
             {
-                children.get(i).setPropertyValue("pv_name", pvprefix + values.get(i) + ')');
+                final String locPV = pvPrefix + i + pvtype + values.get(i) + ')';
+                children.get(i).setPropertyValue("pv_name", locPV);
             } catch (IllegalArgumentException e)
             { //thrown by setPropertyValue if "pv_name" is unknown
                 break;
@@ -402,12 +411,12 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         }
     }
 
-    private String pvPrefix(Object value)
+    private String pvType(Object value)
     {
         if (value instanceof String)
-            return "loc://arrayPV<VString>(";
+            return "<VString>(";
         else //if (value instanceof Number), etc.
-            return "loc://arrayPV(";
+            return "(";
     }
 
     private List<?> readValues(VType vtype)
