@@ -65,7 +65,7 @@ import org.diirt.vtype.VType;
 public class SampleView extends DataBrowserAwareView
 {
     /** View ID registered in plugin.xml */
-    final public static String ID = "org.csstudio.trends.databrowser.sample_view";
+    final public static String ID = "org.csstudio.trends.databrowser3.sample_view";
 
     /** Model of the currently active Data Browser plot or <code>null</code> */
     private Model model;

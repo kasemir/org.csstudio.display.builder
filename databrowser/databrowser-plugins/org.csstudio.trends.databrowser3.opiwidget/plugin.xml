@@ -6,11 +6,11 @@
       <widget
             category="Monitors"
             description="Display a Data Browser configuration"
-            editpart_class="org.csstudio.trends.databrowser.opiwidget.DataBrowserWidgedEditPart"
+            editpart_class="org.csstudio.trends.databrowser3.opiwidget.DataBrowserWidgedEditPart"
             icon="icons/databrowser.png"
-            model_class="org.csstudio.trends.databrowser.opiwidget.DataBrowserWidgedModel"
+            model_class="org.csstudio.trends.databrowser3.opiwidget.DataBrowserWidgedModel"
             name="Data Browser"
-            typeId="org.csstudio.trends.databrowser.opiwidget">
+            typeId="org.csstudio.trends.databrowser3.opiwidget">
       </widget>
    </extension>
 

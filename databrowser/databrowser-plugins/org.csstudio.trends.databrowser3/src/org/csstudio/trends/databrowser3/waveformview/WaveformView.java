@@ -51,7 +51,7 @@ public class WaveformView extends DataBrowserAwareView
 {
     /** View ID registered in plugin.xml */
     final public static String ID =
-            "org.csstudio.trends.databrowser.waveformview.WaveformView"; //$NON-NLS-1$
+            "org.csstudio.trends.databrowser3.waveformview.WaveformView"; //$NON-NLS-1$
 
     /** PV Name selector */
     private Combo pv_name;

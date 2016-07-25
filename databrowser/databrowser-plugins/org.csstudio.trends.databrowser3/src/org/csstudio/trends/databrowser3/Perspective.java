@@ -26,7 +26,7 @@ import org.eclipse.ui.IPlaceholderFolderLayout;
 public class Perspective implements IPerspectiveFactory
 {
     /** Perspective ID (same ID as original Data Browser) registered in plugin.xml */
-    final public static String ID = "org.csstudio.trends.databrowser.Perspective";
+    final public static String ID = "org.csstudio.trends.databrowser3.Perspective";
 
     /** {@inheritDoc} */
     @Override

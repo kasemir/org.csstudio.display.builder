@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.Text;
 public class ExportView extends DataBrowserAwareView implements ExportErrorHandler
 {
     /** View ID (same ID as original Data Browser) registered in plugin.xml */
-    final public static String ID = "org.csstudio.trends.databrowser.exportview.ExportView"; //$NON-NLS-1$
+    final public static String ID = "org.csstudio.trends.databrowser3.exportview.ExportView"; //$NON-NLS-1$
 
     /** Model of the currently selected Data Browser or <code>null</code> */
     private Model model;

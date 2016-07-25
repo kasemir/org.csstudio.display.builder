@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package org.csstudio.trends.databrowser.opiwidget;
+package org.csstudio.trends.databrowser3.opiwidget;
 
 /** Could become plugin activator; now just holds ID
  *  @author Kay Kasemir

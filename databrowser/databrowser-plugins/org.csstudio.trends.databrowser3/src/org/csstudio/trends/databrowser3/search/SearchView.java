@@ -64,7 +64,7 @@ import org.eclipse.ui.part.ViewPart;
 public class SearchView extends ViewPart
 {
     /** View ID (same ID as original Data Browser) registered in plugin.xml */
-    final public static String ID = "org.csstudio.trends.databrowser.archiveview.ArchiveView"; //$NON-NLS-1$
+    final public static String ID = "org.csstudio.trends.databrowser3.archiveview.ArchiveView"; //$NON-NLS-1$
 
     /** Memento tags */
     private static final String TAG_REGEX = "regex", //$NON-NLS-1$
@@ -317,7 +317,7 @@ public class SearchView extends ViewPart
                 IHandlerService handlerService = (IHandlerService)getSite().getService(IHandlerService.class);
                 try
                 {
-                    handlerService.executeCommand("org.csstudio.trends.databrowser.OpenDataBrowserPopup", null);
+                    handlerService.executeCommand("org.csstudio.trends.databrowser3.OpenDataBrowserPopup", null);
                 } catch (CommandException ex) {
                     Activator.getLogger().log(Level.WARNING, "Failed to open data browser", ex); //$NON-NLS-1$
                 }

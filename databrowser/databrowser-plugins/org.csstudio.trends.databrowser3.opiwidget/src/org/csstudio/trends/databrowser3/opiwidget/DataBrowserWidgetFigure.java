@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package org.csstudio.trends.databrowser.opiwidget;
+package org.csstudio.trends.databrowser3.opiwidget;
 
 import org.csstudio.javafx.rtplot.RTTimePlot;
 import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
