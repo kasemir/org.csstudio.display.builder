@@ -244,7 +244,7 @@ public class Widget
         }
         catch (Exception ex)
         {
-            logger.log(Level.WARNING, "Cannot obtain display ID for $(DID)", ex);
+            logger.log(Level.WARNING, "Cannot obtain display ID for " + this, ex);
             return "DP00";
         }
         return "DP" + Integer.toHexString(id);
