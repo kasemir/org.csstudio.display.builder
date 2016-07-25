@@ -70,7 +70,7 @@ public class ProgressBarWidget extends VisibleWidget
                 throws Exception
         {
             //Legacy tank widget was always vertical; needs horizontal=false
-            if (XMLUtil.getChildElement(xml, displayHorizontal.getName()) == null)
+            if (xml_version.getMajor() < 2 && XMLUtil.getChildElement(xml, displayHorizontal.getName()) == null)
             {
                 final Document doc = xml.getOwnerDocument();
                 final Element new_el = doc.createElement(displayHorizontal.getName());
