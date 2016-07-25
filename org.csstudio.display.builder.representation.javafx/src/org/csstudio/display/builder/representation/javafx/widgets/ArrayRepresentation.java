@@ -53,6 +53,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     private CopyOnWriteArrayList<Widget> children = new CopyOnWriteArrayList<>();
     private volatile int numChildren = 0, width = 0, height = 0;
     private volatile boolean isArranging = false, isAddingRemoving = false;
+    private volatile Widget master = null;
     private Pane inner_pane;
 
     @Override
@@ -96,19 +97,6 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         {
             setChildrenValues();
         }
-        if (dirty_look.checkAndClear())
-        {
-            if (height > 0)
-                jfx_node.setPrefHeight(height);
-            if (width > 0)
-                jfx_node.setPrefWidth(width);
-            Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
-            jfx_node.setBorder(new Border(
-                    new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,
-                            new Insets(inset / 2))));
-            color = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
-            jfx_node.setBackground(new Background(new BackgroundFill(color, null, null)));
-        }
         if (dirty_number.checkAndClear())
         {
             final int diff = children.size() - numChildren;
@@ -122,6 +110,19 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
                 isAddingRemoving = false;
             }
             arrangeChildren();
+        }
+        if (dirty_look.checkAndClear())
+        {
+            if (height > 0)
+                jfx_node.setPrefHeight(height);
+            if (width > 0)
+                jfx_node.setPrefWidth(width);
+            Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
+            jfx_node.setBorder(new Border(
+                    new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,
+                            new Insets(inset / 2))));
+            color = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
+            jfx_node.setBackground(new Background(new BackgroundFill(color, null, null)));
         }
     }
 
@@ -139,7 +140,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     private void sizeChanged(final WidgetProperty<Integer> property, final Integer old_value, final Integer new_value)
     {
-        if (!isArranging && old_value != new_value)
+        if (!isArranging && (old_value != new_value || old_value == null))
         {
             width = model_widget.positionWidth().getValue();
             height = model_widget.positionHeight().getValue();
@@ -176,6 +177,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             {
                 Widget widget = added.get(0);
                 copyProperties(newval.get(0), widget);
+                master = widget;
             }
         }
         else //removed != null
@@ -257,25 +259,22 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     UntypedWidgetPropertyListener rearrange = (p, o, n) ->
     {
         if (!isArranging)
-            arrangeChildren(p.getWidget());
+        {
+            master = p.getWidget();
+            dirty_number.mark(); //dirty_number calls arrangeChildren
+            toolkit.scheduleUpdate(this);
+        }
     };
 
     private void arrangeChildren()
     {
         List<Widget> children = new ArrayList<Widget>(model_widget.runtimeChildren().getValue());
-        if (!children.isEmpty())
-            arrangeChildren(children.get(0), children);
-    }
+        Widget master = this.master;
+        if (children.isEmpty())
+            return;
+        if (master == null)
+            master = children.get(0);
 
-    private void arrangeChildren(Widget master)
-    {
-        List<Widget> children = new ArrayList<Widget>(model_widget.runtimeChildren().getValue());
-        if (!children.isEmpty())
-            arrangeChildren(master, children);
-    }
-
-    private void arrangeChildren(Widget master, List<Widget> children)
-    {
         isArranging = true;
         numChildren = children.size();
 
