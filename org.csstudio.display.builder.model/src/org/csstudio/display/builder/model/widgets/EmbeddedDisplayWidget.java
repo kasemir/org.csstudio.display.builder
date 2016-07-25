@@ -87,6 +87,10 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         }
     };
 
+    private static final WidgetPropertyDescriptor<String> displayGroupName =
+        CommonWidgetProperties.newStringPropertyDescriptor(
+            WidgetPropertyCategory.DISPLAY, "group_name", Messages.EmbeddedDisplayWidget_GroupName);
+
     private static final WidgetPropertyDescriptor<Double> runtimeScale =
     CommonWidgetProperties.newDoublePropertyDescriptor(
         WidgetPropertyCategory.RUNTIME, "scale", Messages.WidgetProperties_ScaleFactor);
@@ -157,6 +161,7 @@ public class EmbeddedDisplayWidget extends VisibleWidget
     private volatile WidgetProperty<String> file;
     private volatile WidgetProperty<Resize> resize;
     private volatile WidgetProperty<Double> scale;
+    private volatile WidgetProperty<String> group_name;
 
     public EmbeddedDisplayWidget()
     {
@@ -170,6 +175,7 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(file = displayFile.createProperty(this, ""));
         properties.add(resize = displayResize.createProperty(this, Resize.None));
+        properties.add(group_name = displayGroupName.createProperty(this, ""));
         properties.add(scale = runtimeScale.createProperty(this, 1.0));
 
         // Initial size
@@ -193,6 +199,12 @@ public class EmbeddedDisplayWidget extends VisibleWidget
     public WidgetProperty<Resize> displayResize()
     {
         return resize;
+    }
+
+    /** @return Display 'group_name' */
+    public WidgetProperty<String> displayGroupName()
+    {
+        return group_name;
     }
 
     /** @return Runtime 'scale' */

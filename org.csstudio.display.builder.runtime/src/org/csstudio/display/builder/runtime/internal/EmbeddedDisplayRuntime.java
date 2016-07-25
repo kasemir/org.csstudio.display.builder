@@ -9,6 +9,7 @@ package org.csstudio.display.builder.runtime.internal;
 
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
+import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -16,10 +17,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
+import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
@@ -88,6 +91,26 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
             final ToolkitRepresentation<Object, ?> toolkit = ToolkitRepresentation.getToolkit(display);
             // Load new model (potentially slow)
             final DisplayModel new_model = loadDisplayModel(display_file);
+
+            //If group name property is set, remove widgets that aren't groups with matching name
+            final String group_name = widget.displayGroupName().getValue();
+            if (!(widget.displayGroupName().getDefaultValue().equals(group_name)))
+            {
+                int index = 0;
+                List<Widget> children = new_model.runtimeChildren().getValue();
+                while (!children.isEmpty() && index < children.size())
+                {
+                    Widget child = children.get(index);
+                    if (child.getType().equals(GroupWidget.WIDGET_DESCRIPTOR.getType()) &&
+                            child.getName().equals(group_name))
+                    {
+                        index++;
+                    }
+                    else
+                        new_model.runtimeChildren().removeChild(child);
+                }
+            }
+
             // Atomically update the 'active' model
             final DisplayModel old_model = active_content_model.getAndSet(new_model);
 
