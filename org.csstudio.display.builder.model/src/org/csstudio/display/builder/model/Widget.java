@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -232,6 +233,22 @@ public class Widget
     public String getName()
     {
         return name.getValue();
+    }
+
+    /** @return Identifier for widget */
+    public String getID()
+    {
+        int id;
+        try
+        {
+            id = System.identityHashCode(this);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot obtain display ID for " + this, ex);
+            return "DP00";
+        }
+        return "DP" + Integer.toHexString(id);
     }
 
     /** @return Parent widget in Widget tree */

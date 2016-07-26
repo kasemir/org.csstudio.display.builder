@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.ArcWidget;
+import org.csstudio.display.builder.model.widgets.ArrayWidget;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
 import org.csstudio.display.builder.model.widgets.ByteMonitorWidget;
 import org.csstudio.display.builder.model.widgets.CheckBoxWidget;
@@ -49,6 +50,7 @@ import org.csstudio.display.builder.representation.WidgetRepresentation;
 import org.csstudio.display.builder.representation.WidgetRepresentationFactory;
 import org.csstudio.display.builder.representation.javafx.widgets.ActionButtonRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ArcRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.ArrayRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.BoolButtonRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ByteMonitorRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.CheckBoxRepresentation;
@@ -171,6 +173,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     {
         factories.put(ActionButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ActionButtonRepresentation());
         factories.put(ArcWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ArcRepresentation());
+        factories.put(ArrayWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new ArrayRepresentation());
         factories.put(BoolButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new BoolButtonRepresentation());
         factories.put(ByteMonitorWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ByteMonitorRepresentation());
         factories.put(CheckBoxWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new CheckBoxRepresentation());

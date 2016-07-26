@@ -10,6 +10,10 @@
             type="display">
       </runtime>
       <runtime
+            class="org.csstudio.display.builder.runtime.internal.ArrayWidgetRuntime"
+            type="array">
+      </runtime>
+      <runtime
             class="org.csstudio.display.builder.runtime.internal.EmbeddedDisplayRuntime"
             type="embedded">
       </runtime>
