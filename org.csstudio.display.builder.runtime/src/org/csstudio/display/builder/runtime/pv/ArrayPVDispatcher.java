@@ -10,15 +10,21 @@ package org.csstudio.display.builder.runtime.pv;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.util.VTypeUtil;
+import org.diirt.util.array.ArrayDouble;
+import org.diirt.util.array.ArrayInt;
 import org.diirt.util.array.ListNumber;
+import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VEnumArray;
+import org.diirt.vtype.VNumber;
 import org.diirt.vtype.VNumberArray;
+import org.diirt.vtype.VString;
 import org.diirt.vtype.VStringArray;
 import org.diirt.vtype.VType;
 
@@ -136,7 +142,13 @@ public class ArrayPVDispatcher implements AutoCloseable
                 dispatchArrayUpdate(((VEnumArray)value).getIndexes());
             else if (value instanceof VStringArray)
                 dispatchArrayUpdate(((VStringArray)value).getData());
-            // TODO Dispatch scalar PVs as one-element arrays
+            // Dispatch scalar PVs as one-element arrays
+            else if (value instanceof VNumber)
+                dispatchArrayUpdate(new ArrayDouble(((VNumber)value).getValue().doubleValue()));
+            else if (value instanceof VEnum)
+                dispatchArrayUpdate(new ArrayInt(((VEnum)value).getIndex()));
+            else if (value instanceof VString)
+                dispatchArrayUpdate(Arrays.asList(((VString)value).getValue()));
             else
                 throw new Exception("Cannot handle " + value);
         }
@@ -210,6 +222,16 @@ public class ArrayPVDispatcher implements AutoCloseable
         // TODO Handle string
         final List<RuntimePV> pvs = element_pvs.get();
         final int N = pvs.size();
+
+        if (N == 1)
+        {   // Is 'array' really a scalar?
+            if (array_pv.read() instanceof VNumber)
+            {
+                array_pv.write(pvs.get(0).read());
+                return;
+            }
+        }
+
         final double[] value = new double[N];
         for (int i=0; i<N; ++i)
             value[i] = VTypeUtil.getValueNumber(pvs.get(i).read()).doubleValue();
