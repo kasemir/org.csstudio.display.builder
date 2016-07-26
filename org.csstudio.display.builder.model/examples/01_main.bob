@@ -434,4 +434,19 @@
       </action>
     </actions>
   </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_21</name>
+    <x>471</x>
+    <y>241</y>
+    <width>120</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>structure_array.bob</file>
+        <target>replace</target>
+        <description>Array</description>
+      </action>
+    </actions>
+  </widget>
 </display>

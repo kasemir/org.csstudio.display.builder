@@ -24,6 +24,7 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.ArcWidget;
+import org.csstudio.display.builder.model.widgets.ArrayWidget;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
 import org.csstudio.display.builder.model.widgets.ByteMonitorWidget;
 import org.csstudio.display.builder.model.widgets.CheckBoxWidget;
@@ -111,6 +112,7 @@ public class WidgetFactory
     {
         addWidgetType(ActionButtonWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ArcWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(ArrayWidget.WIDGET_DESCRIPTOR);
         addWidgetType(BoolButtonWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ByteMonitorWidget.WIDGET_DESCRIPTOR);
         addWidgetType(CheckBoxWidget.WIDGET_DESCRIPTOR);

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>Array</name>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <width>281</width>
+    <height>31</height>
+    <text>Array</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_20</name>
+    <y>41</y>
+    <width>440</width>
+    <height>119</height>
+    <text>A container that assigns copies of widgets to elements of an array PV.
+
+Each child of an Array is an identical copy of a widget that displays
+(if applicable), but does not write (even if applicable) the value of
+one element of the Array's PV. The widget's PV name property, if
+it has one, is essentially superseded by the Array's PV.</text>
+  </widget>
+  <widget type="array" version="2.0.0">
+    <name>Array</name>
+    <x>350</x>
+    <y>170</y>
+    <width>250</width>
+    <height>158</height>
+    <pv_name>loc://&lt;VStringArray&gt;("Monitor 1", "Monitor 2", "Monitor 3", "Monitor 4", "Monitor 5", "Monitor 6")</pv_name>
+    <widget type="textupdate" version="2.0.0">
+      <name>Text Update</name>
+      <width>230</width>
+      <height>23</height>
+    </widget>
+  </widget>
+  <widget type="array" version="2.0.0">
+    <name>Array_4</name>
+    <y>170</y>
+    <width>250</width>
+    <height>158</height>
+    <pv_name>sim://sawtooth(10, 50, 10000, 0.5, -1, 1)</pv_name>
+    <widget type="progressbar" version="2.0.0">
+      <name>Progress Bar</name>
+      <width>230</width>
+      <height>23</height>
+      <limits_from_pv>false</limits_from_pv>
+      <minimum>-1.0</minimum>
+      <maximum>1.0</maximum>
+    </widget>
+  </widget>
+  <widget type="array" version="2.0.0">
+    <name>Array_5</name>
+    <x>5</x>
+    <y>423</y>
+    <width>242</width>
+    <height>150</height>
+    <pv_name>sim://sawtooth(10, 50, 10000, 0.5, -1, 1)</pv_name>
+    <widget type="progressbar" version="2.0.0">
+      <name>Progress Bar_1</name>
+      <width>37</width>
+      <height>130</height>
+      <horizontal>false</horizontal>
+      <limits_from_pv>false</limits_from_pv>
+      <minimum>-1.0</minimum>
+      <maximum>1.0</maximum>
+    </widget>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_1</name>
+    <x>5</x>
+    <y>343</y>
+    <width>240</width>
+    <height>70</height>
+    <text>The orientation of the widgets
+inside determines their arrangement.
+Widgets without a horizontal property
+are treated as horizontal by default.</text>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="array" version="2.0.0">
+    <name>Array_2</name>
+    <macros>
+      <labeltext>It's like looking in a mirror</labeltext>
+    </macros>
+    <x>350</x>
+    <y>433</y>
+    <width>250</width>
+    <height>140</height>
+    <pv_name>sim://sinewave(10,50,5,.5,-1,1)</pv_name>
+    <widget type="label" version="2.0.0">
+      <name>Label_2</name>
+      <width>230</width>
+      <height>40</height>
+      <text>${labeltext}</text>
+    </widget>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <x>360</x>
+    <y>343</y>
+    <width>240</width>
+    <height>70</height>
+    <text>Array widgets can also assign
+macros. However, any properties
+which use them are the same for
+all child widgets.
+</text>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+  </widget>
+</display>
