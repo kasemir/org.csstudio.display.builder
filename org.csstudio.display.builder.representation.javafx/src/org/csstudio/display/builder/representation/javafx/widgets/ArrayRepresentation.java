@@ -1,7 +1,6 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -15,17 +14,6 @@ import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.ArrayWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
-import org.diirt.util.array.IteratorNumber;
-import org.diirt.util.array.ListNumber;
-import org.diirt.vtype.Array;
-import org.diirt.vtype.VByteArray;
-import org.diirt.vtype.VDoubleArray;
-import org.diirt.vtype.VFloatArray;
-import org.diirt.vtype.VIntArray;
-import org.diirt.vtype.VLongArray;
-import org.diirt.vtype.VNumberArray;
-import org.diirt.vtype.VShortArray;
-import org.diirt.vtype.VType;
 
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
@@ -42,11 +30,8 @@ import javafx.scene.paint.Color;
 @SuppressWarnings({ "nls", "static-access" })
 public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget>
 {
-    private final DirtyFlag dirty_value = new DirtyFlag(); //values of child widgets
-    private final DirtyFlag dirty_number = new DirtyFlag(); //number of child widgets
+    private final DirtyFlag dirty_number = new DirtyFlag(); //number of element widgets
     private final DirtyFlag dirty_look = new DirtyFlag(); //size/color of JavaFX Node
-
-    private String did;
 
     private static final int inset = 10;
 
@@ -77,7 +62,6 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.runtimeValue().addUntypedPropertyListener(this::valueChanged);
         model_widget.runtimeChildren().addPropertyListener(this::childrenChanged);
         model_widget.positionHeight().addPropertyListener(this::sizeChanged);
         model_widget.positionWidth().addPropertyListener(this::sizeChanged);
@@ -86,17 +70,12 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
         childrenChanged(null, null, model_widget.runtimeChildren().getValue());
         adjustNumberByLength();
-        did = model_widget.getDID();
     }
 
     @Override
     public void updateChanges()
     {
         super.updateChanges();
-        if (dirty_value.checkAndClear())
-        {
-            setChildrenValues();
-        }
         if (dirty_number.checkAndClear())
         {
             final int diff = children.size() - numChildren;
@@ -132,12 +111,6 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         toolkit.scheduleUpdate(this);
     }
 
-    private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
-    {
-        dirty_value.mark();
-        toolkit.scheduleUpdate(this);
-    }
-
     private void sizeChanged(final WidgetProperty<Integer> property, final Integer old_value, final Integer new_value)
     {
         if (!isArranging && (old_value != new_value || old_value == null))
@@ -164,15 +137,17 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
             if (added != null && !added.isEmpty() && !added.get(0).checkProperty("pv_name").isPresent())
             {
                 toolkit.logger
-                        .warning("Child " + added.get(0) + " added to " + model_widget
+                        .warning("Element " + added.get(0) + " added to " + model_widget
                                 + " has no 'pv_name' property.");
             }
         }
         if (added != null)
         {
             for (Widget widget : added)
+            {
                 addChildListeners(widget);
-            //trigger child listeners to copy properties of existing widgets
+            }
+            //trigger child (element) listeners to copy properties of existing widgets
             if (!added.isEmpty()) //implies !newval.isEmpty()
             {
                 Widget widget = added.get(0);
@@ -386,132 +361,4 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         }
     }
 
-    void setChildrenValues()
-    {
-        List<?> values = readValues(model_widget.runtimeValue().getValue());
-        if (values.size() < 1)
-            return;
-
-        //Set values of children widgets using local pvs delivered through the 'pv_name'
-        //property. This makes the child widgets essentially read-only.
-        final String pvPrefix = "loc://arr" + did + "_el";
-        final String pvtype = pvType(values.get(0));
-        for (int i = 0; i < values.size() && i < children.size(); i++)
-        {
-            try
-            {
-                final String locPV = pvPrefix + i + pvtype + values.get(i) + ')';
-                children.get(i).setPropertyValue("pv_name", locPV);
-            } catch (IllegalArgumentException e)
-            { //thrown by setPropertyValue if "pv_name" is unknown
-                break;
-            } catch (IndexOutOfBoundsException e)
-            {
-                break;
-            } catch (Exception e)
-            { //if new pv_name value is unsuitable; unlikely, since "pv_name" should be a String
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private String pvType(Object value)
-    {
-        if (value instanceof String)
-            return "<VString>(";
-        else //if (value instanceof Number), etc.
-            return "(";
-    }
-
-    private List<?> readValues(VType vtype)
-    {
-        final int n = numChildren;
-        if (vtype == null)
-            return Collections.emptyList();
-        if (vtype instanceof Array)
-        {
-            //require one-dimensional? ((Array)vtype).getSizes().size() == 1?
-            if (vtype instanceof VNumberArray)
-            {
-                ListNumber dataList = (ListNumber) ((VNumberArray) vtype).getData();
-                if (vtype instanceof VByteArray)
-                    return readBytes(dataList.iterator(), n);
-                else if (vtype instanceof VIntArray)
-                    return readInts(dataList.iterator(), n);
-                else if (vtype instanceof VLongArray)
-                    return readLongs(dataList.iterator(), n);
-                else if (vtype instanceof VShortArray)
-                    return readShorts(dataList.iterator(), n);
-                else if (vtype instanceof VFloatArray)
-                    return readFloats(dataList.iterator(), n);
-                else if (vtype instanceof VDoubleArray)
-                    return readDoubles(dataList.iterator(), n);
-                else
-                {
-                    //throw Exception: Unsupported VNumberArray sub-type?
-                }
-            }
-            else
-            {
-                List<?> data = (List<?>) ((Array) vtype).getData();
-                return (data).subList(0, Math.min(n, data.size()));
-            }
-        }
-        else //vtype not instanceof Array; could treat as single-element array, but ignoring for now
-        {
-            return Collections.emptyList();
-        }
-        return null;
-    }
-
-    //Since there is no generic next() or nextNumber() method for
-    //the iterator over the list given by a VNumberArray, there can
-    //be no generic read or readNumber
-    private List<Byte> readBytes(IteratorNumber it, int n)
-    {
-        List<Byte> list = new ArrayList<Byte>(n);
-        while (it.hasNext() && n-- > -1)
-            list.add(it.nextByte());
-        return list;
-    }
-
-    private List<Integer> readInts(IteratorNumber it, int n)
-    {
-        List<Integer> list = new ArrayList<Integer>(n);
-        while (it.hasNext() && n-- > 0)
-            list.add(it.nextInt());
-        return list;
-    }
-
-    private List<Long> readLongs(IteratorNumber it, int n)
-    {
-        List<Long> list = new ArrayList<Long>(n);
-        while (it.hasNext() && n-- > 0)
-            list.add(it.nextLong());
-        return list;
-    }
-
-    private List<Short> readShorts(IteratorNumber it, int n)
-    {
-        List<Short> list = new ArrayList<Short>(n);
-        while (it.hasNext() && n-- > 0)
-            list.add(it.nextShort());
-        return list;
-    }
-
-    private List<Float> readFloats(IteratorNumber it, int n)
-    {
-        List<Float> list = new ArrayList<Float>(n);
-        while (it.hasNext() && n-- > 0)
-            list.add(it.nextFloat());
-        return list;
-    }
-
-    private List<Double> readDoubles(IteratorNumber it, int n)
-    {
-        List<Double> list = new ArrayList<Double>(n);
-        while (it.hasNext() && n-- > 0)
-            list.add(it.nextDouble());
-        return list;
-    }
 }

@@ -235,12 +235,13 @@ public class Widget
         return name.getValue();
     }
 
-    public String getDID()
+    /** @return Identifier for widget */
+    public String getID()
     {
         int id;
         try
         {
-            id = System.identityHashCode(this.getDisplayModel());
+            id = System.identityHashCode(this);
         }
         catch (Exception ex)
         {
