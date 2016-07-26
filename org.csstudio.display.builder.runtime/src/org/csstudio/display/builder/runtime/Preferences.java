@@ -44,30 +44,33 @@ public class Preferences
     public static List<TextPatch> getPV_NamePatches()
     {
         final List<TextPatch> patches = new ArrayList<>();
-        // Split on '@', except if preceded by '[' to skip '[@]'
-        final String[] config = get(PV_NAME_PATCHES, "").split("(?<!\\[)@");
-
-        if (config.length % 2 == 0)
+        final String setting = get(PV_NAME_PATCHES, "");
+        if (! setting.isEmpty())
         {
-            for (int i=0; i<config.length; i+=2)
+            // Split on '@', except if preceded by '[' to skip '[@]'
+            final String[] config = setting.split("(?<!\\[)@");
+            if (config.length % 2 == 0)
             {
-                final TextPatch patch;
-                try
+                for (int i=0; i<config.length; i+=2)
                 {
-                    patch = new TextPatch(config[i], config[i+1]);
+                    final TextPatch patch;
+                    try
+                    {
+                        patch = new TextPatch(config[i], config[i+1]);
+                    }
+                    catch (PatternSyntaxException ex)
+                    {
+                        logger.log(Level.SEVERE, "Error in PV name patch '" + config[i] + "' -> '" + config[i+1] + "'", ex);
+                        continue;
+                    }
+                    patches.add(patch);
+                    logger.config(patch.toString());
                 }
-                catch (PatternSyntaxException ex)
-                {
-                    logger.log(Level.SEVERE, "Error in PV name patch '" + config[i] + "' -> '" + config[i+1] + "'", ex);
-                    continue;
-                }
-                patches.add(patch);
-                logger.config(patch.toString());
             }
+            else
+                logger.log(Level.SEVERE, "Invalid setting for " + PV_NAME_PATCHES +
+                                         ", need even number of items (pairs of pattern@replacement)");
         }
-        else
-            logger.log(Level.SEVERE, "Invalid setting for " + PV_NAME_PATCHES +
-                                     ", need even number of items (pairs of pattern@replacement)");
         return patches;
     }
 

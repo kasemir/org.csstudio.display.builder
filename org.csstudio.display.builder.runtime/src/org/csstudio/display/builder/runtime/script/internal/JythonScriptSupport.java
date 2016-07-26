@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
+import org.python.core.Py;
 import org.python.core.PyCode;
 import org.python.core.PyList;
 import org.python.core.PySystemState;
@@ -98,6 +99,10 @@ class JythonScriptSupport implements AutoCloseable
             // Options.verbose = Py.DEBUG;
 
             PythonInterpreter.initialize(pre_props, props, new String[0]);
+
+            final PyList paths = Py.getSystemState().path;
+            paths.add(getPluginPath("org.csstudio.display.builder.runtime", "scripts"));
+
             return true;
         }
         catch (Exception ex)

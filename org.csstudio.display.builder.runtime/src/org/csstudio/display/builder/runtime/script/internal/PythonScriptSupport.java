@@ -30,11 +30,13 @@ import org.csstudio.display.builder.runtime.script.ScriptUtil;
 public class PythonScriptSupport
 {
     ScriptSupport support;
+    static PVUtil pvutil = new PVUtil();
+    static ScriptUtil scriptutil = new ScriptUtil();
 
     // See comments on queued_scripts in JythonScriptSupport
     private final Set<PythonScript> queued_scripts = Collections.newSetFromMap(new ConcurrentHashMap<PythonScript, Boolean>());
 
-    public PythonScriptSupport(final ScriptSupport support)
+    public PythonScriptSupport(final ScriptSupport support) throws Exception
     {
         this.support = support;
     }
@@ -77,8 +79,8 @@ public class PythonScriptSupport
                 //parameter of getMethod().
                 //If classes in Eclipse plugins could be accessed through the proper py4j
                 //proxies, this would become unnecessary.
-                map.put("PVUtil", new PVUtil());
-                map.put("ScriptUtil", new ScriptUtil());
+                map.put("PVUtil", pvutil);
+                map.put("ScriptUtil", scriptutil);
 
                 PythonGatewaySupport.run(map, script.getPath());
             }

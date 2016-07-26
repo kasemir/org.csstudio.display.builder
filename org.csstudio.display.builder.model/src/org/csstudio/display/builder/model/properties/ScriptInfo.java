@@ -53,24 +53,16 @@ public class ScriptInfo
         if (!name.endsWith(".py"))
             return false;
         String firstline = null;
-        BufferedReader br = null;
+        name = new File(name).getName();
         try
+        (
+                BufferedReader br = new BufferedReader(new FileReader(path + File.separator + name));)
         {
-            name = new File(name).getName();
-            br = new BufferedReader(new FileReader(path + File.separator + name));
             firstline = br.readLine();
         }
         catch (IOException e)
         {
             //log exception here?
-        }
-        finally //close finally, in case exception occurs at readLine()
-        {
-            if (br != null)
-                try
-                {
-                    br.close();
-                } catch (IOException e) {}
         }
         return firstline != null && firstline.contains("python");
     }

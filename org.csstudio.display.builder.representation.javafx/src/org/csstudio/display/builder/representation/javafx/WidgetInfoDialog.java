@@ -18,7 +18,6 @@ import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.util.VTypeUtil;
-import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.diirt.vtype.VType;
 import org.eclipse.osgi.util.NLS;
 
@@ -40,11 +39,23 @@ import javafx.scene.image.ImageView;
  */
 public class WidgetInfoDialog extends Dialog<Boolean>
 {
+    public static class NameValue
+    {
+        public final String name;
+        public final VType value;
+
+        public NameValue(final String name, final VType value)
+        {
+            this.name = name;
+            this.value = value;
+        }
+    }
+
     /** Create dialog
      *  @param widget {@link Widget}
      *  @param pvs {@link RuntimePV}s, may be empty
      */
-    public WidgetInfoDialog(final Widget widget, final Collection<RuntimePV> pvs)
+    public WidgetInfoDialog(final Widget widget, final Collection<NameValue> pvs)
     {
         setTitle(Messages.WidgetInfoDialog_Title);
         setHeaderText(NLS.bind(Messages.WidgetInfoDialog_Info_Fmt, new Object[] { widget.getName(), widget.getType() }));
@@ -98,29 +109,28 @@ public class WidgetInfoDialog extends Dialog<Boolean>
         return new Tab(Messages.WidgetInfoDialog_TabMacros, table);
     }
 
-    private Tab createPVs(final Collection<RuntimePV> pvs)
+    private Tab createPVs(final Collection<NameValue> pvs)
     {
         // Use text field to allow users to copy the name, value to clipboard
-        final TableColumn<RuntimePV, String> name = new TableColumn<>(Messages.WidgetInfoDialog_Name);
+        final TableColumn<NameValue, String> name = new TableColumn<>(Messages.WidgetInfoDialog_Name);
         name.setCellFactory(TextFieldTableCell.forTableColumn());
-        name.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getName()));
+        name.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().name));
 
-        final TableColumn<RuntimePV, String> value = new TableColumn<>(Messages.WidgetInfoDialog_Value);
+        final TableColumn<NameValue, String> value = new TableColumn<>(Messages.WidgetInfoDialog_Value);
         value.setCellFactory(TextFieldTableCell.forTableColumn());
         value.setCellValueFactory(param ->
         {
-            final VType v = param.getValue().read();
             final String text;
-            if (v == null)
+            if (param.getValue().value == null)
                 text = Messages.WidgetInfoDialog_Disconnected;
             else
-                text = VTypeUtil.getValueString(v, true);
+                text = VTypeUtil.getValueString(param.getValue().value, true);
             return new ReadOnlyStringWrapper(text);
         });
 
-        final ObservableList<RuntimePV> pv_data = FXCollections.observableArrayList(pvs);
-        pv_data.sort((a, b) -> a.getName().compareTo(b.getName()));
-        final TableView<RuntimePV> table = new TableView<>(pv_data);
+        final ObservableList<NameValue> pv_data = FXCollections.observableArrayList(pvs);
+        pv_data.sort((a, b) -> a.name.compareTo(b.name));
+        final TableView<NameValue> table = new TableView<>(pv_data);
         table.getColumns().add(name);
         table.getColumns().add(value);
         table.setEditable(true);

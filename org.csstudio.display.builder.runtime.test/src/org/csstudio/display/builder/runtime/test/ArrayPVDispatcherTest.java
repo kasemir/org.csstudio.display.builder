@@ -42,7 +42,7 @@ public class ArrayPVDispatcherTest
     @Test
     public void testArrayPVDispatcher() throws Exception
     {
-        // Array PV. It's elements are to be dispatched into seprate PVs
+        // Array PV. It's elements are to be dispatched into separate PVs
         final RuntimePV array_pv = PVFactory.getPV("loc://an_array(1.0, 2.0, 3, 4)");
 
         // The per-element PVs that will be bound to the array
@@ -93,6 +93,59 @@ public class ArrayPVDispatcherTest
         final ListNumber array_value = ( (VNumberArray) array_pv.read() ).getData();
         System.out.println("Array: " +  array_value );
         assertThat(array_value.getDouble(2), equalTo(30.7));
+
+        // Close dispatcher
+        dispatcher.close();
+
+        // Close the array PV
+        PVFactory.releasePV(array_pv);
+    }
+
+    /** Test double-typed scalar PV */
+    @Test
+    public void testScalarPVDispatcher() throws Exception
+    {
+        // Not really an array..
+        final RuntimePV array_pv = PVFactory.getPV("loc://no_array(3.14)");
+
+        // The per-element PVs that will be bound to the array
+        final AtomicReference<List<RuntimePV>> element_pvs = new AtomicReference<>();
+
+        final CountDownLatch got_element_pvs = new CountDownLatch(1);
+
+        // Listener to the ArrayPVDispatcher
+        final Listener dispatch_listener = new Listener()
+        {
+            @Override
+            public void arrayChanged(final List<RuntimePV> pvs)
+            {
+                System.out.println("Per-element PVs: ");
+                element_pvs.set(pvs);
+                dump(pvs);
+                got_element_pvs.countDown();
+            }
+        };
+
+        final ArrayPVDispatcher dispatcher = new ArrayPVDispatcher(array_pv, "element123456_", dispatch_listener);
+
+        // Await initial set of per-element PVs
+        got_element_pvs.await();
+        assertThat(element_pvs.get().size(), equalTo(1));
+        assertThat(VTypeUtil.getValueNumber(element_pvs.get().get(0).read()).doubleValue(), equalTo(3.14));
+
+        // Change array -> Observe update of per-element PV
+        System.out.println("Updating 'array'");
+        array_pv.write(47.11);
+        dump(element_pvs.get());
+        assertThat(VTypeUtil.getValueNumber(element_pvs.get().get(0).read()).doubleValue(), equalTo(47.11));
+
+        // Change per-element PV -> Observe update of 'array'
+        System.out.println("Updating per-element PV for element [2]");
+        element_pvs.get().get(0).write(11.47);
+
+        final Number value = VTypeUtil.getValueNumber(array_pv.read());
+        System.out.println("'Array': " +  value );
+        assertThat(value, equalTo(11.47));
 
         // Close dispatcher
         dispatcher.close();

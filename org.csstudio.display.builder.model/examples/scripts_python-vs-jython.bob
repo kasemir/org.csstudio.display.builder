@@ -3,6 +3,14 @@
   <name>Python vs Jython</name>
   <x>-1</x>
   <y>-1</y>
+  <widget type="group" version="2.0.0">
+    <name>Group</name>
+    <x>452</x>
+    <y>241</y>
+    <width>521</width>
+    <height>114</height>
+    <style>2</style>
+  </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
     <width>180</width>
@@ -26,14 +34,14 @@
   <widget type="textupdate" version="2.0.0">
     <name>Text Update</name>
     <x>11</x>
-    <y>481</y>
+    <y>506</y>
     <width>70</width>
     <pv_name>sim://ramp(-5,5,.1)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
     <x>141</x>
-    <y>481</y>
+    <y>506</y>
     <foreground_color>
       <color name="Attention" red="255" green="160" blue="0">
       </color>
@@ -50,7 +58,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
-    <y>451</y>
+    <y>476</y>
     <width>180</width>
     <height>30</height>
     <text>Update Label Text</text>
@@ -62,13 +70,13 @@
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_1</name>
     <x>11</x>
-    <y>551</y>
+    <y>576</y>
     <width>70</width>
     <pv_name>sim://ramp(-5,5,0.1)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_11</name>
-    <y>521</y>
+    <y>546</y>
     <width>281</width>
     <height>30</height>
     <text>Update Label Position</text>
@@ -80,7 +88,7 @@
   <widget type="label" version="2.0.0">
     <name>Label_10</name>
     <x>141</x>
-    <y>551</y>
+    <y>576</y>
     <width>90</width>
     <text>I'm moving!</text>
     <foreground_color>
@@ -107,14 +115,14 @@
   <widget type="textentry" version="3.0.0">
     <name>Text Entry</name>
     <x>541</x>
-    <y>481</y>
+    <y>506</y>
     <width>210</width>
     <pv_name>loc://pv_name("sim://sine")</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_14</name>
     <x>411</x>
-    <y>451</y>
+    <y>476</y>
     <width>180</width>
     <height>30</height>
     <text>Update PV Name</text>
@@ -126,14 +134,14 @@
   <widget type="label" version="2.0.0">
     <name>Label_15</name>
     <x>411</x>
-    <y>481</y>
+    <y>506</y>
     <width>120</width>
     <text>Enter PV Name:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_16</name>
     <x>411</x>
-    <y>511</y>
+    <y>536</y>
     <width>330</width>
     <height>30</height>
     <text>Script will update the PV name of the Text Update:</text>
@@ -141,11 +149,11 @@
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_2</name>
     <x>541</x>
-    <y>541</y>
+    <y>566</y>
     <width>210</width>
     <height>26</height>
     <scripts>
-      <script file="scripts/update_pv_name.py">
+      <script file="scripts/python/update_pv_name.py">
         <pv_name>loc://pv_name("sim://sine")</pv_name>
       </script>
     </scripts>
@@ -153,14 +161,14 @@
   <widget type="label" version="2.0.0">
     <name>Label_17</name>
     <x>411</x>
-    <y>541</y>
+    <y>566</y>
     <width>120</width>
     <text>Value of PV:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_19</name>
     <x>191</x>
-    <y>590</y>
+    <y>615</y>
     <width>90</width>
     <text>&lt;- Active</text>
     <foreground_color>
@@ -182,33 +190,33 @@
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_1</name>
     <x>11</x>
-    <y>590</y>
+    <y>615</y>
     <pv_name>loc://mode(0)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_20</name>
     <x>141</x>
-    <y>590</y>
+    <y>615</y>
     <width>60</width>
     <text>Mode 1</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_21</name>
     <x>291</x>
-    <y>590</y>
+    <y>615</y>
     <width>60</width>
     <text>Mode 2</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_24</name>
-    <y>629</y>
+    <y>654</y>
     <width>361</width>
     <height>22</height>
     <text>Enter mode values 0 or 1, and the "Active" label moves.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_22</name>
-    <y>671</y>
+    <y>696</y>
     <width>130</width>
     <text>Search Path</text>
     <font>
@@ -218,7 +226,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_27</name>
-    <y>701</y>
+    <y>726</y>
     <width>452</width>
     <height>60</height>
     <text>Since the scripts are executed using Python, the location of each
@@ -228,7 +236,7 @@ files in the same location.
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_28</name>
-    <y>791</y>
+    <y>816</y>
     <width>690</width>
     <height>170</height>
     <background_color>
@@ -254,7 +262,7 @@ widget.setPropertyValue("text", path)]]></text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_29</name>
-    <y>761</y>
+    <y>786</y>
     <width>232</width>
     <height>30</height>
     <text>Current search path:</text>
@@ -307,7 +315,7 @@ evolves. Scripts may need to be updated as the API changes.
     <name>Label_33</name>
     <y>271</y>
     <width>161</width>
-    <text>Map of Java Objects</text>
+    <text>Connecting to Java</text>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
@@ -317,17 +325,20 @@ evolves. Scripts may need to be updated as the API changes.
     <name>Label_34</name>
     <y>291</y>
     <width>452</width>
-    <height>130</height>
-    <text>The Java gateway exposes a map (Python base class
-MutableMapping) with 4 keys, 'widget', 'pvs', 'PVUtil', and
-'ScriptUtil'. The values of 'widget' and 'pvs' correspond to the
-widget and pvs variables of Jython and JavaScript scripts.
-'PVUtil' and 'ScriptUtil' provide instances of the PVUtil
-and ScriptUtil classes, which gives access to their utility methods.</text>
+    <height>140</height>
+    <text>Python scripts use Py4J to connect to the display program. A Python
+module, connect2j, provides a context manager, scriptContext(), to
+easily connect to Display Builder, initialize Display Builder-related
+variables, and shutdown the connection.
+
+Objects which are connected to Java objects (like 'widget') can access
+the Java object's public methods and members, just as with Jython
+scripts. Assigment (=) has no effect on the Java object.
+</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_35</name>
-    <y>406</y>
+    <y>431</y>
     <width>161</width>
     <height>25</height>
     <text>Examples</text>
@@ -341,27 +352,18 @@ and ScriptUtil classes, which gives access to their utility methods.</text>
     <x>452</x>
     <y>181</y>
     <width>521</width>
-    <height>230</height>
-    <text>Python scripts use Py4J to connect to the display program.
-A Python module, connect2j, provides functions to easily
-connect to the Java gateway provded by Display Builder.
-The most useful of these is connectToGateway(port), which
-returns a py4j JavaGateway connected to the given port. The
-port is passed as an argument to the script on execution.
-
-The gateway can then be interacted with as a Py4J JavaGateway.
-Of note are the following methods:
- - gateway.getMap(): returns the map of Java objects assigned to
-    the script's entry point (calls the Java method getMap())
- - gateway.shutdown(): disconnects the gateway; not calling this
-    could prevent the script's execution from completing</text>
+    <height>60</height>
+    <text>The function scriptContext(*args, **kwargs) connects its arguments (example:
+'widgets', 'pvs', 'PVUtil', and/or 'ScriptUtil') to Display Builder and places the
+corresponding entries in the dict given with the 'dict' keyword argument.
+</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_36</name>
     <x>452</x>
     <y>161</y>
     <width>161</width>
-    <text>Connecting to Java</text>
+    <text>Script Context</text>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
@@ -369,11 +371,86 @@ Of note are the following methods:
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_37</name>
-    <y>431</y>
+    <y>456</y>
     <width>541</width>
     <text>For more detailed explanations of these examples, see the main Scripts display</text>
+    <background_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </background_color>
     <font>
       <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_26</name>
+    <x>452</x>
+    <y>371</y>
+    <width>521</width>
+    <height>76</height>
+    <text>If no dict is given, the variables created are made global to the connect2j module,
+and must be imported. Additional keyword args of the form key='name', such as
+PVUtil='util', import or connect the variable with the key "key" (PVUtil), but enter it
+under the name "name" (util).</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_8</name>
+    <x>463</x>
+    <y>251</y>
+    <width>521</width>
+    <height>50</height>
+    <text>from connect2j import scriptContext
+	with scriptContext('widget','pvs','PVUtil',dict=globals()):
+</text>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_18</name>
+    <x>463</x>
+    <y>301</y>
+    <width>521</width>
+    <height>35</height>
+    <text>		if (PVUtil.getDouble(pvs[0]) &lt; 0)
+			widget.setProperty("x", 0)
+</text>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_23</name>
+    <x>452</x>
+    <y>336</y>
+    <width>521</width>
+    <height>19</height>
+    <text>	#the variables widget, pvs, PVUtil, and ScriptUtil have been disconnected</text>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_25</name>
+    <x>452</x>
+    <y>285</y>
+    <width>521</width>
+    <height>19</height>
+    <text>	#the variables listed have been placed in this module's global dict</text>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
   </widget>
