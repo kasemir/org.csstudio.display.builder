@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.csstudio.csdata.ProcessVariable;
+import org.csstudio.display.builder.rcp.JFXCursorFix;
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
@@ -38,7 +39,10 @@ import org.csstudio.ui.util.dnd.ControlSystemDropTarget;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.embed.swt.FXCanvas;
 
 /** Data Browser 'Plot' that displays the samples in a {@link Model}.
  *  <p>
@@ -61,6 +65,9 @@ public class ModelBasedPlot
 
     final private Map<Trace<Instant>, ModelItem> items_by_trace = new ConcurrentHashMap<>();
 
+    //private JFXPanel dummyjfx = null;
+    private final FXCanvas canvas;
+
     //final private SWTMediaPool media;
 
     /** Initialize plot
@@ -73,14 +80,21 @@ public class ModelBasedPlot
 
         this.display = parent.getDisplay();
         //plot = new RTTimePlot(parent);
-        plot = new RTTimePlot(false);
+
+        canvas = new FXCanvas(parent, 0);
+        plot = new RTTimePlot(true);
+
+        final Scene scene = new Scene(plot);
+        canvas.setScene(scene);
+
+        JFXCursorFix.apply(scene, canvas);
 
         plot.setOpacity(Preferences.getOpacity());
 
         //final ToolItem time_config_button =
         //      plot.addToolItem(SWT.PUSH, Activator.getDefault().getImage("icons/time_range.png"), Messages.StartEndDialogTT);
         final Button time_config_button =
-                plot.addToolItem(Activator.getIcon("time_range.png"), Messages.StartEndDialogTT);
+                plot.addToolItem(Activator.getIcon("time_range"), Messages.StartEndDialogTT);
 
         //TODO: add time config button listener
         //time_config_button.addSelectionListener(new SelectionAdapter()

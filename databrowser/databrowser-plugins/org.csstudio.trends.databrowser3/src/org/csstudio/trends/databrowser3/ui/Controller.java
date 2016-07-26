@@ -563,7 +563,13 @@ public class Controller
         //plot.getPlot().setLabelFont(SWTMediaPool.getJFX(model.getLabelFont()));
         //plot.getPlot().setScaleFont(SWTMediaPool.getJFX(model.getScaleFont()));
         plot.getPlot().setLegendFont(SWTMediaPool.getJFX(model.getLegendFont()));
-        plot.getPlot().setTitle(model.getTitle().get());
+        if (model.getTitle().isPresent()) {
+            plot.getPlot().setTitle(model.getTitle().get());
+        }
+        else {
+            //TODO: localize strings
+            plot.getPlot().setTitle("No Title");
+        }
         plot.getPlot().setScrollStep(model.getScrollStep());
 
         final List<Trace<Instant>> traces = new ArrayList<>();
