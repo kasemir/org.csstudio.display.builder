@@ -155,6 +155,64 @@ access the Display Builder API, because this is done via networked proxies.
 They also depend on python being installed on the computer.
 </p>
 
+<p>For convenience, a Python module, connect2j, is provided with Display Builder; it implements a context
+manager to manage the network connections and ensure that resources are properly released.
+</p>
+
+<p>To install connect2j, do the following:
+<ol>
+<li>Under the CS-Studio installation directory, in "plugins/", locate the *.jar
+file beginning with "org.csstudio.display.builder.runtime"; that is, something
+like: <pre>org.csstudio.display.builder.runtime_1.0.0.201605162005.jar.</pre></li>
+
+<li>Extract the "scripts" directory from the jar.
+<ul>
+<li>On a Unix system, you can use:
+<pre>unzip org.csstudio.display.builder.runtime_1.0.0.201605162005.jar scripts/*</pre>
+</li>
+<li>On any system with Java installed, you can use:
+<pre>jar xf org.csstudio.display.builder.runtime_1.0.0.201605162005.jar scripts/connect2j.py scripts/setup.py</pre>
+</li>
+</ul>
+</li>
+
+<li>
+Next, install the module:
+<pre>python scripts/setup.py install</pre>
+</li>
+
+<li>
+The scripts directory which was created may now be deleted.
+</li>
+</ol>
+</p>
+
+<p>The main API of connect2j is the scriptContext context manager. Simply place code which accesses
+Display Builder API inside a "with" statement using scriptContext, like so:
+<pre>#first line contains python
+from connect2j import scriptContext
+#code that does not interact with Display Builder
+with scriptContext('widget', 'pvs', 'ScriptUtil', 'PVUtil', dict=globals()):
+    #code that uses DisplayBuilder APIs; for example:
+    value = PVUtil.getDouble(pvs[0])
+#code that does not interact with Display Builder
+</pre>
+</p>
+
+<p>Above, the argument "dict=globals()" tells scriptContext to enter the previous
+arguments in the calling module's global dict, where they may be accessed as global
+variables and used as typical Display Builder API. Without a dict argument supplied,
+the appropriate entries are made in the connect2j module's global dict and must be
+imported from connect2j <em>into the script context</em>. Any or all of the string arguments
+may be omitted, and no variables or proxies will be created for the omitted arguments.
+</p>
+
+<p>
+As an additional convenience, connect2j.scriptContext may also be used in Jython code, which will
+then be identical (except for the first line) to its corresponding Python code. Automatically, scriptContext
+identifies the platform on which it is being run and chooses to either use Py4J to create proxies for its
+arguments, or import the given utility classes and use the 'pvs' and 'widgets' which are already accessible from Jython.
+</p>
 
 <h2>JavaScript Scripts</h2>
 
