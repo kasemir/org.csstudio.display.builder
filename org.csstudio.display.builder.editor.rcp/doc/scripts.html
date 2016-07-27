@@ -134,7 +134,7 @@ native Python libraries, for example numpy.
 <h2>Python Scripts</h2>
 
 <p>Python scripts are executed by a native Python interpreter outside of the display builder.
-They access key Display Builder API via networked proxies.
+They access key Display Builder API via networked proxies using Py4J.
 Python scripts have access to all native Python libraries, for example numpy.
 </p>
 
@@ -155,60 +155,82 @@ access the Display Builder API, because this is done via networked proxies.
 They also depend on python being installed on the computer.
 </p>
 
-<p>For convenience, a Python module, connect2j, is provided with Display Builder; it implements a context
+<p>To use native python scripts, python must be installed on the computer.
+In addition, Py4J needs to be added if the invoked python code should
+interact with the display. This is typically done via
+</p>
+
+<pre>
+# For python 2.x
+easy_install py4j
+</pre>
+
+<p>or</p>
+
+<pre>
+# For python 3.x
+pip install py4j
+</pre>
+
+
+<p>For convenience, a Python module, <code>connect2j</code>, is provided with Display Builder; it implements a context
 manager to manage the network connections and ensure that resources are properly released.
 </p>
 
-<p>To install connect2j, do the following:
+<p>To install <code>connect2j</code>, do the following:
 <ol>
 <li>Under the CS-Studio installation directory, in "plugins/", locate the *.jar
-file beginning with "org.csstudio.display.builder.runtime"; that is, something
-like: <pre>org.csstudio.display.builder.runtime_1.0.0.201605162005.jar.</pre></li>
+    file beginning with "org.csstudio.display.builder.runtime"; that is, something
+    like: <pre>org.csstudio.display.builder.runtime_1.0.0.201605162005.jar.</pre>
+</li>
 
 <li>Extract the "scripts" directory from the jar.
-<ul>
-<li>On a Unix system, you can use:
-<pre>unzip org.csstudio.display.builder.runtime_1.0.0.201605162005.jar scripts/*</pre>
-</li>
-<li>On any system with Java installed, you can use:
-<pre>jar xf org.csstudio.display.builder.runtime_1.0.0.201605162005.jar scripts/connect2j.py scripts/setup.py</pre>
-</li>
-</ul>
-</li>
-
-<li>
-Next, install the module:
-<pre>python scripts/setup.py install</pre>
+    <ul>
+    <li>On a Unix system, you can use:
+    <pre>unzip org.csstudio.display.builder.runtime_1.0.0.201605162005.jar scripts/*</pre>
+    </li>
+    <li>On any system with Java installed, you can use:
+    <pre>jar xf org.csstudio.display.builder.runtime_1.0.0.201605162005.jar scripts/connect2j.py scripts/setup.py</pre>
+    </li>
+    </ul>
 </li>
 
-<li>
-The scripts directory which was created may now be deleted.
+<li>Next, install the module:
+    <pre>
+cd scripts
+python setup.py install
+    </pre>
 </li>
+
+<li>The scripts directory which was created may now be deleted.</li>
 </ol>
 </p>
 
-<p>The main API of connect2j is the scriptContext context manager. Simply place code which accesses
+<p>The main API of <code>connect2j</code> is the scriptContext context manager. Simply place code which accesses
 Display Builder API inside a "with" statement using scriptContext, like so:
-<pre>#first line contains python
+<pre>#!/usr/bin/env python 
 from connect2j import scriptContext
-#code that does not interact with Display Builder
+
+# Code that does not interact with Display Builder
+
 with scriptContext('widget', 'pvs', 'ScriptUtil', 'PVUtil', dict=globals()):
-    #code that uses DisplayBuilder APIs; for example:
+    # Code that uses DisplayBuilder APIs; for example:
     value = PVUtil.getDouble(pvs[0])
-#code that does not interact with Display Builder
+
+# Code that does not interact with Display Builder
 </pre>
 </p>
 
 <p>Above, the argument "dict=globals()" tells scriptContext to enter the previous
 arguments in the calling module's global dict, where they may be accessed as global
 variables and used as typical Display Builder API. Without a dict argument supplied,
-the appropriate entries are made in the connect2j module's global dict and must be
-imported from connect2j <em>into the script context</em>. Any or all of the string arguments
+the appropriate entries are made in the <code>connect2j</code> module's global dict and must be
+imported from <code>connect2j</code> <em>into the script context</em>. Any or all of the string arguments
 may be omitted, and no variables or proxies will be created for the omitted arguments.
 </p>
 
 <p>
-As an additional convenience, connect2j.scriptContext may also be used in Jython code, which will
+As an additional convenience, <code>connect2j.scriptContext</code> may also be used in Jython code, which will
 then be identical (except for the first line) to its corresponding Python code. Automatically, scriptContext
 identifies the platform on which it is being run and chooses to either use Py4J to create proxies for its
 arguments, or import the given utility classes and use the 'pvs' and 'widgets' which are already accessible from Jython.
