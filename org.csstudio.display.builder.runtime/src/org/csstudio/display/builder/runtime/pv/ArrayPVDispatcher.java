@@ -110,6 +110,7 @@ public class ArrayPVDispatcher implements AutoCloseable
         }
     };
 
+    private volatile boolean is_string = false;
 
     private final AtomicReference<List<RuntimePV>> element_pvs = new AtomicReference<>(Collections.emptyList());
 
@@ -196,7 +197,7 @@ public class ArrayPVDispatcher implements AutoCloseable
                     pv.write(val);
                     pvs.add(pv);
                 }
-                updateElementPVs(pvs);
+                updateElementPVs(false, pvs);
             }
             else
             {   // Update existing element PVs
@@ -213,29 +214,66 @@ public class ArrayPVDispatcher implements AutoCloseable
     /** @param value Value update from array of strings */
     private void dispatchArrayUpdate(final List<String> value) throws Exception
     {
-        throw new Exception("Later"); // TODO
+        ignore_element_updates = true;
+        try
+        {
+            List<RuntimePV> pvs = element_pvs.get();
+            final int N = value.size();
+            if (pvs.size() != N)
+            {   // Create new element PVs
+                pvs = new ArrayList<>(N);
+                for (int i=0; i<N; ++i)
+                {
+                    final String name = "loc://" + basename + i + "(\"\")";
+                    final RuntimePV pv = PVFactory.getPV(name);
+                    pv.write(value.get(i));
+                    pvs.add(pv);
+                }
+                updateElementPVs(true, pvs);
+            }
+            else
+            {   // Update existing element PVs
+                for (int i=0; i<N; ++i)
+                    pvs.get(i).write(value.get(i));
+            }
+        }
+        finally
+        {
+            ignore_element_updates = false;
+        }
     }
 
     /** Update the array PV with the current value of all element PVs */
     private void updateArrayFromElements() throws Exception
     {
-        // TODO Handle string
         final List<RuntimePV> pvs = element_pvs.get();
         final int N = pvs.size();
 
         if (N == 1)
         {   // Is 'array' really a scalar?
-            if (array_pv.read() instanceof VNumber)
+            final VType array = array_pv.read();
+            if (array instanceof VNumber ||
+                array instanceof VString)
             {
                 array_pv.write(pvs.get(0).read());
                 return;
             }
         }
 
-        final double[] value = new double[N];
-        for (int i=0; i<N; ++i)
-            value[i] = VTypeUtil.getValueNumber(pvs.get(i).read()).doubleValue();
-        array_pv.write(value);
+        if (is_string)
+        {
+            final String[] value = new String[N];
+            for (int i=0; i<N; ++i)
+                value[i] = VTypeUtil.getValueString(pvs.get(i).read(), false);
+            array_pv.write(value);
+        }
+        else
+        {
+            final double[] value = new double[N];
+            for (int i=0; i<N; ++i)
+                value[i] = VTypeUtil.getValueNumber(pvs.get(i).read()).doubleValue();
+            array_pv.write(value);
+        }
     }
 
     /** Update per-element PVs.
@@ -247,8 +285,9 @@ public class ArrayPVDispatcher implements AutoCloseable
      *
      *  @param new_pvs New per-element PVs
      */
-    private void updateElementPVs(final List<RuntimePV> new_pvs)
+    private void updateElementPVs(final boolean is_string, final List<RuntimePV> new_pvs)
     {
+        this.is_string = is_string;
         final List<RuntimePV> old = element_pvs.getAndSet(new_pvs);
         for (RuntimePV pv : old)
         {
@@ -271,6 +310,6 @@ public class ArrayPVDispatcher implements AutoCloseable
     public void close()
     {
         array_pv.removeListener(array_listener);
-        updateElementPVs(null);
+        updateElementPVs(false, null);
     }
 }

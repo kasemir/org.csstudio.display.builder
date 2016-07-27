@@ -23,6 +23,7 @@ import org.csstudio.vtype.pv.PVPool;
 import org.csstudio.vtype.pv.local.LocalPVFactory;
 import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.VNumberArray;
+import org.diirt.vtype.VStringArray;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -93,6 +94,57 @@ public class ArrayPVDispatcherTest
         final ListNumber array_value = ( (VNumberArray) array_pv.read() ).getData();
         System.out.println("Array: " +  array_value );
         assertThat(array_value.getDouble(2), equalTo(30.7));
+
+        // Close dispatcher
+        dispatcher.close();
+
+        // Close the array PV
+        PVFactory.releasePV(array_pv);
+    }
+
+    /** Test double-typed array PV */
+    @Test
+    public void testStringArray() throws Exception
+    {
+        final RuntimePV array_pv = PVFactory.getPV("loc://an_array(\"One\", \"Two\", \"Three\")");
+
+        final AtomicReference<List<RuntimePV>> element_pvs = new AtomicReference<>();
+
+        final CountDownLatch got_element_pvs = new CountDownLatch(1);
+
+        // Listener to the ArrayPVDispatcher
+        final Listener dispatch_listener = new Listener()
+        {
+            @Override
+            public void arrayChanged(final List<RuntimePV> pvs)
+            {
+                element_pvs.set(pvs);
+                got_element_pvs.countDown();
+            }
+        };
+
+        final ArrayPVDispatcher dispatcher = new ArrayPVDispatcher(array_pv, "elementA247FE_", dispatch_listener);
+
+        // Await initial set of per-element PVs
+        got_element_pvs.await();
+        assertThat(VTypeUtil.getValueString(element_pvs.get().get(0).read(), false), equalTo("One"));
+        assertThat(VTypeUtil.getValueString(element_pvs.get().get(1).read(), false), equalTo("Two"));
+        assertThat(VTypeUtil.getValueString(element_pvs.get().get(2).read(), false), equalTo("Three"));
+
+        // Change array -> Observe update of per-element PV
+        System.out.println("Updating array");
+        array_pv.write(new String[] { "Uno", "Due", "Another", "Vier" } );
+        dump(element_pvs.get());
+        assertThat(VTypeUtil.getValueString(element_pvs.get().get(0).read(), false), equalTo("Uno"));
+        assertThat(VTypeUtil.getValueString(element_pvs.get().get(3).read(), false), equalTo("Vier"));
+
+        // Change per-element PV -> Observe update of array
+        System.out.println("Updating per-element PV for element [2]");
+        element_pvs.get().get(2).write("Hello");
+
+        final List<String> array_value = ( (VStringArray) array_pv.read() ).getData();
+        System.out.println("Array: " +  array_value );
+        assertThat(array_value.get(2), equalTo("Hello"));
 
         // Close dispatcher
         dispatcher.close();
