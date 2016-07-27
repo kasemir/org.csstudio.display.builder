@@ -58,9 +58,11 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
             switch (event.getCode())
             {
             case ESCAPE:
-                // Revert original value, leave active state
-                restore();
-                active = false;
+                if (active)
+                {   // Revert original value, leave active state
+                    restore();
+                    active = false;
+                }
                 break;
             case ENTER:
                 // Submit value, leave active state
@@ -70,6 +72,19 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
             default:
                 // Any other key results in active state
                 active = true;
+            }
+        });
+        // While getting the focus does not activate the widget
+        // (first need to type something),
+        // _loosing_ focus de-activates the widget.
+        // Otherwise widget where one moves the cursor, then clicks
+        // someplace else would remain active and not show any updates
+        text.focusedProperty().addListener((prop, old, focused) ->
+        {
+            if (active  &&  !focused)
+            {
+                restore();
+                active = false;
             }
         });
 
