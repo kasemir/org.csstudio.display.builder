@@ -48,10 +48,12 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -159,6 +161,13 @@ public class DisplayEditorPart extends EditorPart
             loadModel(file);
 
         editor.getUndoableActionManager().addListener(undo_redo_listener);
+
+        //this is temporary
+        final MenuManager mm = new MenuManager();
+        mm.add(new MorphWidgetMenuSupport(editor.getWidgetSelectionHandler()).getMenuManager());
+        Menu menu = mm.createContextMenu(fx_canvas);
+        menu.setVisible(true);
+        fx_canvas.setMenu(menu);
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
     }
