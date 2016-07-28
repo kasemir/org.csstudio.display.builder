@@ -37,6 +37,9 @@ public class Messages extends NLS
     public static String NewDisplay_MissingFileName;
     public static String NewDisplay_NotWriteable;
     public static String NewDisplay_Title;
+    public static String OpenEditorPerspective;
+    public static String ReplaceWith;
+    public static String ReplaceWith_NoWidgets;
 
     static
     {

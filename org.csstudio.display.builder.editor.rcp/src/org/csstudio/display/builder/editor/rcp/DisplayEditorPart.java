@@ -37,6 +37,7 @@ import org.csstudio.display.builder.rcp.Preferences;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoRedoListener;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
+import org.csstudio.ui.util.perspective.OpenPerspectiveAction;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -48,10 +49,12 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -117,7 +120,6 @@ public class DisplayEditorPart extends EditorPart
 
     public DisplayEditorPart()
     {
-        // TODO Context menu
     }
 
     @Override
@@ -159,6 +161,13 @@ public class DisplayEditorPart extends EditorPart
             loadModel(file);
 
         editor.getUndoableActionManager().addListener(undo_redo_listener);
+
+        //context menu
+        final MenuManager mm = new MenuManager();
+        mm.add(new MorphWidgetMenuSupport(editor).getMenuManager());
+        mm.add(new OpenPerspectiveAction(null, Messages.OpenEditorPerspective, EditorPerspective.ID)); //TODO icon
+        Menu menu = mm.createContextMenu(fx_canvas);
+        fx_canvas.setMenu(menu);
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
     }
