@@ -165,7 +165,7 @@ public class DisplayEditorPart extends EditorPart
         //context menu
         final MenuManager mm = new MenuManager();
         mm.add(new MorphWidgetMenuSupport(editor).getMenuManager());
-        mm.add(new OpenPerspectiveAction(null, "Open editor perspective", EditorPerspective.ID)); //TODO externalize
+        mm.add(new OpenPerspectiveAction(null, Messages.OpenEditorPerspective, EditorPerspective.ID)); //TODO icon
         Menu menu = mm.createContextMenu(fx_canvas);
         fx_canvas.setMenu(menu);
 

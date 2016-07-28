@@ -140,12 +140,12 @@ public class MorphWidgetMenuSupport
 
     private MenuManager createMenuManager()
     {
-        final MenuManager mm = new MenuManager("Replace with"); //$NON-NLS-1$ TODO externalize
+        final MenuManager mm = new MenuManager(Messages.ReplaceWith);
         mm.setRemoveAllWhenShown(true);
         mm.addMenuListener((manager)->
         {
             if (editor.getWidgetSelectionHandler().getSelection().isEmpty())
-                manager.add(new Action("<No selected widgets>") {}); //$NON-NLS-1$ TODO externalize
+                manager.add(new Action(Messages.ReplaceWith_NoWidgets) {});
             else
                 for (WidgetDescriptor descr : WidgetFactory.getInstance().getWidgetDescriptions())
                     manager.add(new MorphAction(descr));
