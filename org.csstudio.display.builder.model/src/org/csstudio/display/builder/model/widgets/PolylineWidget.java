@@ -14,6 +14,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import java.util.Arrays;
 import java.util.List;
 
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
@@ -60,14 +61,10 @@ public class PolylineWidget extends VisibleWidget
         //The order of these enum constants is important.
         //The bits of the number returned by calling ordinal() on one
         //of them is useful for determining which arrows are used.
-        //NONE.ordinal() = 0 = 0b00 has no arrows
-        //FROM.ordinal() = 1 = 0b01 has only a from-arrow
-        //  TO.ordinal() = 2 = 0b10 has only a to-arrow
-        //BOTH.ordinal() = 3 = 0b11 has both arrows
-        NONE("Messages.Arrows_None"),
-        FROM("Messages.Arrows_From"),
-        TO("Messages.Arrows_To"),
-        BOTH("Messages.Arrows_Both");
+        NONE(Messages.Arrows_None), //NONE.ordinal() = 0 = 0b00 has no arrows
+        FROM(Messages.Arrows_From), //FROM.ordinal() = 1 = 0b01 has only a from-arrow
+        TO(Messages.Arrows_To),     //  TO.ordinal() = 2 = 0b10 has only a to-arrow
+        BOTH(Messages.Arrows_Both); //BOTH.ordinal() = 3 = 0b11 has both arrows
 
         private final String name;
 
