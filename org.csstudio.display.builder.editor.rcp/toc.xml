@@ -5,6 +5,8 @@
     <topic label="Display Builder" href="doc/display.builder.html">
         <!-- Topics are duplicated in display.builder.html -->
         <topic label="Overview" href="doc/overview.html"/>
+        <topic label="Properties" href="doc/properties.html"/>
+        <topic label="Rules" href="doc/rules.html"/>
         <topic label="Scripts" href="doc/scripts.html"/>
     </topic>
 </toc>
