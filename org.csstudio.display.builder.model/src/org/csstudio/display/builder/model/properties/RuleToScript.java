@@ -252,11 +252,11 @@ public class RuleToScript
         for (ExpressionInfo<?> expr : rule.getExpressions())
         {
             script_str += (idx == 0) ? "if" : "elif";
-            script_str += " (" + TrueFortrue(expr.getBoolExp()) + "):\n";
+            script_str += " (" + replaceLogicalOperators(TrueFortrue(expr.getBoolExp())) + "):\n";
             script_str += indent + setPropStr;
             if (rule.getPropAsExprFlag())
             {
-                script_str += TrueFortrue(expr.getPropVal() + " )\n");
+                script_str += replaceLogicalOperators(TrueFortrue(expr.getPropVal() + " )\n"));
             }
             else
             {
