@@ -127,6 +127,45 @@ public class RuleToScript
         return sb.toString();
     }
 
+    /**
+     * Substitute Python logical operators 'and', 'or', and 'not' for old
+     * javascript operators '&&', '||', '!'
+     */
+    protected static String replaceLogicalOperators(final String instr)
+    {
+        //matches '&&', '||', and '!', but not '!='
+        Matcher m = Pattern.compile("((.*?) ?)(\\&\\&|\\|\\||!(?!=)) ?").matcher(instr);
+        Pattern qp = Pattern.compile("(?<!\\\\)\\\""); //matches `"` but not `\"`
+        StringBuffer sb = new StringBuffer();
+
+        boolean inquotes = false;
+        while (m.find())
+        {
+            final Matcher qm = qp.matcher(m.group(2));
+            int quotes = 0;
+            while (qm.find())
+                quotes++;
+            if ((quotes & 1) != 0)
+                inquotes = !inquotes;
+            if (!inquotes)
+            {
+                String operator = m.group(3);
+                if (operator.equals("&&"))
+                    operator = "and";
+                else if (operator.equals("||"))
+                    operator = "or";
+                else if (operator.equals("!"))
+                    operator = "not";
+                //quoteReplacement for group(2) to preserve escaping '\'
+                m.appendReplacement(sb, Matcher.quoteReplacement(m.group(2)) + ' ' + operator + ' ');
+            }
+            else
+                m.appendReplacement(sb, m.group(1) + m.group(3));
+        }
+        m.appendTail(sb);
+        return sb.toString();
+    }
+
     public static String generatePy(final Widget attached_widget, final MacroValueProvider macros, final RuleInfo rule)
     {
         WidgetProperty<?> prop = attached_widget.getProperty(rule.getPropID());
