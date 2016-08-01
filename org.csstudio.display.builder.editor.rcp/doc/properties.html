@@ -24,26 +24,26 @@ number of rows and columns, respectively, to show of the input data.
 </p>
 
 <h2>Property Names</h2>
-<p>In the display editor, the "Properties" panel will show each property with a name list "Text" or "Foreground Color",
-and a user interface for setting the value of that property. For "Text", for example, you can enter the test; and for
+<p>In the display editor, the "Properties" panel will show each property with a name like "Text" or "Foreground Color",
+and a user interface for setting the value of that property. For "Text", for example, you can enter the text; and for
 "Foreground Color", you can select the color from a dialog.
 </p>
 
-<p>The property name show in the editor can be localized, i.e. translated into different languages. Each property
+<p>The property names shown in the editor can be localized, i.e. translated into different languages. Each property
 also has an internal name that is not localized because it uniquely identifies the property in the display and also
 when accessed by <a href="doc/rules.html">Rules</a> or <a href="scripts.html">Scripts</a>.
 </p>
 
 <p>The internal name is typically based on the English property name, but all lowercase with underscores instead of spaces.
-The internal name for "Foreground Color" is foreground_color".
+The internal name for "Foreground Color" is "foreground_color".
 </p>
 
 <h2>Array and Structure Properties</h2>
 
-<p>Some widgets contain properties that are arrays and/or structures.</p>
-<p>For example, the Multi-State LED has a "states" property that is an array.
-The elements of the array are in turn structures with a "value" and a "color".</p>
-<p>For access from Rules of Scripts these properties can be accessed via names (for structured
+<p>Some widgets contain properties that are arrays and/or structures.
+For example, the Multi-State LED has a "states" property that is an array.
+The elements of the array are in turn structures with a "value" and a "color".
+For access from Rules or Scripts these properties can be accessed via names (for structured
 properties) and indices (for array properties); for example:
 <pre>states[0].value</pre>
 <pre>states[1].color</pre>
