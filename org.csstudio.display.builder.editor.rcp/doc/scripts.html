@@ -235,6 +235,54 @@ identifies the platform on which it is being run and chooses to either use Py4J 
 arguments, or import the given utility classes and use the 'pvs' and 'widgets' which are already accessible from Jython.
 </p>
 
+<h2>Comparison: Python and Jython</h2>
+<table style="border: 1px solid black;">
+  <tr>
+    <th></th>
+    <th>Native Python</th>
+    <th>Jython</th>
+  </tr>
+  <tr>
+    <td><b>requirements</b></td>
+    <td>*.py file, "python" first line (i.e. shebang)</td>
+    <td>*.py (file or url) or embedded script</td>
+  </tr>
+  <tr>
+    <td><b>API</b></td>
+    <td><p>scriptContext (must be installed)
+      <ul>
+        <li>widget, pvs</li>
+        <li>PVUtil</li>
+        <li>ScriptUtil</li>
+      </ul>
+      </p>
+    </td>
+    <td><p>scriptContext (added to path)
+      <ul>
+        <li>widget, pvs (accessible without context)</li>
+        <li>PVUtil</li>
+        <li>ScriptUtil</li>
+      </ul>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td><b>imports</b></td>
+    <td>libraries (numPy, sciPy, etc.)</td>
+    <td>Java classes (inc. PVUtil, ScriptUtil)</td>
+  </tr>
+  <tr>
+    <td><b>start display</b></td>
+    <td>no initial start time</td>
+    <td>a few seconds to start Jython interpreter</td>
+  </tr>
+  <tr>
+    <td><b>start script</b></td>
+    <td>about a second per script</td>
+    <td>virtually no start time per script</td>
+  </tr>
+</table>
+
 <h2>JavaScript Scripts</h2>
 
 <p>Similar to Jython, JavaScript can be used as a language
