@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.csstudio.display.builder.editor.AutocompleteMenu;
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
@@ -40,6 +41,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -54,6 +56,7 @@ public class PropertyPanelSection extends GridPane
     private int next_row = -1;
     private Collection<WidgetProperty<?>> properties = Collections.emptyList();
     private boolean show_categories;
+    private final AutocompleteMenu autocomplete_menu = new AutocompleteMenu();
 
     public PropertyPanelSection()
     {
@@ -239,7 +242,9 @@ public class PropertyPanelSection extends GridPane
         Node field = bindSimplePropertyField(undo, bindings, property, other);
         if (field != null)
         {
-            //do nothing
+            if (CommonWidgetProperties.behaviorPVName.getName().equals(property.getName()))
+                autocomplete_menu.setField((TextInputControl) field);
+            //else: do nothing
         }
         else if (property instanceof MacrosWidgetProperty)
         {
@@ -341,11 +346,17 @@ public class PropertyPanelSection extends GridPane
         add(field, 1, row);
     }
 
+    public AutocompleteMenu getAutocompleteMenu()
+    {
+        return autocomplete_menu;
+    }
+
     /** Clear the property UI */
     public void clear()
     {
         bindings.forEach(WidgetPropertyBinding::unbind);
         bindings.clear();
         getChildren().clear();
+        autocomplete_menu.removeField();
     }
 }

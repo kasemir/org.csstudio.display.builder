@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.editor.rcp.Plugin.logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -86,7 +87,7 @@ public class DisplayEditorPart extends EditorPart
 
     private FXCanvas fx_canvas;
 
-    private final DisplayEditor editor = new DisplayEditor(toolkit, Preferences.getUndoSize());
+    private DisplayEditor editor;
 
     private OutlinePage outline_page = null;
 
@@ -140,6 +141,8 @@ public class DisplayEditorPart extends EditorPart
         // When creating FXCanvas later, there will be JFX errors
         // like "Not on FX application thread", "Toolkit not initialized"
         fx_canvas = new FXCanvas(parent, SWT.NONE);
+        
+        editor = new DisplayEditor(toolkit, Preferences.getUndoSize());
 
         final Parent root = editor.create();
         final Scene scene = new Scene(root);
@@ -152,6 +155,12 @@ public class DisplayEditorPart extends EditorPart
         // Scene could be created in background,
         // but setting the canvas' scene has to be on UI thread
         fx_canvas.setScene(scene);
+
+        editor.getSelectedWidgetUITracker().getAutocompleteMenu().setSupplier((input) ->
+        {
+            //TODO get autocomplete data
+            return Arrays.asList("Test 1", "Test 2");
+        });
 
         createRetargetableActionHandlers();
 

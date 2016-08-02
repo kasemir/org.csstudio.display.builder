@@ -13,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.csstudio.display.builder.editor.AutocompleteMenu;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
@@ -69,6 +70,11 @@ public class PropertyPanel extends ScrollPane
             final Set<WidgetProperty<?>> properties = commonProperties(primary, other);
             section.fill(editor.getUndoableActionManager(), properties, other, true);
         }
+    }
+
+    public AutocompleteMenu getAutocompleteMenu()
+    {
+        return section.getAutocompleteMenu();
     }
 
     /** Determine common properties

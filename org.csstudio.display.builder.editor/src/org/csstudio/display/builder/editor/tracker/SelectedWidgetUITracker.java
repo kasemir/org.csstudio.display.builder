@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import org.csstudio.display.builder.editor.AutocompleteMenu;
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
@@ -62,6 +63,8 @@ public class SelectedWidgetUITracker extends Tracker
 
     /** Inline editor for widget's PV name or text */
     private TextField inline_editor = null;
+    /** Autocomplete menu for PV name inline editor */
+    private final AutocompleteMenu autocomplete_menu = new AutocompleteMenu();
 
     /** Widgets to track */
     private List<Widget> widgets = Collections.emptyList();
@@ -240,12 +243,22 @@ public class SelectedWidgetUITracker extends Tracker
 
         inline_editor.selectAll();
         inline_editor.requestFocus();
+
+        //add autocomplete menu if editing property PVName
+        if (property.getName().equals(CommonWidgetProperties.behaviorPVName.getName()))
+            autocomplete_menu.setField(inline_editor);
+    }
+
+    public AutocompleteMenu getAutocompleteMenu()
+    {
+        return autocomplete_menu;
     }
 
     private void closeInlineEditor()
     {
         getChildren().remove(inline_editor);
         inline_editor = null;
+        autocomplete_menu.removeField();
     }
 
     /** Tracker is in front of the widgets that it handles,
