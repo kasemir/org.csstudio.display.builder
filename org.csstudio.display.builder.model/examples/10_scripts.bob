@@ -111,12 +111,13 @@ updates the label's text to indicate positive or negative value.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
-    <y>561</y>
+    <y>551</y>
     <width>391</width>
-    <height>70</height>
+    <height>80</height>
     <text>Such a check could be performed on the IOC, updating
-an enum PV with the "Positive", "Negative" text,
-then using a plain Text Update widget to show the result...</text>
+an enum PV with the "Positive", "Negative" text, then
+using a plain Text Update widget to show the result. Or
+a rule could be attached to the label's text property.</text>
     <font>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
@@ -480,21 +481,34 @@ from new locations.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_32</name>
-    <y>361</y>
+    <y>351</y>
     <width>521</width>
-    <height>40</height>
+    <height>50</height>
     <text>The examples on this page use Jython. To see similar examples implemented
-using "real" Python, click the button below.
-</text>
+using "native" Python, click the button below. For an explanation of Python
+(and Jython) script API, refer to Display Builder Help.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_33</name>
-    <y>341</y>
+    <y>331</y>
     <width>151</width>
     <text>Python vs Jython</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
     </font>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_5</name>
+    <y>411</y>
+    <width>141</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>scripts_python-vs-jython.bob</file>
+        <target>replace</target>
+        <description>Python vs Jython</description>
+      </action>
+    </actions>
   </widget>
 </display>
