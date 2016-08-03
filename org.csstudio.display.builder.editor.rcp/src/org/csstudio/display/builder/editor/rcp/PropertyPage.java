@@ -7,8 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp;
 
-import java.util.Arrays;
-
+import org.csstudio.display.builder.editor.AutocompleteMenu;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.properties.PropertyPanel;
@@ -83,11 +82,8 @@ public class PropertyPage extends Page implements IPropertySheetPage, IAdaptable
     public PropertyPage(final DisplayEditor editor)
     {
         property_panel = new PropertyPanel(editor);
-        property_panel.getAutocompleteMenu().setSupplier((input) ->
-        {
-            //TODO get autocomplete data
-            return Arrays.asList("Test 1", "Test 2");
-        });
+        final AutocompleteMenu menu = property_panel.getAutocompleteMenu();
+        menu.setUpdater(new AutoCompleteUpdater(menu));
     }
 
     @Override

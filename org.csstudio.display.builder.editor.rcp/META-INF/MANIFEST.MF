@@ -23,5 +23,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.csstudio.display.builder.editor,
  org.csstudio.display.builder.util,
  org.csstudio.ui.util;bundle-version="4.0.0",
- org.csstudio.autocomplete;bundle-version="3.2.13"
+ org.csstudio.autocomplete;bundle-version="3.2.13",
+ org.csstudio.autocomplete.ui;bundle-version="3.2.13"
 

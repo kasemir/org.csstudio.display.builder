@@ -11,13 +11,13 @@ import static org.csstudio.display.builder.editor.rcp.Plugin.logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.editor.AutocompleteMenu;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.rcp.actions.CopyAction;
@@ -156,11 +156,8 @@ public class DisplayEditorPart extends EditorPart
         // but setting the canvas' scene has to be on UI thread
         fx_canvas.setScene(scene);
 
-        editor.getSelectedWidgetUITracker().getAutocompleteMenu().setSupplier((input) ->
-        {
-            //TODO get autocomplete data
-            return Arrays.asList("Test 1", "Test 2");
-        });
+        final AutocompleteMenu ac_menu = editor.getSelectedWidgetUITracker().getAutocompleteMenu();
+        ac_menu.setUpdater(new AutoCompleteUpdater(ac_menu));
 
         createRetargetableActionHandlers();
 

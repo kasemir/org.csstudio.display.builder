@@ -42,6 +42,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -56,7 +58,7 @@ public class PropertyPanelSection extends GridPane
     private int next_row = -1;
     private Collection<WidgetProperty<?>> properties = Collections.emptyList();
     private boolean show_categories;
-    private final AutocompleteMenu autocomplete_menu = new AutocompleteMenu();
+    private static final AutocompleteMenu autocomplete_menu = new AutocompleteMenu();
 
     public PropertyPanelSection()
     {
@@ -205,11 +207,20 @@ public class PropertyPanelSection extends GridPane
                 field = new HBox(text, open_editor);
             }
             else
+            {
+                if (CommonWidgetProperties.behaviorPVName.getName().equals(property.getName()))
+                {
+                    text.addEventHandler(KeyEvent.KEY_PRESSED, (event)->
+                    {
+                        if (event.getCode().equals(KeyCode.ENTER))
+                            autocomplete_menu.updateHistory(text.getText());
+                    });
+                }
                 field = text;
+            }
         }
         else if (property instanceof PointsWidgetProperty)
         {
-            // TODO Table-based editor for list of points
             final PointsWidgetProperty points_prop = (PointsWidgetProperty) property;
             final Button points_field = new Button();
             points_field.setMaxWidth(Double.MAX_VALUE);
