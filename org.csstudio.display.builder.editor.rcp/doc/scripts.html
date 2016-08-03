@@ -225,16 +225,63 @@ with scriptContext('widget', 'pvs', 'ScriptUtil', 'PVUtil', dict=globals()):
 arguments in the calling module's global dict, where they may be accessed as global
 variables and used as typical Display Builder API. Without a dict argument supplied,
 the appropriate entries are made in the <code>connect2j</code> module's global dict and must be
-imported from <code>connect2j</code> <em>into the script context</em>. Any or all of the string arguments
-may be omitted, and no variables or proxies will be created for the omitted arguments.
+imported from <code>connect2j</code> <em>after the script context is created</em>. Any or all of
+the string arguments may be omitted, and no variables or proxies will be created for the omitted arguments.
 </p>
 
-<p>
-As an additional convenience, <code>connect2j.scriptContext</code> may also be used in Jython code, which will
+<p>As an additional convenience, <code>connect2j.scriptContext</code> may also be used in Jython code, which will
 then be identical (except for the first line) to its corresponding Python code. Automatically, scriptContext
 identifies the platform on which it is being run and chooses to either use Py4J to create proxies for its
 arguments, or import the given utility classes and use the 'pvs' and 'widgets' which are already accessible from Jython.
 </p>
+
+<h2>Comparison: Python and Jython</h2>
+<table style="border: 1px solid black;">
+  <tr>
+    <th></th>
+    <th>Native Python</th>
+    <th>Jython</th>
+  </tr>
+  <tr>
+    <td><b>requirements</b></td>
+    <td>*.py file, "python" first line (i.e. shebang)</td>
+    <td>*.py (file or url) or embedded script</td>
+  </tr>
+  <tr>
+    <td><b>API</b></td>
+    <td><p>scriptContext (must be installed)
+      <ul>
+        <li>widget, pvs</li>
+        <li>PVUtil</li>
+        <li>ScriptUtil</li>
+      </ul>
+      </p>
+    </td>
+    <td><p>scriptContext (added to path)
+      <ul>
+        <li>widget, pvs (accessible without context)</li>
+        <li>PVUtil</li>
+        <li>ScriptUtil</li>
+      </ul>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td><b>imports</b></td>
+    <td>libraries (numPy, sciPy, etc.)</td>
+    <td>Java classes (inc. PVUtil, ScriptUtil)</td>
+  </tr>
+  <tr>
+    <td><b>start display</b></td>
+    <td>no initial start time</td>
+    <td>a few seconds to start Jython interpreter</td>
+  </tr>
+  <tr>
+    <td><b>start script</b></td>
+    <td>about a second per script</td>
+    <td>virtually no start time per script</td>
+  </tr>
+</table>
 
 <h2>JavaScript Scripts</h2>
 
