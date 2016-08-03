@@ -28,7 +28,9 @@ Try Nightly Snapshot
 --------------------
 
 1. Download the 'Basic EPICS' or SNS version of CS-Studio from http://ics-web.sns.ornl.gov/css/nightly
-2. Start css with command-line options `-vmargs -Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi` or assert that these settings are in the css.ini file
+2. Start css with command-line options `-vmargs -Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`. Instead of using the command line option,
+   these settings can also be added to the product's css.ini file (Windows, Linux)
+   or the css.app/Contents/Info.plist (Mac OS X).
 3. Open the menu `Help`, `Install New Software`. Enter `http://ics-web.sns.ornl.gov/css/display.builder`
    as a site, select the display builder for installation, follow the steps in the installation dialog, restart.
 4. Open the menu `CS-Studio`, `Utilities`, `Install Samples` to install the `Display Builder` examples.
