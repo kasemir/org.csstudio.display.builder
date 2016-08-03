@@ -372,7 +372,7 @@ Similar to BOY, macros can be in the format `$(macro_name)` as well as `${macro_
 
 In contrast to EDM and BOY, macros are simply defined and possibly re-defined in the following order:
 
-  1. TODO Preferences
+  1. Preferences
   2. OpenDisplayAction
   3. EmbeddedWidget
   4. DisplayModel
@@ -382,6 +382,11 @@ While BOY limits macros to string-based properties, more properties now support 
 For example, the numeric 'x' position can be specified as $(POS).
 If the macro does not expand to a valid specification, for example if the macro POS has the value 'eight'
 instead of '8', the default value for that property will be used, and a warning is logged.
+
+For displays that are meant as templates, to be invoked with macros,
+standalone testing is possible by using the syntax `$(macro_name=default_value)`.
+When such displays are invoked with macros, their values are replaced.
+If they are invoked without macros, the default value is used.
 
 BOY resp. EDM had options to _not_ inherit parent macros as well as to _not_ replace
 the values of existing macros. The new implementation will always inherit all parent macros
@@ -468,6 +473,12 @@ from org.csstudio.display.builder.runtime.script import PVUtil
 widget.setPropertyValue("text", PVUtil.getString(pvs[0]))
 ```
 
+__Pyton__
+
+In addition to Jython, the display builder supports real C-Python scripts.
+They are invoked via Py4J, and a helper library is provided that allows
+writing Jython as well as Python script in a common way.
+Check online help for details.
 
 __Java Script__
 
