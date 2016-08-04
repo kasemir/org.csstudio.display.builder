@@ -17,6 +17,7 @@ public class Messages extends NLS
 {
     private static final String BUNDLE_NAME = "org.csstudio.display.builder.rcp.messages";
 
+
     // Keep in alphabetical order!
     public static String NavigateBack;
     public static String NavigateBack_TT;
@@ -24,6 +25,8 @@ public class Messages extends NLS
     public static String NavigateForward_TT;
     public static String ReloadDisplay;
     public static String TopDisplays;
+    public static String WidgetProperties_Filespace;
+    public static String WidgetProperties_Filecomponent;
     public static String Zoom_All;
     public static String Zoom_Height;
     public static String Zoom_Width;
