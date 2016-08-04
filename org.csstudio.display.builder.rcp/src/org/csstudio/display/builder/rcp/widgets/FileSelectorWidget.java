@@ -47,7 +47,7 @@ public class FileSelectorWidget extends VisibleWidget
     enum Filespace
     {
         WORKSPACE("Workspace"),
-        FILESYSTEM("Local File Ssystem");
+        FILESYSTEM("Local File System");
 
         private final String name;
         private Filespace(final String name)  { this.name = name; }

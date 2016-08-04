@@ -24,6 +24,7 @@ public class Messages extends NLS
     public static String NavigateForward;
     public static String NavigateForward_TT;
     public static String ReloadDisplay;
+    public static String SelectWorkspaceFile;
     public static String TopDisplays;
     public static String WidgetProperties_Filespace;
     public static String WidgetProperties_Filecomponent;

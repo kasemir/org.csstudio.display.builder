@@ -7,11 +7,15 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.widgets;
 
+import java.io.File;
+
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
+import org.csstudio.display.builder.rcp.Messages;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.ui.util.dialogs.ResourceSelectionDialog;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -27,6 +31,7 @@ import javafx.scene.image.ImageView;
 /** JFX Representation for {@link FileSelectorWidget}
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class FileSelectorRepresentation extends JFXBaseRepresentation<Button, FileSelectorWidget>
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
@@ -79,13 +84,31 @@ public class FileSelectorRepresentation extends JFXBaseRepresentation<Button, Fi
         if (model_widget.behaviorFilespace().getValue() == FileSelectorWidget.Filespace.WORKSPACE)
         {
             final ResourceSelectionDialog dialog = new ResourceSelectionDialog(shell,
-                    "Select workspace file",
+                    Messages.SelectWorkspaceFile,
                     component == FileSelectorWidget.FileComponent.DIRECTORY ? null : new String[] { "*.*" });
             dialog.setSelectedResource(new Path(path));
 
-            if(dialog.open() != Window.OK)
+            if (dialog.open() != Window.OK)
                 return;
-            path = dialog.getSelectedResource().toPortableString();
+            final IPath resource = dialog.getSelectedResource();
+            if (resource == null)
+                return;
+
+            switch (model_widget.behaviorComponent().getValue())
+            {
+            case FULL:
+            case DIRECTORY:
+                // ResourceSelectionDialog filter already
+                // handles full path vs. directory
+                path = resource.toPortableString();
+                break;
+            case FULLNAME:
+                path = resource.lastSegment();
+                break;
+            case BASENAME:
+                path = resource.removeFileExtension().lastSegment();
+                break;
+            }
         }
         else
         {
@@ -99,22 +122,31 @@ public class FileSelectorRepresentation extends JFXBaseRepresentation<Button, Fi
             }
             else
             {
-                final FileDialog dialog = new FileDialog(shell, SWT.MULTI);
+                final FileDialog dialog = new FileDialog(shell, SWT.NONE);
                 dialog.setFileName(path);
                 path = dialog.open();
                 if (path == null)
                     return;
             }
-        }
-
-        System.out.println("Should update value with selected file: " + path);
-        // TODO
-        switch (model_widget.behaviorComponent().getValue())
-        {
+            File file = new File(path);
+            switch (model_widget.behaviorComponent().getValue())
+            {
             case FULL:
             case DIRECTORY:
+                // DirectoryDialog vs. FileDialog already handle this
+                break;
             case FULLNAME:
+                path = file.getName();
+                break;
             case BASENAME:
+                path = file.getName();
+                final int sep = path.lastIndexOf('.');
+                if (sep >= 0)
+                    path = path.substring(0, sep);
+                break;
+            }
         }
+
+        toolkit.fireWrite(model_widget, path);
     }
 }

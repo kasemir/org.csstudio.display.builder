@@ -449,4 +449,19 @@
       </action>
     </actions>
   </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_22</name>
+    <x>190</x>
+    <y>522</y>
+    <width>120</width>
+    <height>26</height>
+    <text>$(actions)</text>
+    <actions>
+      <action type="open_display">
+        <file>controls_fileselector.bob</file>
+        <target>replace</target>
+        <description>File Selector</description>
+      </action>
+    </actions>
+  </widget>
 </display>
