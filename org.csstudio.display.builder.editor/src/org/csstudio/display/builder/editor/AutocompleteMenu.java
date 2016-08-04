@@ -1,18 +1,17 @@
 package org.csstudio.display.builder.editor;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Side;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputControl;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.text.Text;
 
 public class AutocompleteMenu
 {
@@ -26,8 +25,13 @@ public class AutocompleteMenu
     };
     private final ChangeListener<String> text_listener = (obs, oldval, newval) ->
     {
-        //TODO conditionally, hide menu
-
+        //Hide menu if not in focus in case field value changes without typing (i.e., if
+        //change in widget's inline editor causes property panel field to change)
+        if (field == null | !field.isFocused())
+        {
+            menu.hide();
+            return;
+        }
         //TODO make use of cursor position
         if (updater != null)
             updater.requestEntries(field.getText());
@@ -38,18 +42,45 @@ public class AutocompleteMenu
             menu.show(field, Side.BOTTOM, 0, 0);
         }
     };
-    //better to handle submission where field submits
-    private final EventHandler<KeyEvent> submit_handler = (event) ->
-    {
-        try
-        {
-            if (event.getCode().equals(KeyCode.ENTER))
-                updateHistory(field.getText());
-        } finally
-        {
-        }
-    };
 
+    private final List<Result> result_list = new ArrayList<Result>();
+
+    private class Result
+    {
+        private CustomMenuItem header;
+        private List<String> results;
+        protected int expected; //expected index
+
+        protected Result(String header, List<String> results, int expected)
+        {
+            this.header = createHeaderItem(header);
+            this.expected = expected;
+            setResults(results);
+        }
+
+        protected void addItemsTo(List<MenuItem> menu)
+        {
+            menu.add(header);
+            for (String result : results)
+                menu.add(createMenuItem(result));
+        }
+
+        protected void setResults(List<String> results)
+        {
+            this.results = new ArrayList<String>(results);
+        }
+
+        protected boolean eq_str(String str)
+        {
+            return ((Text) header.getContent()).getText().equals(str);
+        }
+
+        @Override
+        public String toString()
+        {
+            return ((Text) header.getContent()).getText() + " (" + results.size() + "): " + results.toString();
+        }
+    }
 
     public void setField(final TextInputControl field)
     {
@@ -59,7 +90,6 @@ public class AutocompleteMenu
         {
             field.textProperty().addListener(text_listener);
             field.focusedProperty().addListener(focused_listener);
-            field.addEventHandler(KeyEvent.KEY_PRESSED, submit_handler);
         }
     }
 
@@ -70,7 +100,6 @@ public class AutocompleteMenu
         {
             field.textProperty().removeListener(text_listener);
             field.focusedProperty().removeListener(focused_listener);
-            field.removeEventHandler(KeyEvent.KEY_PRESSED, submit_handler);
         }
     }
 
@@ -79,12 +108,21 @@ public class AutocompleteMenu
         updater = results_updater;
     }
 
-    public void setResults(Collection<String> results)
+    public void setResults(final String label, final List<String> results)
     {
-        //TODO allow "headers"
-        List<MenuItem> items = new LinkedList<MenuItem>();
-        for (String result : results)
-            items.add(createMenuItem(result));
+        setResults(label, results, 0);
+    }
+
+    public void setResults(final String label, final List<String> results, int index)
+    {
+        if (label == null)
+            return;
+        System.out.println("results for " + label + " @" + index + " (" + results.size() + ")");
+
+        final List<MenuItem> items = new LinkedList<MenuItem>();
+
+        //TODO: fill with items, in order
+
         menu.getItems().setAll(items);
     }
 
@@ -103,6 +141,15 @@ public class AutocompleteMenu
         }
     }
 
+    private final CustomMenuItem createHeaderItem(String header)
+    {
+        //TODO style with class using stylesheet (where is sheet?)
+        final CustomMenuItem item = new CustomMenuItem(new Text(header), false);
+        item.getStyleClass().add("ac-menu-label");
+        item.setHideOnClick(false);
+        return item;
+    }
+
     private final MenuItem createMenuItem(String text)
     {
         final MenuItem item = new MenuItem(text);
@@ -110,7 +157,7 @@ public class AutocompleteMenu
         {
             field.setText(item.getText());
         });
+        item.getStyleClass().add("ac-menu-item");
         return item;
     }
-
 }

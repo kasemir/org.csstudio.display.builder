@@ -21,25 +21,38 @@ import javafx.application.Platform;
 public class AutoCompleteUpdater implements AutocompleteMenuUpdater
 {
     private final AutocompleteMenu menu;
+    private Long currentId;
+    private int ignored_results;
 
     public AutoCompleteUpdater(AutocompleteMenu menu)
     {
         this.menu = menu;
-        //menu given in order to be used in IAutoCompleteResultListener
     }
 
     @Override
     public void requestEntries(String content)
     {
         AutoCompleteService acs = AutoCompleteService.getInstance();
-        acs.get(System.currentTimeMillis(), AutoCompleteType.PV, content,
+        currentId = System.currentTimeMillis();
+        acs.get(currentId, AutoCompleteType.PV, content,
                 (Long uniqueId, Integer index, AutoCompleteResult result) ->
-        {
-            Platform.runLater(()->
-            {
-                menu.setResults(result.getProposalsAsString());
-            });
-        });
+                {
+                    if (uniqueId != null && uniqueId.equals(currentId))
+                        Platform.runLater(() ->
+                        {
+                            menu.setResults(result.getProvider(), result.getProposalsAsString(),
+                                            index != null ? index : 0);
+                        });
+                    else if (/* uniqueId < currentId && */ ++ignored_results > 15)
+                    {
+                        ignored_results = 0;
+                        Platform.runLater(() ->
+                        {
+                            menu.setResults(result.getProvider(), result.getProposalsAsString(),
+                                    index != null ? index : 0);
+                        });
+                    }
+                });
     }
 
     @Override
@@ -56,7 +69,7 @@ public class AutoCompleteUpdater implements AutocompleteMenuUpdater
         {
         }
         final int size = service != null ? service.getInt(AutoCompleteUIPlugin.PLUGIN_ID, "history_size", 100, null) //$NON-NLS-1$
-                : 100;
+                                         : 100;
         if (size == 0)
         {
             fifo.clear();

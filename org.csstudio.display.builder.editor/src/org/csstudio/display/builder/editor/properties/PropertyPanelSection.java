@@ -210,7 +210,7 @@ public class PropertyPanelSection extends GridPane
             {
                 if (CommonWidgetProperties.behaviorPVName.getName().equals(property.getName()))
                 {
-                    text.addEventHandler(KeyEvent.KEY_PRESSED, (event)->
+                    text.addEventHandler(KeyEvent.KEY_PRESSED, (event) ->
                     {
                         if (event.getCode().equals(KeyCode.ENTER))
                             autocomplete_menu.updateHistory(text.getText());
