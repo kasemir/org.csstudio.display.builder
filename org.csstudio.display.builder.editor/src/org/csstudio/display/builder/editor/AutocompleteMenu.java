@@ -3,6 +3,7 @@ package org.csstudio.display.builder.editor;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
@@ -78,7 +79,8 @@ public class AutocompleteMenu
         @Override
         public String toString()
         {
-            return ((Text) header.getContent()).getText() + " (" + results.size() + "): " + results.toString();
+            return ((Text) header.getContent()).getText() + "@" + expected + " (" + results.size() + "): "
+                    + results.toString();
         }
     }
 
@@ -121,7 +123,48 @@ public class AutocompleteMenu
 
         final List<MenuItem> items = new LinkedList<MenuItem>();
 
-        //TODO: fill with items, in order
+        //TODO: see if this can be improved
+        synchronized (result_list)
+        {
+            final ListIterator<Result> it = result_list.listIterator();
+            Result result;
+            if (it.hasNext())
+            {
+                result = it.next();
+                while (result.expected < index)
+                {
+                    if (result.eq_str(label))
+                    {
+                        it.remove();
+                    }
+                    else
+                        result.addItemsTo(items);
+                    if (it.hasNext())
+                        result = it.next();
+                    else
+                        break;
+                }
+                if (result.expected >= index && it.hasPrevious())
+                    it.previous();
+                else
+                    result.addItemsTo(items);
+            }
+            result = new Result(label, results, index);
+            it.add(result);
+            result.addItemsTo(items);
+            while (it.hasNext())
+            {
+                result = it.next();
+                if (result.expected > index)
+                    index++;
+                if (result.expected == index)
+                    result.expected++;
+                if (result.eq_str(label))
+                    it.remove();
+                else
+                    result.addItemsTo(items);
+            }
+        }
 
         menu.getItems().setAll(items);
     }
