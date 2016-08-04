@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp.actions;
 
+import org.csstudio.display.builder.editor.rcp.DisplayEditorPart;
 import org.csstudio.display.builder.editor.rcp.Messages;
 import org.csstudio.display.builder.editor.rcp.Plugin;
 import org.csstudio.display.builder.rcp.DisplayInfo;
@@ -35,6 +36,12 @@ public class ExecuteDisplayAction extends EditorPartAction
     public ExecuteDisplayAction()
     {
         super(Messages.ExecuteDisplay, Plugin.getIcon("execute.png"));
+    }
+
+    public ExecuteDisplayAction(final DisplayEditorPart editor)
+    {
+        super(Messages.ExecuteDisplay, Plugin.getIcon("execute.png"));
+        setActiveEditor(editor);
     }
 
     @Override

@@ -21,6 +21,7 @@ import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.rcp.actions.CopyAction;
 import org.csstudio.display.builder.editor.rcp.actions.CutDeleteAction;
+import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayAction;
 import org.csstudio.display.builder.editor.rcp.actions.PasteAction;
 import org.csstudio.display.builder.editor.rcp.actions.RedoAction;
 import org.csstudio.display.builder.editor.rcp.actions.SelectAllAction;
@@ -49,6 +50,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -56,6 +58,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
@@ -165,17 +168,34 @@ public class DisplayEditorPart extends EditorPart
 
         editor.getUndoableActionManager().addListener(undo_redo_listener);
 
-        // Context menu
-        final MenuManager mm = new MenuManager();
-        mm.add(new MorphWidgetMenuSupport(editor).getMenuManager());
-
-        final ImageDescriptor icon = AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/display.png");
-        mm.add(new OpenPerspectiveAction(icon, Messages.OpenEditorPerspective, EditorPerspective.ID));
-
-        final Menu menu = mm.createContextMenu(fx_canvas);
-        fx_canvas.setMenu(menu);
+        fx_canvas.setMenu(createContextMenu(fx_canvas));
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
+    }
+
+    private Menu createContextMenu(final Control parent)
+    {
+        final MenuManager mm = new MenuManager();
+
+        final Action execute = new ExecuteDisplayAction(this);
+
+        final MenuManager morph = new MorphWidgetMenuSupport(editor).getMenuManager();
+
+        final ImageDescriptor icon = AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/display.png");
+        final Action perspective = new OpenPerspectiveAction(icon, Messages.OpenEditorPerspective, EditorPerspective.ID);
+
+        mm.setRemoveAllWhenShown(true);
+        mm.addMenuListener(manager ->
+        {
+            manager.add(execute);
+
+            if (! editor.getWidgetSelectionHandler().getSelection().isEmpty())
+                manager.add(morph);
+
+            manager.add(perspective);
+        });
+
+        return mm.createContextMenu(parent);
     }
 
     private void loadModel(final IFile file)
