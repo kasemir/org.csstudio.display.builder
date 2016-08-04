@@ -29,12 +29,13 @@ import org.eclipse.swt.widgets.Menu;
 /**
  * Helper for creating the SWT/RCP context menu to morph widgets (replace
  * widgets with a particular type of widget) in editor.
- * 
+ *
  * Intended to for use as a sub-menu in editor's main context menu.
- * 
+ *
  * @author Amanda Carpenter
  *
  */
+@SuppressWarnings("nls")
 public class MorphWidgetMenuSupport
 {
     private final DisplayEditor editor;
@@ -150,6 +151,8 @@ public class MorphWidgetMenuSupport
                 for (WidgetDescriptor descr : WidgetFactory.getInstance().getWidgetDescriptions())
                     manager.add(new MorphAction(descr));
         });
+
+        mm.setImageDescriptor(Plugin.getIcon("replace.png"));
         return mm;
     }
 
