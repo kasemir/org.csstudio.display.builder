@@ -26,6 +26,7 @@ import org.csstudio.display.builder.editor.rcp.actions.RedoAction;
 import org.csstudio.display.builder.editor.rcp.actions.SelectAllAction;
 import org.csstudio.display.builder.editor.rcp.actions.UndoAction;
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelReader;
@@ -50,6 +51,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
@@ -66,6 +68,7 @@ import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.eclipse.ui.views.properties.IPropertySheetPage;
 
@@ -162,11 +165,14 @@ public class DisplayEditorPart extends EditorPart
 
         editor.getUndoableActionManager().addListener(undo_redo_listener);
 
-        //context menu
+        // Context menu
         final MenuManager mm = new MenuManager();
         mm.add(new MorphWidgetMenuSupport(editor).getMenuManager());
-        mm.add(new OpenPerspectiveAction(null, Messages.OpenEditorPerspective, EditorPerspective.ID)); //TODO icon
-        Menu menu = mm.createContextMenu(fx_canvas);
+
+        final ImageDescriptor icon = AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/display.png");
+        mm.add(new OpenPerspectiveAction(icon, Messages.OpenEditorPerspective, EditorPerspective.ID));
+
+        final Menu menu = mm.createContextMenu(fx_canvas);
         fx_canvas.setMenu(menu);
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
