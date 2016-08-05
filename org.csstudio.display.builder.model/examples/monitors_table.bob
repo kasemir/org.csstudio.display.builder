@@ -239,15 +239,30 @@ which are represented by a checkbox.</text>
     <actions>
       <action type="execute">
         <script file="EmbeddedPy">
-          <text><![CDATA[table = widget.getDisplayModel().runtimeChildren().getChildByName("user_table")
+          <text><![CDATA[# 'widget' is the action button that invoked the script
+# Locate the table widget by name
+table = widget.getDisplayModel().runtimeChildren().getChildByName("user_table")
 
+# Get current headers and data
+headers = table.getHeaders()
 data = table.getValue()
+
+print("Before:")
+print(headers)
 print(data)
+
+# Change headers and data
+for c in range(len(headers)):
+    headers[c] = "New " +  headers[c]
+print("After:")
+print(headers)
 
 for r in range(len(data)):
     data[r][0] = "New " + data[r][0]
 print(data)
 
+# Update table with new headers and data
+table.setHeaders(headers)
 table.setValue(data)
 ]]></text>
         </script>

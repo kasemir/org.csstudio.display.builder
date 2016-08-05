@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.Messages;
@@ -296,6 +297,28 @@ public class TableWidget extends VisibleWidget
     public ArrayWidgetProperty<ColumnProperty> displayColumns()
     {
         return columns;
+    }
+
+    /** @return Column headers */
+    public List<String> getHeaders()
+    {
+        return columns.getValue().stream()
+                                 .map(col -> col.name().getValue())
+                                 .collect(Collectors.toList());
+    }
+
+    /** Define columns based on column names
+     *
+     *  <p>Clears the table, i.e. sets value to empty data.
+     *
+     *  @param headers Names of the columns
+     */
+    public void setHeaders(final List<String> headers)
+    {
+        setValue(Collections.emptyList());
+        columns.setValue(headers.stream()
+                                .map(header -> new ColumnProperty(this, header))
+                                .collect(Collectors.toList()));
     }
 
     /** Get options for a column's values

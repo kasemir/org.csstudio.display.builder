@@ -113,7 +113,6 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
     {
         if (requested_value instanceof CopyOnWriteArrayList)
             return requested_value;
-        logger.log(Level.WARNING, "Update value for " + getName() + " to CopyOnWriteArrayList");
         return new CopyOnWriteArrayList<>(requested_value);
     }
 
