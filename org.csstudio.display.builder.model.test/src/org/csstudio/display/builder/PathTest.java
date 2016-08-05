@@ -29,17 +29,17 @@ public class PathTest
     }
 
     @Test
-    public void testLocation() throws Exception
+    public void testDirectory() throws Exception
     {
         String loc;
 
-        loc = ModelResourceUtil.getLocation("https://webopi.sns.gov/webopi/opi/Instruments.opi");
+        loc = ModelResourceUtil.getDirectory("https://webopi.sns.gov/webopi/opi/Instruments.opi");
         assertThat(loc, equalTo("https://webopi.sns.gov/webopi/opi"));
 
-        loc = ModelResourceUtil.getLocation("/usr/local/opi/Instruments.opi");
+        loc = ModelResourceUtil.getDirectory("/usr/local/opi/Instruments.opi");
         assertThat(loc, equalTo("/usr/local/opi"));
 
-        loc = ModelResourceUtil.getLocation("Instruments.opi");
+        loc = ModelResourceUtil.getDirectory("Instruments.opi");
         assertThat(loc, equalTo("."));
     }
 

@@ -38,13 +38,17 @@ public class WorkspaceResourceHelperImpl implements WorkspaceResourceHelper
     }
 
     @Override
-    public String getLocalPath(String resource_name)
+    public String getLocalPath(final String resource_name)
     {
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         try
-        {
+        {   // The file itself must not exist, because caller
+            // may be about to create it.
+            // But the parent container should exist,
+            // otherwise this is unlikely to be a valid resource name
+            // within the workspace.
             final IFile file = root.getFile(new Path(resource_name));
-            if (file.exists())
+            if (file.getParent().exists())
                 return file.getLocation().toOSString();
         }
         catch (Exception ex)
