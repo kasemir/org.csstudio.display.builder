@@ -511,4 +511,43 @@ using "native" Python, click the button below. For an explanation of Python
       </action>
     </actions>
   </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_31</name>
+    <y>991</y>
+    <width>281</width>
+    <height>30</height>
+    <text>Script PVs, 'Trigger'</text>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_34</name>
+    <y>1021</y>
+    <width>391</width>
+    <height>400</height>
+    <text>Each script needs at least one PV marked as a "Trigger".
+The script is invoked (triggered) when receiving
+the first value of that PV,
+and later whenever the PV changes.
+
+Beware that a PV can change or disconnect
+at any time.
+The script receives a handle to all its PVs, and then reads
+the current value of each PV as desired.
+Assuming a rapidly changing PV that invokes the script
+with value "A", by the time the script executes and
+reads the PV, it might get a new value "B".
+
+When a script is attached to multiple PVs,
+one or more PVs can be marked as a "trigger".
+When the script is invoked, we know that the
+PV which triggered the script was at that time
+connected.
+By the time the script executes, it sees the current
+state of all PVs: Some may not be connected,
+some may already have changed their values
+once more.</text>
+  </widget>
 </display>

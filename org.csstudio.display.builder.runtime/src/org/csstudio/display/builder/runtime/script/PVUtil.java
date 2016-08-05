@@ -25,7 +25,7 @@ import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VTable;
 import org.diirt.vtype.VType;
 
-/** Utility for handling PVs and their values in scripts
+/** Utility for handling PVs and their values in scripts.
  *
  *  @author Kay Kasemir
  *  @author Xihui Chen - Original org.csstudio.opibuilder.scriptUtil.*
@@ -33,7 +33,7 @@ import org.diirt.vtype.VType;
 @SuppressWarnings("nls")
 public class PVUtil
 {
-    private static VType getVType(final RuntimePV pv)
+    private static VType getVType(final RuntimePV pv) throws NullPointerException
     {
         return Objects.requireNonNull(pv.read(), () -> "PV " + pv.getName() + " has no value");
     }
@@ -43,8 +43,9 @@ public class PVUtil
      *  @return Current value.
      *          <code>Double.NaN</code> in case the value type
      *          does not decode into a number.
+     *  @throws NullPointerException if the PV has no value
      */
-    public static double getDouble(final RuntimePV pv)
+    public static double getDouble(final RuntimePV pv) throws NullPointerException
     {
         return VTypeUtil.getValueNumber(getVType(pv)).longValue();
     }
@@ -52,8 +53,9 @@ public class PVUtil
     /** Try to get an integer from the PV.
      *  @param pv PV
      *  @return Current value as int
+     *  @throws NullPointerException if the PV has no value
      */
-    public static int getInt(final RuntimePV pv)
+    public static int getInt(final RuntimePV pv) throws NullPointerException
     {
         return VTypeUtil.getValueNumber(getVType(pv)).intValue();
     }
@@ -61,8 +63,9 @@ public class PVUtil
     /** Try to get a long integer from the PV.
      *  @param pv PV
      *  @return Current value as long
+     *  @throws NullPointerException if the PV has no value
      */
-    public static long getLong(final RuntimePV pv)
+    public static long getLong(final RuntimePV pv) throws NullPointerException
     {
         return VTypeUtil.getValueNumber(getVType(pv)).longValue();
     }
@@ -70,8 +73,9 @@ public class PVUtil
     /** Get value of PV as string.
      *  @param pv PV
      *  @return Current value as string
+     *  @throws NullPointerException if the PV has no value
      */
-    public static String getString(final RuntimePV pv)
+    public static String getString(final RuntimePV pv) throws NullPointerException
     {
         return getString(pv, false);
     }
@@ -83,8 +87,9 @@ public class PVUtil
      *  @param pv PV
      *  @param byte_array_as_string Decode byte arrays as string?
      *  @return Current value as string
+     *  @throws NullPointerException if the PV has no value
      */
-    public static String getString(final RuntimePV pv, final boolean byte_array_as_string)
+    public static String getString(final RuntimePV pv, final boolean byte_array_as_string) throws NullPointerException
     {
         final VType vtype = getVType(pv);
         final FormatOption option = vtype instanceof VByteArray
@@ -96,8 +101,9 @@ public class PVUtil
     /** Get labels for a {@link VEnum} value, or headers for a {@link VTable}.
      *  @param pv the PV.
      *  @return Enum labels or empty array if not enum nor table
+     *  @throws NullPointerException if the PV has no value
      */
-    public static String[] getLabels(final RuntimePV pv)
+    public static String[] getLabels(final RuntimePV pv) throws NullPointerException
     {
         final VType value = getVType(pv);
         if (value instanceof VEnum)
@@ -127,9 +133,10 @@ public class PVUtil
      *
      *  @param pv PV
      *  @return List of rows, where each row contains either String or Number cells
+     *  @throws NullPointerException if the PV has no value
      */
     @SuppressWarnings("rawtypes")
-    public static List<List<Object>> getTable(final RuntimePV pv)
+    public static List<List<Object>> getTable(final RuntimePV pv) throws NullPointerException
     {
         final VType value = getVType(pv);
         final List<List<Object>> data = new ArrayList<>();
@@ -180,9 +187,10 @@ public class PVUtil
      *  @param row Row index, 0..
      *  @param column Column index, 0..
      *  @return Either String or Number for the cell's value, null if invalid row/column
+     *  @throws NullPointerException if the PV has no value
      */
     @SuppressWarnings("rawtypes")
-    public static Object getTableCell(final RuntimePV pv, final int row, final int column)
+    public static Object getTableCell(final RuntimePV pv, final int row, final int column) throws NullPointerException
     {
         final VType value = getVType(pv);
         if (value instanceof VTable)
