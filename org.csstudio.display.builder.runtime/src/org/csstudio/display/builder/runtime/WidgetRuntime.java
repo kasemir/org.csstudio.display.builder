@@ -213,7 +213,7 @@ public class WidgetRuntime<MW extends Widget>
             return Collections.emptyList();
         return runtime_pvs.getPVs();
     }
-    
+
     /** @return {@link Optional} containing primary PV of widget, if present. */
     public Optional<RuntimePV> getPrimaryPV()
     {
@@ -331,7 +331,7 @@ public class WidgetRuntime<MW extends Widget>
                 final ExecuteScriptActionInfo script_action = (ExecuteScriptActionInfo) action_info;
                 try
                 {
-                    final MacroValueProvider macros = widget.getEffectiveMacros();
+                    final MacroValueProvider macros = widget.getMacrosOrProperties();
                     final Script script = RuntimeScriptHandler.compileScript(widget, macros, script_action.getInfo());
                     scripts.put(script_action, script);
                 }

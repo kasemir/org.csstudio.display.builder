@@ -121,7 +121,7 @@ public class RuntimeScriptHandler implements RuntimePVListener
         this.widget = widget;
         this.infos = script_info.getPVs();
 
-        final MacroValueProvider macros = widget.getEffectiveMacros();
+        final MacroValueProvider macros = widget.getMacrosOrProperties();
         script = compileScript(widget, macros, script_info);
 
         pvs = new RuntimePV[infos.size()];
@@ -137,7 +137,7 @@ public class RuntimeScriptHandler implements RuntimePVListener
         this.widget = widget;
         this.infos = rule_info.getPVs();
 
-        final MacroValueProvider macros = widget.getEffectiveMacros();
+        final MacroValueProvider macros = widget.getMacrosOrProperties();
         script = compileScript(widget, macros, rule_info);
 
         pvs = new RuntimePV[infos.size()];

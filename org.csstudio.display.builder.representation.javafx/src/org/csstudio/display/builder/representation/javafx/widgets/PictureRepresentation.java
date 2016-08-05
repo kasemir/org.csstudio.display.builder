@@ -114,7 +114,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
             //final String base_path = "platform:/plugin/org.csstudio.display.representation.javafx/icons/add.png"; //$NON-NLS-1$
 
             // expand macros in the file name
-            final String expanded_path = MacroHandler.replace(model_widget.getEffectiveMacros(), base_path);
+            final String expanded_path = MacroHandler.replace(model_widget.getMacrosOrProperties(), base_path);
 
             // Resolve new image file relative to the source widget model (not 'top'!)
             // Get the display model from the widget tied to this representation
