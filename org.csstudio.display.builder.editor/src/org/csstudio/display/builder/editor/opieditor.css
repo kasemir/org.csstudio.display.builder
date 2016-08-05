@@ -112,7 +112,6 @@
 /* AutocompleteMenu: menu items */
 .ac-menu-item
 {
-    -fx-text-fill:blue;
 }
 
 .ac-menu-label /* result provider labels (e.g. "History") */

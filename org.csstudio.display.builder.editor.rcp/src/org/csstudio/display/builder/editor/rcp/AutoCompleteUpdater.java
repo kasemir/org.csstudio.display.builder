@@ -10,19 +10,18 @@ import org.csstudio.display.builder.editor.AutocompleteMenu;
 import org.csstudio.display.builder.editor.AutocompleteMenuUpdater;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 
-import javafx.application.Platform;
-
 /**
- * Implements a Function to get autocomplete suggestions from text input
+ * Handles updates for autocomplete
  * 
- * @author Amanda Carpenter
+ * @author Amanda Carpenter Fred Arnaud (Sopra Group) - ITER - original
+ *         updateHistory (in
+ *         org.csstudio.autocomplete.ui.history.AutoCompleteHistory)
  *
  */
 public class AutoCompleteUpdater implements AutocompleteMenuUpdater
 {
     private final AutocompleteMenu menu;
     private Long currentId;
-    private int ignored_results;
 
     public AutoCompleteUpdater(AutocompleteMenu menu)
     {
@@ -38,20 +37,8 @@ public class AutoCompleteUpdater implements AutocompleteMenuUpdater
                 (Long uniqueId, Integer index, AutoCompleteResult result) ->
                 {
                     if (uniqueId != null && uniqueId.equals(currentId))
-                        Platform.runLater(() ->
-                        {
-                            menu.setResults(result.getProvider(), result.getProposalsAsString(),
-                                            index != null ? index : 0);
-                        });
-                    else if (/* uniqueId < currentId && */ ++ignored_results > 15)
-                    {
-                        ignored_results = 0;
-                        Platform.runLater(() ->
-                        {
-                            menu.setResults(result.getProvider(), result.getProposalsAsString(),
-                                    index != null ? index : 0);
-                        });
-                    }
+                        menu.setResults(result.getProvider(), result.getProposalsAsString(),
+                                        index != null ? index : 0);
                 });
     }
 

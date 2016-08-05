@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.geometry.Side;
@@ -28,42 +29,40 @@ public class AutocompleteMenu
     {
         //Hide menu if not in focus in case field value changes without typing (i.e., if
         //change in widget's inline editor causes property panel field to change)
-        if (field == null | !field.isFocused())
+        if (field == null || !field.isFocused())
         {
             menu.hide();
             return;
         }
-        //TODO make use of cursor position
+        //TODO make use of cursor position?
         if (updater != null)
             updater.requestEntries(field.getText());
         if (!menu.isShowing())
         {
-            //TODO fix width
-            menu.setMinWidth(field.getWidth());
             menu.show(field, Side.BOTTOM, 0, 0);
         }
     };
 
-    private final List<Result> result_list = new ArrayList<Result>();
+    private final List<Result> result_list = new LinkedList<Result>();
 
     private class Result
     {
-        private CustomMenuItem header;
+        private CustomMenuItem label;
         private List<String> results;
-        protected int expected; //expected index
+        protected int expected; //expected index of results (in result_list)
 
-        protected Result(String header, List<String> results, int expected)
+        protected Result(String provider_label, List<String> results, int expected)
         {
-            this.header = createHeaderItem(header);
+            label = createHeaderItem(provider_label);
             this.expected = expected;
             setResults(results);
         }
 
-        protected void addItemsTo(List<MenuItem> menu)
+        protected void addItemsTo(List<MenuItem> items)
         {
-            menu.add(header);
+            items.add(label);
             for (String result : results)
-                menu.add(createMenuItem(result));
+                items.add(createMenuItem(result));
         }
 
         protected void setResults(List<String> results)
@@ -73,13 +72,14 @@ public class AutocompleteMenu
 
         protected boolean eq_str(String str)
         {
-            return ((Text) header.getContent()).getText().equals(str);
+            return ((Text) label.getContent()).getText().equals(str);
         }
 
+        @SuppressWarnings("nls")
         @Override
         public String toString()
         {
-            return ((Text) header.getContent()).getText() + "@" + expected + " (" + results.size() + "): "
+            return ((Text) label.getContent()).getText() + " at " + expected + " (" + results.size() + "): "
                     + results.toString();
         }
     }
@@ -119,11 +119,9 @@ public class AutocompleteMenu
     {
         if (label == null)
             return;
-        System.out.println("results for " + label + " @" + index + " (" + results.size() + ")");
 
         final List<MenuItem> items = new LinkedList<MenuItem>();
 
-        //TODO: see if this can be improved
         synchronized (result_list)
         {
             final ListIterator<Result> it = result_list.listIterator();
@@ -134,9 +132,7 @@ public class AutocompleteMenu
                 while (result.expected < index)
                 {
                     if (result.eq_str(label))
-                    {
                         it.remove();
-                    }
                     else
                         result.addItemsTo(items);
                     if (it.hasNext())
@@ -155,10 +151,10 @@ public class AutocompleteMenu
             while (it.hasNext())
             {
                 result = it.next();
-                if (result.expected > index)
-                    index++;
-                if (result.expected == index)
+                if (result.expected <= index)
                     result.expected++;
+                if (result.expected >= index)
+                    index++;
                 if (result.eq_str(label))
                     it.remove();
                 else
@@ -166,17 +162,17 @@ public class AutocompleteMenu
             }
         }
 
-        menu.getItems().setAll(items);
+        //Must make changes to JavaFX ContextMenu object from JavaFX thread
+        Platform.runLater(() -> menu.getItems().setAll(items));
     }
 
     public void updateHistory(String entry)
     {
         if (updater != null)
-        {
             updater.updateHistory(entry);
-        }
         else
-        { //add entry to top of menu items
+        { //add entry to top of menu items (for the particular autocomplete menu instance)
+          //(Currently, there are two instances of this class in the editor: one for the inline editor, one for the palette)
             List<MenuItem> items = menu.getItems();
             //remove entry if present, to avoid duplication
             items.removeIf((item) -> item.getText().equals(entry));
@@ -186,9 +182,8 @@ public class AutocompleteMenu
 
     private final CustomMenuItem createHeaderItem(String header)
     {
-        //TODO style with class using stylesheet (where is sheet?)
         final CustomMenuItem item = new CustomMenuItem(new Text(header), false);
-        item.getStyleClass().add("ac-menu-label");
+        item.getStyleClass().add("ac-menu-label"); //$NON-NLS-1$
         item.setHideOnClick(false);
         return item;
     }
@@ -200,7 +195,7 @@ public class AutocompleteMenu
         {
             field.setText(item.getText());
         });
-        item.getStyleClass().add("ac-menu-item");
+        item.getStyleClass().add("ac-menu-item"); //$NON-NLS-1$
         return item;
     }
 }
