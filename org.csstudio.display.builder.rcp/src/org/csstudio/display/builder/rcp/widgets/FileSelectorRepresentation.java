@@ -74,7 +74,7 @@ public class FileSelectorRepresentation extends JFXBaseRepresentation<Button, Fi
 
     private void selectFile()
     {
-        FileSelectorWidget.FileComponent component = model_widget.behaviorComponent().getValue();
+        final FileSelectorWidget.FileComponent component = model_widget.behaviorComponent().getValue();
 
         String path = VTypeUtil.getValueString(model_widget.runtimeValue().getValue(), false);
 

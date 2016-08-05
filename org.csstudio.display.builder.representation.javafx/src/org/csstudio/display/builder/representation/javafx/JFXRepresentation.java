@@ -368,4 +368,11 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         }
         return false;
     }
+
+    @Override
+    public String showSaveAsDialog(final String initial_value)
+    {
+        logger.log(Level.WARNING, "showSaveAsDialog('" + initial_value + "') is not implemented");
+        return null;
+    }
 }

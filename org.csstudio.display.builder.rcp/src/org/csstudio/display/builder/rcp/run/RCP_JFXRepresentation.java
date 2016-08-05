@@ -7,12 +7,19 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.run;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.rcp.Messages;
 import org.csstudio.display.builder.rcp.RuntimeViewPart;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
+import org.csstudio.ui.util.dialogs.ResourceSelectionDialog;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.window.Window;
+import org.eclipse.swt.widgets.Display;
 
 import javafx.scene.Parent;
 
@@ -20,6 +27,7 @@ import javafx.scene.Parent;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class RCP_JFXRepresentation extends JFXRepresentation
 {
     // Similar to JFXRepresentation, but using RuntimeViewPart as 'Window'
@@ -49,5 +57,32 @@ public class RCP_JFXRepresentation extends JFXRepresentation
             part.trackCurrentModel(model);
 
         super.representModel(parent, model);
+    }
+
+    @Override
+    public String showSaveAsDialog(final String initial_value)
+    {
+        final AtomicReference<String> result = new AtomicReference<String>();
+        final Display display = Display.getDefault();
+
+        final Runnable doit = () ->
+        {
+            final ResourceSelectionDialog dialog = new ResourceSelectionDialog(display.getActiveShell(),
+                    Messages.SelectWorkspaceFile, new String[] { "*.*" });
+            dialog.setSelectedResource(new Path(initial_value));
+            if (dialog.open() != Window.OK)
+                return;
+            final IPath resource = dialog.getSelectedResource();
+            if (resource == null)
+                return;
+            result.set(resource.toPortableString());
+        };
+
+        if (Display.getCurrent() != null)
+            doit.run();
+        else
+            display.syncExec(doit);
+
+        return result.get();
     }
 }

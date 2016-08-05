@@ -355,6 +355,13 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     abstract public boolean showConfirmationDialog(String question);
 
+    /** Show file "Save As" dialog for selecting/entering a new file name
+     *
+     *  @param initial_value Initial path and file name
+     *  @return Path and file name or <code>null</code>
+     */
+    abstract public String showSaveAsDialog(final String initial_value);
+
     /** Execute callable in toolkit's UI thread.
      *  @param <T> Type to return
      *  @param callable Callable to execute

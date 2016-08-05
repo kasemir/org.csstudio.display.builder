@@ -141,4 +141,11 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
         logger.log(Level.WARNING, "showConfirmationDialog('" + question + "') is not implemented");
         return false;
     }
+
+    @Override
+    public String showSaveAsDialog(final String initial_value)
+    {
+        logger.log(Level.WARNING, "showSaveAsDialog('" + initial_value + "') is not implemented");
+        return null;
+    }
 }

@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -26,6 +27,22 @@ import org.csstudio.display.builder.runtime.pv.RuntimePV;
 @SuppressWarnings("nls")
 public class ScriptUtil
 {
+    // ================
+    // Model gymnastics
+
+    /** Locate a widget by name
+     *
+     *  @param widget Widget used to locate the widget model
+     *  @param name Name of widget to find
+     *  @return Widget or <code>null</code>
+     *  @throws Exception
+     */
+    public static Widget findWidgetByName(final Widget widget, final String name) throws Exception
+    {
+        final ChildrenProperty siblings = widget.getDisplayModel().runtimeChildren();
+        return siblings.getChildByName(name);
+    }
+
     // ================
     // logging utils
 
@@ -92,6 +109,27 @@ public class ScriptUtil
         return false;
     }
 
+    /** Show file "Save As" dialog for selecting/entering a new file name
+     *
+     *  <p>Call blocks until the user closes the dialog
+     *  by either either entering/selecting a file name, or pressing "Cancel".
+     *
+     *  @param widget Widget, used to obtain toolkit for representing dialog
+     *  @param initial_value Initial path and file name
+     *  @return Path and file name or <code>null</code>
+     */
+    public static String showSaveAsDialog(final Widget widget, final String initial_value)
+    {
+        try
+        {
+            return ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showSaveAsDialog(initial_value);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Error in save-as dialog for " + initial_value, ex);
+        }
+        return null;
+    }
 
     // ==================
     // get PV utils
