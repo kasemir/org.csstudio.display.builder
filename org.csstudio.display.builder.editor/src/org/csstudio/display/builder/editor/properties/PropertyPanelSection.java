@@ -41,7 +41,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputControl;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -182,8 +181,23 @@ public class PropertyPanelSection extends GridPane
             final MacroizedWidgetProperty<?> macro_prop = (MacroizedWidgetProperty<?>)property;
             final TextField text = new TextField();
             text.setPromptText(macro_prop.getDefaultValue().toString());
-            final MacroizedWidgetPropertyBinding binding =
-                    new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
+            final MacroizedWidgetPropertyBinding binding = (CommonWidgetProperties.behaviorPVName.getName()
+                    .equals(property.getName())) ? new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other)
+                    {
+                        @Override
+                        public void bind()
+                        {
+                            super.bind();
+                            autocomplete_menu.setField(text);
+                        }
+
+                        @Override
+                        public void unbind()
+                        {
+                            super.unbind();
+                            autocomplete_menu.removeField();
+                        }
+                    } : new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
             bindings.add(binding);
             binding.bind();
             if (CommonWidgetProperties.displayText.getName().equals(property.getName()))
@@ -241,9 +255,7 @@ public class PropertyPanelSection extends GridPane
         Node field = bindSimplePropertyField(undo, bindings, property, other);
         if (field != null)
         {
-            if (CommonWidgetProperties.behaviorPVName.getName().equals(property.getName()))
-                autocomplete_menu.setField((TextInputControl) field);
-            //else: do nothing
+            //do nothing
         }
         else if (property instanceof MacrosWidgetProperty)
         {
@@ -356,6 +368,5 @@ public class PropertyPanelSection extends GridPane
         bindings.forEach(WidgetPropertyBinding::unbind);
         bindings.clear();
         getChildren().clear();
-        autocomplete_menu.removeField();
     }
 }
