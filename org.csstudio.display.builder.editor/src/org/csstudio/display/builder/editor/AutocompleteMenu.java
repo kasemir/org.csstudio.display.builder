@@ -8,13 +8,28 @@ import java.util.ListIterator;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Side;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputControl;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.text.Text;
 
+/**
+ * Creates a menu for use with auto-completion. Fields which edit
+ * auto-completeable properties should use setField and getField on the related
+ * TextInputControl object to attach the menu, and removeField to unregister
+ * listeners. For meaningful auto-completion, an {@link AutocompleteMenuUpdater}
+ * should be given which implements methods to request entries for a given
+ * value, calling back to setResults as appropriate, and to update the history
+ * of the menu.
+ * 
+ * @author Amanda Carpenter
+ *
+ */
 public class AutocompleteMenu
 {
     private final ContextMenu menu = new ContextMenu();
@@ -41,6 +56,11 @@ public class AutocompleteMenu
         {
             menu.show(field, Side.BOTTOM, 0, 0);
         }
+    };
+    private final EventHandler<KeyEvent> submit_handler = (event) ->
+    {
+        if (event.getCode().equals(KeyCode.ENTER))
+            updateHistory(field.getText());
     };
 
     private final List<Result> result_list = new LinkedList<Result>();
@@ -84,6 +104,11 @@ public class AutocompleteMenu
         }
     }
 
+    /**
+     * Set the text field used to enter the auto-completed value
+     * 
+     * @param field
+     */
     public void setField(final TextInputControl field)
     {
         removeField();
@@ -92,9 +117,13 @@ public class AutocompleteMenu
         {
             field.textProperty().addListener(text_listener);
             field.focusedProperty().addListener(focused_listener);
+            field.addEventHandler(KeyEvent.KEY_RELEASED, submit_handler);
         }
     }
 
+    /**
+     * Remove the auto-completed field, unbinding listeners and event handlers
+     */
     public void removeField()
     {
         menu.hide();
@@ -102,9 +131,16 @@ public class AutocompleteMenu
         {
             field.textProperty().removeListener(text_listener);
             field.focusedProperty().removeListener(focused_listener);
+            field.removeEventHandler(KeyEvent.KEY_RELEASED, submit_handler);
         }
     }
 
+    /**
+     * Set updater interface which is used to update the menu as text changes or
+     * values are submitted.
+     * 
+     * @param results_updater
+     */
     public void setUpdater(AutocompleteMenuUpdater results_updater)
     {
         updater = results_updater;
@@ -115,10 +151,19 @@ public class AutocompleteMenu
         setResults(label, results, 0);
     }
 
+    /**
+     * Set the results for the provider with the given label at the given index.
+     * 
+     * @param label Label for results provider or category
+     * @param results List of results to be shown
+     * @param index Expected index (with respect to labels) of results
+     */
     public void setResults(final String label, final List<String> results, int index)
     {
         if (label == null)
             return;
+
+        //System.out.println("results for " + label + " at " + index);
 
         final List<MenuItem> items = new LinkedList<MenuItem>();
 
@@ -162,11 +207,14 @@ public class AutocompleteMenu
             }
         }
 
+        //for (Result result : result_list)
+        //System.out.println(result);
+
         //Must make changes to JavaFX ContextMenu object from JavaFX thread
         Platform.runLater(() -> menu.getItems().setAll(items));
     }
 
-    public void updateHistory(String entry)
+    private void updateHistory(String entry)
     {
         if (updater != null)
             updater.updateHistory(entry);

@@ -230,7 +230,6 @@ public class SelectedWidgetUITracker extends Tracker
             switch (event.getCode())
             {
             case ENTER:
-                autocomplete_menu.updateHistory(inline_editor.getText());
                 undo.execute(new SetMacroizedWidgetPropertyAction(property, inline_editor.getText()));
                 // Fall through, close editor
             case ESCAPE:

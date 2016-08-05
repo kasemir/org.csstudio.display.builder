@@ -9,11 +9,18 @@ package org.csstudio.display.builder.editor;
 public interface AutocompleteMenuUpdater
 {
     /**
-     * Request autocomplete entries for the given content
+     * Request autocomplete entries for the given content, and handle updating
+     * the menu's content. The method AutocompleteMenu#setResults is intended
+     * for handling these updates.
      * 
      * @param content Content for which to request autocomplete entries
      */
     public void requestEntries(String content);
 
+    /**
+     * Add the given entry into autocomplete history.
+     * 
+     * @param entry Entry to be added to history
+     */
     public void updateHistory(String entry);
 }

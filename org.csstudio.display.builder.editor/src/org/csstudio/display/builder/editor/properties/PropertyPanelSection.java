@@ -42,8 +42,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -207,17 +205,7 @@ public class PropertyPanelSection extends GridPane
                 field = new HBox(text, open_editor);
             }
             else
-            {
-                if (CommonWidgetProperties.behaviorPVName.getName().equals(property.getName()))
-                {
-                    text.addEventHandler(KeyEvent.KEY_PRESSED, (event) ->
-                    {
-                        if (event.getCode().equals(KeyCode.ENTER))
-                            autocomplete_menu.updateHistory(text.getText());
-                    });
-                }
                 field = text;
-            }
         }
         else if (property instanceof PointsWidgetProperty)
         {
