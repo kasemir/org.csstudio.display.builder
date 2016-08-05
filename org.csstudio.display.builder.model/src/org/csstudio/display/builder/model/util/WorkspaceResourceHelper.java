@@ -16,6 +16,7 @@ import java.io.InputStream;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public interface WorkspaceResourceHelper
 {
     /** Fragment for model plugin provides this class as implementation. */

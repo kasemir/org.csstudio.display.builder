@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
@@ -143,5 +144,17 @@ public class ScriptUtil
                 return pv;
         logger.warning("Could not find PV with name '" + name + "' for " + widget);
         return null;
+    }
+
+
+    // ==================
+    // Workspace helpers
+
+    /** @param workspace_path Path within workspace
+     *  @return Location in local file system or <code>null</code>
+     */
+    public static String workspacePathToSysPath(final String workspace_path)
+    {
+        return ModelResourceUtil.getLocalPath(workspace_path);
     }
 }
