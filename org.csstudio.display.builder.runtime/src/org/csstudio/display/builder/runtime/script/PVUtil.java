@@ -47,7 +47,7 @@ public class PVUtil
      */
     public static double getDouble(final RuntimePV pv) throws NullPointerException
     {
-        return VTypeUtil.getValueNumber(getVType(pv)).longValue();
+        return VTypeUtil.getValueNumber(getVType(pv)).doubleValue();
     }
 
     /** Try to get an integer from the PV.
