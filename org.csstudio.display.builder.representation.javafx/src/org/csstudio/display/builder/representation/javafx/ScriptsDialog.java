@@ -165,6 +165,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         getDialogPane().setContent(createContent());
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        getDialogPane().getStylesheets().add(getClass().getResource("opibuilder.css").toExternalForm());
         setResizable(true);
 
         setResultConverter(button ->

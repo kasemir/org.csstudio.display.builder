@@ -108,13 +108,3 @@
 {
     -fx-background-color: rgb(180, 180, 255);
 }
-
-/* AutocompleteMenu: menu items */
-.ac-menu-item
-{
-}
-
-.ac-menu-label /* result provider labels (e.g. "History") */
-{
-    -fx-font-weight:bold;
-}

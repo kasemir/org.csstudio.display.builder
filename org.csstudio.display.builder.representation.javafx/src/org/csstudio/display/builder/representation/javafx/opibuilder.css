@@ -8,3 +8,13 @@
     -fx-stroke-type: inside;
     -fx-stroke: linear-gradient(to bottom right, #808080, #f0f0f0);
 }
+
+/* AutocompleteMenu: menu items */
+.ac-menu-item
+{
+}
+
+.ac-menu-label /* result provider labels (e.g. "History") */
+{
+    -fx-font-weight:bold;
+}

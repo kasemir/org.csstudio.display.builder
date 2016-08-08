@@ -29,6 +29,7 @@ import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.Messages;
+import org.csstudio.display.builder.representation.javafx.ScriptsDialog;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.MultiLineInputDialog;
 
@@ -549,6 +550,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         getDialogPane().setContent(createContent());
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        //use same stylesheet as ScriptsDialog, ActionsDialog
+        getDialogPane().getStylesheets().add(ScriptsDialog.class.getResource("opibuilder.css").toExternalForm());
         setResizable(true);
 
         setResultConverter(button ->

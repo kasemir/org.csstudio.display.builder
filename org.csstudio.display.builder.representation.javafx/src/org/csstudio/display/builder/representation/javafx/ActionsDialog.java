@@ -244,6 +244,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
 
         getDialogPane().setContent(layout);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        getDialogPane().getStylesheets().add(getClass().getResource("opibuilder.css").toExternalForm());
         setResizable(true);
 
         // Show and initialize *_details sub-pane for selected action
