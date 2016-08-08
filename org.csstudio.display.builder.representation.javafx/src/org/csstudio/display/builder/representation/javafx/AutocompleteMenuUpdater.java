@@ -1,4 +1,4 @@
-package org.csstudio.display.builder.editor;
+package org.csstudio.display.builder.representation.javafx;
 
 /**
  * Generic updater interface for (JavaFX-based) {@link AutocompleteMenu}.

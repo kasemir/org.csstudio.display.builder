@@ -13,11 +13,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.csstudio.display.builder.editor.AutocompleteMenu;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;

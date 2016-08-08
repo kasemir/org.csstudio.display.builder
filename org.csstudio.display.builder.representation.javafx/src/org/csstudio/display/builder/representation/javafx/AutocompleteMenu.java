@@ -1,4 +1,4 @@
-package org.csstudio.display.builder.editor;
+package org.csstudio.display.builder.representation.javafx;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -7,7 +7,6 @@ import java.util.ListIterator;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Side;
 import javafx.scene.control.ContextMenu;
@@ -20,12 +19,11 @@ import javafx.scene.text.Text;
 
 /**
  * Creates a menu for use with auto-completion. Fields which edit
- * auto-completeable properties should use setField and getField on the related
- * TextInputControl object to attach the menu, and removeField to unregister
- * listeners. For meaningful auto-completion, an {@link AutocompleteMenuUpdater}
- * should be given which implements methods to request entries for a given
- * value, calling back to setResults as appropriate, and to update the history
- * of the menu.
+ * auto-completeable properties should use attachField on the related
+ * TextInputControl to attach the menu, and removeField to unregister listeners.
+ * For meaningful auto-completion, an {@link AutocompleteMenuUpdater} should be
+ * given which implements methods to request result entries for a given value,
+ * calling setResults as results arrive, and to update the history of the menu.
  * 
  * @author Amanda Carpenter
  *
@@ -34,34 +32,53 @@ public class AutocompleteMenu
 {
     private final ContextMenu menu = new ContextMenu();
     private AutocompleteMenuUpdater updater = null;
-    private TextInputControl field = null;
+    private List<ControlWrapper> fields = new ArrayList<ControlWrapper>();
+    private TextInputControl current_field = null;
 
-    private final ChangeListener<Boolean> focused_listener = (obs, oldval, newval) ->
+    private class ControlWrapper
     {
-        menu.hide();
-    };
-    private final ChangeListener<String> text_listener = (obs, oldval, newval) ->
-    {
-        //Hide menu if not in focus in case field value changes without typing (i.e., if
-        //change in widget's inline editor causes property panel field to change)
-        if (field == null || !field.isFocused())
+        private TextInputControl field = null;
+
+        private final ChangeListener<Boolean> focused_listener = (obs, oldval, newval) ->
         {
             menu.hide();
-            return;
-        }
-        //TODO make use of cursor position?
-        if (updater != null)
-            updater.requestEntries(field.getText());
-        if (!menu.isShowing())
+            if (newval)
+                current_field = field;
+        };
+        private final ChangeListener<String> text_listener = (obs, oldval, newval) ->
         {
-            menu.show(field, Side.BOTTOM, 0, 0);
+            if (field.isFocused())
+            {
+                //TODO: could make use of cursor position for more intelligent suggestions
+                if (updater != null)
+                    updater.requestEntries(field.getText());
+                if (!menu.isShowing())
+                    menu.show(field, Side.BOTTOM, 0, 0);
+            }
+        };
+        private final EventHandler<KeyEvent> submit_handler = (event) ->
+        {
+            if (event.getCode().equals(KeyCode.ENTER))
+            {
+                updateHistory(field.getText());
+            }
+        };
+
+        ControlWrapper(TextInputControl field)
+        {
+            this.field = field;
+            field.focusedProperty().addListener(focused_listener);
+            field.addEventHandler(KeyEvent.KEY_RELEASED, submit_handler);
+            field.textProperty().addListener(text_listener);
         }
-    };
-    private final EventHandler<KeyEvent> submit_handler = (event) ->
-    {
-        if (event.getCode().equals(KeyCode.ENTER))
-            updateHistory(field.getText());
-    };
+
+        protected void unbind()
+        {
+            field.textProperty().removeListener(text_listener);
+            field.focusedProperty().removeListener(focused_listener);
+            field.removeEventHandler(KeyEvent.KEY_RELEASED, submit_handler);
+        }
+    }
 
     private final List<Result> result_list = new LinkedList<Result>();
 
@@ -90,7 +107,7 @@ public class AutocompleteMenu
             this.results = new ArrayList<String>(results);
         }
 
-        protected boolean eq_str(String str)
+        protected boolean textIs(String str)
         {
             return ((Text) label.getContent()).getText().equals(str);
         }
@@ -105,33 +122,52 @@ public class AutocompleteMenu
     }
 
     /**
-     * Set the text field used to enter the auto-completed value
+     * Attach a field to the menu (add a field to the menu's list of monitored
+     * controls)
      * 
-     * @param field
+     * @param field Control to add
      */
-    public void setField(final TextInputControl field)
+    public void attachField(TextInputControl field)
     {
-        removeField();
-        this.field = field;
-        if (this.field != null)
-        {
-            field.textProperty().addListener(text_listener);
-            field.focusedProperty().addListener(focused_listener);
-            field.addEventHandler(KeyEvent.KEY_RELEASED, submit_handler);
-        }
+        fields.add(new ControlWrapper(field));
     }
 
     /**
-     * Remove the auto-completed field, unbinding listeners and event handlers
+     * Remove the auto-completed field from the menu's list of monitored
+     * controls
      */
-    public void removeField()
+    public void removeField(TextInputControl control)
+    {
+        if (current_field != null && current_field.equals(control))
+        {
+            menu.hide();
+            current_field = null;
+        }
+        synchronized (fields)
+        {
+            for (ControlWrapper cw : fields)
+            {
+                if (cw.field.equals(control))
+                {
+                    cw.unbind();
+                    fields.remove(cw);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void removeFields()
     {
         menu.hide();
-        if (field != null)
+        current_field = null;
+        synchronized (fields)
         {
-            field.textProperty().removeListener(text_listener);
-            field.focusedProperty().removeListener(focused_listener);
-            field.removeEventHandler(KeyEvent.KEY_RELEASED, submit_handler);
+            for (ControlWrapper cw : fields)
+            {
+                cw.unbind();
+                fields.remove(cw);
+            }
         }
     }
 
@@ -176,7 +212,7 @@ public class AutocompleteMenu
                 result = it.next();
                 while (result.expected < index)
                 {
-                    if (result.eq_str(label))
+                    if (result.textIs(label))
                         it.remove();
                     else
                         result.addItemsTo(items);
@@ -200,7 +236,7 @@ public class AutocompleteMenu
                     result.expected++;
                 if (result.expected >= index)
                     index++;
-                if (result.eq_str(label))
+                if (result.textIs(label))
                     it.remove();
                 else
                     result.addItemsTo(items);
@@ -214,7 +250,13 @@ public class AutocompleteMenu
         Platform.runLater(() -> menu.getItems().setAll(items));
     }
 
-    private void updateHistory(String entry)
+    /**
+     * Add the given history to the entry (uses AutocompleteMenuUpdater if
+     * non-null).
+     * 
+     * @param entry
+     */
+    public void updateHistory(String entry)
     {
         if (updater != null)
             updater.updateHistory(entry);
@@ -239,9 +281,10 @@ public class AutocompleteMenu
     private final MenuItem createMenuItem(String text)
     {
         final MenuItem item = new MenuItem(text);
-        item.addEventHandler(ActionEvent.ACTION, (event) ->
+        item.setOnAction((event) ->
         {
-            field.setText(item.getText());
+            if (current_field != null)
+                current_field.setText(text);
         });
         item.getStyleClass().add("ac-menu-item"); //$NON-NLS-1$
         return item;

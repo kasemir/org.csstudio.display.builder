@@ -7,10 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp;
 
-import org.csstudio.display.builder.editor.AutocompleteMenu;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.properties.PropertyPanel;
+import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ISelection;

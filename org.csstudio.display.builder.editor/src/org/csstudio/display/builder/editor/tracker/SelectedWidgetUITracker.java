@@ -16,7 +16,6 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import org.csstudio.display.builder.editor.AutocompleteMenu;
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
@@ -30,6 +29,7 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.Tracker;
 
@@ -222,7 +222,7 @@ public class SelectedWidgetUITracker extends Tracker
 
         //add autocomplete menu if editing property PVName
         if (property.getName().equals(CommonWidgetProperties.behaviorPVName.getName()))
-            autocomplete_menu.setField(inline_editor);
+            autocomplete_menu.attachField(inline_editor);
 
         // On enter, update the property. On Escape, just close
         inline_editor.setOnKeyPressed(event ->
@@ -258,7 +258,7 @@ public class SelectedWidgetUITracker extends Tracker
     {
         getChildren().remove(inline_editor);
         inline_editor = null;
-        autocomplete_menu.removeField();
+        autocomplete_menu.removeField(inline_editor);
     }
 
     /** Tracker is in front of the widgets that it handles,

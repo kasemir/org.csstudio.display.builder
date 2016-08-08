@@ -6,8 +6,8 @@ import org.csstudio.autocomplete.AutoCompleteResult;
 import org.csstudio.autocomplete.AutoCompleteService;
 import org.csstudio.autocomplete.AutoCompleteType;
 import org.csstudio.autocomplete.ui.AutoCompleteUIPlugin;
-import org.csstudio.display.builder.editor.AutocompleteMenu;
-import org.csstudio.display.builder.editor.AutocompleteMenuUpdater;
+import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
+import org.csstudio.display.builder.representation.javafx.AutocompleteMenuUpdater;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
 
 /**

@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import org.csstudio.display.builder.editor.AutocompleteMenu;
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
@@ -32,6 +31,7 @@ import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
 import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
+import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.MultiLineInputDialog;
 
@@ -188,14 +188,14 @@ public class PropertyPanelSection extends GridPane
                         public void bind()
                         {
                             super.bind();
-                            autocomplete_menu.setField(text);
+                            autocomplete_menu.attachField(text);
                         }
 
                         @Override
                         public void unbind()
                         {
                             super.unbind();
-                            autocomplete_menu.removeField();
+                            autocomplete_menu.removeField(text);
                         }
                     } : new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
             bindings.add(binding);
@@ -292,7 +292,7 @@ public class PropertyPanelSection extends GridPane
             final RulesWidgetProperty rules_prop = (RulesWidgetProperty) property;
             final Button rules_field = new Button();
             rules_field.setMaxWidth(Double.MAX_VALUE);
-            final RulesPropertyBinding binding = new RulesPropertyBinding(undo, rules_field, rules_prop, other);
+            final RulesPropertyBinding binding = new RulesPropertyBinding(undo, rules_field, rules_prop, other, autocomplete_menu);
             bindings.add(binding);
             binding.bind();
             field = rules_field;
