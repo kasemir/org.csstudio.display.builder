@@ -272,7 +272,8 @@ public class PropertyPanelSection extends GridPane
             final ActionsWidgetProperty actions_prop = (ActionsWidgetProperty) property;
             final Button actions_field = new Button();
             actions_field.setMaxWidth(Double.MAX_VALUE);
-            final ActionsPropertyBinding binding = new ActionsPropertyBinding(undo, actions_field, actions_prop, other);
+            final ActionsPropertyBinding binding = new ActionsPropertyBinding(undo, actions_field, actions_prop, other,
+                    autocomplete_menu);
             bindings.add(binding);
             binding.bind();
             field = actions_field;

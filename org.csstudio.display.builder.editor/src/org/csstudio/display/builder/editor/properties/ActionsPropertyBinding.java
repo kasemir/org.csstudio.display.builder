@@ -16,6 +16,7 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.ActionsDialog;
+import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 
@@ -29,6 +30,8 @@ import javafx.scene.control.Button;
 public class ActionsPropertyBinding
        extends WidgetPropertyBinding<Button, ActionsWidgetProperty>
 {
+    private AutocompleteMenu menu = null;
+
     /** Update property panel field as model changes */
     private final WidgetPropertyListener<List<ActionInfo>> model_listener = (p, o, n) ->
     {
@@ -38,7 +41,7 @@ public class ActionsPropertyBinding
     /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event ->
     {
-        final ActionsDialog dialog = new ActionsDialog(widget_property.getValue());
+        final ActionsDialog dialog = new ActionsDialog(widget_property.getValue(), menu);
         DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
         final Optional<List<ActionInfo>> result = dialog.showAndWait();
         if (result.isPresent())
@@ -53,11 +56,18 @@ public class ActionsPropertyBinding
     };
 
     public ActionsPropertyBinding(final UndoableActionManager undo,
+            final Button field, final ActionsWidgetProperty widget_property, final List<Widget> other)
+    {
+        this(undo, field, widget_property, other, new AutocompleteMenu());
+    }
+
+    public ActionsPropertyBinding(final UndoableActionManager undo,
                                   final Button field,
                                   final ActionsWidgetProperty widget_property,
-                                  final List<Widget> other)
+            final List<Widget> other, final AutocompleteMenu menu)
     {
         super(undo, field, widget_property, other);
+        this.menu = menu;
     }
 
     @Override
