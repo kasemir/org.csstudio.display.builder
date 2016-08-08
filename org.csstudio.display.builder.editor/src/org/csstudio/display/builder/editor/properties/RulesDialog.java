@@ -919,14 +919,19 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         }
     }
 
-    //TODO: make autocomplete menu styling consistent with other menus
-    //(stylesheet in representation.javafx package is not applied)
+    /**
+     * {@link PVItem} {@link TableCell} with {@link AutocompleteMenu}
+     * 
+     * @author Amanda Carpenter
+     */
     private class AutoCompletedTableCell extends TableCell<PVItem, String>
     {
+        //TODO: make autocomplete menu styling consistent with other menus
+        //(stylesheet in representation.javafx package is not applied)
         private TextField textField;
         private final AutocompleteMenu menu;
 
-        public AutoCompletedTableCell(AutocompleteMenu menu)
+        public AutoCompletedTableCell(final AutocompleteMenu menu)
         {
             this.menu = menu;
         }
@@ -951,13 +956,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             super.cancelEdit();
             setText(getItem());
             setGraphic(null);
-        }
-
-        @Override
-        public void commitEdit(String newValue)
-        {
-            super.commitEdit(newValue);
-            menu.updateHistory(newValue);
         }
 
         @Override

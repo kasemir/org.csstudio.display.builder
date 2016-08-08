@@ -282,7 +282,8 @@ public class PropertyPanelSection extends GridPane
             final ScriptsWidgetProperty scripts_prop = (ScriptsWidgetProperty) property;
             final Button scripts_field = new Button();
             scripts_field.setMaxWidth(Double.MAX_VALUE);
-            final ScriptsPropertyBinding binding = new ScriptsPropertyBinding(undo, scripts_field, scripts_prop, other);
+            final ScriptsPropertyBinding binding = new ScriptsPropertyBinding(undo, scripts_field, scripts_prop, other,
+                    autocomplete_menu);
             bindings.add(binding);
             binding.bind();
             field = scripts_field;
