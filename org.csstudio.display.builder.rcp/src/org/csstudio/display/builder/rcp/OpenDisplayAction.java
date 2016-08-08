@@ -44,7 +44,7 @@ public class OpenDisplayAction extends Action
     {
         try
         {
-            final RuntimeViewPart part = RuntimeViewPart.open(ActionUtil::handleClose);
+            final RuntimeViewPart part = RuntimeViewPart.open(ActionUtil::handleClose, info);
             part.loadDisplayFile(info);
         }
         catch (Exception ex)

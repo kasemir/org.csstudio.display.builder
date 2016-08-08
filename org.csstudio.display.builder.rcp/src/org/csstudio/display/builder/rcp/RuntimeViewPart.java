@@ -32,6 +32,8 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
@@ -89,7 +91,36 @@ public class RuntimeViewPart extends ViewPart
      */
     public static RuntimeViewPart open(final Consumer<DisplayModel> close_handler) throws Exception
     {
+        return open(close_handler, null);
+    }
+
+    /**
+     * Open a runtime display; or, if the display is open, refresh it and makes
+     * its page active
+     * 
+     * @param close_handler Code to call when part is closed
+     * @param info DisplayInfo (to compare with currently open displays)
+     * @return {@link RuntimeViewPart}
+     * @throws Exception on error
+     */
+    public static RuntimeViewPart open(final Consumer<DisplayModel> close_handler, final DisplayInfo info)
+            throws Exception
+    {
         final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        if (info != null)
+            for (IViewReference viewRef : page.getViewReferences())
+            {
+                if (viewRef.getId().startsWith(ID))
+                {
+                    IViewPart viewPart = viewRef.getView(true);
+                    if (viewPart instanceof RuntimeViewPart && ((RuntimeViewPart) viewPart).getDisplayInfo().equals(info))
+                    {
+                        page.showView(viewRef.getId(), viewRef.getSecondaryId(), IWorkbenchPage.VIEW_ACTIVATE);
+                        ((RuntimeViewPart) viewPart).close_handler = close_handler;
+                        return (RuntimeViewPart) viewPart;
+                    }
+                }
+            }
         final RuntimeViewPart part = (RuntimeViewPart) page.showView(ID, UUID.randomUUID().toString(), IWorkbenchPage.VIEW_ACTIVATE);
         part.close_handler = close_handler;
         return part;
