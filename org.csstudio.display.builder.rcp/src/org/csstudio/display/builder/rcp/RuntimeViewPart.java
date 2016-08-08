@@ -95,7 +95,8 @@ public class RuntimeViewPart extends ViewPart
     }
 
     /**
-     * Open a runtime display; or, if the display is open, refresh it
+     * Open a runtime display; or, if the display is open, refresh it and makes
+     * its page active
      * 
      * @param close_handler Code to call when part is closed
      * @param info DisplayInfo (to compare with currently open displays)
@@ -114,6 +115,7 @@ public class RuntimeViewPart extends ViewPart
                     IViewPart viewPart = viewRef.getView(true);
                     if (viewPart instanceof RuntimeViewPart && ((RuntimeViewPart) viewPart).getDisplayInfo().equals(info))
                     {
+                        page.showView(viewRef.getId(), viewRef.getSecondaryId(), IWorkbenchPage.VIEW_ACTIVATE);
                         ((RuntimeViewPart) viewPart).close_handler = close_handler;
                         return (RuntimeViewPart) viewPart;
                     }
