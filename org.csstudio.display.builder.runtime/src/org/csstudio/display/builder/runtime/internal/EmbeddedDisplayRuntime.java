@@ -93,9 +93,9 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
             final DisplayModel new_model = loadDisplayModel(display_file);
 
             // If group name property is set, remove widgets that aren't groups with matching name
-            if (! widget.displayGroupName().isDefaultValue())
+            final String group_name = widget.displayGroupName().getValue();
+            if (! group_name.isEmpty())
             {
-                final String group_name = widget.displayGroupName().getValue();
                 final List<Widget> children = new_model.runtimeChildren().getValue();
                 int index = 0;
                 while (!children.isEmpty() && index < children.size())
