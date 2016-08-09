@@ -30,7 +30,7 @@ import org.diirt.vtype.VType;
  */
 public class ValueUtil
 {
-    /** Try to get a 'double' type number from the PV.
+    /** Try to get a 'double' type number from a value.
      *  @param value Value of a PV
      *  @return Current value.
      *          <code>Double.NaN</code> in case the value type
@@ -41,7 +41,7 @@ public class ValueUtil
         return VTypeUtil.getValueNumber(value).doubleValue();
     }
 
-    /** Try to get an integer from the PV.
+    /** Try to get an integer from a value.
      *  @param value Value of a PV
      *  @return Current value as int
      */
@@ -50,7 +50,7 @@ public class ValueUtil
         return VTypeUtil.getValueNumber(value).intValue();
     }
 
-    /** Try to get a long integer from the PV.
+    /** Try to get a long integer from a value.
      *  @param value Value of a PV
      *  @return Current value as long
      */
@@ -75,7 +75,6 @@ public class ValueUtil
      *  @param value Value of a PV
      *  @param byte_array_as_string Decode byte arrays as string?
      *  @return Current value as string
-     *  @throws NullPointerException if the PV has no value
      */
     public static String getString(final VType value, final boolean byte_array_as_string) throws NullPointerException
     {
@@ -86,7 +85,7 @@ public class ValueUtil
     }
 
     /** Get labels for a {@link VEnum} value, or headers for a {@link VTable}.
-     *  @param pv the PV.
+     *  @param value Value of a PV
      *  @return Enum labels or empty array if not enum nor table
      */
     public static String[] getLabels(final VType value)
@@ -118,10 +117,9 @@ public class ValueUtil
      *
      *  @param value Value of a PV
      *  @return List of rows, where each row contains either String or Number cells
-     *  @throws NullPointerException if the PV has no value
      */
     @SuppressWarnings("rawtypes")
-    public static List<List<Object>> getTable(final VType value) throws NullPointerException
+    public static List<List<Object>> getTable(final VType value)
     {
         final List<List<Object>> data = new ArrayList<>();
         if (value instanceof VTable)
@@ -171,10 +169,9 @@ public class ValueUtil
      *  @param row Row index, 0..
      *  @param column Column index, 0..
      *  @return Either String or Number for the cell's value, null if invalid row/column
-     *  @throws NullPointerException if the PV has no value
      */
     @SuppressWarnings("rawtypes")
-    public static Object getTableCell(final VType value, final int row, final int column) throws NullPointerException
+    public static Object getTableCell(final VType value, final int row, final int column)
     {
         if (value instanceof VTable)
         {
