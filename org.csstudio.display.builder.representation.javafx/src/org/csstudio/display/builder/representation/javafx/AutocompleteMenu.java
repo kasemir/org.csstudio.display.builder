@@ -275,6 +275,7 @@ public class AutocompleteMenu
         final CustomMenuItem item = new CustomMenuItem(new Text(header), false);
         item.getStyleClass().add("ac-menu-label"); //$NON-NLS-1$
         item.setHideOnClick(false);
+        item.setMnemonicParsing(false);
         return item;
     }
 
@@ -287,6 +288,7 @@ public class AutocompleteMenu
                 current_field.setText(text);
         });
         item.getStyleClass().add("ac-menu-item"); //$NON-NLS-1$
+        item.setMnemonicParsing(false);
         return item;
     }
 }
