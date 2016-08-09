@@ -13,11 +13,13 @@ import java.util.List;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.RadioWidget;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.RadioButton;
@@ -42,7 +44,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
     @Override
     public TilePane createJFXNode() throws Exception
     {
-        final TilePane pane = new TilePane();
+        final TilePane pane = new TilePane(5.0, 5.0);
         return pane;
     }
 
@@ -51,20 +53,6 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         final RadioButton rb = new RadioButton();
         rb.setToggleGroup(toggle);
         //TODO: if toolkit.isEditMode, prevent selection
-        rb.setOnAction((event) ->
-        {   // We are updating the UI, ignore
-            if (active)
-                return;
-            final RadioButton selected = (RadioButton) toggle.getSelectedToggle();
-            final String value = selected != null ? selected.getText() : null;
-            if (value != null)
-            {
-                // Restore current value
-                contentChanged(null, null, null);
-                // ... which should soon be replaced by updated value, if accepted
-                toolkit.fireWrite(model_widget, value);
-            }
-        });
         return rb;
     }
 
@@ -85,7 +73,28 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         model_widget.behaviorItemsFromPV().addUntypedPropertyListener(this::contentChanged);
         model_widget.behaviorItems().addUntypedPropertyListener(this::contentChanged);
 
-        styleChanged(null, null, null);
+        toggle.selectedToggleProperty().addListener(this::valueChanged);
+
+        //initially populate pane with radio buttons
+        contentChanged(null, null, null);
+    }
+
+    private void valueChanged(ObservableValue<? extends Toggle> obs, Toggle oldval, Toggle newval)
+    {
+        if (!active && newval != null)
+        {
+            active = true;
+            try
+            {
+                toggle.selectToggle(oldval);
+                Object value = FormatOptionHandler.parse(model_widget.runtimeValue().getValue(),
+                        ((RadioButton) newval).getText());
+                toolkit.fireWrite(model_widget, value);
+            } finally
+            {
+                active = false;
+            }
+        }
     }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -106,7 +115,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
      */
     private List<String> computeItems(final VType value, final boolean fromPV)
     {
-        if (fromPV && value instanceof VEnum)
+        if (fromPV)
         {
             index = ((VEnum)value).getIndex();
             return ((VEnum)value).getLabels();
