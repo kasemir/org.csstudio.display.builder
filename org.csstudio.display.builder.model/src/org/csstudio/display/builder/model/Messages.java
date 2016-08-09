@@ -82,7 +82,6 @@ public class Messages extends NLS
     public static String PointType_Squares;
     public static String PointType_Triangles;
     public static String PointType_X;
-    public static String RadioWidget_SelectedColor;
     public static String Resize_Container;
     public static String Resize_Content;
     public static String Resize_None;

@@ -8,14 +8,12 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -69,24 +67,17 @@ public class RadioWidget extends VisibleWidget
     public static final WidgetPropertyDescriptor<Boolean> behaviorItemsFromPV =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "items_from_pv", Messages.ComboWidget_ItemsFromPV);
 
-    /** Display 'selected_color': color of selected radio buttons */
-    public static final WidgetPropertyDescriptor<WidgetColor> displaySelectedColor = CommonWidgetProperties
-            .newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "selected_color",
-                    Messages.RadioWidget_SelectedColor);
-
     /** Display 'horizontal': Change whether orientation is horizontal or, if false, vertical */
     public static final WidgetPropertyDescriptor<Boolean> displayHorizontal = newBooleanPropertyDescriptor(
             WidgetPropertyCategory.DISPLAY, "horizontal", Messages.Horizontal);
 
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<WidgetColor> foreground;
-    private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<List<WidgetProperty<String>>> items;
     private volatile WidgetProperty<Boolean> items_from_pv;
     private volatile WidgetProperty<Boolean> horizontal;
-    private volatile WidgetProperty<WidgetColor> selected_color;
 
     public RadioWidget()
     {
@@ -100,11 +91,10 @@ public class RadioWidget extends VisibleWidget
         properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(displayBorderAlarmSensitive.createProperty(this, true));
         properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
-        properties.add(selected_color = displaySelectedColor.createProperty(this, new WidgetColor(0, 0, 0)));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(value = runtimeValue.createProperty(this, null));
-        properties.add(items = behaviorItems.createProperty(this,  new ArrayList<WidgetProperty<String>>()));
+        properties.add(
+                items = behaviorItems.createProperty(this, Arrays.asList(behaviorItem.createProperty(this, "Item"))));
         properties.add(items_from_pv = behaviorItemsFromPV.createProperty(this, true));
         properties.add(horizontal = displayHorizontal.createProperty(this, true));
     }
@@ -119,18 +109,6 @@ public class RadioWidget extends VisibleWidget
     public WidgetProperty<WidgetColor> displayForegroundColor()
     {
         return foreground;
-    }
-
-    /** @return Display 'background_color' */
-    public WidgetProperty<WidgetColor> displayBackgroundColor()
-    {
-        return background;
-    }
-
-    /** @return Display 'selected_color' */
-    public WidgetProperty<WidgetColor> displaySelectedColor()
-    {
-        return selected_color;
     }
 
     /** @return Display 'font' */

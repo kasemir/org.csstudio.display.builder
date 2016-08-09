@@ -16,16 +16,20 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.RadioWidget;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.TilePane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
@@ -44,15 +48,28 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
     @Override
     public TilePane createJFXNode() throws Exception
     {
-        final TilePane pane = new TilePane(5.0, 5.0);
+        final TilePane pane = new TilePane(5.0, 5.0, createRadioButton(null));
+        pane.setTileAlignment(Pos.BASELINE_LEFT);
         return pane;
     }
 
-    private RadioButton createRadioButton()
+    private RadioButton createRadioButton(String text)
     {
-        final RadioButton rb = new RadioButton();
+        final RadioButton rb = new RadioButton(text);
         rb.setToggleGroup(toggle);
-        //TODO: if toolkit.isEditMode, prevent selection
+        //mouse event handling is consistent with JFXBaseRepresentation
+        if (toolkit.isEditMode())
+            rb.setOnMousePressed((event) ->
+            {
+                event.consume();
+                toolkit.fireClick(model_widget, event.isControlDown());
+            });
+        else
+            rb.setOnContextMenuRequested((event) ->
+            {
+                event.consume();
+                toolkit.fireContextMenu(model_widget);
+            });
         return rb;
     }
 
@@ -65,8 +82,6 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         model_widget.displayHorizontal().addUntypedPropertyListener(this::sizeChanged);
 
         model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displaySelectedColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayFont().addUntypedPropertyListener(this::styleChanged);
 
         model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
@@ -143,6 +158,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         boolean fromPV = model_widget.behaviorItemsFromPV().getValue() && value instanceof VEnum;
         items = computeItems(value, fromPV); //also sets index
         dirty_content.mark();
+        dirty_style.mark(); //adjust colors
         toolkit.scheduleUpdate(this);
     }
 
@@ -166,28 +182,20 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
                 //copy volatile lists before iteration
                 final List<String> save_items = new ArrayList<String>(items);
                 final List<Node> save_buttons = new ArrayList<Node>(jfx_node.getChildren());
-                //final List<Toggle> new_toggles = new ArrayList<Toggle>(save_items.size());
 
-                //set text of buttons and create new list of Toggles for the ToggleGroup
+                //set text of buttons, adding new ones as needed
                 int i, save_index = index;
                 for (i = 0; i < save_items.size(); i++)
                 {
-                    RadioButton rb;
                     if (i < save_buttons.size())
-                        rb = (RadioButton) save_buttons.get(i);
+                        ((RadioButton) save_buttons.get(i)).setText(save_items.get(i));
                     else
-                    {
-                        rb = createRadioButton();
-                        save_buttons.add(rb);
-                    }
-                    rb.setText(save_items.get(i));
-                    //new_toggles.add(rb);
+                        save_buttons.add(createRadioButton(save_items.get(i)));
                 }
-                while (i < save_buttons.size())
+                while (i < save_buttons.size() && save_buttons.size() > 1)
                     save_buttons.remove(save_buttons.size() - 1);
 
                 //set values for JavaFX items
-                //toggle.getToggles().setAll(new_toggles);
                 toggle.selectToggle(save_index < 0 ? null : (Toggle) save_buttons.get(save_index));
                 jfx_node.getChildren().setAll(save_buttons);
             }
@@ -198,8 +206,14 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         }
         if (dirty_style.checkAndClear())
         {
-            //colors
-            //font
+            final Color fg = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
+            final Font font = JFXUtil.convert(model_widget.displayFont().getValue());
+            for (Node rb_node : jfx_node.getChildren())
+            {
+                final RadioButton rb = (RadioButton) rb_node;
+                rb.setTextFill(fg);
+                rb.setFont(font);
+            }
         }
     }
 }
