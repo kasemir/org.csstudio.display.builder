@@ -36,6 +36,7 @@ import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.JFXCursorFix;
 import org.csstudio.display.builder.rcp.Preferences;
+import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoRedoListener;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
@@ -92,7 +93,7 @@ public class DisplayEditorPart extends EditorPart
 
     private FXCanvas fx_canvas;
 
-    private final DisplayEditor editor = new DisplayEditor(toolkit, Preferences.getUndoSize());
+    private DisplayEditor editor;
 
     private OutlinePage outline_page = null;
 
@@ -146,6 +147,8 @@ public class DisplayEditorPart extends EditorPart
         // When creating FXCanvas later, there will be JFX errors
         // like "Not on FX application thread", "Toolkit not initialized"
         fx_canvas = new FXCanvas(parent, SWT.NONE);
+        
+        editor = new DisplayEditor(toolkit, Preferences.getUndoSize());
 
         final Parent root = editor.create();
         final Scene scene = new Scene(root);
@@ -158,6 +161,9 @@ public class DisplayEditorPart extends EditorPart
         // Scene could be created in background,
         // but setting the canvas' scene has to be on UI thread
         fx_canvas.setScene(scene);
+
+        final AutocompleteMenu ac_menu = editor.getSelectedWidgetUITracker().getAutocompleteMenu();
+        ac_menu.setUpdater(new AutoCompleteUpdater(ac_menu));
 
         createRetargetableActionHandlers();
 

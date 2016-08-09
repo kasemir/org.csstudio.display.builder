@@ -31,6 +31,7 @@ import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
 import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
+import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.MultiLineInputDialog;
 
@@ -54,6 +55,7 @@ public class PropertyPanelSection extends GridPane
     private int next_row = -1;
     private Collection<WidgetProperty<?>> properties = Collections.emptyList();
     private boolean show_categories;
+    private static final AutocompleteMenu autocomplete_menu = new AutocompleteMenu();
 
     public PropertyPanelSection()
     {
@@ -179,8 +181,23 @@ public class PropertyPanelSection extends GridPane
             final MacroizedWidgetProperty<?> macro_prop = (MacroizedWidgetProperty<?>)property;
             final TextField text = new TextField();
             text.setPromptText(macro_prop.getDefaultValue().toString());
-            final MacroizedWidgetPropertyBinding binding =
-                    new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
+            final MacroizedWidgetPropertyBinding binding = (property.getName().contains("pv"))
+                    ? new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other)
+                    {
+                        @Override
+                        public void bind()
+                        {
+                            super.bind();
+                            autocomplete_menu.attachField(text);
+                        }
+
+                        @Override
+                        public void unbind()
+                        {
+                            super.unbind();
+                            autocomplete_menu.removeField(text);
+                        }
+                    } : new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
             bindings.add(binding);
             binding.bind();
             if (CommonWidgetProperties.displayText.getName().equals(property.getName()))
@@ -206,7 +223,6 @@ public class PropertyPanelSection extends GridPane
         }
         else if (property instanceof PointsWidgetProperty)
         {
-            // TODO Table-based editor for list of points
             final PointsWidgetProperty points_prop = (PointsWidgetProperty) property;
             final Button points_field = new Button();
             points_field.setMaxWidth(Double.MAX_VALUE);
@@ -256,7 +272,8 @@ public class PropertyPanelSection extends GridPane
             final ActionsWidgetProperty actions_prop = (ActionsWidgetProperty) property;
             final Button actions_field = new Button();
             actions_field.setMaxWidth(Double.MAX_VALUE);
-            final ActionsPropertyBinding binding = new ActionsPropertyBinding(undo, actions_field, actions_prop, other);
+            final ActionsPropertyBinding binding = new ActionsPropertyBinding(undo, actions_field, actions_prop, other,
+                    autocomplete_menu);
             bindings.add(binding);
             binding.bind();
             field = actions_field;
@@ -266,7 +283,8 @@ public class PropertyPanelSection extends GridPane
             final ScriptsWidgetProperty scripts_prop = (ScriptsWidgetProperty) property;
             final Button scripts_field = new Button();
             scripts_field.setMaxWidth(Double.MAX_VALUE);
-            final ScriptsPropertyBinding binding = new ScriptsPropertyBinding(undo, scripts_field, scripts_prop, other);
+            final ScriptsPropertyBinding binding = new ScriptsPropertyBinding(undo, scripts_field, scripts_prop, other,
+                    autocomplete_menu);
             bindings.add(binding);
             binding.bind();
             field = scripts_field;
@@ -276,7 +294,7 @@ public class PropertyPanelSection extends GridPane
             final RulesWidgetProperty rules_prop = (RulesWidgetProperty) property;
             final Button rules_field = new Button();
             rules_field.setMaxWidth(Double.MAX_VALUE);
-            final RulesPropertyBinding binding = new RulesPropertyBinding(undo, rules_field, rules_prop, other);
+            final RulesPropertyBinding binding = new RulesPropertyBinding(undo, rules_field, rules_prop, other, autocomplete_menu);
             bindings.add(binding);
             binding.bind();
             field = rules_field;
@@ -339,6 +357,11 @@ public class PropertyPanelSection extends GridPane
         final int row = getNextGridRow();
         add(label, 0, row);
         add(field, 1, row);
+    }
+
+    public AutocompleteMenu getAutocompleteMenu()
+    {
+        return autocomplete_menu;
     }
 
     /** Clear the property UI */

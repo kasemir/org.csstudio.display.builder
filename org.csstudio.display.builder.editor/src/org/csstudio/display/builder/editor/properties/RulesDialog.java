@@ -26,8 +26,10 @@ import org.csstudio.display.builder.model.properties.RuleInfo.ExpressionInfo;
 import org.csstudio.display.builder.model.properties.RuleInfo.PropInfo;
 import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptPV;
+import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.Messages;
+import org.csstudio.display.builder.representation.javafx.ScriptsDialog;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.MultiLineInputDialog;
 
@@ -54,6 +56,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -478,6 +481,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     private final Widget attached_widget;
     /** Undo actions for choosing property values in expressions **/
     final UndoableActionManager undo;
+    /** Autocomplete menu for pv names */
+    private final AutocompleteMenu menu;
 
     /** Property options for target of expression **/
     ObservableList<String> prop_id_opts = FXCollections.observableArrayList();
@@ -522,11 +527,12 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     }
 
     /** @param rules Rules to show/edit in the dialog */
-    public RulesDialog(final UndoableActionManager undo, final List<RuleInfo> rules, final Widget attached_widget)
+    public RulesDialog(final UndoableActionManager undo, final List<RuleInfo> rules, final Widget attached_widget, final AutocompleteMenu menu)
     {
         setTitle(Messages.RulesDialog_Title);
         this.undo = undo;
         this.attached_widget = attached_widget;
+        this.menu = menu;
 
         propinfo_ls = RuleInfo.getTargettableProperties(attached_widget);
         propinfo_ls.forEach(pi ->
@@ -544,6 +550,8 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         getDialogPane().setContent(createContent());
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        //use same stylesheet as ScriptsDialog, ActionsDialog
+        getDialogPane().getStylesheets().add(ScriptsDialog.class.getResource("opibuilder.css").toExternalForm());
         setResizable(true);
 
         setResultConverter(button ->
@@ -835,15 +843,15 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         // Create table with editable rule 'value expression' column
         /*
-		final TableColumn<ExprItem<?>, String> val_exp_col = new TableColumn<>(Messages.RulesDialog_ColValExp);
-		val_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem<?>, String>("valExpStr"));
-		val_exp_col.setCellFactory(TextFieldTableCell.forTableColumn());
-		val_exp_col.setOnEditCommit(event ->
-		{
-			final int row = event.getTablePosition().getRow();
-			expression_items.get(row).valExpStrProperty().set(event.getNewValue());
-			fixupExpressions(row);
-		});
+        final TableColumn<ExprItem<?>, String> val_exp_col = new TableColumn<>(Messages.RulesDialog_ColValExp);
+        val_exp_col.setCellValueFactory(new PropertyValueFactory<ExprItem<?>, String>("valExpStr"));
+        val_exp_col.setCellFactory(TextFieldTableCell.forTableColumn());
+        val_exp_col.setOnEditCommit(event ->
+        {
+            final int row = event.getTablePosition().getRow();
+            expression_items.get(row).valExpStrProperty().set(event.getNewValue());
+            fixupExpressions(row);
+        });
          */
 
 
@@ -914,13 +922,90 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         }
     }
 
+    /**
+     * {@link PVItem} {@link TableCell} with {@link AutocompleteMenu}
+     * 
+     * @author Amanda Carpenter
+     */
+    private class AutoCompletedTableCell extends TableCell<PVItem, String>
+    {
+        //TODO: make autocomplete menu styling consistent with other menus
+        //(stylesheet in representation.javafx package is not applied)
+        private TextField textField;
+        private final AutocompleteMenu menu;
+
+        public AutoCompletedTableCell(final AutocompleteMenu menu)
+        {
+            this.menu = menu;
+        }
+
+        @Override
+        public void startEdit()
+        {
+            if (!isEmpty())
+            {
+                super.startEdit();
+                createTextField();
+                setText(null);
+                setGraphic(textField);
+                menu.attachField(textField);
+                textField.selectAll();
+            }
+        }
+
+        @Override
+        public void cancelEdit()
+        {
+            super.cancelEdit();
+            setText(getItem());
+            setGraphic(null);
+        }
+
+        @Override
+        public void updateItem(String item, boolean empty)
+        {
+            super.updateItem(item, empty);
+            if (empty)
+            {
+                setText(null);
+                setGraphic(null);
+            } else if (isEditing())
+            {
+                if (textField != null)
+                    textField.setText(getItem() == null ? "" : getItem());
+                setText(null);
+                setGraphic(textField);
+            } else
+            {
+                setText(getItem() == null ? "" : getItem());
+                setGraphic(null);
+                if (textField != null)
+                    menu.removeField(textField);
+            }
+        }
+
+        private void createTextField()
+        {
+            if (textField == null)
+            {
+                textField = new TextField(getItem() == null ? "" : getItem());
+                textField.setOnAction((event) ->
+                {
+                    commitEdit(textField.getText());
+                });
+            } else
+                textField.setText(getItem() == null ? "" : getItem());
+            textField.setMinWidth(getWidth() - getGraphicTextGap() * 2);
+        }
+    }
+
     /** @return Node for UI elements that edit the PVs of a rule */
     private Node createPVsTable()
     {
         // Create table with editable 'name' column
         final TableColumn<PVItem, String> name_col = new TableColumn<>(Messages.ScriptsDialog_ColPV);
         name_col.setCellValueFactory(new PropertyValueFactory<PVItem, String>("name"));
-        name_col.setCellFactory(TextFieldTableCell.forTableColumn());
+        name_col.setCellFactory((col) -> new AutoCompletedTableCell(menu));
         name_col.setOnEditCommit(event ->
         {
             final int row = event.getTablePosition().getRow();

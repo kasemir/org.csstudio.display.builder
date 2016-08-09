@@ -20,15 +20,21 @@ import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.properties.PropertyChangeHandler;
 import org.w3c.dom.Element;
 
-/** Base class for all widget properties.
+/**
+ * Base class for all widget properties.
  *
- *  <p>The property name identifies a property inside the model.
- *  A separate description, which can be localized, is meant for
- *  user interfaces that present the property to humans.
+ * <p>
+ * The property name identifies a property inside the model. A separate
+ * description, which can be localized, is meant for user interfaces that
+ * present the property to humans.
+ * 
+ * <p>
+ * Note: names including the string 'pv' are reserved for properties to which PV
+ * name auto-completion is applied.
  *
- *  @author Kay Kasemir
+ * @author Kay Kasemir
  *
- *  @param <T> Type of the property's value
+ * @param <T> Type of the property's value
  */
 @SuppressWarnings("nls")
 public abstract class WidgetProperty<T extends Object> extends PropertyChangeHandler<T>
