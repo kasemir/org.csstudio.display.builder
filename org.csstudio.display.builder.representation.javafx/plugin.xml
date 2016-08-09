@@ -68,6 +68,10 @@
             type="progressbar">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.RadioRepresentation"
+            type="radio">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.RectangleRepresentation"
             type="rectangle">
       </representation>

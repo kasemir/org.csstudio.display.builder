@@ -39,6 +39,7 @@ import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.PolygonWidget;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
+import org.csstudio.display.builder.model.widgets.RadioWidget;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
 import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
@@ -128,6 +129,7 @@ public class WidgetFactory
         addWidgetType(PolygonWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PolylineWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ProgressBarWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(RadioWidget.WIDGET_DESCRIPTOR);
         addWidgetType(RectangleWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ScaledSliderWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ScrollBarWidget.WIDGET_DESCRIPTOR);
