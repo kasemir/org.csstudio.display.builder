@@ -102,7 +102,7 @@ In this example, a script updates that PV:</text>
     <scripts>
       <script file="EmbeddedPy">
         <text><![CDATA[# Embedded python script
-from org.csstudio.display.builder.runtime.script import PVUtil
+from org.csstudio.display.builder.runtime.script import PVUtil, ValueUtil
 
 target = pvs[0]
 inputs = pvs[1:]
@@ -113,7 +113,7 @@ for pv in inputs:
     row =  [ pv.getName(), PVUtil.getString(pv) ]
     data.append(row)
 
-table = PVUtil.createStringTableFromRows([ "PV", "Value" ], data)
+table = ValueUtil.createStringTableFromRows([ "PV", "Value" ], data)
 widget.setPropertyValue("value", table)
 ]]></text>
         <pv_name trigger="false">loc://table_pv&lt;VTable&gt;</pv_name>

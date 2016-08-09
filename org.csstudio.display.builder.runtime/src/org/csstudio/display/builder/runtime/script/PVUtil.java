@@ -7,21 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.script;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import org.csstudio.display.builder.model.properties.FormatOption;
-import org.csstudio.display.builder.model.util.FormatOptionHandler;
-import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
-import org.diirt.util.array.ListDouble;
-import org.diirt.util.array.ListNumber;
-import org.diirt.vtype.VByteArray;
 import org.diirt.vtype.VEnum;
-import org.diirt.vtype.VNumber;
-import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VTable;
 import org.diirt.vtype.VType;
 
@@ -47,7 +37,7 @@ public class PVUtil
      */
     public static double getDouble(final RuntimePV pv) throws NullPointerException
     {
-        return VTypeUtil.getValueNumber(getVType(pv)).doubleValue();
+        return ValueUtil.getDouble(getVType(pv));
     }
 
     /** Try to get an integer from the PV.
@@ -57,7 +47,7 @@ public class PVUtil
      */
     public static int getInt(final RuntimePV pv) throws NullPointerException
     {
-        return VTypeUtil.getValueNumber(getVType(pv)).intValue();
+        return ValueUtil.getInt(getVType(pv));
     }
 
     /** Try to get a long integer from the PV.
@@ -67,7 +57,7 @@ public class PVUtil
      */
     public static long getLong(final RuntimePV pv) throws NullPointerException
     {
-        return VTypeUtil.getValueNumber(getVType(pv)).longValue();
+        return ValueUtil.getLong(getVType(pv));
     }
 
     /** Get value of PV as string.
@@ -77,7 +67,7 @@ public class PVUtil
      */
     public static String getString(final RuntimePV pv) throws NullPointerException
     {
-        return getString(pv, false);
+        return ValueUtil.getString(getVType(pv));
     }
 
     /** Get value of PV as string.
@@ -91,11 +81,7 @@ public class PVUtil
      */
     public static String getString(final RuntimePV pv, final boolean byte_array_as_string) throws NullPointerException
     {
-        final VType vtype = getVType(pv);
-        final FormatOption option = vtype instanceof VByteArray
-                                  ? FormatOption.STRING
-                                  : FormatOption.DEFAULT;
-        return FormatOptionHandler.format(vtype, option, 0, true);
+        return ValueUtil.getString(getVType(pv), byte_array_as_string);
     }
 
     /** Get labels for a {@link VEnum} value, or headers for a {@link VTable}.
@@ -105,22 +91,7 @@ public class PVUtil
      */
     public static String[] getLabels(final RuntimePV pv) throws NullPointerException
     {
-        final VType value = getVType(pv);
-        if (value instanceof VEnum)
-        {
-            final List<String> labels = ((VEnum) value).getLabels();
-            return labels.toArray(new String[labels.size()]);
-        }
-        if (value instanceof VTable)
-        {
-            final VTable table = (VTable) value;
-            final int num = table.getColumnCount();
-            final String[] headers = new String[num];
-            for (int i=0; i<num; ++i)
-                headers[i] = table.getColumnName(i);
-            return headers;
-        }
-        return new String[0];
+        return ValueUtil.getLabels(getVType(pv));
     }
 
     /** Get a table from PV
@@ -135,48 +106,9 @@ public class PVUtil
      *  @return List of rows, where each row contains either String or Number cells
      *  @throws NullPointerException if the PV has no value
      */
-    @SuppressWarnings("rawtypes")
     public static List<List<Object>> getTable(final RuntimePV pv) throws NullPointerException
     {
-        final VType value = getVType(pv);
-        final List<List<Object>> data = new ArrayList<>();
-        if (value instanceof VTable)
-        {
-            final VTable table = (VTable) value;
-            final int rows = table.getRowCount();
-            final int cols = table.getColumnCount();
-            // Extract 2D string matrix for data
-            for (int r=0; r<rows; ++r)
-            {
-                final List<Object> row = new ArrayList<>(cols);
-                for (int c=0; c<cols; ++c)
-                {
-                    final Object col_data = table.getColumnData(c);
-                    if (col_data instanceof List)
-                        row.add( Objects.toString(((List)col_data).get(r)) );
-                    else if (col_data instanceof ListDouble)
-                        row.add( ((ListDouble)col_data).getDouble(r) );
-                    else if (col_data instanceof ListNumber)
-                        row.add( ((ListNumber)col_data).getLong(r) );
-                    else
-                        row.add( Objects.toString(col_data) );
-                }
-                data.add(row);
-            }
-        }
-        else if (value instanceof VNumberArray)
-        {
-            final ListNumber numbers = ((VNumberArray) value).getData();
-            final int num = numbers.size();
-            for (int i=0; i<num; ++i)
-                data.add(Arrays.asList(numbers.getDouble(i)));
-        }
-        else if (value instanceof VNumber)
-            data.add(Arrays.asList( ((VNumber)value).getValue() ));
-        else
-            data.add(Arrays.asList( Objects.toString(value) ));
-
-        return data;
+        return ValueUtil.getTable(getVType(pv));
     }
 
     /** Get a table cell from PV
@@ -189,55 +121,8 @@ public class PVUtil
      *  @return Either String or Number for the cell's value, null if invalid row/column
      *  @throws NullPointerException if the PV has no value
      */
-    @SuppressWarnings("rawtypes")
     public static Object getTableCell(final RuntimePV pv, final int row, final int column) throws NullPointerException
     {
-        final VType value = getVType(pv);
-        if (value instanceof VTable)
-        {
-            final VTable table = (VTable) value;
-            if (column >= table.getColumnCount() ||
-                row >= table.getRowCount())
-                return null;
-            final Object col_data = table.getColumnData(column);
-            if (col_data instanceof List)
-                return Objects.toString(((List)col_data).get(row));
-            else if (col_data instanceof ListDouble)
-                return ((ListDouble)col_data).getDouble(row);
-            else if (col_data instanceof ListNumber)
-                return ((ListNumber)col_data).getLong(row);
-            else
-                return Objects.toString(col_data);
-        }
-        else
-            return Objects.toString(value);
-    }
-
-    /** Create a VTable for Strings
-     *  @param headers Table headers
-     *  @param columns List of columns, i.e. columns.get(N) is the Nth column
-     *  @return VTable
-     */
-    public static VTable createStringTableFromColumns(final List<String> headers, final List<List<String>> columns)
-    {
-        return new StringVTable(headers, columns);
-    }
-
-    /** Create a VTable for Strings
-     *  @param headers Table headers
-     *  @param rows List of rows, i.e. rows.get(N) is the Nth row
-     *  @return VTable
-     */
-    public static VTable createStringTableFromRows(final List<String> headers, final List<List<String>> rows)
-    {
-        final List<List<String>> columns = new ArrayList<>();
-        for (int col=0; col<headers.size(); ++col)
-        {
-            final ArrayList<String> column = new ArrayList<>();
-            columns.add(column);
-            for (int row=0; row<rows.size(); ++row)
-                column.add(rows.get(row).get(col));
-        }
-        return new StringVTable(headers, columns);
+        return ValueUtil.getTableCell(getVType(pv), row, column);
     }
 }
