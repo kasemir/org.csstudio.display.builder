@@ -36,6 +36,7 @@ import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.PolygonWidget;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
+import org.csstudio.display.builder.model.widgets.RadioWidget;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
 import org.csstudio.display.builder.model.widgets.SpinnerWidget;
@@ -67,6 +68,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.PictureReprese
 import org.csstudio.display.builder.representation.javafx.widgets.PolygonRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.PolylineRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ProgressBarRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.RadioRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.RectangleRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ScaledSliderRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.SpinnerRepresentation;
@@ -193,6 +195,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(PolygonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new PolygonRepresentation());
         factories.put(PolylineWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new PolylineRepresentation());
         factories.put(ProgressBarWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ProgressBarRepresentation());
+        factories.put(RadioWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new RadioRepresentation());
         factories.put(RectangleWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new RectangleRepresentation());
         factories.put(ScaledSliderWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ScaledSliderRepresentation());
         factories.put(SpinnerWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new SpinnerRepresentation());

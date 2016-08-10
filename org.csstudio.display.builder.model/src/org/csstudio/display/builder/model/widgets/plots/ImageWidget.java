@@ -54,7 +54,7 @@ public class ImageWidget extends VisibleWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
-        new WidgetDescriptor("image", WidgetCategory.MONITOR,
+            new WidgetDescriptor("image", WidgetCategory.PLOT,
             "Image",
             "platform:/plugin/org.csstudio.display.builder.model/icons/image.png",
             "Display image",
