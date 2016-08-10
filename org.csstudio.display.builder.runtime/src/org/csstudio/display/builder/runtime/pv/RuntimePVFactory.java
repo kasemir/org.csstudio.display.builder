@@ -12,6 +12,7 @@ import org.csstudio.vtype.pv.PV;
 /** Listener to a {@link PV}
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public interface RuntimePVFactory
 {
     /** ID of extension point for contributing PV factories */

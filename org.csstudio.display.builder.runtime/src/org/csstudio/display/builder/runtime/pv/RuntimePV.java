@@ -25,6 +25,7 @@ import org.diirt.vtype.VType;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public interface RuntimePV
 {
     /** @return PV name */
