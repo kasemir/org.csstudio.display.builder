@@ -136,6 +136,7 @@ You can then edit the cells:</text>
   <widget type="table" version="2.0.0">
     <name>user_table</name>
     <y>600</y>
+    <show_toolbar>true</show_toolbar>
     <columns>
       <column>
         <name>Item</name>
@@ -239,9 +240,12 @@ which are represented by a checkbox.</text>
     <actions>
       <action type="execute">
         <script file="EmbeddedPy">
-          <text><![CDATA[# 'widget' is the action button that invoked the script
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+
+# 'widget' is the action button that invoked the script
 # Locate the table widget by name
-table = widget.getDisplayModel().runtimeChildren().getChildByName("user_table")
+table = ScriptUtil.findWidgetByName(widget, "user_table")
 
 # Get current headers and data
 headers = table.getHeaders()
@@ -262,7 +266,16 @@ for r in range(len(data)):
 print(data)
 
 # Update table with new headers and data
+
+# Changing all headers means loosing the column options,
+# so fetch the current column options
+num = len(headers)
+options = [ table.getColumnOptions(c) for c in range(num) ]
+
 table.setHeaders(headers)
+# Restore column options
+for c in range(num):
+    table.setColumnOptions(c, options[c])
 table.setValue(data)
 ]]></text>
         </script>

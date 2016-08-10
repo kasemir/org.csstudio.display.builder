@@ -43,10 +43,10 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
     /** Most recent table data, row by row */
     private volatile List<List<String>> data = new ArrayList<>();
 
-    /** Is user setting data, which in turn updates the widget value
+    /** Is user is changing the table, which in turn updates the widget value
      *  --> Ignore widget value change
      */
-    private boolean setting_data = false;
+    private volatile boolean updating_table = false;
 
     /** Listener for any changes in any column
      *
@@ -54,6 +54,8 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
      */
     private final UntypedWidgetPropertyListener column_listener = (WidgetProperty<?> property, Object old_value, Object new_value) ->
     {
+        if (updating_table)
+            return;
         final List<String> new_headers = new ArrayList<>();
         for (ColumnProperty column : model_widget.displayColumns().getValue())
             new_headers.add(column.name().getValue());
@@ -90,16 +92,36 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
             jfx_node.setListener(new StringTableListener()
             {
                 @Override
+                public void tableChanged(final StringTable table)
+                {
+                    updating_table = true;
+                    try
+                    {
+                        final List<String> new_headers = headers = table.getHeaders();
+                        model_widget.setHeaders(new_headers);
+                        // Updating the headers clears their options as well as the data.
+                        // Restore column options.
+                        for (int column=0; column<new_headers.size(); ++column)
+                            model_widget.setColumnOptions(column, table.getColumnOptions(column));
+                        model_widget.setValue(table.getData());
+                    }
+                    finally
+                    {
+                        updating_table = false;
+                    }
+                }
+
+                @Override
                 public void dataChanged(final StringTable table)
                 {
-                    setting_data = true;
+                    updating_table = true;
                     try
                     {
                         model_widget.setValue(table.getData());
                     }
                     finally
                     {
-                        setting_data = false;
+                        updating_table = false;
                     }
                 }
 
@@ -186,7 +208,7 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
 
     private void valueChanged(final WidgetProperty<Object> property, final Object old_value, final Object new_value)
     {
-        if (setting_data)
+        if (updating_table)
             return;
         data = model_widget.getValue();
         if (new_value instanceof VTable)

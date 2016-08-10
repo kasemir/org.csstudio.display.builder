@@ -11,6 +11,7 @@ import static org.csstudio.javafx.Activator.logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
@@ -135,6 +136,9 @@ public class StringTable extends BorderPane
         }
     }
 
+    /** Column options used for {@link BooleanCell} */
+    public static final List<String> BOOLEAN_OPTIONS = Arrays.asList("false", "true");
+
     /** Cell with checkbox, sets data to "true"/"false" */
     private class BooleanCell extends TableCell<List<String>, String>
     {
@@ -238,9 +242,13 @@ public class StringTable extends BorderPane
     {
         toolbar.getItems().add(createToolbarButton("add_row", Messages.AddRow, event -> addRow()));
         toolbar.getItems().add(createToolbarButton("remove_row", Messages.RemoveRow, event -> deleteRow()));
+        toolbar.getItems().add(createToolbarButton("row_up", Messages.MoveRowUp, event -> moveRowUp()));
+        toolbar.getItems().add(createToolbarButton("row_down", Messages.MoveRowDown, event -> moveRowDown()));
         toolbar.getItems().add(createToolbarButton("rename_col", Messages.RenameColumn, event -> renameColumn()));
         toolbar.getItems().add(createToolbarButton("add_col", Messages.AddColumn, event -> addColumn()));
         toolbar.getItems().add(createToolbarButton("remove_col", Messages.RemoveColumn, event -> deleteColumn()));
+        toolbar.getItems().add(createToolbarButton("col_left", Messages.MoveColumnLeft, event -> moveColumnLeft()));
+        toolbar.getItems().add(createToolbarButton("col_right", Messages.MoveColumnRight, event -> moveColumnRight()));
     }
 
     private Button createToolbarButton(final String id, final String tool_tip, final EventHandler<ActionEvent> handler)
@@ -392,6 +400,21 @@ public class StringTable extends BorderPane
         table_column.setCellFactory(factory);
     }
 
+    /** Get options of a column
+     *
+     *  @param column Column index, 0 .. <code>getHeaders().size()-1</code>
+     *  @return Options for boolean or combo-box cells, or empty list for plain string cell
+     */
+    public List<String> getColumnOptions(final int column)
+    {
+        final TableCell<List<String>, ?> cell = table.getColumns().get(column).getCellFactory().call(null);
+        if (cell instanceof ComboCell)
+            return ((ComboCell)cell).getItems();
+        else if (cell instanceof BooleanCell)
+            return BOOLEAN_OPTIONS;
+        return Collections.emptyList();
+    }
+
     /** Check if list of options suggest a boolean value
      *
      *  @param options Possible values of a column
@@ -400,7 +423,7 @@ public class StringTable extends BorderPane
     private boolean optionsAreBoolean(final List<String> options)
     {
         return options.size() == 2   &&
-               options.containsAll(Arrays.asList("false", "true"));
+               options.containsAll(BOOLEAN_OPTIONS);
     }
 
     private TableColumn<List<String>, String> createTableColumn(final String header)
@@ -549,6 +572,39 @@ public class StringTable extends BorderPane
         fireDataChanged();
     }
 
+    /** Move selected row up  */
+    private void moveRowUp()
+    {
+        int row = table.getSelectionModel().getSelectedIndex();
+        final int num = data.size() - 1;
+        if (row < 0 || num < 1)
+            return;
+        moveRow(row, (row - 1 + num) % num);
+    }
+
+    /** Move selected row down  */
+    private void moveRowDown()
+    {
+        int row = table.getSelectionModel().getSelectedIndex();
+        final int num = data.size() - 1;
+        if (row < 0 || num < 1)
+            return;
+        moveRow(row, (row + 1) % num);
+    }
+
+    /** Move a row up/down
+     *  @param row Row to move
+     *  @param target Desired location
+     */
+    private void moveRow(final int row, final int target)
+    {
+        final int column = getSelectedColumn();
+        final List<String> line = data.remove(row);
+        data.add(target, line);
+        table.getSelectionModel().clearAndSelect(target, table.getColumns().get(column));
+        fireDataChanged();
+    }
+
     /** Delete currently selected row */
     private void deleteRow()
     {
@@ -620,7 +676,7 @@ public class StringTable extends BorderPane
         if (name == null)
             return;
         table_col.setText(name);
-        fireDataChanged();
+        fireTableChanged();
     }
 
     /** Add a column to the left of the selected column,
@@ -638,7 +694,46 @@ public class StringTable extends BorderPane
         for (List<String> row : data)
             if (row != MAGIC_LAST_ROW)
                 row.add(column, "");
-        fireDataChanged();
+        fireTableChanged();
+    }
+
+    /** Move selected column to the left */
+    private void moveColumnLeft()
+    {
+        final int column = getSelectedColumn();
+        final int num = table.getColumns().size();
+        if (column < 0 || num < 1)
+            return;
+        moveColumn(column, (column - 1 + num) % num);
+    }
+
+    /** Move selected column to the right */
+    private void moveColumnRight()
+    {
+        final int column = getSelectedColumn();
+        final int num = table.getColumns().size();
+        if (column < 0 || num < 1)
+            return;
+        moveColumn(column, (column + 1) % num);
+    }
+
+    /** Move a column left/right
+     *  @param column Column to move
+     *  @param target Desired location
+     */
+    private void moveColumn(final int column, final int target)
+    {
+        int row = table.getSelectionModel().getSelectedIndex();
+        final TableColumn<List<String>, ?> col = table.getColumns().remove(column);
+        table.getColumns().add(target, col);
+        for (List<String> data_row : data)
+            if (data_row != MAGIC_LAST_ROW)
+            {
+                final String cell = data_row.remove(column);
+                data_row.add(target, cell);
+            }
+        table.getSelectionModel().clearAndSelect(row, table.getColumns().get(target));
+        fireTableChanged();
     }
 
     /** Delete currently selected column */
@@ -651,7 +746,14 @@ public class StringTable extends BorderPane
         for (List<String> row : data)
             if (row != MAGIC_LAST_ROW)
                 row.remove(column);
-        fireDataChanged();
+        fireTableChanged();
+    }
+
+    private void fireTableChanged()
+    {
+        final StringTableListener copy = listener;
+        if (copy != null)
+            copy.tableChanged(this);
     }
 
     private void fireDataChanged()

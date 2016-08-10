@@ -55,9 +55,15 @@ public class TableDemo extends Application
         table.setListener(new StringTableListener()
         {
             @Override
+            public void tableChanged(final StringTable table)
+            {
+                System.out.println("Table headers and data changed");
+            }
+
+            @Override
             public void dataChanged(final StringTable table)
             {
-                System.out.println("Data has changed");
+                System.out.println("Data changed");
             }
 
             @Override
