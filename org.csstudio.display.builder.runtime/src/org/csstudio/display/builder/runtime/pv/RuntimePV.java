@@ -65,7 +65,13 @@ public interface RuntimePV
      */
     abstract public void write(final Object new_value) throws Exception;
 
-    // Legacy API that was accessed by some scripts
+    /** Legacy API that was accessed by some scripts
+     *  @param new_value
+     *  @throws Exception
+     *  @Deprecated
+     *  @see #write(Object)
+     */
+    @Deprecated
     default public void setValue(final Object new_value) throws Exception
     {
         logger.log(Level.SEVERE,
