@@ -266,7 +266,16 @@ for r in range(len(data)):
 print(data)
 
 # Update table with new headers and data
+
+# Changing all headers means loosing the column options,
+# so fetch the current column options
+num = len(headers)
+options = [ table.getColumnOptions(c) for c in range(num) ]
+
 table.setHeaders(headers)
+# Restore column options
+for c in range(num):
+    table.setColumnOptions(c, options[c])
 table.setValue(data)
 ]]></text>
         </script>
