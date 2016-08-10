@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.rcp.Messages;
 import org.csstudio.display.builder.rcp.RuntimeViewPart;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
@@ -60,7 +61,7 @@ public class RCP_JFXRepresentation extends JFXRepresentation
     }
 
     @Override
-    public String showSaveAsDialog(final String initial_value)
+    public String showSaveAsDialog(final Widget widget, final String initial_value)
     {
         final AtomicReference<String> result = new AtomicReference<String>();
         final Display display = Display.getDefault();

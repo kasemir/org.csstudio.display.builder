@@ -117,6 +117,16 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
      */
     abstract protected JFX createJFXNode() throws Exception;
 
+    /** @param widget Widget
+     *  @return JFX node used to represent the widget
+     */
+    public static Node getJFXNode(final Widget widget)
+    {
+        final JFXBaseRepresentation<Node, Widget> representation =
+                widget.getUserData(Widget.USER_DATA_REPRESENTATION);
+        return representation.jfx_node;
+    }
+
     /** {@inheritDoc} */
     @Override
     public void dispose()

@@ -339,10 +339,11 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *  <p>Calling thread is blocked until user closes the dialog
      *  by pressing "OK".
      *
+     *  @param widget Widget, used to create and position the dialog
      *  @param is_warning Whether to style dialog as warning or information
      *  @param message Message to display on dialog
      */
-    abstract public void showMessageDialog(boolean is_warning, String message);
+    abstract public void showMessageDialog(Widget widget, boolean is_warning, String message);
 
     /** Show confirmation dialog.
      *
@@ -350,10 +351,11 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *  by selecting either "Yes" or "No"
      *  ("Confirm", "Cancel", depending on implementation).
      *
+     *  @param widget Widget, used to create and position the dialog
      *  @param mesquestionsage Message to display on dialog
      *  @return <code>true</code> if user selected "Yes" ("Confirm")
      */
-    abstract public boolean showConfirmationDialog(String question);
+    abstract public boolean showConfirmationDialog(Widget widget, String question);
 
     /** Show dialog for selecting one item from a list.
      *
@@ -361,19 +363,19 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *  by either selecting an item and pressing "OK",
      *  or by pressing "Cancel".
      *
-     *  @param widget Widget, used to obtain toolkit for representing dialog
+     *  @param widget Widget, used to create and position the dialog
      *  @param title Dialog title
      *  @param options Options to show in dialog
      *  @return Selected item or <code>null</code>
      */
-    abstract public String showSelectionDialog(String title, List<String> options);
+    abstract public String showSelectionDialog(Widget widget, String title, List<String> options);
 
     /** Show file "Save As" dialog for selecting/entering a new file name
      *
      *  @param initial_value Initial path and file name
      *  @return Path and file name or <code>null</code>
      */
-    abstract public String showSaveAsDialog(final String initial_value);
+    abstract public String showSaveAsDialog(Widget widget, final String initial_value);
 
     /** Execute callable in toolkit's UI thread.
      *  @param <T> Type to return

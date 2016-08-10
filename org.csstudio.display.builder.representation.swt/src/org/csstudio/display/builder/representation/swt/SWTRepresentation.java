@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
@@ -131,27 +132,27 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     }
 
     @Override
-    public void showMessageDialog(final boolean is_warning, final String message)
+    public void showMessageDialog(final Widget widget, final boolean is_warning, final String message)
     {
         logger.log(Level.WARNING, "showMessageDialog('" + message + "') is not implemented");
     }
 
     @Override
-    public boolean showConfirmationDialog(final String question)
+    public boolean showConfirmationDialog(final Widget widget, final String question)
     {
         logger.log(Level.WARNING, "showConfirmationDialog('" + question + "') is not implemented");
         return false;
     }
 
     @Override
-    public String showSelectionDialog(final String title, final List<String> options)
+    public String showSelectionDialog(final Widget widget, final String title, final List<String> options)
     {
         logger.log(Level.WARNING, "showSelectionDialog('" + title + "') is not implemented");
         return null;
     }
 
     @Override
-    public String showSaveAsDialog(final String initial_value)
+    public String showSaveAsDialog(final Widget widget, final String initial_value)
     {
         logger.log(Level.WARNING, "showSaveAsDialog('" + initial_value + "') is not implemented");
         return null;

@@ -71,7 +71,7 @@ public class ScriptUtil
      *  <p>Call blocks until the user presses "OK"
      *  in the dialog.
      *
-     *  @param widget Widget, used to obtain toolkit for representing dialog
+     *  @param widget Widget, used to create and position the dialog
      *  @param is_warning Whether to style dialog as warning or information
      *  @param message Message to display on dialog
      */
@@ -79,7 +79,7 @@ public class ScriptUtil
     {
         try
         {
-            ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showMessageDialog(is_warning, message);
+            ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showMessageDialog(widget, is_warning, message);
         }
         catch (Exception ex)
         {
@@ -93,7 +93,7 @@ public class ScriptUtil
      *  by selecting either "Yes" or "No"
      *  ("Confirm", "Cancel", depending on implementation).
      *
-     *  @param widget Widget, used to obtain toolkit for representing dialog
+     *  @param widget Widget, used to create and position the dialog
      *  @param question Message to display on dialog
      *  @return <code>true</code> if user selected "Yes" ("Confirm")
      */
@@ -101,7 +101,7 @@ public class ScriptUtil
     {
         try
         {
-            return ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showConfirmationDialog(question);
+            return ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showConfirmationDialog(widget, question);
         }
         catch (Exception ex)
         {
@@ -116,7 +116,7 @@ public class ScriptUtil
      *  by either selecting an item and pressing "OK",
      *  or by pressing "Cancel".
      *
-     *  @param widget Widget, used to obtain toolkit for representing dialog
+     *  @param widget Widget, used to create and position the dialog
      *  @param title Dialog title
      *  @param options Options to show in dialog
      *  @return Selected item or <code>null</code>
@@ -125,7 +125,7 @@ public class ScriptUtil
     {
         try
         {
-            return ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showSelectionDialog(title, options);
+            return ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showSelectionDialog(widget, title, options);
         }
         catch (Exception ex)
         {
@@ -139,7 +139,7 @@ public class ScriptUtil
      *  <p>Call blocks until the user closes the dialog
      *  by either either entering/selecting a file name, or pressing "Cancel".
      *
-     *  @param widget Widget, used to obtain toolkit for representing dialog
+     *  @param widget Widget, used to create and position the dialog
      *  @param initial_value Initial path and file name
      *  @return Path and file name or <code>null</code>
      */
@@ -147,7 +147,7 @@ public class ScriptUtil
     {
         try
         {
-            return ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showSaveAsDialog(initial_value);
+            return ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showSaveAsDialog(widget, initial_value);
         }
         catch (Exception ex)
         {

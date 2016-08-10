@@ -59,6 +59,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.ComboRepresent
 import org.csstudio.display.builder.representation.javafx.widgets.EllipseRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.EmbeddedDisplayRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.GroupRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LEDRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.MultiStateLEDRepresentation;
@@ -76,6 +77,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepr
 import org.csstudio.display.builder.representation.javafx.widgets.WebBrowserRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation;
+import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.Styles;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
@@ -319,8 +321,9 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public void showMessageDialog(final boolean is_warning, final String message)
+    public void showMessageDialog(final Widget widget, final boolean is_warning, final String message)
     {
+        final Node node = JFXBaseRepresentation.getJFXNode(widget);
         final CountDownLatch done = new CountDownLatch(1);
         execute( ()->
         {
@@ -328,6 +331,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
                                           ? Alert.AlertType.WARNING
                                           : Alert.AlertType.INFORMATION,
                                           message);
+            DialogHelper.positionDialog(alert, node, -100, -50);
             alert.setTitle(is_warning ? "Warning" : "Information");
             alert.setHeaderText(null);
             alert.showAndWait();
@@ -344,12 +348,14 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public boolean showConfirmationDialog(final String question)
+    public boolean showConfirmationDialog(final Widget widget, final String question)
     {
+        final Node node = JFXBaseRepresentation.getJFXNode(widget);
         final CompletableFuture<Boolean> done = new CompletableFuture<>();
         execute( ()->
         {
             final Alert alert = new Alert(Alert.AlertType.CONFIRMATION, question);
+            DialogHelper.positionDialog(alert, node, -100, -50);
             alert.setTitle("Please Confirm");
             alert.setHeaderText(null);
             // Setting "Yes", "No" buttons
@@ -372,12 +378,15 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public String showSelectionDialog(final String title, final List<String> options)
+    public String showSelectionDialog(final Widget widget, final String title, final List<String> options)
     {
+        final Node node = JFXBaseRepresentation.getJFXNode(widget);
         final CompletableFuture<String> done = new CompletableFuture<>();
         execute( ()->
         {
             final ChoiceDialog<String> dialog = new ChoiceDialog<>(null, options);
+            DialogHelper.positionDialog(dialog, node, -100, -50);
+
             dialog.setHeaderText(title);
             Optional<String> result = dialog.showAndWait();
             done.complete(result.orElse(null));
@@ -394,7 +403,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public String showSaveAsDialog(final String initial_value)
+    public String showSaveAsDialog(final Widget widget, final String initial_value)
     {
         logger.log(Level.WARNING, "showSaveAsDialog('" + initial_value + "') is not implemented");
         return null;
