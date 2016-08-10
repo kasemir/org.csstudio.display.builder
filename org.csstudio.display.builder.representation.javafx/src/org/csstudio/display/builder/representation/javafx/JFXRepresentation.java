@@ -405,6 +405,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     @Override
     public String showSaveAsDialog(final Widget widget, final String initial_value)
     {
+        // This is implemented in the RCP_JFXRepresentation, using the workspace.
+        // Could provide a file-system based dialog here for use without RCP/workspace.
         logger.log(Level.WARNING, "showSaveAsDialog('" + initial_value + "') is not implemented");
         return null;
     }
