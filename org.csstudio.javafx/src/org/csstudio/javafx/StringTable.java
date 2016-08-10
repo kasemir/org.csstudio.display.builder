@@ -238,9 +238,13 @@ public class StringTable extends BorderPane
     {
         toolbar.getItems().add(createToolbarButton("add_row", Messages.AddRow, event -> addRow()));
         toolbar.getItems().add(createToolbarButton("remove_row", Messages.RemoveRow, event -> deleteRow()));
+        toolbar.getItems().add(createToolbarButton("row_up", Messages.MoveRowUp, event -> moveRowUp()));
+        toolbar.getItems().add(createToolbarButton("row_down", Messages.MoveRowDown, event -> moveRowDown()));
         toolbar.getItems().add(createToolbarButton("rename_col", Messages.RenameColumn, event -> renameColumn()));
         toolbar.getItems().add(createToolbarButton("add_col", Messages.AddColumn, event -> addColumn()));
         toolbar.getItems().add(createToolbarButton("remove_col", Messages.RemoveColumn, event -> deleteColumn()));
+        toolbar.getItems().add(createToolbarButton("col_left", Messages.MoveColumnLeft, event -> moveColumnLeft()));
+        toolbar.getItems().add(createToolbarButton("col_right", Messages.MoveColumnRight, event -> moveColumnRight()));
     }
 
     private Button createToolbarButton(final String id, final String tool_tip, final EventHandler<ActionEvent> handler)
@@ -549,6 +553,39 @@ public class StringTable extends BorderPane
         fireDataChanged();
     }
 
+    /** Move selected row up  */
+    private void moveRowUp()
+    {
+        int row = table.getSelectionModel().getSelectedIndex();
+        final int num = data.size() - 1;
+        if (row < 0 || num < 1)
+            return;
+        moveRow(row, (row - 1 + num) % num);
+    }
+
+    /** Move selected row down  */
+    private void moveRowDown()
+    {
+        int row = table.getSelectionModel().getSelectedIndex();
+        final int num = data.size() - 1;
+        if (row < 0 || num < 1)
+            return;
+        moveRow(row, (row + 1) % num);
+    }
+
+    /** Move a row up/down
+     *  @param row Row to move
+     *  @param target Desired location
+     */
+    private void moveRow(final int row, final int target)
+    {
+        final int column = getSelectedColumn();
+        final List<String> line = data.remove(row);
+        data.add(target, line);
+        table.getSelectionModel().clearAndSelect(target, table.getColumns().get(column));
+        fireDataChanged();
+    }
+
     /** Delete currently selected row */
     private void deleteRow()
     {
@@ -638,6 +675,45 @@ public class StringTable extends BorderPane
         for (List<String> row : data)
             if (row != MAGIC_LAST_ROW)
                 row.add(column, "");
+        fireDataChanged();
+    }
+
+    /** Move selected column to the left */
+    private void moveColumnLeft()
+    {
+        final int column = getSelectedColumn();
+        final int num = table.getColumns().size();
+        if (column < 0 || num < 1)
+            return;
+        moveColumn(column, (column - 1 + num) % num);
+    }
+
+    /** Move selected column to the right */
+    private void moveColumnRight()
+    {
+        final int column = getSelectedColumn();
+        final int num = table.getColumns().size();
+        if (column < 0 || num < 1)
+            return;
+        moveColumn(column, (column + 1) % num);
+    }
+
+    /** Move a column left/right
+     *  @param column Column to move
+     *  @param target Desired location
+     */
+    private void moveColumn(final int column, final int target)
+    {
+        int row = table.getSelectionModel().getSelectedIndex();
+        final TableColumn<List<String>, ?> col = table.getColumns().remove(column);
+        table.getColumns().add(target, col);
+        for (List<String> data_row : data)
+            if (data_row != MAGIC_LAST_ROW)
+            {
+                final String cell = data_row.remove(column);
+                data_row.add(target, cell);
+            }
+        table.getSelectionModel().clearAndSelect(row, table.getColumns().get(target));
         fireDataChanged();
     }
 

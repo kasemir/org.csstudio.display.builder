@@ -95,6 +95,10 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
                     setting_data = true;
                     try
                     {
+                        // TODO Update headers, BUT:
+                        // This clears the table value
+                        // AND looses column options
+                        // model_widget.setHeaders(table.getHeaders());
                         model_widget.setValue(table.getData());
                     }
                     finally
