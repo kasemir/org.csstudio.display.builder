@@ -355,6 +355,19 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     abstract public boolean showConfirmationDialog(String question);
 
+    /** Show dialog for selecting one item from a list.
+     *
+     *  <p>Call blocks until the user closes the dialog
+     *  by either selecting an item and pressing "OK",
+     *  or by pressing "Cancel".
+     *
+     *  @param widget Widget, used to obtain toolkit for representing dialog
+     *  @param title Dialog title
+     *  @param options Options to show in dialog
+     *  @return Selected item or <code>null</code>
+     */
+    abstract public String showSelectionDialog(String title, List<String> options);
+
     /** Show file "Save As" dialog for selecting/entering a new file name
      *
      *  @param initial_value Initial path and file name

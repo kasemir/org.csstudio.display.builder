@@ -1,6 +1,7 @@
 package org.csstudio.display.builder.runtime.script;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -93,7 +94,7 @@ public class ScriptUtil
      *  ("Confirm", "Cancel", depending on implementation).
      *
      *  @param widget Widget, used to obtain toolkit for representing dialog
-     *  @param mesquestionsage Message to display on dialog
+     *  @param question Message to display on dialog
      *  @return <code>true</code> if user selected "Yes" ("Confirm")
      */
     public static boolean showConfirmationDialog(final Widget widget, final String question)
@@ -107,6 +108,30 @@ public class ScriptUtil
             logger.log(Level.WARNING, "Error asking in dialog for " + question, ex);
         }
         return false;
+    }
+
+    /** Show dialog for selecting one item from a list.
+     *
+     *  <p>Call blocks until the user closes the dialog
+     *  by either selecting an item and pressing "OK",
+     *  or by pressing "Cancel".
+     *
+     *  @param widget Widget, used to obtain toolkit for representing dialog
+     *  @param title Dialog title
+     *  @param options Options to show in dialog
+     *  @return Selected item or <code>null</code>
+     */
+    public static String showSelectionDialog(final Widget widget, final String title, final List<String> options)
+    {
+        try
+        {
+            return ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showSelectionDialog(title, options);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Error in selection dialog for " + title, ex);
+        }
+        return null;
     }
 
     /** Show file "Save As" dialog for selecting/entering a new file name

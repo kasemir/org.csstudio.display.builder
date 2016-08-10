@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.representation.javafx;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -89,6 +90,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
 
@@ -367,6 +369,28 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
             logger.log(Level.WARNING, "Confirmation dialog ('" + question + "') failed", ex);
         }
         return false;
+    }
+
+    @Override
+    public String showSelectionDialog(final String title, final List<String> options)
+    {
+        final CompletableFuture<String> done = new CompletableFuture<>();
+        execute( ()->
+        {
+            final ChoiceDialog<String> dialog = new ChoiceDialog<>(null, options);
+            dialog.setHeaderText(title);
+            Optional<String> result = dialog.showAndWait();
+            done.complete(result.orElse(null));
+        });
+        try
+        {
+            return done.get();
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Selection dialog ('" + title + ", ..') failed", ex);
+        }
+        return null;
     }
 
     @Override

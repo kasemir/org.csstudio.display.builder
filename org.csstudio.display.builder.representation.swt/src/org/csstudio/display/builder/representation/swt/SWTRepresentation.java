@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -140,6 +141,13 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     {
         logger.log(Level.WARNING, "showConfirmationDialog('" + question + "') is not implemented");
         return false;
+    }
+
+    @Override
+    public String showSelectionDialog(final String title, final List<String> options)
+    {
+        logger.log(Level.WARNING, "showSelectionDialog('" + title + "') is not implemented");
+        return null;
     }
 
     @Override
