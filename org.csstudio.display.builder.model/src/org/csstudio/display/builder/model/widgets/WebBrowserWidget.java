@@ -19,8 +19,10 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 
-/** Widget that displays a static rectangle
- *  @author Amanda Carpenter
+/**
+ * Widget for a limited embedded web browser
+ * 
+ * @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
 public class WebBrowserWidget extends VisibleWidget

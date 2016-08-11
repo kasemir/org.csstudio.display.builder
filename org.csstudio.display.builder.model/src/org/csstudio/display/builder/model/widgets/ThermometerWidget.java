@@ -17,6 +17,11 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.diirt.vtype.VType;
 
+/**
+ * Widget of a thermometer
+ * 
+ * @author Amanda Carpenter
+ */
 public class ThermometerWidget extends VisibleWidget
 {
     /** Widget descriptor */

@@ -96,6 +96,10 @@
             type="textupdate">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.ThermometerRepresentation"
+            type="thermometer">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation"
             type="image">
       </representation>

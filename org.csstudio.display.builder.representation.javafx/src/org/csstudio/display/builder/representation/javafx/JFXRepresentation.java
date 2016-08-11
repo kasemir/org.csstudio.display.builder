@@ -43,6 +43,7 @@ import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
+import org.csstudio.display.builder.model.widgets.ThermometerWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
@@ -74,6 +75,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.TableRepresent
 import org.csstudio.display.builder.representation.javafx.widgets.TabsRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.ThermometerRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.WebBrowserRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation;
@@ -199,6 +201,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(TabsWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TabsRepresentation());
         factories.put(TextEntryWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextEntryRepresentation());
         factories.put(TextUpdateWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextUpdateRepresentation());
+        factories.put(ThermometerWidget.WIDGET_DESCRIPTOR.getType(),
+                () -> (WidgetRepresentation) new ThermometerRepresentation());
         factories.put(WebBrowserWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new WebBrowserRepresentation());
         factories.put(XYPlotWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new XYPlotRepresentation());
     }
