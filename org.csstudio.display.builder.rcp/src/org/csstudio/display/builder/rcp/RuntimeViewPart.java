@@ -94,33 +94,36 @@ public class RuntimeViewPart extends ViewPart
         return open(close_handler, null);
     }
 
-    /**
-     * Open a runtime display; or, if the display is open, refresh it and makes
-     * its page active
-     * 
-     * @param close_handler Code to call when part is closed
-     * @param info DisplayInfo (to compare with currently open displays)
-     * @return {@link RuntimeViewPart}
-     * @throws Exception on error
+    /** Open a runtime display
+     *
+     *  <p>Either opens a new display, or if there is already an existing view
+     *  for that input, "activate" it, which pops a potentially hidden view to the top.
+     *
+     *  @param close_handler Code to call when part is closed
+     *  @param info DisplayInfo (to compare with currently open displays)
+     *  @return {@link RuntimeViewPart}
+     *  @throws Exception on error
      */
     public static RuntimeViewPart open(final Consumer<DisplayModel> close_handler, final DisplayInfo info)
             throws Exception
     {
         final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
         if (info != null)
-            for (IViewReference viewRef : page.getViewReferences())
-            {
-                if (viewRef.getId().startsWith(ID))
+            for (IViewReference view_ref : page.getViewReferences())
+                if (view_ref.getId().startsWith(ID))
                 {
-                    IViewPart viewPart = viewRef.getView(true);
-                    if (viewPart instanceof RuntimeViewPart && ((RuntimeViewPart) viewPart).getDisplayInfo().equals(info))
+                    final IViewPart view = view_ref.getView(true);
+                    if (view instanceof RuntimeViewPart)
                     {
-                        page.showView(viewRef.getId(), viewRef.getSecondaryId(), IWorkbenchPage.VIEW_ACTIVATE);
-                        ((RuntimeViewPart) viewPart).close_handler = close_handler;
-                        return (RuntimeViewPart) viewPart;
+                        final RuntimeViewPart runtime_view = (RuntimeViewPart) view;
+                        if (info.equals(runtime_view.getDisplayInfo())) // Allow for runtime_view.getDisplayInfo() == null
+                        {
+                            page.showView(view_ref.getId(), view_ref.getSecondaryId(), IWorkbenchPage.VIEW_ACTIVATE);
+                            runtime_view.close_handler = close_handler;
+                            return runtime_view;
+                        }
                     }
                 }
-            }
         final RuntimeViewPart part = (RuntimeViewPart) page.showView(ID, UUID.randomUUID().toString(), IWorkbenchPage.VIEW_ACTIVATE);
         part.close_handler = close_handler;
         return part;

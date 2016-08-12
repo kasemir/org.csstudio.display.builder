@@ -59,8 +59,9 @@ public class DisplayInfo
         if (! (obj instanceof DisplayInfo))
             return false;
         final DisplayInfo other = (DisplayInfo) obj;
-        return name.equals(other.name) &&
-               path.equals(other.path) &&
+        // Ignore the name
+        // Displays match if they refer to the same path and macros
+        return path.equals(other.path) &&
                macros.equals(other.macros);
     }
 
