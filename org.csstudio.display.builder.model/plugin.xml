@@ -215,7 +215,7 @@
             category="CONTROL"
             class="org.csstudio.display.builder.model.widgets.RadioWidget"
             description="%RadioWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/radioButton.gif"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/radiobutton.gif"
             name="%RadioWidget_Name"
             type="radio">
          <alternates

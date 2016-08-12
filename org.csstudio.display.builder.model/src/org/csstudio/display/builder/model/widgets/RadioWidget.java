@@ -42,8 +42,8 @@ public class RadioWidget extends VisibleWidget
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
             new WidgetDescriptor("radio", WidgetCategory.CONTROL,
-                    "Radio Box",
-                    "platform:/plugin/org.csstudio.display.builder.model/icons/radioButton.gif",
+                    "Radio Button",
+                    "platform:/plugin/org.csstudio.display.builder.model/icons/radiobutton.gif",
                     "Selects one of multiple items using radio buttons",
                     Arrays.asList("org.csstudio.opibuilder.widgets.radioBox"))
     {
