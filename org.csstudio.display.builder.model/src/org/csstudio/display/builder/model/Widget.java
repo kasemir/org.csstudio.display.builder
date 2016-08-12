@@ -29,7 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -235,20 +234,21 @@ public class Widget
         return name.getValue();
     }
 
-    /** @return Identifier for widget */
+    /** Unique runtime identifier of a widget
+     *
+     *  <p>At runtime, this ID can be used to construct
+     *  PVs that are unique and specific to this instance
+     *  of a widget.
+     *  Even if the same display is opened multiple times
+     *  within the same JVM, the widget is very likely
+     *  to receive a new, unique identifier.
+     *
+     *  @return Unique Runtime Identifier for widget
+     */
     public String getID()
-    {
-        int id;
-        try
-        {
-            id = System.identityHashCode(this);
-        }
-        catch (Exception ex)
-        {
-            logger.log(Level.WARNING, "Cannot obtain display ID for " + this, ex);
-            return "DP00";
-        }
-        return "DP" + Integer.toHexString(id);
+    {   // Base on ID hash code
+        final int id = System.identityHashCode(this);
+        return "WD" + Integer.toHexString(id);
     }
 
     /** @return Parent widget in Widget tree */

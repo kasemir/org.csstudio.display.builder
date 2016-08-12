@@ -43,19 +43,18 @@ public class MacroOrPropertyProvider implements MacroValueProvider
         // uniquely identifies the display
         if ("DID".equals(name))
         {
+            // Have properties of a widget, need display model.
             // Every widget must have a 'type' property,
-            // so fetch that to get the widget and then the display
-            int id;
+            // so fetch that to get the widget and then the display.
             try
             {
-                id = System.identityHashCode(properties.get(widgetType.getName()).getWidget().getDisplayModel());
+                return properties.get(widgetType.getName()).getWidget().getDisplayModel().getID();
             }
             catch (Exception ex)
             {
                 logger.log(Level.WARNING, "Cannot obtain display ID for $(DID)", ex);
                 return "DP00";
             }
-            return "DP" + Integer.toHexString(id);
         }
 
         // Automatic macro for Display NAME
