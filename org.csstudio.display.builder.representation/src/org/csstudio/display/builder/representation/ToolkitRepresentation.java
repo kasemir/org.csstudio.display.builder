@@ -343,7 +343,18 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *  @param is_warning Whether to style dialog as warning or information
      *  @param message Message to display on dialog
      */
-    abstract public void showMessageDialog(Widget widget, boolean is_warning, String message);
+    abstract public void showMessageDialog(Widget widget, String message);
+
+    /** Show error dialog.
+     *
+     *  <p>Calling thread is blocked until user closes the dialog
+     *  by pressing "OK".
+     *
+     *  @param widget Widget, used to create and position the dialog
+     *  @param is_warning Whether to style dialog as warning or information
+     *  @param message Message to display on dialog
+     */
+    abstract public void showErrorDialog(Widget widget, String error);
 
     /** Show confirmation dialog.
      *

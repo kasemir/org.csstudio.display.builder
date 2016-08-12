@@ -21,7 +21,7 @@
         <script file="EmbeddedPy">
           <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
 
-ScriptUtil.showMessageDialog(widget, False, "Hello!")
+ScriptUtil.showMessageDialog(widget, "Hello!")
 ]]></text>
         </script>
         <description>Show Info</description>
@@ -140,10 +140,10 @@ ScriptUtil.getLogger().info("This is a warning log message.")]]></text>
         <script file="EmbeddedPy">
           <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
 
-ScriptUtil.showMessageDialog(widget, True, "Test!")
+ScriptUtil.showErrorDialog(widget, "Test!")
 ]]></text>
         </script>
-        <description>Show Warning</description>
+        <description>Show Error</description>
       </action>
     </actions>
   </widget>
@@ -214,9 +214,9 @@ because it can disrupt a user's workflow.</text>
 ScriptUtil.getLogger().warning("Prompting..")
 
 if ScriptUtil.showConfirmationDialog(widget, "Does this make sense?"):
-    ScriptUtil.showMessageDialog(widget, False, "Excellent!")
+    ScriptUtil.showMessageDialog(widget, "Excellent!")
 else:
-    ScriptUtil.showMessageDialog(widget, True, "Well, too bad")
+    ScriptUtil.showMessageDialog(widget, "Well, too bad")
 
 ScriptUtil.getLogger().warning("Done")
 ]]></text>
@@ -384,9 +384,9 @@ selected = ScriptUtil.showSelectionDialog(widget,
                                                                   [ "Apple", "Banana", "Cucumber" ])
 
 if selected is None:
-    ScriptUtil.showMessageDialog(widget, True, "Sorry that you don't like any...")
+    ScriptUtil.showMessageDialog(widget, "Sorry that you don't like any...")
 else:
-    ScriptUtil.showMessageDialog(widget, True,  selected + " is a great choice!")
+    ScriptUtil.showMessageDialog(widget, selected + " is a great choice!")
 ]]></text>
         </script>
         <description>Select</description>

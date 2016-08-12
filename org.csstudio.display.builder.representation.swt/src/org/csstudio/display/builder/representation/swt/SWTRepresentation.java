@@ -132,9 +132,15 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     }
 
     @Override
-    public void showMessageDialog(final Widget widget, final boolean is_warning, final String message)
+    public void showMessageDialog(final Widget widget, final String message)
     {
         logger.log(Level.WARNING, "showMessageDialog('" + message + "') is not implemented");
+    }
+
+    @Override
+    public void showErrorDialog(final Widget widget, final String error)
+    {
+        logger.log(Level.WARNING, "showErrorDialog('" + error + "') is not implemented");
     }
 
     @Override

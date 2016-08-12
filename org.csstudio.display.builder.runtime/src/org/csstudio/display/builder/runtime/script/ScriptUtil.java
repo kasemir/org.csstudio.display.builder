@@ -72,18 +72,37 @@ public class ScriptUtil
      *  in the dialog.
      *
      *  @param widget Widget, used to create and position the dialog
-     *  @param is_warning Whether to style dialog as warning or information
      *  @param message Message to display on dialog
      */
-    public static void showMessageDialog(final Widget widget, final boolean is_warning, final String message)
+    public static void showMessageDialog(final Widget widget, final String message)
     {
         try
         {
-            ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showMessageDialog(widget, is_warning, message);
+            ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showMessageDialog(widget, message);
         }
         catch (Exception ex)
         {
-            logger.log(Level.WARNING, "Error showing dialog for " + message, ex);
+            logger.log(Level.WARNING, "Error showing message dialog '" + message + "'", ex);
+        }
+    }
+
+    /** Show a error dialog.
+     *
+     *  <p>Call blocks until the user presses "OK"
+     *  in the dialog.
+     *
+     *  @param widget Widget, used to create and position the dialog
+     *  @param error Message to display on dialog
+     */
+    public static void showErrorDialog(final Widget widget, final String error)
+    {
+        try
+        {
+            ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showErrorDialog(widget, error);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Error showing error dialog '" + error + "'", ex);
         }
     }
 

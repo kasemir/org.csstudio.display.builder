@@ -328,18 +328,39 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public void showMessageDialog(final Widget widget, final boolean is_warning, final String message)
+    public void showMessageDialog(final Widget widget, final String message)
     {
         final Node node = JFXBaseRepresentation.getJFXNode(widget);
         final CountDownLatch done = new CountDownLatch(1);
         execute( ()->
         {
-            final Alert alert = new Alert(is_warning
-                                          ? Alert.AlertType.WARNING
-                                          : Alert.AlertType.INFORMATION,
-                                          message);
+            final Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
             DialogHelper.positionDialog(alert, node, -100, -50);
-            alert.setTitle(is_warning ? "Warning" : "Information");
+            alert.setTitle("Message");
+            alert.setHeaderText(null);
+            alert.showAndWait();
+            done.countDown();
+        });
+        try
+        {
+            done.await();
+        }
+        catch (InterruptedException ex)
+        {
+            // Ignore
+        }
+    }
+
+    @Override
+    public void showErrorDialog(final Widget widget, final String error)
+    {
+        final Node node = JFXBaseRepresentation.getJFXNode(widget);
+        final CountDownLatch done = new CountDownLatch(1);
+        execute( ()->
+        {
+            final Alert alert = new Alert(Alert.AlertType.WARNING, error);
+            DialogHelper.positionDialog(alert, node, -100, -50);
+            alert.setTitle("Error");
             alert.setHeaderText(null);
             alert.showAndWait();
             done.countDown();
