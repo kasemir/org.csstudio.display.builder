@@ -22,6 +22,7 @@ import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -29,6 +30,7 @@ import javafx.geometry.Bounds;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -201,10 +203,13 @@ public class StringTable extends BorderPane
 
     private final TableView<List<String>> table = new TableView<>(data);
 
+    private List<TableColumn<List<String>, ?>> columns = Collections.emptyList();
+
     /** Currently editing a cell? */
     private boolean editing = false;
 
     private volatile StringTableListener listener = null;
+
 
     /** Constructor
      *  @param editable Allow user interaction (toolbar, edit), or just display data?
@@ -212,11 +217,28 @@ public class StringTable extends BorderPane
     public StringTable(final boolean editable)
     {
         this.editable = editable;
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         table.getSelectionModel().setCellSelectionEnabled(true);
         table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         table.getSelectionModel().getSelectedIndices().addListener(this::selectionChanged);
         table.setPlaceholder(new Label());
+
+        // Prevent moving the columns, but there's no good API.
+        // Need to remove all, then add back
+        table.getColumns().addListener(new ListChangeListener<Object>()
+        {
+            @Override
+            public void onChanged(Change<? extends Object> change)
+            {
+                change.next();
+                if(change.wasReplaced())
+                {
+                    // setAll doesn't work, must clear and then set
+                    table.getColumns().clear();
+                    table.getColumns().addAll(columns);
+                }
+            }
+         });
 
         if (editable)
         {
@@ -227,7 +249,12 @@ public class StringTable extends BorderPane
         updateStyle();
         fillToolbar();
         setTop(toolbar);
-        setCenter(table);
+
+        // Scroll if table is larger than its screen space
+        final ScrollPane scroll = new ScrollPane(table);
+        scroll.setFitToWidth(true);
+        scroll.setFitToHeight(true);
+        setCenter(scroll);
 
         setData(Arrays.asList(Arrays.asList()));
     }
@@ -343,11 +370,7 @@ public class StringTable extends BorderPane
             data.add(MAGIC_LAST_ROW);
 
         for (String header : headers)
-        {
-            final TableColumn<List<String>, String> table_column =
-                createTableColumn(header);
-            table.getColumns().add(table_column);
-        }
+            createTableColumn(-1, header);
     }
 
     /** Set (minimum) column width
@@ -426,7 +449,10 @@ public class StringTable extends BorderPane
                options.containsAll(BOOLEAN_OPTIONS);
     }
 
-    private TableColumn<List<String>, String> createTableColumn(final String header)
+    /** @param index Column index, -1 to add to end
+     *  @param header Header text
+     */
+    private void createTableColumn(final int index, final String header)
     {
         final TableColumn<List<String>, String> table_column = new TableColumn<>(header);
         table_column.setCellValueFactory(CELL_FACTORY);
@@ -452,7 +478,12 @@ public class StringTable extends BorderPane
         table_column.setOnEditCancel(event -> editing = false);
         table_column.setSortable(false);
 
-        return table_column;
+        if (index >= 0)
+            table.getColumns().add(index, table_column);
+        else
+            table.getColumns().add(table_column);
+
+        columns = new ArrayList<>(table.getColumns());
     }
 
     /** @return Header labels */
@@ -690,7 +721,7 @@ public class StringTable extends BorderPane
             return;
         if (column < 0)
             column = table.getColumns().size();
-        table.getColumns().add(column, createTableColumn(name));
+        createTableColumn(column, name);
         for (List<String> row : data)
             if (row != MAGIC_LAST_ROW)
                 row.add(column, "");

@@ -39,8 +39,10 @@ public class TableDemo extends Application
     {
         // Example data
         final List<String> headers = Arrays.asList("Left", "Middle", "Right");
+        // Data lacks one element to demonstrate log message.
+        // Table still "works"
         final List<List<String>> data = Arrays.asList(
-                Arrays.asList("One", "Two" ),
+                Arrays.asList("One", "Two" /*, "missing" */),
                 Arrays.asList("Uno", "Due", "Tres"));
 
         // Table
@@ -80,8 +82,8 @@ public class TableDemo extends Application
         {
             table.setHeaders(Arrays.asList("A", "B"));
             table.setData(Arrays.asList(
-                    Arrays.asList("A 1", "A 2"),
-                    Arrays.asList("B 1", "B 2")));
+                    Arrays.asList("A 1", "B 1"),
+                    Arrays.asList("A 2", "B 2")));
         });
 
         final BorderPane layout = new BorderPane();
