@@ -57,6 +57,7 @@ public class ProgressBarWidget extends VisibleWidget
         }
     };
 
+    //TODO: BOY thermometer where show bulb property false
     /** Widget configurator to read legacy *.opi files*/
     private static class ProgressBarConfigurator extends WidgetConfigurator
     {
