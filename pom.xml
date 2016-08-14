@@ -23,8 +23,8 @@
   <!-- PROPERTIES -->
   <properties>
     <!-- VERSIONS -->
-    <tycho.version>0.22.0</tycho.version>
-    <tycho-extras.version>0.22.0</tycho-extras.version>
+    <tycho.version>0.23.1</tycho.version>
+    <tycho-extras.version>${tycho.version}</tycho-extras.version>
 
     <!-- Repo that has CSS dependencies.
          Customize via command line option
