@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.representation.ToolkitListener;
+import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeAction;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
@@ -38,9 +39,13 @@ import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+
+import javafx.scene.Node;
+import javafx.scene.Scene;
 
 /** Context menu
  *
@@ -56,6 +61,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 @SuppressWarnings("nls")
 public class ContextMenuSupport
 {
+    private Shell shell;
+
     /** SWT/JFace Action for a model's ActionInfo
      *
      *  <p>Shows the ActionInfo's description and icon,
@@ -137,8 +144,21 @@ public class ContextMenuSupport
             for (RuntimeAction info : runtime.getRuntimeActions())
                 manager.add(new RuntimeActionWrapper(context_menu_widget, info));
         }
+
         // Placeholder for ProcessVariable object contributions
         manager.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
+
+        manager.add(new Separator());
+
+        if (context_menu_widget != null)
+        {
+            final Node node = JFXBaseRepresentation.getJFXNode(context_menu_widget);
+            final Scene scene = node.getScene();
+
+            // TODO Implement logbook support
+            manager.add(new Action("TODO: Logbook") {});
+            manager.add(new SendEMailAction(shell, scene));
+        }
 
         // Placeholder for the display editor.
         // If editor.rcp plugin is included, it adds "Open in editor"
@@ -153,6 +173,8 @@ public class ContextMenuSupport
      */
     public ContextMenuSupport(final IWorkbenchPartSite site, final Composite parent, final RCP_JFXRepresentation representation)
     {
+        shell = site.getShell();
+
         // Tried to use a JFX context menu on the individual items,
         // but adding the existing PV contributions requires parsing
         // the registry and creating suitable JFX menu entries.

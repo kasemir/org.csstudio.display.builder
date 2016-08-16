@@ -13,6 +13,7 @@ import java.util.Optional;
 
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
@@ -122,6 +123,10 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
      */
     public static Node getJFXNode(final Widget widget)
     {
+        // For model, return the Group node
+        if (widget instanceof DisplayModel)
+            return widget.getUserData(Widget.USER_DATA_TOOLKIT_PARENT);
+
         final JFXBaseRepresentation<Node, Widget> representation =
                 widget.getUserData(Widget.USER_DATA_REPRESENTATION);
         return representation.jfx_node;
