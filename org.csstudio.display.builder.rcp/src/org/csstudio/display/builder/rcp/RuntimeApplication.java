@@ -11,20 +11,20 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.csstudio.display.builder.model.ModelPlugin;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.preferences.IPreferencesService;
+import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.representation.javafx.JFXStageRepresentation;
+import org.csstudio.display.builder.runtime.RuntimeUtil;
+import org.csstudio.vtype.pv.PV;
+import org.csstudio.vtype.pv.PVPool;
+import org.csstudio.vtype.pv.RefCountMap;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import javafx.embed.swt.FXCanvas;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.Parent;
 import javafx.stage.Stage;
 
 /** RCP Application for display runtime
@@ -41,6 +41,8 @@ import javafx.stage.Stage;
 public class RuntimeApplication implements IApplication
 {
     private final static Logger logger = Logger.getLogger(RuntimeApplication.class.getName());
+    private Display display;
+    private JFXStageRepresentation toolkit;
 
     public void usage()
     {
@@ -69,39 +71,12 @@ public class RuntimeApplication implements IApplication
             return Integer.valueOf(0);
         }
 
-        String display_path = argv[0];
+        final String display_path = argv[0];
 
-        // TODO Remove preference check
-        final IPreferencesService prefs = Platform.getPreferencesService();
-        final String macros = prefs.getString(ModelPlugin.ID, "macros", "", null);
-        System.out.println(macros);
+        final Stage stage = initializeUI();
 
-        // TODO Load named color, font configs
-
-        // Creating an FXCanvas results in a combined
-        // SWT and JavaFX setup with common UI thread.
-        final Display display = Display.getDefault();
-        final Shell shell = new Shell(display);
-        shell.setText("Display Runtime");
-        shell.setLayout(new FillLayout());
-
-        final FXCanvas fxcanvas = new FXCanvas(shell, SWT.NONE);
-
-        final Label label = new Label("JFX In SWT");
-        final BorderPane root = new BorderPane(label);
-        fxcanvas.setScene(new Scene(root));
-        shell.setVisible(true);
-        shell.setBounds(20, 10, 400, 600);
-        shell.addDisposeListener(event -> display.dispose());
-
-        final Stage stage = new Stage();
-        stage.setTitle("Display Runtime");
-        stage.setWidth(400);
-        stage.setHeight(600);
-        stage.setX(440);
-        stage.setY(10);
-        stage.setScene(new Scene(new BorderPane(new Label("JavaFX"))));
-        stage.show();
+        // Load model in background
+        RuntimeUtil.getExecutor().execute(() -> loadModel(stage, display_path));
 
         while (!display.isDisposed())
         {
@@ -109,9 +84,79 @@ public class RuntimeApplication implements IApplication
                 display.sleep();
         }
 
-        System.out.println("Done.");
+        int refs = 0;
+        for (final RefCountMap.ReferencedEntry<PV> ref : PVPool.getPVReferences())
+        {
+            refs += ref.getReferences();
+            logger.log(Level.SEVERE, "PV {0} left with {1} references", new Object[] { ref.getEntry().getName(), ref.getReferences() });
+        }
+        if (refs == 0)
+            logger.log(Level.FINE, "All PV references were released, good job, get a cookie!");
 
         return Integer.valueOf(0);
+    }
+
+    private Stage initializeUI()
+    {
+        // TODO Load named color, font configs
+
+        // Creating an FXCanvas results in a combined
+        // SWT and JavaFX setup with common UI thread.
+        // Shell that's created as a parent for the FXCanvas is never shown.
+        display = Display.getDefault();
+        final Shell temp_shell = new Shell(display);
+        new FXCanvas(temp_shell, SWT.NONE);
+        temp_shell.close();
+
+        final Stage stage = new Stage();
+        stage.setTitle("Display Runtime");
+        stage.setWidth(600);
+        stage.setHeight(400);
+        stage.show();
+
+        toolkit = new JFXStageRepresentation();
+        RuntimeUtil.hookRepresentationListener(toolkit);
+        return stage;
+    }
+
+    private void loadModel(final Stage stage, final String display_path)
+    {
+        try
+        {
+            final DisplayModel model = RuntimeUtil.loadModel(null, display_path);
+
+            // Representation needs to be created in UI thread
+            toolkit.execute(() -> representModel(stage, model));
+        }
+        catch (final Exception ex)
+        {
+            logger.log(Level.SEVERE, "Cannot start", ex);
+        }
+    }
+
+    private void representModel(final Stage stage, final DisplayModel model)
+    {
+        // Create representation for model items
+        try
+        {
+            final Parent parent = toolkit.configureStage(stage, model, this::handleClose);
+            toolkit.representModel(parent, model);
+        }
+        catch (final Exception ex)
+        {
+            ex.printStackTrace();
+        }
+
+        // Start runtimes in background
+        RuntimeUtil.getExecutor().execute(() -> RuntimeUtil.startRuntime(model));
+    }
+
+    private boolean handleClose(final DisplayModel model)
+    {
+        RuntimeUtil.stopRuntime(model);
+        toolkit.disposeRepresentation(model);
+        display.dispose();
+        return true;
     }
 
     @Override
