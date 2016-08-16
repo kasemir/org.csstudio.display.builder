@@ -1,11 +1,11 @@
-if [ -d $HOME/Eclipse/jdk1.8.0_73 ]
+JDK=`echo /Library/Java/JavaVirtualMachines/jdk1.8.0_*.jdk/Contents/Home`
+
+if [ -d "$JDK" ]
 then
-    export JAVA_HOME=$HOME/Eclipse/jdk1.8.0_73
-elif [ -d $HOME/Eclipse/jdk1.8.0_60 ]
-then
-    export JAVA_HOME=$HOME/Eclipse/jdk1.8.0_60
+    export JAVA_HOME=$JDK
+    echo "Found JDK $JDK"
 else
-    export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_65.jdk/Contents/Home
+    echo "Cannot locate JDK in /Library/Java/JavaVirtualMachines"
 fi
 if [ -d $HOME/Eclipse/apache-maven-3.2.3 ]
 then

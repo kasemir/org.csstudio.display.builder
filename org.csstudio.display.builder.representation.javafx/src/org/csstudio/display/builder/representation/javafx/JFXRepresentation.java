@@ -334,10 +334,13 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         final CountDownLatch done = new CountDownLatch(1);
         execute( ()->
         {
-            final Alert alert = new Alert(Alert.AlertType.INFORMATION, message);
+            final Alert alert = new Alert(Alert.AlertType.INFORMATION);
             DialogHelper.positionDialog(alert, node, -100, -50);
+            alert.setResizable(true);
             alert.setTitle("Message");
-            alert.setHeaderText(null);
+            // "header text" allows for larger content than the "content text"
+            alert.setContentText(null);
+            alert.setHeaderText(message);
             alert.showAndWait();
             done.countDown();
         });
@@ -358,10 +361,11 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         final CountDownLatch done = new CountDownLatch(1);
         execute( ()->
         {
-            final Alert alert = new Alert(Alert.AlertType.WARNING, error);
+            final Alert alert = new Alert(Alert.AlertType.WARNING);
             DialogHelper.positionDialog(alert, node, -100, -50);
+            alert.setResizable(true);
             alert.setTitle("Error");
-            alert.setHeaderText(null);
+            alert.setHeaderText(error);
             alert.showAndWait();
             done.countDown();
         });
@@ -382,10 +386,11 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         final CompletableFuture<Boolean> done = new CompletableFuture<>();
         execute( ()->
         {
-            final Alert alert = new Alert(Alert.AlertType.CONFIRMATION, question);
+            final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             DialogHelper.positionDialog(alert, node, -100, -50);
+            alert.setResizable(true);
             alert.setTitle("Please Confirm");
-            alert.setHeaderText(null);
+            alert.setHeaderText(question);
             // Setting "Yes", "No" buttons
             alert.getButtonTypes().clear();
             alert.getButtonTypes().add(ButtonType.YES);

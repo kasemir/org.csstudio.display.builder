@@ -76,5 +76,30 @@
             type="fileselector">
       </representation>
    </extension>
+   <extension
+         id="runtime"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            icon="icons/open_file.png"
+            thread="main"
+            visible="true">
+         <run
+               class="org.csstudio.display.builder.rcp.RuntimeApplication">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="runtime"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.csstudio.display.builder.rcp.runtime"
+            name="DisplayRuntime">
+         <property
+               name="appName"
+               value="DisplayRuntime">
+         </property>
+      </product>
+   </extension>
 
 </plugin>

@@ -9,6 +9,48 @@
   <packaging>eclipse-repository</packaging>
   <build>
     <plugins>
+
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-p2-director-plugin</artifactId>
+        <version>${tycho.version}</version>
+        <configuration>
+          <!-- Will build a product for every *.product file found,
+               but details of generated files are configured in there.
+            -->
+          <products>
+            <product>
+              <!-- 'uid' in the *.product -->
+              <id>display-runtime</id>
+              <!-- Add version number to product top directory and zipped product -->
+              <rootFolder>display-runtime-${sns.version}</rootFolder>
+              <archiveFileName>display-runtime-${sns.version}</archiveFileName>
+              <!-- When creating ZIP archive for more than one product, need 'attachId'  -->
+              <attachId>display-runtime</attachId>
+            </product>
+          </products>
+        </configuration>
+        <executions>
+          <!-- Create products listed above.
+               In addition, features listed in category.xml
+               turn into installable features.
+            -->
+          <execution>
+            <id>materialize-products</id>
+            <goals>
+                <goal>materialize-products</goal>
+            </goals>
+          </execution>
+          <!-- Zip the products -->
+          <execution>
+            <id>archive-products</id>
+            <goals>
+              <goal>archive-products</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>tycho-p2-repository-plugin</artifactId>

@@ -21,7 +21,13 @@
         <script file="EmbeddedPy">
           <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
 
-ScriptUtil.showMessageDialog(widget, "Hello!")
+ScriptUtil.showMessageDialog(widget,
+        "Hello!\nHow are you doing?\n" +
+        "This is a long message, it just goes on and on...\n" +
+        "This is a long message, it just goes on and on...\n" +
+        "This is a long message, it just goes on and on...\n" +
+        "This is a long message, it just goes on and on...\n" +
+        " .. and then it's done!")
 ]]></text>
         </script>
         <description>Show Info</description>
