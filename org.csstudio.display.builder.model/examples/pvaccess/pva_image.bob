@@ -5,7 +5,7 @@
     <name>Label</name>
     <width>570</width>
     <height>31</height>
-    <text>Display of PV Access Image from 'NTNTArray'</text>
+    <text>Display of PV Access Image from 'NTNDTArray'</text>
     <font>
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>

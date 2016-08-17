@@ -123,10 +123,16 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
      */
     public static Node getJFXNode(final Widget widget)
     {
-        // For model, return the Group node
         if (widget instanceof DisplayModel)
-            return widget.getUserData(Widget.USER_DATA_TOOLKIT_PARENT);
-
+        {   // Display doesn't have a representation.
+            // Find one of its widgets, then use its parent node
+            final DisplayModel model = (DisplayModel) widget;
+            final List<Widget> children = model.getChildren();
+            if (children.isEmpty())
+                return null;
+            // TODO This sometimes returns null because USER_DATA_REPRESENTATION is null?
+            return getJFXNode(children.get(0)).getParent();
+        }
         final JFXBaseRepresentation<Node, Widget> representation =
                 widget.getUserData(Widget.USER_DATA_REPRESENTATION);
         return representation.jfx_node;

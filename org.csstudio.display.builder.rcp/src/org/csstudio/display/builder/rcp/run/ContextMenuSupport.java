@@ -155,9 +155,8 @@ public class ContextMenuSupport
             final Node node = JFXBaseRepresentation.getJFXNode(context_menu_widget);
             final Scene scene = node.getScene();
 
-            // TODO Implement logbook support
-            manager.add(new Action("TODO: Logbook") {});
             manager.add(new SendEMailAction(shell, scene));
+            manager.add(new SendLogbookAction(shell, scene));
         }
 
         // Placeholder for the display editor.
