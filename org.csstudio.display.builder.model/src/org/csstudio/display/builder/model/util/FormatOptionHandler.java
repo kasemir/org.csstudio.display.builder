@@ -42,9 +42,6 @@ public class FormatOptionHandler
     /** Cached formats for EXPONENTIAL by precision */
     private final static ConcurrentHashMap<Integer, NumberFormat> exponential_formats = new ConcurrentHashMap<>();
 
-    /** Cached formats for ENGINEERING by precision */
-    private final static ConcurrentHashMap<Integer, NumberFormat> engineering_formats = new ConcurrentHashMap<>();
-
     /** Format value as string
      *
      *  @param value Value to format
@@ -150,27 +147,6 @@ public class FormatOptionHandler
         return new DecimalFormat(pattern.toString());
     }
 
-    private static NumberFormat getEngineeringFormat(final int precision)
-    {
-        return engineering_formats.computeIfAbsent(precision, FormatOptionHandler::createEngineeringFormat);
-    }
-
-    private static NumberFormat createEngineeringFormat(final int precision)
-    {
-        // Special case of DecimalFormat to get 'engineering' notation
-        // where exponent it multiple of 3
-        final StringBuilder pattern = new StringBuilder("##0.");
-        // No way to control the number of fractional digits.
-        // Total number of 'significant' digits will be 1 from "##0."
-        // plus the trailing '0' count
-        // --> precision determines total number of significant digits,
-        //     combined from pre-and post fractional digits.
-        for (int i=1; i<precision; ++i)
-            pattern.append('0');
-        pattern.append("E0");
-        return new DecimalFormat(pattern.toString());
-    }
-
     private static String formatNumber(final Number value, final Display display,
                                        final FormatOption option, final int precision)
     {
@@ -185,7 +161,16 @@ public class FormatOptionHandler
         if (option == FormatOption.EXPONENTIAL)
             return getExponentialFormat(precision).format(value);
         if (option == FormatOption.ENGINEERING)
-            return getEngineeringFormat(precision).format(value);
+        {   // DecimalFormat "##0." can create 'engineering' notation,
+            // but then allows no control over the precision.
+            // Using Nick Battam's idea from BOY simplepv.VTypeHelper
+            final double num = value.doubleValue();
+            if (num == 0.0)
+                return formatNumber(value, display, FormatOption.EXPONENTIAL, precision);
+            final double log10 = Math.log10(Math.abs(num));
+            final int power = 3 * (int) Math.floor(log10 / 3);
+            return String.format("%." + precision + "fE%d", num / Math.pow(10, power), power);
+        }
         if (option == FormatOption.HEX)
         {
             final StringBuilder buf = new StringBuilder();

@@ -118,23 +118,21 @@ public class FormatOptionHandlerTest
     {
         VType number = ValueFactory.newVDouble(0.0316, display);
 
-        // Somewhat unclear about the DecimalFormat's handling of 'engineering'
-
-        // 3 'significant digits': 31.6
-        String text = FormatOptionHandler.format(number, FormatOption.ENGINEERING, 3, true);
+        // 1 'significant digits': 31.6
+        String text = FormatOptionHandler.format(number, FormatOption.ENGINEERING, 1, true);
         System.out.println(text);
         assertThat(text, equalTo("31.6E-3 V"));
 
+        // 3 digits
         text = FormatOptionHandler.format(number, FormatOption.ENGINEERING, 3, false);
         System.out.println(text);
-        assertThat(text, equalTo("31.6E-3"));
+        assertThat(text, equalTo("31.600E-3"));
 
-        // 6 'significant digits': 31.6000
-        text = FormatOptionHandler.format(number, FormatOption.ENGINEERING, 6, true);
+        // 4 'significant digits': 31.6000
+        text = FormatOptionHandler.format(number, FormatOption.ENGINEERING, 4, true);
         System.out.println(text);
         assertThat(text, equalTo("31.6000E-3 V"));
 
-        // .. but isn't 12.35 4 sig. digits?
         number = ValueFactory.newVDouble(12345678.0, display);
         text = FormatOptionHandler.format(number, FormatOption.ENGINEERING, 2, true);
         System.out.println(text);
@@ -144,10 +142,11 @@ public class FormatOptionHandlerTest
         System.out.println(text);
         assertThat(text, equalTo("12.346E6 V"));
 
+        // Can't use that to compute more digits for pi
         number = ValueFactory.newVDouble(3.14, display);
-        text = FormatOptionHandler.format(number, FormatOption.ENGINEERING, 2, true);
+        text = FormatOptionHandler.format(number, FormatOption.ENGINEERING, 10, true);
         System.out.println(text);
-        assertThat(text, equalTo("3.14E0 V"));
+        assertThat(text, equalTo("3.1400000000E0 V"));
     }
 
     @Test
