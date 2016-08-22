@@ -118,6 +118,9 @@ public class TextUpdateWidget extends VisibleWidget
             case 6: // COMPACT
                 format.setValue(FormatOption.COMPACT);
                 break;
+            case 7: // ENG (since Aug. 2016)
+                format.setValue(FormatOption.ENGINEERING);
+                break;
             default:
                 format.setValue(FormatOption.DEFAULT);
             }
