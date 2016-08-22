@@ -126,6 +126,11 @@ public class TextUpdateWidget extends VisibleWidget
             }
         }
 
+        // If legacy requested precision-from-PV, mark that in precision
+        element = XMLUtil.getChildElement(xml, "precision_from_pv");
+        if (element != null  &&  Boolean.parseBoolean(XMLUtil.getString(element)))
+            precision.setValue(-1);
+
         // Remove legacy longString attribute from PV,
         // instead use STRING formatting
         String pv = ((StringWidgetProperty)pv_name).getSpecification();
