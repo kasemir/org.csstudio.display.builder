@@ -41,21 +41,31 @@ and its performance is "good enough".</text>
       </font>
     </font>
   </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_3</name>
+  <widget type="table" version="2.0.0">
+    <name>Table</name>
     <y>311</y>
-    <width>530</width>
-    <height>197</height>
-    <text>&lt;Script will fetch logbook entries..&gt;</text>
-    <background_color>
-      <color name="Read_Background" red="240" green="240" blue="240">
-      </color>
-    </background_color>
-    <transparent>false</transparent>
+    <width>600</width>
+    <columns>
+      <column>
+        <name>Time</name>
+        <width>150</width>
+        <editable>true</editable>
+        <options>
+        </options>
+      </column>
+      <column>
+        <name>Title</name>
+        <width>450</width>
+        <editable>true</editable>
+        <options>
+        </options>
+      </column>
+    </columns>
     <scripts>
       <script file="scripts/service_example.py">
-        <pv_name>loc://initial_trigger4565(1)</pv_name>
+        <pv_name>loc://initial_trigger$(DID)(1)</pv_name>
       </script>
     </scripts>
+    <editable>false</editable>
   </widget>
 </display>

@@ -1,7 +1,8 @@
 # import sys
 # print("Search path:\n" + "\n".join(sys.path))
 
-from my_service import read_html, format_html
+widget.setValue([ [ "-", "Fetching Logbook entries..." ] ])
 
-text = format_html(read_html())
-widget.setPropertyValue("text",  text)
+from my_service import read_html, create_table
+html = read_html()
+widget.setValue(create_table(html))
