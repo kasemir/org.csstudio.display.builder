@@ -46,13 +46,25 @@ public class FormatOptionHandler
      *
      *  @param value Value to format
      *  @param option How to format the value
-     *  @param precision Precision to use. Ignored for DEFAULT, otherwise details depend on option.
+     *  @param precision Precision to use. -1 will try to fetch precision from VType
      *  @param show_units Include units?
      *  @return Formatted value
      */
     public static String format(final VType value, final FormatOption option,
-                                final int precision, final boolean show_units)
+                                int precision, final boolean show_units)
     {
+        if (precision < 0)
+        {
+            if (value instanceof Display)
+            {
+                final NumberFormat format = ((Display) value).getFormat();
+                if (format instanceof DecimalFormat)
+                    precision = ((DecimalFormat)format).getMaximumFractionDigits();
+            }
+            if (precision < 0)
+                precision = 2;
+        }
+
         if (value == null)
             return "<null>";
         if (value instanceof VNumber)
@@ -120,8 +132,6 @@ public class FormatOptionHandler
 
     private static NumberFormat createDecimalFormat(int precision)
     {
-        if (precision <= 0)
-            precision = 0;
         final NumberFormat fmt = NumberFormat.getNumberInstance();
         fmt.setGroupingUsed(false);
         fmt.setMinimumFractionDigits(precision);
@@ -156,8 +166,6 @@ public class FormatOptionHandler
         if (Double.isInfinite(value.doubleValue()))
             return Double.toString(value.doubleValue());
 
-        if (option == FormatOption.DECIMAL)
-            return getDecimalFormat(precision).format(value);
         if (option == FormatOption.EXPONENTIAL)
             return getExponentialFormat(precision).format(value);
         if (option == FormatOption.ENGINEERING)
@@ -194,12 +202,8 @@ public class FormatOptionHandler
                 return formatNumber(value, display, FormatOption.EXPONENTIAL, precision);
         }
 
-        // DEFAULT
-        final NumberFormat format = display.getFormat();
-        if (format != null)
-            return format.format(value);
-        else
-            return value.toString();
+        // DEFAULT, DECIMAL
+        return getDecimalFormat(precision).format(value);
     }
 
     /** @param value {@link VEnum}

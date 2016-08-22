@@ -87,7 +87,7 @@ public class SpinnerWidget extends VisibleWidget
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.WRITE_BACKGROUND)));
         properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(format = displayFormat.createProperty(this, FormatOption.DECIMAL));
-        properties.add(precision = displayPrecision.createProperty(this, 2));
+        properties.add(precision = displayPrecision.createProperty(this, -1));
         properties.add(value = runtimeValue.createProperty(this, null));
         properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
         properties.add(maximum = behaviorMaximum.createProperty(this, 100.0));

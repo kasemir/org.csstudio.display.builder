@@ -167,7 +167,7 @@ public class TextUpdateWidget extends VisibleWidget
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.READ_BACKGROUND)));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(format = displayFormat.createProperty(this, FormatOption.DEFAULT));
-        properties.add(precision = displayPrecision.createProperty(this, 2));
+        properties.add(precision = displayPrecision.createProperty(this, -1));
         properties.add(show_units = displayShowUnits.createProperty(this, true));
         properties.add(value = runtimeValue.createProperty(this, null));
     }
