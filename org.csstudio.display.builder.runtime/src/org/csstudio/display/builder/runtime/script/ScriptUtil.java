@@ -2,14 +2,18 @@ package org.csstudio.display.builder.runtime.script;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 
@@ -62,6 +66,47 @@ public class ScriptUtil
     {
         return logger;
     }
+
+    // ====================
+    // open/close displays
+
+    /** Open a new display
+     *
+     *  @param widget Widget in 'current' display, used to resolve relative paths
+     *  @param file Path to the display
+     *  @param target Where to show the display: "REPLACE", "TAB", "WINDOW"
+     *  @param macros Macros, may be <code>null</code>
+     */
+    public static void openDisplay(final Widget widget, final String file, final String target, final Map<String, String> macros)
+    {
+        OpenDisplayActionInfo.Target the_target;
+        try
+        {
+            the_target = OpenDisplayActionInfo.Target.valueOf(target);
+        }
+        catch (Throwable ex)
+        {
+            the_target = OpenDisplayActionInfo.Target.TAB;
+        }
+
+        final Macros the_macros;
+        if (macros == null  ||  macros.isEmpty())
+            the_macros = null;
+        else
+        {
+            the_macros = new Macros();
+            for (String name : macros.keySet())
+                the_macros.add(name, macros.get(name));
+        }
+
+        final OpenDisplayActionInfo open = new OpenDisplayActionInfo("Open from script", file, the_macros, the_target);
+        ActionUtil.handleAction(widget, open);
+    }
+
+    // TODO Implement closeDisplay()
+//    public static void closeDisplay(final Widget widget)
+//    {
+//    }
 
     // ====================
     // public alert dialog utils
@@ -185,8 +230,6 @@ public class ScriptUtil
         }
         return null;
     }
-
-    // TODO Open Display
 
     /** Show file "Save As" dialog for selecting/entering a new file name
      *

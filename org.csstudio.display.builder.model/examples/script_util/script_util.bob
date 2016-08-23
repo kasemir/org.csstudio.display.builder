@@ -68,8 +68,8 @@ ScriptUtil.getLogger().info("This is a warning log message.")]]></text>
   </widget>
   <widget type="combo" version="2.0.0">
     <name>pv_name</name>
-    <x>600</x>
-    <y>680</y>
+    <x>710</x>
+    <y>479</y>
     <width>140</width>
     <pv_name>loc://getPV&lt;String&gt;("loc://test1")</pv_name>
     <items>
@@ -82,40 +82,40 @@ ScriptUtil.getLogger().info("This is a warning log message.")]]></text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>test1</name>
-    <x>840</x>
-    <y>680</y>
+    <x>950</x>
+    <y>479</y>
     <width>50</width>
     <height>30</height>
     <pv_name>loc://test1</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>test2</name>
-    <x>840</x>
-    <y>720</y>
+    <x>950</x>
+    <y>519</y>
     <width>50</width>
     <height>30</height>
     <pv_name>loc://test2</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>test3</name>
-    <x>840</x>
-    <y>760</y>
+    <x>950</x>
+    <y>559</y>
     <width>50</width>
     <height>30</height>
     <pv_name>loc://test3</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>test4</name>
-    <x>840</x>
-    <y>800</y>
+    <x>950</x>
+    <y>599</y>
     <width>50</width>
     <height>30</height>
     <pv_name>loc://test4</pv_name>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>pv_value</name>
-    <x>600</x>
-    <y>717</y>
+    <x>710</x>
+    <y>516</y>
     <width>135</width>
     <height>30</height>
     <show_units>false</show_units>
@@ -123,8 +123,8 @@ ScriptUtil.getLogger().info("This is a warning log message.")]]></text>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_3</name>
-    <x>600</x>
-    <y>766</y>
+    <x>710</x>
+    <y>565</y>
     <width>135</width>
     <text>$(actions)</text>
     <actions>
@@ -307,8 +307,8 @@ It's easier to configure, and automatically shows the alarm state of the PV:</te
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_12</name>
-    <x>490</x>
-    <y>490</y>
+    <x>600</x>
+    <y>289</y>
     <width>450</width>
     <height>180</height>
     <text>Scripts are typically called with all the PVs that they need to access.
@@ -324,8 +324,8 @@ access PVs that have already been created.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_13</name>
-    <x>490</x>
-    <y>470</y>
+    <x>600</x>
+    <y>269</y>
     <width>250</width>
     <text>ScriptUtil: Widget PVs</text>
     <font>
@@ -335,43 +335,43 @@ access PVs that have already been created.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_14</name>
-    <x>770</x>
-    <y>686</y>
+    <x>880</x>
+    <y>485</y>
     <width>80</width>
     <text>Test PV 1:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_15</name>
-    <x>770</x>
-    <y>726</y>
+    <x>880</x>
+    <y>525</y>
     <width>80</width>
     <text>Test PV 2:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_16</name>
-    <x>770</x>
-    <y>766</y>
+    <x>880</x>
+    <y>565</y>
     <width>80</width>
     <text>Test PV 3:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_17</name>
-    <x>770</x>
-    <y>806</y>
+    <x>880</x>
+    <y>605</y>
     <width>80</width>
     <text>Test PV 4:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_18</name>
-    <x>490</x>
-    <y>686</y>
+    <x>600</x>
+    <y>485</y>
     <width>80</width>
     <text>PV to write:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_19</name>
-    <x>490</x>
-    <y>723</y>
+    <x>600</x>
+    <y>522</y>
     <width>110</width>
     <text>Value (number):</text>
   </widget>
@@ -441,6 +441,59 @@ else:
 ]]></text>
         </script>
         <description>Password 2</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_20</name>
+    <x>590</x>
+    <y>690</y>
+    <width>170</width>
+    <text>ScriptUtil: Displays</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_21</name>
+    <x>590</x>
+    <y>710</y>
+    <width>385</width>
+    <height>40</height>
+    <text>Scripts can replace a display or open another one.</text>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_8</name>
+    <x>590</x>
+    <y>750</y>
+    <width>150</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+ScriptUtil.openDisplay(widget, "../01_main.bob", "TAB", None)]]></text>
+        </script>
+        <description>Open 'Main' Tab</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_9</name>
+    <x>590</x>
+    <y>790</y>
+    <width>150</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+ScriptUtil.openDisplay(widget, "../01_main.bob", "REPLACE", None)]]></text>
+        </script>
+        <description>Replace w/ 'Main'</description>
       </action>
     </actions>
   </widget>
