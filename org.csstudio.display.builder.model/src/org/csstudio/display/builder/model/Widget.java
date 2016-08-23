@@ -266,6 +266,12 @@ public class Widget
     }
 
     /** Locate display model, i.e. root of widget tree
+     *
+     *  <p>Note that for embedded displays, this would
+     *  return the embedded model, not the top-level
+     *  model of the window.
+     *  Compare <code>RuntimeUtil.getTopDisplayModel(widget)</code>
+     *
      *  @return {@link DisplayModel} for widget
      *  @throws Exception if widget is not part of a model
      */
