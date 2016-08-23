@@ -400,4 +400,48 @@ else:
     </actions>
     <pv_name></pv_name>
   </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_6</name>
+    <x>260</x>
+    <y>811</y>
+    <width>120</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+# Password dialog checks the password,
+# keeps prompting while wrong
+pw = ScriptUtil.showPasswordDialog(widget, "What's the secret password?", "secret")
+if pw:
+    ScriptUtil.showMessageDialog(widget, "Excellent!")]]></text>
+        </script>
+        <description>Password 1</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_7</name>
+    <x>260</x>
+    <y>850</y>
+    <width>120</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+# Script checks the password
+pw = ScriptUtil.showPasswordDialog(widget, "What's the secret password?", None)
+if pw == "secret":
+    ScriptUtil.showMessageDialog(widget, "Excellent!")
+else:
+    ScriptUtil.showMessageDialog(widget, "Sorry..")
+]]></text>
+        </script>
+        <description>Password 2</description>
+      </action>
+    </actions>
+  </widget>
 </display>

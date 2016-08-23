@@ -153,6 +153,41 @@ public class ScriptUtil
         return null;
     }
 
+    /** Show dialog for entering a password.
+     *
+     *  <p>Call blocks until the user closes the dialog
+     *  by either entering a password and pressing "OK",
+     *  or by pressing "Cancel".
+     *
+     *  <p>When a <code>correct_password</code> is provided to the call,
+     *  the password entered by the user is checked against it,
+     *  prompting until the user enters the correct one.
+     *
+     *  <p>When no <code>correct_password</code> is provided to the call,
+     *  any password entered by the user is returned.
+     *  The calling script would then check the password and maybe open
+     *  the dialog again.
+     *
+     *  @param widget Widget, used to create and position the dialog
+     *  @param title Dialog title
+     *  @param correct_password Password to check
+     *  @return Entered password or <code>null</code>
+     */
+    public static String showPasswordDialog(final Widget widget, final String title, final String correct_password)
+    {
+        try
+        {
+            return ToolkitRepresentation.getToolkit(widget.getDisplayModel()).showPasswordDialog(widget, title, correct_password);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Error in selection dialog for " + title, ex);
+        }
+        return null;
+    }
+
+    // TODO Open Display
+
     /** Show file "Save As" dialog for selecting/entering a new file name
      *
      *  <p>Call blocks until the user closes the dialog

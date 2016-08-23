@@ -381,6 +381,28 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     abstract public String showSelectionDialog(Widget widget, String title, List<String> options);
 
+    /** Show dialog for entering a password.
+     *
+     *  <p>Call blocks until the user closes the dialog
+     *  by either entering a password and pressing "OK",
+     *  or by pressing "Cancel".
+     *
+     *  <p>When a <code>correct_password</code> is provided to the call,
+     *  the password entered by the user is checked against it,
+     *  prompting until the user enters the correct one.
+     *
+     *  <p>When no <code>correct_password</code> is provided to the call,
+     *  any password entered by the user is returned.
+     *  The calling script would then check the password and maybe open
+     *  the dialog again.
+     *
+     *  @param widget Widget, used to create and position the dialog
+     *  @param title Dialog title
+     *  @param correct_password Password to check
+     *  @return Entered password or <code>null</code>
+     */
+    abstract public String showPasswordDialog(final Widget widget, final String title, final String correct_password);
+
     /** Show file "Save As" dialog for selecting/entering a new file name
      *
      *  @param initial_value Initial path and file name

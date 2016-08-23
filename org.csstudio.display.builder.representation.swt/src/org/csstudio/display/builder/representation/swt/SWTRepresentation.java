@@ -158,6 +158,13 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     }
 
     @Override
+    public String showPasswordDialog(final Widget widget, final String title, final String correct_password)
+    {
+        logger.log(Level.WARNING, "showPasswordDialog('" + title + "') is not implemented");
+        return null;
+    }
+
+    @Override
     public String showSaveAsDialog(final Widget widget, final String initial_value)
     {
         logger.log(Level.WARNING, "showSaveAsDialog('" + initial_value + "') is not implemented");

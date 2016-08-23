@@ -395,7 +395,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
             alert.getButtonTypes().clear();
             alert.getButtonTypes().add(ButtonType.YES);
             alert.getButtonTypes().add(ButtonType.NO);
-            Optional<ButtonType> result = alert.showAndWait();
+            final Optional<ButtonType> result = alert.showAndWait();
             // NOTE that button type OK/YES/APPLY checked in here must match!
             done.complete(result.isPresent()  &&  result.get() == ButtonType.YES);
         });
@@ -421,7 +421,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
             DialogHelper.positionDialog(dialog, node, -100, -50);
 
             dialog.setHeaderText(title);
-            Optional<String> result = dialog.showAndWait();
+            final Optional<String> result = dialog.showAndWait();
             done.complete(result.orElse(null));
         });
         try
@@ -431,6 +431,29 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         catch (Exception ex)
         {
             logger.log(Level.WARNING, "Selection dialog ('" + title + ", ..') failed", ex);
+        }
+        return null;
+    }
+
+    @Override
+    public String showPasswordDialog(final Widget widget, final String title, final String correct_password)
+    {
+        final Node node = JFXBaseRepresentation.getJFXNode(widget);
+        final CompletableFuture<String> done = new CompletableFuture<>();
+        execute( ()->
+        {
+            final PasswordDialog dialog = new PasswordDialog(title, correct_password);
+            DialogHelper.positionDialog(dialog, node, -100, -50);
+            final Optional<String> result = dialog.showAndWait();
+            done.complete(result.orElse(null));
+        });
+        try
+        {
+            return done.get();
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Password dialog ('" + title + ", ..') failed", ex);
         }
         return null;
     }
