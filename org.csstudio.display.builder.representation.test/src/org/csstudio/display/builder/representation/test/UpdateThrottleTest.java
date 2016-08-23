@@ -118,5 +118,7 @@ public class UpdateThrottleTest
         TimeUnit.SECONDS.sleep(1);
         assertThat(updates_a.get(), equalTo(3));
         assertThat(updates_b.get(), equalTo(2));
+
+        throttle.shutdown();
     }
 }
