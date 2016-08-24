@@ -518,7 +518,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *  @param model Model that has been represented in this toolkit
      *  @throws Exception on error
      */
-    public void closeWindow(DisplayModel model) throws Exception
+    public void closeWindow(final DisplayModel model) throws Exception
     {
         throw new Exception("Not implemented");
     }
