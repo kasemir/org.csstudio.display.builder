@@ -119,7 +119,6 @@ public class RuntimeViewPart extends ViewPart
                         if (info.equals(runtime_view.getDisplayInfo())) // Allow for runtime_view.getDisplayInfo() == null
                         {
                             page.showView(view_ref.getId(), view_ref.getSecondaryId(), IWorkbenchPage.VIEW_ACTIVATE);
-                            runtime_view.close_handler = close_handler;
                             return runtime_view;
                         }
                     }
@@ -199,7 +198,7 @@ public class RuntimeViewPart extends ViewPart
 
         new ContextMenuSupport(getSite(), fx_canvas, representation);
 
-        parent.addDisposeListener(e -> disposeModel());
+        parent.addDisposeListener(e -> onDispose());
 
         // Load persisted DisplayInfo
         if (display_info.isPresent())
@@ -351,12 +350,21 @@ public class RuntimeViewPart extends ViewPart
 	    toolbar.add(NavigationAction.createForwardAction(this, navigation));
 	}
 
-    /*** Invoke close_handler for model */
+    /** Invoke close_handler for model */
     private void disposeModel()
     {
         final DisplayModel model = active_model;
+        active_model = null;
         if (model != null  &&  close_handler != null)
             close_handler.accept(model);
+    }
+
+    /** View is closed. Dispose model and toolkit representation */
+    private void onDispose()
+    {
+        disposeModel();
+        // TODO Shutdown toolkit?
+        representation.shutdown();
     }
 
 	@Override

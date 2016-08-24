@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
 /** Handle throttled updates on UI thread.
@@ -37,6 +38,9 @@ import java.util.logging.Level;
 @SuppressWarnings("nls")
 public class RepresentationUpdateThrottle
 {
+    /** Instance counter to aid in debugging the throttle start/shutdown */
+    private static final AtomicInteger instance = new AtomicInteger();
+
     /** Period in seconds for logging update performance */
     private static final int performance_log_period_secs = Preferences.getLogPeriodSeconds();
 
@@ -69,9 +73,10 @@ public class RepresentationUpdateThrottle
     /** @param gui_executor Executor for UI thread */
     public RepresentationUpdateThrottle(final Executor gui_executor)
     {
+        final String name = "RepresentationUpdateThrottle" + instance.incrementAndGet();
         this.gui_executor = gui_executor;
         throttle_thread = new Thread(this::doRun);
-        throttle_thread.setName("RepresentationUpdateThrottle");
+        throttle_thread.setName(name);
         throttle_thread.setDaemon(true);
         throttle_thread.start();
     }
