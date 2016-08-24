@@ -204,26 +204,31 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
     {
         updateColors();
         super.registerListeners();
+
         model_widget.positionWidth().addUntypedPropertyListener(this::representationChanged);
         model_widget.positionHeight().addUntypedPropertyListener(this::representationChanged);
         model_widget.displayText().addUntypedPropertyListener(this::representationChanged);
         model_widget.displayFont().addUntypedPropertyListener(this::representationChanged);
+        model_widget.behaviorEnabled().addUntypedPropertyListener(this::representationChanged);
+
         model_widget.displayBackgroundColor().addUntypedPropertyListener(this::buttonChanged);
         model_widget.displayForegroundColor().addUntypedPropertyListener(this::buttonChanged);
         model_widget.behaviorActions().addUntypedPropertyListener(this::buttonChanged);
     }
 
+    /** Complete button needs to be updated */
+    private void buttonChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        dirty_actionls.mark();
+        representationChanged(property, old_value, new_value);
+    }
+
+    /** Only details of the existing button need to be updated */
     private void representationChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         updateColors();
         dirty_representation.mark();
         toolkit.scheduleUpdate(this);
-    }
-
-    private void buttonChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
-    {
-        dirty_actionls.mark();
-        representationChanged(property, old_value, new_value);
     }
 
     private void updateColors()
@@ -255,6 +260,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             base.setPrefSize(model_widget.positionWidth().getValue(),
                              model_widget.positionHeight().getValue());
             base.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+            base.setDisable(! model_widget.behaviorEnabled().getValue());
         }
     }
 }

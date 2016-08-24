@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
@@ -114,6 +115,7 @@ public class ActionButtonWidget extends VisibleWidget
         return new ActionButtonConfigurator(persisted_version);
     }
 
+    private volatile WidgetProperty<Boolean> enabled;
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<String> text;
     private volatile WidgetProperty<WidgetFont> font;
@@ -129,12 +131,13 @@ public class ActionButtonWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(behaviorPVName.createProperty(this, ""));
         properties.add(macros = widgetMacros.createProperty(this, new Macros()));
         properties.add(text = displayText.createProperty(this, "$(actions)"));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
         properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(behaviorPVName.createProperty(this, ""));
+        properties.add(enabled = behaviorEnabled.createProperty(this, true));
     }
 
     /** @return Widget 'macros' */
@@ -167,6 +170,11 @@ public class ActionButtonWidget extends VisibleWidget
         return foreground;
     }
 
+    /** @return Behavior 'foreground_color' */
+    public WidgetProperty<Boolean> behaviorEnabled()
+    {
+        return enabled;
+    }
 
     /** Action button widget extends parent macros
      *  @return {@link Macros}

@@ -398,6 +398,10 @@ public class CommonWidgetProperties
         }
     };
 
+    /** Behavior 'enabled': Is widget enabled, or should it not allow user actions? */
+    public static final WidgetPropertyDescriptor<Boolean> behaviorEnabled =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "enabled", Messages.WidgetProperties_Enabled);
+
     /** Behavior 'limits_from_pv': Use limits from PV's meta data? */
     public static final WidgetPropertyDescriptor<Boolean> behaviorLimitsFromPV =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "limits_from_pv", Messages.WidgetProperties_LimitsFromPV);

@@ -129,6 +129,7 @@ public class Messages extends NLS
     public static String WidgetProperties_DataHeight;
     public static String WidgetProperties_DataWidth;
     public static String WidgetProperties_Direction;
+    public static String WidgetProperties_Enabled;
     public static String WidgetProperties_File;
     public static String WidgetProperties_FillColor;
     public static String WidgetProperties_Font;
