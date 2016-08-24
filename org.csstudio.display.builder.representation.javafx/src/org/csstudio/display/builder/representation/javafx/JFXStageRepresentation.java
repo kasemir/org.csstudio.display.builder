@@ -25,19 +25,21 @@ import javafx.stage.WindowEvent;
 @SuppressWarnings("nls")
 public class JFXStageRepresentation extends JFXRepresentation
 {
+    private final Stage stage;
+
     /** Constructor for runtime mode */
-    public JFXStageRepresentation()
+    public JFXStageRepresentation(final Stage stage)
     {
         super(false);
+        this.stage = stage;
     }
 
     /** Configure an existing Stage
-     *  @param stage Stage to configure
      *  @param model Model that provides stage size
      *  @param close_request_handler Close request handler that will be hooked to stage's close handler
      *  @return Top-level Parent
      */
-    public Parent configureStage(final Stage stage, final DisplayModel model, final Consumer<DisplayModel> close_request_handler)
+    public Parent configureStage(final DisplayModel model, final Consumer<DisplayModel> close_request_handler)
     {
         stage.setTitle(model.widgetName().getValue());
         final int width = Math.max(800, model.positionWidth().getValue());
@@ -62,9 +64,9 @@ public class JFXStageRepresentation extends JFXRepresentation
     @Override
     public ToolkitRepresentation<Parent, Node> openNewWindow(final DisplayModel model, final Consumer<DisplayModel> close_request_handler) throws Exception
     {
-        final JFXStageRepresentation new_representation = new JFXStageRepresentation();
         final Stage stage = new Stage();
-        final Parent parent = new_representation.configureStage(stage, model, close_request_handler);
+        final JFXStageRepresentation new_representation = new JFXStageRepresentation(stage);
+        final Parent parent = new_representation.configureStage(model, close_request_handler);
         new_representation.representModel(parent, model);
         return new_representation;
     }
@@ -84,5 +86,7 @@ public class JFXStageRepresentation extends JFXRepresentation
         {
             logger.log(Level.WARNING, "Close request handler failed", ex);
         }
+
+        shutdown();
     }
 }

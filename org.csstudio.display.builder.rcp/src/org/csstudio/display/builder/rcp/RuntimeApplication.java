@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.representation.javafx.JFXStageRepresentation;
+import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.vtype.pv.PV;
 import org.csstudio.vtype.pv.PVPool;
@@ -74,10 +75,10 @@ public class RuntimeApplication implements IApplication
 
         final String display_path = argv[0];
 
-        final Stage stage = initializeUI();
+        initializeUI();
 
         // Load model in background
-        RuntimeUtil.getExecutor().execute(() -> loadModel(stage, display_path));
+        RuntimeUtil.getExecutor().execute(() -> loadModel(display_path));
 
         while (!display.isDisposed())
         {
@@ -115,19 +116,19 @@ public class RuntimeApplication implements IApplication
         stage.setHeight(400);
         stage.show();
 
-        toolkit = new JFXStageRepresentation();
+        toolkit = new JFXStageRepresentation(stage);
         RuntimeUtil.hookRepresentationListener(toolkit);
         return stage;
     }
 
-    private void loadModel(final Stage stage, final String display_path)
+    private void loadModel(final String display_path)
     {
         try
         {
             final DisplayModel model = RuntimeUtil.loadModel(null, display_path);
 
             // Representation needs to be created in UI thread
-            toolkit.execute(() -> representModel(stage, model));
+            toolkit.execute(() -> representModel(model));
         }
         catch (final Exception ex)
         {
@@ -135,12 +136,12 @@ public class RuntimeApplication implements IApplication
         }
     }
 
-    private void representModel(final Stage stage, final DisplayModel model)
+    private void representModel(final DisplayModel model)
     {
         // Create representation for model items
         try
         {
-            final Parent parent = toolkit.configureStage(stage, model, this::handleClose);
+            final Parent parent = toolkit.configureStage(model, this::handleClose);
             toolkit.representModel(parent, model);
         }
         catch (final Exception ex)
@@ -154,8 +155,7 @@ public class RuntimeApplication implements IApplication
 
     private boolean handleClose(final DisplayModel model)
     {
-        RuntimeUtil.stopRuntime(model);
-        toolkit.disposeRepresentation(model);
+        ActionUtil.handleClose(model);
         display.dispose();
         return true;
     }

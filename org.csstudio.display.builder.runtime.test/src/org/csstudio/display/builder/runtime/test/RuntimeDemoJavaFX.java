@@ -45,20 +45,20 @@ public class RuntimeDemoJavaFX extends Application
     @Override
     public void start(final Stage stage)
     {
-        toolkit = new JFXStageRepresentation();
+        toolkit = new JFXStageRepresentation(stage);
         RuntimeUtil.hookRepresentationListener(toolkit);
         // Load model in background
-        RuntimeUtil.getExecutor().execute(() -> loadModel(stage));
+        RuntimeUtil.getExecutor().execute(() -> loadModel());
     }
 
-    private void loadModel(final Stage stage)
+    private void loadModel()
     {
         try
         {
             final DisplayModel model = RuntimeUtil.loadModel("examples/dummy.opi", Settings.display_path);
 
             // Representation needs to be created in UI thread
-            toolkit.execute(() -> representModel(stage, model));
+            toolkit.execute(() -> representModel(model));
         }
         catch (final Exception ex)
         {
@@ -66,12 +66,12 @@ public class RuntimeDemoJavaFX extends Application
         }
     }
 
-    private void representModel(final Stage stage, final DisplayModel model)
+    private void representModel(final DisplayModel model)
     {
         // Create representation for model items
         try
         {
-            final Parent parent = toolkit.configureStage(stage, model, this::handleClose);
+            final Parent parent = toolkit.configureStage(model, this::handleClose);
             toolkit.representModel(parent, model);
         }
         catch (final Exception ex)

@@ -35,8 +35,8 @@ public class RepresentationDemoJavaFX extends Application
         try
         {
             final DisplayModel model = ExampleModels.createModel();
-            final JFXStageRepresentation toolkit = new JFXStageRepresentation();
-            final Parent parent = toolkit.configureStage(stage, model, this::close);
+            final JFXStageRepresentation toolkit = new JFXStageRepresentation(stage);
+            final Parent parent = toolkit.configureStage(model, this::close);
             toolkit.representModel(parent, model);
 
             runtime = new DummyRuntime(model);
