@@ -8,12 +8,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.ChildrenProperty;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
+import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 
@@ -103,10 +105,23 @@ public class ScriptUtil
         ActionUtil.handleAction(widget, open);
     }
 
-    // TODO Implement closeDisplay()
-//    public static void closeDisplay(final Widget widget)
-//    {
-//    }
+    /** Close a display
+     *
+     *  @param widget Widget within the display to close
+     */
+    public static void closeDisplay(final Widget widget)
+    {
+        try
+        {
+            final DisplayModel model = RuntimeUtil.getTopDisplayModel(widget);
+            final ToolkitRepresentation<Object, Object> toolkit = ToolkitRepresentation.getToolkit(model);
+            toolkit.closeWindow(model);
+        }
+        catch (Throwable ex)
+        {
+            logger.log(Level.WARNING, "Cannot close display", ex);
+        }
+    }
 
     // ====================
     // public alert dialog utils
@@ -131,7 +146,7 @@ public class ScriptUtil
         }
     }
 
-    /** Show a error dialog.
+    /** Show an error dialog.
      *
      *  <p>Call blocks until the user presses "OK"
      *  in the dialog.

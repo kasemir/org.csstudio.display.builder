@@ -185,7 +185,7 @@ public class RuntimeViewPart extends ViewPart
         parent.setLayout(new FillLayout());
         fx_canvas = new FXCanvas(parent, SWT.NONE);
 
-        representation = new RCP_JFXRepresentation();
+        representation = new RCP_JFXRepresentation(this);
         final Scene scene = new Scene(representation.createModelRoot());
         JFXRepresentation.setSceneStyle(scene);
         root = representation.getModelParent();

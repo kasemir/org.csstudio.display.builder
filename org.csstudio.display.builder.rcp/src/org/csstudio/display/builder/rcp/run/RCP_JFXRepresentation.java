@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
 
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -33,11 +34,14 @@ import javafx.scene.Parent;
 @SuppressWarnings("nls")
 public class RCP_JFXRepresentation extends JFXRepresentation
 {
+    private final RuntimeViewPart part;
+
     // Similar to JFXRepresentation, but using RuntimeViewPart as 'Window'
 
-    public RCP_JFXRepresentation()
+    public RCP_JFXRepresentation(final RuntimeViewPart part)
     {
         super(false);
+        this.part = part;
         RuntimeUtil.hookRepresentationListener(this);
     }
 
@@ -56,7 +60,8 @@ public class RCP_JFXRepresentation extends JFXRepresentation
             throws Exception
     {
         // Top-level Group of the part's Scene has pointer to RuntimeViewPart.
-        // For EmbeddedDisplayWidget, the parent is inside the EmbeddedDisplayWidget.
+        // For EmbeddedDisplayWidget, the parent is inside the EmbeddedDisplayWidget,
+        // and has no reference to the RuntimeViewPart.
         final RuntimeViewPart part = (RuntimeViewPart) parent.getProperties().get(RuntimeViewPart.ROOT_RUNTIME_VIEW_PART);
         if (part != null)
             part.trackCurrentModel(model);
@@ -89,5 +94,13 @@ public class RCP_JFXRepresentation extends JFXRepresentation
             display.syncExec(doit);
 
         return result.get();
+    }
+
+    @Override
+    public void closeWindow(final DisplayModel model) throws Exception
+    {
+        final IWorkbenchPage page = part.getSite().getPage();
+        final Display display = page.getWorkbenchWindow().getShell().getDisplay();
+        display.asyncExec(() -> page.hideView(part));
     }
 }

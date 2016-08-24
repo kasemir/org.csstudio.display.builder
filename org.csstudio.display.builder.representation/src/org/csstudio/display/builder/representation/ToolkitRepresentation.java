@@ -179,6 +179,9 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
 
     /** Create toolkit widgets for a display model.
      *
+     *  <p>The parent may be the top-level parent of a window,
+     *  or the parent of an EmbeddedWidget representation.
+     *
      *  @param parent Toolkit parent (Pane, Container, ..)
      *  @param model Display model
      *  @throws Exception on error
@@ -191,6 +194,9 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         // Attach toolkit
         model.setUserData(DisplayModel.USER_DATA_TOOLKIT, this);
 
+        // TODO There's only one 'background' for the toolkit,
+        // but the model represented here could be the top-level model (OK)
+        // or a sub-model from an embedded widget (not OK to change the background)
         setBackground(model.displayBackgroundColor().getValue());
 
         // DisplayModel itself is _not_ represented,
@@ -506,6 +512,15 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
                 logger.log(Level.WARNING, "Failure when writing " + value + " for " + widget, ex);
             }
         }
+    }
+
+    /** Close the toolkit's "window" that displays a model
+     *  @param model Model that has been represented in this toolkit
+     *  @throws Exception on error
+     */
+    public void closeWindow(DisplayModel model) throws Exception
+    {
+        throw new Exception("Not implemented");
     }
 
     /** Orderly shutdown */

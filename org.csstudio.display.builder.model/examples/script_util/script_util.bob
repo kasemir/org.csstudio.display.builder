@@ -497,4 +497,21 @@ ScriptUtil.openDisplay(widget, "../01_main.bob", "REPLACE", None)]]></text>
       </action>
     </actions>
   </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_10</name>
+    <x>760</x>
+    <y>750</y>
+    <width>150</width>
+    <text>$(actions)</text>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+ScriptUtil.closeDisplay(widget)]]></text>
+        </script>
+        <description>Close Display</description>
+      </action>
+    </actions>
+  </widget>
 </display>
