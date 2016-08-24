@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="DisplayRuntime" uid="display-runtime" id="display-runtime" application="org.csstudio.display.builder.rcp.runtime" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true">
+<product name="DisplayRuntime" uid="display-runtime" id="org.csstudio.display.builder.rcp.runtime" application="org.csstudio.display.builder.rcp.runtime" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
@@ -12,15 +12,20 @@
    </launcherArgs>
 
    <plugins>
+      <plugin id="com.google.guava"/>
       <plugin id="com.ibm.icu"/>
+      <plugin id="javax.activation"/>
       <plugin id="javax.annotation"/>
       <plugin id="javax.inject"/>
+      <plugin id="javax.mail"/>
       <plugin id="javax.xml"/>
       <plugin id="net.sf.py4j"/>
       <plugin id="org.apache.batik.css"/>
       <plugin id="org.apache.batik.util"/>
       <plugin id="org.apache.batik.util.gui"/>
       <plugin id="org.apache.commons.jxpath"/>
+      <plugin id="org.csstudio.apputil"/>
+      <plugin id="org.csstudio.apputil.ui"/>
       <plugin id="org.csstudio.autocomplete"/>
       <plugin id="org.csstudio.autocomplete.ui"/>
       <plugin id="org.csstudio.csdata"/>
@@ -31,10 +36,16 @@
       <plugin id="org.csstudio.display.builder.representation.javafx"/>
       <plugin id="org.csstudio.display.builder.runtime"/>
       <plugin id="org.csstudio.display.builder.util"/>
+      <plugin id="org.csstudio.email"/>
+      <plugin id="org.csstudio.email.ui"/>
+      <plugin id="org.csstudio.java"/>
       <plugin id="org.csstudio.javafx"/>
       <plugin id="org.csstudio.javafx.rtplot"/>
-      <plugin id="org.csstudio.platform.libs.epics"/>
+      <plugin id="org.csstudio.logbook"/>
+      <plugin id="org.csstudio.logbook.ui"/>
       <plugin id="org.csstudio.ui.util"/>
+      <plugin id="org.csstudio.utility.singlesource"/>
+      <plugin id="org.csstudio.utility.singlesource.rcp"/>
       <plugin id="org.csstudio.vtype.pv"/>
       <plugin id="org.diirt.util"/>
       <plugin id="org.diirt.vtype"/>
@@ -79,10 +90,17 @@
       <plugin id="org.eclipse.emf.ecore.change"/>
       <plugin id="org.eclipse.emf.ecore.xmi"/>
       <plugin id="org.eclipse.equinox.app"/>
+      <plugin id="org.eclipse.equinox.bidi"/>
       <plugin id="org.eclipse.equinox.common"/>
       <plugin id="org.eclipse.equinox.ds"/>
+      <plugin id="org.eclipse.equinox.p2.core"/>
+      <plugin id="org.eclipse.equinox.p2.engine"/>
+      <plugin id="org.eclipse.equinox.p2.metadata"/>
+      <plugin id="org.eclipse.equinox.p2.metadata.repository"/>
+      <plugin id="org.eclipse.equinox.p2.repository"/>
       <plugin id="org.eclipse.equinox.preferences"/>
       <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.equinox.security"/>
       <plugin id="org.eclipse.equinox.util"/>
       <plugin id="org.eclipse.fx.javafx"/>
       <plugin id="org.eclipse.fx.osgi" fragment="true"/>
@@ -90,20 +108,26 @@
       <plugin id="org.eclipse.help"/>
       <plugin id="org.eclipse.jface"/>
       <plugin id="org.eclipse.jface.databinding"/>
+      <plugin id="org.eclipse.jface.text"/>
       <plugin id="org.eclipse.osgi"/>
       <plugin id="org.eclipse.osgi.compatibility.state" fragment="true"/>
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.swt"/>
       <plugin id="org.eclipse.swt.cocoa.macosx.x86_64" fragment="true"/>
       <plugin id="org.eclipse.swt.gtk.linux.x86_64" fragment="true"/>
+      <plugin id="org.eclipse.text"/>
       <plugin id="org.eclipse.ui"/>
       <plugin id="org.eclipse.ui.cocoa" fragment="true"/>
+      <plugin id="org.eclipse.ui.ide"/>
       <plugin id="org.eclipse.ui.workbench"/>
-      <plugin id="org.epics.pvaccess"/>
-      <plugin id="org.epics.pvdata"/>
+      <plugin id="org.epics.caj"/>
+      <plugin id="org.epics.jca"/>
+      <plugin id="org.epics.pvAccessJava"/>
+      <plugin id="org.epics.pvDataJava"/>
       <plugin id="org.hamcrest.core"/>
       <plugin id="org.junit"/>
       <plugin id="org.python.jython"/>
+      <plugin id="org.tukaani.xz"/>
       <plugin id="org.w3c.css.sac"/>
       <plugin id="org.w3c.dom.events"/>
       <plugin id="org.w3c.dom.smil"/>

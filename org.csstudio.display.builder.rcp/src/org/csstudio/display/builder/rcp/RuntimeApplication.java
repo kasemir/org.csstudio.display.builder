@@ -48,7 +48,8 @@ public class RuntimeApplication implements IApplication
     {
         System.out.println("USAGE: DisplayRuntime [options] /path/to/display.bob");
         System.out.println("Options:");
-        System.out.println("    -help   Display command line options");
+        System.out.println(" -help                                        Display command line options");
+        System.out.println(" -pluginCustomization /path/to/settings.ini   Macros, Channel Access, .. configuration");
     }
 
     @Override
