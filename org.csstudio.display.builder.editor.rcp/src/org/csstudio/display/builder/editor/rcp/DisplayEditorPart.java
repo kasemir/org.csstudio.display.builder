@@ -147,7 +147,7 @@ public class DisplayEditorPart extends EditorPart
         // When creating FXCanvas later, there will be JFX errors
         // like "Not on FX application thread", "Toolkit not initialized"
         fx_canvas = new FXCanvas(parent, SWT.NONE);
-        
+
         editor = new DisplayEditor(toolkit, Preferences.getUndoSize());
 
         final Parent root = editor.create();
@@ -469,6 +469,7 @@ public class DisplayEditorPart extends EditorPart
     {
         editor.getUndoableActionManager().removeListener(undo_redo_listener);
         editor.dispose();
+        toolkit.shutdown();
         super.dispose();
     }
 }
