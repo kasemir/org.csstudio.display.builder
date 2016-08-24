@@ -207,6 +207,11 @@ public class RuntimeViewPart extends ViewPart
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
     }
 
+	public RCP_JFXRepresentation getRepresentation()
+	{
+	    return representation;
+	}
+
 	/** @param zoom Zoom level, 1.0 for 100%, -1 to 'fit'
 	 *  @return Zoom level actually used
 	 */

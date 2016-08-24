@@ -157,24 +157,22 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
 
     /** Open new top-level window
      *
-     *  <p>Is invoked with the _initial_ model.
-     *  <code>representModel</code> is then called to create the
+     *  <p>Is invoked with the _initial_ model,
+     *  calling <code>representModel</code> to create the
      *  individual widget representations.
      *
-     *  <p>If the model is replaced, <code>disposeRepresentation</code>
-     *  will be called with the current model, and then
-     *  <code>representModel</code> with the new model.
+     *  <p>To later replace the model, call <code>disposeRepresentation</code>
+     *  with the current model, and then <code>representModel</code> with the new model.
      *
      *  @param model {@link DisplayModel} that provides name and initial size
      *  @param close_handler Will be invoked when user closes the window
      *                       with the then active model, i.e. the model
      *                       provided in last call to <code>representModel</code>.
      *                       Should stop runtime, dispose representation.
-     *  @return Toolkit parent (Pane, Container, ..)
-     *          for representing model items in the newly created window
+     *  @return The new ToolkitRepresentation of the new window
      *  @throws Exception on error
      */
-    abstract public TWP openNewWindow(DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception;
+    abstract public ToolkitRepresentation<TWP, TW> openNewWindow(DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception;
 
     /** @param color Background color to use for the overall window */
     abstract public void setBackground(WidgetColor color);

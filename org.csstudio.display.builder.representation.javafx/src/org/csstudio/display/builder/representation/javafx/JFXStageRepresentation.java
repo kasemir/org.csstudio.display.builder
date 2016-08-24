@@ -11,7 +11,9 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.representation.ToolkitRepresentation;
 
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -58,10 +60,13 @@ public class JFXStageRepresentation extends JFXRepresentation
     }
 
     @Override
-    public Parent openNewWindow(final DisplayModel model, final Consumer<DisplayModel> close_request_handler) throws Exception
+    public ToolkitRepresentation<Parent, Node> openNewWindow(final DisplayModel model, final Consumer<DisplayModel> close_request_handler) throws Exception
     {
+        final JFXStageRepresentation new_representation = new JFXStageRepresentation();
         final Stage stage = new Stage();
-        return configureStage(stage, model, close_request_handler);
+        final Parent parent = new_representation.configureStage(stage, model, close_request_handler);
+        new_representation.representModel(parent, model);
+        return new_representation;
     }
 
     private void handleCloseRequest(final Scene scene,

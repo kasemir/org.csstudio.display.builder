@@ -14,6 +14,7 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.rcp.Messages;
 import org.csstudio.display.builder.rcp.RuntimeViewPart;
+import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.ui.util.dialogs.ResourceSelectionDialog;
@@ -22,6 +23,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 
+import javafx.scene.Node;
 import javafx.scene.Parent;
 
 /** Represent display builder in JFX inside RCP Views
@@ -40,11 +42,13 @@ public class RCP_JFXRepresentation extends JFXRepresentation
     }
 
     @Override
-    public Parent openNewWindow(final DisplayModel model,
-                               final Consumer<DisplayModel> close_handler) throws Exception
+    public ToolkitRepresentation<Parent, Node> openNewWindow(final DisplayModel model,
+                                                             final Consumer<DisplayModel> close_handler) throws Exception
     {
         final RuntimeViewPart part = RuntimeViewPart.open(close_handler);
-        return part.getRoot();
+        final RCP_JFXRepresentation new_representation = part.getRepresentation();
+        new_representation.representModel(part.getRoot(), model);
+        return new_representation;
     }
 
     @Override

@@ -295,7 +295,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public Parent openNewWindow(final DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception
+    public ToolkitRepresentation<Parent, Node> openNewWindow(final DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception
     {   // Use JFXStageRepresentation or RCP-based implementation
         throw new IllegalStateException("Not implemented");
     }

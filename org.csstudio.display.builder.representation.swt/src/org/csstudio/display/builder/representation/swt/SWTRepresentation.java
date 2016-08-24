@@ -65,7 +65,7 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     }
 
     @Override
-    public Composite openNewWindow(final DisplayModel model, final Consumer<DisplayModel> close_request_handler)
+    public ToolkitRepresentation<Composite, Control> openNewWindow(final DisplayModel model, final Consumer<DisplayModel> close_request_handler) throws Exception
     {
         final Shell shell = new Shell(display);
         shell.setText(model.widgetName().getValue());
@@ -73,7 +73,8 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
                       model.positionHeight().getValue());
         shell.open();
         shell.addDisposeListener((e) -> handleClose(shell, close_request_handler));
-        return shell;
+        representModel(shell, model);
+        return this;
     }
 
     @Override
