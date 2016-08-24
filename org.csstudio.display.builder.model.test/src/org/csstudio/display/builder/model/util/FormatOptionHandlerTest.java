@@ -62,11 +62,11 @@ public class FormatOptionHandlerTest
 
         String text = FormatOptionHandler.format(number, FormatOption.DEFAULT, -1, true);
         System.out.println(text);
-        assertThat(text, equalTo("3.16 V"));
+        assertThat(text, equalTo("3.160 V"));
 
         text = FormatOptionHandler.format(number, FormatOption.DEFAULT, -1, false);
         System.out.println(text);
-        assertThat(text, equalTo("3.16"));
+        assertThat(text, equalTo("3.160"));
 
         text = FormatOptionHandler.format(number, FormatOption.DECIMAL, 4, true);
         System.out.println(text);
@@ -102,7 +102,7 @@ public class FormatOptionHandlerTest
 
         String text = FormatOptionHandler.format(number, FormatOption.DEFAULT, -1, true);
         System.out.println(text);
-        assertThat(text, equalTo("3.16 V"));
+        assertThat(text, equalTo("3.160 V"));
 
         text = FormatOptionHandler.format(number, FormatOption.EXPONENTIAL, 3, true);
         System.out.println(text);
@@ -220,7 +220,7 @@ public class FormatOptionHandlerTest
         final ListNumber data = new ArrayDouble(1.0, 2.0, 3.0, 4.0);
         VType value = ValueFactory.newVNumberArray(data, ValueFactory.alarmNone(), ValueFactory.timeNow(), display);
         System.out.println(value);
-        String text = FormatOptionHandler.format(value, FormatOption.DEFAULT, -1, true);
+        String text = FormatOptionHandler.format(value, FormatOption.DEFAULT, 0, true);
         System.out.println(text);
         assertThat(text, equalTo("[1, 2, 3, 4] V"));
 
