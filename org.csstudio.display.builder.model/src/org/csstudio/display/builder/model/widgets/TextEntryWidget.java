@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
@@ -80,6 +81,7 @@ public class TextEntryWidget extends VisibleWidget
     }
 
     private volatile WidgetProperty<String> pv_name;
+    private volatile WidgetProperty<Boolean> enabled;
     private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
@@ -118,7 +120,8 @@ public class TextEntryWidget extends VisibleWidget
         properties.add(precision = displayPrecision.createProperty(this, -1));
         properties.add(show_units = displayShowUnits.createProperty(this, true));
         properties.add(value = runtimeValue.createProperty(this, null));
-    }
+        properties.add(enabled = behaviorEnabled.createProperty(this, true));
+   }
 
     /** @return Behavior 'pv_name' */
     public WidgetProperty<String> behaviorPVName()
@@ -160,6 +163,12 @@ public class TextEntryWidget extends VisibleWidget
     public WidgetProperty<Boolean> displayShowUnits()
     {
         return show_units;
+    }
+
+    /** @return Behavior 'foreground_color' */
+    public WidgetProperty<Boolean> behaviorEnabled()
+    {
+        return enabled;
     }
 
     /** @return Runtime 'value' */
