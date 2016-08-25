@@ -142,6 +142,14 @@ public class PolylineWidget extends VisibleWidget
     }
 
     @Override
+    public WidgetProperty<?> getProperty(final String name)
+    {
+        if ("background_color".equals(name))
+            return line_color;
+        return super.getProperty(name);
+    }
+
+    @Override
     public Version getVersion()
     {
         return version;
