@@ -116,6 +116,7 @@ public class PolylineWidget extends VisibleWidget
                 final Element c = XMLUtil.getChildElement(xml, "color");
                 line.appendChild(c.cloneNode(true));
                 widget_xml.appendChild(line);
+                widget_xml.removeChild(xml);
             }
 
             // Parse updated XML
