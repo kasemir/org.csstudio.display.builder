@@ -223,13 +223,13 @@ public class Widget
     }
 
     /** @return Widget Type */
-    public String getType()
+    public final String getType()
     {
         return type.getValue();
     }
 
     /** @return Widget Name */
-    public String getName()
+    public final String getName()
     {
         return name.getValue();
     }
@@ -245,14 +245,14 @@ public class Widget
      *
      *  @return Unique Runtime Identifier for widget
      */
-    public String getID()
+    public final String getID()
     {   // Base on ID hash code
         final int id = System.identityHashCode(this);
         return "WD" + Integer.toHexString(id);
     }
 
     /** @return Parent widget in Widget tree */
-    public Optional<Widget> getParent()
+    public final Optional<Widget> getParent()
     {
         return Optional.ofNullable(parent);
     }
@@ -275,7 +275,7 @@ public class Widget
      *  @return {@link DisplayModel} for widget
      *  @throws Exception if widget is not part of a model
      */
-    public DisplayModel getDisplayModel() throws Exception
+    public final DisplayModel getDisplayModel() throws Exception
     {
         Widget candidate = this;
         while (candidate.getParent().isPresent())
@@ -301,53 +301,53 @@ public class Widget
 
     // Accessors to properties are not strictly needed
     // because of generic getProperty(..),
-    // but can sometimes be useful in IDE when dealing with
+    // but are useful in IDE when dealing with
     // known widget type
 
     /** @return Widget 'name' */
-    public WidgetProperty<String> widgetName()
+    public final WidgetProperty<String> widgetName()
     {
         return name;
     }
 
     /** @return Position 'x' */
-    public WidgetProperty<Integer> positionX()
+    public final WidgetProperty<Integer> positionX()
     {
         return x;
     }
 
     /** @return Position 'y' */
-    public WidgetProperty<Integer> positionY()
+    public final WidgetProperty<Integer> positionY()
     {
         return y;
     }
 
     /** @return Position 'width' */
-    public WidgetProperty<Integer> positionWidth()
+    public final WidgetProperty<Integer> positionWidth()
     {
         return width;
     }
 
     /** @return Position 'height' */
-    public WidgetProperty<Integer> positionHeight()
+    public final WidgetProperty<Integer> positionHeight()
     {
         return height;
     }
 
     /** @return Behavior 'actions' */
-    public WidgetProperty<List<ActionInfo>> behaviorActions()
+    public final WidgetProperty<List<ActionInfo>> behaviorActions()
     {
         return actions;
     }
 
     /** @return Behavior 'scripts' */
-    public WidgetProperty<List<ScriptInfo>> behaviorScripts()
+    public final WidgetProperty<List<ScriptInfo>> behaviorScripts()
     {
         return scripts;
     }
 
     /** @return Behavior 'rules' */
-    public WidgetProperty<List<RuleInfo>> behaviorRules()
+    public final WidgetProperty<List<RuleInfo>> behaviorRules()
     {
         return rules;
     }
@@ -374,7 +374,7 @@ public class Widget
      *  <p>Properties are ordered by category and sequence of definition.
      *  @return Unmodifiable set
      */
-    public Set<WidgetProperty<?>> getProperties()
+    public final Set<WidgetProperty<?>> getProperties()
     {
         return properties;
     }
@@ -387,7 +387,7 @@ public class Widget
      *
      *  @return Property names
      */
-    public Collection<String> getCurrentPropertyNames()
+    public final Collection<String> getCurrentPropertyNames()
     {
         final List<String> names = new ArrayList<>();
         for (WidgetProperty<?> property : properties)
@@ -406,7 +406,7 @@ public class Widget
      * @param path
      * @param property
      */
-    public static void addPropertyNames(final List<String> names, String path, final WidgetProperty<?> property)
+    public static final void addPropertyNames(final List<String> names, String path, final WidgetProperty<?> property)
     {
         if (property instanceof ArrayWidgetProperty)
         {
@@ -428,10 +428,16 @@ public class Widget
     }
 
     /** Check if widget has a given property.
+     *
+     *  <p>This is called by rules or scripts which
+     *  retrieve a property by name, since they do not
+     *  know the exact widget class and thus cannot
+     *  use the type-safe property accessors.
+     *
      *  @param name Property name
      *  @return Optional {@link WidgetProperty}
      */
-    public Optional<WidgetProperty<?>> checkProperty(final String name)
+    public final Optional<WidgetProperty<?>> checkProperty(final String name)
     {
         WidgetProperty<?> property;
         try
@@ -450,7 +456,7 @@ public class Widget
      *  @param property Property descriptor
      *  @return Optional {@link WidgetProperty}
      */
-    public <PT> Optional<WidgetProperty<PT>> checkProperty(final WidgetPropertyDescriptor<PT> property_description)
+    public final <PT> Optional<WidgetProperty<PT>> checkProperty(final WidgetPropertyDescriptor<PT> property_description)
     {
         @SuppressWarnings("unchecked")
         final WidgetProperty<PT> property = (WidgetProperty<PT>) property_map.get(property_description.getName());
@@ -467,7 +473,7 @@ public class Widget
      *  @throws IllegalArgumentException if property is unknown
      */
     @SuppressWarnings("unchecked")
-    public <PT> WidgetProperty<PT> getProperty(final WidgetPropertyDescriptor<PT> property_description)
+    public final <PT> WidgetProperty<PT> getProperty(final WidgetPropertyDescriptor<PT> property_description)
     {
         final WidgetProperty<?> property = getProperty(property_description.getName());
         return (WidgetProperty<PT>)property;
@@ -475,8 +481,16 @@ public class Widget
 
     /** Get widget property.
      *
+     *  <p>This method ends up being called from rules and scripts
+     *  which do now know the exact widget type
+     *  and thus fetch properties by name.
+     *
      *  <p>Property access based on property name returns generic
      *  WidgetProperty without known type.
+     *
+     *  <p>To allow use of legacy scripts and rules,
+     *  the widget implementation may override to
+     *  handle deprecated property names.
      *
      *  @param name Property name
      *  @return {@link WidgetProperty}
@@ -547,7 +561,7 @@ public class Widget
      *  @return Value of the property
      *  @throws IllegalArgumentException if property is unknown
      */
-    public <PT> PT getPropertyValue(final WidgetPropertyDescriptor<PT> property_description)
+    public final <PT> PT getPropertyValue(final WidgetPropertyDescriptor<PT> property_description)
     {
         return getProperty(property_description).getValue();
     }
@@ -565,7 +579,7 @@ public class Widget
      *  @throws IllegalArgumentException if property is unknown
      */
     @SuppressWarnings("unchecked")
-    public <TYPE> TYPE getPropertyValue(final String name)
+    public final <TYPE> TYPE getPropertyValue(final String name)
     {
         return (TYPE) getProperty(name).getValue();
     }
@@ -579,7 +593,7 @@ public class Widget
      *  @param value New value of the property
      *  @throws IllegalArgumentException if property is unknown
      */
-    public <PT> void setPropertyValue(final WidgetPropertyDescriptor<PT> property_description,
+    public final <PT> void setPropertyValue(final WidgetPropertyDescriptor<PT> property_description,
             final PT value)
     {
         getProperty(property_description).setValue(value);
@@ -595,7 +609,7 @@ public class Widget
      *  @throws IllegalArgumentException if property is unknown
      *  @throws Exception if value is unsuitable for this property
      */
-    public void setPropertyValue(final String name,
+    public final void setPropertyValue(final String name,
             final Object value) throws Exception
     {
         getProperty(name).setValueFromObject(value);
@@ -638,7 +652,7 @@ public class Widget
      *  @param key Key
      *  @param data Data
      */
-    public void setUserData(final String key, final Object data)
+    public final void setUserData(final String key, final Object data)
     {
         user_data.put(key, data);
     }
@@ -649,7 +663,7 @@ public class Widget
      *  @see #setUserData(String, Object)
      */
     @SuppressWarnings("unchecked")
-    public <TYPE> TYPE getUserData(final String key)
+    public final <TYPE> TYPE getUserData(final String key)
     {
         if (key == null)
         {   // Debug gimmick:
@@ -667,7 +681,7 @@ public class Widget
      *  @return User data associated with key that has been removed, or <code>null</code>
      */
     @SuppressWarnings("unchecked")
-    public <TYPE> TYPE clearUserData(final String key)
+    public final <TYPE> TYPE clearUserData(final String key)
     {
         return (TYPE)user_data.remove(key);
     }
