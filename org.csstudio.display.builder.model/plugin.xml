@@ -221,6 +221,9 @@
          <alternates
                type="org.csstudio.opibuilder.widgets.radioBox">
          </alternates>
+         <alternates
+               type="org.csstudio.opibuilder.widgets.choiceButton">
+         </alternates>
       </widget>
       <widget
             category="GRAPHIC"
