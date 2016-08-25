@@ -1,5 +1,6 @@
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorLimitsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMinimum;
@@ -64,10 +65,6 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
 
     //XXX: The following are common scaled-widget properties
 
-    /** Position 'major_tick_step_hint': Minimum space, in pixels, between major tick marks. */
-    public static final WidgetPropertyDescriptor<Integer> positionMajorTickStepHint =
-            newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "major_tick_step_hint", Messages.WidgetProperties_MajorTickStepHint);
-
     //define in defineProperties() when representation implemented
     /** Display 'scale_font': Font for scale */
     public static final WidgetPropertyDescriptor<WidgetFont> displayScaleFont =
@@ -84,51 +81,55 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
 
     /** Display 'show_scale': Show scale for scaled widget. */
     public static final WidgetPropertyDescriptor<Boolean> displayShowScale =
-            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_scale", Messages.WidgetProperties_ShowScale);
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_scale", Messages.WidgetProperties_ShowScale);
 
     /** Display 'show_minor_ticks': Show tick marks on scale. */
     public static final WidgetPropertyDescriptor<Boolean> displayShowMinorTicks =
-            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_minor_ticks", Messages.WidgetProperties_ShowMinorTicks);
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_minor_ticks", Messages.WidgetProperties_ShowMinorTicks);
 
     /** Display 'scale_format': Formatter for scale labels; follows java DecimalFormat */
     public static final WidgetPropertyDescriptor<String> displayScaleFormat =
-            newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "scale_format", Messages.WidgetProperties_ScaleFormat);
+        newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "scale_format", Messages.WidgetProperties_ScaleFormat);
 
     /** Display 'show_markers': Show tick markers for HI, HIHI, LO, & LOLO levels. */
     public static final WidgetPropertyDescriptor<Boolean> displayShowMarkers =
-            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_markers", Messages.WidgetProperties_ShowMarkers);
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_markers", Messages.WidgetProperties_ShowMarkers);
+
+    /** Position 'major_tick_step_hint': Minimum space, in pixels, between major tick marks. */
+    public static final WidgetPropertyDescriptor<Integer> displayMajorTickStepHint =
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "major_tick_step_hint", Messages.WidgetProperties_MajorTickStepHint);
 
     /** Display 'level_hi': Level of HI value for widget*/
     public static final WidgetPropertyDescriptor<Double> displayLevelHi =
-            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_hi", Messages.WidgetProperties_LevelHi);
+        newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_hi", Messages.WidgetProperties_LevelHi);
 
     /** Display 'level_hihi': Level of HIHI value for widget*/
     public static final WidgetPropertyDescriptor<Double> displayLevelHiHi =
-            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_hihi", Messages.WidgetProperties_LevelHiHi);
+        newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_hihi", Messages.WidgetProperties_LevelHiHi);
 
     /** Display 'level_lo': Level of LO value for widget*/
     public static final WidgetPropertyDescriptor<Double> displayLevelLo =
-            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_lo", Messages.WidgetProperties_LevelLo);
+        newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_lo", Messages.WidgetProperties_LevelLo);
 
     /** Display 'level_lolo': Level of LO value for widget*/
     public static final WidgetPropertyDescriptor<Double> displayLevelLoLo =
-            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_lolo", Messages.WidgetProperties_LevelLoLo);
+        newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_lolo", Messages.WidgetProperties_LevelLoLo);
 
     /** Display 'show_hi': Whether to show HI marker*/
     public static final WidgetPropertyDescriptor<Boolean> displayShowHi =
-            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_hi", Messages.WidgetProperties_ShowHi);
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_hi", Messages.WidgetProperties_ShowHi);
 
     /** Display 'show_hihi': Whether to show HIHI marker*/
     public static final WidgetPropertyDescriptor<Boolean> displayShowHiHi =
-            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_hihi", Messages.WidgetProperties_ShowHiHi);
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_hihi", Messages.WidgetProperties_ShowHiHi);
 
     /** Display 'show_lo': Whether to show LO marker*/
     public static final WidgetPropertyDescriptor<Boolean> displayShowLo =
-            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_lo", Messages.WidgetProperties_ShowLo);
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_lo", Messages.WidgetProperties_ShowLo);
 
     /** Display 'show_lo': Whether to show LOLO marker*/
     public static final WidgetPropertyDescriptor<Boolean> displayShowLoLo =
-            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_lolo", Messages.WidgetProperties_ShowLoLo);
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_lolo", Messages.WidgetProperties_ShowLoLo);
 
     private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<Boolean> horizontal;
@@ -142,6 +143,7 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     private volatile WidgetProperty<Double> minimum;
     private volatile WidgetProperty<Double> maximum;
     private volatile WidgetProperty<Boolean> limits_from_pv;
+    private volatile WidgetProperty<Boolean> enabled;
     private volatile WidgetProperty<Integer> major_tick_step_hint;
     private volatile WidgetProperty<WidgetFont> scale_font; //define in defineProperties() when representation implemented
     private volatile WidgetProperty<Boolean> show_scale;
@@ -180,7 +182,8 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
         properties.add(maximum = behaviorMaximum.createProperty(this, 100.0));
         properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, true));
-        properties.add(major_tick_step_hint = positionMajorTickStepHint.createProperty(this, 20));
+        properties.add(enabled = behaviorEnabled.createProperty(this, true));
+        properties.add(major_tick_step_hint = displayMajorTickStepHint.createProperty(this, 20));
         properties.add(show_scale = displayShowScale.createProperty(this, true));
         properties.add(show_minor_ticks = displayShowMinorTicks.createProperty(this, true));
         properties.add(scale_format = displayScaleFormat.createProperty(this, ""));
@@ -256,10 +259,10 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         return limits_from_pv;
     }
 
-    /** @return Position 'major_tick_step_hint' */
-    public WidgetProperty<Integer> positionMajorTickStepHint()
+    /** @return Behavior 'enabled' */
+    public WidgetProperty<Boolean> behaviorEnabled()
     {
-        return major_tick_step_hint;
+        return enabled;
     }
 
     /** @return Display 'scale_font' */
@@ -272,6 +275,12 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     public WidgetProperty<Boolean> displayShowScale()
     {
         return show_scale;
+    }
+
+    /** @return Display 'major_tick_step_hint' */
+    public WidgetProperty<Integer> displayMajorTickStepHint()
+    {
+        return major_tick_step_hint;
     }
 
     /** @return Display 'show_minor_ticks' */

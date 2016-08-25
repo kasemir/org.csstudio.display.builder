@@ -60,7 +60,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
     private volatile double value = 50.0;
     private volatile double stepIncrement = 1.0;
     private volatile double tickUnit = 20;
-    
+
     private volatile boolean active = false;
 
     private final Slider slider = createSlider();
@@ -182,6 +182,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.displayHorizontal().addUntypedPropertyListener(this::lookChanged);
         model_widget.behaviorStepIncrement().addPropertyListener(this::limitsChanged);
         model_widget.behaviorPageIncrement().addPropertyListener(this::limitsChanged);
+        model_widget.behaviorEnabled().addUntypedPropertyListener(this::lookChanged);
         model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayShowScale().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayShowMinorTicks().addUntypedPropertyListener(this::styleChanged);
@@ -196,7 +197,6 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.displayShowLo().addUntypedPropertyListener(this::lookChanged);
         model_widget.displayShowLoLo().addUntypedPropertyListener(this::lookChanged);
 
-        
         //Since both the widget's PV value and the JFX node's value property might be
         //written to independently during runtime, both must have listeners.
         model_widget.runtimeValue().addPropertyListener(this::valueChanged);
@@ -277,7 +277,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
         min = vals[0];
         max = vals[1];
-        
+
         hi = vals[2];
         hihi = vals[3];
         lo = vals[4];
@@ -303,7 +303,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         final double length = (model_widget.displayHorizontal().getValue() ?
                 model_widget.positionWidth().getValue() :
                 model_widget.positionHeight().getValue());
-        double dataDistance = (model_widget.positionMajorTickStepHint().getValue() / length) * span;
+        double dataDistance = (model_widget.displayMajorTickStepHint().getValue() / length) * span;
             //dataDistance: min. distance, in data units, between major ticks
         final double order_of_magnitude = Math.pow(10, Math.floor(Math.log10(dataDistance)));
         double step = dataDistance / order_of_magnitude;
@@ -397,6 +397,8 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         }
         if (dirty_look.checkAndClear())
         {
+            jfx_node.setDisable(! model_widget.behaviorEnabled().getValue());
+
             final boolean horizontal = model_widget.displayHorizontal().getValue();
             ((Slider)slider).setOrientation(horizontal ? Orientation.HORIZONTAL : Orientation.VERTICAL);
             if (model_widget.displayShowMarkers().getValue())

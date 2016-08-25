@@ -165,7 +165,7 @@ public class TextEntryWidget extends VisibleWidget
         return show_units;
     }
 
-    /** @return Behavior 'foreground_color' */
+    /** @return Behavior 'enabled' */
     public WidgetProperty<Boolean> behaviorEnabled()
     {
         return enabled;
