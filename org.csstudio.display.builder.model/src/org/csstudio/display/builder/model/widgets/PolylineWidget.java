@@ -7,12 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayLineColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayLineWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayPoints;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
@@ -132,6 +134,12 @@ public class PolylineWidget extends VisibleWidget
     }
 
     @Override
+    public Version getVersion()
+    {
+        return version;
+    }
+
+    @Override
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
@@ -145,14 +153,11 @@ public class PolylineWidget extends VisibleWidget
     public WidgetProperty<?> getProperty(final String name)
     {
         if ("background_color".equals(name))
+        {
+            logger.log(Level.WARNING, "Deprecated access to " + this + " property 'background_color'. Use 'line_color'");
             return line_color;
+        }
         return super.getProperty(name);
-    }
-
-    @Override
-    public Version getVersion()
-    {
-        return version;
     }
 
     @Override
