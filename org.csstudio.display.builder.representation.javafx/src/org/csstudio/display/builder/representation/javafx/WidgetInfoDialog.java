@@ -18,6 +18,8 @@ import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.util.VTypeUtil;
+import org.diirt.vtype.Alarm;
+import org.diirt.vtype.AlarmSeverity;
 import org.diirt.vtype.VType;
 import org.eclipse.osgi.util.NLS;
 
@@ -37,6 +39,7 @@ import javafx.scene.image.ImageView;
 /** Dialog for displaying widget information
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class WidgetInfoDialog extends Dialog<Boolean>
 {
     public static class NameValue
@@ -120,11 +123,20 @@ public class WidgetInfoDialog extends Dialog<Boolean>
         value.setCellFactory(TextFieldTableCell.forTableColumn());
         value.setCellValueFactory(param ->
         {
-            final String text;
+            String text;
             if (param.getValue().value == null)
                 text = Messages.WidgetInfoDialog_Disconnected;
             else
+            {
                 text = VTypeUtil.getValueString(param.getValue().value, true);
+                if (param.getValue().value instanceof Alarm)
+                {
+                    final Alarm alarm = (Alarm) param.getValue().value;
+                    if (alarm.getAlarmSeverity() != AlarmSeverity.NONE)
+                        text = text + " [" + alarm.getAlarmSeverity().toString() + ", " +
+                                             alarm.getAlarmName() + "]";
+                }
+            }
             return new ReadOnlyStringWrapper(text);
         });
 
