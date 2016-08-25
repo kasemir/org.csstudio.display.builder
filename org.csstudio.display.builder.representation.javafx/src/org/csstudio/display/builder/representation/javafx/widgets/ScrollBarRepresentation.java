@@ -1,5 +1,7 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import java.util.Objects;
+
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
@@ -90,6 +92,7 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         model_widget.behaviorBarLength().addPropertyListener(this::sizeChanged);
         model_widget.behaviorStepIncrement().addPropertyListener(this::sizeChanged);
         model_widget.behaviorPageIncrement().addPropertyListener(this::sizeChanged);
+        model_widget.behaviorEnabled().addPropertyListener(this::sizeChanged);
 
         //Since both the widget's PV value and the ScrollBar node's value property might be
         //written to independently during runtime, both must be listened to.
@@ -132,18 +135,20 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         toolkit.scheduleUpdate(this);
     }
 
-    private void nodeValueChanged(ObservableValue<? extends Number> property, Number old_value, Number new_value)
+    private void nodeValueChanged(final ObservableValue<? extends Number> property, final Number old_value, final Number new_value)
     {
-        if (active) return;
+        if (active)
+            return;
+        final Tooltip tip = jfx_node.getTooltip();
         if (model_widget.displayShowValueTip().getValue())
         {
-            Tooltip tip = jfx_node.getTooltip();
+            final String text = Objects.toString(new_value);
             if (tip != null)
-                tip.setText(""+new_value);
+                tip.setText(text);
             else
-                jfx_node.setTooltip(new Tooltip(""+new_value));
+                jfx_node.setTooltip(new Tooltip(text));
         }
-        else
+        else if (tip != null)
             jfx_node.setTooltip(null);
         toolkit.fireWrite(model_widget, new_value);
     }
@@ -160,6 +165,7 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         super.updateChanges();
         if (dirty_size.checkAndClear())
         {
+            jfx_node.setDisable(! model_widget.behaviorEnabled().getValue());
             jfx_node.setPrefHeight(model_widget.positionHeight().getValue());
             jfx_node.setPrefWidth(model_widget.positionWidth().getValue());
             jfx_node.setMin(min);

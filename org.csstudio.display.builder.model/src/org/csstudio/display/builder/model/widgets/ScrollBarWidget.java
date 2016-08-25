@@ -1,5 +1,6 @@
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorLimitsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMinimum;
@@ -71,6 +72,7 @@ public class ScrollBarWidget extends VisibleWidget
     private volatile WidgetProperty<Double> bar_length;
     private volatile WidgetProperty<Double> step_increment;
     private volatile WidgetProperty<Double> page_increment;
+    private volatile WidgetProperty<Boolean> enabled;
 
     public ScrollBarWidget()
     {
@@ -94,6 +96,7 @@ public class ScrollBarWidget extends VisibleWidget
         properties.add(bar_length = behaviorBarLength.createProperty(this, 10.0));
         properties.add(step_increment = behaviorStepIncrement.createProperty(this, 1.0));
         properties.add(page_increment = behaviorPageIncrement.createProperty(this, 10.0));
+        properties.add(enabled = behaviorEnabled.createProperty(this, true));
     }
 
     /** @return Runtime 'value' */
@@ -150,4 +153,9 @@ public class ScrollBarWidget extends VisibleWidget
         return page_increment;
     }
 
+    /** @return Behavior 'enabled' */
+    public WidgetProperty<Boolean> behaviorEnabled()
+    {
+        return enabled;
+    }
 }
