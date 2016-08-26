@@ -7,10 +7,22 @@
 # content in response to operator input.
 from org.csstudio.display.builder.runtime.script import PVUtil
 
+# PV is supposed to cycle through values 0, 1, 2, 3
 sel = PVUtil.getDouble(pvs[0])
-if sel > 1.5:
-    widget.setPropertyValue("file", "missing.bob")
-elif sel > 0.5:
+if sel < 0.5:
+    # Initial value: Show some file with macros
+    widget.getPropertyValue("macros").add("M", "Value 1")
+    widget.setPropertyValue("file", "a.bob")
+elif sel < 1.5:
+    # Next value: Show same file with different macros
+    widget.getPropertyValue("macros").add("M", "Value 2")
+    # Need to change the file name and then revert back to force a reload
+    widget.setPropertyValue("file", "")
+    widget.setPropertyValue("file", "a.bob")
+elif sel < 2.5:
+    # Different file
     widget.setPropertyValue("file", "b.bob")
 else:
-    widget.setPropertyValue("file", "a.bob")
+    # File that doesn't actually exist.
+    # Widget will indicate error.
+    widget.setPropertyValue("file", "missing.bob")

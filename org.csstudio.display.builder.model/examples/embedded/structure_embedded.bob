@@ -148,9 +148,7 @@ then shows several motors via the Embedded Display Widget:</text>
     <height>100</height>
     <text>The content of the embedded display widget,
 i.e. the file to display, can be modified at runtime.
-This example updates the display file name from a script,
-which is meant as a demonstration of the technical functionality
-and not likely to be useful in an operational display.</text>
+This example updates the display file name from a script.</text>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded Display</name>
@@ -159,7 +157,7 @@ and not likely to be useful in an operational display.</text>
     <height>210</height>
     <scripts>
       <script file="update_display.py">
-        <pv_name>sim://ramp(0, 2, 2)</pv_name>
+        <pv_name>sim://ramp(0, 3, 2)</pv_name>
       </script>
     </scripts>
   </widget>
