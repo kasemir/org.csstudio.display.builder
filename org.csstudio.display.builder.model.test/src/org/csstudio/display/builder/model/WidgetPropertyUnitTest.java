@@ -19,9 +19,11 @@ import static org.junit.Assert.fail;
 import java.util.Arrays;
 import java.util.List;
 
+import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
+import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
 import org.junit.Test;
 
@@ -241,5 +243,36 @@ public class WidgetPropertyUnitTest
         // i.e. it must be saved by the editor, since $(X) could
         // in other invocation evaluate to anything but 0.
         assertThat(widget.positionX().isDefaultValue(), equalTo(false));
+    }
+
+    @Test
+    public void testMacrosAndProperties() throws Exception
+    {
+        final DisplayModel display = new DisplayModel();
+
+        final TextUpdateWidget widget = new TextUpdateWidget();
+        display.runtimeChildren().addChild(widget);
+
+        // "name" property of widget can be accessed as macro
+        widget.widgetName().setValue("fred");
+        assertThat(MacroHandler.replace(widget.getMacrosOrProperties(), "$(name)"), equalTo("fred"));
+
+        // If there is actually a "name" macro, that takes precedence
+        display.widgetMacros().getValue().add("name", "The Name");
+        assertThat(MacroHandler.replace(widget.getMacrosOrProperties(), "$(name)"), equalTo("The Name"));
+
+        // Bad recursion: Property was set to macro which in turn requests that same property
+        ((MacroizedWidgetProperty<String>)widget.behaviorPVName()).setSpecification("$(pv_name)");
+        try
+        {
+            MacroHandler.replace(widget.getMacrosOrProperties(), "$(pv_name)");
+            fail("Didn't detect recursion");
+        }
+        catch (Exception ex)
+        {
+            assertThat(ex.getMessage().toLowerCase(), containsString("recursive"));
+        }
+        // Macro remains unresolved (with many warnings on console)
+        assertThat(widget.behaviorPVName().getValue(), equalTo("$(pv_name)"));
     }
 }
