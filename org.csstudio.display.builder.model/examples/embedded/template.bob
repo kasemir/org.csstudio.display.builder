@@ -50,7 +50,6 @@
       <name>Progress Bar</name>
       <x>14</x>
       <y>63</y>
-      <horizontal>true</horizontal>
       <pv_name>$(pv_name)</pv_name>
     </widget>
   </widget>
@@ -72,8 +71,21 @@
       <name>Progress Bar</name>
       <x>14</x>
       <y>63</y>
-      <horizontal>true</horizontal>
       <pv_name>$(pv_name)</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>Group2</name>
+    <x>10</x>
+    <y>231</y>
+    <width>150</width>
+    <height>200</height>
+    <style>3</style>
+    <widget type="label" version="2.0.0">
+      <name>Label_5</name>
+      <x>14</x>
+      <y>63</y>
+      <text>Hi!</text>
     </widget>
   </widget>
 </display>

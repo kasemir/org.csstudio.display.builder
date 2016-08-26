@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 
 /** Provides values from macros, falling back to widget properties
@@ -91,5 +92,13 @@ public class MacroOrPropertyProvider implements MacroValueProvider
             return prop_val.toString();
         }
         return null;
+    }
+
+    @Override
+    public String toString()
+    {
+        // Properties always contain "name". Use that to fetch widget.
+        final Widget widget = properties.get("name").getWidget();
+        return widget + " macros or properties: " + macros.toString();
     }
 }
