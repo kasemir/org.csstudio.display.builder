@@ -145,6 +145,13 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
         return value;
     }
 
+    /** @return <code>true</code> if current value matches the default value */
+    @Override
+    public boolean isDefaultValue()
+    {
+        return specification.equals(computeSpecification(default_value));
+    }
+
     /** Sets property to a typed value.
      *
      *  <p>Updates the specification to string representation

@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
+import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
 import org.junit.Test;
 
@@ -133,6 +134,7 @@ public class WidgetPropertyUnitTest
             this.label = label;
         }
 
+        @Override
         public String toString()
         {
             return label;
@@ -218,5 +220,26 @@ public class WidgetPropertyUnitTest
         assertThat(prop.getValue(), equalTo(Align.CENTER));
         System.out.println(prop);
         assertThat(prop.getSpecification(), equalTo("$(ALIGN)"));
+    }
+
+    @Test
+    public void testMacroisedDefault()
+    {
+        // Widget with X position set to $(X), where that macro has the value 0
+        final DisplayModel display = new DisplayModel();
+        display.widgetMacros().getValue().add("X", "0");
+
+        final LabelWidget widget = new LabelWidget();
+        display.runtimeChildren().addChild(widget);
+
+        ((MacroizedWidgetProperty<Integer>)widget.positionX()).setSpecification("$(X)");
+
+        // The X position value matches the default
+        assertThat(widget.positionX().getValue(), equalTo(0));
+
+        // .. but the property doesn't have the default value,
+        // i.e. it must be saved by the editor, since $(X) could
+        // in other invocation evaluate to anything but 0.
+        assertThat(widget.positionX().isDefaultValue(), equalTo(false));
     }
 }
