@@ -34,7 +34,10 @@
       <doctitle><![CDATA[<h1>Display Builder API</h1>]]></doctitle>
       <fileset dir="..">
         <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/Widget.java"/>
+        <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/WidgetProperty.java"/>
         <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/DisplayModel.java"/>
+        <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/macros/Macros.java"/>
+        <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/**/*Widget.java"/>
         <include name="org.csstudio.display.builder.runtime/src/org/csstudio/display/builder/runtime/script/*.java"/>
         <include name="org.csstudio.display.builder.runtime/src/org/csstudio/display/builder/runtime/pv/RuntimePV.java"/>
         <exclude name="**/WhateverThing.java"/>
