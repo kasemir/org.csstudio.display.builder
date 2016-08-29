@@ -83,17 +83,6 @@ public class RuntimeViewPart extends ViewPart
 
 	private DisplayModel active_model;
 
-
-    /** Open a runtime display
-     *  @param close_handler Code to call when part is closed
-     *  @return {@link RuntimeViewPart}
-     *  @throws Exception on error
-     */
-    public static RuntimeViewPart open(final Consumer<DisplayModel> close_handler) throws Exception
-    {
-        return open(close_handler, null);
-    }
-
     /** Open a runtime display
      *
      *  <p>Either opens a new display, or if there is already an existing view
@@ -148,9 +137,7 @@ public class RuntimeViewPart extends ViewPart
     /** @param name Name of the part */
     public void trackCurrentModel(final DisplayModel model)
     {
-    	final DisplayInfo info = new DisplayInfo(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE),
-    			                                 model.getName(),
-    			                                 model.widgetMacros().getValue());
+    	final DisplayInfo info = DisplayInfo.forModel(model);
         display_info = Optional.of(info);
         setPartName(info.getName());
         setTitleToolTip(info.getPath());
@@ -232,9 +219,7 @@ public class RuntimeViewPart extends ViewPart
     	final DisplayModel model = active_model;
     	if (model == null)
     		return;
-		final DisplayInfo info = new DisplayInfo(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE),
-				                                 model.getName(),
-				                                 model.widgetMacros().getValue());
+		final DisplayInfo info = DisplayInfo.forModel(model);
 		try
 		{
 		    memento.putString(MEMENTO_DISPLAY_INFO, DisplayInfoXMLUtil.toXML(info));

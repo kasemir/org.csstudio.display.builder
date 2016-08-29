@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.Messages;
 import org.csstudio.display.builder.rcp.RuntimeViewPart;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -47,7 +48,8 @@ public class RCP_JFXRepresentation extends JFXRepresentation
     public ToolkitRepresentation<Parent, Node> openNewWindow(final DisplayModel model,
                                                              final Consumer<DisplayModel> close_handler) throws Exception
     {
-        final RuntimeViewPart part = RuntimeViewPart.open(close_handler);
+        final DisplayInfo info = DisplayInfo.forModel(model);
+        final RuntimeViewPart part = RuntimeViewPart.open(close_handler, info);
         final RCP_JFXRepresentation new_representation = part.getRepresentation();
         new_representation.representModel(part.getRoot(), model);
         return new_representation;

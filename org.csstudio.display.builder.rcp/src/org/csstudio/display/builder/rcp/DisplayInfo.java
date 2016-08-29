@@ -9,6 +9,7 @@ package org.csstudio.display.builder.rcp;
 
 import java.util.Objects;
 
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.macros.Macros;
 
 /** Information about a display
@@ -19,6 +20,13 @@ public class DisplayInfo
 {
     private final String path, name;
     private final Macros macros;
+
+    public static DisplayInfo forModel(final DisplayModel model)
+    {
+        return new DisplayInfo(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE),
+                               model.getName(),
+                               model.widgetMacros().getValue());
+    }
 
     public DisplayInfo(final String path, final String name, final Macros macros)
     {
