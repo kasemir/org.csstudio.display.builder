@@ -71,7 +71,7 @@ public class RuntimeViewPart extends ViewPart
     private final DisplayNavigation navigation = new DisplayNavigation();
 
     /** Display info that may have been received from memento */
-    private Optional<DisplayInfo> display_info = Optional.empty();
+    private volatile Optional<DisplayInfo> display_info = Optional.empty();
 
     private FXCanvas fx_canvas;
 
@@ -137,8 +137,31 @@ public class RuntimeViewPart extends ViewPart
     /** @param name Name of the part */
     public void trackCurrentModel(final DisplayModel model)
     {
-    	final DisplayInfo info = DisplayInfo.forModel(model);
-        display_info = Optional.of(info);
+        final DisplayInfo old_info = display_info.orElse(null);
+        final DisplayInfo info = DisplayInfo.forModel(model);
+        // A display might be loaded without macros,
+        // but the DisplayModel may then have macros configured in the display itself.
+        //
+        // This can later result in not recognizing an existing display:
+        // Display X is running, and it contained macros.
+        // Now somehow we open X again, without macros, but
+        // all the executing displays have X with macros,
+        // so we open yet another one instead of showing the existing instance.
+        //
+        // To avoid this problem:
+        //
+        // When first loading a display, set display_info to the received info.
+        //
+        // When this is later updated, only replace the display_info
+        // if there was none,
+        // or the new one has a different path,
+        // or different macros _and_ there were original macros.
+    	if ( old_info == null  ||
+    	    !old_info.getPath().equals(info.getPath()) ||
+    	  ( !old_info.getMacros().equals(info.getMacros())  &&  !old_info.getMacros().isEmpty()))
+    	    display_info = Optional.of(info);
+
+
         setPartName(info.getName());
         setTitleToolTip(info.getPath());
         navigation.setCurrentDisplay(info);
@@ -216,10 +239,9 @@ public class RuntimeViewPart extends ViewPart
     @Override
 	public void saveState(final IMemento memento)
     {	// Persist DisplayInfo so it's loaded on application restart
-    	final DisplayModel model = active_model;
-    	if (model == null)
-    		return;
-		final DisplayInfo info = DisplayInfo.forModel(model);
+		final DisplayInfo info = display_info.orElse(null);
+		if (info == null)
+		    return;
 		try
 		{
 		    memento.putString(MEMENTO_DISPLAY_INFO, DisplayInfoXMLUtil.toXML(info));
@@ -267,7 +289,9 @@ public class RuntimeViewPart extends ViewPart
         // If already executing another display, shut it down
         disposeModel();
 
-        // Load model off UI thread
+        // Note the path & macros, then
+        display_info = Optional.of(info);
+        // load model off UI thread
         RuntimeUtil.getExecutor().execute(() -> loadModel(info));
     }
 
