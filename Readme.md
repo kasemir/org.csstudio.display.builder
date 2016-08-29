@@ -107,6 +107,19 @@ Registers the Display Builder editor for *.opi and *.bob files.
 Display files can be executed from within the editor,
 or via a `File`, `Top Displays` menu entry configured
 via `org.csstudio.display.builder.rcp/top_displays`.
+
+__Standalone Runtime product:__
+
+ * org.csstudio.display.builder/repository/display_runtime.product
+ 
+This product executes the display builder runtime as a standalone program.
+The configuration settings (EPICS CA address list, ..) and the initial display file
+to open need to be provided on the command line:
+
+    USAGE: DisplayRuntime [options] /path/to/display.bob
+    Options:
+     -help                                        Display command line options
+     -pluginCustomization /path/to/settings.ini   Macros, Channel Access, .. configuration
  
 
 __Command-line build:__
@@ -119,17 +132,23 @@ Allows compilation from command line, for example to automate a nightly build. R
 Code Overview
 -------------
 
-`org.csstudio.display.builder.model`:
+`org.csstudio.display.builder.model`,
 Describes a DisplayModel as a hierarchy of Widgets which each have Properties.
+Can load displays from local file system and "http:.." URLs.
+`examples/` directory holds example displays.
 
 `org.csstudio.display.builder.representation`, 
 `org.csstudio.display.builder.representation.javafx`,
 `org.csstudio.display.builder.representation.swt`:
 Graphical rendering of model on screen, with implementation for Java FX and SWT.
+(SWT implementation is very limited)
 
 `org.csstudio.display.builder.runtime`:
 Connects widgets to process variables, executes scripts, executes actions when
 user presses buttons etc.
+
+`org.csstudio.display.builder.model.rcp`:
+RCP fragment for model adds support for workspace files.
 
 `org.csstudio.display.builder.rcp`:
 Combines model, representation (Java FX) and runtime into RCP 'View'
@@ -151,6 +170,9 @@ Utilities; Generic, Java FX, Plot widget.
 
 `org.csstudio.display.builder.feature`:
 Eclipse feature for all of the above.
+
+`repository` and `build`:
+P2 repository files and Maven/Tycho build support. 
 
 
 Basic widgets can be added by implementing a Model and a Representation,
@@ -185,7 +207,7 @@ Register via extension point.
 To support standalone testing w/o RCP, also add to `WidgetFactory#registerKnownWidgets`.
 
 Major TODOs:
- * Add many more widgets and their properties.
+ * Add more widgets and their properties.
 
 ####  Representation
 
@@ -203,9 +225,8 @@ The representation needs to add listeners to model properties of interest.
 On change, it can prepare the UI update, which is then scheduled via `ToolkitRepresentation.scheduleUpdate()`
 to occur on the UI thread in a throttled manner.
 
-
 Major TODOs:
- * A ton of widgets and their representation.
+ * Mode widgets and their representation.
  
 ####  Runtime
 
@@ -230,7 +251,6 @@ The base `WidgetRuntime` handles the following:
    Similarly, "rules" are converted into scripts and then executed.
 
 Major TODOs:
-
  * None?
  
 ####  Editor
@@ -250,17 +270,13 @@ Major TODOs:
 
 ####  Eclipse Integration
 
-Everything can be tested in form of JUnit tests or 'main' type demos.
+RCP integration uses an SWT FXCanvas to display the JavaFX representation within
+a current version of Eclipse/RCP.
 
-RCP integration uses SWT FXCanvas.
-
-RCP 'View' for the runtime.
-
-RCP 'Editor' for editor.
+An RCP 'View' hosts the display runtime, while an RCP 'Editor' is used for the display editor.
 
 Major TODOs:
-
- * Context menus.
+ * None?
 
 
 Performance: JavaFX vs. SWT
