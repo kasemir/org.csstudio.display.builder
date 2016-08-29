@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
@@ -18,6 +19,7 @@ import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
+import org.diirt.vtype.VType;
 
 /** Script Utilities
  *
@@ -42,13 +44,15 @@ public class ScriptUtil
      *  @param widget Widget used to locate the widget model
      *  @param name Name of widget to find
      *  @return Widget or <code>null</code>
-     *  @throws Exception
+     *  @throws Exception on error
      */
     public static Widget findWidgetByName(final Widget widget, final String name) throws Exception
     {
         final ChildrenProperty siblings = widget.getDisplayModel().runtimeChildren();
         return siblings.getChildByName(name);
     }
+
+    
 
     // ================
     // logging utils
@@ -321,9 +325,33 @@ public class ScriptUtil
         return null;
     }
 
-
     // ==================
     // Workspace helpers
+
+    /** Locate a widget by name, then fetch its value
+     *
+     *  <p>Value is the content of the "value" property.
+     *  If there is no such property, the primary PV
+     *  of the widget is read.
+     *
+     *  @param widget Widget used to locate the widget model
+     *  @param name Name of widget to find
+     *  @return Value of the widget
+     *  @throws Exception on error
+     */
+    public static VType getWidgetValueByName(final Widget widget, final String name) throws Exception
+    {
+        final Widget w = findWidgetByName(widget, name);
+        final Optional<WidgetProperty<?>> value_prop = w.checkProperty("value");
+        if (value_prop.isPresent())
+        {
+            final Object value = value_prop.get().getValue();
+            if (value == null  ||  value instanceof VType)
+                return (VType) value;
+        }
+    
+        return getPrimaryPV(w).read();
+    }
 
     /** @param workspace_path Path within workspace
      *  @return Location in local file system or <code>null</code>
