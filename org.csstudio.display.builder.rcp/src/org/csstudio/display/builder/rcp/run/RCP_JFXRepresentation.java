@@ -16,7 +16,6 @@ import org.csstudio.display.builder.rcp.Messages;
 import org.csstudio.display.builder.rcp.RuntimeViewPart;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
-import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.ui.util.dialogs.ResourceSelectionDialog;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -42,7 +41,6 @@ public class RCP_JFXRepresentation extends JFXRepresentation
     {
         super(false);
         this.part = part;
-        RuntimeUtil.hookRepresentationListener(this);
     }
 
     @Override

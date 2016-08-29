@@ -105,7 +105,10 @@ public class ActionUtil
                 final Future<Object> wait_for_ui = toolkit.submit(() ->
                 {   // Create new top-level window
                     // TODO Distinguish 'window'/'tab'
-                    toolkit.openNewWindow(new_model, ActionUtil::handleClose);
+                    final ToolkitRepresentation<Object, Object> new_toolkit =
+                        toolkit.openNewWindow(new_model, ActionUtil::handleClose);
+                    if (new_toolkit != toolkit)
+                        RuntimeUtil.hookRepresentationListener(new_toolkit);
                     return null;
                 });
                 // Back in background thread, create new runtime

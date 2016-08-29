@@ -196,9 +196,10 @@ public class ContextMenuSupport
         final Menu menu = mm.createContextMenu(parent);
         // .. but _don't_ attach to SWT control
         //     parent.setMenu(menu);
+
         // Menu is shown by representation listener _after_
         // setting the selection to widget's PV
-        representation.addListener(new ToolkitListener()
+        final ToolkitListener tkl = new ToolkitListener()
         {
             @Override
             public void handleContextMenu(final Widget widget)
@@ -217,7 +218,10 @@ public class ContextMenuSupport
                 context_menu_widget = widget;
                 menu.setVisible(true);
             }
-        });
+        };
+        representation.addListener(tkl);
+        parent.addDisposeListener(event -> representation.removeListener(tkl));
+
         // Clear context_menu_widget reference when menu closed
         menu.addMenuListener(new MenuAdapter()
         {

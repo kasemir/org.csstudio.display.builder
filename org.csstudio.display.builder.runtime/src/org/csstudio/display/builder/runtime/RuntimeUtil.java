@@ -64,6 +64,11 @@ public class RuntimeUtil
      */
     public static void hookRepresentationListener(final ToolkitRepresentation<?,?> toolkit)
     {
+        // For representation in an RCP view, a "new" display
+        // may actually just bring an existing display back to the front.
+        // In that case, prevent double-subscription by first trying to
+        // remove the listener.
+        toolkit.removeListener(toolkit_listener);
         toolkit.addListener(toolkit_listener);
     }
 

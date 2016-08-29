@@ -427,16 +427,24 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         return future;
     }
 
-    /** @param listener Listener to add */
+    /** Add a toolkit listener
+     *  @param listener Listener to add
+     *  @throws IllegalArgumentException when adding the same listener more than once
+     */
     public void addListener(final ToolkitListener listener)
     {
+        if (listeners.contains(listener))
+            throw new IllegalArgumentException("Duplicate listener");
         listeners.add(listener);
     }
 
-    /** @param listener Listener to remove */
-    public void removeListener(final ToolkitListener listener)
+    /** Remove a toolkit listener
+     *  @param listener Listener to remove
+     *  @return <code>true</code> if that listener was registered
+     */
+    public boolean removeListener(final ToolkitListener listener)
     {
-        listeners.remove(listener);
+        return listeners.remove(listener);
     }
 
     /** Notify listeners that action has been invoked

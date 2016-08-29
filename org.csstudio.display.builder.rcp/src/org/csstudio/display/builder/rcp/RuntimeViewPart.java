@@ -200,9 +200,15 @@ public class RuntimeViewPart extends ViewPart
 
         parent.addDisposeListener(e -> onDispose());
 
-        // Load persisted DisplayInfo
+        // Load persisted DisplayInfo?
         if (display_info.isPresent())
+        {
         	loadDisplayFile(display_info.get());
+        	// This view was restored by Eclipse after a restart.
+        	// It's not opened from an action,
+        	// so nobody else will hook the runtime listener:
+            RuntimeUtil.hookRepresentationListener(representation);
+        }
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
     }
@@ -368,7 +374,6 @@ public class RuntimeViewPart extends ViewPart
     private void onDispose()
     {
         disposeModel();
-        // TODO Shutdown toolkit?
         representation.shutdown();
     }
 
