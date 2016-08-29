@@ -22,6 +22,7 @@
    </vm>
 
    <plugins>
+      <plugin id="com.diffplug.osgi.extension.sun.misc"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.ibm.icu"/>
       <plugin id="javax.activation"/>
