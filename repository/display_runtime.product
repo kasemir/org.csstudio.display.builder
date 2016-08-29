@@ -11,6 +11,16 @@
       </vmArgsMac>
    </launcherArgs>
 
+   <launcher name="DisplayRuntime">
+      <solaris/>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
    <plugins>
       <plugin id="com.google.guava"/>
       <plugin id="com.ibm.icu"/>
