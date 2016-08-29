@@ -121,6 +121,9 @@ to open need to be provided on the command line:
      -help                                        Display command line options
      -pluginCustomization /path/to/settings.ini   Macros, Channel Access, .. configuration
  
+Note that you may also need to add
+`-vmargs -Dorg.osgi.framework.bundle.parent=ext -Dosgi.framework.extensions=org.eclipse.fx.osgi`
+to the end of the command line.
 
 __Command-line build:__
 
