@@ -11,7 +11,9 @@ import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
@@ -191,7 +193,26 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
     @Override
     public void setValueFromObject(final Object value) throws Exception
     {
-        throw new UnsupportedOperationException();
+        if (! (value instanceof Collection))
+            throw new Exception("Need list of array items");
+
+        try
+        {
+            final Collection<?> items = (Collection<?>) value;
+            final int N = items.size();
+            while (size() > N)
+                removeElement();
+            while (size() < N)
+                addElement();
+
+            final Iterator<?> iter = items.iterator();
+            for (int i=0; i<N; ++i)
+                getElement(i).setValueFromObject(iter.next());
+        }
+        catch (Throwable ex)
+        {
+            throw new Exception("Cannot assign " + getName() + " from " + value, ex);
+        }
     }
 
     @Override
