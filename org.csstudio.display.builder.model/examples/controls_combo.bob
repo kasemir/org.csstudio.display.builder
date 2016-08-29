@@ -13,7 +13,6 @@
     <y>251</y>
     <width>150</width>
     <height>27</height>
-    <border_alarm_sensitive>true</border_alarm_sensitive>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -51,7 +50,6 @@
     <y>381</y>
     <width>190</width>
     <height>27</height>
-    <border_alarm_sensitive>true</border_alarm_sensitive>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -94,7 +92,6 @@
     <y>251</y>
     <width>190</width>
     <height>27</height>
-    <border_alarm_sensitive>true</border_alarm_sensitive>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -134,7 +131,6 @@
     <y>381</y>
     <width>150</width>
     <height>27</height>
-    <border_alarm_sensitive>true</border_alarm_sensitive>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -173,7 +169,6 @@
     <y>521</y>
     <width>150</width>
     <height>27</height>
-    <border_alarm_sensitive>true</border_alarm_sensitive>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -291,5 +286,69 @@ enum PV) or from the "Items" property.</text>
       <item>2</item>
     </items>
     <items_from_pv>false</items_from_pv>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button</name>
+    <x>421</x>
+    <y>300</y>
+    <width>140</width>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+combo = ScriptUtil.findWidgetByName(widget, "Combo")
+
+items = combo.getItems()
+
+ScriptUtil.showMessageDialog(widget,
+                                                 "Orignal items:\n" + "\n".join(items))
+
+combo.setItems( [ "Ene", "Mene", "Muh" ] )
+
+ScriptUtil.showMessageDialog(widget,
+                                                 "Check the combo box now!")
+]]></text>
+        </script>
+        <description>Update Items</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_11</name>
+    <x>421</x>
+    <y>150</y>
+    <width>378</width>
+    <height>111</height>
+    <text>Ideally, the items for the combo box
+are obtained from an "enum" PV,
+or they are fixed and configured
+as properties of the widget.
+
+In special cases, a script can access the items.</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_12</name>
+    <x>421</x>
+    <y>120</y>
+    <width>260</width>
+    <text>Script Support</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_13</name>
+    <x>421</x>
+    <y>350</y>
+    <width>260</width>
+    <height>58</height>
+    <text>This button will show, then update
+the items of the top left combo box.</text>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
   </widget>
 </display>

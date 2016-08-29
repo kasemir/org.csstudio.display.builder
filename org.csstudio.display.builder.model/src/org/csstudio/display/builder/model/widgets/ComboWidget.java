@@ -14,9 +14,11 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.Messages;
@@ -119,7 +121,7 @@ public class ComboWidget extends VisibleWidget
             CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "item", Messages.ComboWidget_Item);
 
     /** Behavior 'items': list of items (string properties) for combo box */
-    public static final WidgetPropertyDescriptor< List<WidgetProperty<String>> > behaviorItems =
+    public static final ArrayWidgetProperty.Descriptor<WidgetProperty<String> > behaviorItems =
             new ArrayWidgetProperty.Descriptor< WidgetProperty<String> >(WidgetPropertyCategory.BEHAVIOR, "items", Messages.ComboWidget_Items,
                                                                          (widget, index) -> behaviorItem.createProperty(widget, "Item " + index));
 
@@ -132,7 +134,7 @@ public class ComboWidget extends VisibleWidget
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<VType> value;
-    private volatile WidgetProperty< List<WidgetProperty<String>> > items; //TODO: update to use type VEnum? or what type?
+    private volatile ArrayWidgetProperty<WidgetProperty<String>> items;
     private volatile WidgetProperty<Boolean> items_from_pv;
 
     public ComboWidget()
@@ -150,7 +152,7 @@ public class ComboWidget extends VisibleWidget
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(value = runtimeValue.createProperty(this, null));
-        properties.add(items = behaviorItems.createProperty(this,  new ArrayList<WidgetProperty<String>>()));
+        properties.add(items = behaviorItems.createProperty(this, Collections.emptyList()));
         properties.add(items_from_pv = behaviorItemsFromPV.createProperty(this, true));
     }
 
@@ -191,8 +193,28 @@ public class ComboWidget extends VisibleWidget
     }
 
     /** @return Behavior 'items' */
-    public WidgetProperty< List<WidgetProperty<String>> > behaviorItems()
+    public ArrayWidgetProperty<WidgetProperty<String>> behaviorItems()
     {
         return items;
+    }
+
+    /** Convenience routine for script to fetch items
+     *  @return Items currently offered by the combo
+     */
+    public Collection<String> getItems()
+    {
+        return items.getValue().stream()
+                               .map(item_prop -> item_prop.getValue())
+                               .collect(Collectors.toList());
+    }
+
+    /** Convenience routine for script to set items
+     *  @param new_items Items to offer in combo
+     */
+    public void setItems(final Collection<String> new_items)
+    {
+        items.setValue(new_items.stream()
+                                .map(item_text -> behaviorItem.createProperty(this, item_text))
+                                .collect(Collectors.toList()));
     }
 }

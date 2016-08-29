@@ -114,7 +114,8 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
     }
 
     /** @param value Current value of PV
-     *  @return Text to show, "<pv name>" if disconnected (no value)
+     *  @param fromPV Use items from enum?
+     *  @return List of items, potentially adding the current value to the items originally in the combo
      */
     private List<String> computeItems(final VType value, final boolean fromPV)
     {
@@ -125,21 +126,18 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         }
         else
         {
-            List<String> new_items = new ArrayList<String>();
-            List<WidgetProperty<String>> itemProps = model_widget.behaviorItems().getValue();
-            int new_index = -1;
-            String currValue = VTypeUtil.getValueString(value, false);
-            for (WidgetProperty<String> itemProp : itemProps)
-            {
+            final List<String> new_items = new ArrayList<String>();
+            for (WidgetProperty<String> itemProp : model_widget.behaviorItems().getValue())
                 new_items.add(itemProp.getValue());
-                if (itemProp.getValue().equals(currValue))
-                    new_index = new_items.size()-1;
-            }
+
+            final String currValue = VTypeUtil.getValueString(value, false);
+            int new_index = new_items.indexOf(currValue);
             if (new_index < 0)
             {
                 new_items.add(currValue);
                 new_index = items.size()-1;
             }
+
             index = new_index;
             return new_items;
         }
