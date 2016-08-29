@@ -22,6 +22,7 @@ import org.csstudio.display.builder.model.ArrayWidgetProperty.Descriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.junit.Test;
 
 /** JUnit test of array widget property
@@ -168,5 +169,45 @@ public class ArrayWidgetPropertyUnitTest
         System.out.println("items[1]: " + item);
         assertThat(item, not(nullValue()));
         assertThat(item.getValue(), equalTo("Two"));
+    }
+
+    @Test
+    public void testPathAccess() throws Exception
+    {
+        final XYPlotWidget widget = new XYPlotWidget();
+
+        widget.displayTitle().setValue("The Title");
+        widget.behaviorXAxis().title().setValue("X Axis");
+        widget.behaviorYAxes().getElement(0).title().setValue("Y 1");
+
+        String value;
+        value = widget.getPropertyValue("title");
+        assertThat(value, equalTo("The Title"));
+
+        value = widget.getPropertyValue("x_axis.title");
+        assertThat(value, equalTo("X Axis"));
+
+        value = widget.getPropertyValue("y_axes[0].title");
+        assertThat(value, equalTo("Y 1"));
+
+        try
+        {
+            widget.getPropertyValue("y_axes[5].title");
+            fail("Access beyond array size");
+        }
+        catch (IndexOutOfBoundsException ex)
+        {
+            assertThat(ex.getMessage(), containsString("element 5"));
+        }
+
+        try
+        {
+            widget.getPropertyValue("y_axes[5.title");
+            fail("Bad array element syntax");
+        }
+        catch (IllegalArgumentException ex)
+        {
+            assertThat(ex.getMessage().toLowerCase(), containsString("missing"));
+        }
     }
 }

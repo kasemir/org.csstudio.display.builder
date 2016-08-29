@@ -29,8 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.macros.MacroOrPropertyProvider;
@@ -507,8 +505,6 @@ public class Widget
         return property;
     }
 
-    private final static Pattern array_pattern = Pattern.compile("([a-zA-Z0-9]+)\\[([0-9]+)\\]");
-
     /** Get property via path
      *  @param path_name "struct_prop.array_prop[2].element"
      *  @return Property for "element"
@@ -523,11 +519,13 @@ public class Widget
         {   // Does item refer to array element?
             final String name;
             final int index;
-            final Matcher matcher = array_pattern.matcher(item);
-            if (matcher.matches())
+            final int braces = item.indexOf('[');
+            if (braces >= 0)
             {
-                name = matcher.group(1);
-                index = Integer.parseInt(matcher.group(2));
+                if (! item.endsWith("]"))
+                    throw new IllegalArgumentException("Missing ']' for end of array element");
+                name = item.substring(0, braces);
+                index = Integer.parseInt(item.substring(braces+1, item.length() - 1));
             }
             else
             {
@@ -573,10 +571,12 @@ public class Widget
      *  Data is cast to the receiver type, but that cast may fail
      *  if actual data type differs.
      *
-     *  @param name Property name
+     *  @param name Property name, may also be path like "struct_prop.array_prop[2].element"
      *  @param <TYPE> Data is cast to the receiver's type
      *  @return Value of the property
      *  @throws IllegalArgumentException if property is unknown
+     *  @throws IndexOutOfBoundsException for array access beyond last element
+     *
      */
     @SuppressWarnings("unchecked")
     public final <TYPE> TYPE getPropertyValue(final String name)
