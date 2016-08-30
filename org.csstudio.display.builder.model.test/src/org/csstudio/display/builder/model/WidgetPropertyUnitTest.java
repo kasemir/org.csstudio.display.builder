@@ -225,7 +225,7 @@ public class WidgetPropertyUnitTest
     }
 
     @Test
-    public void testMacroisedDefault()
+    public void testMacroDefault()
     {
         // Widget with X position set to $(X), where that macro has the value 0
         final DisplayModel display = new DisplayModel();

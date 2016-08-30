@@ -7,12 +7,16 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets.plots;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.displayToolbar;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.Messages;
@@ -42,6 +46,9 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class XYPlotWidget extends VisibleWidget
 {
+    /** Matcher for detecting legacy property names */
+    private static final Pattern LEGACY_AXIS_PATTERN = Pattern.compile("axis_([0-9]+)_([a-z_]+)");
+
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("xyplot", WidgetCategory.PLOT,
@@ -259,6 +266,28 @@ public class XYPlotWidget extends VisibleWidget
         properties.add(x_axis = AxisWidgetProperty.create(this, Messages.PlotWidget_X));
         properties.add(y_axes = PlotWidgetProperties.behaviorYAxes.createProperty(this, Arrays.asList(YAxisWidgetProperty.create(this, Messages.PlotWidget_Y))));
         properties.add(traces = PlotWidgetProperties.behaviorTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this))));
+    }
+
+    @Override
+    public WidgetProperty<?> getProperty(final String name)
+    {
+        // Translate legacy property names:
+        // 'axis_1_log_scale', 'axis_1_minimum', '..maximum', '.._axis_title', '.._auto_scale'
+        final Matcher matcher = LEGACY_AXIS_PATTERN.matcher(name);
+        if (matcher.matches())
+        {
+            final int index = Integer.parseInt(matcher.group(1));
+            // Check for index 0 (x_axis.*) or 1.. (y_axes[0].*)
+            final String axis = (index == 0)
+                ? "x_axis."
+                : "y_axes[" + (index-1) + "].";
+            final String new_name = axis + matcher.group(2)
+                                                  .replace("axis_title", "title")
+                                                  .replace("auto_scale", "autoscale");
+            logger.log(Level.WARNING, "Deprecated access to " + this + " property '" + name + "'. Use '" + new_name + "'");
+            return getProperty(new_name);
+        }
+        return super.getProperty(name);
     }
 
     /** @return Display 'background_color' */
