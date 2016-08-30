@@ -40,6 +40,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
 
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
+    private final DirtyFlag dirty_enable = new DirtyFlag();
     private volatile List<String> items = Collections.emptyList();
     private volatile int index = -1;
     private volatile Callback<ListView<String>,ListCell<String>> cellFactory = null;
@@ -78,6 +79,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
         model_widget.behaviorItemsFromPV().addUntypedPropertyListener(this::contentChanged);
         model_widget.behaviorItems().addUntypedPropertyListener(this::contentChanged);
+        model_widget.behaviorEnabled().addUntypedPropertyListener(this::enableChanged);
 
         styleChanged(null, null, null);
     }
@@ -112,6 +114,13 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
+
+    private void enableChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        dirty_enable.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
 
     /** @param value Current value of PV
      *  @param fromPV Use items from enum?
@@ -179,5 +188,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
                 active = false;
             }
         }
+        if (dirty_enable.checkAndClear())
+            jfx_node.setDisable(! model_widget.behaviorEnabled().getValue());
     }
 }

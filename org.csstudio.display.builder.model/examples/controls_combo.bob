@@ -266,7 +266,7 @@ enum PV) or from the "Items" property.</text>
     <name>Combo Box</name>
     <y>681</y>
     <width>200</width>
-    <height>70</height>
+    <height>110</height>
     <foreground_color>
       <color name="Off" red="60" green="100" blue="60">
       </color>

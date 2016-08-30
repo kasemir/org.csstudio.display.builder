@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
@@ -129,13 +130,14 @@ public class ComboWidget extends VisibleWidget
     public static final WidgetPropertyDescriptor<Boolean> behaviorItemsFromPV =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "items_from_pv", Messages.ComboWidget_ItemsFromPV);
 
-    private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<VType> value;
+    private volatile WidgetProperty<String> pv_name;
     private volatile ArrayWidgetProperty<WidgetProperty<String>> items;
     private volatile WidgetProperty<Boolean> items_from_pv;
+    private volatile WidgetProperty<Boolean> enabled;
 
     public ComboWidget()
     {
@@ -146,20 +148,15 @@ public class ComboWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(displayBorderAlarmSensitive.createProperty(this, true));
         properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
         properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(value = runtimeValue.createProperty(this, null));
+        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
         properties.add(items = behaviorItems.createProperty(this, Collections.emptyList()));
         properties.add(items_from_pv = behaviorItemsFromPV.createProperty(this, true));
-    }
-
-    /** @return Behavior 'pv_name' */
-    public WidgetProperty<String> behaviorPVName()
-    {
-        return pv_name;
+        properties.add(enabled = behaviorEnabled.createProperty(this, true));
     }
 
     /** @return Display 'foreground_color' */
@@ -186,10 +183,10 @@ public class ComboWidget extends VisibleWidget
         return value;
     }
 
-    /** @return Behavior 'items_from_PV' */
-    public WidgetProperty<Boolean> behaviorItemsFromPV()
+    /** @return Behavior 'pv_name' */
+    public WidgetProperty<String> behaviorPVName()
     {
-        return items_from_pv;
+        return pv_name;
     }
 
     /** @return Behavior 'items' */
@@ -216,5 +213,17 @@ public class ComboWidget extends VisibleWidget
         items.setValue(new_items.stream()
                                 .map(item_text -> behaviorItem.createProperty(this, item_text))
                                 .collect(Collectors.toList()));
+    }
+
+    /** @return Behavior 'items_from_PV' */
+    public WidgetProperty<Boolean> behaviorItemsFromPV()
+    {
+        return items_from_pv;
+    }
+
+    /** @return Behavior 'enabled' */
+    public WidgetProperty<Boolean> behaviorEnabled()
+    {
+        return enabled;
     }
 }
