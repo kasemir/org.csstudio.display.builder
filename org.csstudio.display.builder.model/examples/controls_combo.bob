@@ -306,6 +306,8 @@ ScriptUtil.showMessageDialog(widget,
 
 combo.setItems( [ "Ene", "Mene", "Muh" ] )
 
+ScriptUtil.getPrimaryPV(combo).write("Mene")
+
 ScriptUtil.showMessageDialog(widget,
                                                  "Check the combo box now!")
 ]]></text>
