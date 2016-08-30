@@ -95,6 +95,23 @@ public class WidgetPropertiesUnitTest
         legacy = plot.getProperty("axis_1_auto_scale");
         current = plot.getProperty("y_axes[0].autoscale");
         assertThat(legacy, sameInstance(current));
+
+        // getProperty() throws an exception for unknown names
+        try
+        {
+            plot.getProperty("x_axis.not_the_title");
+            fail("Didn't catch property name typo");
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex.getMessage());
+            assertThat(ex.getMessage(), containsString("not_the_title"));
+        }
+
+        // checkProperty does _not_ resolve paths nor legacy names
+        assertThat(plot.checkProperty("x_axis").isPresent(), equalTo(true));
+        assertThat(plot.checkProperty("x_axis.title").isPresent(), equalTo(false));
+        assertThat(plot.checkProperty("axis_0_axis_title").isPresent(), equalTo(false));
     }
 
     @Test

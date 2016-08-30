@@ -318,9 +318,9 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 {
                     exprs.add(ExprItemFactory.InfoToItem(expr, undo));
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING, "Error converting " + expr, ex);
                 } } );
 
             return new RuleItem(attached_widget, exprs, pvs, info.getName(), info.getPropID(), info.getPropAsExprFlag());
@@ -376,9 +376,9 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 }
                 expls.add(new_exp);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Rule expression error", ex);
             }
             return new_exp;
         }
@@ -400,7 +400,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             return true;
         }
 
-        public boolean tryUpdatePropID( final UndoableActionManager undo, String new_prop_id )
+        public boolean tryUpdatePropID(final UndoableActionManager undo, String new_prop_id)
         {
             if (new_prop_id == null)
                 return false;
@@ -411,7 +411,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             if (attached_widget == null)
                 return false;
 
-            Optional<WidgetProperty<?>> prop = attached_widget.checkProperty(new_prop_id);
+            final Optional<WidgetProperty<Object>> prop = attached_widget.checkProperty(new_prop_id);
             if (!prop.isPresent())
             {
                 logger.log(Level.WARNING, "Widget " + attached_widget.getClass().getName()
@@ -422,12 +422,10 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             prop_id.set(new_prop_id);;
 
             // If just an output expression string. No need to change objects
-            if (prop_as_expr.get()) {
+            if (prop_as_expr.get())
                 return true;
-            }
 
-            List<ExprItem<?>> new_exps = new ArrayList<>();
-
+            final List<ExprItem<?>> new_exps = new ArrayList<>();
             for (final ExprItem<?> exp : expressions)
             {
                 WidgetProperty<?> new_prop =
@@ -436,12 +434,10 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 {
                     new_exps.add(ExprItemFactory.makeNewFromOld(new_prop, exp, undo));
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    logger.log(Level.WARNING, "Rule error", ex);
                 }
-
             }
             expressions = new_exps;
 
@@ -661,8 +657,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             public void changed(ObservableValue<? extends Boolean> ov, Boolean old_val, Boolean new_val) {
                 if (!selected_rule_item.tryTogglePropAsExpr(undo, new_val))
                 {
-                    Logger.getLogger(this.getClass().getName()).
-                    log(Level.FINE, "Did not update rule property as expression flag to " + new_val);
+                    logger.log(Level.FINE, "Did not update rule property as expression flag to " + new_val);
                 }
                 else
                 {
@@ -670,8 +665,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 }
             }
         });
-
-
 
 
         final HBox props = new HBox(10, valExpBox, new Separator(Orientation.VERTICAL), propLabel, propComboBox);
@@ -684,7 +677,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         HBox.setHgrow(exprs, Priority.ALWAYS);
         HBox.setHgrow(subitems, Priority.ALWAYS);
         VBox.setVgrow(subtabs, Priority.ALWAYS);
-
 
         //final Label mainLabel = new Label("Editting rules for widget type " + widgetType);
         //final VBox box = new VBox(10, mainLabel, hbox);
@@ -924,7 +916,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
     /**
      * {@link PVItem} {@link TableCell} with {@link AutocompleteMenu}
-     * 
+     *
      * @author Amanda Carpenter
      */
     private class AutoCompletedTableCell extends TableCell<PVItem, String>

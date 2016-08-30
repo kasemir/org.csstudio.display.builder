@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -106,19 +105,10 @@ public class RuleInfo
         private final WidgetProperty<?> prop;
         private final String prop_id;
 
-        public PropInfo(Widget attached_widget, String prop_id_str)
+        public PropInfo(final Widget attached_widget, final String prop_id_str)
         {
             prop_id = prop_id_str;
-            Optional<WidgetProperty<?>> wprop = attached_widget.checkProperty(prop_id_str);
-
-            if (wprop.isPresent())
-            {
-                prop = wprop.get();
-            }
-            else
-            {
-                prop = null;
-            }
+            prop = attached_widget.checkProperty(prop_id_str).orElse(null);
         }
 
         public WidgetProperty<?> getProp() {

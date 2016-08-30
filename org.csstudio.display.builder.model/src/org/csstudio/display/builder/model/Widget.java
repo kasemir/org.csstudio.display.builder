@@ -427,38 +427,32 @@ public class Widget
 
     /** Check if widget has a given property.
      *
-     *  <p>This is called by rules or scripts which
-     *  retrieve a property by name, since they do not
-     *  know the exact widget class and thus cannot
-     *  use the type-safe property accessors.
+     *  <p>This is called by code that needs to
+     *  test if a widget has a certain property.
+     *
+     *  <p>Only checks for direct properties of
+     *  the widget, neither mapping legacy property names
+     *  nor allowing for complex property paths.
      *
      *  @param name Property name
      *  @return Optional {@link WidgetProperty}
+     *  @see #getProperty(String)
      */
-    public final Optional<WidgetProperty<?>> checkProperty(final String name)
+    public final <PT> Optional<WidgetProperty<PT>> checkProperty(final String name)
     {
-        WidgetProperty<?> property;
-        try
-        {
-            property = getProperty(name);
-        }
-        catch (Exception e)
-        {
-            property = null;
-        }
-
+        @SuppressWarnings("unchecked")
+        final WidgetProperty<PT> property = (WidgetProperty<PT>) property_map.get(name);
         return Optional.ofNullable(property);
     }
 
     /** Check if widget has a given property.
      *  @param property Property descriptor
      *  @return Optional {@link WidgetProperty}
+     *  @see #checkProperty(WidgetPropertyDescriptor)
      */
     public final <PT> Optional<WidgetProperty<PT>> checkProperty(final WidgetPropertyDescriptor<PT> property_description)
     {
-        @SuppressWarnings("unchecked")
-        final WidgetProperty<PT> property = (WidgetProperty<PT>) property_map.get(property_description.getName());
-        return Optional.ofNullable(property);
+        return checkProperty(property_description.getName());
     }
 
     /** Get widget property.
@@ -469,6 +463,7 @@ public class Widget
      *  @param property_description Property description
      *  @return {@link WidgetProperty}
      *  @throws IllegalArgumentException if property is unknown
+     *  @see #checkProperty(WidgetPropertyDescriptor)
      */
     @SuppressWarnings("unchecked")
     public final <PT> WidgetProperty<PT> getProperty(final WidgetPropertyDescriptor<PT> property_description)
@@ -479,20 +474,25 @@ public class Widget
 
     /** Get widget property.
      *
-     *  <p>This method ends up being called from rules and scripts
-     *  which do now know the exact widget type
-     *  and thus fetch properties by name.
+     *  <p>Meant for rules, scripts and similar code
+     *  which does not know the exact widget type
+     *  and thus fetches properties by name.
      *
-     *  <p>Property access based on property name returns generic
-     *  WidgetProperty without known type.
+     *  <p>Supports access to complex properties by path name,
+     *  for example "y_axes[1].minimum" to get the minimum
+     *  property of the second Y axis of a plot.
      *
      *  <p>To allow use of legacy scripts and rules,
      *  the widget implementation may override to
      *  handle deprecated property names.
      *
+     *  <p>Caller presumes that the widget actually
+     *  has the requested property, otherwise throwing Exception.
+     *
      *  @param name Property name
      *  @return {@link WidgetProperty}
      *  @throws IllegalArgumentException if property is unknown
+     *  @see #checkProperty(String)
      */
     public WidgetProperty<?> getProperty(final String name)
     {   // Is name a path "struct_prop.array_prop[2].element" ?

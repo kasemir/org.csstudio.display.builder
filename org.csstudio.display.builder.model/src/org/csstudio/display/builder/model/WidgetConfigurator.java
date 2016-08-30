@@ -75,7 +75,7 @@ public class WidgetConfigurator
         {
             final String prop_name = prop_xml.getNodeName();
             // Skip unknown properties
-            final Optional<WidgetProperty<?>> prop = widget.checkProperty(prop_name);
+            final Optional<WidgetProperty<Object>> prop = widget.checkProperty(prop_name);
             if (! prop.isPresent())
                 continue;
             try

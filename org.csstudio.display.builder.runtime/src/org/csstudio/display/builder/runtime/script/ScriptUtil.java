@@ -52,7 +52,7 @@ public class ScriptUtil
         return siblings.getChildByName(name);
     }
 
-    
+
 
     // ================
     // logging utils
@@ -342,14 +342,14 @@ public class ScriptUtil
     public static VType getWidgetValueByName(final Widget widget, final String name) throws Exception
     {
         final Widget w = findWidgetByName(widget, name);
-        final Optional<WidgetProperty<?>> value_prop = w.checkProperty("value");
+        final Optional<WidgetProperty<Object>> value_prop = w.checkProperty("value");
         if (value_prop.isPresent())
         {
             final Object value = value_prop.get().getValue();
             if (value == null  ||  value instanceof VType)
                 return (VType) value;
         }
-    
+
         return getPrimaryPV(w).read();
     }
 

@@ -42,13 +42,14 @@ public class ArrayWidgetRuntime extends WidgetRuntime<ArrayWidget>
         else //removed != null
             for (Widget widget : removed)
             {
-                Optional<WidgetProperty<?>> pvname = widget.checkProperty("pv_name");
+                final Optional<WidgetProperty<Object>> pvname = widget.checkProperty("pv_name");
                 if (!pvname.isPresent())
                     return;
                 try
                 {
                     pvname.get().setValueFromObject(pvname.get().getDefaultValue());
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     logger.log(Level.WARNING, "Unable to clear pv name of " + widget, ex);
                 }
@@ -93,7 +94,7 @@ public class ArrayWidgetRuntime extends WidgetRuntime<ArrayWidget>
 
     private void setPVName(Widget widget, String name)
     {
-        Optional<WidgetProperty<?>> pvname = widget.checkProperty("pv_name");
+        final Optional<WidgetProperty<Object>> pvname = widget.checkProperty("pv_name");
         if (!pvname.isPresent())
             return;
         try

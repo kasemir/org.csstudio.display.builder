@@ -10,7 +10,6 @@ package org.csstudio.display.builder.model.properties;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,9 +23,9 @@ import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
-import org.csstudio.display.builder.model.properties.RuleInfo.ExpressionInfo;
 import org.csstudio.display.builder.model.properties.RuleInfo.ExprInfoString;
 import org.csstudio.display.builder.model.properties.RuleInfo.ExprInfoValue;
+import org.csstudio.display.builder.model.properties.RuleInfo.ExpressionInfo;
 import org.w3c.dom.Element;
 
 /** Widget property that describes rules
@@ -56,9 +55,11 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
     public static WidgetProperty<?> propIDToNewProp(final Widget widget,
             final String prop_id, final String dbg_tag)
     {
-        Optional<WidgetProperty<?>> prop = widget.checkProperty(prop_id);
-
-        if (!prop.isPresent())
+        try
+        {
+            return widget.getProperty(prop_id).clone();
+        }
+        catch (Exception ex)
         {
             Logger.getLogger("RulesWidgetProperty.propIDToNewWidget")
             .log(Level.WARNING, "Widget " + widget.getClass().getName()
@@ -69,8 +70,6 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
             else
                 return miscUnknownPropID.createProperty(null, prop_id + "?");
         }
-
-        return prop.get().clone();
     }
 
     /** Constructor

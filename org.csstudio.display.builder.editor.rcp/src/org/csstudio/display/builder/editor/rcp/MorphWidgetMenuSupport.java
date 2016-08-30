@@ -98,19 +98,21 @@ public class MorphWidgetMenuSupport
             }
         }
 
-        private Widget createNewWidget(Widget widget)
+        private Widget createNewWidget(final Widget widget)
         {
             final Widget new_widget = descriptor.createWidget();
             final Set<WidgetProperty<?>> props = widget.getProperties();
             for (WidgetProperty<?> prop : props)
             {
-                Optional<WidgetProperty<?>> new_prop = new_widget.checkProperty(prop.getName());
+                final Optional<WidgetProperty<Object>> new_prop = new_widget.checkProperty(prop.getName());
                 if (new_prop.isPresent())
                     try
                     {
                         new_prop.get().setValueFromObject(prop.getValue());
-                    } catch (Exception ignored)
+                    }
+                    catch (Exception ex)
                     {
+                        logger.log(Level.WARNING, "Cannot morph " + prop, ex);
                     }
             }
             return new_widget;

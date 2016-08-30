@@ -246,6 +246,37 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         }
     };
 
+    /** By default, stack array element widgets vertically:
+     *  <pre>
+     *   #
+     *   #
+     *   #
+     *  </pre>
+     *  If the child widget has a "horizontal" preference and wants to be horizontal,
+     *  also stack vertically:
+     *  <pre>
+     *   ======
+     *   ======
+     *   ======
+     *  </pre>
+     *  But if the child widget prefers to be vertical (!horizontal),
+     *  stack them side by side:
+     *  <pre>
+     *   | | |
+     *   | | |
+     *   | | |
+     *  </pre>
+     *  @param element Element widget to use for test
+     *  @return Stack array element widgets vertically?
+     */
+    private boolean testVerticalStacking(final Widget element)
+    {
+        final Optional<WidgetProperty<Boolean>> horizontal = element.checkProperty("horizontal");
+        if (horizontal.isPresent())
+            return horizontal.get().getValue();
+        return true;
+    }
+
     private void arrangeChildren()
     {
         List<Widget> children = new ArrayList<Widget>(model_widget.runtimeChildren().getValue());
@@ -258,16 +289,11 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         isArranging = true;
         numChildren = children.size();
 
-        //Checking horizontal:
-        //This isn't a very robust way of doing it, but neither is getting the name from a particular
-        //widget's horizontal property descriptor.
-        Optional<WidgetProperty<?>> horizontal = master.checkProperty("horizontal");
-        final boolean vertical = !horizontal.isPresent() || (boolean) horizontal.get().getValue();
-
+        final boolean vertical = testVerticalStacking(master);
         final int h = vertical ? master.positionHeight().getValue()
-                : (height = model_widget.positionHeight().getValue()) - inset * 2;
+                               : (height = model_widget.positionHeight().getValue()) - inset * 2;
         final int w = vertical ? (width = model_widget.positionWidth().getValue()) - inset * 2
-                : master.positionWidth().getValue();
+                               : master.positionWidth().getValue();
         int len = 0;
         for (Widget child : children)
         {
@@ -290,14 +316,14 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     private void adjustNumberByLength()
     {
-        List<Widget> children = new ArrayList<Widget>(model_widget.runtimeChildren().getValue());
+        final List<Widget> children = new ArrayList<Widget>(model_widget.runtimeChildren().getValue());
         if (children.isEmpty())
             return;
-        Optional<WidgetProperty<?>> horizontal = children.get(0).checkProperty("horizontal");
-        final boolean vertical = !horizontal.isPresent() || (boolean) horizontal.get().getValue();
+        final boolean vertical = testVerticalStacking(children.get(0));
         final int l = vertical ? children.get(0).positionHeight().getValue()
-                : children.get(0).positionWidth().getValue();
-        numChildren = vertical ? (height - inset * 2) / l : (width - inset * 2) / l;
+                               : children.get(0).positionWidth().getValue();
+        numChildren = vertical ? (height - inset * 2) / l
+                               : (width - inset * 2) / l;
         dirty_number.mark();
         toolkit.scheduleUpdate(this);
     }
