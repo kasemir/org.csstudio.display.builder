@@ -8,7 +8,9 @@
         <topic label="Getting Started" href="doc/GettingStarted.html"/>
         <topic label="Properties" href="doc/properties.html"/>
         <topic label="Rules" href="doc/rules.html"/>
-        <topic label="Scripts" href="doc/scripts.html"/>
+        <topic label="Scripts" href="doc/scripts.html">
+            <topic label="API" href="doc/java/overview-summary.html"/>
+        </topic>
         <topic label="Widgets" href="doc/widgets/widgets.html">
             <topic label="Graphics Widgets" href="doc/widgets/graphics_cat.html">
                 <topic label="Label" href="doc/widgets/label.html"/>

@@ -2,7 +2,7 @@
 <feature
       id="org.csstudio.display.builder.feature"
       label="Display Builder"
-      version="1.0.0.qualifier"
+      version="0.1.0.qualifier"
       provider-name="Kay Kasemir - SNS">
 
    <description>
