@@ -9,7 +9,6 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -227,7 +226,7 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
         final Point2D pane_bounds = pane.localToScene(0.0, 0.0);
         final int[] insets = new int[] { (int)(pane_bounds.getX() - tabs_bounds.getX()),
                 (int)(pane_bounds.getY() - tabs_bounds.getY()) };
-        logger.log(Level.INFO, "Insets: " + Arrays.toString(insets));
+        // logger.log(Level.INFO, "Insets: " + Arrays.toString(insets));
         if (insets[0] < 0  ||  insets[1] < 0)
         {
             logger.log(Level.WARNING, "Inset computation failed: TabPane at " + tabs_bounds + ", content pane at " + pane_bounds);
