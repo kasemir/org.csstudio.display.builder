@@ -48,6 +48,14 @@
             launcher="org.csstudio.display.builder.rcp.run.RuntimeLauncher"
             name="%Runtime">
       </editor>
+      <editor
+            default="false"
+            extensions="opi"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
+            id="org.csstudio.display.builder.rcp.RuntimeLauncher"
+            launcher="org.csstudio.display.builder.rcp.run.RuntimeLauncher"
+            name="%Runtime">
+      </editor>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
