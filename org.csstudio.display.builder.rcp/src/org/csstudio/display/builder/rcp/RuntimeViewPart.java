@@ -221,6 +221,18 @@ public class RuntimeViewPart extends ViewPart
         }
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
+
+        // Representation for each widget adds a context menu just for the widget.
+        // Add context menu to scene, tied to the model.
+        fx_canvas.getScene().setOnContextMenuRequested(event ->
+        {
+            final DisplayModel model = active_model;
+            if (model != null)
+            {
+                event.consume();
+                representation.fireContextMenu(model);
+            }
+        });
     }
 
 	public RCP_JFXRepresentation getRepresentation()
@@ -341,14 +353,6 @@ public class RuntimeViewPart extends ViewPart
         {
             JFXRepresentation.getChildren(root).clear();
             representation.representModel(root, model);
-
-            // Representation for each widget adds a context menu just for the widget.
-            // Add another context menu to scene, tied to the model.
-            fx_canvas.getScene().setOnContextMenuRequested(event ->
-            {
-                event.consume();
-                representation.fireContextMenu(model);
-            });
         }
         catch (Exception ex)
         {

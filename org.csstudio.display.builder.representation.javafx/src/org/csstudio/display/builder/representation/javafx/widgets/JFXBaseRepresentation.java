@@ -30,6 +30,7 @@ import javafx.scene.Parent;
  *  @param <MW> Model widget
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget> extends WidgetRepresentation<Parent, Node, MW>
 {
     /** JFX node (or root of sub scene graph) that represents the widget
@@ -130,11 +131,12 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
             final List<Widget> children = model.getChildren();
             if (children.isEmpty())
                 return null;
-            // TODO This sometimes returns null because USER_DATA_REPRESENTATION is null?
             return getJFXNode(children.get(0)).getParent();
         }
         final JFXBaseRepresentation<Node, Widget> representation =
                 widget.getUserData(Widget.USER_DATA_REPRESENTATION);
+        if (representation == null)
+            throw new NullPointerException("Missing representation for " + widget);
         return representation.jfx_node;
     }
 
