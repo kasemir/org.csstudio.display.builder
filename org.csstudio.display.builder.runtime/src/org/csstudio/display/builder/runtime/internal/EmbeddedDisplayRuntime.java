@@ -92,27 +92,10 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
             // Load new model (potentially slow)
             final DisplayModel new_model = loadDisplayModel(display_file);
 
-            // If group name property is set, remove widgets that aren't groups with matching name
+            // If group name property is set, use only widgets in that one group
             final String group_name = widget.displayGroupName().getValue();
             if (!display_file.isEmpty()  &&  !group_name.isEmpty())
-            {
-                final List<Widget> children = new_model.runtimeChildren().getValue();
-                int index = 0;
-                while (!children.isEmpty() && index < children.size())
-                {
-                    final Widget child = children.get(index);
-                    if (child.getType().equals(GroupWidget.WIDGET_DESCRIPTOR.getType()) &&
-                            child.getName().equals(group_name))
-                    {
-                        index++;
-                    }
-                    else
-                        new_model.runtimeChildren().removeChild(child);
-                }
-
-                if (new_model.runtimeChildren().getValue().isEmpty())
-                    logger.log(Level.WARNING, "Cannot locate group named '" + group_name + "' in '" + display_file + "'");
-            }
+                reduceDisplayModelToGroup(display_file, new_model, group_name);
 
             // Atomically update the 'active' model
             final DisplayModel old_model = active_content_model.getAndSet(new_model);
@@ -143,6 +126,62 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         {
             logger.log(Level.WARNING, "Failed to handle embedded display " + display_file, ex);
         }
+    }
+
+    /** Reduce display model to content of one named group
+     *  @param display_file Name of the display file
+     *  @param model Model loaded from that file
+     *  @param group_name Name of group to use
+     */
+    private void reduceDisplayModelToGroup(final String display_file, final DisplayModel model, final String group_name)
+    {
+        final List<Widget> children = model.runtimeChildren().getValue();
+
+        // Remove all but groups with matching name
+        int index = 0;
+        while (!children.isEmpty() && index < children.size())
+        {
+            final Widget child = children.get(index);
+            if (child.getType().equals(GroupWidget.WIDGET_DESCRIPTOR.getType()) &&
+                child.getName().equals(group_name))
+                index++;
+            else
+                model.runtimeChildren().removeChild(child);
+        }
+
+        // Expect exactly one
+        final int groups = model.runtimeChildren().getValue().size();
+        if (children.size() != 1)
+        {
+            widget.displayResize().setValue(Resize.None);
+            logger.log(Level.WARNING, "Expected one group named '" + group_name + "' in '" + display_file + "', found " + groups);
+            return;
+        }
+
+        // Replace display with just that one group
+        final GroupWidget group = (GroupWidget) children.get(0);
+        model.runtimeChildren().removeChild(group);
+        int xmin = Integer.MAX_VALUE, ymin = Integer.MAX_VALUE,
+            xmax = 0,                 ymax = 0;
+        for (Widget child : group.runtimeChildren().getValue())
+        {
+            // Not removing child from 'group', since group
+            // will be GC'ed anyway.
+            model.runtimeChildren().addChild(child);
+            xmin = Math.min(xmin, child.positionX().getValue());
+            ymin = Math.min(ymin, child.positionY().getValue());
+            xmax = Math.min(xmax, child.positionX().getValue() + child.positionWidth().getValue());
+            ymax = Math.min(ymax, child.positionY().getValue() + child.positionHeight().getValue());
+        }
+        // Move all widgets to top-left corner
+        for (Widget child : children)
+        {
+            child.positionX().setValue(child.positionX().getValue() - xmin);
+            child.positionY().setValue(child.positionY().getValue() - ymin);
+        }
+        // Shrink display to size of widgets
+        model.positionWidth().setValue(xmax - xmin);
+        model.positionHeight().setValue(ymax - ymin);
     }
 
     /** Wait for future to complete

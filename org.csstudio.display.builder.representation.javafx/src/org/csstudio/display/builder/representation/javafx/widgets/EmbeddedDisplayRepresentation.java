@@ -83,7 +83,10 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         model_widget.positionHeight().addUntypedPropertyListener(this::sizesChanged);
         model_widget.displayResize().addUntypedPropertyListener(this::sizesChanged);
         model_widget.runtimeScale().addUntypedPropertyListener(this::sizesChanged);
-        if (info != null)
+        if (info == null)
+            // Prevent initial update
+            dirty_info.checkAndClear();
+        else
         {
             model_widget.displayFile().addUntypedPropertyListener(this::infoChanged);
             model_widget.displayGroupName().addUntypedPropertyListener(this::infoChanged);
