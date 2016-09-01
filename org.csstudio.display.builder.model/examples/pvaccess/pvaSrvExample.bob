@@ -5,7 +5,7 @@
     <name>Label</name>
     <width>440</width>
     <height>31</height>
-    <text>EPICS V4 pcaSrv/testTop/testDbPv IOC</text>
+    <text>EPICS V4 pvaSrv/testTop/testDbPv IOC</text>
     <font>
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
