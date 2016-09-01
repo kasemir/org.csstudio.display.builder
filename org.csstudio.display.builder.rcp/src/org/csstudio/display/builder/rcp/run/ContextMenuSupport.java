@@ -141,6 +141,8 @@ public class ContextMenuSupport
 
             // Actions of the widget runtime
             final WidgetRuntime<Widget> runtime = RuntimeUtil.getRuntime(context_menu_widget);
+            if (runtime == null)
+                throw new NullPointerException("Missing runtime for " + context_menu_widget);
             for (RuntimeAction info : runtime.getRuntimeActions())
                 manager.add(new RuntimeActionWrapper(context_menu_widget, info));
         }

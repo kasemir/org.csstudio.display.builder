@@ -7,34 +7,18 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
-import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
-import org.csstudio.vtype.pv.PVPool;
-import org.csstudio.vtype.pv.jca.JCA_PVFactory;
-import org.csstudio.vtype.pv.local.LocalPVFactory;
-import org.csstudio.vtype.pv.sim.SimPVFactory;
 
-/** Display Runtime.
+/** Group widget Runtime.
  *
- *  <p>Initializes display-wide facilities
- *  and starts/stop the widgets in the display.
+ *  <p>Starts/stop the widgets in the group.
  *
  *  @author Kay Kasemir
  */
-public class DisplayRuntime extends WidgetRuntime<DisplayModel>
+public class GroupWidgetRuntime extends WidgetRuntime<GroupWidget>
 {
-    static
-    {
-        // PVPool should initialize from registry
-        if (PVPool.getSupportedPrefixes().length == 0)
-        {   // Fall back for tests without OSGi
-            PVPool.addPVFactory(new LocalPVFactory());
-            PVPool.addPVFactory(new SimPVFactory());
-            PVPool.addPVFactory(new JCA_PVFactory());
-        }
-    }
-
     @Override
     public void start() throws Exception
     {

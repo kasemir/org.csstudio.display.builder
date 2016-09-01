@@ -9,19 +9,19 @@ package org.csstudio.display.builder.runtime;
 
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.NamedDaemonPool;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
-import org.csstudio.display.builder.model.widgets.TabsWidget;
-import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.runtime.script.internal.ScriptSupport;
@@ -57,6 +57,17 @@ public class RuntimeUtil
             else
                 runtime.writePrimaryPV(value);
         }
+    };
+
+    private static final WidgetPropertyListener<List<Widget>> children_listener = (prop, removed, added) ->
+    {
+        if (removed != null)
+            for (Widget child : removed)
+                stopRuntime(child);
+
+        if (added != null)
+            for (Widget child : added)
+                startRuntime(child);
     };
 
     /** Connect runtime listener to toolkit
@@ -162,16 +173,15 @@ public class RuntimeUtil
         return widget.getUserData(Widget.USER_DATA_RUNTIME);
     }
 
-    /** Create and start runtime for all widgets in the model
-     *  @param model {@link DisplayModel}
+    /** Create and start runtime for a widget
+     *
+     *  <p>Container widgets are responsible
+     *  for starting their child widget runtimes,
+     *  typically after handling their own startup.
+     *
+     *  @param widget {@link Widget}
      */
-    public static void startRuntime(final DisplayModel model)
-    {
-        startRuntimeRecursively(model);
-    }
-
-    // Actually start runtimes from this widget down
-    private static void startRuntimeRecursively(final Widget widget)
+    public static void startRuntime(final Widget widget)
     {
         try
         {
@@ -180,47 +190,48 @@ public class RuntimeUtil
         }
         catch (final Exception ex)
         {
-            logger.log(Level.SEVERE, "Cannot start widget runtime", ex);
+            logger.log(Level.SEVERE, "Cannot start runtime for " + widget, ex);
         }
-
-        if (widget instanceof TabsWidget)
-            for (TabItemProperty tab : ((TabsWidget)widget).displayTabs().getValue())
-                for (final Widget child : tab.children().getValue())
-                    startRuntimeRecursively(child);
-
-        // Recurse into child widgets
-        final ChildrenProperty children = ChildrenProperty.getChildren(widget);
-        if (children != null)
-            for (final Widget child : children.getValue())
-                startRuntimeRecursively(child);
     }
 
-    /** Stop runtime for all widgets in the model
-     *  @param model {@link DisplayModel}
+    /** Stop runtime for a widget
+     *
+     *  <p>Container widgets are responsible
+     *  for stopping their child widget runtimes,
+     *  typically before handling their own shutdown.
+     *
+     *  @param widget {@link Widget}
      */
-    public static void stopRuntime(final DisplayModel model)
+    public static void stopRuntime(final Widget widget)
     {
-        stopRuntimeRecursively(model);
-    }
-
-    // Actually stop runtimes from this widget down
-    private static void stopRuntimeRecursively(final Widget widget)
-    {
-        // Mirror-image of startRuntimeRecursively:
-        // First recurse into child widgets, ..
-        final ChildrenProperty children = ChildrenProperty.getChildren(widget);
-        if (children != null)
-            for (final Widget child : children.getValue())
-                stopRuntimeRecursively(child);
-
-        if (widget instanceof TabsWidget)
-            for (TabItemProperty tab : ((TabsWidget)widget).displayTabs().getValue())
-                for (final Widget child : tab.children().getValue())
-                    stopRuntimeRecursively(child);
-
-        // .. then stop this runtime
-        final WidgetRuntime<?> runtime = RuntimeUtil.getRuntime(widget);
+        final WidgetRuntime<?> runtime = getRuntime(widget);
         if (runtime != null)
             runtime.stop();
+    }
+
+    /** Start runtime of all child widgets
+     *
+     *  <p>Also starts/stops added/removed child widgets
+     *
+     * @param children
+     */
+    public static void startChildRuntimes(final ChildrenProperty children)
+    {
+        for (Widget child : children.getValue())
+            RuntimeUtil.startRuntime(child);
+        children.addPropertyListener(children_listener);
+    }
+
+    /** Stop runtime of all child widgets
+     *
+     *  <p>Also un-subscribes from child widget additions/removals.
+     *
+     * @param children
+     */
+    public static void stopChildRuntimes(final ChildrenProperty children)
+    {
+        children.removePropertyListener(children_listener);
+        for (Widget child : children.getValue())
+            RuntimeUtil.stopRuntime(child);
     }
 }
