@@ -94,7 +94,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
 
             // If group name property is set, remove widgets that aren't groups with matching name
             final String group_name = widget.displayGroupName().getValue();
-            if (! group_name.isEmpty())
+            if (!display_file.isEmpty()  &&  !group_name.isEmpty())
             {
                 final List<Widget> children = new_model.runtimeChildren().getValue();
                 int index = 0;
@@ -111,7 +111,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
                 }
 
                 if (new_model.runtimeChildren().getValue().isEmpty())
-                    logger.log(Level.WARNING, "Cannot locate group named '" + group_name + "' in " + display_file);
+                    logger.log(Level.WARNING, "Cannot locate group named '" + group_name + "' in '" + display_file + "'");
             }
 
             // Atomically update the 'active' model
