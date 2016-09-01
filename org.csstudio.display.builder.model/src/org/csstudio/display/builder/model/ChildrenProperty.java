@@ -170,6 +170,8 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
      */
     public void addChild(final int index, final Widget child)
     {
+        if (child == null)
+            throw new NullPointerException("Cannot add null to " + getWidget());
         final List<Widget> list = value;
         synchronized (list)
         {   // Atomically check-then-add
@@ -196,6 +198,8 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
      */
     public int removeChild(final Widget child)
     {
+        if (child == null)
+            throw new NullPointerException("Cannot remove null from " + getWidget());
         final List<Widget> list = value;
         final int index;
         synchronized (list)

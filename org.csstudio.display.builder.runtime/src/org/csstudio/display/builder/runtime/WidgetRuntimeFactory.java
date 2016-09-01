@@ -14,14 +14,18 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.widgets.ArrayWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.model.widgets.TableWidget;
+import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.csstudio.display.builder.runtime.internal.ArrayWidgetRuntime;
 import org.csstudio.display.builder.runtime.internal.DisplayRuntime;
 import org.csstudio.display.builder.runtime.internal.EmbeddedDisplayRuntime;
+import org.csstudio.display.builder.runtime.internal.GroupWidgetRuntime;
 import org.csstudio.display.builder.runtime.internal.ImageWidgetRuntime;
 import org.csstudio.display.builder.runtime.internal.TableWidgetRuntime;
+import org.csstudio.display.builder.runtime.internal.TabsWidgetRuntime;
 import org.csstudio.display.builder.runtime.internal.XYPlotWidgetRuntime;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
@@ -57,8 +61,10 @@ public class WidgetRuntimeFactory
             runtimes.put(DisplayModel.WIDGET_TYPE, () -> new DisplayRuntime());
             runtimes.put(ArrayWidget.WIDGET_DESCRIPTOR.getType(), () -> new ArrayWidgetRuntime());
             runtimes.put(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getType(), () -> new EmbeddedDisplayRuntime());
+            runtimes.put(GroupWidget.WIDGET_DESCRIPTOR.getType(), () -> new GroupWidgetRuntime());
             runtimes.put(ImageWidget.WIDGET_DESCRIPTOR.getType(), () -> new ImageWidgetRuntime());
             runtimes.put(TableWidget.WIDGET_DESCRIPTOR.getType(), () -> new TableWidgetRuntime());
+            runtimes.put(TabsWidget.WIDGET_DESCRIPTOR.getType(), () -> new TabsWidgetRuntime());
             runtimes.put(XYPlotWidget.WIDGET_DESCRIPTOR.getType(), () -> new XYPlotWidgetRuntime());
         }
         else
