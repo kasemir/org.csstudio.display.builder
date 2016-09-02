@@ -9,13 +9,10 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
-import java.util.Optional;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.properties.ActionInfo;
-import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -43,9 +40,6 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     protected volatile int use_bit = 0;
     protected volatile Integer rt_value = 0;
 
-    /** Optional modifier of the open display 'target */
-    private Optional<OpenDisplayActionInfo.Target> target_modifier = Optional.empty();
-
     private volatile Button button;
     private volatile Ellipse led;
 
@@ -57,12 +51,9 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     @Override
     public ButtonBase createJFXNode() throws Exception
     {
-        //final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
         final ButtonBase base;
         led = new Ellipse();
         button = new Button("BoolButton", led);
-        //final ActionInfo the_action = actions.get(0);
-        //button.setOnAction(event -> handleAction(the_action));
         button.setOnAction(event -> handlePress());
         base = button;
 
@@ -79,22 +70,13 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     /** @param event Mouse event to check for target modifier keys */
     private void checkModifiers(final MouseEvent event)
     {
-        if (event.isControlDown())
-            target_modifier = Optional.of(OpenDisplayActionInfo.Target.TAB);
-        else if (event.isShiftDown())
-            target_modifier = Optional.of(OpenDisplayActionInfo.Target.WINDOW);
-        else
-            target_modifier = Optional.empty();
-
         // At least on Linux, a Control-click or Shift-click
         // will not 'arm' the button, so the click is basically ignored.
         // Force the 'arm', so user can Control-click or Shift-click to
         // invoke the button
-        if (target_modifier.isPresent())
-        {
-            logger.log(Level.FINE, "{0} modifier: {1}", new Object[] { model_widget, target_modifier.get() });
+        if (event.isControlDown() ||
+            event.isShiftDown())
             jfx_node.arm();
-        }
     }
 
     /** @param respond to button press */
@@ -103,18 +85,6 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         logger.log(Level.FINE, "{0} pressed", model_widget);
         int new_val = (rt_value ^ ((use_bit < 0) ? 1 : (1 << use_bit)) );
         toolkit.fireWrite(model_widget, new_val);
-    }
-
-    /** @param action Action that the user invoked */
-    private void handleAction(ActionInfo action)
-    {
-        logger.log(Level.FINE, "{0} pressed", model_widget);
-        if (action instanceof OpenDisplayActionInfo  &&  target_modifier.isPresent())
-        {
-            final OpenDisplayActionInfo orig = (OpenDisplayActionInfo) action;
-            action = new OpenDisplayActionInfo(orig.getDescription(), orig.getFile(), orig.getMacros(), target_modifier.get());
-        }
-        toolkit.fireAction(model_widget, action);
     }
 
     @Override
