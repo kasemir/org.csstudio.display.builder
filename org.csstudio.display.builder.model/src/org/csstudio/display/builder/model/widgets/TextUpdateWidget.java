@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
@@ -19,7 +20,10 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
@@ -76,6 +80,14 @@ public class TextUpdateWidget extends VisibleWidget
             {
                 TextUpdateWidget text_widget = (TextUpdateWidget)widget;
                 TextUpdateWidget.readLegacyFormat(xml, text_widget.format, text_widget.precision, text_widget.pv_name);
+
+                // Legacy text update had a "text" property that allowed using
+                // it just like a label - no pv_name.
+                // Some scripts would even update the 'text' concurrent with a pv_name...
+                final Optional<String> text = XMLUtil.getChildString(xml, "text");
+                if (text.isPresent()  &&  text.get().length() > 0  &&
+                    ((MacroizedWidgetProperty<String>) text_widget.behaviorPVName()).getSpecification().isEmpty())
+                    logger.log(Level.WARNING, "Replace with Label: " + text_widget + " has 'text' but no 'pv_name'");
             }
             return true;
         }
