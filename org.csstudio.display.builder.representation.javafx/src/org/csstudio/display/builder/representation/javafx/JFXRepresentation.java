@@ -523,17 +523,24 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         @Override
         public Boolean get() throws InterruptedException, ExecutionException
         {
-            // TODO Wait
-            return null;
+            while (! isDone())
+                Thread.sleep(100);
+            return !isCancelled();
         }
 
         @Override
-        public Boolean get(long timeout, TimeUnit unit)
+        public Boolean get(final long timeout, final TimeUnit unit)
                 throws InterruptedException, ExecutionException,
                 TimeoutException
         {
-            // TODO Wait
-            return null;
+            final long end = System.currentTimeMillis() + unit.toMillis(timeout);
+            while (! isDone())
+            {
+                Thread.sleep(100);
+                if (System.currentTimeMillis() >= end)
+                    throw new TimeoutException("Timeout for " + this);
+            }
+            return !isCancelled();
         }
 
         @Override
