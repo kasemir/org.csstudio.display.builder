@@ -8,6 +8,8 @@
 package org.csstudio.display.builder.representation.swt;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -170,5 +172,12 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     {
         logger.log(Level.WARNING, "showSaveAsDialog('" + initial_value + "') is not implemented");
         return null;
+    }
+
+    @Override
+    public Future<Boolean> playAudio(final String url)
+    {
+        logger.log(Level.WARNING, "playAudio('" + url + "') is not implemented");
+        return CompletableFuture.completedFuture(false);
     }
 }

@@ -62,7 +62,11 @@ Development Details
    define target that's suitable for CS-Studio development.
    For example, use the current IDE and add a "Directory" pointing to a CSS product's `plugins/` directory.
  * In product start config, add VM options
-   `-Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`
+   `-Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`.
+   If you then get the startup error "ENTRY org.eclipse.osgi .. MESSAGE Bundle org.eclipse.fx.osgi not found",
+   assert that the org.eclipse.osgi and org.eclipse.fx.osgi plugin jar files reside
+   in the same directory
+   (https://www.eclipse.org/forums/index.php/t/757375).
  * Some demos may use PVs from an EPICS `softIoc` for `org.csstudio.display.builder.runtime.test/examples/demo.db`
 
 ### Source Import into IDE

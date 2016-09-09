@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import java.util.List;
+
 import javax.xml.stream.XMLStreamWriter;
 
 import org.csstudio.display.builder.model.Widget;
@@ -28,6 +30,9 @@ import org.w3c.dom.Element;
  *  If the color is not known by name, the RGB data from the saved config
  *  is used, but the color still keeps its name so that it can be saved
  *  with that name and later loaded as a known color.
+ *
+ *  <p>Property allows writing as {@link WidgetColor} but also
+ *  as list of red, green, blue integers 0-255.
  *
  *  @author Kay Kasemir
  */
@@ -52,6 +57,16 @@ public class ColorWidgetProperty extends WidgetProperty<WidgetColor>
     {
         if (value instanceof WidgetColor)
             setValue( (WidgetColor) value);
+        else if (value instanceof List)
+        {
+            final List<?> components = (List<?>) value;
+            if (components.size() != 3  ||  ! (components.get(0) instanceof Number))
+                throw new IllegalArgumentException("Expect list of [ red, green, blue ] values 0..255");
+            final int red = ((Number) components.get(0)).intValue();
+            final int green = ((Number) components.get(1)).intValue();
+            final int blue = ((Number) components.get(2)).intValue();
+            setValue(new WidgetColor(red, green, blue));
+        }
         else
             throw new IllegalArgumentException(String.valueOf(value));
     }
