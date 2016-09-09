@@ -1,5 +1,6 @@
 package org.csstudio.display.builder.runtime.script;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -276,31 +277,46 @@ public class ScriptUtil
 
     /** Play audio
      *
-     *  <p>Detailed behavior is undefined.
-     *  Starts playing the audio file,
-     *  currently without an API to determine if the audio
-     *  has completed nor a way to abort.
-     *  Also unclear what happens when starting multiple
-     *  audio playbacks.
+     *  <p>Audio file can be a file
+     *  in the same directory as the display,
+     *  a workspace path if running under RCP,
+     *  an absolute file system path,
+     *  or a http URL.
+     *
+     *  <p>Result can be used to await end of playback via `get()`,
+     *  to poll via 'isDone()',
+     *  or to `cancel(true)` the playback.
+     *  Caller should keep a reference to the future until
+     *  and of playback, because otherwise garbage collection
+     *  can end the playback.
      *
      *  @param widget Widget, used to coordinate with toolkit
-     *  @param url URL for the audio. At least "file://.." should be supported.
-     *  @return Future that can be used to await end of playback via `get()`,
-     *          to poll via 'isDone()',
-     *          or to `cancel(true)` the playback.
-     *          Caller should keep a reference to the future until
-     *          and of playback, because otherwise garbage collection
-     *          can end the playback.
+     *  @param audio_file Audio file
+     *  @return Handle for controlling the playback
      */
-    public static Future<Boolean> playAudio(final Widget widget, final String url)
+    public static Future<Boolean> playAudio(final Widget widget, final String audio_file)
     {
         try
         {
+            final DisplayModel widget_model = widget.getDisplayModel();
+            final String display_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+            final String resolved = ModelResourceUtil.resolveResource(display_file, audio_file);
+            String url;
+            if (resolved.startsWith("http:") || resolved.startsWith("https:"))
+                url = resolved;
+            else
+            {
+                final String local = ModelResourceUtil.getLocalPath(resolved);
+                if (local != null)
+                    url = new File(local).toURI().toString();
+                else
+                    url = new File(resolved).toURI().toString();
+            }
             return ToolkitRepresentation.getToolkit(widget.getDisplayModel()).playAudio(url);
         }
         catch (Exception ex)
         {
-            logger.log(Level.WARNING, "Error playing audio " + url, ex);
+            logger.log(Level.WARNING, "Error playing audio " + audio_file, ex);
         }
         return CompletableFuture.completedFuture(false);
     }

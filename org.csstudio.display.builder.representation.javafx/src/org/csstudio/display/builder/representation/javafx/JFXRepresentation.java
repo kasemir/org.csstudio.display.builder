@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -482,6 +481,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         AudioFuture(final MediaPlayer player)
         {
             this.player = player;
+            // Player by default just stays in "PLAYING" state
+            player.setOnEndOfMedia(() -> player.stop());
             player.play();
             logger.log(Level.INFO, "Playing " + this);
         }
@@ -537,6 +538,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
             while (! isDone())
             {
                 Thread.sleep(100);
+                System.out.println(player.getStatus());
                 if (System.currentTimeMillis() >= end)
                     throw new TimeoutException("Timeout for " + this);
             }
@@ -562,11 +564,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public Future<Boolean> playAudio(String url)
+    public Future<Boolean> playAudio(final String url)
     {
-        if (url.startsWith("file://"))
-            url = new File(url.substring(7)).toURI().toString();
-
         final Media sound = new Media(url);
         final MediaPlayer player = new MediaPlayer(sound);
         return new AudioFuture(player);
