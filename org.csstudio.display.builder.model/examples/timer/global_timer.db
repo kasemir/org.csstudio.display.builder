@@ -1,0 +1,26 @@
+# IOC for 'global' timer
+
+record(ai, "max_time")
+{
+    field(INP, "60")
+    field(EGU, "secs")
+    field(PINI, "YES")
+}
+
+record(bi, "run")
+{
+    field(ZNAM, "Stop")
+    field(ONAM, "Run")
+    field(INP,  "0")
+    field(PINI, "YES")
+}
+
+record(calc, "secs")
+{
+    field(SCAN, "1 second")
+    field(INPA, "max_time")
+    field(INPB, "run")
+    field(INPC, "secs")
+    field(CALC, "B?(C > 0?C-1:0):A")
+    field(PREC, "1")
+}
