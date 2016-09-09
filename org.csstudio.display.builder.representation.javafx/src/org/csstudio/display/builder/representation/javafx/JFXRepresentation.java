@@ -330,7 +330,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
 
     @Override
     public void execute(final Runnable command)
-    {
+    {   // If already on app thread, execute right away
         if (Platform.isFxApplicationThread())
             command.run();
         else

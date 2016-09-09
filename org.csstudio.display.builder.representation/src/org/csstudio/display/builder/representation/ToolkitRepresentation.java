@@ -333,6 +333,10 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     }
 
     /** Execute command in toolkit's UI thread.
+     *
+     *  <p>If already on the UI thread, command
+     *  may execute right away.
+     *
      *  @param command Command to execute
      */
     @Override

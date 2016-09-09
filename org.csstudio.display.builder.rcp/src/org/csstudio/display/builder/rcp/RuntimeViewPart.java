@@ -297,9 +297,15 @@ public class RuntimeViewPart extends ViewPart
      */
     public void loadDisplayFile(final DisplayInfo info)
     {
-        showMessage("Loading " + info);
         // If already executing another display, shut it down
         disposeModel();
+
+        // Now that old model is no longer represented,
+        // show info.
+        // Showing this info before disposeModel()
+        // would result in old representation not being able
+        // to traverse its expected widget tree
+        showMessage("Loading " + info);
 
         // Note the path & macros, then
         display_info = Optional.of(info);
