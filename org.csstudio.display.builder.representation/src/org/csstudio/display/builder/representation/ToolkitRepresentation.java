@@ -414,6 +414,13 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     abstract public String showSaveAsDialog(Widget widget, final String initial_value);
 
+    /** Play audio
+     *  @param url URL for the audio. At least "file://.." should be supported.
+     *  @return Future to await end of playback or cancel.
+     *          Boolean value will indicate successful playback
+     */
+    abstract public Future<Boolean> playAudio(final String url);
+
     /** Execute callable in toolkit's UI thread.
      *  @param <T> Type to return
      *  @param callable Callable to execute

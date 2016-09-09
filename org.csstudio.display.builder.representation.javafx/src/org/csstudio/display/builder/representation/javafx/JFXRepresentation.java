@@ -7,12 +7,17 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -99,6 +104,9 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaPlayer.Status;
 
 /** Represent model items in JavaFX toolkit
  *
@@ -465,5 +473,95 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         // Could provide a file-system based dialog here for use without RCP/workspace.
         logger.log(Level.WARNING, "showSaveAsDialog('" + initial_value + "') is not implemented");
         return null;
+    }
+
+    private static class AudioFuture implements Future<Boolean>
+    {
+        private volatile MediaPlayer player;
+
+        AudioFuture(final MediaPlayer player)
+        {
+            this.player = player;
+            player.play();
+            logger.log(Level.INFO, "Playing " + this);
+        }
+
+        @Override
+        public boolean isDone()
+        {
+            switch (player.getStatus())
+            {
+            case UNKNOWN:
+            case READY:
+            case PLAYING:
+            case PAUSED:
+            case STALLED:
+                return false;
+            case HALTED:
+            case STOPPED:
+            case DISPOSED:
+            default:
+                return true;
+            }
+        }
+
+        @Override
+        public boolean cancel(boolean mayInterruptIfRunning)
+        {
+            logger.log(Level.INFO, "Stopping " + this);
+            final boolean stopped = !isDone();
+            player.stop();
+            return stopped;
+        }
+
+        @Override
+        public boolean isCancelled()
+        {
+            return player.getStatus() == Status.STOPPED;
+        }
+
+        @Override
+        public Boolean get() throws InterruptedException, ExecutionException
+        {
+            // TODO Wait
+            return null;
+        }
+
+        @Override
+        public Boolean get(long timeout, TimeUnit unit)
+                throws InterruptedException, ExecutionException,
+                TimeoutException
+        {
+            // TODO Wait
+            return null;
+        }
+
+        @Override
+        protected void finalize() throws Throwable
+        {
+            logger.log(Level.INFO, "Disposing " + this);
+            player.dispose();
+            player = null;
+        }
+
+        @Override
+        public String toString()
+        {
+            final MediaPlayer copy = player;
+            if (copy == null)
+                return "Disposed autio player";
+            return "Audio player for " + player.getMedia().getSource() + " (" + player.getStatus() + ")";
+        }
+    }
+
+    @Override
+    public Future<Boolean> playAudio(String url)
+    {
+        if (url.startsWith("file://"))
+            url = new File(url.substring(7)).toURI().toString();
+
+        final Media sound = new Media(url);
+        final MediaPlayer player = new MediaPlayer(sound);
+        return new AudioFuture(player);
     }
 }

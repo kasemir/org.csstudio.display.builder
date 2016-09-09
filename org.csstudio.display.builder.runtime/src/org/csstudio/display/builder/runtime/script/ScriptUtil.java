@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -270,6 +272,37 @@ public class ScriptUtil
             logger.log(Level.WARNING, "Error in save-as dialog for " + initial_value, ex);
         }
         return null;
+    }
+
+    /** Play audio
+     *
+     *  <p>Detailed behavior is undefined.
+     *  Starts playing the audio file,
+     *  currently without an API to determine if the audio
+     *  has completed nor a way to abort.
+     *  Also unclear what happens when starting multiple
+     *  audio playbacks.
+     *
+     *  @param widget Widget, used to coordinate with toolkit
+     *  @param url URL for the audio. At least "file://.." should be supported.
+     *  @return Future that can be used to await end of playback via `get()`,
+     *          to poll via 'isDone()',
+     *          or to `cancel(true)` the playback.
+     *          Caller should keep a reference to the future until
+     *          and of playback, because otherwise garbage collection
+     *          can end the playback.
+     */
+    public static Future<Boolean> playAudio(final Widget widget, final String url)
+    {
+        try
+        {
+            return ToolkitRepresentation.getToolkit(widget.getDisplayModel()).playAudio(url);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Error playing audio " + url, ex);
+        }
+        return CompletableFuture.completedFuture(false);
     }
 
     // ==================
