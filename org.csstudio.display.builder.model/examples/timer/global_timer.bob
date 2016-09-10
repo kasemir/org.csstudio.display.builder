@@ -12,7 +12,7 @@ from org.csstudio.display.builder.runtime.script import PVUtil
   <widget type="arc" version="2.0.0">
     <name>Arc</name>
     <width>950</width>
-    <height>389</height>
+    <height>570</height>
     <background_color>
       <color name="OK" red="0" green="255" blue="0">
       </color>
@@ -27,13 +27,14 @@ from org.csstudio.display.builder.runtime.script import PVUtil
       <script file="global_timer.py">
         <pv_name>secs</pv_name>
         <pv_name trigger="false">max_time</pv_name>
+        <pv_name trigger="false">loc://sound(0)</pv_name>
       </script>
     </scripts>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button</name>
-    <x>710</x>
-    <y>460</y>
+    <x>730</x>
+    <y>590</y>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
@@ -53,12 +54,16 @@ from org.csstudio.display.builder.runtime.script import PVUtil
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_1</name>
-    <x>820</x>
-    <y>460</y>
+    <x>840</x>
+    <y>590</y>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
     </font>
+    <background_color>
+      <color name="Write_Background" red="128" green="255" blue="255">
+      </color>
+    </background_color>
     <actions>
       <action type="write_pv">
         <pv_name>$(pv_name)</pv_name>
@@ -70,8 +75,8 @@ from org.csstudio.display.builder.runtime.script import PVUtil
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_2</name>
-    <x>30</x>
-    <y>460</y>
+    <x>270</x>
+    <y>593</y>
     <actions>
       <action type="write_pv">
         <pv_name>$(pv_name)</pv_name>
@@ -83,8 +88,8 @@ from org.csstudio.display.builder.runtime.script import PVUtil
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_3</name>
-    <x>250</x>
-    <y>460</y>
+    <x>490</x>
+    <y>593</y>
     <actions>
       <action type="write_pv">
         <pv_name>$(pv_name)</pv_name>
@@ -96,8 +101,8 @@ from org.csstudio.display.builder.runtime.script import PVUtil
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_4</name>
-    <x>140</x>
-    <y>460</y>
+    <x>380</x>
+    <y>593</y>
     <actions>
       <action type="write_pv">
         <pv_name>$(pv_name)</pv_name>
@@ -109,8 +114,8 @@ from org.csstudio.display.builder.runtime.script import PVUtil
   </widget>
   <widget type="label" version="2.0.0">
     <name>Text Update</name>
-    <x>420</x>
-    <y>240</y>
+    <x>410</x>
+    <y>370</y>
     <width>135</width>
     <height>78</height>
     <text>00:00</text>
@@ -140,9 +145,16 @@ widget.setPropertyValue("text",  "%02d:%02d" % (m, s) )]]></text>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry</name>
-    <x>373</x>
-    <y>457</y>
+    <x>613</x>
+    <y>590</y>
     <height>33</height>
     <pv_name>max_time</pv_name>
+  </widget>
+  <widget type="checkbox" version="2.0.0">
+    <name>CheckBox</name>
+    <x>50</x>
+    <y>593</y>
+    <label>Sound</label>
+    <pv_name>loc://sound(0)</pv_name>
   </widget>
 </display>
