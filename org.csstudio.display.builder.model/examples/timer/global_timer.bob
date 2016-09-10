@@ -11,7 +11,7 @@ from org.csstudio.display.builder.runtime.script import PVUtil
   </scripts>
   <widget type="arc" version="2.0.0">
     <name>Arc</name>
-    <width>950</width>
+    <width>570</width>
     <height>570</height>
     <background_color>
       <color name="OK" red="0" green="255" blue="0">
@@ -33,8 +33,8 @@ from org.csstudio.display.builder.runtime.script import PVUtil
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button</name>
-    <x>730</x>
-    <y>590</y>
+    <x>613</x>
+    <y>50</y>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
@@ -54,8 +54,8 @@ from org.csstudio.display.builder.runtime.script import PVUtil
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_1</name>
-    <x>840</x>
-    <y>590</y>
+    <x>613</x>
+    <y>110</y>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
@@ -75,8 +75,8 @@ from org.csstudio.display.builder.runtime.script import PVUtil
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_2</name>
-    <x>270</x>
-    <y>593</y>
+    <x>613</x>
+    <y>330</y>
     <actions>
       <action type="write_pv">
         <pv_name>$(pv_name)</pv_name>
@@ -88,8 +88,8 @@ from org.csstudio.display.builder.runtime.script import PVUtil
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_3</name>
-    <x>490</x>
-    <y>593</y>
+    <x>613</x>
+    <y>430</y>
     <actions>
       <action type="write_pv">
         <pv_name>$(pv_name)</pv_name>
@@ -101,8 +101,8 @@ from org.csstudio.display.builder.runtime.script import PVUtil
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_4</name>
-    <x>380</x>
-    <y>593</y>
+    <x>613</x>
+    <y>380</y>
     <actions>
       <action type="write_pv">
         <pv_name>$(pv_name)</pv_name>
@@ -146,15 +146,23 @@ widget.setPropertyValue("text",  "%02d:%02d" % (m, s) )]]></text>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry</name>
     <x>613</x>
-    <y>590</y>
+    <y>480</y>
     <height>33</height>
     <pv_name>max_time</pv_name>
   </widget>
   <widget type="checkbox" version="2.0.0">
     <name>CheckBox</name>
-    <x>50</x>
-    <y>593</y>
-    <label>Sound</label>
+    <x>613</x>
+    <y>540</y>
+    <width>180</width>
+    <height>30</height>
+    <label>Audible Enhancement</label>
     <pv_name>loc://sound(0)</pv_name>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_1</name>
+    <x>613</x>
+    <y>10</y>
+    <pv_name>run</pv_name>
   </widget>
 </display>
