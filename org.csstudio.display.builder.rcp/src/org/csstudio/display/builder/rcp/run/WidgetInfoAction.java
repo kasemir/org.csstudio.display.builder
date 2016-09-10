@@ -38,9 +38,9 @@ public class WidgetInfoAction extends Action
     public void runWithEvent(final Event event)
     {
         final WidgetRuntime<?> runtime = WidgetRuntime.ofWidget(widget);
-        final List<WidgetInfoDialog.NameValue> pvs = new ArrayList<>();
+        final List<WidgetInfoDialog.NameStateValue> pvs = new ArrayList<>();
         for (RuntimePV pv : runtime.getPVs())
-            pvs.add(new WidgetInfoDialog.NameValue(pv.getName(), pv.read()));
+            pvs.add(new WidgetInfoDialog.NameStateValue(pv.getName(), pv.isReadonly() ? "read-only" : "writable", pv.read()));
         final WidgetInfoDialog dialog = new WidgetInfoDialog(widget, pvs);
         if (event.display != null)
         {

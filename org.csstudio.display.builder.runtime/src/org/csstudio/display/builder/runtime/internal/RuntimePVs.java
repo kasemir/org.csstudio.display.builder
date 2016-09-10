@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorEnabled;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -18,7 +20,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.csstudio.display.builder.runtime.pv.RuntimePVListener;
@@ -164,7 +165,7 @@ public class RuntimePVs
      */
     private void updateWriteAccess(final boolean have_write_access)
     {
-        final Optional<WidgetProperty<Boolean>> enabled = widget.checkProperty(CommonWidgetProperties.behaviorEnabled);
+        final Optional<WidgetProperty<Boolean>> enabled = widget.checkProperty(behaviorEnabled);
         if (enabled.isPresent())
             enabled.get().setValue(have_write_access);
     }

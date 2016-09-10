@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
@@ -27,7 +28,6 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.ActionInfo;
-import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.RuleInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
@@ -163,7 +163,7 @@ public class WidgetRuntime<MW extends Widget>
                 // For widgets that can be 'enabled',
                 // update the enablement based on write access
                 // to the primary PV
-                addPV(pv, widget.checkProperty(CommonWidgetProperties.behaviorEnabled).isPresent());
+                addPV(pv, widget.checkProperty(behaviorEnabled).isPresent());
             }
             catch (Exception ex)
             {
