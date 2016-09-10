@@ -192,12 +192,20 @@ public class WidgetRuntime<MW extends Widget>
     /** @param pv PV where widget should track the connection state */
     public void addPV(final RuntimePV pv)
     {
+        addPV(pv, false);
+    }
+
+    /** @param pv PV where widget should track the connection state
+     *  @param need_write_access Does widget need write access to this PV?
+     */
+    public void addPV(final RuntimePV pv, final boolean need_write_access)
+    {
         synchronized (this)
         {
             if (runtime_pvs == null)
                 runtime_pvs = new RuntimePVs(widget);
         }
-        runtime_pvs.addPV(pv);
+        runtime_pvs.addPV(pv, need_write_access);
     }
 
     /** @param pv PV where widget should no longer track the connection state */
@@ -267,7 +275,7 @@ public class WidgetRuntime<MW extends Widget>
                     final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
                     final RuntimePV pv = PVFactory.getPV(expanded);
                     action_pvs.add(pv);
-                    addPV(pv);
+                    addPV(pv, true);
                 }
             }
             if (action_pvs.size() > 0)

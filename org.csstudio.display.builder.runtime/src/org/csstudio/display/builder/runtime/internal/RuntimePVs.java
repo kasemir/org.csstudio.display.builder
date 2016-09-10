@@ -11,11 +11,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.csstudio.display.builder.runtime.pv.RuntimePVListener;
@@ -42,6 +45,7 @@ public class RuntimePVs
     private final ConcurrentMap<RuntimePV, PVInfo> pvs = new ConcurrentHashMap<>();
 
     /** Listener for tracking connection state of individual PV.
+     *  Can optionally also check for write access.
      *  Reference counted because widget may use the same PV
      *  multiple times, but connection state is only tracked once.
      */
@@ -49,6 +53,7 @@ public class RuntimePVs
     {
         private final AtomicInteger refs = new AtomicInteger();
         private volatile boolean connected = false;
+        private volatile boolean need_write_access = false;
 
         public int addReference()
         {
@@ -60,9 +65,21 @@ public class RuntimePVs
             return refs.decrementAndGet();
         }
 
+        public void trackWriteAccess()
+        {
+            need_write_access = true;
+        }
+
         public boolean isConnected()
         {
             return connected;
+        }
+
+        @Override
+        public void permissionsChanged(final RuntimePV pv, final boolean readonly)
+        {
+            if (need_write_access)
+                updateWriteAccess(! readonly);
         }
 
         @Override
@@ -88,8 +105,10 @@ public class RuntimePVs
         this.widget = widget;
     }
 
-    /** @param pv PV to track */
-    public void addPV(final RuntimePV pv)
+    /** @param pv PV to track
+     *  @param need_write_access Does widget need write access to this PV?
+     */
+    public void addPV(final RuntimePV pv, final boolean need_write_access)
     {
         final PVInfo info = pvs.computeIfAbsent(pv, (p) -> new PVInfo());
         if (info.addReference() == 1)
@@ -99,6 +118,8 @@ public class RuntimePVs
                 ((VisibleWidget)widget).runtimeConnected().setValue(false);
             pv.addListener(info);
         }
+        if (need_write_access)
+            info.trackWriteAccess();
     }
 
     /** @param pv PV to no longer track */
@@ -136,6 +157,16 @@ public class RuntimePVs
 
         if (widget instanceof VisibleWidget)
             ((VisibleWidget)widget).runtimeConnected().setValue(all_connected);
+    }
+
+    /** Update write access indication of the widget
+     *  @param have_write_access <code>true</code> if widget has write access
+     */
+    private void updateWriteAccess(final boolean have_write_access)
+    {
+        final Optional<WidgetProperty<Boolean>> enabled = widget.checkProperty(CommonWidgetProperties.behaviorEnabled);
+        if (enabled.isPresent())
+            enabled.get().setValue(have_write_access);
     }
 
     /** @return All PVs of this widget */
