@@ -120,7 +120,11 @@ public class RuntimePVs
             pv.addListener(info);
         }
         if (need_write_access)
+        {
             info.trackWriteAccess();
+            // Initial update
+            info.permissionsChanged(pv, pv.isReadonly());
+        }
     }
 
     /** @param pv PV to no longer track */
