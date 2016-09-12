@@ -516,7 +516,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
             logger.log(Level.INFO, "Stopping " + this);
             final boolean stopped = !isDone();
 
-            // TODO On Linux, playback doesn't work. Just stays in PLAYING state.
+            // TODO On Linux, playback of WAV doesn't work. Just stays in PLAYING state.
             // Worse: player.stop() as well as player.dispose() hang
             execute(() ->
             {
@@ -584,9 +584,16 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         // Create on UI thread
         execute(() ->
         {
-            final Media sound = new Media(url);
-            final MediaPlayer player = new MediaPlayer(sound);
-            result.complete(new AudioFuture(player));
+            try
+            {
+                final Media sound = new Media(url);
+                final MediaPlayer player = new MediaPlayer(sound);
+                result.complete(new AudioFuture(player));
+            }
+            catch (Exception ex)
+            {
+                result.completeExceptionally(ex);
+            }
         });
 
         try
@@ -596,7 +603,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         catch (Exception ex)
         {
             logger.log(Level.WARNING, "Audio playback error for " + url, ex);
-
         }
         return CompletableFuture.completedFuture(false);
     }
