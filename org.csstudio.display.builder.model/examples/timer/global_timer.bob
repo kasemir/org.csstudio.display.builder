@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Timer</name>
+  <height>610</height>
   <scripts>
     <script file="EmbeddedPy">
       <text><![CDATA[# Embedded python script
