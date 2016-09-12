@@ -47,15 +47,16 @@
     -fx-font-weight: bold;
     -fx-background-color: darkslateblue ;
     -fx-padding: 2 5 2 5;
-    -fx-background-radius: 2;
+    -fx-background-radius: 0;
 }
 
 .palette_category > .title 
 {
     -fx-font-weight: bold;
-    -fx-background-color: lightsalmon;
+    -fx-font-size: 10px;
+    -fx-background-color: moccasin;
     -fx-padding: 2 5 2 5;
-    -fx-background-radius: 2;
+	-fx-background-radius: 0;
 }
 
 .palette_group
@@ -67,25 +68,34 @@
 .property_category
 {
     -fx-font-weight: bold;
-    -fx-background-color: lightsalmon;
+    -fx-font-size: 10px;
+    -fx-background-color: moccasin;
     -fx-padding: 2 5 2 5;
-    -fx-background-radius: 2;
+    -fx-background-radius: 0;
 }
 
 .structure_property_name
 {
     -fx-font-weight: bold;
+    -fx-font-size: 10px;
     -fx-background-color: ivory;
     -fx-padding: 2 5 2 5;
-    -fx-background-radius: 2;
+    -fx-background-radius: 0;
 }
 
 .array_property_name
 {
-    -fx-font-weight: bold;
+    -fx-background-color: lemonchiffon; 
+    -fx-padding: 2 5 2 5;
+    -fx-background-radius: 0;
+}
+
+.array_property_end
+{
+    -fx-font-size: 3px;
     -fx-background-color: lemonchiffon;
     -fx-padding: 2 5 2 5;
-    -fx-background-radius: 2;
+    -fx-background-radius: 0;
 }
 
 .array_property_elements
@@ -101,6 +111,12 @@
 
 .property_value
 {
+}
+
+.color_icon
+{
+	-fx-stroke: black;
+	-fx-stroke-width: 1;
 }
 
 /* WidgetTree: Currently selected widgets */

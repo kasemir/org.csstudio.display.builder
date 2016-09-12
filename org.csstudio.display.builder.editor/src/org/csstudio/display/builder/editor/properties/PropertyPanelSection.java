@@ -47,6 +47,7 @@ import javafx.scene.layout.Priority;
 
 /** Section of Property panel
  *  @author Kay Kasemir
+ *  @author Claudio Rosati
  */
 @SuppressWarnings("nls")
 public class PropertyPanelSection extends GridPane
@@ -90,7 +91,7 @@ public class PropertyPanelSection extends GridPane
                 add(header, 0, getNextGridRow(), 2, 1);
             }
 
-            this.createPropertyUI(undo, property, other);
+            this.createPropertyUI(undo, property, other, 0);
         }
     }
 
@@ -238,10 +239,13 @@ public class PropertyPanelSection extends GridPane
     /** Add UI items for displaying or editing property
      *  @param property Property (on primary widget)
      *  @param other Zero or more additional widgets that have same type of property
+     *  @param structureIndex Index of the array structure (element) being added. It is meaningful
+     *                        only for properties instance of {@link StructuredWidgetProperty}.
      */
     private void createPropertyUI(final UndoableActionManager undo,
             final WidgetProperty<?> property,
-            final List<Widget> other)
+            final List<Widget> other,
+            final int structureIndex)
     {
         // Skip runtime properties
         if (property.getCategory() == WidgetPropertyCategory.RUNTIME)
@@ -301,14 +305,20 @@ public class PropertyPanelSection extends GridPane
         }
         else if (property instanceof StructuredWidgetProperty)
         {
+
             final StructuredWidgetProperty struct = (StructuredWidgetProperty) property;
-            final Label header = new Label(struct.getDescription());
+            final Label header = new Label(struct.getDescription() + ( structureIndex > 0 ? " " + String.valueOf(1 + structureIndex) : ""));
+
             header.getStyleClass().add("structure_property_name");
             header.setMaxWidth(Double.MAX_VALUE);
+
             add(header, 0, getNextGridRow(), 2, 1);
+
             for (WidgetProperty<?> elem : struct.getValue())
-                this.createPropertyUI(undo, elem, other);
+                this.createPropertyUI(undo, elem, other, -1);
+
             return;
+
         }
         else if (property instanceof ArrayWidgetProperty)
         {
@@ -329,14 +339,21 @@ public class PropertyPanelSection extends GridPane
             add(spinner, 1, row);
 
             // array elements
-            for (WidgetProperty<?> elem : array.getValue())
-                this.createPropertyUI(undo, elem, other);
+            List<WidgetProperty<?>> wpeList = array.getValue();
+
+            for ( int i = 0; i < wpeList.size(); i++ ) {
+
+                WidgetProperty<?> elem = wpeList.get(i);
+
+                this.createPropertyUI(undo, elem, other, i);
+
+            }
 
             // mark end of array
             final Label endlabel = new Label();
             endlabel.setMaxWidth(Double.MAX_VALUE);
             GridPane.setHgrow(endlabel, Priority.ALWAYS);
-            endlabel.getStyleClass().add("array_property_name");
+            endlabel.getStyleClass().add("array_property_end");
             add(endlabel, 0, getNextGridRow(), 2, 1);
 
             return;

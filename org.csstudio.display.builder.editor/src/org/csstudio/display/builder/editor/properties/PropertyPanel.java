@@ -19,12 +19,11 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.VBox;
 
 /** Property UI
  *  @author Kay Kasemir
+ *  @author Claudio Rosati
  */
 @SuppressWarnings("nls")
 public class PropertyPanel extends ScrollPane
@@ -39,12 +38,9 @@ public class PropertyPanel extends ScrollPane
     {
         this.editor = editor;
 
-        final Label header = new Label("Properties");
-        header.setMaxWidth(Double.MAX_VALUE);
-        header.getStyleClass().add("header");
-
-        final VBox box = new VBox(header, section);
-        setContent(box);
+        setFitToWidth(true);
+        setContent(section);
+        setMinHeight(0);
 
         // Track currently selected widgets
         editor.getWidgetSelectionHandler().addListener(this::setSelectedWidgets);

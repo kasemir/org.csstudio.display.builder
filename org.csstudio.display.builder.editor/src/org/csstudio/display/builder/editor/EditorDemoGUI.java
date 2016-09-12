@@ -31,6 +31,7 @@ import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -44,6 +45,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 /** All the editor components for standalone test
@@ -57,6 +59,7 @@ import javafx.stage.Stage;
  *  </pre>
  *
  *  @author Kay Kasemir
+ *  @author Claudio Rosati
  */
 @SuppressWarnings("nls")
 public class EditorDemoGUI
@@ -113,7 +116,22 @@ public class EditorDemoGUI
         final Label status = new Label("Status");
 
         final SplitPane center = new SplitPane();
-        center.getItems().addAll(tree.create(), editor.create(), property_panel);
+        final Node widgetsTree = tree.create();
+        final Label widgetsHeader = new Label("Widgets");
+
+        widgetsHeader.setMaxWidth(Double.MAX_VALUE);
+        widgetsHeader.getStyleClass().add("header");
+
+        ((VBox) widgetsTree).getChildren().add(0, widgetsHeader);
+
+        final Label propertiesHeader = new Label("Properties");
+
+        propertiesHeader.setMaxWidth(Double.MAX_VALUE);
+        propertiesHeader.getStyleClass().add("header");
+
+        final VBox propertiesBox = new VBox(propertiesHeader, property_panel);
+
+        center.getItems().addAll(widgetsTree, editor.create(), propertiesBox);
         center.setDividerPositions(0.2, 0.8);
 
         final BorderPane toolbar_center_status = new BorderPane();

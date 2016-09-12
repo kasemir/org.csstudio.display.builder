@@ -20,7 +20,6 @@ import org.csstudio.display.builder.model.WidgetFactory;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TitledPane;
@@ -33,6 +32,7 @@ import javafx.scene.layout.VBox;
 
 /** Palette of all available widgets
  *  @author Kay Kasemir
+ *  @author Claudio Rosati
  */
 @SuppressWarnings("nls")
 public class Palette
@@ -42,7 +42,7 @@ public class Palette
     // but since each Button is in a separate TilePane,
     // it's not obvious how to get them to the same size
     // unless that's set to a fixed pixel value.
-    private final static int PREFERRED_WIDTH = 180;
+    private final static int PREFERRED_WIDTH = 160;
 
     private final WidgetSelectionHandler selection;
 
@@ -59,20 +59,17 @@ public class Palette
     {
         final VBox palette = new VBox();
 
-        final Label header = new Label("Palette");
-        header.setMaxWidth(Double.MAX_VALUE);
-        header.getStyleClass().add("header");
-        palette.getChildren().add(header);
-
         final Map<WidgetCategory, Pane> palette_groups = createWidgetCategoryPanes(palette);
         createWidgetEntries(palette_groups);
 
         final ScrollPane palette_scroll = new ScrollPane(palette);
         palette_scroll.setHbarPolicy(ScrollBarPolicy.NEVER);
+        palette_scroll.setFitToWidth(true);
 
         // TODO Determine the correct size for the main node
         // Using 2*PREFERRED_WIDTH was determined by trial and error
-        palette_scroll.setPrefWidth(2*PREFERRED_WIDTH);
+        palette_scroll.setMinWidth(PREFERRED_WIDTH + 12);
+        palette_scroll.setPrefWidth(PREFERRED_WIDTH);
         return palette_scroll;
     }
 
@@ -90,6 +87,8 @@ public class Palette
             palette_group.setPrefColumns(1);
             palette_group.setMaxWidth(Double.MAX_VALUE);
             palette_groups.put(category, palette_group);
+            palette_group.setHgap(2);
+            palette_group.setVgap(2);
             final TitledPane pane = new TitledPane(category.getDescription(), palette_group);
             pane.getStyleClass().add("palette_category");
             parent.getChildren().add(pane);

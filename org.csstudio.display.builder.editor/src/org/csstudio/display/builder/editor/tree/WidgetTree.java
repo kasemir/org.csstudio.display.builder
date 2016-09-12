@@ -45,6 +45,7 @@ import javafx.util.Callback;
 
 /** Tree view of widget hierarchy
  *  @author Kay Kasemir
+ *  @author Claudio Rosati
  */
 @SuppressWarnings("nls")
 public class WidgetTree
@@ -150,16 +151,12 @@ public class WidgetTree
     {
         final VBox box = new VBox();
 
-        final Label header = new Label("Widgets");
-        header.setMaxWidth(Double.MAX_VALUE);
-        header.getStyleClass().add("header");
-
         tree_view.setShowRoot(false);
         tree_view.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tree_view.setCellFactory(cell_factory);
 
         VBox.setVgrow(tree_view, Priority.ALWAYS);
-        box.getChildren().addAll(header, tree_view);
+        box.getChildren().addAll(tree_view);
 
         bindSelections();
 

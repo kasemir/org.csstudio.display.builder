@@ -18,6 +18,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeLineJoin;
 
 /** Property panel field for a {@link WidgetColor}
  *
@@ -45,8 +48,15 @@ public class WidgetColorPropertyField extends HBox
     public void setColor(final WidgetColor color)
     {
         final GraphicsContext gc = blob.getGraphicsContext2D();
+
         gc.setFill(JFXUtil.convert(color));
         gc.fillRect(0, 0, 16, 16);
+
+        gc.setLineCap(StrokeLineCap.SQUARE);
+        gc.setLineJoin(StrokeLineJoin.MITER);
+        gc.setLineWidth(1.75);
+        gc.setStroke(Color.BLACK);
+        gc.strokeRect(0, 0, 16, 16);
 
         button.setText(String.valueOf(color));
     }
