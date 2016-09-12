@@ -113,6 +113,12 @@
 {
 }
 
+.color_icon
+{
+	-fx-stroke: black;
+	-fx-stroke-width: 1;
+}
+
 /* WidgetTree: Currently selected widgets */
 .tree-cell:selected
 {
