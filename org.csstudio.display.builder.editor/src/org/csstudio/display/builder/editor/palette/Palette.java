@@ -42,7 +42,7 @@ public class Palette
     // but since each Button is in a separate TilePane,
     // it's not obvious how to get them to the same size
     // unless that's set to a fixed pixel value.
-    private final static int PREFERRED_WIDTH = 180;
+    private final static int PREFERRED_WIDTH = 160;
 
     private final WidgetSelectionHandler selection;
 
@@ -68,7 +68,8 @@ public class Palette
 
         // TODO Determine the correct size for the main node
         // Using 2*PREFERRED_WIDTH was determined by trial and error
-        palette_scroll.setPrefWidth(2*PREFERRED_WIDTH);
+        palette_scroll.setMinWidth(PREFERRED_WIDTH + 12);
+        palette_scroll.setPrefWidth(PREFERRED_WIDTH);
         return palette_scroll;
     }
 
@@ -86,6 +87,8 @@ public class Palette
             palette_group.setPrefColumns(1);
             palette_group.setMaxWidth(Double.MAX_VALUE);
             palette_groups.put(category, palette_group);
+            palette_group.setHgap(2);
+            palette_group.setVgap(2);
             final TitledPane pane = new TitledPane(category.getDescription(), palette_group);
             pane.getStyleClass().add("palette_category");
             parent.getChildren().add(pane);

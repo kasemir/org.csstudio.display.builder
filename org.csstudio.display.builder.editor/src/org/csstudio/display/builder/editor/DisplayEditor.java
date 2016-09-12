@@ -149,6 +149,8 @@ public class DisplayEditor
 
         root = new SplitPane();
         root.getItems().addAll(model_root, palette_node);
+        root.setDividerPositions(1);
+
         SplitPane.setResizableWithParent(palette_node, false);
 
         edit_tools.getChildren().addAll(selection_tracker);
