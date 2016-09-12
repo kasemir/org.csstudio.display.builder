@@ -20,7 +20,6 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.VBox;
 
 /** Property UI
  *  @author Kay Kasemir
@@ -40,9 +39,8 @@ public class PropertyPanel extends ScrollPane
         this.editor = editor;
 
         setFitToWidth(true);
-
-        final VBox box = new VBox(section);
-        setContent(box);
+        setContent(section);
+        setMinHeight(0);
 
         // Track currently selected widgets
         editor.getWidgetSelectionHandler().addListener(this::setSelectedWidgets);
