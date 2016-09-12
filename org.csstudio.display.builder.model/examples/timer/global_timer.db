@@ -31,6 +31,6 @@ record(calcout, "reset")
     field(CALC, "A<=0")
     field(DOPT, "Use OCAL")
     field(OCAL, "0")
-    field(OUT, "run")
+    field(OUT, "run PP")
     field(OOPT, "Transition To Non-zero")
 }
