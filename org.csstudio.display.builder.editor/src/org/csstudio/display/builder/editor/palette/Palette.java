@@ -20,7 +20,6 @@ import org.csstudio.display.builder.model.WidgetFactory;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TitledPane;
@@ -33,6 +32,7 @@ import javafx.scene.layout.VBox;
 
 /** Palette of all available widgets
  *  @author Kay Kasemir
+ *  @author Claudio Rosati
  */
 @SuppressWarnings("nls")
 public class Palette
@@ -59,16 +59,12 @@ public class Palette
     {
         final VBox palette = new VBox();
 
-        final Label header = new Label("Palette");
-        header.setMaxWidth(Double.MAX_VALUE);
-        header.getStyleClass().add("header");
-        palette.getChildren().add(header);
-
         final Map<WidgetCategory, Pane> palette_groups = createWidgetCategoryPanes(palette);
         createWidgetEntries(palette_groups);
 
         final ScrollPane palette_scroll = new ScrollPane(palette);
         palette_scroll.setHbarPolicy(ScrollBarPolicy.NEVER);
+        palette_scroll.setFitToWidth(true);
 
         // TODO Determine the correct size for the main node
         // Using 2*PREFERRED_WIDTH was determined by trial and error
