@@ -210,11 +210,21 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
         if (dirty_style.checkAndClear())
         {
             final String color = JFXUtil.webRGB(model_widget.displayForegroundColor().getValue());
-            jfx_node.setStyle("-fx-text-fill:" + color);
+            String style = "-fx-text-fill:" + color + ";";
             final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
             jfx_node.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
             jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
-            jfx_node.setDisable(! model_widget.behaviorEnabled().getValue());
+
+            // Don't disable the widget, because that would also remove the
+            // context menu etc.
+            // Just apply a style that matches the disabled look.
+            final boolean enabled = model_widget.behaviorEnabled().getValue();
+            jfx_node.setEditable(enabled);
+            if (! enabled)
+                style += "-fx-opacity: 0.4;";
+
+            jfx_node.setStyle(style);
+
         }
         if (active)
             return;
