@@ -42,14 +42,16 @@ import javafx.scene.image.ImageView;
 @SuppressWarnings("nls")
 public class WidgetInfoDialog extends Dialog<Boolean>
 {
-    public static class NameValue
+    public static class NameStateValue
     {
         public final String name;
+        public final String state;
         public final VType value;
 
-        public NameValue(final String name, final VType value)
+        public NameStateValue(final String name, final String state, final VType value)
         {
             this.name = name;
+            this.state = state;
             this.value = value;
         }
     }
@@ -58,7 +60,7 @@ public class WidgetInfoDialog extends Dialog<Boolean>
      *  @param widget {@link Widget}
      *  @param pvs {@link RuntimePV}s, may be empty
      */
-    public WidgetInfoDialog(final Widget widget, final Collection<NameValue> pvs)
+    public WidgetInfoDialog(final Widget widget, final Collection<NameStateValue> pvs)
     {
         setTitle(Messages.WidgetInfoDialog_Title);
         setHeaderText(NLS.bind(Messages.WidgetInfoDialog_Info_Fmt, new Object[] { widget.getName(), widget.getType() }));
@@ -112,14 +114,18 @@ public class WidgetInfoDialog extends Dialog<Boolean>
         return new Tab(Messages.WidgetInfoDialog_TabMacros, table);
     }
 
-    private Tab createPVs(final Collection<NameValue> pvs)
+    private Tab createPVs(final Collection<NameStateValue> pvs)
     {
         // Use text field to allow users to copy the name, value to clipboard
-        final TableColumn<NameValue, String> name = new TableColumn<>(Messages.WidgetInfoDialog_Name);
+        final TableColumn<NameStateValue, String> name = new TableColumn<>(Messages.WidgetInfoDialog_Name);
         name.setCellFactory(TextFieldTableCell.forTableColumn());
         name.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().name));
 
-        final TableColumn<NameValue, String> value = new TableColumn<>(Messages.WidgetInfoDialog_Value);
+        final TableColumn<NameStateValue, String> state = new TableColumn<>(Messages.WidgetInfoDialog_State);
+        state.setCellFactory(TextFieldTableCell.forTableColumn());
+        state.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().state));
+
+        final TableColumn<NameStateValue, String> value = new TableColumn<>(Messages.WidgetInfoDialog_Value);
         value.setCellFactory(TextFieldTableCell.forTableColumn());
         value.setCellValueFactory(param ->
         {
@@ -140,10 +146,11 @@ public class WidgetInfoDialog extends Dialog<Boolean>
             return new ReadOnlyStringWrapper(text);
         });
 
-        final ObservableList<NameValue> pv_data = FXCollections.observableArrayList(pvs);
+        final ObservableList<NameStateValue> pv_data = FXCollections.observableArrayList(pvs);
         pv_data.sort((a, b) -> a.name.compareTo(b.name));
-        final TableView<NameValue> table = new TableView<>(pv_data);
+        final TableView<NameStateValue> table = new TableView<>(pv_data);
         table.getColumns().add(name);
+        table.getColumns().add(state);
         table.getColumns().add(value);
         table.setEditable(true);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);

@@ -108,6 +108,7 @@ public class Messages extends NLS
     public static String WidgetInfoDialog_Info_Fmt;
     public static String WidgetInfoDialog_Name;
     public static String WidgetInfoDialog_Property;
+    public static String WidgetInfoDialog_State;
     public static String WidgetInfoDialog_TabMacros;
     public static String WidgetInfoDialog_TabProperties;
     public static String WidgetInfoDialog_TabPVs;

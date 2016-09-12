@@ -333,6 +333,10 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     }
 
     /** Execute command in toolkit's UI thread.
+     *
+     *  <p>If already on the UI thread, command
+     *  may execute right away.
+     *
      *  @param command Command to execute
      */
     @Override
@@ -415,7 +419,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     abstract public String showSaveAsDialog(Widget widget, final String initial_value);
 
     /** Play audio
-     *  @param url URL for the audio. At least "file://.." should be supported.
+     *  @param url URL for the audio. At least "file://.." and "http://.." should be supported.
      *  @return Future to await end of playback or cancel.
      *          Boolean value will indicate successful playback
      */

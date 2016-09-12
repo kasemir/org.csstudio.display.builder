@@ -24,6 +24,9 @@
               <id>display-runtime</id>
               <!-- Add version number to product top directory and zipped product -->
               <rootFolder>display-runtime-${sns.version}</rootFolder>
+              <rootFolders>
+                <macosx>DisplayRuntime.app</macosx>
+              </rootFolders>
               <archiveFileName>display-runtime-${sns.version}</archiveFileName>
               <!-- When creating ZIP archive for more than one product, need 'attachId'  -->
               <attachId>display-runtime</attachId>

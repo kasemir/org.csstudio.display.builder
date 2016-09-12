@@ -146,7 +146,8 @@ public class ModelResourceUtil extends ResourceUtil
         }
 
         final File file = new File(resource_name);
-        if (file.getParentFile().exists())
+        final File parent = file.getParentFile();
+        if (parent != null  &&  parent.exists())
             return file.getAbsolutePath();
 
         return null;

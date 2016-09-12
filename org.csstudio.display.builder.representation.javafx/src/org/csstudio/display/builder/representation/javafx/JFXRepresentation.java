@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -331,8 +330,11 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
 
     @Override
     public void execute(final Runnable command)
-    {
-        Platform.runLater(command);
+    {   // If already on app thread, execute right away
+        if (Platform.isFxApplicationThread())
+            command.run();
+        else
+            Platform.runLater(command);
     }
 
     @Override
@@ -475,13 +477,16 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         return null;
     }
 
-    private static class AudioFuture implements Future<Boolean>
+    // Future for controlling the audio player
+    private class AudioFuture implements Future<Boolean>
     {
         private volatile MediaPlayer player;
 
         AudioFuture(final MediaPlayer player)
         {
             this.player = player;
+            // Player by default just stays in "PLAYING" state
+            player.setOnEndOfMedia(() -> player.stop());
             player.play();
             logger.log(Level.INFO, "Playing " + this);
         }
@@ -510,7 +515,14 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         {
             logger.log(Level.INFO, "Stopping " + this);
             final boolean stopped = !isDone();
-            player.stop();
+
+            // TODO On Linux, playback doesn't work. Just stays in PLAYING state.
+            // Worse: player.stop() as well as player.dispose() hang
+            execute(() ->
+            {
+                player.stop();
+            });
+
             return stopped;
         }
 
@@ -524,7 +536,10 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         public Boolean get() throws InterruptedException, ExecutionException
         {
             while (! isDone())
+            {
+                logger.log(Level.FINE, "Awaiting end " + this);
                 Thread.sleep(100);
+            }
             return !isCancelled();
         }
 
@@ -536,6 +551,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
             final long end = System.currentTimeMillis() + unit.toMillis(timeout);
             while (! isDone())
             {
+                logger.log(Level.FINE, "Awaiting end " + this);
                 Thread.sleep(100);
                 if (System.currentTimeMillis() >= end)
                     throw new TimeoutException("Timeout for " + this);
@@ -562,13 +578,26 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public Future<Boolean> playAudio(String url)
+    public Future<Boolean> playAudio(final String url)
     {
-        if (url.startsWith("file://"))
-            url = new File(url.substring(7)).toURI().toString();
+        final CompletableFuture<AudioFuture> result = new CompletableFuture<>();
+        // Create on UI thread
+        execute(() ->
+        {
+            final Media sound = new Media(url);
+            final MediaPlayer player = new MediaPlayer(sound);
+            result.complete(new AudioFuture(player));
+        });
 
-        final Media sound = new Media(url);
-        final MediaPlayer player = new MediaPlayer(sound);
-        return new AudioFuture(player);
+        try
+        {
+            return result.get();
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Audio playback error for " + url, ex);
+
+        }
+        return CompletableFuture.completedFuture(false);
     }
 }

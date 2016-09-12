@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
@@ -159,7 +160,10 @@ public class WidgetRuntime<MW extends Widget>
                     primary_pv = Optional.of(pv);
                 }
                 pv.addListener(primary_pv_listener);
-                addPV(pv);
+                // For widgets that can be 'enabled',
+                // update the enablement based on write access
+                // to the primary PV
+                addPV(pv, widget.checkProperty(behaviorEnabled).isPresent());
             }
             catch (Exception ex)
             {
@@ -192,12 +196,39 @@ public class WidgetRuntime<MW extends Widget>
     /** @param pv PV where widget should track the connection state */
     public void addPV(final RuntimePV pv)
     {
+        addPV(pv, false);
+    }
+
+    // TODO Fix handling of write access
+    // We check if
+    // * Primary PV of a widget with 'enabled' property
+    // * PVs used by write actions
+    // have write access.
+    // But the RuntimePVs class then simply updates the enabled/disabled
+    // state of the widget for each PV.
+    // If all PVs that need write access have write access
+    // ==> OK, widget enabled.
+    // If none of the PVs that need write access has write access
+    // ==> OK, widget disabled.
+    // But if some required PVs have write access, some don't
+    // ==> widget is enabled or disabled, whatever PV notified us last
+    //
+    // In principle, need to track if all PVs that need write access
+    // do have write access.
+    //
+    // In reality, the current approach is very likely "good enough".
+
+    /** @param pv PV where widget should track the connection state
+     *  @param need_write_access Does widget need write access to this PV?
+     */
+    public void addPV(final RuntimePV pv, final boolean need_write_access)
+    {
         synchronized (this)
         {
             if (runtime_pvs == null)
                 runtime_pvs = new RuntimePVs(widget);
         }
-        runtime_pvs.addPV(pv);
+        runtime_pvs.addPV(pv, need_write_access);
     }
 
     /** @param pv PV where widget should no longer track the connection state */
@@ -267,7 +298,7 @@ public class WidgetRuntime<MW extends Widget>
                     final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
                     final RuntimePV pv = PVFactory.getPV(expanded);
                     action_pvs.add(pv);
-                    addPV(pv);
+                    addPV(pv, true);
                 }
             }
             if (action_pvs.size() > 0)
