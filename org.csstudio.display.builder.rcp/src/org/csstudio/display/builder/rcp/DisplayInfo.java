@@ -25,7 +25,7 @@ public class DisplayInfo
     {
         return new DisplayInfo(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE),
                                model.getName(),
-                               model.widgetMacros().getValue());
+                               model.propMacros().getValue());
     }
 
     public DisplayInfo(final String path, final String name, final Macros macros)

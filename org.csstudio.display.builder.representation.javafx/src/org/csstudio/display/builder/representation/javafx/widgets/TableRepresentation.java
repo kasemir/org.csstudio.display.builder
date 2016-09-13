@@ -134,8 +134,8 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         }
 
         UntypedWidgetPropertyListener listener = this::styleChanged;
-        model_widget.positionWidth().addUntypedPropertyListener(listener);
-        model_widget.positionHeight().addUntypedPropertyListener(listener);
+        model_widget.propWidth().addUntypedPropertyListener(listener);
+        model_widget.propHeight().addUntypedPropertyListener(listener);
         model_widget.displayBackgroundColor().addUntypedPropertyListener(listener);
         model_widget.displayForegroundColor().addUntypedPropertyListener(listener);
         model_widget.displayFont().addUntypedPropertyListener(listener);
@@ -234,8 +234,8 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         super.updateChanges();
         if (dirty_style.checkAndClear())
         {
-            jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
-                                 model_widget.positionHeight().getValue());
+            jfx_node.setPrefSize(model_widget.propWidth().getValue(),
+                                 model_widget.propHeight().getValue());
 
             jfx_node.setBackgroundColor(JFXUtil.convert(model_widget.displayBackgroundColor().getValue()));
             jfx_node.setTextColor(JFXUtil.convert(model_widget.displayForegroundColor().getValue()));

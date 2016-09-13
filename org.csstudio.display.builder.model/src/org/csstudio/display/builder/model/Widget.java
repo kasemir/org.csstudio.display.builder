@@ -8,15 +8,15 @@
 package org.csstudio.display.builder.model;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorActions;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorRules;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorScripts;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propActions;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHeight;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propRules;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propScripts;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propType;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propY;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -175,15 +175,15 @@ public class Widget
         final List<WidgetProperty<?>> prelim_properties = new ArrayList<>();
 
         // -- Mandatory properties --
-        prelim_properties.add(this.type = widgetType.createProperty(this, type));
-        prelim_properties.add(name = widgetName.createProperty(this, ""));
-        prelim_properties.add(x = positionX.createProperty(this, 0));
-        prelim_properties.add(y = positionY.createProperty(this, 0));
-        prelim_properties.add(width = positionWidth.createProperty(this, default_width));
-        prelim_properties.add(height = positionHeight.createProperty(this, default_height));
-        prelim_properties.add(actions = behaviorActions.createProperty(this, Collections.emptyList()));
-        prelim_properties.add(scripts = behaviorScripts.createProperty(this, Collections.emptyList()));
-        prelim_properties.add(rules = behaviorRules.createProperty(this, Collections.emptyList()));
+        prelim_properties.add(this.type = propType.createProperty(this, type));
+        prelim_properties.add(name = propName.createProperty(this, ""));
+        prelim_properties.add(x = propX.createProperty(this, 0));
+        prelim_properties.add(y = propY.createProperty(this, 0));
+        prelim_properties.add(width = propWidth.createProperty(this, default_width));
+        prelim_properties.add(height = propHeight.createProperty(this, default_height));
+        prelim_properties.add(actions = propActions.createProperty(this, Collections.emptyList()));
+        prelim_properties.add(scripts = propScripts.createProperty(this, Collections.emptyList()));
+        prelim_properties.add(rules = propRules.createProperty(this, Collections.emptyList()));
 
         // -- Widget-specific properties --
         defineProperties(prelim_properties);
@@ -302,50 +302,50 @@ public class Widget
     // but are useful in IDE when dealing with
     // known widget type
 
-    /** @return Widget 'name' */
-    public final WidgetProperty<String> widgetName()
+    /** @return 'name' property */
+    public final WidgetProperty<String> propName()
     {
         return name;
     }
 
-    /** @return Position 'x' */
-    public final WidgetProperty<Integer> positionX()
+    /** @return 'x' property */
+    public final WidgetProperty<Integer> propX()
     {
         return x;
     }
 
-    /** @return Position 'y' */
-    public final WidgetProperty<Integer> positionY()
+    /** @return 'y' property */
+    public final WidgetProperty<Integer> propY()
     {
         return y;
     }
 
-    /** @return Position 'width' */
-    public final WidgetProperty<Integer> positionWidth()
+    /** @return 'width' property */
+    public final WidgetProperty<Integer> propWidth()
     {
         return width;
     }
 
-    /** @return Position 'height' */
-    public final WidgetProperty<Integer> positionHeight()
+    /** @return 'height' property */
+    public final WidgetProperty<Integer> propHeight()
     {
         return height;
     }
 
-    /** @return Behavior 'actions' */
-    public final WidgetProperty<List<ActionInfo>> behaviorActions()
+    /** @return 'actions' property */
+    public final WidgetProperty<List<ActionInfo>> propActions()
     {
         return actions;
     }
 
-    /** @return Behavior 'scripts' */
-    public final WidgetProperty<List<ScriptInfo>> behaviorScripts()
+    /** @return 'scripts' property */
+    public final WidgetProperty<List<ScriptInfo>> propScripts()
     {
         return scripts;
     }
 
-    /** @return Behavior 'rules' */
-    public final WidgetProperty<List<RuleInfo>> behaviorRules()
+    /** @return 'rules' property */
+    public final WidgetProperty<List<RuleInfo>> propRules()
     {
         return rules;
     }

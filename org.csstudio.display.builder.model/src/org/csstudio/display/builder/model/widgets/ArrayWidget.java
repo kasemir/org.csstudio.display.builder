@@ -7,12 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
-import static org.csstudio.display.builder.model.properties.InsetsWidgetProperty.runtimeInsets;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
+import static org.csstudio.display.builder.model.properties.InsetsWidgetProperty.runtimePropInsets;
 
 import java.util.Arrays;
 import java.util.List;
@@ -45,7 +45,7 @@ public class ArrayWidget extends VisibleWidget
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("array", WidgetCategory.STRUCTURE,
             Messages.ArrayWidget_Name,
-                    "platform:/plugin/org.csstudio.display.builder.model/icons/array.png",
+                    "platform:/plugin/org.csstudio.display.builder.model/icons/array.gif",
             Messages.ArrayWidget_Description,
             Arrays.asList("org.csstudio.opibuilder.widgets.array"))
     {
@@ -89,68 +89,68 @@ public class ArrayWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(macros = widgetMacros.createProperty(this, new Macros()));
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
+        properties.add(pv_name = propPVName.createProperty(this, ""));
+        properties.add(macros = propMacros.createProperty(this, new Macros()));
         properties.add(children = new ArrayWidgetChildrenProperty(this));
-        properties.add(foreground = displayForegroundColor.createProperty(this,
+        properties.add(foreground = propForegroundColor.createProperty(this,
                 WidgetColorService.getColor(NamedWidgetColors.TEXT)));
-        properties.add(background = displayBackgroundColor.createProperty(this,
+        properties.add(background = propBackgroundColor.createProperty(this,
                 WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        properties.add(value = runtimeValue.createProperty(this, null));
-        properties.add(insets = runtimeInsets.createProperty(this, new int[] { 0, 0 }));
+        properties.add(value = runtimePropValue.createProperty(this, null));
+        properties.add(insets = runtimePropInsets.createProperty(this, new int[] { 0, 0 }));
     }
 
     /**
      * Array widget extends parent macros
-     * 
+     *
      * @return {@link Macros}
      */
     @Override
     public Macros getEffectiveMacros()
     {
         final Macros base = super.getEffectiveMacros();
-        final Macros my_macros = widgetMacros().getValue();
+        final Macros my_macros = propMacros().getValue();
         return Macros.merge(base, my_macros);
     }
 
-    /** @return Widget 'macros' */
-    public WidgetProperty<Macros> widgetMacros()
+    /** @return 'macros' property */
+    public WidgetProperty<Macros> propMacros()
     {
         return macros;
     }
 
-    /** @return Behavior 'pv_name' */
-    public WidgetProperty<String> behaviorPVName()
+    /** @return 'pv_name' property */
+    public WidgetProperty<String> propPVName()
     {
         return pv_name;
     }
 
-    /** @return Runtime 'children' */
-    public ChildrenProperty runtimeChildren()
+    /** @return Runtime 'children' property*/
+    public ChildrenProperty runtimePropChildren()
     {
         return children;
     }
 
-    /** @return Display 'foreground_color' */
-    public WidgetProperty<WidgetColor> displayForegroundColor()
+    /** @return 'foreground_color' property */
+    public WidgetProperty<WidgetColor> propForegroundColor()
     {
         return foreground;
     }
 
-    /** @return Display 'background_color' */
+    /** @return 'background_color' property */
     public WidgetProperty<WidgetColor> displayBackgroundColor()
     {
         return background;
     }
 
-    /** @return Runtime 'value' */
-    public WidgetProperty<VType> runtimeValue()
+    /** @return Runtime 'value' property*/
+    public WidgetProperty<VType> runtimePropValue()
     {
         return value;
     }
 
-    /** @return Runtime 'insets' */
-    public WidgetProperty<int[]> runtimeInsets()
+    /** @return Runtime 'insets' property */
+    public WidgetProperty<int[]> runtimePropInsets()
     {
         return insets;
     }

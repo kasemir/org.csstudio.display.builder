@@ -80,8 +80,8 @@ public class ActionUtil
 
             // Model is standalone; source_widget (Action button, ..) is _not_ the parent,
             // but it does add macros to those already defined in the display file.
-            final Macros combined_macros = Macros.merge(macros, new_model.widgetMacros().getValue());
-            new_model.widgetMacros().setValue(combined_macros);
+            final Macros combined_macros = Macros.merge(macros, new_model.propMacros().getValue());
+            new_model.propMacros().setValue(combined_macros);
 
             // On UI thread...
             final DisplayModel top_model = RuntimeUtil.getTopDisplayModel(source_widget);

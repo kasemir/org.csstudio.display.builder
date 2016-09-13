@@ -30,8 +30,8 @@ public class ExampleModels
     public static DisplayModel createModel()
     {
         final DisplayModel model = new DisplayModel();
-        model.setPropertyValue(CommonWidgetProperties.positionWidth, 1400);
-        model.setPropertyValue(CommonWidgetProperties.positionHeight, 20*50);
+        model.setPropertyValue(CommonWidgetProperties.propWidth, 1400);
+        model.setPropertyValue(CommonWidgetProperties.propHeight, 20*50);
 
         for (int i=0; i<200; ++i)
         {
@@ -39,42 +39,42 @@ public class ExampleModels
             final int y = 0 + (i % 20) * 50;
 
             final GroupWidget group = new GroupWidget();
-            group.setPropertyValue(CommonWidgetProperties.widgetName, "Group " + i);
-            group.setPropertyValue(CommonWidgetProperties.positionX, x);
-            group.setPropertyValue(CommonWidgetProperties.positionY, y);
-            group.setPropertyValue(CommonWidgetProperties.positionWidth, 125);
-            group.setPropertyValue(CommonWidgetProperties.positionHeight, 53);
+            group.setPropertyValue(CommonWidgetProperties.propName, "Group " + i);
+            group.setPropertyValue(CommonWidgetProperties.propX, x);
+            group.setPropertyValue(CommonWidgetProperties.propY, y);
+            group.setPropertyValue(CommonWidgetProperties.propWidth, 125);
+            group.setPropertyValue(CommonWidgetProperties.propHeight, 53);
 
             final LabelWidget label = new LabelWidget();
-            label.setPropertyValue(CommonWidgetProperties.widgetName, "Label " + i);
-            label.setPropertyValue(CommonWidgetProperties.positionX, 0);
-            label.setPropertyValue(CommonWidgetProperties.positionY, 4);
-            label.setPropertyValue(CommonWidgetProperties.positionWidth, 15);
-            label.setPropertyValue(CommonWidgetProperties.positionHeight, 15);
-            label.setPropertyValue(CommonWidgetProperties.displayText, Integer.toString(i));
-            group.runtimeChildren().addChild(label);
+            label.setPropertyValue(CommonWidgetProperties.propName, "Label " + i);
+            label.setPropertyValue(CommonWidgetProperties.propX, 0);
+            label.setPropertyValue(CommonWidgetProperties.propY, 4);
+            label.setPropertyValue(CommonWidgetProperties.propWidth, 15);
+            label.setPropertyValue(CommonWidgetProperties.propHeight, 15);
+            label.setPropertyValue(CommonWidgetProperties.propText, Integer.toString(i));
+            group.runtimePropChildren().addChild(label);
 
             // For SWT implementation, rect. is not 'transparent',
             // so needs to be behind text
             final RectangleWidget rect = new RectangleWidget();
-            rect.setPropertyValue(CommonWidgetProperties.widgetName, "Rect " + i);
-            rect.setPropertyValue(CommonWidgetProperties.positionX, 10);
-            rect.setPropertyValue(CommonWidgetProperties.positionY, 0);
-            rect.setPropertyValue(CommonWidgetProperties.positionWidth, 80);
-            rect.setPropertyValue(CommonWidgetProperties.positionHeight, 19);
-            rect.setPropertyValue(CommonWidgetProperties.behaviorScripts,
+            rect.setPropertyValue(CommonWidgetProperties.propName, "Rect " + i);
+            rect.setPropertyValue(CommonWidgetProperties.propX, 10);
+            rect.setPropertyValue(CommonWidgetProperties.propY, 0);
+            rect.setPropertyValue(CommonWidgetProperties.propWidth, 80);
+            rect.setPropertyValue(CommonWidgetProperties.propHeight, 19);
+            rect.setPropertyValue(CommonWidgetProperties.propScripts,
                     Arrays.asList(new ScriptInfo("../org.csstudio.display.builder.runtime.test/examples/fudge_width.py",
                                                  new ScriptPV("noise"))));
-            group.runtimeChildren().addChild(rect);
+            group.runtimePropChildren().addChild(rect);
 
             final TextUpdateWidget text = new TextUpdateWidget();
-            text.setPropertyValue(CommonWidgetProperties.widgetName, "Text " + i);
-            text.setPropertyValue(CommonWidgetProperties.positionX, 30);
-            text.setPropertyValue(CommonWidgetProperties.positionY, 4);
-            text.setPropertyValue(CommonWidgetProperties.positionWidth, 45);
-            text.setPropertyValue(CommonWidgetProperties.positionHeight, 15);
-            text.setPropertyValue(CommonWidgetProperties.behaviorPVName, "ramp");
-            group.runtimeChildren().addChild(text);
+            text.setPropertyValue(CommonWidgetProperties.propName, "Text " + i);
+            text.setPropertyValue(CommonWidgetProperties.propX, 30);
+            text.setPropertyValue(CommonWidgetProperties.propY, 4);
+            text.setPropertyValue(CommonWidgetProperties.propWidth, 45);
+            text.setPropertyValue(CommonWidgetProperties.propHeight, 15);
+            text.setPropertyValue(CommonWidgetProperties.propPVName, "ramp");
+            group.runtimePropChildren().addChild(text);
 
             model.runtimeChildren().addChild(group);
         }

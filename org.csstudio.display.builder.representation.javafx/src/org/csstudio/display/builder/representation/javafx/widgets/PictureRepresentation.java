@@ -65,8 +65,8 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::styleChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
 
         model_widget.displayStretch().addPropertyListener(this::styleChanged);
         model_widget.positionRotation().addUntypedPropertyListener(this::styleChanged);
@@ -195,8 +195,8 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
         }
         if (dirty_style.checkAndClear())
         {
-            Integer widg_w = model_widget.positionWidth().getValue();
-            Integer widg_h = model_widget.positionHeight().getValue();
+            Integer widg_w = model_widget.propWidth().getValue();
+            Integer widg_h = model_widget.propHeight().getValue();
             Integer pic_w = widg_w;
             Integer pic_h = widg_h;
 

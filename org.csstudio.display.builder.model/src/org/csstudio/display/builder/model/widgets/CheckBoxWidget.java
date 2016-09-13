@@ -7,12 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorBit;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBit;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,12 +48,12 @@ public class CheckBoxWidget extends VisibleWidget
             return new CheckBoxWidget();
         }
     };
-    /** Display 'label': Text for label */
-    public static final WidgetPropertyDescriptor<String> displayLabel =
+    /** 'label' property: Text for label */
+    public static final WidgetPropertyDescriptor<String> propLabel =
         newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "label", Messages.Checkbox_Label);
 
-    /** Display 'auto_size': Automatically adjust size of widget */
-    public static final WidgetPropertyDescriptor<Boolean> displayAutoSize =
+    /** 'auto_size' property: Automatically adjust size of widget */
+    public static final WidgetPropertyDescriptor<Boolean> propAutoSize =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "auto_size", Messages.AutoSize);
 
     private volatile WidgetProperty<Integer> bit;
@@ -66,12 +66,12 @@ public class CheckBoxWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(behaviorPVName.createProperty(this, ""));
-        properties.add(bit = behaviorBit.createProperty(this, 0));
-        properties.add(value = runtimeValue.createProperty(this, null));
-        properties.add(label = displayLabel.createProperty(this, Messages.Checkbox_Label));
-        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        properties.add(auto_size = displayAutoSize.createProperty(this, false));
+        properties.add(propPVName.createProperty(this, ""));
+        properties.add(bit = propBit.createProperty(this, 0));
+        properties.add(value = runtimePropValue.createProperty(this, null));
+        properties.add(label = propLabel.createProperty(this, Messages.Checkbox_Label));
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(auto_size = propAutoSize.createProperty(this, false));
     }
 
     public CheckBoxWidget()
@@ -79,32 +79,32 @@ public class CheckBoxWidget extends VisibleWidget
         super(WIDGET_DESCRIPTOR.getType());
     }
 
-    /** @return Behavior 'bit' */
-    public WidgetProperty<Integer> behaviorBit()
+    /** @return 'bit' property */
+    public WidgetProperty<Integer> propBit()
     {
         return bit;
     }
 
-    /** @return Runtime 'value' */
-    public WidgetProperty<VType> runtimeValue()
+    /** @return Runtime 'value' property */
+    public WidgetProperty<VType> runtimePropValue()
     {
         return value;
     }
 
-    /** @return Display 'label' */
-    public WidgetProperty<String> displayLabel()
+    /** @return 'label' property */
+    public WidgetProperty<String> propLabel()
     {
         return label;
     }
 
-    /** @return Display 'font' */
-    public WidgetProperty<WidgetFont> displayFont()
+    /** @return 'font' property */
+    public WidgetProperty<WidgetFont> propFont()
     {
         return font;
     }
 
-    /** @return Display 'auto_size' */
-    public WidgetProperty<Boolean> displayAutoSize()
+    /** @return 'auto_size' property */
+    public WidgetProperty<Boolean> propAutoSize()
     {
         return auto_size;
     }

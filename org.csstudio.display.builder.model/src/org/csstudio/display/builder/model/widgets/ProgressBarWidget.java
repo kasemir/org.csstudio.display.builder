@@ -8,12 +8,12 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorLimitsFromPV;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMaximum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMinimum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFillColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -114,11 +114,11 @@ public class ProgressBarWidget extends VisibleWidget
     {
         super.defineProperties(properties);
         properties.add(fill_color = displayFillColor.createProperty(this, new WidgetColor(60, 255, 60)));
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
+        properties.add(pv_name = propPVName.createProperty(this, ""));
         properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, true));
-        properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
-        properties.add(maximum = behaviorMaximum.createProperty(this, 100.0));
-        properties.add(value = runtimeValue.createProperty(this, null));
+        properties.add(minimum = propMinimum.createProperty(this, 0.0));
+        properties.add(maximum = propMaximum.createProperty(this, 100.0));
+        properties.add(value = runtimePropValue.createProperty(this, null));
         properties.add(horizontal = displayHorizontal.createProperty(this, true));
     }
 

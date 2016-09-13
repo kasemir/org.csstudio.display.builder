@@ -91,7 +91,7 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.behaviorLimitsFromPV().addUntypedPropertyListener(this::limitsChanged);
         model_widget.behaviorMinimum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.behaviorMaximum().addUntypedPropertyListener(this::limitsChanged);
@@ -173,8 +173,8 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         if (dirty_size.checkAndClear())
         {
             jfx_node.setDisable(! model_widget.behaviorEnabled().getValue());
-            jfx_node.setPrefHeight(model_widget.positionHeight().getValue());
-            jfx_node.setPrefWidth(model_widget.positionWidth().getValue());
+            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
             jfx_node.setMin(min);
             jfx_node.setMax(max);
             jfx_node.setOrientation(model_widget.displayHorizontal().getValue() ? Orientation.HORIZONTAL : Orientation.VERTICAL);

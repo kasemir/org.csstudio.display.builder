@@ -197,7 +197,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         // TODO There's only one 'background' for the toolkit,
         // but the model represented here could be the top-level model (OK)
         // or a sub-model from an embedded widget (not OK to change the background)
-        setBackground(model.displayBackgroundColor().getValue());
+        setBackground(model.propBackgroundColor().getValue());
 
         // DisplayModel itself is _not_ represented,
         // but all its children, recursively
@@ -207,7 +207,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         model.runtimeChildren().addPropertyListener(container_children_listener);
 
         // Listen to model background
-        model.displayBackgroundColor().addPropertyListener(back_color_listener);
+        model.propBackgroundColor().addPropertyListener(back_color_listener);
     }
 
     /** Create representation for each child of a ContainerWidget
@@ -275,7 +275,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         final TWP parent = disposeChildren(model, model.runtimeChildren());
         model.clearUserData(DisplayModel.USER_DATA_TOOLKIT);
 
-        model.displayBackgroundColor().removePropertyListener(back_color_listener);
+        model.propBackgroundColor().removePropertyListener(back_color_listener);
 
         logger.log(Level.FINE, "No longer tracking changes to children of {0}", model);
         model.runtimeChildren().removePropertyListener(container_children_listener);

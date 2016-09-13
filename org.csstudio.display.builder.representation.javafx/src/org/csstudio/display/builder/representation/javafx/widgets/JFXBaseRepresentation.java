@@ -170,11 +170,11 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
      */
     protected void registerListeners()
     {
-        visible = model_widget.checkProperty(CommonWidgetProperties.positionVisible).orElse(null);
+        visible = model_widget.checkProperty(CommonWidgetProperties.propVisible).orElse(null);
         if (visible != null)
             visible.addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionX().addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionY().addUntypedPropertyListener(this::positionChanged);
+        model_widget.propX().addUntypedPropertyListener(this::positionChanged);
+        model_widget.propY().addUntypedPropertyListener(this::positionChanged);
         // Would like to also listen to positionWidth & height,
         // then call jfx_node.resizeRelocate(x, y, width, height),
         // but resizeRelocate tends to ignore the width & height on
@@ -194,8 +194,8 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
     {
         if (dirty_position.checkAndClear())
         {
-            jfx_node.relocate(model_widget.positionX().getValue(),
-                              model_widget.positionY().getValue());
+            jfx_node.relocate(model_widget.propX().getValue(),
+                              model_widget.propY().getValue());
             if (visible != null)
             {   // In edit more, somewhat 'hide', but remain visible
                 if (toolkit.isEditMode())

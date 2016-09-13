@@ -43,8 +43,8 @@ public class ProgressBarRepresentation extends RegionBaseRepresentation<Progress
     {
         super.registerListeners();
         model_widget.displayFillColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.positionWidth().addUntypedPropertyListener(this::lookChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::lookChanged);
         model_widget.behaviorLimitsFromPV().addUntypedPropertyListener(this::valueChanged);
         model_widget.behaviorMinimum().addUntypedPropertyListener(this::valueChanged);
         model_widget.behaviorMaximum().addUntypedPropertyListener(this::valueChanged);
@@ -103,8 +103,8 @@ public class ProgressBarRepresentation extends RegionBaseRepresentation<Progress
         if (dirty_look.checkAndClear())
         {
             boolean horizontal = model_widget.displayHorizontal().getValue();
-            double width = model_widget.positionWidth().getValue();
-            double height = model_widget.positionHeight().getValue();
+            double width = model_widget.propWidth().getValue();
+            double height = model_widget.propHeight().getValue();
             if (!horizontal)
             {
                 jfx_node.setPrefSize(height, width);

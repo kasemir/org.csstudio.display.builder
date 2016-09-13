@@ -7,8 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -37,21 +37,21 @@ public class WidgetPropertySubscriptionUnitTest
             updates.incrementAndGet();
             System.out.println(property.getName() + " changed to " + new_value);
         };
-        widget.positionX().addPropertyListener(listener);
+        widget.propX().addPropertyListener(listener);
 
         // Noting, yet
         assertThat(updates.get(), equalTo(0));
 
         // Change once
-        widget.positionX().setValue(21);
+        widget.propX().setValue(21);
         assertThat(updates.get(), equalTo(1));
 
         // Change again
-        widget.getProperty(positionX).setValue(22);
+        widget.getProperty(propX).setValue(22);
         assertThat(updates.get(), equalTo(2));
 
         // No change, same value
-        widget.getProperty(positionX).setValue(22);
+        widget.getProperty(propX).setValue(22);
         assertThat(updates.get(), equalTo(2));
     }
 
@@ -64,12 +64,12 @@ public class WidgetPropertySubscriptionUnitTest
         final AtomicInteger x_updates = new AtomicInteger(0);
         final AtomicInteger y_updates = new AtomicInteger(0);
 
-        widget.positionX().addPropertyListener((p, o, n) ->
+        widget.propX().addPropertyListener((p, o, n) ->
         {
             x_updates.incrementAndGet();
             System.out.println(p.getName() + " = " + n);
         });
-        widget.positionY().addUntypedPropertyListener((p, o, n) ->
+        widget.propY().addUntypedPropertyListener((p, o, n) ->
         {
             y_updates.incrementAndGet();
             System.out.println(p.getName() + " = " + n);
@@ -80,12 +80,12 @@ public class WidgetPropertySubscriptionUnitTest
         assertThat(y_updates.get(), equalTo(0));
 
         // Change one
-        widget.getProperty(positionX).setValue(21);
+        widget.getProperty(propX).setValue(21);
         assertThat(x_updates.get(), equalTo(1));
         assertThat(y_updates.get(), equalTo(0));
 
         // Change other
-        widget.getProperty(positionY).setValue(21);
+        widget.getProperty(propY).setValue(21);
         assertThat(x_updates.get(), equalTo(1));
         assertThat(y_updates.get(), equalTo(1));
     }
@@ -98,9 +98,9 @@ public class WidgetPropertySubscriptionUnitTest
 
         final Macros macros = new Macros();
         macros.add("NAME", "Fred");
-        widget.widgetMacros().setValue(macros);
+        widget.propMacros().setValue(macros);
 
-        final MacroizedWidgetProperty<String> name_prop = (MacroizedWidgetProperty<String>) widget.widgetName();
+        final MacroizedWidgetProperty<String> name_prop = (MacroizedWidgetProperty<String>) widget.propName();
         final AtomicInteger updates = new AtomicInteger();
         final AtomicReference<String> received_value = new AtomicReference<String>(null);
         name_prop.addPropertyListener((prop, old_value, new_value) ->

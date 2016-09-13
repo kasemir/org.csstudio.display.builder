@@ -45,7 +45,7 @@ public class MacroHierarchyUnitTest
         assertThat(macros.getValue("EXAMPLE_MACRO"), equalTo("Value from Preferences"));
 
         // .. but display can replace this value
-        model.widgetMacros().getValue().add("EXAMPLE_MACRO", "Value from Display");
+        model.propMacros().getValue().add("EXAMPLE_MACRO", "Value from Display");
         macros = model.getEffectiveMacros();
         System.out.println(macros);
         assertThat(macros.getValue("EXAMPLE_MACRO"), equalTo("Value from Display"));
@@ -54,12 +54,12 @@ public class MacroHierarchyUnitTest
         final LabelWidget child = new LabelWidget();
 
         final GroupWidget group2 = new GroupWidget();
-        group2.widgetMacros().getValue().add("EXAMPLE_MACRO", "In Group 2");
-        group2.runtimeChildren().addChild(child);
+        group2.propMacros().getValue().add("EXAMPLE_MACRO", "In Group 2");
+        group2.runtimePropChildren().addChild(child);
 
         final GroupWidget group1 = new GroupWidget();
-        group1.widgetMacros().getValue().add("EXAMPLE_MACRO", "In Group 1");
-        group1.runtimeChildren().addChild(group2);
+        group1.propMacros().getValue().add("EXAMPLE_MACRO", "In Group 1");
+        group1.runtimePropChildren().addChild(group2);
 
         model.runtimeChildren().addChild(group1);
 

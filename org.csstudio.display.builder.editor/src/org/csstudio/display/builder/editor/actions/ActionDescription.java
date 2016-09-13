@@ -88,9 +88,9 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.get(0).positionX().getValue();
+            final int dest = widgets.get(0).propX().getValue();
             for (int i=1; i<widgets.size(); ++i)
-                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionX(), dest));
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propX(), dest));
         }
     };
 
@@ -105,10 +105,10 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.get(0).positionX().getValue() + widgets.get(0).positionWidth().getValue() / 2;
+            final int dest = widgets.get(0).propX().getValue() + widgets.get(0).propWidth().getValue() / 2;
             for (int i=1; i<widgets.size(); ++i)
-                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionX(),
-                                                                  dest - widgets.get(i).positionWidth().getValue()/2));
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propX(),
+                                                                  dest - widgets.get(i).propWidth().getValue()/2));
         }
     };
 
@@ -123,10 +123,10 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.get(0).positionX().getValue() + widgets.get(0).positionWidth().getValue();
+            final int dest = widgets.get(0).propX().getValue() + widgets.get(0).propWidth().getValue();
             for (int i=1; i<widgets.size(); ++i)
-                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionX(),
-                                                                  dest - widgets.get(i).positionWidth().getValue()));
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propX(),
+                                                                  dest - widgets.get(i).propWidth().getValue()));
         }
     };
 
@@ -141,9 +141,9 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.get(0).positionY().getValue();
+            final int dest = widgets.get(0).propY().getValue();
             for (int i=1; i<widgets.size(); ++i)
-                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionY(), dest));
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propY(), dest));
         }
     };
 
@@ -158,10 +158,10 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.get(0).positionY().getValue() + widgets.get(0).positionHeight().getValue()/2;
+            final int dest = widgets.get(0).propY().getValue() + widgets.get(0).propHeight().getValue()/2;
             for (int i=1; i<widgets.size(); ++i)
-                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionY(),
-                                                                  dest - widgets.get(i).positionHeight().getValue()/2));
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propY(),
+                                                                  dest - widgets.get(i).propHeight().getValue()/2));
         }
     };
 
@@ -176,10 +176,10 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.get(0).positionY().getValue() + widgets.get(0).positionHeight().getValue();
+            final int dest = widgets.get(0).propY().getValue() + widgets.get(0).propHeight().getValue();
             for (int i=1; i<widgets.size(); ++i)
-                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionY(),
-                                                                  dest - widgets.get(i).positionHeight().getValue()));
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propY(),
+                                                                  dest - widgets.get(i).propHeight().getValue()));
         }
     };
 
@@ -194,9 +194,9 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.get(0).positionWidth().getValue();
+            final int dest = widgets.get(0).propWidth().getValue();
             for (int i=1; i<widgets.size(); ++i)
-                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionWidth(), dest));
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propWidth(), dest));
         }
     };
 
@@ -211,9 +211,9 @@ public abstract class ActionDescription
             final UndoableActionManager undo = editor.getUndoableActionManager();
             if (widgets.size() < 2)
                 return;
-            final int dest = widgets.get(0).positionHeight().getValue();
+            final int dest = widgets.get(0).propHeight().getValue();
             for (int i=1; i<widgets.size(); ++i)
-                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionHeight(), dest));
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propHeight(), dest));
         }
     };
 
@@ -231,11 +231,11 @@ public abstract class ActionDescription
                 return;
 
             // Get left/right
-            int left = widgets.get(0).positionX().getValue() + widgets.get(0).positionWidth().getValue()/2;
+            int left = widgets.get(0).propX().getValue() + widgets.get(0).propWidth().getValue()/2;
             int right = left;
             for (int i=1; i<N; ++i)
             {
-                int center = widgets.get(i).positionX().getValue() + widgets.get(i).positionWidth().getValue()/2;
+                int center = widgets.get(i).propX().getValue() + widgets.get(i).propWidth().getValue()/2;
                 left = Math.min(left, center);
                 right = Math.max(right, center);
             }
@@ -244,8 +244,8 @@ public abstract class ActionDescription
             for (int i=0; i<N; ++i)
             {
                 final int dest = left + i*(right - left)/(N-1);
-                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionX(),
-                                                                  dest - widgets.get(i).positionWidth().getValue()/2));
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propX(),
+                                                                  dest - widgets.get(i).propWidth().getValue()/2));
             }
         }
     };
@@ -264,11 +264,11 @@ public abstract class ActionDescription
                 return;
 
             // Get top/bottom
-            int top = widgets.get(0).positionY().getValue() + widgets.get(0).positionHeight().getValue()/2;
+            int top = widgets.get(0).propY().getValue() + widgets.get(0).propHeight().getValue()/2;
             int bottom = top;
             for (int i=1; i<N; ++i)
             {
-                int middle = widgets.get(i).positionY().getValue() + widgets.get(i).positionHeight().getValue()/2;
+                int middle = widgets.get(i).propY().getValue() + widgets.get(i).propHeight().getValue()/2;
                 top = Math.min(top, middle);
                 bottom = Math.max(bottom, middle);
             }
@@ -277,8 +277,8 @@ public abstract class ActionDescription
             for (int i=0; i<N; ++i)
             {
                 final int dest = top + i*(bottom - top)/(N-1);
-                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).positionY(),
-                                                                  dest - widgets.get(i).positionHeight().getValue()/2));
+                undo.execute(new SetWidgetPropertyAction<Integer>(widgets.get(i).propY(),
+                                                                  dest - widgets.get(i).propHeight().getValue()/2));
             }
         }
     };

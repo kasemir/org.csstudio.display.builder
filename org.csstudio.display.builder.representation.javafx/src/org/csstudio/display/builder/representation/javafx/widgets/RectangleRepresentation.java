@@ -37,8 +37,8 @@ public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, Re
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
         model_widget.displayCornerWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.displayCornerHeight().addUntypedPropertyListener(this::sizeChanged);
 
@@ -75,8 +75,8 @@ public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, Re
         super.updateChanges();
         if (dirty_size.checkAndClear())
         {
-            jfx_node.setWidth(model_widget.positionWidth().getValue());
-            jfx_node.setHeight(model_widget.positionHeight().getValue());
+            jfx_node.setWidth(model_widget.propWidth().getValue());
+            jfx_node.setHeight(model_widget.propHeight().getValue());
             jfx_node.setArcWidth(model_widget.displayCornerWidth().getValue());
             jfx_node.setArcHeight(model_widget.displayCornerHeight().getValue());
         }

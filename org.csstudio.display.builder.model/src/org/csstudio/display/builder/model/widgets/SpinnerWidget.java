@@ -8,14 +8,14 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorLimitsFromPV;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMaximum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMinimum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFormat;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayPrecision;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -90,14 +90,14 @@ public class SpinnerWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.WRITE_BACKGROUND)));
-        properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(pv_name = propPVName.createProperty(this, ""));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.WRITE_BACKGROUND)));
+        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(format = displayFormat.createProperty(this, FormatOption.DECIMAL));
         properties.add(precision = displayPrecision.createProperty(this, -1));
-        properties.add(value = runtimeValue.createProperty(this, null));
-        properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
-        properties.add(maximum = behaviorMaximum.createProperty(this, 100.0));
+        properties.add(value = runtimePropValue.createProperty(this, null));
+        properties.add(minimum = propMinimum.createProperty(this, 0.0));
+        properties.add(maximum = propMaximum.createProperty(this, 100.0));
         properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, true));
         properties.add(step_increment = behaviorStepIncrement.createProperty(this, 1.0));
         properties.add(page_increment = behaviorPageIncrement.createProperty(this, 10.0));

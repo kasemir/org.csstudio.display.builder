@@ -45,10 +45,10 @@ public class UpdateWidgetLocationAction extends UndoableAction
         this.orig_y = orig_y;
         this.orig_width = orig_width;
         this.orig_height = orig_height;
-        x = widget.positionX().getValue();
-        y = widget.positionY().getValue();
-        width = widget.positionWidth().getValue();
-        height = widget.positionHeight().getValue();
+        x = widget.propX().getValue();
+        y = widget.propY().getValue();
+        width = widget.propWidth().getValue();
+        height = widget.propHeight().getValue();
     }
 
     @Override
@@ -59,10 +59,10 @@ public class UpdateWidgetLocationAction extends UndoableAction
             orig_parent_children.removeChild(widget);
             parent_children.addChild(widget);
         }
-        widget.positionX().setValue(x);
-        widget.positionY().setValue(y);
-        widget.positionWidth().setValue(width);
-        widget.positionHeight().setValue(height);
+        widget.propX().setValue(x);
+        widget.propY().setValue(y);
+        widget.propWidth().setValue(width);
+        widget.propHeight().setValue(height);
     }
 
     @Override
@@ -73,9 +73,9 @@ public class UpdateWidgetLocationAction extends UndoableAction
             parent_children.removeChild(widget);
             orig_parent_children.addChild(widget);
         }
-        widget.positionX().setValue(orig_x);
-        widget.positionY().setValue(orig_y);
-        widget.positionWidth().setValue(orig_width);
-        widget.positionHeight().setValue(orig_height);
+        widget.propX().setValue(orig_x);
+        widget.propY().setValue(orig_y);
+        widget.propWidth().setValue(orig_width);
+        widget.propHeight().setValue(orig_height);
     }
 }

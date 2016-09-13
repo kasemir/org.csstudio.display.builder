@@ -8,8 +8,8 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayLineColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayLineWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayPoints;
 
 import java.util.Arrays;
@@ -112,7 +112,7 @@ public class PolylineWidget extends VisibleWidget
             if (xml != null)
             {
                 final Document doc = widget_xml.getOwnerDocument();
-                Element line = doc.createElement(displayLineColor.getName());
+                Element line = doc.createElement(propLineColor.getName());
                 final Element c = XMLUtil.getChildElement(xml, "color");
                 line.appendChild(c.cloneNode(true));
                 widget_xml.appendChild(line);
@@ -144,8 +144,8 @@ public class PolylineWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(line_color = displayLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
-        properties.add(line_width = displayLineWidth.createProperty(this, 3));
+        properties.add(line_color = propLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
+        properties.add(line_width = propLineWidth.createProperty(this, 3));
         properties.add(points = displayPoints.createProperty(this, new Points()));
         properties.add(arrows = displayArrows.createProperty(this, Arrows.NONE));
     }

@@ -36,9 +36,9 @@ public class PolygonRepresentation extends JFXBaseRepresentation<Polygon, Polygo
     protected void registerListeners()
     {
         // Polygon can't use the default x/y handling from super.registerListeners();
-        model_widget.positionVisible().addUntypedPropertyListener(this::displayChanged);
-        model_widget.positionX().addUntypedPropertyListener(this::displayChanged);
-        model_widget.positionY().addUntypedPropertyListener(this::displayChanged);
+        model_widget.propVisible().addUntypedPropertyListener(this::displayChanged);
+        model_widget.propX().addUntypedPropertyListener(this::displayChanged);
+        model_widget.propY().addUntypedPropertyListener(this::displayChanged);
         model_widget.displayBackgroundColor().addUntypedPropertyListener(this::displayChanged);
         model_widget.displayLineColor().addUntypedPropertyListener(this::displayChanged);
         model_widget.displayLineWidth().addUntypedPropertyListener(this::displayChanged);
@@ -57,13 +57,13 @@ public class PolygonRepresentation extends JFXBaseRepresentation<Polygon, Polygo
         // Not using default handling of X/Y super.updateChanges();
         if (dirty_display.checkAndClear())
         {
-            if (model_widget.positionVisible().getValue())
+            if (model_widget.propVisible().getValue())
             {
                 jfx_node.setVisible(true);
                 // Change points x/y relative to widget location into
                 // on-screen location
-                final int x = model_widget.positionX().getValue();
-                final int y = model_widget.positionY().getValue();
+                final int x = model_widget.propX().getValue();
+                final int y = model_widget.propY().getValue();
                 final Double[] points = model_widget.displayPoints().getValue().asDoubleArray();
                 for (int i=0; i<points.length; i+= 2)
                 {

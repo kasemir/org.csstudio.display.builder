@@ -77,8 +77,8 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
         model_widget.displayHorizontal().addUntypedPropertyListener(this::sizeChanged);
 
         model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
@@ -169,7 +169,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         if (dirty_size.checkAndClear())
         {
             //size
-            jfx_node.setPrefSize(model_widget.positionWidth().getValue(), model_widget.positionHeight().getValue());
+            jfx_node.setPrefSize(model_widget.propWidth().getValue(), model_widget.propHeight().getValue());
             //horizontal
             jfx_node.setOrientation(
                     model_widget.displayHorizontal().getValue() ? Orientation.HORIZONTAL : Orientation.VERTICAL);

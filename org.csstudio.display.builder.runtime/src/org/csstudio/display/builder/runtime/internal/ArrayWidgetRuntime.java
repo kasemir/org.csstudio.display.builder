@@ -43,7 +43,7 @@ public class ArrayWidgetRuntime extends WidgetRuntime<ArrayWidget>
             pvnames.clear();
             for (RuntimePV pv : element_pvs)
                 pvnames.add(pv.getName());
-            setPVNames(0, new ArrayList<Widget>(widget.runtimeChildren().getValue()));
+            setPVNames(0, new ArrayList<Widget>(widget.runtimePropChildren().getValue()));
         }
     };
 
@@ -68,7 +68,7 @@ public class ArrayWidgetRuntime extends WidgetRuntime<ArrayWidget>
             }
         if (added != null)
         {
-            setPVNames(this.widget.runtimeChildren().getValue().size() - added.size(), added);
+            setPVNames(this.widget.runtimePropChildren().getValue().size() - added.size(), added);
             for (Widget child : added)
                 RuntimeUtil.startRuntime(child);
         }
@@ -88,16 +88,16 @@ public class ArrayWidgetRuntime extends WidgetRuntime<ArrayWidget>
         RuntimePV pv = getPrimaryPV().orElse(null);
         if (pv != null)
             dispatcher = new ArrayPVDispatcher(pv, pvid, assign_pv_names);
-        for (final Widget child : widget.runtimeChildren().getValue())
+        for (final Widget child : widget.runtimePropChildren().getValue())
             RuntimeUtil.startRuntime(child);
-        widget.runtimeChildren().addPropertyListener(children_listener);
+        widget.runtimePropChildren().addPropertyListener(children_listener);
     }
 
     @Override
     public void stop()
     {
-        widget.runtimeChildren().removePropertyListener(children_listener);
-        for (final Widget child : widget.runtimeChildren().getValue())
+        widget.runtimePropChildren().removePropertyListener(children_listener);
+        for (final Widget child : widget.runtimePropChildren().getValue())
             RuntimeUtil.stopRuntime(child);
         if (dispatcher != null)
             dispatcher.close();

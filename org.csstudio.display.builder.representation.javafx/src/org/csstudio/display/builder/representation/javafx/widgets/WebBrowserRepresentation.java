@@ -276,8 +276,8 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
         if (!toolkit.isEditMode())
             model_widget.widgetURL().addPropertyListener(this::urlChanged);
         //the showToolbar property cannot be changed at runtime
@@ -301,8 +301,8 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         super.updateChanges();
         if (dirty_size.checkAndClear())
         {
-            width = model_widget.positionWidth().getValue();
-            height = model_widget.positionHeight().getValue();
+            width = model_widget.propWidth().getValue();
+            height = model_widget.propHeight().getValue();
             jfx_node.requestLayout();
         }
         if (dirty_url.checkAndClear())

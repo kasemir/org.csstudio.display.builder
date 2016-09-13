@@ -7,8 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
 
 import java.util.List;
 
@@ -63,13 +63,13 @@ public class DisplayModel extends Widget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(macros = widgetMacros.createProperty(this, new Macros()));
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(macros = propMacros.createProperty(this, new Macros()));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(children = new ChildrenProperty(this));
     }
 
-    /** @return Widget 'macros' */
-    public WidgetProperty<Macros> widgetMacros()
+    /** @return 'macros' property */
+    public WidgetProperty<Macros> propMacros()
     {
         return macros;
     }
@@ -116,12 +116,12 @@ public class DisplayModel extends Widget
             : embedder.getEffectiveMacros();
 
         // 2) This display may provide added macros or replacement values
-        result = Macros.merge(result, widgetMacros().getValue());
+        result = Macros.merge(result, propMacros().getValue());
         return result;
     }
 
-    /** @return Display 'background_color' */
-    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    /** @return 'background_color' property */
+    public WidgetProperty<WidgetColor> propBackgroundColor()
     {
         return background;
     }

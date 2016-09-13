@@ -50,9 +50,9 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     {
         colors = createColors();
         final Pane pane = new Pane();
-        numBits = model_widget.displayNumBits().getValue();
-        square_led = model_widget.displaySquareLED().getValue();
-        horizontal = model_widget.displayHorizontal().getValue();
+        numBits = model_widget.propNumBits().getValue();
+        square_led = model_widget.propSquareLED().getValue();
+        horizontal = model_widget.propHorizontal().getValue();
         addLEDs(pane);
         pane.setMinSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
         pane.setMaxSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
@@ -61,8 +61,8 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
 
     private void addLEDs(final Pane pane)
     {
-        addLEDs(pane, model_widget.positionWidth().getValue(),
-                model_widget.positionHeight().getValue(), horizontal);
+        addLEDs(pane, model_widget.propWidth().getValue(),
+                model_widget.propHeight().getValue(), horizontal);
     }
 
     private void addLEDs(final Pane pane, final int w, final int h, final boolean horizontal)
@@ -114,8 +114,8 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     {
         return new Color[]
         {
-            JFXUtil.convert(model_widget.displayOffColor().getValue()),
-            JFXUtil.convert(model_widget.displayOnColor().getValue())
+            JFXUtil.convert(model_widget.propOffColor().getValue()),
+            JFXUtil.convert(model_widget.propOnColor().getValue())
         };
     }
 
@@ -138,19 +138,19 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addPropertyListener(this::sizeChanged);
-        model_widget.positionHeight().addPropertyListener(this::sizeChanged);
+        model_widget.propWidth().addPropertyListener(this::sizeChanged);
+        model_widget.propHeight().addPropertyListener(this::sizeChanged);
 
-        model_widget.runtimeValue().addPropertyListener(this::contentChanged);
+        model_widget.runtimePropValue().addPropertyListener(this::contentChanged);
 
-        model_widget.displayOffColor().addUntypedPropertyListener(this::configChanged);
-        model_widget.displayOnColor().addUntypedPropertyListener(this::configChanged);
-        model_widget.displayStartBit().addUntypedPropertyListener(this::configChanged);
-        model_widget.displayBitReverse().addUntypedPropertyListener(this::configChanged);
+        model_widget.propOffColor().addUntypedPropertyListener(this::configChanged);
+        model_widget.propOnColor().addUntypedPropertyListener(this::configChanged);
+        model_widget.propStartBit().addUntypedPropertyListener(this::configChanged);
+        model_widget.propBitReverse().addUntypedPropertyListener(this::configChanged);
 
-        model_widget.displayNumBits().addUntypedPropertyListener(this::lookChanged);
-        model_widget.displayHorizontal().addUntypedPropertyListener(this::lookChanged);
-        model_widget.displaySquareLED().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propNumBits().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propHorizontal().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propSquareLED().addUntypedPropertyListener(this::lookChanged);
 
         //initialization
         configChanged(null, null, null);
@@ -166,12 +166,12 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
      */
     protected void lookChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        numBits = model_widget.displayNumBits().getValue();
-        horizontal = model_widget.displayHorizontal().getValue();
-        square_led = model_widget.displaySquareLED().getValue();
+        numBits = model_widget.propNumBits().getValue();
+        horizontal = model_widget.propHorizontal().getValue();
+        square_led = model_widget.propSquareLED().getValue();
             //note: copied to array to safeguard against mid-operation changes
         dirty_size.mark();
-        contentChanged(model_widget.runtimeValue(), null, model_widget.runtimeValue().getValue());
+        contentChanged(model_widget.runtimePropValue(), null, model_widget.runtimePropValue().getValue());
     }
 
     private void sizeChanged(final WidgetProperty<Integer> property, final Integer old_value, final Integer new_value)
@@ -188,10 +188,10 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
      */
     protected void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        startBit = model_widget.displayStartBit().getValue();
-        bitReverse = model_widget.displayBitReverse().getValue();
+        startBit = model_widget.propStartBit().getValue();
+        bitReverse = model_widget.propBitReverse().getValue();
         colors = createColors();
-        contentChanged(model_widget.runtimeValue(), null, model_widget.runtimeValue().getValue());
+        contentChanged(model_widget.runtimePropValue(), null, model_widget.runtimePropValue().getValue());
     }
 
     private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
@@ -216,8 +216,8 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         super.updateChanges();
         if (dirty_size.checkAndClear())
         {
-            final int w = model_widget.positionWidth().getValue();
-            final int h = model_widget.positionHeight().getValue();
+            final int w = model_widget.propWidth().getValue();
+            final int h = model_widget.propHeight().getValue();
             jfx_node.setPrefSize(w, h);
             addLEDs(jfx_node, w, h, horizontal);
 

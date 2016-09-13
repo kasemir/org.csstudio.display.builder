@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.model.macros;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propType;
 
 import java.util.Collection;
 import java.util.Map;
@@ -49,7 +49,7 @@ public class MacroOrPropertyProvider implements MacroValueProvider
             // so fetch that to get the widget and then the display.
             try
             {
-                return properties.get(widgetType.getName()).getWidget().getDisplayModel().getID();
+                return properties.get(propType.getName()).getWidget().getDisplayModel().getID();
             }
             catch (Exception ex)
             {
@@ -63,7 +63,7 @@ public class MacroOrPropertyProvider implements MacroValueProvider
         {
             try
             {
-                return properties.get(widgetType.getName()).getWidget().getDisplayModel().widgetName().getValue();
+                return properties.get(propType.getName()).getWidget().getDisplayModel().propName().getValue();
             }
             catch (Exception ex)
             {

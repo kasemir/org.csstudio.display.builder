@@ -356,8 +356,8 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::styleChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayButtonsOnLeft().addPropertyListener(this::styleChanged);
 
         model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
@@ -416,8 +416,8 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
             jfx_node.editorProperty().getValue().setStyle("-fx-text-fill:" + color);
             final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
             jfx_node.editorProperty().getValue().setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
-            jfx_node.setPrefWidth(model_widget.positionWidth().getValue());
-            jfx_node.setPrefHeight(model_widget.positionHeight().getValue());
+            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
+            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
             int x = jfx_node.getStyleClass().indexOf(Spinner.STYLE_CLASS_ARROWS_ON_LEFT_VERTICAL);
             if (model_widget.displayButtonsOnLeft().getValue())
             {

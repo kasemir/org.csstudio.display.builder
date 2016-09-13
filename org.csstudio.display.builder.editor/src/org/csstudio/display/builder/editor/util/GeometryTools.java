@@ -55,8 +55,8 @@ public class GeometryTools
 
         while (container != null)
         {
-            dx += container.positionX().getValue();
-            dy += container.positionY().getValue();
+            dx += container.propX().getValue();
+            dy += container.propY().getValue();
             final int[] insets = InsetsWidgetProperty.getInsets(container);
             if (insets != null)
             {
@@ -75,10 +75,10 @@ public class GeometryTools
      */
     public static Rectangle2D getBounds(final Widget widget)
     {
-        return new Rectangle2D(widget.positionX().getValue(),
-                               widget.positionY().getValue(),
-                               widget.positionWidth().getValue(),
-                               widget.positionHeight().getValue());
+        return new Rectangle2D(widget.propX().getValue(),
+                               widget.propY().getValue(),
+                               widget.propWidth().getValue(),
+                               widget.propHeight().getValue());
     }
 
     /** Get bounds of widget relative to display model
@@ -90,16 +90,16 @@ public class GeometryTools
         final Point2D offset = getDisplayOffset(widget);
         try
         {
-            return new Rectangle2D(offset.getX() + widget.positionX().getValue(),
-                                   offset.getY() + widget.positionY().getValue(),
-                                   widget.positionWidth().getValue(),
-                                   widget.positionHeight().getValue());
+            return new Rectangle2D(offset.getX() + widget.propX().getValue(),
+                                   offset.getY() + widget.propY().getValue(),
+                                   widget.propWidth().getValue(),
+                                   widget.propHeight().getValue());
         }
         catch (IllegalArgumentException ex)
         {
             logger.log(Level.WARNING, "Widget has invalid size " + widget, ex);
-            return new Rectangle2D(offset.getX() + widget.positionX().getValue(),
-                                   offset.getY() + widget.positionY().getValue(),
+            return new Rectangle2D(offset.getX() + widget.propX().getValue(),
+                                   offset.getY() + widget.propY().getValue(),
                                    1, 1);
         }
     }
@@ -198,16 +198,16 @@ public class GeometryTools
         int min_x = Integer.MAX_VALUE, min_y = Integer.MAX_VALUE;
         for (Widget widget : widgets)
         {
-            min_x = Math.min(widget.positionX().getValue(), min_x);
-            min_y = Math.min(widget.positionY().getValue(), min_y);
+            min_x = Math.min(widget.propX().getValue(), min_x);
+            min_y = Math.min(widget.propY().getValue(), min_y);
         }
         // Move upper left corner to desired location
         final int dx = x - Math.max(0, min_x);
         final int dy = y - Math.max(0, min_y);
         for (Widget widget : widgets)
         {
-            widget.positionX().setValue(widget.positionX().getValue() + dx);
-            widget.positionY().setValue(widget.positionY().getValue() + dy);
+            widget.propX().setValue(widget.propX().getValue() + dx);
+            widget.propY().setValue(widget.propY().getValue() + dy);
         }
     }
 }

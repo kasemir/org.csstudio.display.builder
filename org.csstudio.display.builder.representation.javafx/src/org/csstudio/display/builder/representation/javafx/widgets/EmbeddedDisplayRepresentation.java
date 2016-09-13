@@ -79,17 +79,17 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::sizesChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::sizesChanged);
-        model_widget.displayResize().addUntypedPropertyListener(this::sizesChanged);
-        model_widget.runtimeScale().addUntypedPropertyListener(this::sizesChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::sizesChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::sizesChanged);
+        model_widget.propResize().addUntypedPropertyListener(this::sizesChanged);
+        model_widget.runtimePropScale().addUntypedPropertyListener(this::sizesChanged);
         if (info == null)
             // Prevent initial update
             dirty_info.checkAndClear();
         else
         {
-            model_widget.displayFile().addUntypedPropertyListener(this::infoChanged);
-            model_widget.displayGroupName().addUntypedPropertyListener(this::infoChanged);
+            model_widget.propFile().addUntypedPropertyListener(this::infoChanged);
+            model_widget.propGroupName().addUntypedPropertyListener(this::infoChanged);
             // Initial info
             infoChanged(null, null, null);
         }
@@ -103,8 +103,8 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
 
     private void infoChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        String file = model_widget.displayFile().getValue();
-        String group = model_widget.displayGroupName().getValue();
+        String file = model_widget.propFile().getValue();
+        String group = model_widget.propGroupName().getValue();
         if (group.isEmpty())
             info_text = file;
         else
@@ -119,11 +119,11 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         super.updateChanges();
         if (dirty_sizes.checkAndClear())
         {
-            final Integer width = model_widget.positionWidth().getValue();
-            final Integer height = model_widget.positionHeight().getValue();
+            final Integer width = model_widget.propWidth().getValue();
+            final Integer height = model_widget.propHeight().getValue();
             scroll.setPrefSize(width, height);
 
-            final Resize resize = model_widget.displayResize().getValue();
+            final Resize resize = model_widget.propResize().getValue();
             if (resize == Resize.None)
             {
                 zoom.setX(1.0);
@@ -133,7 +133,7 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
             }
             else if (resize == Resize.ResizeContent)
             {
-                final double factor = model_widget.runtimeScale().getValue();
+                final double factor = model_widget.runtimePropScale().getValue();
                 zoom.setX(factor);
                 zoom.setY(factor);
                 scroll.setHbarPolicy(ScrollBarPolicy.NEVER);

@@ -7,12 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayOffColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayOnColor;
 import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -49,8 +49,8 @@ public class ByteMonitorWidget extends VisibleWidget
         }
     };
 
-    /** Display 'start bit': Number of first (smallest) bit */
-    public static final WidgetPropertyDescriptor<Integer> displayStartBit =
+    /** 'start bit' property: Number of first (smallest) bit */
+    public static final WidgetPropertyDescriptor<Integer> propStartBit =
         new WidgetPropertyDescriptor<Integer>(WidgetPropertyCategory.DISPLAY, "startBit", Messages.ByteMonitor_StartBit)
         {
             @Override
@@ -60,8 +60,8 @@ public class ByteMonitorWidget extends VisibleWidget
             }
         };
 
-    /** Display 'num. bits': Bit number in the integer to start displaying. */
-    public static final WidgetPropertyDescriptor<Integer> displayNumBits =
+    /** 'num. bits' property: Bit number in the integer to start displaying. */
+    public static final WidgetPropertyDescriptor<Integer> propNumBits =
         new WidgetPropertyDescriptor<Integer>(WidgetPropertyCategory.DISPLAY, "numBits", Messages.ByteMonitor_NumBits)
         {
             @Override
@@ -71,19 +71,18 @@ public class ByteMonitorWidget extends VisibleWidget
             }
         };
 
-    /** Display 'bit reverse': Reverse the direction that bits are displayed; if no, the start bit (the smallest bit) is on right or bottom. */
-    public static final WidgetPropertyDescriptor<Boolean> displayBitReverse =
+    /** 'bit reverse' property: Reverse the direction that bits are displayed; if no, the start bit (the smallest bit) is on right or bottom. */
+    public static final WidgetPropertyDescriptor<Boolean> propBitReverse =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "bitReverse", Messages.ByteMonitor_BitReverse);
 
-    /** Display 'horizontal': Change whether bits are displayed horizontally or vertically */
-    public static final WidgetPropertyDescriptor<Boolean> displayHorizontal =
+    /** 'horizontal' property: Change whether bits are displayed horizontally or vertically */
+    public static final WidgetPropertyDescriptor<Boolean> propHorizontal =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "horizontal", Messages.ByteMonitor_Horizontal);
 
-    /** Display 'square LED': Whether LEDS are square (rectangular) or round (circular) */
-    public static final WidgetPropertyDescriptor<Boolean> displaySquareLED =
+    /** 'square LED' property: Whether LEDS are square (rectangular) or round (circular) */
+    public static final WidgetPropertyDescriptor<Boolean> propSquareLED =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "square_led", Messages.ByteMonitor_SquareLED);
 
-    private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<WidgetColor> off_color;
     private volatile WidgetProperty<WidgetColor> on_color;
@@ -102,68 +101,62 @@ public class ByteMonitorWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(behaviorPVName.createProperty(this, ""));
-        properties.add(value = runtimeValue.createProperty(this, null));
-        properties.add(displayBorderAlarmSensitive.createProperty(this, true));
-        properties.add(off_color = displayOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
-        properties.add(on_color = displayOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
-        properties.add(startBit = displayStartBit.createProperty(this,0));
-        properties.add(numBits = displayNumBits.createProperty(this,8));
-        properties.add(bitReverse = displayBitReverse.createProperty(this,false));
-        properties.add(horizontal = displayHorizontal.createProperty(this,true));
-        properties.add(square_led = displaySquareLED.createProperty(this,false));
+        properties.add(propPVName.createProperty(this, ""));
+        properties.add(value = runtimePropValue.createProperty(this, null));
+        properties.add(propBorderAlarmSensitive.createProperty(this, true));
+        properties.add(startBit = propStartBit.createProperty(this,0));
+        properties.add(numBits = propNumBits.createProperty(this,8));
+        properties.add(bitReverse = propBitReverse.createProperty(this,false));
+        properties.add(horizontal = propHorizontal.createProperty(this,true));
+        properties.add(square_led = propSquareLED.createProperty(this,false));
+        properties.add(off_color = propOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
+        properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
     }
 
-    /** @return Behavior 'pv_name' */
-    public WidgetProperty<String> behaviorPVName()
-    {
-        return pv_name;
-    }
-
-    /** @return Runtime 'value' */
-    public WidgetProperty<VType> runtimeValue()
+    /** @return Runtime 'value' property */
+    public WidgetProperty<VType> runtimePropValue()
     {
         return value;
     }
 
-    /** @return 'off_color' */
-    public WidgetProperty<WidgetColor> displayOffColor()
+    /** @return 'off_color' property */
+    public WidgetProperty<WidgetColor> propOffColor()
     {
         return off_color;
     }
 
-    /** @return 'on_color' */
-    public WidgetProperty<WidgetColor> displayOnColor()
+    /** @return 'on_color' property */
+    public WidgetProperty<WidgetColor> propOnColor()
     {
         return on_color;
     }
 
-    /** @return 'startBit' */
-    public WidgetProperty<Integer> displayStartBit()
+    /** @return 'startBit' property */
+    public WidgetProperty<Integer> propStartBit()
     {
         return startBit;
     }
 
-    /** @return 'numBits' */
-    public WidgetProperty<Integer> displayNumBits()
+    /** @return 'numBits' property */
+    public WidgetProperty<Integer> propNumBits()
     {
         return numBits;
     }
 
-    /** @return 'bitReverse' */
-    public WidgetProperty<Boolean> displayBitReverse()
+    /** @return 'bitReverse' property */
+    public WidgetProperty<Boolean> propBitReverse()
     {
         return bitReverse;
     }
 
-    /** @return 'horizontal' */
-    public WidgetProperty<Boolean> displayHorizontal()
+    /** @return 'horizontal' property */
+    public WidgetProperty<Boolean> propHorizontal()
     {
         return horizontal;
     }
 
-    /** @return 'square_led' */
-    public WidgetProperty<Boolean> displaySquareLED()
+    /** @return 'square_led' property */
+    public WidgetProperty<Boolean> propSquareLED()
     {
         return square_led;
     }

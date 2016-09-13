@@ -135,13 +135,13 @@ public class ThermometerRepresentation extends RegionBaseRepresentation<Region, 
         @Override
         protected double computePrefWidth(double height)
         {
-            return model_widget.positionWidth().getValue();
+            return model_widget.propWidth().getValue();
         }
 
         @Override
         protected double computePrefHeight(double width)
         {
-            return model_widget.positionHeight().getValue();
+            return model_widget.propHeight().getValue();
         }
 
         public void setFill(Color color)
@@ -182,8 +182,8 @@ public class ThermometerRepresentation extends RegionBaseRepresentation<Region, 
     {
         super.registerListeners();
         model_widget.displayFillColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.positionWidth().addUntypedPropertyListener(this::lookChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::lookChanged);
         model_widget.behaviorLimitsFromPV().addUntypedPropertyListener(this::valueChanged);
         model_widget.behaviorMinimum().addUntypedPropertyListener(this::valueChanged);
         model_widget.behaviorMaximum().addUntypedPropertyListener(this::valueChanged);
@@ -236,8 +236,8 @@ public class ThermometerRepresentation extends RegionBaseRepresentation<Region, 
         if (dirty_look.checkAndClear())
         {
             ((Thermo) jfx_node).setFill(JFXUtil.convert(model_widget.displayFillColor().getValue()));
-            jfx_node.setPrefHeight(model_widget.positionHeight().getValue());
-            jfx_node.setPrefWidth(model_widget.positionWidth().getValue());
+            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
         }
         if (dirty_value.checkAndClear())
             ((Thermo) jfx_node).setLimits(min, max, val);

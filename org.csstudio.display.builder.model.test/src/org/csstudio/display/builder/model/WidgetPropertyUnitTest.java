@@ -7,9 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propType;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -39,9 +39,9 @@ public class WidgetPropertyUnitTest
     {
         final Widget widget = new VisibleWidget("generic");
         System.out.println(widget);
-        widget.setPropertyValue(widgetName, "test1");
+        widget.setPropertyValue(propName, "test1");
         assertThat(widget.getName(), equalTo("test1"));
-        assertThat(widget.getProperty(widgetName).getValue(), equalTo("test1"));
+        assertThat(widget.getProperty(propName).getValue(), equalTo("test1"));
 
         assertThat(widget.getProperty("name").getValue(), instanceOf(String.class));
         assertThat(widget.getProperty("x").getValue(), instanceOf(Integer.class));
@@ -53,7 +53,7 @@ public class WidgetPropertyUnitTest
     public void testPropertyWrite()
     {
         final Widget widget = new Widget("generic");
-        final WidgetProperty<Integer> property = widget.getProperty(positionX);
+        final WidgetProperty<Integer> property = widget.getProperty(propX);
         assertThat(property.getValue(), equalTo(0));
         assertThat(property.isDefaultValue(), equalTo(true));
 
@@ -73,10 +73,10 @@ public class WidgetPropertyUnitTest
         protected void defineProperties(final List<WidgetProperty<?>> properties)
         {
             super.defineProperties(properties);
-            properties.add(CustomWidget.miscZeroTen.createProperty(this, 5));
+            properties.add(CustomWidget.propZeroTen.createProperty(this, 5));
             try
             {
-                properties.add(CustomWidget.miscZeroTen.createProperty(this, -5));
+                properties.add(CustomWidget.propZeroTen.createProperty(this, -5));
                 throw new Error("Failed to detect default value -5 outside of range 0-10");
             }
             catch (final IllegalArgumentException ex)
@@ -95,7 +95,7 @@ public class WidgetPropertyUnitTest
     {
         final Widget widget = new TestWidget();
 
-        final WidgetProperty<Integer> property = widget.getProperty(CustomWidget.miscZeroTen);
+        final WidgetProperty<Integer> property = widget.getProperty(CustomWidget.propZeroTen);
         assertThat(property.getValue(), equalTo(5));
         assertThat(property.getDefaultValue(), equalTo(5));
 
@@ -114,8 +114,8 @@ public class WidgetPropertyUnitTest
     public void testReadonly()
     {
         final Widget widget = new Widget("generic");
-        final WidgetProperty<String> type = widget.getProperty(widgetType);
-        final WidgetProperty<String> name = widget.getProperty(widgetName);
+        final WidgetProperty<String> type = widget.getProperty(propType);
+        final WidgetProperty<String> name = widget.getProperty(propName);
         assertThat(type.isReadonly(), equalTo(true));
         assertThat(name.isReadonly(), equalTo(false));
 
@@ -160,7 +160,7 @@ public class WidgetPropertyUnitTest
         final DisplayModel widget = new DisplayModel();
         final Macros macros = new Macros();
         macros.add("ALIGN", "1");
-        widget.widgetMacros().setValue(macros);
+        widget.propMacros().setValue(macros);
 
         final EnumWidgetProperty<Align> prop = new EnumWidgetProperty<Align>(alignHoriz, widget, Align.LEFT);
         System.out.println(prop);
@@ -229,20 +229,20 @@ public class WidgetPropertyUnitTest
     {
         // Widget with X position set to $(X), where that macro has the value 0
         final DisplayModel display = new DisplayModel();
-        display.widgetMacros().getValue().add("X", "0");
+        display.propMacros().getValue().add("X", "0");
 
         final LabelWidget widget = new LabelWidget();
         display.runtimeChildren().addChild(widget);
 
-        ((MacroizedWidgetProperty<Integer>)widget.positionX()).setSpecification("$(X)");
+        ((MacroizedWidgetProperty<Integer>)widget.propX()).setSpecification("$(X)");
 
         // The X position value matches the default
-        assertThat(widget.positionX().getValue(), equalTo(0));
+        assertThat(widget.propX().getValue(), equalTo(0));
 
         // .. but the property doesn't have the default value,
         // i.e. it must be saved by the editor, since $(X) could
         // in other invocation evaluate to anything but 0.
-        assertThat(widget.positionX().isDefaultValue(), equalTo(false));
+        assertThat(widget.propX().isDefaultValue(), equalTo(false));
     }
 
     @Test
@@ -254,11 +254,11 @@ public class WidgetPropertyUnitTest
         display.runtimeChildren().addChild(widget);
 
         // "name" property of widget can be accessed as macro
-        widget.widgetName().setValue("fred");
+        widget.propName().setValue("fred");
         assertThat(MacroHandler.replace(widget.getMacrosOrProperties(), "$(name)"), equalTo("fred"));
 
         // If there is actually a "name" macro, that takes precedence
-        display.widgetMacros().getValue().add("name", "The Name");
+        display.propMacros().getValue().add("name", "The Name");
         assertThat(MacroHandler.replace(widget.getMacrosOrProperties(), "$(name)"), equalTo("The Name"));
 
         // Bad recursion: Property was set to macro which in turn requests that same property

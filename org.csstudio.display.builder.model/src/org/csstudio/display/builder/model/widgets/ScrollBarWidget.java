@@ -7,15 +7,15 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorLimitsFromPV;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMaximum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMinimum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -92,18 +92,18 @@ public class ScrollBarWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(behaviorPVName.createProperty(this, ""));
-        properties.add(value = runtimeValue.createProperty(this, null));
-        properties.add(displayBorderAlarmSensitive.createProperty(this, true));
-        properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
-        properties.add(maximum = behaviorMaximum.createProperty(this, 100.0));
+        properties.add(propPVName.createProperty(this, ""));
+        properties.add(value = runtimePropValue.createProperty(this, null));
+        properties.add(propBorderAlarmSensitive.createProperty(this, true));
+        properties.add(minimum = propMinimum.createProperty(this, 0.0));
+        properties.add(maximum = propMaximum.createProperty(this, 100.0));
         properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, false));
         properties.add(horizontal = displayHorizontal.createProperty(this, true));
         properties.add(show_value_tip = displayShowValueTip.createProperty(this, true));
         properties.add(bar_length = behaviorBarLength.createProperty(this, 10.0));
         properties.add(step_increment = behaviorStepIncrement.createProperty(this, 1.0));
         properties.add(page_increment = behaviorPageIncrement.createProperty(this, 10.0));
-        properties.add(enabled = behaviorEnabled.createProperty(this, true));
+        properties.add(enabled = propEnabled.createProperty(this, true));
     }
 
     /** @return Runtime 'value' */

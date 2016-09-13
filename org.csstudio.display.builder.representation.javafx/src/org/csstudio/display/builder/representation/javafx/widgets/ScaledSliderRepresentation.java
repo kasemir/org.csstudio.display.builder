@@ -175,7 +175,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.behaviorLimitsFromPV().addUntypedPropertyListener(this::limitsChanged);
         model_widget.behaviorMinimum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.behaviorMaximum().addUntypedPropertyListener(this::limitsChanged);
@@ -301,8 +301,8 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
     private double calculateTickUnit(double span)
     {
         final double length = (model_widget.displayHorizontal().getValue() ?
-                model_widget.positionWidth().getValue() :
-                model_widget.positionHeight().getValue());
+                model_widget.propWidth().getValue() :
+                model_widget.propHeight().getValue());
         double dataDistance = (model_widget.displayMajorTickStepHint().getValue() / length) * span;
             //dataDistance: min. distance, in data units, between major ticks
         final double order_of_magnitude = Math.pow(10, Math.floor(Math.log10(dataDistance)));
@@ -342,8 +342,8 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         super.updateChanges();
         if (dirty_size.checkAndClear())
         {
-            double w = model_widget.positionWidth().getValue();
-            double h = model_widget.positionHeight().getValue();
+            double w = model_widget.propWidth().getValue();
+            double h = model_widget.propHeight().getValue();
             //if all prefSize is used, layout is not properly
             //arranged when size changes in editor
             jfx_node.setMaxSize(w, h);

@@ -33,16 +33,16 @@ import org.diirt.vtype.VType;
 public class PlotWidgetProperties
 {
     // Custom property types
-    public static final WidgetPropertyDescriptor<Boolean> displayToolbar =
+    public static final WidgetPropertyDescriptor<Boolean> propToolbar =
             CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_toolbar", Messages.PlotWidget_ShowToolbar);
 
     public static final WidgetPropertyDescriptor<Boolean> displayLegend =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_legend", Messages.PlotWidget_ShowLegend);
 
-    public static final WidgetPropertyDescriptor<String> displayTitle =
+    public static final WidgetPropertyDescriptor<String> propTitle =
         CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "title", Messages.PlotWidget_Title);
 
-    public static final WidgetPropertyDescriptor<WidgetFont> titleFontProperty =
+    public static final WidgetPropertyDescriptor<WidgetFont> propTitleFont =
             new WidgetPropertyDescriptor<WidgetFont>(
                     WidgetPropertyCategory.DISPLAY, "title_font", Messages.PlotWidget_TitleFont)
     {
@@ -55,13 +55,13 @@ public class PlotWidgetProperties
     };
 
     // Elements of the 'axis' structure
-    public static final WidgetPropertyDescriptor<Boolean> autoscale =
+    public static final WidgetPropertyDescriptor<Boolean> propAutoscale =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "autoscale", Messages.PlotWidget_AutoScale);
 
-    private static final WidgetPropertyDescriptor<Boolean> logscale =
+    private static final WidgetPropertyDescriptor<Boolean> propLogscale =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "log_scale", Messages.PlotWidget_LogScale);
 
-    public static final WidgetPropertyDescriptor<WidgetFont> scaleFont =
+    public static final WidgetPropertyDescriptor<WidgetFont> propScaleFont =
         new WidgetPropertyDescriptor<WidgetFont>(
             WidgetPropertyCategory.DISPLAY, "scale_font", Messages.PlotWidget_ScaleFont)
     {
@@ -73,10 +73,10 @@ public class PlotWidgetProperties
         }
     };
 
-    private final static StructuredWidgetProperty.Descriptor behaviorXAxis =
+    private final static StructuredWidgetProperty.Descriptor propXAxis =
         new Descriptor(WidgetPropertyCategory.BEHAVIOR, "x_axis", Messages.PlotWidget_XAxis);
 
-    private final static StructuredWidgetProperty.Descriptor behaviorYAxis =
+    private final static StructuredWidgetProperty.Descriptor propYAxis =
         new Descriptor(WidgetPropertyCategory.BEHAVIOR, "y_axis", Messages.PlotWidget_YAxis);
 
     /** Structure for X axis */ // Also base for Y Axis
@@ -87,13 +87,13 @@ public class PlotWidgetProperties
          */
         public static AxisWidgetProperty create(final Widget widget, final String title_text)
         {
-            return new AxisWidgetProperty(behaviorXAxis, widget,
-                  Arrays.asList(displayTitle.createProperty(widget, title_text),
-                                autoscale.createProperty(widget, false),
-                                CommonWidgetProperties.behaviorMinimum.createProperty(widget, 0.0),
-                                CommonWidgetProperties.behaviorMaximum.createProperty(widget, 100.0),
-                                titleFontProperty.createProperty(widget, NamedWidgetFonts.DEFAULT_BOLD),
-                                scaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)));
+            return new AxisWidgetProperty(propXAxis, widget,
+                  Arrays.asList(propTitle.createProperty(widget, title_text),
+                                propAutoscale.createProperty(widget, false),
+                                CommonWidgetProperties.propMinimum.createProperty(widget, 0.0),
+                                CommonWidgetProperties.propMaximum.createProperty(widget, 100.0),
+                                propTitleFont.createProperty(widget, NamedWidgetFonts.DEFAULT_BOLD),
+                                propScaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)));
         }
 
         protected AxisWidgetProperty(final StructuredWidgetProperty.Descriptor axis_descriptor,
@@ -118,14 +118,14 @@ public class PlotWidgetProperties
          */
         public static YAxisWidgetProperty create(final Widget widget, final String title_text)
         {
-            return new YAxisWidgetProperty(behaviorYAxis, widget,
-                  Arrays.asList(displayTitle.createProperty(widget, title_text),
-                                autoscale.createProperty(widget, false),
-                                logscale.createProperty(widget, false),
-                                CommonWidgetProperties.behaviorMinimum.createProperty(widget, 0.0),
-                                CommonWidgetProperties.behaviorMaximum.createProperty(widget, 100.0),
-                                titleFontProperty.createProperty(widget, NamedWidgetFonts.DEFAULT_BOLD),
-                                scaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)));
+            return new YAxisWidgetProperty(propYAxis, widget,
+                  Arrays.asList(propTitle.createProperty(widget, title_text),
+                                propAutoscale.createProperty(widget, false),
+                                propLogscale.createProperty(widget, false),
+                                CommonWidgetProperties.propMinimum.createProperty(widget, 0.0),
+                                CommonWidgetProperties.propMaximum.createProperty(widget, 100.0),
+                                propTitleFont.createProperty(widget, NamedWidgetFonts.DEFAULT_BOLD),
+                                propScaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)));
         }
 
         protected YAxisWidgetProperty(final StructuredWidgetProperty.Descriptor axis_descriptor,
@@ -180,7 +180,7 @@ public class PlotWidgetProperties
         CommonWidgetProperties.newRuntimeValue("x_value", Messages.PlotWidget_X);
     private static final WidgetPropertyDescriptor<VType> traceYValue =
         CommonWidgetProperties.newRuntimeValue("y_value", Messages.PlotWidget_Y);
-    private final static StructuredWidgetProperty.Descriptor behaviorTrace =
+    private final static StructuredWidgetProperty.Descriptor propTrace =
         new Descriptor(WidgetPropertyCategory.BEHAVIOR, "trace", Messages.PlotWidget_Trace);
 
     /** 'trace' structure */
@@ -188,8 +188,8 @@ public class PlotWidgetProperties
     {
         public TraceWidgetProperty(final Widget widget)
         {
-            super(behaviorTrace, widget,
-                  Arrays.asList(CommonWidgetProperties.widgetName.createProperty(widget, ""),
+            super(propTrace, widget,
+                  Arrays.asList(CommonWidgetProperties.propName.createProperty(widget, ""),
                                 traceX.createProperty(widget, ""),
                                 traceY.createProperty(widget, ""),
                                 traceYAxis.createProperty(widget, 0),

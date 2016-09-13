@@ -8,11 +8,11 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayDirection;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
-import static org.csstudio.display.builder.model.properties.InsetsWidgetProperty.runtimeInsets;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
+import static org.csstudio.display.builder.model.properties.InsetsWidgetProperty.runtimePropInsets;
 
 import java.util.Arrays;
 import java.util.List;
@@ -82,7 +82,7 @@ public class TabsWidget extends VisibleWidget
         protected TabItemProperty(final Widget widget, final int index)
         {
             super(displayTabItem, widget,
-                  Arrays.asList(CommonWidgetProperties.widgetName.createProperty(widget, createTabText(index)),
+                  Arrays.asList(CommonWidgetProperties.propName.createProperty(widget, createTabText(index)),
                                 new ChildrenProperty(widget)));
         }
 
@@ -190,19 +190,19 @@ public class TabsWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(macros = widgetMacros.createProperty(this, new Macros()));
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(macros = propMacros.createProperty(this, new Macros()));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(active = activeTab.createProperty(this, 0));
         properties.add(tabs = displayTabs.createProperty(this, Arrays.asList(new TabItemProperty(this, 0),
                                                                              new TabItemProperty(this, 1))));
         properties.add(direction = displayDirection.createProperty(this, Direction.HORIZONTAL));
         properties.add(tab_height = tabHeight.createProperty(this, 30));
-        properties.add(insets = runtimeInsets.createProperty(this, new int[] { 0, 0 }));
+        properties.add(insets = runtimePropInsets.createProperty(this, new int[] { 0, 0 }));
 
         // Initial size
-        positionWidth().setValue(300);
-        positionHeight().setValue(200);
+        propWidth().setValue(300);
+        propHeight().setValue(200);
     }
 
     private static String createTabText(final int index)

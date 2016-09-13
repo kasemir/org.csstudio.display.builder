@@ -7,17 +7,17 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newRuntimeValue;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
-import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.displayToolbar;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
+import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,8 +104,8 @@ public class TableWidget extends VisibleWidget
         public ColumnProperty(final Widget widget, final String name)
         {
             super(displayColumn, widget,
-                  Arrays.asList(widgetName.createProperty(widget, name),
-                                positionWidth.createProperty(widget, 50),
+                  Arrays.asList(propName.createProperty(widget, name),
+                                propWidth.createProperty(widget, 50),
                                 behaviorEditable.createProperty(widget, true),
                                 columnOptions.createProperty(widget, Collections.emptyList())));
         }
@@ -250,13 +250,13 @@ public class TableWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(displayBorderAlarmSensitive.createProperty(this, true));
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
-        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        properties.add(show_toolbar = displayToolbar.createProperty(this,false));
+        properties.add(propBorderAlarmSensitive.createProperty(this, true));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(show_toolbar = propToolbar.createProperty(this,false));
         properties.add(columns = displayColumns.createProperty(this, Arrays.asList(  new ColumnProperty(this, "Column 1") )));
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
+        properties.add(pv_name = propPVName.createProperty(this, ""));
         properties.add(value = runtimeValue.createProperty(this, null));
         properties.add(editable = behaviorEditable.createProperty(this, true));
         properties.add(selection_pv = selectionPV.createProperty(this, ""));

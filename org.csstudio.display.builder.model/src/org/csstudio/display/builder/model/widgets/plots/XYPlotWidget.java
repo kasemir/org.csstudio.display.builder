@@ -8,8 +8,8 @@
 package org.csstudio.display.builder.model.widgets.plots;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.displayToolbar;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
 
 import java.util.Arrays;
 import java.util.List;
@@ -258,10 +258,10 @@ public class XYPlotWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        properties.add(title = PlotWidgetProperties.displayTitle.createProperty(this, ""));
-        properties.add(title_font = PlotWidgetProperties.titleFontProperty.createProperty(this, NamedWidgetFonts.HEADER2));
-        properties.add(show_toolbar = displayToolbar.createProperty(this,false));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(title = PlotWidgetProperties.propTitle.createProperty(this, ""));
+        properties.add(title_font = PlotWidgetProperties.propTitleFont.createProperty(this, NamedWidgetFonts.HEADER2));
+        properties.add(show_toolbar = propToolbar.createProperty(this,false));
         properties.add(show_legend = PlotWidgetProperties.displayLegend.createProperty(this, true));
         properties.add(x_axis = AxisWidgetProperty.create(this, Messages.PlotWidget_X));
         properties.add(y_axes = PlotWidgetProperties.behaviorYAxes.createProperty(this, Arrays.asList(YAxisWidgetProperty.create(this, Messages.PlotWidget_Y))));

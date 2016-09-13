@@ -7,9 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayLineColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayLineWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayPoints;
 
 import java.util.Arrays;
@@ -107,9 +107,9 @@ public class PolygonWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(background_color = displayBackgroundColor.createProperty(this, new WidgetColor(50, 50, 255)));
-        properties.add(line_color = displayLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
-        properties.add(line_width = displayLineWidth.createProperty(this, 3));
+        properties.add(background_color = propBackgroundColor.createProperty(this, new WidgetColor(50, 50, 255)));
+        properties.add(line_color = propLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
+        properties.add(line_width = propLineWidth.createProperty(this, 3));
         properties.add(points = displayPoints.createProperty(this, new Points()));
     }
 

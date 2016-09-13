@@ -182,8 +182,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         model_widget.behaviorYAxes().addPropertyListener(this::yAxesChanged);
 
         final UntypedWidgetPropertyListener position_listener = this::positionChanged;
-        model_widget.positionWidth().addUntypedPropertyListener(position_listener);
-        model_widget.positionHeight().addUntypedPropertyListener(position_listener);
+        model_widget.propWidth().addUntypedPropertyListener(position_listener);
+        model_widget.propHeight().addUntypedPropertyListener(position_listener);
 
         tracesChanged(model_widget.behaviorTraces(), null, model_widget.behaviorTraces().getValue());
         model_widget.behaviorTraces().addPropertyListener(this::tracesChanged);
@@ -271,8 +271,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             updateConfig();
         if (dirty_position.checkAndClear())
         {
-            final int w = model_widget.positionWidth().getValue();
-            final int h = model_widget.positionHeight().getValue();
+            final int w = model_widget.propWidth().getValue();
+            final int h = model_widget.propHeight().getValue();
             plot.setPrefWidth(w);
             plot.setPrefHeight(h);
         }

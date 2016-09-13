@@ -292,7 +292,7 @@ public class WidgetTree
         item.setExpanded(true);
         item_parent.getChildren().add(index, item);
 
-        added_widget.widgetName().addPropertyListener(name_listener);
+        added_widget.propName().addPropertyListener(name_listener);
 
         if (added_widget instanceof TabsWidget)
         {
@@ -353,7 +353,7 @@ public class WidgetTree
             removeTabs(tabs.getValue());
         }
 
-        removed_widget.widgetName().removePropertyListener(name_listener);
+        removed_widget.propName().removePropertyListener(name_listener);
 
         final ChildrenProperty children = ChildrenProperty.getChildren(removed_widget);
         if (children != null)
@@ -383,7 +383,7 @@ public class WidgetTree
             }
         }
 
-        widget.widgetName().removePropertyListener(name_listener);
+        widget.propName().removePropertyListener(name_listener);
         final ChildrenProperty children = ChildrenProperty.getChildren(widget);
         if (children != null)
         {

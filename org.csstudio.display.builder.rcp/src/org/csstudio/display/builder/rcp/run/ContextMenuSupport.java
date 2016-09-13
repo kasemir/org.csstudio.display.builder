@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.run;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.rcp.Plugin.logger;
 
 import java.net.URL;
@@ -136,7 +136,7 @@ public class ContextMenuSupport
             manager.add(new WidgetInfoAction(context_menu_widget));
 
             // Actions of the widget
-            for (ActionInfo info : context_menu_widget.behaviorActions().getValue())
+            for (ActionInfo info : context_menu_widget.propActions().getValue())
                 manager.add(new ActionInfoWrapper(context_menu_widget, info));
 
             // Actions of the widget runtime
@@ -207,7 +207,7 @@ public class ContextMenuSupport
             public void handleContextMenu(final Widget widget)
             {
                 IStructuredSelection sel = StructuredSelection.EMPTY;
-                final Optional<WidgetProperty<String>> name_prop = widget.checkProperty(behaviorPVName);
+                final Optional<WidgetProperty<String>> name_prop = widget.checkProperty(propPVName);
                 if (name_prop.isPresent())
                 {
                     final String pv_name = name_prop.get().getValue();

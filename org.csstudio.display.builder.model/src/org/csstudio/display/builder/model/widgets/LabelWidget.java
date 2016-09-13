@@ -7,12 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayHorizontalAlignment;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayTransparent;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propText;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTransparent;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayVerticalAlignment;
 
 import java.util.Arrays;
@@ -71,11 +71,11 @@ public class LabelWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(text = displayText.createProperty(this, Messages.LabelWidget_Text));
-        properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        properties.add(transparent = displayTransparent.createProperty(this, true));
-        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(text = propText.createProperty(this, Messages.LabelWidget_Text));
+        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(transparent = propTransparent.createProperty(this, true));
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(horizontal_alignment = displayHorizontalAlignment.createProperty(this, HorizontalAlignment.LEFT));
         properties.add(vertical_alignment = displayVerticalAlignment.createProperty(this, VerticalAlignment.TOP));
     }

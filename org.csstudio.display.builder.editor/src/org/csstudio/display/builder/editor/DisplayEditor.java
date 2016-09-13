@@ -241,8 +241,8 @@ public class DisplayEditor
                 if (target.getValue().isEmpty())
                 { //drop first widget into ArrayWidget
                     Widget widget = it.next();
-                    widget.positionX().setValue(widget.positionX().getValue() - dx);
-                    widget.positionY().setValue(widget.positionY().getValue() - dy);
+                    widget.propX().setValue(widget.propX().getValue() - dx);
+                    widget.propY().setValue(widget.propY().getValue() - dy);
                     widget_naming.setDefaultName(container.getDisplayModel(), widget);
                     undo.execute(new AddWidgetAction(target, widget));
                 }
@@ -262,8 +262,8 @@ public class DisplayEditor
             while (it.hasNext())
             {
                 Widget widget = it.next();
-                widget.positionX().setValue(widget.positionX().getValue() - dx);
-                widget.positionY().setValue(widget.positionY().getValue() - dy);
+                widget.propX().setValue(widget.propX().getValue() - dx);
+                widget.propY().setValue(widget.propY().getValue() - dy);
                 widget_naming.setDefaultName(container.getDisplayModel(), widget);
                 undo.execute(new AddWidgetAction(target, widget));
             }

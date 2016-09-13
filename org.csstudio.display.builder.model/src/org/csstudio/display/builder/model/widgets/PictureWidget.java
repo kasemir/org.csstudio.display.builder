@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFile;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
 
@@ -69,7 +69,7 @@ public class PictureWidget extends VisibleWidget
             if (xml != null)
             {
                 final Document doc = widget_xml.getOwnerDocument();
-                Element fname = doc.createElement(displayFile.getName());
+                Element fname = doc.createElement(propFile.getName());
 
                 if (xml.getFirstChild() != null)
                 {
@@ -107,7 +107,7 @@ public class PictureWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(filename = displayFile.createProperty(this, default_pic));
+        properties.add(filename = propFile.createProperty(this, default_pic));
         properties.add(stretch_image = displayStretch.createProperty(this, false));
         properties.add(rotation = positionRotation.createProperty(this, 0.0));
     }

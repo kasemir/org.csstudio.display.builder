@@ -7,8 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.List;
 
@@ -66,9 +66,9 @@ public class FileSelectorWidget extends VisibleWidget
         @Override  public String toString()       { return name;      }
     }
 
-    private static final WidgetPropertyDescriptor<Filespace> behaviorFilespace =
+    private static final WidgetPropertyDescriptor<Filespace> propFilespace =
             new WidgetPropertyDescriptor<Filespace>(
-                WidgetPropertyCategory.BEHAVIOR, "filespace", Messages.WidgetProperties_Filespace)
+                WidgetPropertyCategory.WIDGET, "filespace", Messages.WidgetProperties_Filespace)
     {
         @Override
         public EnumWidgetProperty<Filespace> createProperty(final Widget widget,
@@ -78,9 +78,9 @@ public class FileSelectorWidget extends VisibleWidget
         }
     };
 
-    private static final WidgetPropertyDescriptor<FileComponent> behaviorFilecomponent =
+    private static final WidgetPropertyDescriptor<FileComponent> propFilecomponent =
             new WidgetPropertyDescriptor<FileComponent>(
-                WidgetPropertyCategory.BEHAVIOR, "component", Messages.WidgetProperties_Filecomponent)
+                WidgetPropertyCategory.WIDGET, "component", Messages.WidgetProperties_Filecomponent)
     {
         @Override
         public EnumWidgetProperty<FileComponent> createProperty(final Widget widget,
@@ -107,32 +107,32 @@ public class FileSelectorWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
-        properties.add(filespace = behaviorFilespace.createProperty(this, Filespace.WORKSPACE));
-        properties.add(component = behaviorFilecomponent.createProperty(this, FileComponent.FULL));
-        properties.add(value = runtimeValue.createProperty(this, null));
+        properties.add(pv_name = propPVName.createProperty(this, ""));
+        properties.add(filespace = propFilespace.createProperty(this, Filespace.WORKSPACE));
+        properties.add(component = propFilecomponent.createProperty(this, FileComponent.FULL));
+        properties.add(value = runtimePropValue.createProperty(this, null));
     }
 
-    /** @return Behavior 'pv_name' */
-    public WidgetProperty<String> behaviorPVName()
+    /** @return 'pv_name' property */
+    public WidgetProperty<String> propPVName()
     {
         return pv_name;
     }
 
-    /** @return Behavior 'filespace' */
-    public WidgetProperty<Filespace> behaviorFilespace()
+    /** @return 'filespace' property */
+    public WidgetProperty<Filespace> propFilespace()
     {
         return filespace;
     }
 
-    /** @return Behavior 'component' */
-    public WidgetProperty<FileComponent> behaviorComponent()
+    /** @return 'component' property */
+    public WidgetProperty<FileComponent> propComponent()
     {
         return component;
     }
 
-    /** @return Runtime 'value' */
-    public WidgetProperty<VType> runtimeValue()
+    /** @return Runtime 'value' property */
+    public WidgetProperty<VType> runtimePropValue()
     {
         return value;
     }

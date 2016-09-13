@@ -51,11 +51,11 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     @Override
     protected Pane createJFXNode() throws Exception
     {
-        model_widget.runtimeInsets().setValue(new int[] { inset, inset });
+        model_widget.runtimePropInsets().setValue(new int[] { inset, inset });
         inner_pane = new Pane();
         inner_pane.relocate(inset, inset);
-        height = model_widget.positionHeight().getValue();
-        width = model_widget.positionWidth().getValue();
+        height = model_widget.propHeight().getValue();
+        width = model_widget.propWidth().getValue();
         return new Pane(inner_pane);
     }
 
@@ -69,13 +69,13 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.runtimeChildren().addPropertyListener(this::childrenChanged);
-        model_widget.positionHeight().addPropertyListener(this::sizeChanged);
-        model_widget.positionWidth().addPropertyListener(this::sizeChanged);
-        model_widget.displayForegroundColor().addPropertyListener(this::colorChanged);
+        model_widget.runtimePropChildren().addPropertyListener(this::childrenChanged);
+        model_widget.propHeight().addPropertyListener(this::sizeChanged);
+        model_widget.propWidth().addPropertyListener(this::sizeChanged);
+        model_widget.propForegroundColor().addPropertyListener(this::colorChanged);
         model_widget.displayBackgroundColor().addPropertyListener(this::colorChanged);
 
-        childrenChanged(null, null, model_widget.runtimeChildren().getValue());
+        childrenChanged(null, null, model_widget.runtimePropChildren().getValue());
         adjustNumberByLength();
     }
 
@@ -103,7 +103,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
                 jfx_node.setPrefHeight(height);
             if (width > 0)
                 jfx_node.setPrefWidth(width);
-            Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
+            Color color = JFXUtil.convert(model_widget.propForegroundColor().getValue());
             jfx_node.setBorder(new Border(
                     new BorderStroke(color, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT,
                             new Insets(inset / 2))));
@@ -122,8 +122,8 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     {
         if (!isArranging && (old_value != new_value || old_value == null))
         {
-            width = model_widget.positionWidth().getValue();
-            height = model_widget.positionHeight().getValue();
+            width = model_widget.propWidth().getValue();
+            height = model_widget.propHeight().getValue();
             adjustNumberByLength();
 
             dirty_look.mark();
@@ -135,7 +135,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
     private void childrenChanged(final WidgetProperty<List<Widget>> property, final List<Widget> removed,
             final List<Widget> added)
     {
-        List<Widget> newval = new ArrayList<Widget>(model_widget.runtimeChildren().getValue());
+        List<Widget> newval = new ArrayList<Widget>(model_widget.runtimePropChildren().getValue());
         if (!isAddingRemoving)
         {
             numChildren = newval.size();
@@ -174,17 +174,17 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         while (it.hasNext())
         {
             WidgetProperty<?> prop = it.next();
-            if (!prop.getCategory().equals(model_widget.runtimeChildren().getCategory())
-                    && (!prop.getCategory().equals(model_widget.positionHeight().getCategory())
-                            || prop.getName().equals(model_widget.positionVisible().getName()))
-                    && !prop.getCategory().equals(model_widget.widgetName().getCategory())
-                    && !prop.getName().equals(model_widget.behaviorPVName().getName()))
+            if (!prop.getCategory().equals(model_widget.runtimePropChildren().getCategory())
+                    && (!prop.getCategory().equals(model_widget.propHeight().getCategory())
+                            || prop.getName().equals(model_widget.propVisible().getName()))
+                    && !prop.getCategory().equals(model_widget.propName().getCategory())
+                    && !prop.getName().equals(model_widget.propPVName().getName()))
             {
                 //toolkit.logger.finest("Array widget adding listener to " + widget + " " + prop);
                 prop.addUntypedPropertyListener(listener);
             }
-            else if (prop.getCategory().equals(model_widget.positionHeight().getCategory())
-                    && !prop.getName().equals(model_widget.positionVisible().getCategory()))
+            else if (prop.getCategory().equals(model_widget.propHeight().getCategory())
+                    && !prop.getName().equals(model_widget.propVisible().getCategory()))
             {
                 prop.addUntypedPropertyListener(rearrange);
             }
@@ -201,17 +201,17 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         while (it.hasNext())
         {
             WidgetProperty<?> prop = it.next();
-            if (!prop.getCategory().equals(model_widget.runtimeChildren().getCategory())
-                    && (!prop.getCategory().equals(model_widget.positionHeight().getCategory())
-                            || prop.getName().equals(model_widget.positionVisible().getName()))
-                    && !prop.getCategory().equals(model_widget.widgetName().getCategory())
-                    && !prop.getName().equals(model_widget.behaviorPVName().getName()))
+            if (!prop.getCategory().equals(model_widget.runtimePropChildren().getCategory())
+                    && (!prop.getCategory().equals(model_widget.propHeight().getCategory())
+                            || prop.getName().equals(model_widget.propVisible().getName()))
+                    && !prop.getCategory().equals(model_widget.propName().getCategory())
+                    && !prop.getName().equals(model_widget.propPVName().getName()))
             {
                 //toolkit.logger.finest("Array widget removing listener from " + widget + " " + prop);
                 prop.removePropertyListener(listener);
             }
-            else if (prop.getCategory().equals(model_widget.positionHeight().getCategory())
-                    && !prop.getName().equals(model_widget.positionVisible().getCategory()))
+            else if (prop.getCategory().equals(model_widget.propHeight().getCategory())
+                    && !prop.getName().equals(model_widget.propVisible().getCategory()))
             {
                 prop.removePropertyListener(rearrange);
             }
@@ -286,7 +286,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     private void arrangeChildren()
     {
-        List<Widget> children = new ArrayList<Widget>(model_widget.runtimeChildren().getValue());
+        List<Widget> children = new ArrayList<Widget>(model_widget.runtimePropChildren().getValue());
         Widget master = this.master;
         if (children.isEmpty())
             return;
@@ -297,24 +297,24 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         numChildren = children.size();
 
         final boolean vertical = testVerticalStacking(master);
-        final int h = vertical ? master.positionHeight().getValue()
-                               : (height = model_widget.positionHeight().getValue()) - inset * 2;
-        final int w = vertical ? (width = model_widget.positionWidth().getValue()) - inset * 2
-                               : master.positionWidth().getValue();
+        final int h = vertical ? master.propHeight().getValue()
+                               : (height = model_widget.propHeight().getValue()) - inset * 2;
+        final int w = vertical ? (width = model_widget.propWidth().getValue()) - inset * 2
+                               : master.propWidth().getValue();
         int len = 0;
         for (Widget child : children)
         {
-            child.positionHeight().setValue(h);
-            child.positionWidth().setValue(w);
-            child.positionX().setValue(vertical ? 0 : len);
-            child.positionY().setValue(vertical ? len : 0);
+            child.propHeight().setValue(h);
+            child.propWidth().setValue(w);
+            child.propX().setValue(vertical ? 0 : len);
+            child.propY().setValue(vertical ? len : 0);
             len += vertical ? h : w;
         }
         len += inset * 2;
         if (vertical && len != height)
-            model_widget.positionHeight().setValue(height = len);
+            model_widget.propHeight().setValue(height = len);
         else if (!vertical && len != width)
-            model_widget.positionWidth().setValue(width = len);
+            model_widget.propWidth().setValue(width = len);
         else
             isArranging = false;
         dirty_look.mark();
@@ -323,12 +323,12 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
 
     private void adjustNumberByLength()
     {
-        final List<Widget> children = new ArrayList<Widget>(model_widget.runtimeChildren().getValue());
+        final List<Widget> children = new ArrayList<Widget>(model_widget.runtimePropChildren().getValue());
         if (children.isEmpty())
             return;
         final boolean vertical = testVerticalStacking(children.get(0));
-        final int l = vertical ? children.get(0).positionHeight().getValue()
-                               : children.get(0).positionWidth().getValue();
+        final int l = vertical ? children.get(0).propHeight().getValue()
+                               : children.get(0).propWidth().getValue();
         numChildren = vertical ? (height - inset * 2) / l
                                : (width - inset * 2) / l;
         dirty_number.mark();
@@ -340,10 +340,10 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         if (number > 0 && !children.isEmpty())
         {
             Widget child = copyWidget(children.get(0));
-            child.widgetName().setValue(model_widget.getName() + "-" + child.getType() + "-" + this.children.size());
+            child.propName().setValue(model_widget.getName() + "-" + child.getType() + "-" + this.children.size());
             if (child != null)
             {
-                model_widget.runtimeChildren().addChild(child);
+                model_widget.runtimePropChildren().addChild(child);
                 addChildren(children, number - 1);
             }
         }
@@ -354,7 +354,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         if (number > 0 && children.size() > 1)
         {
             Widget child = children.remove(children.size() - 1);
-            model_widget.runtimeChildren().removeChild(child);
+            model_widget.runtimePropChildren().removeChild(child);
             removeChildren(children, number - 1);
         }
     }
@@ -381,7 +381,7 @@ public class ArrayRepresentation extends JFXBaseRepresentation<Pane, ArrayWidget
         while (it.hasNext())
         {
             final WidgetProperty<?> prop = it.next();
-            if (prop.getName().equals(original.widgetName().getName()))
+            if (prop.getName().equals(original.propName().getName()))
                 continue;
             try
             {

@@ -42,8 +42,8 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
     {
         super.registerListeners();
         pos = computePos();
-        model_widget.positionWidth().addUntypedPropertyListener(this::styleChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayTransparent().addUntypedPropertyListener(this::styleChanged);
@@ -84,8 +84,8 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
             Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
             jfx_node.setTextFill(color);
 
-            jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
-                                 model_widget.positionHeight().getValue());
+            jfx_node.setPrefSize(model_widget.propWidth().getValue(),
+                                 model_widget.propHeight().getValue());
             jfx_node.setAlignment(pos);
             if (model_widget.displayTransparent().getValue())
             {   // No fill
