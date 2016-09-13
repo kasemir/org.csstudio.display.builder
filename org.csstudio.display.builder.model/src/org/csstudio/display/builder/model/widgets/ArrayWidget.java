@@ -45,7 +45,7 @@ public class ArrayWidget extends VisibleWidget
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("array", WidgetCategory.STRUCTURE,
             Messages.ArrayWidget_Name,
-                    "platform:/plugin/org.csstudio.display.builder.model/icons/array.png",
+                    "platform:/plugin/org.csstudio.display.builder.model/icons/array.gif",
             Messages.ArrayWidget_Description,
             Arrays.asList("org.csstudio.opibuilder.widgets.array"))
     {
@@ -102,7 +102,7 @@ public class ArrayWidget extends VisibleWidget
 
     /**
      * Array widget extends parent macros
-     * 
+     *
      * @return {@link Macros}
      */
     @Override
