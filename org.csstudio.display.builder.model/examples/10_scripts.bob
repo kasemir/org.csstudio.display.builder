@@ -325,7 +325,6 @@ and the "Active" label moves next to the selected mode.</text>
     <name>Action Button</name>
     <x>411</x>
     <y>791</y>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>solitaire/solitaire.bob</file>
@@ -338,7 +337,6 @@ and the "Active" label moves next to the selected mode.</text>
     <name>Action Button_1</name>
     <x>521</x>
     <y>791</y>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>t3/t3.bob</file>
@@ -444,7 +442,6 @@ from new locations.</text>
     <name>Action Button_2</name>
     <x>631</x>
     <y>791</y>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>webservice/webservice.bob</file>
@@ -457,7 +454,6 @@ from new locations.</text>
     <name>Action Button_3</name>
     <x>741</x>
     <y>791</y>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>sudoku/sudoku.bob</file>
@@ -470,7 +466,6 @@ from new locations.</text>
     <name>Action Button_4</name>
     <x>851</x>
     <y>791</y>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>script_util/script_util.bob</file>
@@ -502,7 +497,6 @@ using "native" Python, click the button below. For an explanation of Python
     <name>Action Button_5</name>
     <y>411</y>
     <width>141</width>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>scripts_python-vs-jython.bob</file>
@@ -549,5 +543,18 @@ By the time the script executes, it sees the current
 state of all PVs: Some may not be connected,
 some may already have changed their values
 once more.</text>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_6</name>
+    <x>162</x>
+    <y>413</y>
+    <width>141</width>
+    <actions>
+      <action type="open_display">
+        <file>python/scripts_python_detail.bob</file>
+        <target>replace</target>
+        <description>Detail</description>
+      </action>
+    </actions>
   </widget>
 </display>
