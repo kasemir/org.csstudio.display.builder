@@ -250,10 +250,10 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
     @Override
     public Region createJFXNode() throws Exception
     {
-        boolean toolbar = model_widget.displayShowToolbar().getValue();
+        boolean toolbar = model_widget.propShowToolbar().getValue();
         if (toolkit.isEditMode())
         {
-            BrowserWithToolbar browser = new BrowserWithToolbar(model_widget.widgetURL().getValue())
+            BrowserWithToolbar browser = new BrowserWithToolbar(model_widget.propWidgetURL().getValue())
             {
                 @Override
                 protected void goToURL(String url)
@@ -268,8 +268,8 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
             browser.disableToolbar();
             return browser;
         }
-        return toolbar ? new BrowserWithToolbar(model_widget.widgetURL().getValue())
-                : new Browser(model_widget.widgetURL().getValue());
+        return toolbar ? new BrowserWithToolbar(model_widget.propWidgetURL().getValue())
+                : new Browser(model_widget.propWidgetURL().getValue());
     }
 
     @Override
@@ -279,7 +279,7 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
         if (!toolkit.isEditMode())
-            model_widget.widgetURL().addPropertyListener(this::urlChanged);
+            model_widget.propWidgetURL().addPropertyListener(this::urlChanged);
         //the showToolbar property cannot be changed at runtime
    }
 
@@ -307,7 +307,7 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         }
         if (dirty_url.checkAndClear())
         {
-            ((Browser)jfx_node).goToURL(model_widget.widgetURL().getValue());
+            ((Browser)jfx_node).goToURL(model_widget.propWidgetURL().getValue());
         }
     }
 }

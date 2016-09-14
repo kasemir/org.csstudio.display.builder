@@ -176,9 +176,9 @@ public class ArrayWidgetPropertyUnitTest
     {
         final XYPlotWidget widget = new XYPlotWidget();
 
-        widget.displayTitle().setValue("The Title");
-        widget.behaviorXAxis().title().setValue("X Axis");
-        widget.behaviorYAxes().getElement(0).title().setValue("Y 1");
+        widget.propTitle().setValue("The Title");
+        widget.propXAxis().title().setValue("X Axis");
+        widget.propYAxes().getElement(0).title().setValue("Y 1");
 
         String value;
         value = widget.getPropertyValue("title");

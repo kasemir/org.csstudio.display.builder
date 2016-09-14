@@ -80,7 +80,7 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
         final Widget parent = widget.getParent().get();
         if (parent instanceof TabsWidget)
         {
-            final List<TabItemProperty> tabs = ((TabsWidget)parent).displayTabs().getValue();
+            final List<TabItemProperty> tabs = ((TabsWidget)parent).propTabs().getValue();
             for (TabItemProperty tab : tabs)
             {
                 final ChildrenProperty children = tab.children();
@@ -144,7 +144,7 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
                 return child;
             if (child instanceof TabsWidget)
             {
-                for (TabItemProperty tab : ((TabsWidget)child).displayTabs().getValue())
+                for (TabItemProperty tab : ((TabsWidget)child).propTabs().getValue())
                 {
                     final Widget maybe = tab.children().getChildByName(name);
                     if (maybe != null)

@@ -31,8 +31,8 @@ public class XYPlotWidgetTest
     /** Check for the one default 'Y' axis */
     private void assertYAxis(final XYPlotWidget plot)
     {
-        assertThat(plot.behaviorYAxes().size(), equalTo(1));
-        final AxisWidgetProperty axis = plot.behaviorYAxes().getElement(0);
+        assertThat(plot.propYAxes().size(), equalTo(1));
+        final AxisWidgetProperty axis = plot.propYAxes().getElement(0);
         assertThat(axis.title().getValue(), equalTo("Y"));
     }
 

@@ -255,8 +255,8 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
     private DisplayModel createErrorModel(final String message)
     {
         final LabelWidget info = new LabelWidget();
-        info.displayText().setValue(message);
-        info.displayForegroundColor().setValue(WidgetColorService.getColor(NamedWidgetColors.ALARM_DISCONNECTED));
+        info.propText().setValue(message);
+        info.propForegroundColor().setValue(WidgetColorService.getColor(NamedWidgetColors.ALARM_DISCONNECTED));
         // Size a little smaller than the widget to fill but not require scrollbars
         final int wid = widget.propWidth().getValue()-2;
         final int hei = widget.propHeight().getValue()-2;

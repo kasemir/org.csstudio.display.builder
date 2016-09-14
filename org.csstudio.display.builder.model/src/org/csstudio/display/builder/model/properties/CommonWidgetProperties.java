@@ -214,8 +214,8 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<WidgetColor> propBackgroundColor =
         newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "background_color", Messages.WidgetProperties_BackgroundColor);
 
-    /** Display 'fill_color' */
-    public static final WidgetPropertyDescriptor<WidgetColor> displayFillColor =
+    /** 'fill_color' property */
+    public static final WidgetPropertyDescriptor<WidgetColor> propFillColor =
         newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "fill_color", Messages.WidgetProperties_FillColor);
 
     /** 'line_color' property */
@@ -232,10 +232,10 @@ public class CommonWidgetProperties
 
     /** 'text' property: Text to display */
     public static final WidgetPropertyDescriptor<String> propText =
-        newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "text", Messages.WidgetProperties_Text);
+        newStringPropertyDescriptor(WidgetPropertyCategory.WIDGET, "text", Messages.WidgetProperties_Text);
 
-    /** Display 'format' */
-    public static final WidgetPropertyDescriptor<FormatOption> displayFormat =
+    /** 'format' property */
+    public static final WidgetPropertyDescriptor<FormatOption> propFormat =
         new WidgetPropertyDescriptor<FormatOption>(
             WidgetPropertyCategory.DISPLAY, "format", Messages.WidgetProperties_Format)
     {
@@ -247,12 +247,12 @@ public class CommonWidgetProperties
         }
     };
 
-    /** Display 'precision' */
-    public static final WidgetPropertyDescriptor<Integer> displayPrecision =
+    /** 'precision' property */
+    public static final WidgetPropertyDescriptor<Integer> propPrecision =
         newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "precision", Messages.WidgetProperties_Precision);
 
-    /** Display 'show_units' */
-    public static final WidgetPropertyDescriptor<Boolean> displayShowUnits =
+    /** 'show_units' property */
+    public static final WidgetPropertyDescriptor<Boolean> propShowUnits =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_units", Messages.WidgetProperties_ShowUnits);
 
     /** 'font' property: Font for display */
@@ -268,13 +268,25 @@ public class CommonWidgetProperties
         }
     };
 
+    /** 'step_increment' property */
+    public static final WidgetPropertyDescriptor<Double> propStepIncrement =
+            CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "step_increment", Messages.WidgetProperties_StepIncrement);
+
+    /** 'page_increment' property */
+    public static final WidgetPropertyDescriptor<Double> propPageIncrement =
+            CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "page_increment", Messages.WidgetProperties_PageIncrement);
+
+    /** 'horizontal' property: Use horizontal orientation */
+    public static final WidgetPropertyDescriptor<Boolean> propHorizontal =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "horizontal", Messages.WidgetProperties_Horizontal);
+
     /** 'file' property: File to display */
     //TODO: Add editor support for filenames. Change from String to filename type
     public static final WidgetPropertyDescriptor<String> propFile =
         newStringPropertyDescriptor(WidgetPropertyCategory.WIDGET, "file", Messages.WidgetProperties_File);
 
-    /** Display 'points': Points to display */
-    public static final WidgetPropertyDescriptor<Points> displayPoints =
+    /** 'points' property: Points to display */
+    public static final WidgetPropertyDescriptor<Points> propPoints =
         new WidgetPropertyDescriptor<Points>(
             WidgetPropertyCategory.DISPLAY, "points", Messages.WidgetProperties_Points)
     {
@@ -286,8 +298,8 @@ public class CommonWidgetProperties
         }
     };
 
-    /** Display 'direction' */
-    public static final WidgetPropertyDescriptor<Direction> displayDirection =
+    /** 'direction' property */
+    public static final WidgetPropertyDescriptor<Direction> propDirection =
         new WidgetPropertyDescriptor<Direction>(
             WidgetPropertyCategory.DISPLAY, "direction", Messages.WidgetProperties_Direction)
     {
@@ -299,8 +311,8 @@ public class CommonWidgetProperties
         }
     };
 
-    /** Display 'horizontal_alignment' */
-    public static final WidgetPropertyDescriptor<HorizontalAlignment> displayHorizontalAlignment =
+    /** 'horizontal_alignment' property */
+    public static final WidgetPropertyDescriptor<HorizontalAlignment> propHorizontalAlignment =
         new WidgetPropertyDescriptor<HorizontalAlignment>(
             WidgetPropertyCategory.DISPLAY, "horizontal_alignment", Messages.WidgetProperties_HorizontalAlignment)
     {
@@ -312,8 +324,8 @@ public class CommonWidgetProperties
         }
     };
 
-    /** Display 'vertical_alignment' */
-    public static final WidgetPropertyDescriptor<VerticalAlignment> displayVerticalAlignment =
+    /** 'vertical_alignment' property */
+    public static final WidgetPropertyDescriptor<VerticalAlignment> propVerticalAlignment =
         new WidgetPropertyDescriptor<VerticalAlignment>(
             WidgetPropertyCategory.DISPLAY, "vertical_alignment", Messages.WidgetProperties_VerticalAlignment)
     {
@@ -402,8 +414,8 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<Boolean> propEnabled =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "enabled", Messages.WidgetProperties_Enabled);
 
-    /** Behavior 'limits_from_pv': Use limits from PV's meta data? */
-    public static final WidgetPropertyDescriptor<Boolean> behaviorLimitsFromPV =
+    /** 'limits_from_pv' property: Use limits from PV's meta data? */
+    public static final WidgetPropertyDescriptor<Boolean> propLimitsFromPV =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "limits_from_pv", Messages.WidgetProperties_LimitsFromPV);
 
     /** 'minimum' property: Minimum display range */

@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.util.ArrayList;
@@ -184,7 +184,7 @@ public class RuntimePVs
             }
         logger.log(Level.FINE, "{0} can write {1} out of {2} PVs", new Object[] { widget, can_write, need_to_write });
         final boolean enable = need_to_write == 0  ||  can_write > 0;
-        final Optional<WidgetProperty<Boolean>> enabled = widget.checkProperty(behaviorEnabled);
+        final Optional<WidgetProperty<Boolean>> enabled = widget.checkProperty(propEnabled);
         if (enabled.isPresent())
             enabled.get().setValue(enable);
     }

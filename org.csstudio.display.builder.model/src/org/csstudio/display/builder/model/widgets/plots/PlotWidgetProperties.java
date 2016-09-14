@@ -36,7 +36,7 @@ public class PlotWidgetProperties
     public static final WidgetPropertyDescriptor<Boolean> propToolbar =
             CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_toolbar", Messages.PlotWidget_ShowToolbar);
 
-    public static final WidgetPropertyDescriptor<Boolean> displayLegend =
+    public static final WidgetPropertyDescriptor<Boolean> propLegend =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_legend", Messages.PlotWidget_ShowLegend);
 
     public static final WidgetPropertyDescriptor<String> propTitle =
@@ -146,7 +146,7 @@ public class PlotWidgetProperties
     };
 
     /** 'y_axes' array */
-    public static final ArrayWidgetProperty.Descriptor<YAxisWidgetProperty> behaviorYAxes =
+    public static final ArrayWidgetProperty.Descriptor<YAxisWidgetProperty> propYAxes =
         new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.BEHAVIOR, "y_axes", Messages.PlotWidget_YAxes,
                                              (widget, index) ->
                                              YAxisWidgetProperty.create(widget,
@@ -211,7 +211,7 @@ public class PlotWidgetProperties
     };
 
     /** 'traces' array */
-    public static final ArrayWidgetProperty.Descriptor<TraceWidgetProperty> behaviorTraces =
+    public static final ArrayWidgetProperty.Descriptor<TraceWidgetProperty> propTraces =
         new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.BEHAVIOR, "traces", Messages.PlotWidget_Traces,
                                              (widget, index) ->
                                              new TraceWidgetProperty(widget));

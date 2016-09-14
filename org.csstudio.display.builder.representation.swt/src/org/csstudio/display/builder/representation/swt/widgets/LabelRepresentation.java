@@ -31,7 +31,7 @@ public class LabelRepresentation extends SWTBaseRepresentation<Label, LabelWidge
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.displayText().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propText().addUntypedPropertyListener(this::contentChanged);
     }
 
     private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -45,6 +45,6 @@ public class LabelRepresentation extends SWTBaseRepresentation<Label, LabelWidge
     {
         super.updateChanges();
         if (dirty_content.checkAndClear())
-            control.setText(model_widget.displayText().getValue());
+            control.setText(model_widget.propText().getValue());
     }
 }

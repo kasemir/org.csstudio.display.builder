@@ -44,16 +44,16 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
         super.registerListeners();
         model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayFont().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
 
-        model_widget.displayFormat().addUntypedPropertyListener(this::contentChanged);
-        model_widget.displayPrecision().addUntypedPropertyListener(this::contentChanged);
-        model_widget.displayShowUnits().addUntypedPropertyListener(this::contentChanged);
-        model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propFormat().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propPrecision().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propShowUnits().addUntypedPropertyListener(this::contentChanged);
+        model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
 
-        model_widget.behaviorPVName().addPropertyListener(this::pvnameChanged);
+        model_widget.propPVName().addPropertyListener(this::pvnameChanged);
     }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -68,11 +68,11 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
     private String computeText(final VType value)
     {
         if (value == null)
-            return "<" + model_widget.behaviorPVName().getValue() + ">";
+            return "<" + model_widget.propPVName().getValue() + ">";
         return FormatOptionHandler.format(value,
-                                          model_widget.displayFormat().getValue(),
-                                          model_widget.displayPrecision().getValue(),
-                                          model_widget.displayShowUnits().getValue());
+                                          model_widget.propFormat().getValue(),
+                                          model_widget.propPrecision().getValue(),
+                                          model_widget.propShowUnits().getValue());
     }
 
     private void pvnameChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
@@ -88,7 +88,7 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
 
     private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        value_text = computeText(model_widget.runtimeValue().getValue());
+        value_text = computeText(model_widget.runtimePropValue().getValue());
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -102,11 +102,11 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
             jfx_node.setPrefSize(model_widget.propWidth().getValue(),
                                  model_widget.propHeight().getValue());
 
-            Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
+            Color color = JFXUtil.convert(model_widget.propForegroundColor().getValue());
             jfx_node.setTextFill(color);
-            color = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
+            color = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
             jfx_node.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
-            jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+            jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
         }
         if (dirty_content.checkAndClear())
             jfx_node.setText(value_text);

@@ -42,14 +42,14 @@ public class ProgressBarRepresentation extends RegionBaseRepresentation<Progress
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.displayFillColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propFillColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propWidth().addUntypedPropertyListener(this::lookChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::lookChanged);
-        model_widget.behaviorLimitsFromPV().addUntypedPropertyListener(this::valueChanged);
-        model_widget.behaviorMinimum().addUntypedPropertyListener(this::valueChanged);
-        model_widget.behaviorMaximum().addUntypedPropertyListener(this::valueChanged);
-        model_widget.runtimeValue().addUntypedPropertyListener(this::valueChanged);
-        model_widget.displayHorizontal().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propLimitsFromPV().addUntypedPropertyListener(this::valueChanged);
+        model_widget.propMinimum().addUntypedPropertyListener(this::valueChanged);
+        model_widget.propMaximum().addUntypedPropertyListener(this::valueChanged);
+        model_widget.runtimePropValue().addUntypedPropertyListener(this::valueChanged);
+        model_widget.propHorizontal().addUntypedPropertyListener(this::lookChanged);
     }
 
     private void lookChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -60,11 +60,11 @@ public class ProgressBarRepresentation extends RegionBaseRepresentation<Progress
 
     private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        final VType vtype = model_widget.runtimeValue().getValue();
+        final VType vtype = model_widget.runtimePropValue().getValue();
 
-        final boolean limits_from_pv = model_widget.behaviorLimitsFromPV().getValue();
-        double min_val = model_widget.behaviorMinimum().getValue();
-        double max_val = model_widget.behaviorMaximum().getValue();
+        final boolean limits_from_pv = model_widget.propLimitsFromPV().getValue();
+        double min_val = model_widget.propMinimum().getValue();
+        double max_val = model_widget.propMaximum().getValue();
         if (limits_from_pv)
         {
             // Try display range from PV
@@ -102,7 +102,7 @@ public class ProgressBarRepresentation extends RegionBaseRepresentation<Progress
         super.updateChanges();
         if (dirty_look.checkAndClear())
         {
-            boolean horizontal = model_widget.displayHorizontal().getValue();
+            boolean horizontal = model_widget.propHorizontal().getValue();
             double width = model_widget.propWidth().getValue();
             double height = model_widget.propHeight().getValue();
             if (!horizontal)
@@ -121,7 +121,7 @@ public class ProgressBarRepresentation extends RegionBaseRepresentation<Progress
             // but result is very plain.
             // Tweaking the color used by CSS keeps overall style.
             // See also http://stackoverflow.com/questions/13467259/javafx-how-to-change-progressbar-color-dynamically
-            jfx_node.setStyle("-fx-accent: " + JFXUtil.webRGB(model_widget.displayFillColor().getValue()));
+            jfx_node.setStyle("-fx-accent: " + JFXUtil.webRGB(model_widget.propFillColor().getValue()));
         }
         if (dirty_value.checkAndClear())
             jfx_node.setProgress(percentage);

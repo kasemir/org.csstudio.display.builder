@@ -39,13 +39,13 @@ public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, Re
         super.registerListeners();
         model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.displayCornerWidth().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.displayCornerHeight().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propCornerWidth().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propCornerHeight().addUntypedPropertyListener(this::sizeChanged);
 
-        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.displayTransparent().addUntypedPropertyListener(this::lookChanged);
-        model_widget.displayLineColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.displayLineWidth().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propTransparent().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propLineColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propLineWidth().addUntypedPropertyListener(this::lookChanged);
    }
 
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -63,10 +63,10 @@ public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, Re
 
     private void updateColors()
     {
-        background = model_widget.displayTransparent().getValue()
+        background = model_widget.propTransparent().getValue()
                    ? Color.TRANSPARENT
-                   : JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
-        line_color = JFXUtil.convert(model_widget.displayLineColor().getValue());
+                   : JFXUtil.convert(model_widget.propBackgroundColor().getValue());
+        line_color = JFXUtil.convert(model_widget.propLineColor().getValue());
     }
 
     @Override
@@ -77,14 +77,14 @@ public class RectangleRepresentation extends JFXBaseRepresentation<Rectangle, Re
         {
             jfx_node.setWidth(model_widget.propWidth().getValue());
             jfx_node.setHeight(model_widget.propHeight().getValue());
-            jfx_node.setArcWidth(model_widget.displayCornerWidth().getValue());
-            jfx_node.setArcHeight(model_widget.displayCornerHeight().getValue());
+            jfx_node.setArcWidth(2 * model_widget.propCornerWidth().getValue());
+            jfx_node.setArcHeight(2 * model_widget.propCornerHeight().getValue());
         }
         if (dirty_look.checkAndClear())
         {
             jfx_node.setFill(background);
             jfx_node.setStroke(line_color);
-            jfx_node.setStrokeWidth(model_widget.displayLineWidth().getValue());
+            jfx_node.setStrokeWidth(model_widget.propLineWidth().getValue());
             jfx_node.setStrokeType(StrokeType.INSIDE);
         }
     }

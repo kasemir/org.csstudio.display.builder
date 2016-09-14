@@ -134,8 +134,8 @@ public class ParentHandler
                 else if (widget instanceof TabsWidget)
                 {   // Check children of _selected_ Tab
                     final TabsWidget tabwid = (TabsWidget) widget;
-                    final int selected = tabwid.displayActiveTab().getValue();
-                    child_prop = tabwid.displayTabs().getValue().get(selected).children();
+                    final int selected = tabwid.propActiveTab().getValue();
+                    child_prop = tabwid.propTabs().getValue().get(selected).children();
                 }
                 else if (widget instanceof ArrayWidget)
                 {

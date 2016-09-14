@@ -55,7 +55,7 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
             {
                 if (container.get() instanceof TabsWidget)
                 {   // Locate model_widget inside one of the Tab's children
-                    final List<TabItemProperty> tabs = ((TabsWidget) container.get()).displayTabs().getValue();
+                    final List<TabItemProperty> tabs = ((TabsWidget) container.get()).propTabs().getValue();
                     for (TabItemProperty tab : tabs)
                     {
                         final int i = tab.children().getValue().indexOf(model_widget);

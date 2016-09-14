@@ -262,7 +262,7 @@ public class WidgetPropertyUnitTest
         assertThat(MacroHandler.replace(widget.getMacrosOrProperties(), "$(name)"), equalTo("The Name"));
 
         // Bad recursion: Property was set to macro which in turn requests that same property
-        ((MacroizedWidgetProperty<String>)widget.behaviorPVName()).setSpecification("$(pv_name)");
+        ((MacroizedWidgetProperty<String>)widget.propPVName()).setSpecification("$(pv_name)");
         try
         {
             MacroHandler.replace(widget.getMacrosOrProperties(), "$(pv_name)");
@@ -273,6 +273,6 @@ public class WidgetPropertyUnitTest
             assertThat(ex.getMessage().toLowerCase(), containsString("recursive"));
         }
         // Macro remains unresolved (with many warnings on console)
-        assertThat(widget.behaviorPVName().getValue(), equalTo("$(pv_name)"));
+        assertThat(widget.propPVName().getValue(), equalTo("$(pv_name)"));
     }
 }

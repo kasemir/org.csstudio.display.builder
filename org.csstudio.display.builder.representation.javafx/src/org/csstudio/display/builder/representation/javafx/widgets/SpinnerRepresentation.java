@@ -126,9 +126,9 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         //The value factory retains the old values, and will be updated as scheduled below.
         final String text = jfx_node.getEditor().getText();
         Object value =
-                FormatOptionHandler.parse(model_widget.runtimeValue().getValue(), text);
-        double min = model_widget.behaviorMinimum().getValue();
-        double max = model_widget.behaviorMaximum().getValue();
+                FormatOptionHandler.parse(model_widget.runtimePropValue().getValue(), text);
+        double min = model_widget.propMinimum().getValue();
+        double max = model_widget.propMaximum().getValue();
         if (value instanceof Number)
         {
             if (((Number)value).doubleValue() < min)
@@ -173,9 +173,9 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         // Constructors
         TextSpinnerValueFactory()
         {
-            this(model_widget.behaviorMinimum().getDefaultValue(),
-                 model_widget.behaviorMaximum().getDefaultValue(),
-                 model_widget.behaviorStepIncrement().getDefaultValue());
+            this(model_widget.propMinimum().getDefaultValue(),
+                 model_widget.propMaximum().getDefaultValue(),
+                 model_widget.propStepIncrement().getDefaultValue());
         }
 
         TextSpinnerValueFactory(double min, double max, double stepIncrement)
@@ -345,10 +345,10 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
     private String computeText(final VType value)
     {
         if (value == null)
-            return "<" + model_widget.behaviorPVName().getValue() + ">";
+            return "<" + model_widget.propPVName().getValue() + ">";
         return FormatOptionHandler.format(value,
-                                          model_widget.displayFormat().getValue(),
-                                          model_widget.displayPrecision().getValue(),
+                                          model_widget.propFormat().getValue(),
+                                          model_widget.propPrecision().getValue(),
                                           false);
     }
 
@@ -358,19 +358,19 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         super.registerListeners();
         model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayButtonsOnLeft().addPropertyListener(this::styleChanged);
+        model_widget.propButtonsOnLeft().addPropertyListener(this::styleChanged);
 
-        model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
 
-        model_widget.behaviorStepIncrement().addUntypedPropertyListener(this::behaviorChanged);
-        model_widget.behaviorPageIncrement().addUntypedPropertyListener(this::behaviorChanged);
-        model_widget.behaviorMinimum().addUntypedPropertyListener(this::behaviorChanged);
-        model_widget.behaviorMaximum().addUntypedPropertyListener(this::behaviorChanged);
+        model_widget.propStepIncrement().addUntypedPropertyListener(this::behaviorChanged);
+        model_widget.propPageIncrement().addUntypedPropertyListener(this::behaviorChanged);
+        model_widget.propMinimum().addUntypedPropertyListener(this::behaviorChanged);
+        model_widget.propMaximum().addUntypedPropertyListener(this::behaviorChanged);
 
-        model_widget.displayFormat().addUntypedPropertyListener(this::contentChanged);
-        model_widget.displayPrecision().addUntypedPropertyListener(this::contentChanged);
-        model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propFormat().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propPrecision().addUntypedPropertyListener(this::contentChanged);
+        model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
 
         contentChanged(null, null, null);
         behaviorChanged(null, null, null);
@@ -385,16 +385,16 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
     private void behaviorChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         TextSpinnerValueFactory factory = (TextSpinnerValueFactory)jfx_node.getValueFactory();
-        factory.setStepIncrement(model_widget.behaviorStepIncrement().getValue());
-        factory.setPageIncrement(model_widget.behaviorPageIncrement().getValue());
-        factory.setMin(model_widget.behaviorMinimum().getValue());
-        factory.setMax(model_widget.behaviorMaximum().getValue());
+        factory.setStepIncrement(model_widget.propStepIncrement().getValue());
+        factory.setPageIncrement(model_widget.propPageIncrement().getValue());
+        factory.setMin(model_widget.propMinimum().getValue());
+        factory.setMax(model_widget.propMaximum().getValue());
     }
 
 
     private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        value = model_widget.runtimeValue().getValue();
+        value = model_widget.runtimePropValue().getValue();
         value_text = computeText(value);
         scheduleContentUpdate();
     }
@@ -412,14 +412,14 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         super.updateChanges();
         if (dirty_style.checkAndClear())
         {
-            final String color = JFXUtil.webRGB(model_widget.displayForegroundColor().getValue());
+            final String color = JFXUtil.webRGB(model_widget.propForegroundColor().getValue());
             jfx_node.editorProperty().getValue().setStyle("-fx-text-fill:" + color);
-            final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
+            final Color background = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
             jfx_node.editorProperty().getValue().setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
             jfx_node.setPrefWidth(model_widget.propWidth().getValue());
             jfx_node.setPrefHeight(model_widget.propHeight().getValue());
             int x = jfx_node.getStyleClass().indexOf(Spinner.STYLE_CLASS_ARROWS_ON_LEFT_VERTICAL);
-            if (model_widget.displayButtonsOnLeft().getValue())
+            if (model_widget.propButtonsOnLeft().getValue())
             {
                 if (x < 0)
                     jfx_node.getStyleClass().add(Spinner.STYLE_CLASS_ARROWS_ON_LEFT_VERTICAL);

@@ -79,14 +79,14 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         super.registerListeners();
         model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.displayHorizontal().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propHorizontal().addUntypedPropertyListener(this::sizeChanged);
 
-        model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayFont().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
 
-        model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
-        model_widget.behaviorItemsFromPV().addUntypedPropertyListener(this::contentChanged);
-        model_widget.behaviorItems().addUntypedPropertyListener(this::contentChanged);
+        model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propItemsFromPV().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propItems().addUntypedPropertyListener(this::contentChanged);
 
         toggle.selectedToggleProperty().addListener(this::valueChanged);
 
@@ -102,7 +102,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
             try
             {
                 toggle.selectToggle(oldval);
-                Object value = FormatOptionHandler.parse(model_widget.runtimeValue().getValue(),
+                Object value = FormatOptionHandler.parse(model_widget.runtimePropValue().getValue(),
                         ((RadioButton) newval).getText());
                 toolkit.fireWrite(model_widget, value);
             } finally
@@ -137,7 +137,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         }
         else
         {
-            List<WidgetProperty<String>> itemProps = model_widget.behaviorItems().getValue();
+            List<WidgetProperty<String>> itemProps = model_widget.propItems().getValue();
             List<String> new_items = new ArrayList<String>(itemProps.size());
             int new_index = -1;
             String currValue = VTypeUtil.getValueString(value, false);
@@ -154,8 +154,8 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
 
     private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        VType value = model_widget.runtimeValue().getValue();
-        boolean fromPV = model_widget.behaviorItemsFromPV().getValue() && value instanceof VEnum;
+        VType value = model_widget.runtimePropValue().getValue();
+        boolean fromPV = model_widget.propItemsFromPV().getValue() && value instanceof VEnum;
         items = computeItems(value, fromPV); //also sets index
         dirty_content.mark();
         dirty_style.mark(); //adjust colors
@@ -172,7 +172,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
             jfx_node.setPrefSize(model_widget.propWidth().getValue(), model_widget.propHeight().getValue());
             //horizontal
             jfx_node.setOrientation(
-                    model_widget.displayHorizontal().getValue() ? Orientation.HORIZONTAL : Orientation.VERTICAL);
+                    model_widget.propHorizontal().getValue() ? Orientation.HORIZONTAL : Orientation.VERTICAL);
         }
         if (dirty_content.checkAndClear())
         {
@@ -206,8 +206,8 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         }
         if (dirty_style.checkAndClear())
         {
-            final Color fg = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
-            final Font font = JFXUtil.convert(model_widget.displayFont().getValue());
+            final Color fg = JFXUtil.convert(model_widget.propForegroundColor().getValue());
+            final Font font = JFXUtil.convert(model_widget.propFont().getValue());
             for (Node rb_node : jfx_node.getChildren())
             {
                 final RadioButton rb = (RadioButton) rb_node;

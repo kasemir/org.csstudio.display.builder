@@ -47,9 +47,9 @@ public class RectangleWidget extends VisibleWidget
         }
     };
 
-    public static final WidgetPropertyDescriptor<Integer> displayCornerWidth =
+    public static final WidgetPropertyDescriptor<Integer> propCornerWidth =
         CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "corner_width", Messages.WidgetProperties_CornerWidth);
-    public static final WidgetPropertyDescriptor<Integer> displayCornerHeight =
+    public static final WidgetPropertyDescriptor<Integer> propCornerHeight =
         CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "corner_height", Messages.WidgetProperties_CornerHeight);
 
 
@@ -69,46 +69,46 @@ public class RectangleWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
+        properties.add(line_width = propLineWidth.createProperty(this, 3));
+        properties.add(line_color = propLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
         properties.add(background = propBackgroundColor.createProperty(this, new WidgetColor(30, 144, 255)));
         properties.add(transparent = propTransparent.createProperty(this, false));
-        properties.add(line_color = propLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
-        properties.add(line_width = propLineWidth.createProperty(this, 3));
-        properties.add(corner_width = displayCornerWidth.createProperty(this, 0));
-        properties.add(corner_height = displayCornerHeight.createProperty(this, 0));
+        properties.add(corner_width = propCornerWidth.createProperty(this, 0));
+        properties.add(corner_height = propCornerHeight.createProperty(this, 0));
     }
 
-    /** @return Display 'background_color' */
-    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    /** @return 'background_color' property */
+    public WidgetProperty<WidgetColor> propBackgroundColor()
     {
         return background;
     }
 
-    /** @return Display 'transparent' */
-    public WidgetProperty<Boolean> displayTransparent()
+    /** @return 'transparent' property */
+    public WidgetProperty<Boolean> propTransparent()
     {
         return transparent;
     }
 
-    /** @return Display 'line_color' */
-    public WidgetProperty<WidgetColor> displayLineColor()
+    /** @return 'line_color' color */
+    public WidgetProperty<WidgetColor> propLineColor()
     {
         return line_color;
     }
 
-    /** @return Display 'line_width' */
-    public WidgetProperty<Integer> displayLineWidth()
+    /** @return 'line_width' property */
+    public WidgetProperty<Integer> propLineWidth()
     {
         return line_width;
     }
 
-    /** @return Display 'corner_width' */
-    public WidgetProperty<Integer> displayCornerWidth()
+    /** @return 'corner_width' property */
+    public WidgetProperty<Integer> propCornerWidth()
     {
         return corner_width;
     }
 
-    /** @return Display 'corner_height' */
-    public WidgetProperty<Integer> displayCornerHeight()
+    /** @return 'corner_height' property */
+    public WidgetProperty<Integer> propCornerHeight()
     {
         return corner_height;
     }

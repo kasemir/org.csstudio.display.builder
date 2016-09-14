@@ -7,14 +7,17 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorLimitsFromPV;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPageIncrement;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propStepIncrement;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
@@ -50,25 +53,13 @@ public class ScrollBarWidget extends VisibleWidget
         }
     };
 
-    /** Display 'horizontal': Use horizontal orientation */ //TODO: ?add to CommonWidgetProperties
-    public static final WidgetPropertyDescriptor<Boolean> displayHorizontal =
-        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "horizontal", Messages.Horizontal);
-
-    /** Display 'show_value_tip': Show value tip */
-    public static final WidgetPropertyDescriptor<Boolean> displayShowValueTip =
+    /** 'show_value_tip' property: Show value tip */
+    public static final WidgetPropertyDescriptor<Boolean> propShowValueTip =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_value_tip", Messages.ScrollBar_ShowValueTip);
 
-    /** Behavior 'bar_length': Bar length: length visible */
-    public static final WidgetPropertyDescriptor<Double> behaviorBarLength =
+    /** 'bar_length' property: Bar length: length visible */
+    public static final WidgetPropertyDescriptor<Double> propBarLength =
         newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "bar_length", Messages.ScrollBar_BarLength);
-
-    /** Behavior 'step_increment': Regular/unit increment */
-    public static final WidgetPropertyDescriptor<Double> behaviorStepIncrement =
-        newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "step_increment", Messages.Spinner_StepIncrement);
-
-    /** Behavior 'page increment': Increment on page up/down */
-    public static final WidgetPropertyDescriptor<Double> behaviorPageIncrement =
-        newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "page_increment", Messages.Spinner_PageIncrement);
 
     private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<Double> minimum;
@@ -97,71 +88,71 @@ public class ScrollBarWidget extends VisibleWidget
         properties.add(propBorderAlarmSensitive.createProperty(this, true));
         properties.add(minimum = propMinimum.createProperty(this, 0.0));
         properties.add(maximum = propMaximum.createProperty(this, 100.0));
-        properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, false));
-        properties.add(horizontal = displayHorizontal.createProperty(this, true));
-        properties.add(show_value_tip = displayShowValueTip.createProperty(this, true));
-        properties.add(bar_length = behaviorBarLength.createProperty(this, 10.0));
-        properties.add(step_increment = behaviorStepIncrement.createProperty(this, 1.0));
-        properties.add(page_increment = behaviorPageIncrement.createProperty(this, 10.0));
+        properties.add(limits_from_pv = propLimitsFromPV.createProperty(this, false));
+        properties.add(horizontal = propHorizontal.createProperty(this, true));
+        properties.add(show_value_tip = propShowValueTip.createProperty(this, true));
+        properties.add(bar_length = propBarLength.createProperty(this, 10.0));
+        properties.add(step_increment = propStepIncrement.createProperty(this, 1.0));
+        properties.add(page_increment = propPageIncrement.createProperty(this, 10.0));
         properties.add(enabled = propEnabled.createProperty(this, true));
     }
 
-    /** @return Runtime 'value' */
-    public WidgetProperty<VType> runtimeValue()
+    /** @return Runtime 'value' property*/
+    public WidgetProperty<VType> runtimePropValue()
     {
         return value;
     }
 
-    /** @return Behavior 'minimum' */
-    public WidgetProperty<Double> behaviorMinimum()
+    /** @return 'minimum' property */
+    public WidgetProperty<Double> propMinimum()
     {
         return minimum;
     }
 
-    /** @return Behavior 'maximum' */
-    public WidgetProperty<Double> behaviorMaximum()
+    /** @return 'maximum' property */
+    public WidgetProperty<Double> propMaximum()
     {
         return maximum;
     }
 
-    /** @return Behavior 'limits_from_pv' */
-    public WidgetProperty<Boolean> behaviorLimitsFromPV()
+    /** @return 'limits_from_pv' property*/
+    public WidgetProperty<Boolean> propLimitsFromPV()
     {
         return limits_from_pv;
     }
 
-    /** @return Display 'horizontal' */
-    public WidgetProperty<Boolean> displayHorizontal()
+    /** @return 'horizontal' property */
+    public WidgetProperty<Boolean> propHorizontal()
     {
         return horizontal;
     }
 
-    /** @return Display 'show_value_tip' */
-    public WidgetProperty<Boolean> displayShowValueTip()
+    /** @return 'show_value_tip' property */
+    public WidgetProperty<Boolean> propShowValueTip()
     {
         return show_value_tip;
     }
 
-    /** @return Behavior 'bar_length' */
-    public WidgetProperty<Double> behaviorBarLength()
+    /** @return 'bar_length' property */
+    public WidgetProperty<Double> propBarLength()
     {
         return bar_length;
     }
 
-    /** @return Behavior 'step_increment' */
-    public WidgetProperty<Double> behaviorStepIncrement()
+    /** @return 'step_increment' property */
+    public WidgetProperty<Double> propStepIncrement()
     {
         return step_increment;
     }
 
-    /** @return Behavior 'page_increment' */
-    public WidgetProperty<Double> behaviorPageIncrement()
+    /** @return 'page_increment' property */
+    public WidgetProperty<Double> propPageIncrement()
     {
         return page_increment;
     }
 
-    /** @return Behavior 'enabled' */
-    public WidgetProperty<Boolean> behaviorEnabled()
+    /** @return 'enabled' property */
+    public WidgetProperty<Boolean> propEnabled()
     {
         return enabled;
     }

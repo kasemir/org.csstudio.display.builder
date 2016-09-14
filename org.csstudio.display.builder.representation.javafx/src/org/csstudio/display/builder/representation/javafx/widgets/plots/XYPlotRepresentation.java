@@ -164,29 +164,29 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     {
         super.registerListeners();
 
-        model_widget.displayBackground().addUntypedPropertyListener(config_listener);
-        model_widget.displayTitle().addUntypedPropertyListener(config_listener);
-        model_widget.displayTitleFont().addUntypedPropertyListener(config_listener);
-        model_widget.displayToolbar().addUntypedPropertyListener(config_listener);
-        model_widget.displayLegend().addUntypedPropertyListener(config_listener);
+        model_widget.propBackground().addUntypedPropertyListener(config_listener);
+        model_widget.propTitle().addUntypedPropertyListener(config_listener);
+        model_widget.propTitleFont().addUntypedPropertyListener(config_listener);
+        model_widget.propToolbar().addUntypedPropertyListener(config_listener);
+        model_widget.propLegend().addUntypedPropertyListener(config_listener);
 
-        trackAxisChanges(model_widget.behaviorXAxis());
+        trackAxisChanges(model_widget.propXAxis());
 
         // Track initial Y axis
-        final List<YAxisWidgetProperty> y_axes = model_widget.behaviorYAxes().getValue();
+        final List<YAxisWidgetProperty> y_axes = model_widget.propYAxes().getValue();
         trackAxisChanges(y_axes.get(0));
         // Create additional Y axes from model
         if (y_axes.size() > 1)
-            yAxesChanged(model_widget.behaviorYAxes(), null, y_axes.subList(1, y_axes.size()));
+            yAxesChanged(model_widget.propYAxes(), null, y_axes.subList(1, y_axes.size()));
         // Track added/remove Y axes
-        model_widget.behaviorYAxes().addPropertyListener(this::yAxesChanged);
+        model_widget.propYAxes().addPropertyListener(this::yAxesChanged);
 
         final UntypedWidgetPropertyListener position_listener = this::positionChanged;
         model_widget.propWidth().addUntypedPropertyListener(position_listener);
         model_widget.propHeight().addUntypedPropertyListener(position_listener);
 
-        tracesChanged(model_widget.behaviorTraces(), null, model_widget.behaviorTraces().getValue());
-        model_widget.behaviorTraces().addPropertyListener(this::tracesChanged);
+        tracesChanged(model_widget.propTraces(), null, model_widget.propTraces().getValue());
+        model_widget.propTraces().addPropertyListener(this::tracesChanged);
     }
 
     /** Listen to changed axis properties
@@ -281,20 +281,20 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
     private void updateConfig()
     {
-        plot.setBackground(JFXUtil.convert(model_widget.displayBackground().getValue()));
-        plot.setTitleFont(JFXUtil.convert(model_widget.displayTitleFont().getValue()));
-        plot.setTitle(model_widget.displayTitle().getValue());
+        plot.setBackground(JFXUtil.convert(model_widget.propBackground().getValue()));
+        plot.setTitleFont(JFXUtil.convert(model_widget.propTitleFont().getValue()));
+        plot.setTitle(model_widget.propTitle().getValue());
 
-        plot.showToolbar(model_widget.displayToolbar().getValue());
-        plot.showLegend(model_widget.displayLegend().getValue());
+        plot.showToolbar(model_widget.propToolbar().getValue());
+        plot.showLegend(model_widget.propLegend().getValue());
 
         // Update X Axis
-        updateAxisConfig(plot.getXAxis(), model_widget.behaviorXAxis());
+        updateAxisConfig(plot.getXAxis(), model_widget.propXAxis());
         // Use X axis font for legend
-        plot.setLegendFont(JFXUtil.convert(model_widget.behaviorXAxis().titleFont().getValue()));
+        plot.setLegendFont(JFXUtil.convert(model_widget.propXAxis().titleFont().getValue()));
 
         // Update Y Axes
-        final List<YAxisWidgetProperty> model_y = model_widget.behaviorYAxes().getValue();
+        final List<YAxisWidgetProperty> model_y = model_widget.propYAxes().getValue();
         if (plot.getYAxes().size() != model_y.size())
         {
             logger.log(Level.WARNING, "Plot has " + plot.getYAxes().size() + " while model has " + model_y.size() + " Y axes");

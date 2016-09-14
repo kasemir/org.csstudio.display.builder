@@ -39,10 +39,10 @@ public class PolygonRepresentation extends JFXBaseRepresentation<Polygon, Polygo
         model_widget.propVisible().addUntypedPropertyListener(this::displayChanged);
         model_widget.propX().addUntypedPropertyListener(this::displayChanged);
         model_widget.propY().addUntypedPropertyListener(this::displayChanged);
-        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::displayChanged);
-        model_widget.displayLineColor().addUntypedPropertyListener(this::displayChanged);
-        model_widget.displayLineWidth().addUntypedPropertyListener(this::displayChanged);
-        model_widget.displayPoints().addUntypedPropertyListener(this::displayChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(this::displayChanged);
+        model_widget.propLineColor().addUntypedPropertyListener(this::displayChanged);
+        model_widget.propLineWidth().addUntypedPropertyListener(this::displayChanged);
+        model_widget.propPoints().addUntypedPropertyListener(this::displayChanged);
     }
 
     private void displayChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -64,16 +64,16 @@ public class PolygonRepresentation extends JFXBaseRepresentation<Polygon, Polygo
                 // on-screen location
                 final int x = model_widget.propX().getValue();
                 final int y = model_widget.propY().getValue();
-                final Double[] points = model_widget.displayPoints().getValue().asDoubleArray();
+                final Double[] points = model_widget.propPoints().getValue().asDoubleArray();
                 for (int i=0; i<points.length; i+= 2)
                 {
                     points[i] += x;
                     points[i+1] += y;
                 }
                 jfx_node.getPoints().setAll(points);
-                jfx_node.setFill(JFXUtil.convert(model_widget.displayBackgroundColor().getValue()));
-                jfx_node.setStroke(JFXUtil.convert(model_widget.displayLineColor().getValue()));
-                jfx_node.setStrokeWidth(model_widget.displayLineWidth().getValue());
+                jfx_node.setFill(JFXUtil.convert(model_widget.propBackgroundColor().getValue()));
+                jfx_node.setStroke(JFXUtil.convert(model_widget.propLineColor().getValue()));
+                jfx_node.setStrokeWidth(model_widget.propLineWidth().getValue());
             }
             else
                 jfx_node.setVisible(false);

@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.widgets;
 
 import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
@@ -74,10 +75,6 @@ public class ByteMonitorWidget extends VisibleWidget
     /** 'bit reverse' property: Reverse the direction that bits are displayed; if no, the start bit (the smallest bit) is on right or bottom. */
     public static final WidgetPropertyDescriptor<Boolean> propBitReverse =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "bitReverse", Messages.ByteMonitor_BitReverse);
-
-    /** 'horizontal' property: Change whether bits are displayed horizontally or vertically */
-    public static final WidgetPropertyDescriptor<Boolean> propHorizontal =
-        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "horizontal", Messages.ByteMonitor_Horizontal);
 
     /** 'square LED' property: Whether LEDS are square (rectangular) or round (circular) */
     public static final WidgetPropertyDescriptor<Boolean> propSquareLED =

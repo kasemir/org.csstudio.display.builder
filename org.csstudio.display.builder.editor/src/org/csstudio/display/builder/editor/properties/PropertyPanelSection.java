@@ -41,6 +41,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -259,6 +260,8 @@ public class PropertyPanelSection extends GridPane
 
         final Label label = new Label(property.getDescription());
         label.setMaxWidth(Double.MAX_VALUE);
+        label.setMinWidth(100);
+        label.setTooltip(new Tooltip(property.getDescription()));
         GridPane.setHgrow(label, Priority.ALWAYS);
         //this.setGridLinesVisible(true);
 

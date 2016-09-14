@@ -14,7 +14,7 @@ import org.csstudio.display.builder.model.Messages;
  */
 public enum Direction
 {
-    HORIZONTAL(Messages.Horizontal), VERTICAL(Messages.Vertical);
+    HORIZONTAL(Messages.WidgetProperties_Horizontal), VERTICAL(Messages.Vertical);
     private final String label;
 
     private Direction(final String label)
