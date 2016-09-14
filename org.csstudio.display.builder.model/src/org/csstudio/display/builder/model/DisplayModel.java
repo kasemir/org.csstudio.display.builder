@@ -49,6 +49,15 @@ public class DisplayModel extends Widget
      */
     public static final String USER_DATA_EMBEDDING_WIDGET = "_embedding_widget";
 
+    /** Macros set in preferences
+     * 
+     *  <p>Fetched once on display creation to
+     *  use latest preference settings on newly opened display,
+     *  while not fetching preferences for each macro evaluation
+     *  within a running display to improve performance
+     */
+    private final Macros preference_macros = Preferences.getMacros();
+
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile ChildrenProperty children;
@@ -112,7 +121,7 @@ public class DisplayModel extends Widget
         //      ultimately fetching the macros from preferences.
         final Widget embedder = getUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET);
         Macros result = (embedder == null)
-            ? Preferences.getMacros()
+            ? preference_macros
             : embedder.getEffectiveMacros();
 
         // 2) This display may provide added macros or replacement values
