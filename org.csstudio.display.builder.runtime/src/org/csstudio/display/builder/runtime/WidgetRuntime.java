@@ -199,25 +199,6 @@ public class WidgetRuntime<MW extends Widget>
         addPV(pv, false);
     }
 
-    // TODO Fix handling of write access
-    // We check if
-    // * Primary PV of a widget with 'enabled' property
-    // * PVs used by write actions
-    // have write access.
-    // But the RuntimePVs class then simply updates the enabled/disabled
-    // state of the widget for each PV.
-    // If all PVs that need write access have write access
-    // ==> OK, widget enabled.
-    // If none of the PVs that need write access has write access
-    // ==> OK, widget disabled.
-    // But if some required PVs have write access, some don't
-    // ==> widget is enabled or disabled, whatever PV notified us last
-    //
-    // In principle, need to track if all PVs that need write access
-    // do have write access.
-    //
-    // In reality, the current approach is very likely "good enough".
-
     /** @param pv PV where widget should track the connection state
      *  @param need_write_access Does widget need write access to this PV?
      */

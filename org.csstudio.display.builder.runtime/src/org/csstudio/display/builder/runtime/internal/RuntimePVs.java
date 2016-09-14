@@ -7,7 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorEnabled;
+import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +18,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -71,6 +73,11 @@ public class RuntimePVs
             need_write_access = true;
         }
 
+        public boolean needWriteAccess()
+        {
+            return need_write_access;
+        }
+
         public boolean isConnected()
         {
             return connected;
@@ -80,7 +87,7 @@ public class RuntimePVs
         public void permissionsChanged(final RuntimePV pv, final boolean readonly)
         {
             if (need_write_access)
-                updateWriteAccess(! readonly);
+                updateWriteAccess();
         }
 
         @Override
@@ -164,14 +171,22 @@ public class RuntimePVs
             ((VisibleWidget)widget).runtimePropConnected().setValue(all_connected);
     }
 
-    /** Update write access indication of the widget
-     *  @param have_write_access <code>true</code> if widget has write access
-     */
-    private void updateWriteAccess(final boolean have_write_access)
+    /** Update write access indication of the widget */
+    private void updateWriteAccess()
     {
-        final Optional<WidgetProperty<Boolean>> enabled = widget.checkProperty(propEnabled);
+        int need_to_write = 0, can_write = 0;
+        for (Map.Entry<RuntimePV, PVInfo> entry : pvs.entrySet())
+            if (entry.getValue().needWriteAccess())
+            {
+                ++need_to_write;
+                if (! entry.getKey().isReadonly())
+                    ++can_write;
+            }
+        logger.log(Level.FINE, "{0} can write {1} out of {2} PVs", new Object[] { widget, can_write, need_to_write });
+        final boolean enable = need_to_write == 0  ||  can_write > 0;
+        final Optional<WidgetProperty<Boolean>> enabled = widget.checkProperty(behaviorEnabled);
         if (enabled.isPresent())
-            enabled.get().setValue(have_write_access);
+            enabled.get().setValue(enable);
     }
 
     /** @return All PVs of this widget */
