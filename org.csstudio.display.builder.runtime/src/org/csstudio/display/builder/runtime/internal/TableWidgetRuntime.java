@@ -52,7 +52,7 @@ public class TableWidgetRuntime extends WidgetRuntime<TableWidget>
     public void initialize(final TableWidget widget)
     {
         super.initialize(widget);
-        if (widget.behaviorEditable().getValue())
+        if (widget.propEditable().getValue())
             runtime_actions.add(new ToggleToolbarAction(widget));
     }
 
@@ -68,7 +68,7 @@ public class TableWidgetRuntime extends WidgetRuntime<TableWidget>
         super.start();
 
         // Connect selection info PV
-        final String selection_pv_name = widget.miscSelectionPV().getValue();
+        final String selection_pv_name = widget.propSelectionPV().getValue();
         if (! selection_pv_name.isEmpty())
         {
             logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, selection_pv_name });
@@ -76,7 +76,7 @@ public class TableWidgetRuntime extends WidgetRuntime<TableWidget>
             {
                 final RuntimePV pv = PVFactory.getPV(selection_pv_name);
                 addPV(pv);
-                widget.runtimeSelection().addPropertyListener(selection_listener);
+                widget.runtimePropSelection().addPropertyListener(selection_listener);
                 selection_pv = pv;
             }
             catch (Exception ex)
@@ -94,7 +94,7 @@ public class TableWidgetRuntime extends WidgetRuntime<TableWidget>
         selection_pv = null;
         if (pv != null)
         {
-            widget.runtimeSelection().removePropertyListener(selection_listener);
+            widget.runtimePropSelection().removePropertyListener(selection_listener);
             removePV(pv);
             PVFactory.releasePV(pv);
         }

@@ -107,10 +107,10 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
         final String text = jfx_node.getText();
 
         final Object value;
-        if (model_widget.displayFormat().getValue() == FormatOption.STRING)
+        if (model_widget.propFormat().getValue() == FormatOption.STRING)
             value = text;
         else
-            value = FormatOptionHandler.parse(model_widget.runtimeValue().getValue(), text);
+            value = FormatOptionHandler.parse(model_widget.runtimePropValue().getValue(), text);
         logger.log(Level.FINE, "Writing '" + text + "' as " + value + " (" + value.getClass().getName() + ")");
         toolkit.fireWrite(model_widget, value);
 
@@ -141,19 +141,19 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayFont().addUntypedPropertyListener(this::styleChanged);
-        model_widget.behaviorEnabled().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
 
-        model_widget.displayFormat().addUntypedPropertyListener(this::contentChanged);
-        model_widget.displayPrecision().addUntypedPropertyListener(this::contentChanged);
-        model_widget.displayShowUnits().addUntypedPropertyListener(this::contentChanged);
-        model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propFormat().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propPrecision().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propShowUnits().addUntypedPropertyListener(this::contentChanged);
+        model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
 
-        model_widget.behaviorPVName().addPropertyListener(this::pvnameChanged);
+        model_widget.propPVName().addPropertyListener(this::pvnameChanged);
     }
 
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -174,11 +174,11 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
     private String computeText(final VType value)
     {
         if (value == null)
-            return "<" + model_widget.behaviorPVName().getValue() + ">";
+            return "<" + model_widget.propPVName().getValue() + ">";
         return FormatOptionHandler.format(value,
-                                          model_widget.displayFormat().getValue(),
-                                          model_widget.displayPrecision().getValue(),
-                                          model_widget.displayShowUnits().getValue());
+                                          model_widget.propFormat().getValue(),
+                                          model_widget.propPrecision().getValue(),
+                                          model_widget.propShowUnits().getValue());
     }
 
     private void pvnameChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
@@ -194,7 +194,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
 
     private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        value_text = computeText(model_widget.runtimeValue().getValue());
+        value_text = computeText(model_widget.runtimePropValue().getValue());
         dirty_content.mark();
         if (! active)
             toolkit.scheduleUpdate(this);
@@ -205,20 +205,20 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
     {
         super.updateChanges();
         if (dirty_size.checkAndClear())
-            jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
-                                 model_widget.positionHeight().getValue());
+            jfx_node.setPrefSize(model_widget.propWidth().getValue(),
+                                 model_widget.propHeight().getValue());
         if (dirty_style.checkAndClear())
         {
-            final String color = JFXUtil.webRGB(model_widget.displayForegroundColor().getValue());
+            final String color = JFXUtil.webRGB(model_widget.propForegroundColor().getValue());
             String style = "-fx-text-fill:" + color + ";";
-            final Color background = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
+            final Color background = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
             jfx_node.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
-            jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+            jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
 
             // Don't disable the widget, because that would also remove the
             // context menu etc.
             // Just apply a style that matches the disabled look.
-            final boolean enabled = model_widget.behaviorEnabled().getValue();
+            final boolean enabled = model_widget.propEnabled().getValue();
             jfx_node.setEditable(enabled);
             if (! enabled)
                 style += "-fx-opacity: 0.4;";

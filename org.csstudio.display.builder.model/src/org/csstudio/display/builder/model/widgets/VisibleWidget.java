@@ -7,8 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionVisible;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeConnected;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propVisible;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropConnected;
 
 import java.util.List;
 
@@ -49,22 +49,23 @@ public class VisibleWidget extends Widget
      *
      *  @param properties List to which properties must be added
      */
+    @Override
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(visible = positionVisible.createProperty(this, true));
+        properties.add(visible = propVisible.createProperty(this, true));
         // Start 'connected', assuming there are no PVs
-        properties.add(connected = runtimeConnected.createProperty(this, true));
+        properties.add(connected = runtimePropConnected.createProperty(this, true));
     }
 
-    /** @return Position 'visible' */
-    public WidgetProperty<Boolean> positionVisible()
+    /** @return Property 'visible' */
+    public WidgetProperty<Boolean> propVisible()
     {
         return visible;
     }
 
-    /** @return Runtime 'connected' */
-    public WidgetProperty<Boolean> runtimeConnected()
+    /** @return Runtime 'connected' property */
+    public WidgetProperty<Boolean> runtimePropConnected()
     {
         return connected;
     }

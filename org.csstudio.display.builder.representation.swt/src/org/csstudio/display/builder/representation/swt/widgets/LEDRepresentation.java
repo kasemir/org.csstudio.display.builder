@@ -52,8 +52,8 @@ public class LEDRepresentation extends SWTBaseRepresentation<Canvas, LEDWidget>
     {
         colors = new Color[]
         {
-            ((SWTRepresentation)toolkit).convert(model_widget.offColor().getValue()),
-            ((SWTRepresentation)toolkit).convert(model_widget.onColor().getValue())
+            ((SWTRepresentation)toolkit).convert(model_widget.propOffColor().getValue()),
+            ((SWTRepresentation)toolkit).convert(model_widget.propOnColor().getValue())
         };
         value_color = colors[0];
     }
@@ -70,7 +70,7 @@ public class LEDRepresentation extends SWTBaseRepresentation<Canvas, LEDWidget>
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.runtimeValue().addPropertyListener(this::contentChanged);
+        model_widget.runtimePropValue().addPropertyListener(this::contentChanged);
     }
 
     private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)

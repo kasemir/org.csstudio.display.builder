@@ -70,9 +70,9 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     public ToolkitRepresentation<Composite, Control> openNewWindow(final DisplayModel model, final Consumer<DisplayModel> close_request_handler) throws Exception
     {
         final Shell shell = new Shell(display);
-        shell.setText(model.widgetName().getValue());
-        shell.setSize(model.positionWidth().getValue(),
-                      model.positionHeight().getValue());
+        shell.setText(model.propName().getValue());
+        shell.setSize(model.propWidth().getValue(),
+                      model.propHeight().getValue());
         shell.open();
         shell.addDisposeListener((e) -> handleClose(shell, close_request_handler));
         representModel(shell, model);

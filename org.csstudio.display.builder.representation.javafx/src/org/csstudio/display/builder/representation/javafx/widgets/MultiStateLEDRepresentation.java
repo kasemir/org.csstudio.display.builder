@@ -25,12 +25,12 @@ public class MultiStateLEDRepresentation extends BaseLEDRepresentation<MultiStat
     @Override
     protected Color[] createColors()
     {
-        final List<StateWidgetProperty> states = model_widget.states().getValue();
+        final List<StateWidgetProperty> states = model_widget.propStates().getValue();
         final int N = states.size();
         final Color[] colors = new Color[N+1];
         for (int i=0; i<N; ++i)
             colors[i] = JFXUtil.convert(states.get(i).color().getValue());
-        colors[N] = JFXUtil.convert(model_widget.fallback().getValue());
+        colors[N] = JFXUtil.convert(model_widget.propFallbackColor().getValue());
         return colors;
     }
 
@@ -38,7 +38,7 @@ public class MultiStateLEDRepresentation extends BaseLEDRepresentation<MultiStat
     protected int computeColorIndex(final VType value)
     {
         final int number = VTypeUtil.getValueNumber(value).intValue();
-        final List<StateWidgetProperty> states = model_widget.states().getValue();
+        final List<StateWidgetProperty> states = model_widget.propStates().getValue();
         final int N = states.size();
         for (int i=0; i<N; ++i)
             if (number == states.get(i).state().getValue())
@@ -52,6 +52,6 @@ public class MultiStateLEDRepresentation extends BaseLEDRepresentation<MultiStat
     {
         super.registerListeners();
         // Not really listening to changes in any of the state's colors or state values
-        model_widget.states().addUntypedPropertyListener(this::configChanged);
+        model_widget.propStates().addUntypedPropertyListener(this::configChanged);
     }
 }

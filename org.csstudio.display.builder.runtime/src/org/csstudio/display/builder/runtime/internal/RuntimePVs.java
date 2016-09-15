@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.util.ArrayList;
@@ -123,7 +123,7 @@ public class RuntimePVs
         {
             // Awaiting connections for at least one PV, so widget is for now disconnected
             if (widget instanceof VisibleWidget)
-                ((VisibleWidget)widget).runtimeConnected().setValue(false);
+                ((VisibleWidget)widget).runtimePropConnected().setValue(false);
             pv.addListener(info);
         }
         if (need_write_access)
@@ -168,7 +168,7 @@ public class RuntimePVs
         // else: For sure not connected
 
         if (widget instanceof VisibleWidget)
-            ((VisibleWidget)widget).runtimeConnected().setValue(all_connected);
+            ((VisibleWidget)widget).runtimePropConnected().setValue(all_connected);
     }
 
     /** Update write access indication of the widget */
@@ -184,7 +184,7 @@ public class RuntimePVs
             }
         logger.log(Level.FINE, "{0} can write {1} out of {2} PVs", new Object[] { widget, can_write, need_to_write });
         final boolean enable = need_to_write == 0  ||  can_write > 0;
-        final Optional<WidgetProperty<Boolean>> enabled = widget.checkProperty(behaviorEnabled);
+        final Optional<WidgetProperty<Boolean>> enabled = widget.checkProperty(propEnabled);
         if (enabled.isPresent())
             enabled.get().setValue(enable);
     }

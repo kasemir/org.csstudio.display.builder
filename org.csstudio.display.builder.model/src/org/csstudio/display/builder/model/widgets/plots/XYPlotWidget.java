@@ -8,8 +8,8 @@
 package org.csstudio.display.builder.model.widgets.plots;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.displayToolbar;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
 
 import java.util.Arrays;
 import java.util.List;
@@ -258,14 +258,14 @@ public class XYPlotWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        properties.add(title = PlotWidgetProperties.displayTitle.createProperty(this, ""));
-        properties.add(title_font = PlotWidgetProperties.titleFontProperty.createProperty(this, NamedWidgetFonts.HEADER2));
-        properties.add(show_toolbar = displayToolbar.createProperty(this,false));
-        properties.add(show_legend = PlotWidgetProperties.displayLegend.createProperty(this, true));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(title = PlotWidgetProperties.propTitle.createProperty(this, ""));
+        properties.add(title_font = PlotWidgetProperties.propTitleFont.createProperty(this, NamedWidgetFonts.HEADER2));
+        properties.add(show_toolbar = propToolbar.createProperty(this,false));
+        properties.add(show_legend = PlotWidgetProperties.propLegend.createProperty(this, true));
         properties.add(x_axis = AxisWidgetProperty.create(this, Messages.PlotWidget_X));
-        properties.add(y_axes = PlotWidgetProperties.behaviorYAxes.createProperty(this, Arrays.asList(YAxisWidgetProperty.create(this, Messages.PlotWidget_Y))));
-        properties.add(traces = PlotWidgetProperties.behaviorTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this))));
+        properties.add(y_axes = PlotWidgetProperties.propYAxes.createProperty(this, Arrays.asList(YAxisWidgetProperty.create(this, Messages.PlotWidget_Y))));
+        properties.add(traces = PlotWidgetProperties.propTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this))));
     }
 
     @Override
@@ -290,50 +290,50 @@ public class XYPlotWidget extends VisibleWidget
         return super.getProperty(name);
     }
 
-    /** @return Display 'background_color' */
-    public WidgetProperty<WidgetColor> displayBackground()
+    /** @return 'background_color' property */
+    public WidgetProperty<WidgetColor> propBackground()
     {
         return background;
     }
 
-    /** @return Display 'title' */
-    public WidgetProperty<String> displayTitle()
+    /** @return 'title' property */
+    public WidgetProperty<String> propTitle()
     {
         return title;
     }
 
-    /** @return Display 'title_font' */
-    public WidgetProperty<WidgetFont> displayTitleFont()
+    /** @return 'title_font' property */
+    public WidgetProperty<WidgetFont> propTitleFont()
     {
         return title_font;
     }
 
-    /** @return Display 'show_toolbar' */
-    public WidgetProperty<Boolean> displayToolbar()
+    /** @return 'show_toolbar' property */
+    public WidgetProperty<Boolean> propToolbar()
     {
         return show_toolbar;
     }
 
-    /** @return Display 'show_legend' */
-    public WidgetProperty<Boolean> displayLegend()
+    /** @return 'show_legend' property */
+    public WidgetProperty<Boolean> propLegend()
     {
         return show_legend;
     }
 
-    /** @return Behavior 'x_axis' */
-    public AxisWidgetProperty behaviorXAxis()
+    /** @return 'x_axis' property */
+    public AxisWidgetProperty propXAxis()
     {
         return x_axis;
     }
 
-    /** @return Behavior 'y_axes' */
-    public ArrayWidgetProperty<YAxisWidgetProperty> behaviorYAxes()
+    /** @return 'y_axes' property */
+    public ArrayWidgetProperty<YAxisWidgetProperty> propYAxes()
     {
         return y_axes;
     }
 
-    /** @return Behavior 'traces' */
-    public ArrayWidgetProperty<TraceWidgetProperty> behaviorTraces()
+    /** @return 'traces' property */
+    public ArrayWidgetProperty<TraceWidgetProperty> propTraces()
     {
         return traces;
     }

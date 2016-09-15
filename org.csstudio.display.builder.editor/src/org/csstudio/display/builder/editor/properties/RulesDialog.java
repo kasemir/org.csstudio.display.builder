@@ -143,7 +143,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         {
             super(bool_exp, prop_val, undo);
             internal_prop_val = prop_val;
-            string_prop = CommonWidgetProperties.displayText.createProperty(widget, prop_val);
+            string_prop = CommonWidgetProperties.propText.createProperty(widget, prop_val);
             field.setValue(PropertyPanelSection.
                     bindSimplePropertyField(undo, bindings, string_prop, new ArrayList<Widget>()));
         }

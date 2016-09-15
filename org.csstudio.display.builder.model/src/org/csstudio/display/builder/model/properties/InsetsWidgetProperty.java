@@ -27,7 +27,7 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 @SuppressWarnings("nls")
 public class InsetsWidgetProperty extends RuntimeWidgetProperty<int[]>
 {
-    public static final WidgetPropertyDescriptor<int[]> runtimeInsets =
+    public static final WidgetPropertyDescriptor<int[]> runtimePropInsets =
         new WidgetPropertyDescriptor<int[]>(
             WidgetPropertyCategory.RUNTIME, "insets", Messages.WidgetProperties_Insets)
     {
@@ -46,7 +46,7 @@ public class InsetsWidgetProperty extends RuntimeWidgetProperty<int[]>
      */
     public static int[] getInsets(final Widget container)
     {
-        final Optional<WidgetProperty<int[]>> insets = container.checkProperty(runtimeInsets);
+        final Optional<WidgetProperty<int[]>> insets = container.checkProperty(runtimePropInsets);
         if (insets.isPresent())
             return insets.get().getValue();
         return null;
@@ -54,7 +54,7 @@ public class InsetsWidgetProperty extends RuntimeWidgetProperty<int[]>
 
     public InsetsWidgetProperty(final Widget widget, final int[] default_value)
     {
-        super(runtimeInsets, widget, default_value);
+        super(runtimePropInsets, widget, default_value);
     }
 
     @Override

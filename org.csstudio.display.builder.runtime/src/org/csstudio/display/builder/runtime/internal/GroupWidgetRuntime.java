@@ -23,13 +23,13 @@ public class GroupWidgetRuntime extends WidgetRuntime<GroupWidget>
     public void start() throws Exception
     {
         super.start();
-        RuntimeUtil.startChildRuntimes(widget.runtimeChildren());
+        RuntimeUtil.startChildRuntimes(widget.runtimePropChildren());
     }
 
     @Override
     public void stop()
     {
-        RuntimeUtil.stopChildRuntimes(widget.runtimeChildren());
+        RuntimeUtil.stopChildRuntimes(widget.runtimePropChildren());
         super.stop();
     }
 }

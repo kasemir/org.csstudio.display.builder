@@ -130,18 +130,18 @@ public class ParentHandler
                     continue;
                 final ChildrenProperty child_prop;
                 if (widget instanceof GroupWidget)
-                    child_prop = ((GroupWidget) widget).runtimeChildren();
+                    child_prop = ((GroupWidget) widget).runtimePropChildren();
                 else if (widget instanceof TabsWidget)
                 {   // Check children of _selected_ Tab
                     final TabsWidget tabwid = (TabsWidget) widget;
-                    final int selected = tabwid.displayActiveTab().getValue();
-                    child_prop = tabwid.displayTabs().getValue().get(selected).children();
+                    final int selected = tabwid.propActiveTab().getValue();
+                    child_prop = tabwid.propTabs().getValue().get(selected).children();
                 }
                 else if (widget instanceof ArrayWidget)
                 {
-                    List<Widget> widgets = ((ArrayWidget) widget).runtimeChildren().getValue();
+                    List<Widget> widgets = ((ArrayWidget) widget).runtimePropChildren().getValue();
                     if (widgets.isEmpty() || (!ignore.isEmpty() && widgets.get(0).getType().equals(ignore.get(0).getType())))
-                        child_prop = ((ArrayWidget) widget).runtimeChildren();
+                        child_prop = ((ArrayWidget) widget).runtimePropChildren();
                     else
                         continue;
                 }

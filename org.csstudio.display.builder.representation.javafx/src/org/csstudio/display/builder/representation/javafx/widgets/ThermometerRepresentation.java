@@ -135,13 +135,13 @@ public class ThermometerRepresentation extends RegionBaseRepresentation<Region, 
         @Override
         protected double computePrefWidth(double height)
         {
-            return model_widget.positionWidth().getValue();
+            return model_widget.propWidth().getValue();
         }
 
         @Override
         protected double computePrefHeight(double width)
         {
-            return model_widget.positionHeight().getValue();
+            return model_widget.propHeight().getValue();
         }
 
         public void setFill(Color color)
@@ -181,13 +181,13 @@ public class ThermometerRepresentation extends RegionBaseRepresentation<Region, 
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.displayFillColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.positionWidth().addUntypedPropertyListener(this::lookChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::lookChanged);
-        model_widget.behaviorLimitsFromPV().addUntypedPropertyListener(this::valueChanged);
-        model_widget.behaviorMinimum().addUntypedPropertyListener(this::valueChanged);
-        model_widget.behaviorMaximum().addUntypedPropertyListener(this::valueChanged);
-        model_widget.runtimeValue().addUntypedPropertyListener(this::valueChanged);
+        model_widget.propFillColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propLimitsFromPV().addUntypedPropertyListener(this::valueChanged);
+        model_widget.propMinimum().addUntypedPropertyListener(this::valueChanged);
+        model_widget.propMaximum().addUntypedPropertyListener(this::valueChanged);
+        model_widget.runtimePropValue().addUntypedPropertyListener(this::valueChanged);
     }
 
     private void lookChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -198,11 +198,11 @@ public class ThermometerRepresentation extends RegionBaseRepresentation<Region, 
 
     private void valueChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        final VType vtype = model_widget.runtimeValue().getValue();
+        final VType vtype = model_widget.runtimePropValue().getValue();
 
-        final boolean limits_from_pv = model_widget.behaviorLimitsFromPV().getValue();
-        double min_val = model_widget.behaviorMinimum().getValue();
-        double max_val = model_widget.behaviorMaximum().getValue();
+        final boolean limits_from_pv = model_widget.propLimitsFromPV().getValue();
+        double min_val = model_widget.propMinimum().getValue();
+        double max_val = model_widget.propMaximum().getValue();
         if (limits_from_pv)
         {
             // Try display range from PV
@@ -235,9 +235,9 @@ public class ThermometerRepresentation extends RegionBaseRepresentation<Region, 
         super.updateChanges();
         if (dirty_look.checkAndClear())
         {
-            ((Thermo) jfx_node).setFill(JFXUtil.convert(model_widget.displayFillColor().getValue()));
-            jfx_node.setPrefHeight(model_widget.positionHeight().getValue());
-            jfx_node.setPrefWidth(model_widget.positionWidth().getValue());
+            ((Thermo) jfx_node).setFill(JFXUtil.convert(model_widget.propFillColor().getValue()));
+            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
         }
         if (dirty_value.checkAndClear())
             ((Thermo) jfx_node).setLimits(min, max, val);

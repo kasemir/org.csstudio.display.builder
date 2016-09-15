@@ -100,13 +100,13 @@ public class MultiStateLEDWidget extends BaseLEDWidget
     }
 
     // Elements of the 'state' structure
-    private static final WidgetPropertyDescriptor<Integer> state_value =
+    private static final WidgetPropertyDescriptor<Integer> propStateValue =
         CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "value", "Value");
 
-    private static final WidgetPropertyDescriptor<WidgetColor> state_color =
+    private static final WidgetPropertyDescriptor<WidgetColor> propStateColor =
         CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "color", "Color");
 
-    private static final WidgetPropertyDescriptor<WidgetColor> fallback_color =
+    private static final WidgetPropertyDescriptor<WidgetColor> propFallbackColor =
             CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "fallback", "Fallback Color");
 
     // 'state' structure that describes one state
@@ -119,8 +119,8 @@ public class MultiStateLEDWidget extends BaseLEDWidget
         public StateWidgetProperty(final Widget widget, final int state)
         {
             super(behaviorState, widget,
-                  Arrays.asList(state_value.createProperty(widget, state),
-                                state_color.createProperty(widget, getDefaultColor(state))));
+                  Arrays.asList(propStateValue.createProperty(widget, state),
+                                propStateColor.createProperty(widget, getDefaultColor(state))));
         }
         public WidgetProperty<Integer> state()      { return getElement(0); }
         public WidgetProperty<WidgetColor> color()  { return getElement(1); }
@@ -138,7 +138,7 @@ public class MultiStateLEDWidget extends BaseLEDWidget
     }
 
     // 'states' array
-    private static final ArrayWidgetProperty.Descriptor<StateWidgetProperty> behaviorStates =
+    private static final ArrayWidgetProperty.Descriptor<StateWidgetProperty> propStates =
             new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.BEHAVIOR, "states", "States",
                     (widget, state) -> new StateWidgetProperty(widget, state));
 
@@ -154,21 +154,21 @@ public class MultiStateLEDWidget extends BaseLEDWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(states = behaviorStates.createProperty(this,
+        properties.add(states = propStates.createProperty(this,
                                                               Arrays.asList(new StateWidgetProperty(this, 0),
                                                                             new StateWidgetProperty(this, 1))));
-        properties.add(fallback = fallback_color.createProperty(this,
+        properties.add(fallback = propFallbackColor.createProperty(this,
                                                                 WidgetColorService.getColor(NamedWidgetColors.ALARM_INVALID)));
     }
 
-    /** @return 'states' */
-    public ArrayWidgetProperty<StateWidgetProperty> states()
+    /** @return 'states' property */
+    public ArrayWidgetProperty<StateWidgetProperty> propStates()
     {
         return states;
     }
 
-    /** @return 'fallback' */
-    public WidgetProperty<WidgetColor> fallback()
+    /** @return 'fallback' property */
+    public WidgetProperty<WidgetColor> propFallbackColor()
     {
         return fallback;
     }

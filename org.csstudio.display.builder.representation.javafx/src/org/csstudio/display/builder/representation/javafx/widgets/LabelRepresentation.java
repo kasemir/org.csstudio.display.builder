@@ -42,21 +42,21 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
     {
         super.registerListeners();
         pos = computePos();
-        model_widget.positionWidth().addUntypedPropertyListener(this::styleChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.displayTransparent().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayFont().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayHorizontalAlignment().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayVerticalAlignment().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayText().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propHorizontalAlignment().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propVerticalAlignment().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propText().addUntypedPropertyListener(this::contentChanged);
     }
 
     private Pos computePos()
     {
-        final HorizontalAlignment horiz = model_widget.displayHorizontalAlignment().getValue();
-        final VerticalAlignment vert = model_widget.displayVerticalAlignment().getValue();
+        final HorizontalAlignment horiz = model_widget.propHorizontalAlignment().getValue();
+        final VerticalAlignment vert = model_widget.propVerticalAlignment().getValue();
         // This depends on the order of 'Pos' and uses Pos.BOTTOM_*, not Pos.BASELINE_*.
         // Could use if/switch orgy to be independent from 'Pos' ordinals.
         return Pos.values()[vert.ordinal() * 3 + horiz.ordinal()];
@@ -81,11 +81,11 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
         super.updateChanges();
         if (dirty_style.checkAndClear())
         {
-            Color color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
+            Color color = JFXUtil.convert(model_widget.propForegroundColor().getValue());
             jfx_node.setTextFill(color);
 
-            jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
-                                 model_widget.positionHeight().getValue());
+            jfx_node.setPrefSize(model_widget.propWidth().getValue(),
+                                 model_widget.propHeight().getValue());
             jfx_node.setAlignment(pos);
             if (model_widget.displayTransparent().getValue())
             {   // No fill
@@ -93,12 +93,12 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
             }
             else
             {   // Fill background
-                color = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
+                color = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
                 jfx_node.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
             }
-            jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+            jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
         }
         if (dirty_content.checkAndClear())
-            jfx_node.setText(model_widget.displayText().getValue());
+            jfx_node.setText(model_widget.propText().getValue());
     }
 }

@@ -92,17 +92,17 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     {
         super.registerListeners();
         representationChanged(null,null,null);
-        model_widget.positionWidth().addUntypedPropertyListener(this::representationChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::representationChanged);
-        model_widget.displayOnLabel().addUntypedPropertyListener(this::representationChanged);
-        model_widget.displayOnColor().addUntypedPropertyListener(this::representationChanged);
-        model_widget.displayOffLabel().addUntypedPropertyListener(this::representationChanged);
-        model_widget.displayOffColor().addUntypedPropertyListener(this::representationChanged);
-        model_widget.displayFont().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propOnLabel().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propOnColor().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propOffLabel().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propOffColor().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
 
-        bitChanged(model_widget.behaviorBit(), null, model_widget.behaviorBit().getValue());
-        model_widget.behaviorBit().addPropertyListener(this::bitChanged);
-        model_widget.runtimeValue().addPropertyListener(this::contentChanged);
+        bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
+        model_widget.propBit().addPropertyListener(this::bitChanged);
+        model_widget.runtimePropValue().addPropertyListener(this::contentChanged);
 
         //representationChanged(null,null,null);
     }
@@ -111,8 +111,8 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     {
         return new Color[]
         {
-            JFXUtil.convert(model_widget.displayOffColor().getValue()),
-            JFXUtil.convert(model_widget.displayOnColor().getValue())
+            JFXUtil.convert(model_widget.propOffColor().getValue()),
+            JFXUtil.convert(model_widget.propOnColor().getValue())
         };
     }
 
@@ -143,7 +143,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     private void representationChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         state_colors = createColors();
-        state_labels = new String[] { model_widget.displayOffLabel().getValue(), model_widget.displayOnLabel().getValue() };
+        state_labels = new String[] { model_widget.propOffLabel().getValue(), model_widget.propOnLabel().getValue() };
         value_color = state_colors[on_state];
         value_label = state_labels[on_state];
         dirty_representation.mark();
@@ -169,9 +169,9 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         {
             jfx_node.setText(value_label);
 
-            jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
-                                 model_widget.positionHeight().getValue());
-            jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+            jfx_node.setPrefSize(model_widget.propWidth().getValue(),
+                                 model_widget.propHeight().getValue());
+            jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
 
             led.setFill(
                     // Put highlight in top-left corner, about 0.2 wide,
@@ -180,8 +180,8 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
                                        new Stop(0, value_color.interpolate(Color.WHITESMOKE, 0.8)),
                                        new Stop(1, value_color)));
 
-            led.setRadiusX(model_widget.positionWidth().getValue() / 15.0);
-            led.setRadiusY(model_widget.positionWidth().getValue() / 10.0);
+            led.setRadiusX(model_widget.propWidth().getValue() / 15.0);
+            led.setRadiusY(model_widget.propWidth().getValue() / 10.0);
         }
     }
 }

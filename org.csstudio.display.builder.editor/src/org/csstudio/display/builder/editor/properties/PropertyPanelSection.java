@@ -41,6 +41,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -120,7 +121,13 @@ public class PropertyPanelSection extends GridPane
         {
             final TextField text = new TextField();
             text.setText(String.valueOf(property.getValue()));
-            text.setEditable(false);
+            text.setDisable(true);
+
+//            // if type ... add icon
+//            if ( property.getName().equals(CommonWidgetProperties.propType.getName()) ) {
+//            property.getWidget().
+//            }
+
             field = text;
         }
         else if (property instanceof ColorWidgetProperty)
@@ -201,7 +208,7 @@ public class PropertyPanelSection extends GridPane
                     } : new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
             bindings.add(binding);
             binding.bind();
-            if (CommonWidgetProperties.displayText.getName().equals(property.getName()))
+            if (CommonWidgetProperties.propText.getName().equals(property.getName()))
             {   // Allow editing multi-line text in dialog
                 final Button open_editor = new Button("...");
                 open_editor.setOnAction(event ->
@@ -253,6 +260,8 @@ public class PropertyPanelSection extends GridPane
 
         final Label label = new Label(property.getDescription());
         label.setMaxWidth(Double.MAX_VALUE);
+        label.setMinWidth(100);
+        label.setTooltip(new Tooltip(property.getDescription()));
         GridPane.setHgrow(label, Priority.ALWAYS);
         //this.setGridLinesVisible(true);
 
@@ -334,7 +343,9 @@ public class PropertyPanelSection extends GridPane
             // set size of array
             final int row = getNextGridRow();
             label.getStyleClass().add("array_property_name");
+            label.setMaxHeight(Double.MAX_VALUE);
             spinner.getStyleClass().add("array_property_value");
+            spinner.setMaxWidth(Double.MAX_VALUE);
             add(label, 0, row);
             add(spinner, 1, row);
 

@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.test;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propText;
 
 import org.csstudio.display.builder.model.Widget;
 
@@ -30,6 +30,6 @@ class DummyTextUpdater implements Runnable
         final String text = Long.toString(
                 (System.currentTimeMillis() / 100) % 100
                 );
-        widget.setPropertyValue(displayText, text);
+        widget.setPropertyValue(propText, text);
     }
 }

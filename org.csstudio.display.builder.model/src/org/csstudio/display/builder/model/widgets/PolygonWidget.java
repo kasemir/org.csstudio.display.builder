@@ -7,10 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayLineColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayLineWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayPoints;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPoints;
 
 import java.util.Arrays;
 import java.util.List;
@@ -107,10 +107,10 @@ public class PolygonWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(background_color = displayBackgroundColor.createProperty(this, new WidgetColor(50, 50, 255)));
-        properties.add(line_color = displayLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
-        properties.add(line_width = displayLineWidth.createProperty(this, 3));
-        properties.add(points = displayPoints.createProperty(this, new Points()));
+        properties.add(line_width = propLineWidth.createProperty(this, 3));
+        properties.add(line_color = propLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
+        properties.add(background_color = propBackgroundColor.createProperty(this, new WidgetColor(50, 50, 255)));
+        properties.add(points = propPoints.createProperty(this, new Points()));
     }
 
     @Override
@@ -129,26 +129,26 @@ public class PolygonWidget extends VisibleWidget
             return super.getConfigurator(persisted_version);
     }
 
-    /** @return Display 'background_color' */
-    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    /** @return 'background_color' property */
+    public WidgetProperty<WidgetColor> propBackgroundColor()
     {
         return background_color;
     }
 
-    /** @return Display 'line_color' */
-    public WidgetProperty<WidgetColor> displayLineColor()
+    /** @return 'line_color' property */
+    public WidgetProperty<WidgetColor> propLineColor()
     {
         return line_color;
     }
 
-    /** @return Display 'line_width' */
-    public WidgetProperty<Integer> displayLineWidth()
+    /** @return 'line_width' property */
+    public WidgetProperty<Integer> propLineWidth()
     {
         return line_width;
     }
 
-    /** @return Display 'points' */
-    public WidgetProperty<Points> displayPoints()
+    /** @return 'points' property */
+    public WidgetProperty<Points> propPoints()
     {
         return points;
     }

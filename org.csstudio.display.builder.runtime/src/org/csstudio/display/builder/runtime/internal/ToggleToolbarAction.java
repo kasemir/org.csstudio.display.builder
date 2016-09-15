@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
-import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.displayToolbar;
+import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.runtime.Messages;
@@ -35,7 +35,7 @@ public class ToggleToolbarAction extends RuntimeAction
 
     private void updateDescription()
     {
-        description = widget.getPropertyValue(displayToolbar)
+        description = widget.getPropertyValue(propToolbar)
                     ? Messages.Toolbar_Hide
                     : Messages.Toolbar_Show;
     }
@@ -43,7 +43,7 @@ public class ToggleToolbarAction extends RuntimeAction
     @Override
     public void run()
     {
-        widget.setPropertyValue(displayToolbar, ! widget.getPropertyValue(displayToolbar));
+        widget.setPropertyValue(propToolbar, ! widget.getPropertyValue(propToolbar));
         updateDescription();
     }
 }

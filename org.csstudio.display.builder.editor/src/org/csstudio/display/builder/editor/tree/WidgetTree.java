@@ -268,7 +268,7 @@ public class WidgetTree
         TreeItem<WidgetOrTab> item_parent = null;
         if (widget_parent instanceof TabsWidget)
         {
-            for (TabItemProperty tab : ((TabsWidget)widget_parent).displayTabs().getValue())
+            for (TabItemProperty tab : ((TabsWidget)widget_parent).propTabs().getValue())
             {
                 index = tab.children().getValue().indexOf(added_widget);
                 if (index >= 0)
@@ -292,11 +292,11 @@ public class WidgetTree
         item.setExpanded(true);
         item_parent.getChildren().add(index, item);
 
-        added_widget.widgetName().addPropertyListener(name_listener);
+        added_widget.propName().addPropertyListener(name_listener);
 
         if (added_widget instanceof TabsWidget)
         {
-            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)added_widget).displayTabs();
+            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)added_widget).propTabs();
             addTabs(tabs.getValue());
             tabs.addPropertyListener(tabs_property_listener);
         }
@@ -348,12 +348,12 @@ public class WidgetTree
     {
         if (removed_widget instanceof TabsWidget)
         {
-            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)removed_widget).displayTabs();
+            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)removed_widget).propTabs();
             tabs.removePropertyListener(tabs_property_listener);
             removeTabs(tabs.getValue());
         }
 
-        removed_widget.widgetName().removePropertyListener(name_listener);
+        removed_widget.propName().removePropertyListener(name_listener);
 
         final ChildrenProperty children = ChildrenProperty.getChildren(removed_widget);
         if (children != null)
@@ -374,7 +374,7 @@ public class WidgetTree
     {
         if (widget instanceof TabsWidget)
         {
-            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)widget).displayTabs();
+            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)widget).propTabs();
             tabs.removePropertyListener(tabs_property_listener);
             for (TabItemProperty tab : tabs.getValue())
             {
@@ -383,7 +383,7 @@ public class WidgetTree
             }
         }
 
-        widget.widgetName().removePropertyListener(name_listener);
+        widget.propName().removePropertyListener(name_listener);
         final ChildrenProperty children = ChildrenProperty.getChildren(widget);
         if (children != null)
         {

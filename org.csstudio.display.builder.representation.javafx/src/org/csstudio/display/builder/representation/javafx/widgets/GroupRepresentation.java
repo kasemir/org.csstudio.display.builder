@@ -70,12 +70,12 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
     {
         super.registerListeners();
         final UntypedWidgetPropertyListener listener = this::borderChanged;
-        model_widget.displayBackgroundColor().addUntypedPropertyListener(listener);
-        model_widget.widgetName().addUntypedPropertyListener(listener);
-        model_widget.displayStyle().addUntypedPropertyListener(listener);
-        model_widget.displayFont().addUntypedPropertyListener(listener);
-        model_widget.positionWidth().addUntypedPropertyListener(listener);
-        model_widget.positionHeight().addUntypedPropertyListener(listener);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(listener);
+        model_widget.propName().addUntypedPropertyListener(listener);
+        model_widget.propStyle().addUntypedPropertyListener(listener);
+        model_widget.propFont().addUntypedPropertyListener(listener);
+        model_widget.propWidth().addUntypedPropertyListener(listener);
+        model_widget.propHeight().addUntypedPropertyListener(listener);
     }
 
     private void borderChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -87,8 +87,8 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
 
     private void computeColors()
     {
-        foreground_color = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
-        background_color = JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
+        foreground_color = JFXUtil.convert(model_widget.propForegroundColor().getValue());
+        background_color = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
     }
 
     @Override
@@ -97,17 +97,17 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
         super.updateChanges();
         if (dirty_border.checkAndClear())
         {
-            final int width = model_widget.positionWidth().getValue();
-            final int height = model_widget.positionHeight().getValue();
+            final int width = model_widget.propWidth().getValue();
+            final int height = model_widget.propHeight().getValue();
 
             jfx_node.setPrefSize(width, height);
             jfx_node.setBackground(new Background(new BackgroundFill(background_color, null, null)));
 
-            final WidgetFont font = model_widget.displayFont().getValue();
+            final WidgetFont font = model_widget.propFont().getValue();
             label.setFont(JFXUtil.convert(font));
-            label.setText(model_widget.widgetName().getValue());
+            label.setText(model_widget.propName().getValue());
 
-            final Style style = model_widget.displayStyle().getValue();
+            final Style style = model_widget.propStyle().getValue();
             if (style == Style.NONE)
             {
                 inset = 0;
@@ -116,7 +116,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
                 label.setVisible(false);
 
                 inner.relocate(0, 0);
-                model_widget.runtimeInsets().setValue(new int[] { 0, 0 });
+                model_widget.runtimePropInsets().setValue(new int[] { 0, 0 });
             }
             else if (style == Style.TITLE)
             {
@@ -130,7 +130,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
                 label.setBackground(new Background(new BackgroundFill(foreground_color, CornerRadii.EMPTY, Insets.EMPTY)));
 
                 inner.relocate(border_width, inset+border_width);
-                model_widget.runtimeInsets().setValue(new int[] { border_width, inset+border_width });
+                model_widget.runtimePropInsets().setValue(new int[] { border_width, inset+border_width });
             }
             else if (style == Style.LINE)
             {
@@ -140,7 +140,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
                 label.setVisible(false);
 
                 inner.relocate(border_width, border_width);
-                model_widget.runtimeInsets().setValue(new int[] { border_width, border_width });
+                model_widget.runtimePropInsets().setValue(new int[] { border_width, border_width });
             }
             else // GROUP
             {
@@ -154,7 +154,7 @@ public class GroupRepresentation extends JFXBaseRepresentation<Pane, GroupWidget
                 label.setBackground(new Background(new BackgroundFill(background_color, CornerRadii.EMPTY, Insets.EMPTY)));
 
                 inner.relocate(inset, inset);
-                model_widget.runtimeInsets().setValue(new int[] { inset, inset });
+                model_widget.runtimePropInsets().setValue(new int[] { inset, inset });
             }
         }
     }

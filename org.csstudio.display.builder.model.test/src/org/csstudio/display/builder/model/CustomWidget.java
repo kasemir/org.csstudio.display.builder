@@ -23,7 +23,7 @@ import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 public class CustomWidget extends Widget
 {
     /** Property: Category Misc, name "zero_ten", Integer 0..10 */
-    final public static WidgetPropertyDescriptor<Integer> miscZeroTen =
+    final public static WidgetPropertyDescriptor<Integer> propZeroTen =
         new WidgetPropertyDescriptor<Integer>(WidgetPropertyCategory.MISC,
                 "zero_ten", "Number 0..10", false)
         {
@@ -36,7 +36,7 @@ public class CustomWidget extends Widget
         };
 
     /** Property: Category Misc, name "zero_ten", Integer 0..10 */
-    final public static WidgetPropertyDescriptor<String> widgetQuirk =
+    final public static WidgetPropertyDescriptor<String> propQuirk =
         new WidgetPropertyDescriptor<String>(WidgetPropertyCategory.WIDGET,
                 "quirk", "Quirk", false)
         {
@@ -57,7 +57,7 @@ public class CustomWidget extends Widget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(miscZeroTen.createProperty(this, 5));
-        properties.add(widgetQuirk.createProperty(this, "blink"));
+        properties.add(propZeroTen.createProperty(this, 5));
+        properties.add(propQuirk.createProperty(this, "blink"));
     }
 }

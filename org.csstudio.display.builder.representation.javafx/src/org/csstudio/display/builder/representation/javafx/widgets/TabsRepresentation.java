@@ -51,7 +51,7 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
 
     private final WidgetPropertyListener<String> tab_title_listener = (property, old_value, new_value) ->
     {
-        final List<TabItemProperty> model_tabs = model_widget.displayTabs().getValue();
+        final List<TabItemProperty> model_tabs = model_widget.propTabs().getValue();
         for (int i=0; i<model_tabs.size(); ++i)
             if (model_tabs.get(i).name() == property)
             {
@@ -64,7 +64,7 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
 
     private final WidgetPropertyListener<List<Widget>> tab_children_listener = (property, removed, added) ->
     {
-        final List<TabItemProperty> model_tabs = model_widget.displayTabs().getValue();
+        final List<TabItemProperty> model_tabs = model_widget.propTabs().getValue();
         int index;
         for (index = model_tabs.size() - 1;  index >= 0; --index)
             if (model_tabs.get(index).children() == property)
@@ -92,7 +92,7 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
         tabs.getStyleClass().add(TabPane.STYLE_CLASS_FLOATING);
 
         tabs.setMinSize(TabPane.USE_PREF_SIZE, TabPane.USE_PREF_SIZE);
-        tabs.setTabMinHeight(model_widget.displayTabHeight().getValue());
+        tabs.setTabMinHeight(model_widget.propTabHeight().getValue());
 
         return tabs;
     }
@@ -103,16 +103,16 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
         super.registerListeners();
 
         // Create initial tabs and their children
-        addTabs(model_widget.displayTabs().getValue());
+        addTabs(model_widget.propTabs().getValue());
 
         final UntypedWidgetPropertyListener listener = this::layoutChanged;
-        model_widget.positionWidth().addUntypedPropertyListener(listener);
-        model_widget.positionHeight().addUntypedPropertyListener(listener);
-        model_widget.displayBackgroundColor().addUntypedPropertyListener(listener);
-        model_widget.displayFont().addUntypedPropertyListener(listener);
-        model_widget.displayTabs().addPropertyListener(this::tabsChanged);
-        model_widget.displayDirection().addUntypedPropertyListener(listener);
-        model_widget.displayTabHeight().addUntypedPropertyListener(listener);
+        model_widget.propWidth().addUntypedPropertyListener(listener);
+        model_widget.propHeight().addUntypedPropertyListener(listener);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(listener);
+        model_widget.propFont().addUntypedPropertyListener(listener);
+        model_widget.propTabs().addPropertyListener(this::tabsChanged);
+        model_widget.propDirection().addUntypedPropertyListener(listener);
+        model_widget.propTabHeight().addUntypedPropertyListener(listener);
 
         // Update UI when model selects a tab
         final WidgetPropertyListener<Integer> track_active_model_tab = (p, old, value) ->
@@ -127,15 +127,15 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
             changing_active_tab.set(false);
         };
         // Select initial tab
-        track_active_model_tab.propertyChanged(model_widget.displayActiveTab(), null, null);
-        model_widget.displayActiveTab().addPropertyListener(track_active_model_tab);
+        track_active_model_tab.propertyChanged(model_widget.propActiveTab(), null, null);
+        model_widget.propActiveTab().addPropertyListener(track_active_model_tab);
 
         // Update model when UI selects a tab
         jfx_node.getSelectionModel().selectedIndexProperty().addListener((t, o, selected) ->
         {
             if (! changing_active_tab.compareAndSet(false, true))
                 return;
-            model_widget.displayActiveTab().setValue(selected.intValue());
+            model_widget.propActiveTab().setValue(selected.intValue());
             changing_active_tab.set(false);
         });
 
@@ -209,7 +209,7 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
 
     private void layoutChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        tab_font = JFXUtil.convert(model_widget.displayFont().getValue());
+        tab_font = JFXUtil.convert(model_widget.propFont().getValue());
         dirty_layout.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -232,7 +232,7 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
             logger.log(Level.WARNING, "Inset computation failed: TabPane at " + tabs_bounds + ", content pane at " + pane_bounds);
             insets[0] = insets[1] = 0;
         }
-        model_widget.runtimeInsets().setValue(insets);
+        model_widget.runtimePropInsets().setValue(insets);
     }
 
     @Override
@@ -242,9 +242,9 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
 
         if (dirty_layout.checkAndClear())
         {
-            final String style = JFXUtil.shadedStyle(model_widget.displayBackgroundColor().getValue());
+            final String style = JFXUtil.shadedStyle(model_widget.propBackgroundColor().getValue());
 
-            final Background background = new Background(new BackgroundFill(JFXUtil.convert(model_widget.displayBackgroundColor().getValue()), null, null));
+            final Background background = new Background(new BackgroundFill(JFXUtil.convert(model_widget.propBackgroundColor().getValue()), null, null));
 
             for (Tab tab : jfx_node.getTabs())
             {   // Set the font of the 'graphic' that's used to represent the tab
@@ -258,10 +258,10 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
                 content.setBackground(background);
             }
 
-            final Integer width = model_widget.positionWidth().getValue();
-            final Integer height = model_widget.positionHeight().getValue();
+            final Integer width = model_widget.propWidth().getValue();
+            final Integer height = model_widget.propHeight().getValue();
             jfx_node.setPrefSize(width, height);
-            jfx_node.setTabMinHeight(model_widget.displayTabHeight().getValue());
+            jfx_node.setTabMinHeight(model_widget.propTabHeight().getValue());
 
             refreshHack();
         }
@@ -283,7 +283,7 @@ public class TabsRepresentation extends JFXBaseRepresentation<TabPane, TabsWidge
             {
                 jfx_node.setStyle("");
                 jfx_node.setSide(Side.BOTTOM);
-                if (model_widget.displayDirection().getValue() == Direction.HORIZONTAL)
+                if (model_widget.propDirection().getValue() == Direction.HORIZONTAL)
                     jfx_node.setSide(Side.TOP);
                 else
                     jfx_node.setSide(Side.LEFT);

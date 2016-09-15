@@ -41,7 +41,7 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
     protected ScrollBar createJFXNode() throws Exception
     {
         ScrollBar scrollbar = new ScrollBar();
-        scrollbar.setOrientation(model_widget.displayHorizontal().getValue() ? Orientation.VERTICAL : Orientation.HORIZONTAL);
+        scrollbar.setOrientation(model_widget.propHorizontal().getValue() ? Orientation.VERTICAL : Orientation.HORIZONTAL);
         scrollbar.setFocusTraversable(true);
         scrollbar.setOnKeyPressed((final KeyEvent event) ->
         {
@@ -91,19 +91,19 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.behaviorLimitsFromPV().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.behaviorMinimum().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.behaviorMaximum().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.displayHorizontal().addPropertyListener(this::sizeChanged);
-        model_widget.behaviorBarLength().addPropertyListener(this::sizeChanged);
-        model_widget.behaviorStepIncrement().addPropertyListener(this::sizeChanged);
-        model_widget.behaviorPageIncrement().addPropertyListener(this::sizeChanged);
-        model_widget.behaviorEnabled().addPropertyListener(this::sizeChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propLimitsFromPV().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.propMinimum().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.propMaximum().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.propHorizontal().addPropertyListener(this::sizeChanged);
+        model_widget.propBarLength().addPropertyListener(this::sizeChanged);
+        model_widget.propStepIncrement().addPropertyListener(this::sizeChanged);
+        model_widget.propPageIncrement().addPropertyListener(this::sizeChanged);
+        model_widget.propEnabled().addPropertyListener(this::sizeChanged);
 
         //Since both the widget's PV value and the ScrollBar node's value property might be
         //written to independently during runtime, both must be listened to.
-        model_widget.runtimeValue().addPropertyListener(this::valueChanged);
+        model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
         jfx_node.valueProperty().addListener(this::nodeValueChanged);
 
     }
@@ -116,12 +116,12 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
 
     private void limitsChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        double min_val = model_widget.behaviorMinimum().getValue();
-        double max_val = model_widget.behaviorMaximum().getValue();
-        if (model_widget.behaviorLimitsFromPV().getValue())
+        double min_val = model_widget.propMinimum().getValue();
+        double max_val = model_widget.propMaximum().getValue();
+        if (model_widget.propLimitsFromPV().getValue())
         {
             //Try to get display range from PV
-            final Display display_info = ValueUtil.displayOf(model_widget.runtimeValue().getValue());
+            final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
             if (display_info != null)
             {
                 min_val = display_info.getLowerDisplayLimit();
@@ -147,7 +147,7 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         if (active)
             return;
         final Tooltip tip = jfx_node.getTooltip();
-        if (model_widget.displayShowValueTip().getValue())
+        if (model_widget.propShowValueTip().getValue())
         {
             final String text = Objects.toString(new_value);
             if (tip != null)
@@ -172,22 +172,22 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         super.updateChanges();
         if (dirty_size.checkAndClear())
         {
-            jfx_node.setDisable(! model_widget.behaviorEnabled().getValue());
-            jfx_node.setPrefHeight(model_widget.positionHeight().getValue());
-            jfx_node.setPrefWidth(model_widget.positionWidth().getValue());
+            jfx_node.setDisable(! model_widget.propEnabled().getValue());
+            jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+            jfx_node.setPrefWidth(model_widget.propWidth().getValue());
             jfx_node.setMin(min);
             jfx_node.setMax(max);
-            jfx_node.setOrientation(model_widget.displayHorizontal().getValue() ? Orientation.HORIZONTAL : Orientation.VERTICAL);
-            jfx_node.setUnitIncrement(model_widget.behaviorStepIncrement().getValue());
-            jfx_node.setBlockIncrement(model_widget.behaviorPageIncrement().getValue());
-            jfx_node.setVisibleAmount(model_widget.behaviorBarLength().getValue());
+            jfx_node.setOrientation(model_widget.propHorizontal().getValue() ? Orientation.HORIZONTAL : Orientation.VERTICAL);
+            jfx_node.setUnitIncrement(model_widget.propStepIncrement().getValue());
+            jfx_node.setBlockIncrement(model_widget.propPageIncrement().getValue());
+            jfx_node.setVisibleAmount(model_widget.propBarLength().getValue());
         }
         if (dirty_value.checkAndClear())
         {
             active = true;
             try
             {
-                double newval = VTypeUtil.getValueNumber( model_widget.runtimeValue().getValue() ).doubleValue();
+                double newval = VTypeUtil.getValueNumber( model_widget.runtimePropValue().getValue() ).doubleValue();
                 if (newval < min) newval = min;
                 else if (newval > max) newval = max;
                 if (!isValueChanging)

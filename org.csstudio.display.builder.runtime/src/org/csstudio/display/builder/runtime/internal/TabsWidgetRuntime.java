@@ -24,14 +24,14 @@ public class TabsWidgetRuntime extends WidgetRuntime<TabsWidget>
     public void start() throws Exception
     {
         super.start();
-        for (TabItemProperty tab : widget.displayTabs().getValue())
+        for (TabItemProperty tab : widget.propTabs().getValue())
             RuntimeUtil.startChildRuntimes(tab.children());
     }
 
     @Override
     public void stop()
     {
-        for (TabItemProperty tab : widget.displayTabs().getValue())
+        for (TabItemProperty tab : widget.propTabs().getValue())
             RuntimeUtil.stopChildRuntimes(tab.children());
         super.stop();
     }

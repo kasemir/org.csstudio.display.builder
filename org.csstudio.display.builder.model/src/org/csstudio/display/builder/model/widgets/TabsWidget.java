@@ -8,11 +8,11 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayDirection;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
-import static org.csstudio.display.builder.model.properties.InsetsWidgetProperty.runtimeInsets;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propDirection;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
+import static org.csstudio.display.builder.model.properties.InsetsWidgetProperty.runtimePropInsets;
 
 import java.util.Arrays;
 import java.util.List;
@@ -73,7 +73,7 @@ public class TabsWidget extends VisibleWidget
     };
 
     // Property that describes one tab item
-    private final static StructuredWidgetProperty.Descriptor displayTabItem =
+    private final static StructuredWidgetProperty.Descriptor propTabItem =
             new StructuredWidgetProperty.Descriptor(WidgetPropertyCategory.DISPLAY, "tab", Messages.Tab_Item);
 
     /** Name, children of one tab */
@@ -81,8 +81,8 @@ public class TabsWidget extends VisibleWidget
     {
         protected TabItemProperty(final Widget widget, final int index)
         {
-            super(displayTabItem, widget,
-                  Arrays.asList(CommonWidgetProperties.widgetName.createProperty(widget, createTabText(index)),
+            super(propTabItem, widget,
+                  Arrays.asList(CommonWidgetProperties.propName.createProperty(widget, createTabText(index)),
                                 new ChildrenProperty(widget)));
         }
 
@@ -98,14 +98,14 @@ public class TabsWidget extends VisibleWidget
         }
     };
 
-    private static final ArrayWidgetProperty.Descriptor<TabItemProperty> displayTabs =
+    private static final ArrayWidgetProperty.Descriptor<TabItemProperty> propTabs =
             new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.DISPLAY, "tabs", Messages.TabsWidget_Name,
                     (widget, index) -> new TabItemProperty(widget, index));
 
-    private static final WidgetPropertyDescriptor<Integer> tabHeight =
+    private static final WidgetPropertyDescriptor<Integer> propTabHeight =
             CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "tab_height", Messages.Tab_Height);
 
-    private static final WidgetPropertyDescriptor<Integer> activeTab =
+    private static final WidgetPropertyDescriptor<Integer> propActiveTab =
             CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "active_tab", Messages.ActiveTab);
 
 
@@ -130,7 +130,7 @@ public class TabsWidget extends VisibleWidget
                 // Create matching number of tabs
                 final int count = count_info.get();
                 final TabsWidget tabs_widget = (TabsWidget)widget;
-                final ArrayWidgetProperty<TabItemProperty> tabs = tabs_widget.displayTabs();
+                final ArrayWidgetProperty<TabItemProperty> tabs = tabs_widget.propTabs();
                 while (count < tabs.size())
                     tabs.removeElement();
                 while (count > tabs.size())
@@ -139,11 +139,11 @@ public class TabsWidget extends VisibleWidget
                 // Basics that apply to all tabs
                 Optional<String> text = XMLUtil.getChildString(xml, "minimum_tab_height");
                 if (text.isPresent())
-                    tabs_widget.displayTabHeight().setValue(Integer.parseInt(text.get()));
+                    tabs_widget.propTabHeight().setValue(Integer.parseInt(text.get()));
 
                 text = XMLUtil.getChildString(xml, "horizontal_tabs");
                 if (text.isPresent() && text.get().equals("false"))
-                    tabs_widget.displayDirection().setValue(Direction.VERTICAL);
+                    tabs_widget.propDirection().setValue(Direction.VERTICAL);
 
                 // Configure each tab from <tab_0_title>, <tab_1_title>, ...
                 for (int i=0; i<count; ++i)
@@ -190,19 +190,19 @@ public class TabsWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(macros = widgetMacros.createProperty(this, new Macros()));
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        properties.add(active = activeTab.createProperty(this, 0));
-        properties.add(tabs = displayTabs.createProperty(this, Arrays.asList(new TabItemProperty(this, 0),
+        properties.add(macros = propMacros.createProperty(this, new Macros()));
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(active = propActiveTab.createProperty(this, 0));
+        properties.add(tabs = propTabs.createProperty(this, Arrays.asList(new TabItemProperty(this, 0),
                                                                              new TabItemProperty(this, 1))));
-        properties.add(direction = displayDirection.createProperty(this, Direction.HORIZONTAL));
-        properties.add(tab_height = tabHeight.createProperty(this, 30));
-        properties.add(insets = runtimeInsets.createProperty(this, new int[] { 0, 0 }));
+        properties.add(direction = propDirection.createProperty(this, Direction.HORIZONTAL));
+        properties.add(tab_height = propTabHeight.createProperty(this, 30));
+        properties.add(insets = runtimePropInsets.createProperty(this, new int[] { 0, 0 }));
 
         // Initial size
-        positionWidth().setValue(300);
-        positionHeight().setValue(200);
+        propWidth().setValue(300);
+        propHeight().setValue(200);
     }
 
     private static String createTabText(final int index)
@@ -234,44 +234,44 @@ public class TabsWidget extends VisibleWidget
         return Macros.merge(base, my_macros);
     }
 
-    /** @return Display 'background_color' */
-    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    /** @return 'background_color' property */
+    public WidgetProperty<WidgetColor> propBackgroundColor()
     {
         return background;
     }
 
-    /** @return Display 'font' */
-    public WidgetProperty<WidgetFont> displayFont()
+    /** @return 'font' property */
+    public WidgetProperty<WidgetFont> propFont()
     {
         return font;
     }
 
-    /** @return Display 'active_tab' */
-    public WidgetProperty<Integer> displayActiveTab()
+    /** @return 'active_tab' property */
+    public WidgetProperty<Integer> propActiveTab()
     {
         return active;
     }
 
-    /** @return Display 'tabs' */
-    public ArrayWidgetProperty<TabItemProperty> displayTabs()
+    /** @return 'tabs' property */
+    public ArrayWidgetProperty<TabItemProperty> propTabs()
     {
         return tabs;
     }
 
-    /** @return Display 'direction' */
-    public WidgetProperty<Direction> displayDirection()
+    /** @return 'direction' property */
+    public WidgetProperty<Direction> propDirection()
     {
         return direction;
     }
 
-    /** @return Display 'tab_height' */
-    public WidgetProperty<Integer> displayTabHeight()
+    /** @return 'tab_height' property */
+    public WidgetProperty<Integer> propTabHeight()
     {
         return tab_height;
     }
 
-    /** @return Runtime 'insets' */
-    public WidgetProperty<int[]> runtimeInsets()
+    /** @return 'insets' property */
+    public WidgetProperty<int[]> runtimePropInsets()
     {
         return insets;
     }

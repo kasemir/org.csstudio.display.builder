@@ -31,7 +31,7 @@ import org.junit.Test;
 public class StructuredWidgetPropertyUnitTest
 {
     /** Demo structured property */
-    private final static StructuredWidgetProperty.Descriptor behaviorTrace =
+    private final static StructuredWidgetProperty.Descriptor propTrace =
             new Descriptor(WidgetPropertyCategory.BEHAVIOR, "trace", "Trace");
 
     /** Demo widget that has a structured property */
@@ -58,13 +58,13 @@ public class StructuredWidgetPropertyUnitTest
         protected void defineProperties(List<WidgetProperty<?>> properties)
         {
             super.defineProperties(properties);
-            properties.add( trace = behaviorTrace.createProperty(this, Arrays.asList(
-                    CommonWidgetProperties.behaviorPVName.createProperty(this, ""),
-                    CommonWidgetProperties.displayForegroundColor.createProperty(this, new WidgetColor(0, 0, 255))
+            properties.add( trace = propTrace.createProperty(this, Arrays.asList(
+                    CommonWidgetProperties.propPVName.createProperty(this, ""),
+                    CommonWidgetProperties.propForegroundColor.createProperty(this, new WidgetColor(0, 0, 255))
                     )));
         }
 
-        public StructuredWidgetProperty behaviorTrace()
+        public StructuredWidgetProperty propTrace()
         {
             return trace;
         }
@@ -76,18 +76,18 @@ public class StructuredWidgetPropertyUnitTest
         final PlotWidget widget = new PlotWidget();
 
         System.out.println(widget + " trace:");
-        for (WidgetProperty<?> trace_element : widget.getPropertyValue(behaviorTrace))
+        for (WidgetProperty<?> trace_element : widget.getPropertyValue(propTrace))
             System.out.println(trace_element);
 
         // Structure elements are always in XML, even with default value
-        widget.behaviorTrace().getValue().get(0).setValueFromObject("position");
+        widget.propTrace().getValue().get(0).setValueFromObject("position");
         String xml = ModelWriter.getXML(Arrays.asList(widget));
         System.out.println(xml);
         assertThat(xml, containsString("<trace>"));
         assertThat(xml, containsString("position"));
         assertThat(xml, containsString("color"));
 
-        final WidgetProperty<WidgetColor> color = widget.behaviorTrace().getElement(1);
+        final WidgetProperty<WidgetColor> color = widget.propTrace().getElement(1);
         color.setValue(new WidgetColor(255, 255, 0));
         xml = ModelWriter.getXML(Arrays.asList(widget));
         System.out.println(xml);
@@ -102,7 +102,7 @@ public class StructuredWidgetPropertyUnitTest
         final PlotWidget copy = (PlotWidget)model.getChildren().get(0);
         System.out.println(copy);
         System.out.println(copy.getProperties());
-        final WidgetProperty<String> pv_name = copy.behaviorTrace().getElement(0);
+        final WidgetProperty<String> pv_name = copy.propTrace().getElement(0);
         System.out.println(pv_name);
         assertThat(pv_name.getValue(), equalTo("position"));
     }
@@ -113,7 +113,7 @@ public class StructuredWidgetPropertyUnitTest
         final PlotWidget widget = new PlotWidget();
         try
         {
-            widget.behaviorTrace().setValue(Collections.emptyList());
+            widget.propTrace().setValue(Collections.emptyList());
             fail("Structure allowed modification");
         }
         catch (IllegalAccessError ex)
@@ -122,7 +122,7 @@ public class StructuredWidgetPropertyUnitTest
         }
         try
         {
-            widget.behaviorTrace().setValueFromObject(Collections.emptyList());
+            widget.propTrace().setValueFromObject(Collections.emptyList());
             fail("Structure allowed modification");
         }
         catch (Exception ex)
@@ -136,15 +136,15 @@ public class StructuredWidgetPropertyUnitTest
     {
         final PlotWidget widget = new PlotWidget();
 
-        final WidgetProperty<String> name1 = widget.behaviorTrace().getElement(0);
-        final WidgetProperty<String> name2 = widget.behaviorTrace().getElement("pv_name");
+        final WidgetProperty<String> name1 = widget.propTrace().getElement(0);
+        final WidgetProperty<String> name2 = widget.propTrace().getElement("pv_name");
         assertThat(name1, sameInstance(name2));
 
-        WidgetProperty<WidgetColor> color_prop = widget.behaviorTrace().getElement(1);
+        WidgetProperty<WidgetColor> color_prop = widget.propTrace().getElement(1);
         WidgetColor color = color_prop.getValue();
         System.out.println(color);
 
-        color_prop = widget.behaviorTrace().getElement(0);
+        color_prop = widget.propTrace().getElement(0);
         try
         {
             color = color_prop.getValue();

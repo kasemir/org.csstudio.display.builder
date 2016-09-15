@@ -7,13 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorEnabled;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propText;
 
 import java.util.Arrays;
 import java.util.List;
@@ -88,7 +88,7 @@ public class ActionButtonWidget extends VisibleWidget
                 if (label_el != null)
                 {
                     final Document doc = xml.getOwnerDocument();
-                    Element the_text = doc.createElement(displayText.getName());
+                    Element the_text = doc.createElement(propText.getName());
 
                     if (label_el.getFirstChild() != null)
                     {
@@ -131,47 +131,47 @@ public class ActionButtonWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(macros = widgetMacros.createProperty(this, new Macros()));
-        properties.add(text = displayText.createProperty(this, "$(actions)"));
-        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
-        properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
-        properties.add(behaviorPVName.createProperty(this, ""));
-        properties.add(enabled = behaviorEnabled.createProperty(this, true));
+        properties.add(propPVName.createProperty(this, ""));
+        properties.add(text = propText.createProperty(this, "$(actions)"));
+        properties.add(macros = propMacros.createProperty(this, new Macros()));
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
+        properties.add(enabled = propEnabled.createProperty(this, true));
     }
 
     /** @return Widget 'macros' */
-    public WidgetProperty<Macros> widgetMacros()
+    public WidgetProperty<Macros> propMacros()
     {
         return macros;
     }
 
-    /** @return Display 'text' */
-    public WidgetProperty<String> displayText()
+    /** @return 'text' property */
+    public WidgetProperty<String> propText()
     {
         return text;
     }
 
-    /** @return Display 'font' */
-    public WidgetProperty<WidgetFont> displayFont()
+    /** @return 'font' property */
+    public WidgetProperty<WidgetFont> propFont()
     {
         return font;
     }
 
-    /** @return Display 'background_color' */
-    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    /** @return 'background_color' property */
+    public WidgetProperty<WidgetColor> propBackgroundColor()
     {
         return background;
     }
 
-    /** @return Display 'foreground_color' */
-    public WidgetProperty<WidgetColor> displayForegroundColor()
+    /** @return 'foreground_color' property */
+    public WidgetProperty<WidgetColor> propForegroundColor()
     {
         return foreground;
     }
 
-    /** @return Behavior 'foreground_color' */
-    public WidgetProperty<Boolean> behaviorEnabled()
+    /** @return 'enabled' property */
+    public WidgetProperty<Boolean> propEnabled()
     {
         return enabled;
     }
@@ -183,7 +183,7 @@ public class ActionButtonWidget extends VisibleWidget
     public Macros getEffectiveMacros()
     {
         final Macros base = super.getEffectiveMacros();
-        final Macros my_macros = widgetMacros().getValue();
+        final Macros my_macros = propMacros().getValue();
         return Macros.merge(base, my_macros);
     }
 }

@@ -7,12 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -55,22 +55,18 @@ public class RadioWidget extends VisibleWidget
         }
     };
 
-    /** Behavior 'item': element for list of 'items' property */
-    private static final WidgetPropertyDescriptor<String> behaviorItem =
+    /** 'item' property: element for list of 'items' property */
+    private static final WidgetPropertyDescriptor<String> propItem =
             CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "item", Messages.ComboWidget_Item);
 
-    /** Behavior 'items': list of items (string properties) for combo box */
-    public static final WidgetPropertyDescriptor< List<WidgetProperty<String>> > behaviorItems =
+    /** 'items' property: list of items (string properties) for combo box */
+    public static final WidgetPropertyDescriptor< List<WidgetProperty<String>> > propItems =
             new ArrayWidgetProperty.Descriptor< WidgetProperty<String> >(WidgetPropertyCategory.BEHAVIOR, "items", Messages.ComboWidget_Items,
-                                                                         (widget, index) -> behaviorItem.createProperty(widget, "Item " + index));
+                                                                         (widget, index) -> propItem.createProperty(widget, "Item " + index));
 
-    /** Behavior 'items_from_pv': If PV is enum PV, get items from PV? */
-    public static final WidgetPropertyDescriptor<Boolean> behaviorItemsFromPV =
+    /** 'items_from_pv' property: If PV is enum PV, get items from PV? */
+    public static final WidgetPropertyDescriptor<Boolean> propItemsFromPV =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "items_from_pv", Messages.ComboWidget_ItemsFromPV);
-
-    /** Display 'horizontal': Change whether orientation is horizontal or, if false, vertical */
-    public static final WidgetPropertyDescriptor<Boolean> displayHorizontal = newBooleanPropertyDescriptor(
-            WidgetPropertyCategory.DISPLAY, "horizontal", Messages.Horizontal);
 
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<WidgetColor> foreground;
@@ -89,57 +85,59 @@ public class RadioWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
-        properties.add(displayBorderAlarmSensitive.createProperty(this, true));
-        properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
-        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        properties.add(value = runtimeValue.createProperty(this, null));
-        properties.add(
-                items = behaviorItems.createProperty(this, Arrays.asList(behaviorItem.createProperty(this, "Item"))));
-        properties.add(items_from_pv = behaviorItemsFromPV.createProperty(this, true));
-        properties.add(horizontal = displayHorizontal.createProperty(this, true));
+        properties.add(pv_name = propPVName.createProperty(this, ""));
+        properties.add(propBorderAlarmSensitive.createProperty(this, true));
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(value = runtimePropValue.createProperty(this, null));
+        properties.add(items = propItems.createProperty(this, Arrays.asList(propItem.createProperty(this, "Item"))));
+        properties.add(items_from_pv = propItemsFromPV.createProperty(this, true));
+        properties.add(horizontal = propHorizontal.createProperty(this, true));
     }
 
-    /** @return Behavior 'pv_name' */
-    public WidgetProperty<String> behaviorPVName()
+    /** @return 'pv_name' property */
+    public WidgetProperty<String> propPVName()
     {
         return pv_name;
     }
 
-    /** @return Display 'foreground_color' */
-    public WidgetProperty<WidgetColor> displayForegroundColor()
+    /** @return 'foreground_color' property */
+    public WidgetProperty<WidgetColor> propForegroundColor()
     {
         return foreground;
     }
 
-    /** @return Display 'font' */
-    public WidgetProperty<WidgetFont> displayFont()
+    /** @return 'font' property */
+    public WidgetProperty<WidgetFont> propFont()
     {
         return font;
     }
 
-    /** @return Runtime 'value' */
-    public WidgetProperty<VType> runtimeValue()
+    /** @return Runtime 'value' property */
+    public WidgetProperty<VType> runtimePropValue()
     {
         return value;
     }
 
-    /** @return Behavior 'items_from_PV' */
-    public WidgetProperty<Boolean> behaviorItemsFromPV()
+    /** @return 'items_from_PV' property */
+    public WidgetProperty<Boolean> propItemsFromPV()
     {
         return items_from_pv;
     }
 
-    /** @return Behavior 'items' */
-    public WidgetProperty< List<WidgetProperty<String>> > behaviorItems()
+    /** @return 'items' property */
+    public WidgetProperty< List<WidgetProperty<String>> > propItems()
     {
         return items;
     }
 
-    /** @return Display 'horizontal' */
-    public WidgetProperty<Boolean> displayHorizontal()
+    /** @return 'horizontal' property */
+    public WidgetProperty<Boolean> propHorizontal()
     {
         return horizontal;
     }
+
+    //  TODO: CR: Changing the name of a radio button item has no immediate effect,
+    //            only after a resize the name is changed.
 
 }

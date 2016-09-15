@@ -32,7 +32,7 @@ public class ActionButtonRepresentation extends SWTBaseRepresentation<Button, Ac
     @Override
     protected Button createSWTControl(final Composite parent) throws Exception
     {
-        final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
+        final List<ActionInfo> actions = model_widget.propActions().getValue();
         final Button button = new Button(parent, SWT.PUSH);
 
         // Use basic button for single action
@@ -92,7 +92,7 @@ public class ActionButtonRepresentation extends SWTBaseRepresentation<Button, Ac
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.displayText().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propText().addUntypedPropertyListener(this::representationChanged);
     }
 
     private void representationChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -106,6 +106,6 @@ public class ActionButtonRepresentation extends SWTBaseRepresentation<Button, Ac
     {
         super.updateChanges();
         if (dirty_representation.checkAndClear())
-            control.setText(model_widget.displayText().getValue());
+            control.setText(model_widget.propText().getValue());
     }
 }

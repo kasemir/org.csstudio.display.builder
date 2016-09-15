@@ -61,7 +61,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
 
         // Reading the displayFile property resolves macros and could trigger a property change.
         // -> Resolve name, _then_ register for changes.
-        final String display_file = widget.displayFile().getValue();
+        final String display_file = widget.propFile().getValue();
 
         // Load embedded display in runtime thread
         // so that start() returns quickly and allows the next widget to start up
@@ -69,14 +69,14 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
 
         // Even though display is still loading, file name has been resolved
         // so can now register for changes
-        widget.displayFile().addPropertyListener((p, o, n) ->
+        widget.propFile().addPropertyListener((p, o, n) ->
         {
             // Runtime changes to the displayFile are expected to set the value,
             // not the macroized specification, so this getValue() call is very
             // unlikely to trigger a nested property update
 
             // Handle update of embedded display in the thread that triggered it
-            startDisplayUpdate(widget.displayFile().getValue());
+            startDisplayUpdate(widget.propFile().getValue());
         });
     }
 
@@ -93,7 +93,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
             final DisplayModel new_model = loadDisplayModel(display_file);
 
             // If group name property is set, use only widgets in that one group
-            final String group_name = widget.displayGroupName().getValue();
+            final String group_name = widget.propGroupName().getValue();
             if (!display_file.isEmpty()  &&  !group_name.isEmpty())
                 reduceDisplayModelToGroup(display_file, new_model, group_name);
 
@@ -153,7 +153,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         final int groups = model.runtimeChildren().getValue().size();
         if (children.size() != 1)
         {
-            widget.displayResize().setValue(Resize.None);
+            widget.propResize().setValue(Resize.None);
             logger.log(Level.WARNING, "Expected one group named '" + group_name + "' in '" + display_file + "', found " + groups);
             return;
         }
@@ -163,25 +163,25 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         model.runtimeChildren().removeChild(group);
         int xmin = Integer.MAX_VALUE, ymin = Integer.MAX_VALUE,
             xmax = 0,                 ymax = 0;
-        for (Widget child : group.runtimeChildren().getValue())
+        for (Widget child : group.runtimePropChildren().getValue())
         {
             // Not removing child from 'group', since group
             // will be GC'ed anyway.
             model.runtimeChildren().addChild(child);
-            xmin = Math.min(xmin, child.positionX().getValue());
-            ymin = Math.min(ymin, child.positionY().getValue());
-            xmax = Math.min(xmax, child.positionX().getValue() + child.positionWidth().getValue());
-            ymax = Math.min(ymax, child.positionY().getValue() + child.positionHeight().getValue());
+            xmin = Math.min(xmin, child.propX().getValue());
+            ymin = Math.min(ymin, child.propY().getValue());
+            xmax = Math.min(xmax, child.propX().getValue() + child.propWidth().getValue());
+            ymax = Math.min(ymax, child.propY().getValue() + child.propHeight().getValue());
         }
         // Move all widgets to top-left corner
         for (Widget child : children)
         {
-            child.positionX().setValue(child.positionX().getValue() - xmin);
-            child.positionY().setValue(child.positionY().getValue() - ymin);
+            child.propX().setValue(child.propX().getValue() - xmin);
+            child.propY().setValue(child.propY().getValue() - ymin);
         }
         // Shrink display to size of widgets
-        model.positionWidth().setValue(xmax - xmin);
-        model.positionHeight().setValue(ymax - ymin);
+        model.propWidth().setValue(xmax - xmin);
+        model.propHeight().setValue(ymax - ymin);
     }
 
     /** Wait for future to complete
@@ -223,7 +223,7 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         if (display_file.isEmpty())
         {   // Empty model for empty file name
             embedded_model = new DisplayModel();
-            widget.runtimeConnected().setValue(true);
+            widget.runtimePropConnected().setValue(true);
         }
         else
         {
@@ -233,15 +233,15 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
                 final String parent_display = display.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
                 embedded_model = RuntimeUtil.loadModel(parent_display, display_file);
                 // Adjust model name to reflect source file
-                embedded_model.widgetName().setValue("EmbeddedDisplay " + display_file);
-                widget.runtimeConnected().setValue(true);
+                embedded_model.propName().setValue("EmbeddedDisplay " + display_file);
+                widget.runtimePropConnected().setValue(true);
             }
             catch (final Throwable ex)
             {   // Log error and show message in pseudo model
                 final String message = "Failed to load embedded display '" + display_file + "'";
                 logger.log(Level.WARNING, message, ex);
                 embedded_model = createErrorModel(message);
-                widget.runtimeConnected().setValue(false);
+                widget.runtimePropConnected().setValue(false);
             }
         }
         // Tell embedded model that it is held by this widget
@@ -255,16 +255,16 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
     private DisplayModel createErrorModel(final String message)
     {
         final LabelWidget info = new LabelWidget();
-        info.displayText().setValue(message);
-        info.displayForegroundColor().setValue(WidgetColorService.getColor(NamedWidgetColors.ALARM_DISCONNECTED));
+        info.propText().setValue(message);
+        info.propForegroundColor().setValue(WidgetColorService.getColor(NamedWidgetColors.ALARM_DISCONNECTED));
         // Size a little smaller than the widget to fill but not require scrollbars
-        final int wid = widget.positionWidth().getValue()-2;
-        final int hei = widget.positionHeight().getValue()-2;
-        info.positionWidth().setValue(wid);
-        info.positionHeight().setValue(hei);
+        final int wid = widget.propWidth().getValue()-2;
+        final int hei = widget.propHeight().getValue()-2;
+        info.propWidth().setValue(wid);
+        info.propHeight().setValue(hei);
         final DisplayModel error_model = new DisplayModel();
-        error_model.positionWidth().setValue(wid);
-        error_model.positionHeight().setValue(hei);
+        error_model.propWidth().setValue(wid);
+        error_model.propHeight().setValue(hei);
         error_model.runtimeChildren().addChild(info);
         return error_model;
     }
@@ -279,22 +279,22 @@ public class EmbeddedDisplayRuntime extends WidgetRuntime<EmbeddedDisplayWidget>
         {
             final Object parent = widget.getUserData(EmbeddedDisplayWidget.USER_DATA_EMBEDDED_DISPLAY_CONTAINER);
 
-            final Resize resize = widget.displayResize().getValue();
-            final int content_width = content_model.positionWidth().getValue();
-            final int content_height = content_model.positionHeight().getValue();
+            final Resize resize = widget.propResize().getValue();
+            final int content_width = content_model.propWidth().getValue();
+            final int content_height = content_model.propHeight().getValue();
             if (resize == Resize.ResizeContent)
             {
-                final double zoom_x = content_width  > 0 ? (double)widget.positionWidth().getValue()  / content_width : 1.0;
-                final double zoom_y = content_height > 0 ? (double)widget.positionHeight().getValue() / content_height : 1.0;
+                final double zoom_x = content_width  > 0 ? (double)widget.propWidth().getValue()  / content_width : 1.0;
+                final double zoom_y = content_height > 0 ? (double)widget.propHeight().getValue() / content_height : 1.0;
                 final double zoom = Math.min(zoom_x, zoom_y);
-                widget.runtimeScale().setValue(zoom);
+                widget.runtimePropScale().setValue(zoom);
             }
             else if (resize == Resize.SizeToContent)
             {
                 if (content_width > 0)
-                    widget.positionWidth().setValue(content_width);
+                    widget.propWidth().setValue(content_width);
                 if (content_height > 0)
-                    widget.positionHeight().setValue(content_height);
+                    widget.propHeight().setValue(content_height);
             }
             toolkit.representModel(parent, content_model);
         }

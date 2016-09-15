@@ -7,13 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets.plots;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMaximum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMinimum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
-import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.displayToolbar;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
+import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -68,7 +68,7 @@ public class ImageWidget extends VisibleWidget
     };
 
     /** Color map: Maps values to colors in the image */
-    private static final WidgetPropertyDescriptor<ColorMap> dataColormap =
+    private static final WidgetPropertyDescriptor<ColorMap> propDataColormap =
         new WidgetPropertyDescriptor<ColorMap>(WidgetPropertyCategory.DISPLAY, "color_map", Messages.WidgetProperties_ColorMap)
     {
         @Override
@@ -78,10 +78,10 @@ public class ImageWidget extends VisibleWidget
         }
     };
 
-    private static final WidgetPropertyDescriptor<Integer> colorbarSize =
+    private static final WidgetPropertyDescriptor<Integer> propColorbarSize =
         CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "bar_size", "Color Bar Size");
 
-    private final static StructuredWidgetProperty.Descriptor displayColorbar =
+    private final static StructuredWidgetProperty.Descriptor propColorbar =
         new Descriptor(WidgetPropertyCategory.DISPLAY, "color_bar", "Color Bar");
 
     /** Structure for color bar, the 'legend' that shows the color bar */
@@ -89,10 +89,10 @@ public class ImageWidget extends VisibleWidget
     {
         public ColorBarProperty(final Widget widget)
         {
-            super(displayColorbar, widget,
-                  Arrays.asList(CommonWidgetProperties.positionVisible.createProperty(widget, true),
-                                colorbarSize.createProperty(widget, 40),
-                                PlotWidgetProperties.scaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)));
+            super(propColorbar, widget,
+                  Arrays.asList(CommonWidgetProperties.propVisible.createProperty(widget, true),
+                                propColorbarSize.createProperty(widget, 40),
+                                PlotWidgetProperties.propScaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)));
         }
 
         public WidgetProperty<Boolean> visible()        { return getElement(0); }
@@ -107,12 +107,12 @@ public class ImageWidget extends VisibleWidget
                                      final Widget widget, final String title_text)
         {
             super(axis_descriptor, widget,
-                  Arrays.asList(CommonWidgetProperties.positionVisible.createProperty(widget, true),
-                                PlotWidgetProperties.displayTitle.createProperty(widget, title_text),
-                                CommonWidgetProperties.behaviorMinimum.createProperty(widget, 0.0),
-                                CommonWidgetProperties.behaviorMaximum.createProperty(widget, 100.0),
-                                PlotWidgetProperties.titleFontProperty.createProperty(widget, NamedWidgetFonts.DEFAULT_BOLD),
-                                PlotWidgetProperties.scaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)));
+                  Arrays.asList(CommonWidgetProperties.propVisible.createProperty(widget, true),
+                                PlotWidgetProperties.propTitle.createProperty(widget, title_text),
+                                CommonWidgetProperties.propMinimum.createProperty(widget, 0.0),
+                                CommonWidgetProperties.propMaximum.createProperty(widget, 100.0),
+                                PlotWidgetProperties.propTitleFont.createProperty(widget, NamedWidgetFonts.DEFAULT_BOLD),
+                                PlotWidgetProperties.propScaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)));
         }
 
         public WidgetProperty<Boolean> visible()        { return getElement(0); }
@@ -123,10 +123,10 @@ public class ImageWidget extends VisibleWidget
         public WidgetProperty<WidgetFont> scaleFont()   { return getElement(5); }
     };
 
-    private final static StructuredWidgetProperty.Descriptor displayXAxis =
+    private final static StructuredWidgetProperty.Descriptor propXAxis =
         new Descriptor(WidgetPropertyCategory.DISPLAY, "x_axis", Messages.PlotWidget_XAxis);
 
-    private final static StructuredWidgetProperty.Descriptor displayYAxis =
+    private final static StructuredWidgetProperty.Descriptor propYAxis =
         new Descriptor(WidgetPropertyCategory.DISPLAY, "y_axis", Messages.PlotWidget_YAxis);
 
     /** Structure for X axis */
@@ -134,7 +134,7 @@ public class ImageWidget extends VisibleWidget
     {
         public XAxisWidgetProperty(final Widget widget)
         {
-            super(displayXAxis, widget, "X");
+            super(propXAxis, widget, "X");
         }
     };
 
@@ -143,12 +143,12 @@ public class ImageWidget extends VisibleWidget
     {
         public YAxisWidgetProperty(final Widget widget)
         {
-            super(displayYAxis, widget, "Y");
+            super(propYAxis, widget, "Y");
         }
     };
 
     /** Image data information */
-    private static final WidgetPropertyDescriptor<Integer> dataWidth =
+    private static final WidgetPropertyDescriptor<Integer> propDataWidth =
         new WidgetPropertyDescriptor<Integer>(
             WidgetPropertyCategory.BEHAVIOR, "data_width", Messages.WidgetProperties_DataWidth)
     {
@@ -160,7 +160,7 @@ public class ImageWidget extends VisibleWidget
         }
     };
 
-    private static final WidgetPropertyDescriptor<Integer> dataHeight =
+    private static final WidgetPropertyDescriptor<Integer> propDataHeight =
         new WidgetPropertyDescriptor<Integer>(
             WidgetPropertyCategory.BEHAVIOR, "data_height", Messages.WidgetProperties_DataHeight)
     {
@@ -172,64 +172,64 @@ public class ImageWidget extends VisibleWidget
         }
     };
 
-    private static final WidgetPropertyDescriptor<Boolean> dataUnsigned =
+    private static final WidgetPropertyDescriptor<Boolean> propDataUnsigned =
         CommonWidgetProperties.newBooleanPropertyDescriptor(
             WidgetPropertyCategory.BEHAVIOR, "unsigned", Messages.WidgetProperties_UnsignedData);
 
-    /** Runtime info about cursor location */
-    private static final WidgetPropertyDescriptor<String> cursorInfoPV =
+    private static final WidgetPropertyDescriptor<String> propCursorInfoPV =
         CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.MISC, "cursor_info_pv", Messages.WidgetProperties_CursorInfoPV);
 
-    private static final WidgetPropertyDescriptor<VType> cursorInfo =
+    /** Runtime info about cursor location */
+    private static final WidgetPropertyDescriptor<VType> runtimePropCursorInfo =
         CommonWidgetProperties.newRuntimeValue("cursor_info", Messages.WidgetProperties_CursorInfo);
 
     /** Structure for ROI */
-    private static final WidgetPropertyDescriptor<WidgetColor> displayColor =
+    private static final WidgetPropertyDescriptor<WidgetColor> propColor =
         CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "color", Messages.PlotWidget_Color);
 
-    private static final WidgetPropertyDescriptor<String> behaviorXPVName =
+    private static final WidgetPropertyDescriptor<String> propXPVName =
         CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "x_pv", Messages.WidgetProperties_XPVName);
 
-    private static final WidgetPropertyDescriptor<String> behaviorYPVName =
+    private static final WidgetPropertyDescriptor<String> propYPVName =
         CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "y_pv", Messages.WidgetProperties_YPVName);
 
-    private static final WidgetPropertyDescriptor<String> behaviorWidthPVName =
+    private static final WidgetPropertyDescriptor<String> propWidthPVName =
         CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "width_pv", Messages.WidgetProperties_WidthPVName);
 
-    private static final WidgetPropertyDescriptor<String> behaviorHeightPVName =
+    private static final WidgetPropertyDescriptor<String> propHeightPVName =
         CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "height_pv", Messages.WidgetProperties_HeightPVName);
 
-    public static final WidgetPropertyDescriptor<Double> xValue =
+    public static final WidgetPropertyDescriptor<Double> propXValue =
         CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.RUNTIME, "x_value", Messages.WidgetProperties_X);
 
-    public static final WidgetPropertyDescriptor<Double> yValue =
+    public static final WidgetPropertyDescriptor<Double> propYValue =
         CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.RUNTIME, "y_value", Messages.WidgetProperties_Y);
 
-    public static final WidgetPropertyDescriptor<Double> widthValue =
+    public static final WidgetPropertyDescriptor<Double> propWidthValue =
         CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.RUNTIME, "width_value", Messages.WidgetProperties_Width);
 
-    public static final WidgetPropertyDescriptor<Double> heightValue =
+    public static final WidgetPropertyDescriptor<Double> propHeightValue =
         CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.RUNTIME, "height_value", Messages.WidgetProperties_Height);
 
-    private final static StructuredWidgetProperty.Descriptor behaviorROI =
+    private final static StructuredWidgetProperty.Descriptor propROI =
             new Descriptor(WidgetPropertyCategory.DISPLAY, "roi", "Region of Interest");
 
     public static class ROIWidgetProperty extends StructuredWidgetProperty
     {
         protected ROIWidgetProperty(final Widget widget, final String name)
         {
-            super(behaviorROI, widget,
-                  Arrays.asList(CommonWidgetProperties.positionVisible.createProperty(widget, true),
-                                CommonWidgetProperties.widgetName.createProperty(widget, name),
-                                displayColor.createProperty(widget, new WidgetColor(255, 0, 0)),
-                                behaviorXPVName.createProperty(widget, ""),
-                                behaviorYPVName.createProperty(widget, ""),
-                                behaviorWidthPVName.createProperty(widget, ""),
-                                behaviorHeightPVName.createProperty(widget, ""),
-                                xValue.createProperty(widget, Double.NaN),
-                                yValue.createProperty(widget, Double.NaN),
-                                widthValue.createProperty(widget, Double.NaN),
-                                heightValue.createProperty(widget, Double.NaN) ));
+            super(propROI, widget,
+                  Arrays.asList(CommonWidgetProperties.propVisible.createProperty(widget, true),
+                                CommonWidgetProperties.propName.createProperty(widget, name),
+                                propColor.createProperty(widget, new WidgetColor(255, 0, 0)),
+                                propXPVName.createProperty(widget, ""),
+                                propYPVName.createProperty(widget, ""),
+                                propWidthPVName.createProperty(widget, ""),
+                                propHeightPVName.createProperty(widget, ""),
+                                propXValue.createProperty(widget, Double.NaN),
+                                propYValue.createProperty(widget, Double.NaN),
+                                propWidthValue.createProperty(widget, Double.NaN),
+                                propHeightValue.createProperty(widget, Double.NaN) ));
         }
 
         public WidgetProperty<Boolean> visible()       { return getElement(0); }
@@ -246,7 +246,7 @@ public class ImageWidget extends VisibleWidget
     };
 
     /** 'roi' array */
-    public static final ArrayWidgetProperty.Descriptor<ROIWidgetProperty> miscROIs =
+    public static final ArrayWidgetProperty.Descriptor<ROIWidgetProperty> propROIs =
         new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.MISC, "rois", "Regions of Interest",
                                              (widget, index) -> new ROIWidgetProperty(widget, "ROI " + index),
                                              0);
@@ -274,7 +274,7 @@ public class ImageWidget extends VisibleWidget
 
                 final Element el = XMLUtil.getChildElement(xml, "font");
                 if (el != null)
-                    image.displayColorbar().scaleFont().readFromXML(model_reader, el);
+                    image.propColorbar().scaleFont().readFromXML(model_reader, el);
 
                 XMLUtil.getChildString(xml, "x_axis_visible")
                        .ifPresent(show -> image.x_axis.visible().setValue(Boolean.parseBoolean(show)));
@@ -323,24 +323,24 @@ public class ImageWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(displayBorderAlarmSensitive.createProperty(this, true));
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        properties.add(show_toolbar = displayToolbar.createProperty(this,false));
-        properties.add(data_colormap = dataColormap.createProperty(this, ColorMap.VIRIDIS));
+        properties.add(propBorderAlarmSensitive.createProperty(this, true));
+        properties.add(pv_name = propPVName.createProperty(this, ""));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(show_toolbar = propToolbar.createProperty(this,false));
+        properties.add(data_colormap = propDataColormap.createProperty(this, ColorMap.VIRIDIS));
         properties.add(color_bar = new ColorBarProperty(this));
         properties.add(x_axis = new XAxisWidgetProperty(this));
         properties.add(y_axis = new YAxisWidgetProperty(this));
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
-        properties.add(data_width = dataWidth.createProperty(this, 100));
-        properties.add(data_height = dataHeight.createProperty(this, 100));
-        properties.add(data_unsigned = dataUnsigned.createProperty(this, false));
-        properties.add(data_autoscale = PlotWidgetProperties.autoscale.createProperty(this, true));
-        properties.add(data_minimum = behaviorMinimum.createProperty(this, 0.0));
-        properties.add(data_maximum = behaviorMaximum.createProperty(this, 255.0));
-        properties.add(value = runtimeValue.createProperty(this, null));
-        properties.add(cursor_info_pv = cursorInfoPV.createProperty(this, ""));
-        properties.add(cursor_info = cursorInfo.createProperty(this, null));
-        properties.add(rois = miscROIs.createProperty(this, Collections.emptyList()));
+        properties.add(data_width = propDataWidth.createProperty(this, 100));
+        properties.add(data_height = propDataHeight.createProperty(this, 100));
+        properties.add(data_unsigned = propDataUnsigned.createProperty(this, false));
+        properties.add(data_autoscale = PlotWidgetProperties.propAutoscale.createProperty(this, true));
+        properties.add(data_minimum = propMinimum.createProperty(this, 0.0));
+        properties.add(data_maximum = propMaximum.createProperty(this, 255.0));
+        properties.add(value = runtimePropValue.createProperty(this, null));
+        properties.add(cursor_info_pv = propCursorInfoPV.createProperty(this, ""));
+        properties.add(cursor_info = runtimePropCursorInfo.createProperty(this, null));
+        properties.add(rois = propROIs.createProperty(this, Collections.emptyList()));
     }
 
     @Override
@@ -350,104 +350,104 @@ public class ImageWidget extends VisibleWidget
         return new CustomWidgetConfigurator(persisted_version);
     }
 
-    /** @return Display 'background_color' */
-    public WidgetProperty<WidgetColor> displayBackground()
+    /** @return 'background_color' property */
+    public WidgetProperty<WidgetColor> propBackground()
     {
         return background;
     }
 
-    /** @return Display 'show_toolbar' */
-    public WidgetProperty<Boolean> displayToolbar()
+    /** @return 'show_toolbar' property */
+    public WidgetProperty<Boolean> propToolbar()
     {
         return show_toolbar;
     }
 
-    /** @return Display 'color_map' */
-    public WidgetProperty<ColorMap> displayDataColormap()
+    /** @return 'color_map' property*/
+    public WidgetProperty<ColorMap> propDataColormap()
     {
         return data_colormap;
     }
 
-    /** @return Display 'color_bar' */
-    public ColorBarProperty displayColorbar()
+    /** @return 'color_bar' property */
+    public ColorBarProperty propColorbar()
     {
         return color_bar;
     }
 
-    /** @return Display 'x_axis' */
-    public AxisWidgetProperty displayXAxis()
+    /** @return 'x_axis' property */
+    public AxisWidgetProperty propXAxis()
     {
         return x_axis;
     }
 
-    /** @return Display 'y_axis' */
-    public AxisWidgetProperty displayYAxis()
+    /** @return 'y_axis' property */
+    public AxisWidgetProperty propYAxis()
     {
         return y_axis;
     }
 
-    /** @return Behavior 'pv_name' */
-    public WidgetProperty<String> behaviorPVName()
+    /** @return 'pv_name' property */
+    public WidgetProperty<String> propPVName()
     {
         return pv_name;
     }
 
-    /** @return Behavior 'data_width' */
-    public WidgetProperty<Integer> behaviorDataWidth()
+    /** @return 'data_width' property */
+    public WidgetProperty<Integer> propDataWidth()
     {
         return data_width;
     }
 
-    /** @return Behavior 'data_height' */
-    public WidgetProperty<Integer> behaviorDataHeight()
+    /** @return 'data_height' property */
+    public WidgetProperty<Integer> propDataHeight()
     {
         return data_height;
     }
 
-    /** @return Behavior 'unsigned' */
-    public WidgetProperty<Boolean> behaviorDataUnsigned()
+    /** @return 'unsigned' property */
+    public WidgetProperty<Boolean> propDataUnsigned()
     {
         return data_unsigned;
     }
 
-    /** @return Behavior 'autoscale' */
-    public WidgetProperty<Boolean> behaviorDataAutoscale()
+    /** @return 'autoscale' property */
+    public WidgetProperty<Boolean> propDataAutoscale()
     {
         return data_autoscale;
     }
 
-    /** @return Behavior 'minimum' */
-    public WidgetProperty<Double> behaviorDataMinimum()
+    /** @return 'minimum' property */
+    public WidgetProperty<Double> propDataMinimum()
     {
         return data_minimum;
     }
 
-    /** @return Behavior 'maximum' */
-    public WidgetProperty<Double> behaviorDataMaximum()
+    /** @return 'maximum' property */
+    public WidgetProperty<Double> propDataMaximum()
     {
         return data_maximum;
     }
 
-    /** @return Runtime 'value' */
-    public WidgetProperty<VType> runtimeValue()
+    /** @return Runtime 'value' property */
+    public WidgetProperty<VType> runtimePropValue()
     {
         return value;
     }
 
-    /** @return Misc. 'cursor_info_pv' */
-    public WidgetProperty<String> miscCursorInfoPV()
+    /** @return 'cursor_info_pv' property */
+    public WidgetProperty<String> propCursorInfoPV()
     {
         return cursor_info_pv;
     }
 
-    /** @return Runtime 'cursor_info' */
-    public WidgetProperty<VType> runtimeCursorInfo()
+    /** @return Runtime 'cursor_info' property */
+    public WidgetProperty<VType> runtimePropCursorInfo()
     {
         return cursor_info;
     }
 
-    /** @return Misc. 'rois' */
-    public ArrayWidgetProperty<ROIWidgetProperty> miscROIs()
+    /** @return 'rois' property */
+    public ArrayWidgetProperty<ROIWidgetProperty> propROIs()
     {
         return rois;
     }

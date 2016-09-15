@@ -59,7 +59,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         @Override
         public void changedCursorLocation(final double x, final double y, final double value)
         {
-            model_widget.runtimeCursorInfo().setValue(
+            model_widget.runtimePropCursorInfo().setValue(
                 ValueFactory.newVTable(cursor_info_types,
                                        cursor_info_names,
                                        Arrays.asList(new ArrayDouble(x), new ArrayDouble(y), new ArrayDouble(value))));
@@ -70,7 +70,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         {
             if (changing_roi)
                 return;
-            final ROIWidgetProperty widget_roi = model_widget.miscROIs().getValue().get(index);
+            final ROIWidgetProperty widget_roi = model_widget.propROIs().getValue().get(index);
             changing_roi =  true;
             widget_roi.x_value().setValue(region.getMinX());
             widget_roi.y_value().setValue(region.getMinY());
@@ -90,7 +90,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         if (! toolkit.isEditMode())
         {
             // Create ROIs once. Not allowing adding/removing ROIs in runtime.
-            for (ROIWidgetProperty roi : model_widget.miscROIs().getValue())
+            for (ROIWidgetProperty roi : model_widget.propROIs().getValue())
                 createROI(roi);
         }
 
@@ -147,30 +147,30 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::positionChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::positionChanged);
 
-        model_widget.displayBackground().addUntypedPropertyListener(this::configChanged);
-        model_widget.displayToolbar().addUntypedPropertyListener(this::configChanged);
-        model_widget.displayDataColormap().addPropertyListener(this::colormapChanged);
-        model_widget.displayColorbar().visible().addUntypedPropertyListener(this::configChanged);
-        model_widget.displayColorbar().barSize().addUntypedPropertyListener(this::configChanged);
-        model_widget.displayColorbar().scaleFont().addUntypedPropertyListener(this::configChanged);
-        addAxisListener(model_widget.displayXAxis());
-        addAxisListener(model_widget.displayYAxis());
+        model_widget.propBackground().addUntypedPropertyListener(this::configChanged);
+        model_widget.propToolbar().addUntypedPropertyListener(this::configChanged);
+        model_widget.propDataColormap().addPropertyListener(this::colormapChanged);
+        model_widget.propColorbar().visible().addUntypedPropertyListener(this::configChanged);
+        model_widget.propColorbar().barSize().addUntypedPropertyListener(this::configChanged);
+        model_widget.propColorbar().scaleFont().addUntypedPropertyListener(this::configChanged);
+        addAxisListener(model_widget.propXAxis());
+        addAxisListener(model_widget.propYAxis());
 
-        model_widget.behaviorDataAutoscale().addUntypedPropertyListener(this::configChanged);
-        model_widget.behaviorDataMinimum().addUntypedPropertyListener(this::configChanged);
-        model_widget.behaviorDataMaximum().addUntypedPropertyListener(this::configChanged);
+        model_widget.propDataAutoscale().addUntypedPropertyListener(this::configChanged);
+        model_widget.propDataMinimum().addUntypedPropertyListener(this::configChanged);
+        model_widget.propDataMaximum().addUntypedPropertyListener(this::configChanged);
 
-        model_widget.behaviorDataWidth().addUntypedPropertyListener(this::contentChanged);
-        model_widget.behaviorDataHeight().addUntypedPropertyListener(this::contentChanged);
-        model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propDataWidth().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propDataHeight().addUntypedPropertyListener(this::contentChanged);
+        model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
 
         image_plot.setListener(plot_listener);
 
         // Initial update
-        colormapChanged(null, null, model_widget.displayDataColormap().getValue());
+        colormapChanged(null, null, model_widget.propDataColormap().getValue());
         configChanged(null, null, null);
     }
 
@@ -201,20 +201,20 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 
     private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        image_plot.setBackground(JFXUtil.convert(model_widget.displayBackground().getValue()));
-        image_plot.showToolbar(model_widget.displayToolbar().getValue());
-        image_plot.showColorMap(model_widget.displayColorbar().visible().getValue());
-        image_plot.setColorMapSize(model_widget.displayColorbar().barSize().getValue());
-        image_plot.setColorMapFont(JFXUtil.convert(model_widget.displayColorbar().scaleFont().getValue()));
-        image_plot.setAxisRange(model_widget.displayXAxis().minimum().getValue(),
-                                model_widget.displayXAxis().maximum().getValue(),
-                                model_widget.displayYAxis().minimum().getValue(),
-                                model_widget.displayYAxis().maximum().getValue());
-        axisChanged(model_widget.displayXAxis(), image_plot.getXAxis());
-        axisChanged(model_widget.displayYAxis(), image_plot.getYAxis());
-        image_plot.setAutoscale(model_widget.behaviorDataAutoscale().getValue());
-        image_plot.setValueRange(model_widget.behaviorDataMinimum().getValue(),
-                                 model_widget.behaviorDataMaximum().getValue());
+        image_plot.setBackground(JFXUtil.convert(model_widget.propBackground().getValue()));
+        image_plot.showToolbar(model_widget.propToolbar().getValue());
+        image_plot.showColorMap(model_widget.propColorbar().visible().getValue());
+        image_plot.setColorMapSize(model_widget.propColorbar().barSize().getValue());
+        image_plot.setColorMapFont(JFXUtil.convert(model_widget.propColorbar().scaleFont().getValue()));
+        image_plot.setAxisRange(model_widget.propXAxis().minimum().getValue(),
+                                model_widget.propXAxis().maximum().getValue(),
+                                model_widget.propYAxis().minimum().getValue(),
+                                model_widget.propYAxis().maximum().getValue());
+        axisChanged(model_widget.propXAxis(), image_plot.getXAxis());
+        axisChanged(model_widget.propYAxis(), image_plot.getYAxis());
+        image_plot.setAutoscale(model_widget.propDataAutoscale().getValue());
+        image_plot.setValueRange(model_widget.propDataMinimum().getValue(),
+                                 model_widget.propDataMaximum().getValue());
     }
 
     private void axisChanged(final AxisWidgetProperty property, final Axis<Double> axis)
@@ -227,17 +227,17 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 
     private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        final VType value = model_widget.runtimeValue().getValue();
+        final VType value = model_widget.runtimePropValue().getValue();
         if (value instanceof VNumberArray)
-            image_plot.setValue(model_widget.behaviorDataWidth().getValue(),
-                                model_widget.behaviorDataHeight().getValue(),
+            image_plot.setValue(model_widget.propDataWidth().getValue(),
+                                model_widget.propDataHeight().getValue(),
                                 ((VNumberArray) value).getData(),
-                                model_widget.behaviorDataUnsigned().getValue());
+                                model_widget.propDataUnsigned().getValue());
         else if (value instanceof VImage)
         {
             final VImage image = (VImage) value;
             image_plot.setValue(image.getWidth(), image.getHeight(), new ArrayByte(image.getData(), true),
-                                model_widget.behaviorDataUnsigned().getValue());
+                                model_widget.propDataUnsigned().getValue());
         }
         else if (value != null)
             logger.log(Level.WARNING, "Cannot draw image from {0}", value);
@@ -250,8 +250,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         super.updateChanges();
         if (dirty_position.checkAndClear())
         {
-            final int w = model_widget.positionWidth().getValue();
-            final int h = model_widget.positionHeight().getValue();
+            final int w = model_widget.propWidth().getValue();
+            final int h = model_widget.propHeight().getValue();
             image_plot.setPrefWidth(w);
             image_plot.setPrefHeight(h);
         }

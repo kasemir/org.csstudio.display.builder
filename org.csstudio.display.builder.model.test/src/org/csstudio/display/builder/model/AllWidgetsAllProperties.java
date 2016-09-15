@@ -40,10 +40,10 @@ public class AllWidgetsAllProperties
                 final Macros macros = new Macros();
                 macros.add("S", "Test");
                 macros.add("N", "1");
-                button.widgetMacros().setValue(macros);
+                button.propMacros().setValue(macros);
                 final Macros macros2 = new Macros();
                 macros2.add("N", "2");
-                button.behaviorActions().setValue(Arrays.asList(
+                button.propActions().setValue(Arrays.asList(
                     new OpenDisplayActionInfo("Display", "other.opi", macros2, Target.REPLACE)));
             }
 

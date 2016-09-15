@@ -52,8 +52,8 @@ public class FileSelectorRepresentation extends JFXBaseRepresentation<Button, Fi
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addPropertyListener(this::sizeChanged);
-        model_widget.positionHeight().addPropertyListener(this::sizeChanged);
+        model_widget.propWidth().addPropertyListener(this::sizeChanged);
+        model_widget.propHeight().addPropertyListener(this::sizeChanged);
     }
 
     private void sizeChanged(final WidgetProperty<Integer> property, final Integer old_value, final Integer new_value)
@@ -68,20 +68,20 @@ public class FileSelectorRepresentation extends JFXBaseRepresentation<Button, Fi
     {
         super.updateChanges();
         if (dirty_size.checkAndClear())
-            jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
-                                 model_widget.positionHeight().getValue());
+            jfx_node.setPrefSize(model_widget.propWidth().getValue(),
+                                 model_widget.propHeight().getValue());
     }
 
     private void selectFile()
     {
-        final FileSelectorWidget.FileComponent component = model_widget.behaviorComponent().getValue();
+        final FileSelectorWidget.FileComponent component = model_widget.propComponent().getValue();
 
-        String path = VTypeUtil.getValueString(model_widget.runtimeValue().getValue(), false);
+        String path = VTypeUtil.getValueString(model_widget.runtimePropValue().getValue(), false);
 
         // This is a JFX representation, but using RCP/SWT dialogs
         // which are aware of the workspace and match other load/save dialogs
         final Shell shell = Display.getCurrent().getActiveShell();
-        if (model_widget.behaviorFilespace().getValue() == FileSelectorWidget.Filespace.WORKSPACE)
+        if (model_widget.propFilespace().getValue() == FileSelectorWidget.Filespace.WORKSPACE)
         {
             final ResourceSelectionDialog dialog = new ResourceSelectionDialog(shell,
                     Messages.SelectWorkspaceFile,
@@ -94,7 +94,7 @@ public class FileSelectorRepresentation extends JFXBaseRepresentation<Button, Fi
             if (resource == null)
                 return;
 
-            switch (model_widget.behaviorComponent().getValue())
+            switch (model_widget.propComponent().getValue())
             {
             case FULL:
             case DIRECTORY:
@@ -129,7 +129,7 @@ public class FileSelectorRepresentation extends JFXBaseRepresentation<Button, Fi
                     return;
             }
             File file = new File(path);
-            switch (model_widget.behaviorComponent().getValue())
+            switch (model_widget.propComponent().getValue())
             {
             case FULL:
             case DIRECTORY:

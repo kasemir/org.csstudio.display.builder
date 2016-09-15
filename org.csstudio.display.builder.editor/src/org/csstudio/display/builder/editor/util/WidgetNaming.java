@@ -110,7 +110,7 @@ public class WidgetNaming
             }
             max_used_instance.put(base, number);
         }
-        widget.setPropertyValue(CommonWidgetProperties.widgetName, name);
+        widget.setPropertyValue(CommonWidgetProperties.propName, name);
 
         final ChildrenProperty children = ChildrenProperty.getChildren(widget);
         if (children != null)

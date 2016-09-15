@@ -237,7 +237,7 @@ public class DisplayEditorPart extends EditorPart
     {
         final DisplayModel old_model = editor.getModel();
         if (old_model != null)
-            old_model.widgetName().removePropertyListener(model_name_listener);
+            old_model.propName().removePropertyListener(model_name_listener);
         if (model == null)
             return;
         // In UI thread..
@@ -248,7 +248,7 @@ public class DisplayEditorPart extends EditorPart
             if (outline_page != null)
                 outline_page.setModel(model);
         });
-        model.widgetName().addPropertyListener(model_name_listener);
+        model.propName().addPropertyListener(model_name_listener);
     }
 
     private void createRetargetableActionHandlers()

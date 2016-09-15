@@ -336,8 +336,8 @@ public class RuntimeViewPart extends ViewPart
             // Could simply use info's macros if they are non-empty,
             // but merging macros with those loaded from model file
             // allows for newly added macros in the display file.
-            final Macros macros = Macros.merge(model.widgetMacros().getValue(), info.getMacros());
-            model.widgetMacros().setValue(macros);
+            final Macros macros = Macros.merge(model.propMacros().getValue(), info.getMacros());
+            model.propMacros().setValue(macros);
 
             // Schedule representation on UI thread
             representation.execute(() -> representModel(model));

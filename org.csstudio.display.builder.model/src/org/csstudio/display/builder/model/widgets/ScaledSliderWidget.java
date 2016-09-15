@@ -7,18 +7,21 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorEnabled;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorLimitsFromPV;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMaximum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMinimum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPageIncrement;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propStepIncrement;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -58,18 +61,6 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         }
     };
 
-    /** Display 'horizontal': Use horizontal orientation */
-    public static final WidgetPropertyDescriptor<Boolean> displayHorizontal =
-        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "horizontal", Messages.Horizontal);
-
-    /** Behavior 'step_increment': Regular/unit increment */ //TODO: ?add to CommonWidgetProperties
-    public static final WidgetPropertyDescriptor<Double> behaviorStepIncrement =
-        newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "step_increment", Messages.Spinner_StepIncrement);
-
-    /** Behavior 'page_increment': Increment on page up/down */
-    public static final WidgetPropertyDescriptor<Double> behaviorPageIncrement =
-        newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "page_increment", Messages.Spinner_PageIncrement);
-
     //XXX: The following are common scaled-widget properties
 
     //define in defineProperties() when representation implemented
@@ -86,56 +77,56 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         }
     };
 
-    /** Display 'show_scale': Show scale for scaled widget. */
-    public static final WidgetPropertyDescriptor<Boolean> displayShowScale =
+    /** 'show_scale' property: Show scale for scaled widget. */
+    public static final WidgetPropertyDescriptor<Boolean> propShowScale =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_scale", Messages.WidgetProperties_ShowScale);
 
-    /** Display 'show_minor_ticks': Show tick marks on scale. */
-    public static final WidgetPropertyDescriptor<Boolean> displayShowMinorTicks =
+    /** 'show_minor_ticks' property: Show tick marks on scale. */
+    public static final WidgetPropertyDescriptor<Boolean> propShowMinorTicks =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_minor_ticks", Messages.WidgetProperties_ShowMinorTicks);
 
-    /** Display 'scale_format': Formatter for scale labels; follows java DecimalFormat */
-    public static final WidgetPropertyDescriptor<String> displayScaleFormat =
+    /** 'scale_format' property: Formatter for scale labels; follows java DecimalFormat */
+    public static final WidgetPropertyDescriptor<String> propScaleFormat =
         newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "scale_format", Messages.WidgetProperties_ScaleFormat);
 
-    /** Display 'show_markers': Show tick markers for HI, HIHI, LO, & LOLO levels. */
-    public static final WidgetPropertyDescriptor<Boolean> displayShowMarkers =
+    /** 'show_markers' property: Show tick markers for HI, HIHI, LO, & LOLO levels. */
+    public static final WidgetPropertyDescriptor<Boolean> propShowMarkers =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_markers", Messages.WidgetProperties_ShowMarkers);
 
-    /** Position 'major_tick_step_hint': Minimum space, in pixels, between major tick marks. */
-    public static final WidgetPropertyDescriptor<Integer> displayMajorTickStepHint =
-        newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "major_tick_step_hint", Messages.WidgetProperties_MajorTickStepHint);
+    /** 'major_tick_step_hint' property: Minimum space, in pixels, between major tick marks. */
+    public static final WidgetPropertyDescriptor<Integer> propMajorTickStepHint =
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "major_tick_step_hint", Messages.WidgetProperties_MajorTickStepHint);
 
-    /** Display 'level_hi': Level of HI value for widget*/
-    public static final WidgetPropertyDescriptor<Double> displayLevelHi =
+    /** 'level_hi' property: Level of HI value for widget*/
+    public static final WidgetPropertyDescriptor<Double> propLevelHi =
         newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_hi", Messages.WidgetProperties_LevelHi);
 
-    /** Display 'level_hihi': Level of HIHI value for widget*/
-    public static final WidgetPropertyDescriptor<Double> displayLevelHiHi =
+    /** 'level_hihi' property: Level of HIHI value for widget*/
+    public static final WidgetPropertyDescriptor<Double> propLevelHiHi =
         newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_hihi", Messages.WidgetProperties_LevelHiHi);
 
-    /** Display 'level_lo': Level of LO value for widget*/
-    public static final WidgetPropertyDescriptor<Double> displayLevelLo =
+    /** 'level_lo' property: Level of LO value for widget*/
+    public static final WidgetPropertyDescriptor<Double> propLevelLo =
         newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_lo", Messages.WidgetProperties_LevelLo);
 
-    /** Display 'level_lolo': Level of LO value for widget*/
-    public static final WidgetPropertyDescriptor<Double> displayLevelLoLo =
+    /** 'level_lolo' property: Level of LO value for widget*/
+    public static final WidgetPropertyDescriptor<Double> propLevelLoLo =
         newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_lolo", Messages.WidgetProperties_LevelLoLo);
 
-    /** Display 'show_hi': Whether to show HI marker*/
-    public static final WidgetPropertyDescriptor<Boolean> displayShowHi =
+    /** 'show_hi' property: Whether to show HI marker*/
+    public static final WidgetPropertyDescriptor<Boolean> propShowHi =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_hi", Messages.WidgetProperties_ShowHi);
 
-    /** Display 'show_hihi': Whether to show HIHI marker*/
-    public static final WidgetPropertyDescriptor<Boolean> displayShowHiHi =
+    /** 'show_hihi' property: Whether to show HIHI marker*/
+    public static final WidgetPropertyDescriptor<Boolean> propShowHiHi =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_hihi", Messages.WidgetProperties_ShowHiHi);
 
-    /** Display 'show_lo': Whether to show LO marker*/
-    public static final WidgetPropertyDescriptor<Boolean> displayShowLo =
+    /** 'show_lo' property: Whether to show LO marker*/
+    public static final WidgetPropertyDescriptor<Boolean> propShowLo =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_lo", Messages.WidgetProperties_ShowLo);
 
-    /** Display 'show_lo': Whether to show LOLO marker*/
-    public static final WidgetPropertyDescriptor<Boolean> displayShowLoLo =
+    /** 'show_lo' property: Whether to show LOLO marker*/
+    public static final WidgetPropertyDescriptor<Boolean> propShowLoLo =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_lolo", Messages.WidgetProperties_ShowLoLo);
 
     private volatile WidgetProperty<VType> value;
@@ -177,54 +168,53 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(behaviorPVName.createProperty(this, ""));
-        properties.add(value = runtimeValue.createProperty(this, null));
-        properties.add(displayBorderAlarmSensitive.createProperty(this, true));
-        properties.add(horizontal = displayHorizontal.createProperty(this, true));
-        properties.add(step_increment = behaviorStepIncrement.createProperty(this, 1.0));
-        properties.add(page_increment = behaviorPageIncrement.createProperty(this, 10.0));
-        properties.add(background =
-                displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(propPVName.createProperty(this, ""));
+        properties.add(value = runtimePropValue.createProperty(this, null));
+        properties.add(propBorderAlarmSensitive.createProperty(this, true));
+        properties.add(horizontal = propHorizontal.createProperty(this, true));
+        properties.add(step_increment = propStepIncrement.createProperty(this, 1.0));
+        properties.add(page_increment = propPageIncrement.createProperty(this, 10.0));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         //scaled-widget properties:
-        properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
-        properties.add(maximum = behaviorMaximum.createProperty(this, 100.0));
-        properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, true));
-        properties.add(enabled = behaviorEnabled.createProperty(this, true));
-        properties.add(major_tick_step_hint = displayMajorTickStepHint.createProperty(this, 20));
-        properties.add(show_scale = displayShowScale.createProperty(this, true));
-        properties.add(show_minor_ticks = displayShowMinorTicks.createProperty(this, true));
-        properties.add(scale_format = displayScaleFormat.createProperty(this, ""));
-        properties.add(show_markers = displayShowMarkers.createProperty(this, false));
-        properties.add(level_hihi = displayLevelHiHi.createProperty(this, 90.0));
-        properties.add(level_hi = displayLevelHi.createProperty(this, 80.0));
-        properties.add(level_lo = displayLevelLo.createProperty(this, 20.0));
-        properties.add(level_lolo = displayLevelLoLo.createProperty(this, 10.0));
-        properties.add(show_hihi = displayShowHiHi.createProperty(this, true));
-        properties.add(show_hi = displayShowHi.createProperty(this, true));
-        properties.add(show_lo = displayShowLo.createProperty(this, true));
-        properties.add(show_lolo = displayShowLoLo.createProperty(this, true));
+        properties.add(minimum = propMinimum.createProperty(this, 0.0));
+        properties.add(maximum = propMaximum.createProperty(this, 100.0));
+        properties.add(limits_from_pv = propLimitsFromPV.createProperty(this, true));
+        properties.add(enabled = propEnabled.createProperty(this, true));
+        properties.add(show_scale = propShowScale.createProperty(this, true));
+        properties.add(show_minor_ticks = propShowMinorTicks.createProperty(this, true));
+        properties.add(major_tick_step_hint = propMajorTickStepHint.createProperty(this, 20));
+        properties.add(scale_format = propScaleFormat.createProperty(this, ""));
+        properties.add(show_markers = propShowMarkers.createProperty(this, false));
+        properties.add(level_hihi = propLevelHiHi.createProperty(this, 90.0));
+        properties.add(level_hi = propLevelHi.createProperty(this, 80.0));
+        properties.add(level_lo = propLevelLo.createProperty(this, 20.0));
+        properties.add(level_lolo = propLevelLoLo.createProperty(this, 10.0));
+        properties.add(show_hihi = propShowHiHi.createProperty(this, true));
+        properties.add(show_hi = propShowHi.createProperty(this, true));
+        properties.add(show_lo = propShowLo.createProperty(this, true));
+        properties.add(show_lolo = propShowLoLo.createProperty(this, true));
     }
 
-    /** @return Runtime 'value' */
-    public WidgetProperty<VType> runtimeValue()
+    /** @return Runtime 'value' property */
+    public WidgetProperty<VType> runtimePropValue()
     {
         return value;
     }
 
-    /** @return Display 'horizontal' */
-    public WidgetProperty<Boolean> displayHorizontal()
+    /** @return 'horizontal' property */
+    public WidgetProperty<Boolean> propHorizontal()
     {
         return horizontal;
     }
 
-    /** @return Behavior 'step_increment' */
-    public WidgetProperty<Double> behaviorStepIncrement()
+    /** @return 'step_increment' property */
+    public WidgetProperty<Double> propStepIncrement()
     {
         return step_increment;
     }
 
-    /** @return Behavior 'page_increment' */
-    public WidgetProperty<Double> behaviorPageIncrement()
+    /** @return 'page_increment' property */
+    public WidgetProperty<Double> propPageIncrement()
     {
         return page_increment;
     }
@@ -235,8 +225,8 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         return foreground;
     }
 
-    /** @return Display 'background' */
-    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    /** @return 'background' property */
+    public WidgetProperty<WidgetColor> propBackgroundColor()
     {
         return background;
     }
@@ -248,26 +238,26 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     }
 
     //scaled widget properties:
-    /** @return Behavior 'minimum' */
-    public WidgetProperty<Double> behaviorMinimum()
+    /** @return 'minimum' property */
+    public WidgetProperty<Double> propMinimum()
     {
         return minimum;
     }
 
-    /** @return Behavior 'maximum' */
-    public WidgetProperty<Double> behaviorMaximum()
+    /** @return 'maximum' property */
+    public WidgetProperty<Double> propMaximum()
     {
         return maximum;
     }
 
-    /** @return Behavior 'limits_from_pv' */
-    public WidgetProperty<Boolean> behaviorLimitsFromPV()
+    /** @return 'limits_from_pv' property */
+    public WidgetProperty<Boolean> propLimitsFromPV()
     {
         return limits_from_pv;
     }
 
-    /** @return Behavior 'enabled' */
-    public WidgetProperty<Boolean> behaviorEnabled()
+    /** @return 'enabled' property */
+    public WidgetProperty<Boolean> propEnabled()
     {
         return enabled;
     }
@@ -278,80 +268,80 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         return scale_font;
     }
 
-    /** @return Display 'show_scale' */
-    public WidgetProperty<Boolean> displayShowScale()
+    /** @return 'show_scale' property */
+    public WidgetProperty<Boolean> propShowScale()
     {
         return show_scale;
     }
 
-    /** @return Display 'major_tick_step_hint' */
-    public WidgetProperty<Integer> displayMajorTickStepHint()
+    /** @return 'major_tick_step_hint' property */
+    public WidgetProperty<Integer> propMajorTickStepHint()
     {
         return major_tick_step_hint;
     }
 
-    /** @return Display 'show_minor_ticks' */
-    public WidgetProperty<Boolean> displayShowMinorTicks()
+    /** @return 'show_minor_ticks' property */
+    public WidgetProperty<Boolean> propShowMinorTicks()
     {
         return show_minor_ticks;
     }
 
-    /** @return Display 'scale_format' */
-    public WidgetProperty<String> displayScaleFormat()
+    /** @return 'scale_format' property */
+    public WidgetProperty<String> propScaleFormat()
     {
         return scale_format;
     }
 
-    /** @return Display 'show_markers' */
-    public WidgetProperty<Boolean> displayShowMarkers()
+    /** @return 'show_markers' property */
+    public WidgetProperty<Boolean> propShowMarkers()
     {
         return show_markers;
     }
 
-    /** @return Display 'level_hi' */
-    public WidgetProperty<Double> displayLevelHi()
+    /** @return 'level_hi' property */
+    public WidgetProperty<Double> propLevelHi()
     {
         return level_hi;
     }
 
-    /** @return Display 'level_hihi' */
-    public WidgetProperty<Double> displayLevelHiHi()
+    /** @return 'level_hihi' property */
+    public WidgetProperty<Double> propLevelHiHi()
     {
         return level_hihi;
     }
 
-    /** @return Display 'level_lo' */
-    public WidgetProperty<Double> displayLevelLo()
+    /** @return 'level_lo' property */
+    public WidgetProperty<Double> propLevelLo()
     {
         return level_lo;
     }
 
-    /** @return Display 'level_lolo' */
-    public WidgetProperty<Double> displayLevelLoLo()
+    /** @return 'level_lolo' property */
+    public WidgetProperty<Double> propLevelLoLo()
     {
         return level_lolo;
     }
 
-    /** @return Display 'show_hi' */
-    public WidgetProperty<Boolean> displayShowHi()
+    /** @return 'show_hi' property */
+    public WidgetProperty<Boolean> propShowHi()
     {
         return show_hi;
     }
 
-    /** @return Display 'show_hihi' */
-    public WidgetProperty<Boolean> displayShowHiHi()
+    /** @return 'show_hihi' property */
+    public WidgetProperty<Boolean> propShowHiHi()
     {
         return show_hihi;
     }
 
-    /** @return Display 'show_lo' */
-    public WidgetProperty<Boolean> displayShowLo()
+    /** @return 'show_lo' property */
+    public WidgetProperty<Boolean> propShowLo()
     {
         return show_lo;
     }
 
-    /** @return Display 'show_lolo' */
-    public WidgetProperty<Boolean> displayShowLoLo()
+    /** @return 'show_lolo' property */
+    public WidgetProperty<Boolean> propShowLoLo()
     {
         return show_lolo;
     }
