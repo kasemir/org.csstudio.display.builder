@@ -92,11 +92,9 @@ public class RuntimeDemoSWT implements Runnable
     private void representModel(final Display display, final DisplayModel model)
     {
         // Add model items
-        final Composite parent;
         try
         {
-            parent = toolkit.openNewWindow(model, this::handleClose);
-            toolkit.representModel(parent, model);
+            toolkit.openNewWindow(model, this::handleClose);
         }
         catch (final Exception ex)
         {

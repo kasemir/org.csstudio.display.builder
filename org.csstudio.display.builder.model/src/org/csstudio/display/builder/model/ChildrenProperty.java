@@ -80,7 +80,7 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
         final Widget parent = widget.getParent().get();
         if (parent instanceof TabsWidget)
         {
-            final List<TabItemProperty> tabs = ((TabsWidget)parent).displayTabs().getValue();
+            final List<TabItemProperty> tabs = ((TabsWidget)parent).propTabs().getValue();
             for (TabItemProperty tab : tabs)
             {
                 final ChildrenProperty children = tab.children();
@@ -144,7 +144,7 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
                 return child;
             if (child instanceof TabsWidget)
             {
-                for (TabItemProperty tab : ((TabsWidget)child).displayTabs().getValue())
+                for (TabItemProperty tab : ((TabsWidget)child).propTabs().getValue())
                 {
                     final Widget maybe = tab.children().getChildByName(name);
                     if (maybe != null)
@@ -170,6 +170,8 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
      */
     public void addChild(final int index, final Widget child)
     {
+        if (child == null)
+            throw new NullPointerException("Cannot add null to " + getWidget());
         final List<Widget> list = value;
         synchronized (list)
         {   // Atomically check-then-add
@@ -196,6 +198,8 @@ public class ChildrenProperty extends RuntimeWidgetProperty<List<Widget>>
      */
     public int removeChild(final Widget child)
     {
+        if (child == null)
+            throw new NullPointerException("Cannot remove null from " + getWidget());
         final List<Widget> list = value;
         final int index;
         synchronized (list)

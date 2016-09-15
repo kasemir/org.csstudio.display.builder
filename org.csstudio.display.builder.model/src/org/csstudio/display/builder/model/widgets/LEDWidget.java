@@ -7,9 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorBit;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayOffColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayOnColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBit;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnColor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -85,25 +85,25 @@ public class LEDWidget extends BaseLEDWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(bit = behaviorBit.createProperty(this, -1));
-        properties.add(off_color = displayOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
-        properties.add(on_color = displayOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
+        properties.add(bit = propBit.createProperty(this, -1));
+        properties.add(off_color = propOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
+        properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
     }
 
-    /** @return 'bit' */
-    public WidgetProperty<Integer> bit()
+    /** @return 'bit' property */
+    public WidgetProperty<Integer> propBit()
     {
         return bit;
     }
 
-    /** @return 'off_color' */
-    public WidgetProperty<WidgetColor> offColor()
+    /** @return 'off_color' property*/
+    public WidgetProperty<WidgetColor> propOffColor()
     {
         return off_color;
     }
 
-    /** @return 'off_color' */
-    public WidgetProperty<WidgetColor> onColor()
+    /** @return 'off_color' property */
+    public WidgetProperty<WidgetColor> propOnColor()
     {
         return on_color;
     }

@@ -84,10 +84,10 @@ abstract public class SWTBaseRepresentation<W extends Control, MW extends Widget
      */
     protected void registerListeners()
     {
-        model_widget.positionX().addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionY().addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionWidth().addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
+        model_widget.propX().addUntypedPropertyListener(this::positionChanged);
+        model_widget.propY().addUntypedPropertyListener(this::positionChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::positionChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::positionChanged);
     }
 
     private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -101,9 +101,9 @@ abstract public class SWTBaseRepresentation<W extends Control, MW extends Widget
     public void updateChanges()
     {
         if (dirty_position.checkAndClear())
-            control.setBounds(model_widget.positionX().getValue(),
-                              model_widget.positionY().getValue(),
-                              model_widget.positionWidth().getValue(),
-                              model_widget.positionHeight().getValue());
+            control.setBounds(model_widget.propX().getValue(),
+                              model_widget.propY().getValue(),
+                              model_widget.propWidth().getValue(),
+                              model_widget.propHeight().getValue());
     }
 }

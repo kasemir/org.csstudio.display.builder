@@ -19,8 +19,10 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 
-/** Widget that displays a static rectangle
- *  @author Amanda Carpenter
+/**
+ * Widget for a limited embedded web browser
+ *
+ * @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
 public class WebBrowserWidget extends VisibleWidget
@@ -40,9 +42,9 @@ public class WebBrowserWidget extends VisibleWidget
         }
     };
 
-    public static final WidgetPropertyDescriptor<String> widgetURL =
+    public static final WidgetPropertyDescriptor<String> propWidgetURL =
         CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.WIDGET, "url", Messages.WebBrowser_URL);
-    public static final WidgetPropertyDescriptor<Boolean> displayShowToolbar =
+    public static final WidgetPropertyDescriptor<Boolean> propShowToolbar =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_toolbar", Messages.WebBrowser_showToolbar);
 
     private volatile WidgetProperty<String> url;
@@ -57,18 +59,18 @@ public class WebBrowserWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(url = widgetURL.createProperty(this, ""));
-        properties.add(show_toolbar = displayShowToolbar.createProperty(this, true));
+        properties.add(url = propWidgetURL.createProperty(this, ""));
+        properties.add(show_toolbar = propShowToolbar.createProperty(this, true));
     }
 
-    /** @return Widget 'url' */
-    public WidgetProperty<String> widgetURL()
+    /** @return Widget 'url' property */
+    public WidgetProperty<String> propWidgetURL()
     {
         return url;
     }
 
-    /** @return Display 'show_toolbar' */
-    public WidgetProperty<Boolean> displayShowToolbar()
+    /** @return 'show_toolbar' property */
+    public WidgetProperty<Boolean> propShowToolbar()
     {
         return show_toolbar;
     }

@@ -19,11 +19,17 @@ public class Messages extends NLS
     public static String Actions_Zero;
     public static String Actions_N_Fmt;
     public static String ActiveTab;
+    public static String ArrayWidget_Description;
+    public static String ArrayWidget_Name;
+    public static String Arrows;
+    public static String Arrows_None;
+    public static String Arrows_From;
+    public static String Arrows_To;
+    public static String Arrows_Both;
     public static String AutoSize;
     public static String BoolWidget_OffLabel;
     public static String BoolWidget_OnLabel;
     public static String ByteMonitor_BitReverse;
-    public static String ByteMonitor_Horizontal;
     public static String ByteMonitor_NumBits;
     public static String ByteMonitor_SquareLED;
     public static String ByteMonitor_StartBit;
@@ -33,6 +39,7 @@ public class Messages extends NLS
     public static String ComboWidget_Item;
     public static String ComboWidget_Items;
     public static String ComboWidget_ItemsFromPV;
+    public static String EmbeddedDisplayWidget_GroupName;
     public static String FontStyle_Bold;
     public static String FontStyle_BoldItalic;
     public static String FontStyle_Italic;
@@ -46,7 +53,6 @@ public class Messages extends NLS
     public static String Format_String;
     public static String GroupWidget_Description;
     public static String GroupWidget_Name;
-    public static String Horizontal;
     public static String LabelWidget_Text;
     public static String Left;
     public static String Middle;
@@ -82,8 +88,6 @@ public class Messages extends NLS
     public static String ScrollBar_ShowValueTip;
     public static String ScrollBar_BarLength;
     public static String Spinner_ButtonsOnLeft;
-    public static String Spinner_PageIncrement;
-    public static String Spinner_StepIncrement;
     public static String Style;
     public static String Style_Group;
     public static String Style_Line;
@@ -122,6 +126,7 @@ public class Messages extends NLS
     public static String WidgetProperties_DataHeight;
     public static String WidgetProperties_DataWidth;
     public static String WidgetProperties_Direction;
+    public static String WidgetProperties_Enabled;
     public static String WidgetProperties_File;
     public static String WidgetProperties_FillColor;
     public static String WidgetProperties_Font;
@@ -129,6 +134,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Format;
     public static String WidgetProperties_Height;
     public static String WidgetProperties_HeightPVName;
+    public static String WidgetProperties_Horizontal;
     public static String WidgetProperties_HorizontalAlignment;
     public static String WidgetProperties_Insets;
     public static String WidgetProperties_LevelHi;
@@ -145,6 +151,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Name;
     public static String WidgetProperties_OffColor;
     public static String WidgetProperties_OnColor;
+    public static String WidgetProperties_PageIncrement;
     public static String WidgetProperties_Points;
     public static String WidgetProperties_Precision;
     public static String WidgetProperties_PVName;
@@ -164,6 +171,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ShowScale;
     public static String WidgetProperties_ShowMarkers;
     public static String WidgetProperties_ShowUnits;
+    public static String WidgetProperties_StepIncrement;
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Text;
     public static String WidgetProperties_Transparent;

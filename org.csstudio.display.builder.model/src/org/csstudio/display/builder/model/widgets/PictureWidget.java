@@ -7,9 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFile;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
 
 import java.util.Arrays;
 import java.util.List;
@@ -69,7 +69,7 @@ public class PictureWidget extends VisibleWidget
             if (xml != null)
             {
                 final Document doc = widget_xml.getOwnerDocument();
-                Element fname = doc.createElement(displayFile.getName());
+                Element fname = doc.createElement(propFile.getName());
 
                 if (xml.getFirstChild() != null)
                 {
@@ -87,11 +87,11 @@ public class PictureWidget extends VisibleWidget
             return super.configureFromXML(model_reader, widget, widget_xml);
         }
     }
-    /** Position 'rotation': What is the rotation of the picture */
-    public static final WidgetPropertyDescriptor<Double> positionRotation =
-            newDoublePropertyDescriptor(WidgetPropertyCategory.POSITION, "rotation", Messages.WidgetProperties_Rotation);
+    /** 'rotation' property: What is the rotation of the picture */
+    public static final WidgetPropertyDescriptor<Double> propRotation =
+            newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "rotation", Messages.WidgetProperties_Rotation);
 
-    public static final WidgetPropertyDescriptor<Boolean> displayStretch =
+    public static final WidgetPropertyDescriptor<Boolean> propStretch =
             newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "stretch_image", Messages.WidgetProperties_StretchToFit);
 
     private volatile WidgetProperty<String> filename;
@@ -107,25 +107,25 @@ public class PictureWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(filename = displayFile.createProperty(this, default_pic));
-        properties.add(stretch_image = displayStretch.createProperty(this, false));
-        properties.add(rotation = positionRotation.createProperty(this, 0.0));
+        properties.add(filename = propFile.createProperty(this, default_pic));
+        properties.add(stretch_image = propStretch.createProperty(this, false));
+        properties.add(rotation = propRotation.createProperty(this, 0.0));
     }
 
-    /** @return Position 'rotation' */
-    public WidgetProperty<Double> positionRotation()
+    /** @return 'rotation' property */
+    public WidgetProperty<Double> propRotation()
     {
         return rotation;
     }
 
-    /** @return Display 'text' */
-    public WidgetProperty<String> displayFile()
+    /** @return 'text' property */
+    public WidgetProperty<String> propFile()
     {
         return filename;
     }
 
-    /** @return Display 'stretch' */
-    public WidgetProperty<Boolean> displayStretch()
+    /** @return 'stretch' property */
+    public WidgetProperty<Boolean> propStretch()
     {
         return stretch_image;
     }

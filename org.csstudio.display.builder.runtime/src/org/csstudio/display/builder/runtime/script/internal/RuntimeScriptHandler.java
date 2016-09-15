@@ -72,12 +72,12 @@ public class RuntimeScriptHandler implements RuntimePVListener
         {   // Load external script
             final String resolved = ModelResourceUtil.resolveResource(parent_display, script_name);
             stream = ModelResourceUtil.openResourceStream(resolved);
-            path = ModelResourceUtil.getLocation(ModelResourceUtil.getLocalPath(resolved));
+            path = ModelResourceUtil.getDirectory(ModelResourceUtil.getLocalPath(resolved));
         }
         else
         {   // Use script text that was embedded in display
             stream = new ByteArrayInputStream(script_info.getText().getBytes());
-            path = ModelResourceUtil.getLocation(ModelResourceUtil.getLocalPath(parent_display));
+            path = ModelResourceUtil.getDirectory(ModelResourceUtil.getLocalPath(parent_display));
         }
         return scripting.compile(path, script_name, stream);
     }
@@ -121,7 +121,7 @@ public class RuntimeScriptHandler implements RuntimePVListener
         this.widget = widget;
         this.infos = script_info.getPVs();
 
-        final MacroValueProvider macros = widget.getEffectiveMacros();
+        final MacroValueProvider macros = widget.getMacrosOrProperties();
         script = compileScript(widget, macros, script_info);
 
         pvs = new RuntimePV[infos.size()];
@@ -137,7 +137,7 @@ public class RuntimeScriptHandler implements RuntimePVListener
         this.widget = widget;
         this.infos = rule_info.getPVs();
 
-        final MacroValueProvider macros = widget.getEffectiveMacros();
+        final MacroValueProvider macros = widget.getMacrosOrProperties();
         script = compileScript(widget, macros, rule_info);
 
         pvs = new RuntimePV[infos.size()];

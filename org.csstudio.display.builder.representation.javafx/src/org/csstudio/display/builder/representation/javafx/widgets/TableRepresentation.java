@@ -43,10 +43,10 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
     /** Most recent table data, row by row */
     private volatile List<List<String>> data = new ArrayList<>();
 
-    /** Is user setting data, which in turn updates the widget value
+    /** Is user is changing the table, which in turn updates the widget value
      *  --> Ignore widget value change
      */
-    private boolean setting_data = false;
+    private volatile boolean updating_table = false;
 
     /** Listener for any changes in any column
      *
@@ -54,8 +54,10 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
      */
     private final UntypedWidgetPropertyListener column_listener = (WidgetProperty<?> property, Object old_value, Object new_value) ->
     {
+        if (updating_table)
+            return;
         final List<String> new_headers = new ArrayList<>();
-        for (ColumnProperty column : model_widget.displayColumns().getValue())
+        for (ColumnProperty column : model_widget.propColumns().getValue())
             new_headers.add(column.name().getValue());
         headers = new_headers;
         dirty_columns.mark();
@@ -67,7 +69,7 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
     {
         // In edit mode, table is passive.
         // Change of overall 'editable' at runtime is not supported
-        final boolean editable = ! toolkit.isEditMode()  &&  model_widget.behaviorEditable().getValue();
+        final boolean editable = ! toolkit.isEditMode()  &&  model_widget.propEditable().getValue();
         return new StringTable(editable);
     }
 
@@ -90,16 +92,36 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
             jfx_node.setListener(new StringTableListener()
             {
                 @Override
+                public void tableChanged(final StringTable table)
+                {
+                    updating_table = true;
+                    try
+                    {
+                        final List<String> new_headers = headers = table.getHeaders();
+                        model_widget.setHeaders(new_headers);
+                        // Updating the headers clears their options as well as the data.
+                        // Restore column options.
+                        for (int column=0; column<new_headers.size(); ++column)
+                            model_widget.setColumnOptions(column, table.getColumnOptions(column));
+                        model_widget.setValue(table.getData());
+                    }
+                    finally
+                    {
+                        updating_table = false;
+                    }
+                }
+
+                @Override
                 public void dataChanged(final StringTable table)
                 {
-                    setting_data = true;
+                    updating_table = true;
                     try
                     {
                         model_widget.setValue(table.getData());
                     }
                     finally
                     {
-                        setting_data = false;
+                        updating_table = false;
                     }
                 }
 
@@ -112,17 +134,17 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         }
 
         UntypedWidgetPropertyListener listener = this::styleChanged;
-        model_widget.positionWidth().addUntypedPropertyListener(listener);
-        model_widget.positionHeight().addUntypedPropertyListener(listener);
-        model_widget.displayBackgroundColor().addUntypedPropertyListener(listener);
-        model_widget.displayForegroundColor().addUntypedPropertyListener(listener);
-        model_widget.displayFont().addUntypedPropertyListener(listener);
-        model_widget.displayToolbar().addUntypedPropertyListener(listener);
+        model_widget.propWidth().addUntypedPropertyListener(listener);
+        model_widget.propHeight().addUntypedPropertyListener(listener);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(listener);
+        model_widget.propForegroundColor().addUntypedPropertyListener(listener);
+        model_widget.propFont().addUntypedPropertyListener(listener);
+        model_widget.propToolbar().addUntypedPropertyListener(listener);
 
-        columnsChanged(model_widget.displayColumns(), null, model_widget.displayColumns().getValue());
-        model_widget.displayColumns().addPropertyListener(this::columnsChanged);
+        columnsChanged(model_widget.propColumns(), null, model_widget.propColumns().getValue());
+        model_widget.propColumns().addPropertyListener(this::columnsChanged);
 
-        model_widget.runtimeValue().addPropertyListener(this::valueChanged);
+        model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
     }
 
     private void updateSelection(final int[] rows, final int[] cols)
@@ -140,7 +162,7 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         }
 
         final VTable selection = new SelectionVTable(headers, rows, cols, columns);
-        model_widget.runtimeSelection().setValue(selection);
+        model_widget.runtimePropSelection().setValue(selection);
     }
 
     /** Location, toolbar changed */
@@ -186,7 +208,7 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
 
     private void valueChanged(final WidgetProperty<Object> property, final Object old_value, final Object new_value)
     {
-        if (setting_data)
+        if (updating_table)
             return;
         data = model_widget.getValue();
         if (new_value instanceof VTable)
@@ -212,19 +234,19 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         super.updateChanges();
         if (dirty_style.checkAndClear())
         {
-            jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
-                                 model_widget.positionHeight().getValue());
+            jfx_node.setPrefSize(model_widget.propWidth().getValue(),
+                                 model_widget.propHeight().getValue());
 
-            jfx_node.setBackgroundColor(JFXUtil.convert(model_widget.displayBackgroundColor().getValue()));
-            jfx_node.setTextColor(JFXUtil.convert(model_widget.displayForegroundColor().getValue()));
-            jfx_node.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
-            jfx_node.showToolbar(model_widget.displayToolbar().getValue());
+            jfx_node.setBackgroundColor(JFXUtil.convert(model_widget.propBackgroundColor().getValue()));
+            jfx_node.setTextColor(JFXUtil.convert(model_widget.propForegroundColor().getValue()));
+            jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
+            jfx_node.showToolbar(model_widget.propToolbar().getValue());
         }
 
         if (dirty_columns.checkAndClear())
         {
             jfx_node.setHeaders(headers);
-            final List<ColumnProperty> columns = model_widget.displayColumns().getValue();
+            final List<ColumnProperty> columns = model_widget.propColumns().getValue();
             final int num = Math.min(headers.size(), columns.size());
             for (int col=0; col<num; ++col)
             {

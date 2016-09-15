@@ -17,5 +17,9 @@
 
 cd ..
 mvn -version
-mvn --offline -Dcss-repo=$CSS_REPO clean verify | tee build.log
+
+# Pick options...
+OPTIONS="--offline"
+OPTIONS="-DskipTests -Dmaven.test.skip=true"
+mvn $OPTIONS -Dcss-repo=$CSS_REPO clean verify | tee build.log
 

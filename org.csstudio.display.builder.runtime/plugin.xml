@@ -10,8 +10,16 @@
             type="display">
       </runtime>
       <runtime
+            class="org.csstudio.display.builder.runtime.internal.ArrayWidgetRuntime"
+            type="array">
+      </runtime>
+      <runtime
             class="org.csstudio.display.builder.runtime.internal.EmbeddedDisplayRuntime"
             type="embedded">
+      </runtime>
+      <runtime
+            class="org.csstudio.display.builder.runtime.internal.GroupWidgetRuntime"
+            type="group">
       </runtime>
       <runtime
             class="org.csstudio.display.builder.runtime.internal.ImageWidgetRuntime"
@@ -20,6 +28,10 @@
       <runtime
             class="org.csstudio.display.builder.runtime.internal.TableWidgetRuntime"
             type="table">
+      </runtime>
+      <runtime
+            class="org.csstudio.display.builder.runtime.internal.TabsWidgetRuntime"
+            type="tabs">
       </runtime>
       <runtime
             class="org.csstudio.display.builder.runtime.internal.XYPlotWidgetRuntime"

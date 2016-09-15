@@ -14,6 +14,7 @@ import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.widgets.ArrayWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 
@@ -24,7 +25,7 @@ import javafx.scene.shape.Rectangle;
 /** Helper for locating 'parent' of widgets
  *
  *  <p>Used to locate the parent of one or more widgets in the model,
- *  to highlight GroupWidget or TabWidget on move-over,
+ *  to highlight GroupWidget, TabWidget, or ArrayWidget on move-over,
  *  to move widgets in and out of a group or tab.
  *
  *  @author Kay Kasemir
@@ -47,7 +48,7 @@ public class ParentHandler
      *
      *  <p>Instead of holding the widget, it tracks the
      *  'children' property of the widget.
-     *  For a GroupWidget, that's its single 'children' property.
+     *  For a GroupWidget or ArrayWidget, that's its single 'children' property.
      *  For a Tabwidget, that's the 'children' property of the
      *  _selected_ tab.
      *  In either case it's the 'children' property where
@@ -129,12 +130,20 @@ public class ParentHandler
                     continue;
                 final ChildrenProperty child_prop;
                 if (widget instanceof GroupWidget)
-                    child_prop = ((GroupWidget) widget).runtimeChildren();
+                    child_prop = ((GroupWidget) widget).runtimePropChildren();
                 else if (widget instanceof TabsWidget)
                 {   // Check children of _selected_ Tab
                     final TabsWidget tabwid = (TabsWidget) widget;
-                    final int selected = tabwid.displayActiveTab().getValue();
-                    child_prop = tabwid.displayTabs().getValue().get(selected).children();
+                    final int selected = tabwid.propActiveTab().getValue();
+                    child_prop = tabwid.propTabs().getValue().get(selected).children();
+                }
+                else if (widget instanceof ArrayWidget)
+                {
+                    List<Widget> widgets = ((ArrayWidget) widget).runtimePropChildren().getValue();
+                    if (widgets.isEmpty() || (!ignore.isEmpty() && widgets.get(0).getType().equals(ignore.get(0).getType())))
+                        child_prop = ((ArrayWidget) widget).runtimePropChildren();
+                    else
+                        continue;
                 }
                 else
                     continue;
@@ -189,7 +198,8 @@ public class ParentHandler
     {
         final Rectangle2D bounds = new Rectangle2D(x, y, width, height);
         final List<Widget> selected_widgets = selection.getSelection();
-        final ChildrenProperty parent = new ParentWidgetSearch(bounds, model, selected_widgets).compute().children;
+        final ParentSearchResult res = new ParentWidgetSearch(bounds, model, selected_widgets).compute();
+        final ChildrenProperty parent = res.children;
         if (parent == null)
             parent_highlight.setVisible(false);
         else

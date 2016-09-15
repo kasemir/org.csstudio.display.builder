@@ -102,7 +102,7 @@ In this example, a script updates that PV:</text>
     <scripts>
       <script file="EmbeddedPy">
         <text><![CDATA[# Embedded python script
-from org.csstudio.display.builder.runtime.script import PVUtil
+from org.csstudio.display.builder.runtime.script import PVUtil, ValueUtil
 
 target = pvs[0]
 inputs = pvs[1:]
@@ -113,7 +113,7 @@ for pv in inputs:
     row =  [ pv.getName(), PVUtil.getString(pv) ]
     data.append(row)
 
-table = PVUtil.createStringTableFromRows([ "PV", "Value" ], data)
+table = ValueUtil.createStringTableFromRows([ "PV", "Value" ], data)
 widget.setPropertyValue("value", table)
 ]]></text>
         <pv_name trigger="false">loc://table_pv&lt;VTable&gt;</pv_name>
@@ -136,6 +136,7 @@ You can then edit the cells:</text>
   <widget type="table" version="2.0.0">
     <name>user_table</name>
     <y>600</y>
+    <show_toolbar>true</show_toolbar>
     <columns>
       <column>
         <name>Item</name>
@@ -239,15 +240,42 @@ which are represented by a checkbox.</text>
     <actions>
       <action type="execute">
         <script file="EmbeddedPy">
-          <text><![CDATA[table = widget.getDisplayModel().runtimeChildren().getChildByName("user_table")
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
 
+
+# 'widget' is the action button that invoked the script
+# Locate the table widget by name
+table = ScriptUtil.findWidgetByName(widget, "user_table")
+
+# Get current headers and data
+headers = table.getHeaders()
 data = table.getValue()
+
+print("Before:")
+print(headers)
 print(data)
+
+# Change headers and data
+for c in range(len(headers)):
+    headers[c] = "New " +  headers[c]
+print("After:")
+print(headers)
 
 for r in range(len(data)):
     data[r][0] = "New " + data[r][0]
 print(data)
 
+# Update table with new headers and data
+
+# Changing all headers means loosing the column options,
+# so fetch the current column options
+num = len(headers)
+options = [ table.getColumnOptions(c) for c in range(num) ]
+
+table.setHeaders(headers)
+# Restore column options
+for c in range(num):
+    table.setColumnOptions(c, options[c])
 table.setValue(data)
 ]]></text>
         </script>

@@ -12,6 +12,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.widgets.MultiStateLEDWidget;
+import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.junit.Test;
 
 /** JUnit test of widget properties, their order, categories
@@ -74,6 +76,42 @@ public class WidgetPropertiesUnitTest
             System.out.println("Properly detected " + ex.getMessage());
             assertThat(ex.getMessage(), containsString("bogus"));
         }
+    }
+
+    @Test
+    public void testLegacyProperties()
+    {
+        final Widget plot = new XYPlotWidget();
+
+        // Old and current name should lead to the same property
+        WidgetProperty<?> legacy = plot.getProperty("axis_0_axis_title");
+        WidgetProperty<?> current = plot.getProperty("x_axis.title");
+        assertThat(legacy, sameInstance(current));
+
+        legacy = plot.getProperty("axis_1_minimum");
+        current = plot.getProperty("y_axes[0].minimum");
+        assertThat(legacy, sameInstance(current));
+
+        legacy = plot.getProperty("axis_1_auto_scale");
+        current = plot.getProperty("y_axes[0].autoscale");
+        assertThat(legacy, sameInstance(current));
+
+        // getProperty() throws an exception for unknown names
+        try
+        {
+            plot.getProperty("x_axis.not_the_title");
+            fail("Didn't catch property name typo");
+        }
+        catch (Exception ex)
+        {
+            System.out.println(ex.getMessage());
+            assertThat(ex.getMessage(), containsString("not_the_title"));
+        }
+
+        // checkProperty does _not_ resolve paths nor legacy names
+        assertThat(plot.checkProperty("x_axis").isPresent(), equalTo(true));
+        assertThat(plot.checkProperty("x_axis.title").isPresent(), equalTo(false));
+        assertThat(plot.checkProperty("axis_0_axis_title").isPresent(), equalTo(false));
     }
 
     @Test

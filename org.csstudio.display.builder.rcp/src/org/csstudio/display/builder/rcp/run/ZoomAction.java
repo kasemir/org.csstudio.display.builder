@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.rcp.run;
 
 import org.csstudio.display.builder.rcp.Messages;
+import org.csstudio.display.builder.rcp.RuntimeViewPart;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.swt.SWT;

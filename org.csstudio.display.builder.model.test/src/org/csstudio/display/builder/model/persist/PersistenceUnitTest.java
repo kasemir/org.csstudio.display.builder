@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.persist;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -72,16 +72,16 @@ public class PersistenceUnitTest
         )
         {
             final Widget widget = new CustomWidget();
-            widget.setPropertyValue(widgetName, "Demo");
-            widget.getProperty(CustomWidget.miscZeroTen).setValue(7);
+            widget.setPropertyValue(propName, "Demo");
+            widget.getProperty(CustomWidget.propZeroTen).setValue(7);
             writer.writeWidget(widget);
 
             final GroupWidget group = new GroupWidget();
-            group.setPropertyValue(widgetName, "My Group");
+            group.setPropertyValue(propName, "My Group");
 
             final Widget child = new Widget("base");
-            child.setPropertyValue(widgetName, "Jänner");
-            group.runtimeChildren().addChild(child);
+            child.setPropertyValue(propName, "Jänner");
+            group.runtimePropChildren().addChild(child);
 
             writer.writeWidget(group);
         }
@@ -118,7 +118,7 @@ public class PersistenceUnitTest
         assertThat(names, equalTo(Arrays.asList("Demo", "My Group")));
 
         assertThat(widgets.get(1), instanceOf(GroupWidget.class));
-        assertThat(((GroupWidget)widgets.get(1)).runtimeChildren().getValue().get(0).getName(), equalTo("Jänner"));
+        assertThat(((GroupWidget)widgets.get(1)).runtimePropChildren().getValue().get(0).getName(), equalTo("Jänner"));
    }
 
     /** Write and read multi-line string property
@@ -127,7 +127,7 @@ public class PersistenceUnitTest
     @Test
     public void testMultilineString() throws Exception
     {
-        final WidgetPropertyDescriptor<String> prop = widgetName;
+        final WidgetPropertyDescriptor<String> prop = propName;
         final String written_value = "Line 1\n" +
                                      "Line 2\n" +
                                      "Line 3";
@@ -199,7 +199,7 @@ public class PersistenceUnitTest
         model.getProperty("height").setValueFromObject(800);
 
         final Widget widget = new Widget("base");
-        widget.setPropertyValue(widgetName, "Test");
+        widget.setPropertyValue(propName, "Test");
         widget.getProperty("x").setValueFromObject(42);
         model.runtimeChildren().addChild(widget);
 
@@ -218,9 +218,9 @@ public class PersistenceUnitTest
         final ModelReader reader = new ModelReader(new ByteArrayInputStream(xml.getBytes()));
         final DisplayModel readback = reader.readModel();
 
-        assertThat(readback.getPropertyValue(CommonWidgetProperties.positionWidth), equalTo(400));
-        assertThat(readback.getPropertyValue(CommonWidgetProperties.positionHeight), equalTo(800));
+        assertThat(readback.getPropertyValue(CommonWidgetProperties.propWidth), equalTo(400));
+        assertThat(readback.getPropertyValue(CommonWidgetProperties.propHeight), equalTo(800));
         assertThat(readback.getChildren().size(), equalTo(1));
-        assertThat(readback.getChildren().get(0).getPropertyValue(CommonWidgetProperties.positionX), equalTo(42));
+        assertThat(readback.getChildren().get(0).getPropertyValue(CommonWidgetProperties.propX), equalTo(42));
     }
 }

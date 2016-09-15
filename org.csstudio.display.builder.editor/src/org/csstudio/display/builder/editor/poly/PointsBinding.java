@@ -7,11 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.poly;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayPoints;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPoints;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHeight;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propY;
 
 import java.util.List;
 import java.util.Objects;
@@ -73,7 +73,7 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
         if (widgets != null  &&  widgets.size() == 1)
         {
             final Widget w = widgets.get(0);
-            Optional<WidgetProperty<Points>> prop = w.checkProperty(displayPoints);
+            Optional<WidgetProperty<Points>> prop = w.checkProperty(propPoints);
             if (prop.isPresent())
             {
                 createEditor(w);
@@ -92,10 +92,10 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
         this.widget = Objects.requireNonNull(widget);
 
         // Turn points from widget into absolute screen coords for editor
-        final Points screen_points = widget.getProperty(displayPoints).getValue().clone();
+        final Points screen_points = widget.getProperty(propPoints).getValue().clone();
         final Point2D offset = GeometryTools.getDisplayOffset(widget);
-        final double x0 = widget.getProperty(positionX).getValue() + offset.getX();
-        final double y0 = widget.getProperty(positionY).getValue() + offset.getY();
+        final double x0 = widget.getProperty(propX).getValue() + offset.getX();
+        final double y0 = widget.getProperty(propY).getValue() + offset.getY();
         final int N=screen_points.size();
         for (int i=0; i<N; ++i)
         {
@@ -104,22 +104,22 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
         }
 
         editor = new PointsEditor(parent, screen_points, this);
-        widget.getProperty(positionX).addUntypedPropertyListener(this);
-        widget.getProperty(positionY).addUntypedPropertyListener(this);
-        widget.getProperty(positionWidth).addUntypedPropertyListener(this);
-        widget.getProperty(positionHeight).addUntypedPropertyListener(this);
-        widget.getProperty(displayPoints).addUntypedPropertyListener(this);
+        widget.getProperty(propX).addUntypedPropertyListener(this);
+        widget.getProperty(propY).addUntypedPropertyListener(this);
+        widget.getProperty(propWidth).addUntypedPropertyListener(this);
+        widget.getProperty(propHeight).addUntypedPropertyListener(this);
+        widget.getProperty(propPoints).addUntypedPropertyListener(this);
     }
 
     private void disposeEditor()
     {
         if (editor == null)
             return;
-        widget.getProperty(displayPoints).removePropertyListener(this);
-        widget.getProperty(positionHeight).removePropertyListener(this);
-        widget.getProperty(positionWidth).removePropertyListener(this);
-        widget.getProperty(positionY).removePropertyListener(this);
-        widget.getProperty(positionX).removePropertyListener(this);
+        widget.getProperty(propPoints).removePropertyListener(this);
+        widget.getProperty(propHeight).removePropertyListener(this);
+        widget.getProperty(propWidth).removePropertyListener(this);
+        widget.getProperty(propY).removePropertyListener(this);
+        widget.getProperty(propX).removePropertyListener(this);
         editor.dispose();
         editor = null;
         widget = null;
@@ -139,9 +139,9 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
 
         if (enable_scaling)
         {
-            if (property.getName().equals(positionWidth.getName()))
+            if (property.getName().equals(propWidth.getName()))
                 scaleHoriz(active_widget, (Number)new_value, (Number)old_value);
-            else if (property.getName().equals(positionHeight.getName()))
+            else if (property.getName().equals(propHeight.getName()))
                 scaleVert(active_widget, (Number)new_value, (Number)old_value);
         }
 
@@ -152,7 +152,7 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
     private void scaleHoriz(final Widget widget, final Number new_size, final Number old_size)
     {
         final double factor = new_size.doubleValue() / old_size.doubleValue();
-        final WidgetProperty<Points> prop = widget.getProperty(displayPoints);
+        final WidgetProperty<Points> prop = widget.getProperty(propPoints);
         final Points points = prop.getValue().clone();
         final int N = points.size();
         for (int i=0; i<N; ++i)
@@ -163,7 +163,7 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
     private void scaleVert(final Widget widget, final Number new_size, final Number old_size)
     {
         final double factor = new_size.doubleValue() / old_size.doubleValue();
-        final WidgetProperty<Points> prop = widget.getProperty(displayPoints);
+        final WidgetProperty<Points> prop = widget.getProperty(propPoints);
         final Points points = prop.getValue().clone();
         final int N = points.size();
         for (int i=0; i<N; ++i)
@@ -205,11 +205,11 @@ public class PointsBinding implements WidgetSelectionListener, PointsEditorListe
         try
         {
             if (N > 0)
-                undo.execute(new SetWidgetPointsAction(widget.getProperty(displayPoints), points,
+                undo.execute(new SetWidgetPointsAction(widget.getProperty(propPoints), points,
                                                        (int) x0, (int) y0,
                                                        (int) (x1 - x0), (int) (y1 - y0)));
             else
-                undo.execute(new SetWidgetPointsAction(widget.getProperty(displayPoints), points));
+                undo.execute(new SetWidgetPointsAction(widget.getProperty(propPoints), points));
         }
         finally
         {

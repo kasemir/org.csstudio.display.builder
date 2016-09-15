@@ -64,9 +64,9 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addPropertyListener(this::sizeChanged);
-        model_widget.positionHeight().addPropertyListener(this::sizeChanged);
-        model_widget.runtimeValue().addPropertyListener(this::contentChanged);
+        model_widget.propWidth().addPropertyListener(this::sizeChanged);
+        model_widget.propHeight().addPropertyListener(this::sizeChanged);
+        model_widget.runtimePropValue().addPropertyListener(this::contentChanged);
     }
 
     private void sizeChanged(final WidgetProperty<Integer> property, final Integer old_value, final Integer new_value)
@@ -84,7 +84,7 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
     protected void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         colors = createColors();
-        contentChanged(model_widget.runtimeValue(), null, model_widget.runtimeValue().getValue());
+        contentChanged(model_widget.runtimePropValue(), null, model_widget.runtimePropValue().getValue());
     }
 
     private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
@@ -107,8 +107,8 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
         super.updateChanges();
         if (dirty_size.checkAndClear())
         {
-            final int w = model_widget.positionWidth().getValue();
-            final int h = model_widget.positionHeight().getValue();
+            final int w = model_widget.propWidth().getValue();
+            final int h = model_widget.propHeight().getValue();
 
             jfx_node.setPrefSize(w, h);
             led.setCenterX(w/2);

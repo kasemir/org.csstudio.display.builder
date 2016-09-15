@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
+  <title>Rules</title>
+  <link rel="stylesheet" href="PLUGINS_ROOT/PRODUCT_PLUGIN/book.css" type="text/css"></link>
+</head>
+<body>
+
+<h1>Rules</h1>
+
+<p>Rules are the suggested way to obtain customized, dynamic behaviors beyond the capability of
+<a href="properties.html">widget properties</a> alone. (The other is <a href="scripts.html">scripts</a>.
+Rules are recommended over scripts because, while rules are more limited than scripts, the API is stable,
+and it should remain available and virtually unchanged as Display Builder evolves.)
+</p>
+
+<p>Unlike scripts, rules require no code aside from simple expressions. Rules set widget property
+values according to boolean expressions using their input PVs. Since the execution of a rule is
+triggered by its trigger PVs, at least one input PV is needed for a rule.
+</p>
+
+<h2>Attaching a Rule to a Widget</h2>
+<p>In order to edit the Rules for a widget, first select it, then click on the button
+for its Rules property in the Properties palette. This will open the Rules dialog.
+</p>
+
+<img src="images/Rules.png" alt="Rules Dialog" style="height:456px;"/>
+
+<p>Key features include:
+  <ul>
+    <li>Rule Name: Add and remove rules here. Select a rule to edit its properties.</li>
+    <li>PVName: Add and remove input PVs for the rule. If "Trigger" is checked (true),
+then the rule will execute whenever the PV's value changes.</li>
+    <li>Property ID: The property which is affected by the rule.</li>
+    <li>Boolean expression: The expression which is evaluated when the rule executes. If it is
+true, the property's value will be set to the expression's "Value" field. The expression may simply be
+"true" or "True", in which case the value is always used (this is most useful when "Value as Expression"
+is checked).</li>
+    <li>Value as Expression: If true, all values for the rule are given as expressions.</li>
+  </ul>
+</p>
+
+<h2>Expressions</h2>
+<p>The standard comparison operators (&lt;, &gt;, ==, &lt;=, &gt;=, and !=) may be used. Logical
+operators may also be used. All input PVs of the rule are accessible as follows:</p>
+  <table>
+    <tr>
+      <th>Value Type</th>
+      <th>Syntax</th>
+      <th>Example</th>
+    </tr>
+    <tr>
+      <td>double value</td>
+      <td><code>pv{index}</code></td>
+      <td><code>pv0 > pv1</code></td>
+    </tr>
+    <tr>
+      <td>long int. value</td>
+      <td><code>pvInt{index}</code></td>
+      <td><code>pvInt0 == 5</code></td>
+    </tr>
+    <tr>
+      <td>string value</td>
+      <td><code>pvStr{index}</code></td>
+      <td><code>pvStr0 == "happy"</code></td>
+    </tr>
+  </table>
+
+</body>
+</html>

@@ -7,8 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.util.ArrayList;
@@ -148,7 +149,7 @@ public class WidgetRuntime<MW extends Widget>
             logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, pv_name });
 
             // Create listener, which marks the value as disconnected
-            primary_pv_listener = new PropertyUpdater(widget.getProperty(runtimeValue));
+            primary_pv_listener = new PropertyUpdater(widget.getProperty(runtimePropValue));
             // Then connect PV, which either gets a value soon,
             // or may throw exception -> widget already shows disconnected
             try
@@ -159,7 +160,10 @@ public class WidgetRuntime<MW extends Widget>
                     primary_pv = Optional.of(pv);
                 }
                 pv.addListener(primary_pv_listener);
-                addPV(pv);
+                // For widgets that can be 'enabled',
+                // update the enablement based on write access
+                // to the primary PV
+                addPV(pv, widget.checkProperty(propEnabled).isPresent());
             }
             catch (Exception ex)
             {
@@ -192,12 +196,20 @@ public class WidgetRuntime<MW extends Widget>
     /** @param pv PV where widget should track the connection state */
     public void addPV(final RuntimePV pv)
     {
+        addPV(pv, false);
+    }
+
+    /** @param pv PV where widget should track the connection state
+     *  @param need_write_access Does widget need write access to this PV?
+     */
+    public void addPV(final RuntimePV pv, final boolean need_write_access)
+    {
         synchronized (this)
         {
             if (runtime_pvs == null)
                 runtime_pvs = new RuntimePVs(widget);
         }
-        runtime_pvs.addPV(pv);
+        runtime_pvs.addPV(pv, need_write_access);
     }
 
     /** @param pv PV where widget should no longer track the connection state */
@@ -213,7 +225,7 @@ public class WidgetRuntime<MW extends Widget>
             return Collections.emptyList();
         return runtime_pvs.getPVs();
     }
-    
+
     /** @return {@link Optional} containing primary PV of widget, if present. */
     public Optional<RuntimePV> getPrimaryPV()
     {
@@ -239,8 +251,8 @@ public class WidgetRuntime<MW extends Widget>
     public void start() throws Exception
     {
         // Update "value" property from primary PV, if defined
-        final Optional<WidgetProperty<String>> name = widget.checkProperty(behaviorPVName);
-        final Optional<WidgetProperty<VType>> value = widget.checkProperty(runtimeValue);
+        final Optional<WidgetProperty<String>> name = widget.checkProperty(propPVName);
+        final Optional<WidgetProperty<VType>> value = widget.checkProperty(runtimePropValue);
 
         if (name.isPresent() &&  value.isPresent())
         {
@@ -255,7 +267,7 @@ public class WidgetRuntime<MW extends Widget>
         }
 
         // Prepare action-related PVs
-        final List<ActionInfo> actions = widget.behaviorActions().getValue();
+        final List<ActionInfo> actions = widget.propActions().getValue();
         if (actions.size() > 0)
         {
             final List<RuntimePV> action_pvs = new ArrayList<>();
@@ -267,7 +279,7 @@ public class WidgetRuntime<MW extends Widget>
                     final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
                     final RuntimePV pv = PVFactory.getPV(expanded);
                     action_pvs.add(pv);
-                    addPV(pv);
+                    addPV(pv, true);
                 }
             }
             if (action_pvs.size() > 0)
@@ -282,8 +294,8 @@ public class WidgetRuntime<MW extends Widget>
     private void startScripts()
     {
         // Start scripts triggered by PVs
-        final List<ScriptInfo> script_infos = widget.behaviorScripts().getValue();
-        final List<RuleInfo> rule_infos = widget.behaviorRules().getValue();
+        final List<ScriptInfo> script_infos = widget.propScripts().getValue();
+        final List<RuleInfo> rule_infos = widget.propRules().getValue();
         if ((script_infos.size() > 0) || (rule_infos.size() > 0))
         {
             final List<RuntimeScriptHandler> handlers = new ArrayList<>(script_infos.size() + rule_infos.size());
@@ -320,7 +332,7 @@ public class WidgetRuntime<MW extends Widget>
 
 
         // Compile scripts invoked by actions
-        final List<ActionInfo> actions = widget.behaviorActions().getValue();
+        final List<ActionInfo> actions = widget.propActions().getValue();
         if (actions.size() > 0)
         {
             final Map<ExecuteScriptActionInfo, Script> scripts = new HashMap<>();
@@ -331,7 +343,7 @@ public class WidgetRuntime<MW extends Widget>
                 final ExecuteScriptActionInfo script_action = (ExecuteScriptActionInfo) action_info;
                 try
                 {
-                    final MacroValueProvider macros = widget.getEffectiveMacros();
+                    final MacroValueProvider macros = widget.getMacrosOrProperties();
                     final Script script = RuntimeScriptHandler.compileScript(widget, macros, script_action.getInfo());
                     scripts.put(script_action, script);
                 }
@@ -442,7 +454,7 @@ public class WidgetRuntime<MW extends Widget>
         disconnectPrimaryPV();
         if (pv_name_listener != null)
         {
-            widget.getProperty(behaviorPVName).removePropertyListener(pv_name_listener);
+            widget.getProperty(propPVName).removePropertyListener(pv_name_listener);
             pv_name_listener = null;
         }
 

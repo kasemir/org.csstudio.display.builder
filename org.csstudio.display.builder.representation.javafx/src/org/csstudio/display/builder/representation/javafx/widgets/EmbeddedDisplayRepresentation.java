@@ -14,6 +14,7 @@ import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 
 import javafx.scene.Group;
 import javafx.scene.Parent;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.transform.Scale;
@@ -25,11 +26,14 @@ import javafx.scene.transform.Scale;
 public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<ScrollPane, EmbeddedDisplayWidget>
 {
     private final DirtyFlag dirty_sizes = new DirtyFlag();
+    private final DirtyFlag dirty_info = new DirtyFlag();
 
     /** Inner group that holds child widgets */
     private Group inner;
     private Scale zoom;
     private ScrollPane scroll;
+    private Label info = null;
+    private volatile String info_text = "";
 
     @Override
     public ScrollPane createJFXNode() throws Exception
@@ -46,10 +50,19 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         // Panning tends to 'jerk' the content when clicked
         // scroll.setPannable(true);
 
-        // Hide border around the ScrollPane
-        // Details changed w/ JFX versions, see
-        // http://stackoverflow.com/questions/17540137/javafx-scrollpane-border-and-background/17540428#17540428
-        scroll.setStyle("-fx-background-color:transparent;");
+
+        if (toolkit.isEditMode())
+        {
+            info = new Label();
+            inner.getChildren().add(info);
+        }
+        else
+        {
+            // Hide border around the ScrollPane
+            // Details changed w/ JFX versions, see
+            // http://stackoverflow.com/questions/17540137/javafx-scrollpane-border-and-background/17540428#17540428
+            scroll.setStyle("-fx-background-color:transparent;");
+        }
 
         model_widget.setUserData(EmbeddedDisplayWidget.USER_DATA_EMBEDDED_DISPLAY_CONTAINER, inner);
 
@@ -66,15 +79,37 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::sizesChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::sizesChanged);
-        model_widget.displayResize().addUntypedPropertyListener(this::sizesChanged);
-        model_widget.runtimeScale().addUntypedPropertyListener(this::sizesChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::sizesChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::sizesChanged);
+        model_widget.propResize().addUntypedPropertyListener(this::sizesChanged);
+        model_widget.runtimePropScale().addUntypedPropertyListener(this::sizesChanged);
+        if (info == null)
+            // Prevent initial update
+            dirty_info.checkAndClear();
+        else
+        {
+            model_widget.propFile().addUntypedPropertyListener(this::infoChanged);
+            model_widget.propGroupName().addUntypedPropertyListener(this::infoChanged);
+            // Initial info
+            infoChanged(null, null, null);
+        }
     }
 
     private void sizesChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_sizes.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+    private void infoChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        String file = model_widget.propFile().getValue();
+        String group = model_widget.propGroupName().getValue();
+        if (group.isEmpty())
+            info_text = file;
+        else
+            info_text = file + " (" + group + ")";
+        dirty_info.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -84,11 +119,11 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         super.updateChanges();
         if (dirty_sizes.checkAndClear())
         {
-            final Integer width = model_widget.positionWidth().getValue();
-            final Integer height = model_widget.positionHeight().getValue();
+            final Integer width = model_widget.propWidth().getValue();
+            final Integer height = model_widget.propHeight().getValue();
             scroll.setPrefSize(width, height);
 
-            final Resize resize = model_widget.displayResize().getValue();
+            final Resize resize = model_widget.propResize().getValue();
             if (resize == Resize.None)
             {
                 zoom.setX(1.0);
@@ -98,7 +133,7 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
             }
             else if (resize == Resize.ResizeContent)
             {
-                final double factor = model_widget.runtimeScale().getValue();
+                final double factor = model_widget.runtimePropScale().getValue();
                 zoom.setX(factor);
                 zoom.setY(factor);
                 scroll.setHbarPolicy(ScrollBarPolicy.NEVER);
@@ -112,5 +147,7 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
                 scroll.setVbarPolicy(ScrollBarPolicy.NEVER);
             }
         }
+        if (dirty_info.checkAndClear())
+            info.setText(info_text);
     }
 }

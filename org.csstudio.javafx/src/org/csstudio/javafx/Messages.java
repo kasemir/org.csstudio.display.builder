@@ -22,6 +22,10 @@ public class Messages extends NLS
     public static String AddRow;
     public static String DefaultNewColumnName;
     public static String MagicLastRow;
+    public static String MoveColumnLeft;
+    public static String MoveColumnRight;
+    public static String MoveRowDown;
+    public static String MoveRowUp;
     public static String RemoveColumn;
     public static String RemoveRow;
     public static String RenameColumn;

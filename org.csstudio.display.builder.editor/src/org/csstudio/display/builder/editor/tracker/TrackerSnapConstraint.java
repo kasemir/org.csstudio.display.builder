@@ -20,6 +20,8 @@ import org.csstudio.display.builder.model.Widget;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 
 /** Constraint on the movement of the Tracker that snaps to other widgets
@@ -240,8 +242,6 @@ public class TrackerSnapConstraint extends TrackerConstraint
         final SnapResult result = task.compute();
         // System.out.println("Done");
 
-        // Unclear about correct size for guide lines.
-        // Using scene which is too large
         if (result.horiz == SnapResult.INVALID)
             horiz_guide.setVisible(false);
         else
@@ -250,7 +250,7 @@ public class TrackerSnapConstraint extends TrackerConstraint
             horiz_guide.setStartX(x);
             horiz_guide.setStartY(0);
             horiz_guide.setEndX(x);
-            horiz_guide.setEndY(horiz_guide.getScene().getHeight());
+            horiz_guide.setEndY(getHeight());
             horiz_guide.setVisible(true);
         }
         if (result.vert == SnapResult.INVALID)
@@ -258,14 +258,30 @@ public class TrackerSnapConstraint extends TrackerConstraint
         else
         {
             y = result.vert;
-            // Unclear about correct size, using scene which is too large
             vert_guide.setStartX(0);
             vert_guide.setStartY(y);
-            vert_guide.setEndX(vert_guide.getScene().getWidth());
+            vert_guide.setEndX(getWidth());
             vert_guide.setEndY(y);
             vert_guide.setVisible(true);
         }
 
         return new Point2D(x, y);
     }
+
+    private final double getHeight()
+    {
+        Node parent = horiz_guide.getParent();
+        while (parent != null && !(parent instanceof Pane))
+            parent = parent.getParent();
+        return Math.max(parent != null ? ((Pane) parent).getHeight() : 0, horiz_guide.getScene().getHeight());
+    }
+
+    private final double getWidth()
+    {
+        Node parent = vert_guide.getParent();
+        while (parent != null && !(parent instanceof Pane))
+            parent = parent.getParent();
+        return Math.max(parent != null ? ((Pane) parent).getWidth() : 0, vert_guide.getScene().getWidth());
+    }
+
 }

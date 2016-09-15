@@ -21,11 +21,13 @@ import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.rcp.actions.CopyAction;
 import org.csstudio.display.builder.editor.rcp.actions.CutDeleteAction;
+import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayAction;
 import org.csstudio.display.builder.editor.rcp.actions.PasteAction;
 import org.csstudio.display.builder.editor.rcp.actions.RedoAction;
 import org.csstudio.display.builder.editor.rcp.actions.SelectAllAction;
 import org.csstudio.display.builder.editor.rcp.actions.UndoAction;
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelReader;
@@ -34,9 +36,11 @@ import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.JFXCursorFix;
 import org.csstudio.display.builder.rcp.Preferences;
+import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.undo.UndoRedoListener;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
+import org.csstudio.ui.util.perspective.OpenPerspectiveAction;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -47,20 +51,28 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.dialogs.SaveAsDialog;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.eclipse.ui.views.properties.IPropertySheetPage;
 
@@ -74,11 +86,14 @@ import javafx.scene.Scene;
 @SuppressWarnings("nls")
 public class DisplayEditorPart extends EditorPart
 {
+    /** Editor ID registered in plugin.xml */
+    public static final String ID = "org.csstudio.display.builder.editor.rcp.editor";
+
     private final JFXRepresentation toolkit = new JFXRepresentation(true);
 
     private FXCanvas fx_canvas;
 
-    private final DisplayEditor editor = new DisplayEditor(toolkit, Preferences.getUndoSize());
+    private DisplayEditor editor;
 
     private OutlinePage outline_page = null;
 
@@ -97,10 +112,21 @@ public class DisplayEditorPart extends EditorPart
         toolkit.execute(() ->  setPartName(property.getValue()));
     };
 
+    /** Open editor on a file
+     *
+     *  @param file Workspace file
+     *  @return Editor part
+     *  @throws Exception on error
+     */
+    public static DisplayEditorPart openDisplayFile(final IFile file) throws Exception
+    {
+        final IEditorInput input = new FileEditorInput(file);
+        final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        return (DisplayEditorPart) page.openEditor(input, DisplayEditorPart.ID);
+    }
 
     public DisplayEditorPart()
     {
-        // TODO Context menu
     }
 
     @Override
@@ -122,6 +148,8 @@ public class DisplayEditorPart extends EditorPart
         // like "Not on FX application thread", "Toolkit not initialized"
         fx_canvas = new FXCanvas(parent, SWT.NONE);
 
+        editor = new DisplayEditor(toolkit, Preferences.getUndoSize());
+
         final Parent root = editor.create();
         final Scene scene = new Scene(root);
         EditorUtil.setSceneStyle(scene);
@@ -134,6 +162,9 @@ public class DisplayEditorPart extends EditorPart
         // but setting the canvas' scene has to be on UI thread
         fx_canvas.setScene(scene);
 
+        final AutocompleteMenu ac_menu = editor.getSelectedWidgetUITracker().getAutocompleteMenu();
+        ac_menu.setUpdater(new AutoCompleteUpdater(ac_menu));
+
         createRetargetableActionHandlers();
 
         final IEditorInput input = getEditorInput();
@@ -142,6 +173,35 @@ public class DisplayEditorPart extends EditorPart
             loadModel(file);
 
         editor.getUndoableActionManager().addListener(undo_redo_listener);
+
+        fx_canvas.setMenu(createContextMenu(fx_canvas));
+
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
+    }
+
+    private Menu createContextMenu(final Control parent)
+    {
+        final MenuManager mm = new MenuManager();
+
+        final Action execute = new ExecuteDisplayAction(this);
+
+        final MenuManager morph = new MorphWidgetMenuSupport(editor).getMenuManager();
+
+        final ImageDescriptor icon = AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/display.png");
+        final Action perspective = new OpenPerspectiveAction(icon, Messages.OpenEditorPerspective, EditorPerspective.ID);
+
+        mm.setRemoveAllWhenShown(true);
+        mm.addMenuListener(manager ->
+        {
+            manager.add(execute);
+
+            if (! editor.getWidgetSelectionHandler().getSelection().isEmpty())
+                manager.add(morph);
+
+            manager.add(perspective);
+        });
+
+        return mm.createContextMenu(parent);
     }
 
     private void loadModel(final IFile file)
@@ -177,7 +237,7 @@ public class DisplayEditorPart extends EditorPart
     {
         final DisplayModel old_model = editor.getModel();
         if (old_model != null)
-            old_model.widgetName().removePropertyListener(model_name_listener);
+            old_model.propName().removePropertyListener(model_name_listener);
         if (model == null)
             return;
         // In UI thread..
@@ -188,7 +248,7 @@ public class DisplayEditorPart extends EditorPart
             if (outline_page != null)
                 outline_page.setModel(model);
         });
-        model.widgetName().addPropertyListener(model_name_listener);
+        model.propName().addPropertyListener(model_name_listener);
     }
 
     private void createRetargetableActionHandlers()
@@ -255,7 +315,7 @@ public class DisplayEditorPart extends EditorPart
             saveModelToFile(monitor, file);
         else
         {   // No file name, or using legacy file extension -> prompt for name
-            file = promptForFile();
+            file = promptForFile(getSite().getShell(), getEditorInput());
             if (file == null)
             {
                 monitor.setCanceled(true);
@@ -269,7 +329,7 @@ public class DisplayEditorPart extends EditorPart
     @Override
     public void doSaveAs()
     {
-        final IFile file = promptForFile();
+        final IFile file = promptForFile(getSite().getShell(), getEditorInput());
         if (file != null)
             saveModelToFile(new NullProgressMonitor(), file);
     }
@@ -350,18 +410,19 @@ public class DisplayEditorPart extends EditorPart
     }
 
     /** Prompt for file name used to 'save'
+     *  @param shell Shell
+     *  @param orig_input Original input
      *  @return File in workspace or <code>null</code>
      */
-    private IFile promptForFile()
+    public static IFile promptForFile(final Shell shell, final IEditorInput orig_input)
     {
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 
-        final SaveAsDialog dlg = new SaveAsDialog(getSite().getShell());
+        final SaveAsDialog dlg = new SaveAsDialog(shell);
         dlg.setBlockOnOpen(true);
-        final IEditorInput input = getEditorInput();
-        if (input instanceof FileEditorInput)
+        if (orig_input instanceof FileEditorInput)
         {
-            IPath orig_path = ((FileEditorInput)input).getFile().getFullPath();
+            IPath orig_path = ((FileEditorInput)orig_input).getFile().getFullPath();
             // Propose new file extension
             if (! DisplayModel.FILE_EXTENSION.equals(orig_path.getFileExtension()))
                 orig_path = orig_path.removeFileExtension().addFileExtension(DisplayModel.FILE_EXTENSION);
@@ -408,6 +469,7 @@ public class DisplayEditorPart extends EditorPart
     {
         editor.getUndoableActionManager().removeListener(undo_redo_listener);
         editor.dispose();
+        toolkit.shutdown();
         super.dispose();
     }
 }

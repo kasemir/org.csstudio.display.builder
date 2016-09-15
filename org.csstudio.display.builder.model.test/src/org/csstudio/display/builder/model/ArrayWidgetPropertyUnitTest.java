@@ -22,6 +22,7 @@ import org.csstudio.display.builder.model.ArrayWidgetProperty.Descriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.junit.Test;
 
 /** JUnit test of array widget property
@@ -35,7 +36,7 @@ public class ArrayWidgetPropertyUnitTest
             CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "item", "Item");
 
     /** Array property */
-    private static final ArrayWidgetProperty.Descriptor<WidgetProperty<String>> behaviorItems =
+    private static final ArrayWidgetProperty.Descriptor<WidgetProperty<String>> propItems =
             new Descriptor<>(WidgetPropertyCategory.BEHAVIOR, "items", "Items",
                              (widget, index) -> behaviorItem.createProperty(widget, "Item " + index));
 
@@ -63,13 +64,13 @@ public class ArrayWidgetPropertyUnitTest
         protected void defineProperties(List<WidgetProperty<?>> properties)
         {
             super.defineProperties(properties);
-            properties.add( items = behaviorItems.createProperty(this, Arrays.asList(
+            properties.add( items = propItems.createProperty(this, Arrays.asList(
                     behaviorItem.createProperty(this, "One"),
                     behaviorItem.createProperty(this, "Two"),
                     behaviorItem.createProperty(this, "Three"))));
         }
 
-        public ArrayWidgetProperty<WidgetProperty<String>> behaviorItems()
+        public ArrayWidgetProperty<WidgetProperty<String>> propItems()
         {
             return items;
         }
@@ -81,14 +82,14 @@ public class ArrayWidgetPropertyUnitTest
         final DemoWidget widget = new DemoWidget();
 
         System.out.println(widget + " items:");
-        List<WidgetProperty<String>> items = widget.behaviorItems().getValue();
+        List<WidgetProperty<String>> items = widget.propItems().getValue();
         for (WidgetProperty<String> item : items)
             System.out.println(item);
         assertThat(items.size(), equalTo(3));
         assertThat(items.get(1).getValue(), equalTo("Two"));
 
         // Existing element can be modified
-        widget.behaviorItems().getValue().get(1).setValue("Another (2)");
+        widget.propItems().getValue().get(1).setValue("Another (2)");
         System.out.println(widget + " items:");
         for (WidgetProperty<String> item : items)
             System.out.println(item);
@@ -98,7 +99,7 @@ public class ArrayWidgetPropertyUnitTest
         // Cannot add/remove elements to 'value', need to go via ArrayProperty API
         try
         {
-            widget.behaviorItems().getValue().remove(1);
+            widget.propItems().getValue().remove(1);
             fail("Modified the array via value's List<>");
         }
         catch (UnsupportedOperationException ex)
@@ -109,7 +110,7 @@ public class ArrayWidgetPropertyUnitTest
         // Add/remove elements via ArrayProperty API
         final AtomicInteger list_changes = new AtomicInteger();
         final AtomicInteger prop_changes = new AtomicInteger();
-        widget.behaviorItems().addPropertyListener((prop, removed, added) ->
+        widget.propItems().addPropertyListener((prop, removed, added) ->
         {
             list_changes.incrementAndGet();
             if (removed != null)
@@ -117,25 +118,25 @@ public class ArrayWidgetPropertyUnitTest
             if (added != null)
                 System.out.println("Added " + added);
         });
-        widget.behaviorItems().getElement(0).addPropertyListener((prop, old, current) ->
+        widget.propItems().getElement(0).addPropertyListener((prop, old, current) ->
         {
             prop_changes.incrementAndGet();
             System.out.println(prop.getName() + " changes from " + old + " to " + current);
         });
 
-        WidgetProperty<String> removed = widget.behaviorItems().removeElement();
-        assertThat(widget.behaviorItems().size(), equalTo(2));
+        WidgetProperty<String> removed = widget.propItems().removeElement();
+        assertThat(widget.propItems().size(), equalTo(2));
         assertThat(removed.getValue(), equalTo("Three"));
         assertThat(list_changes.get(), equalTo(1));
 
-        widget.behaviorItems().addElement(removed);
-        assertThat(widget.behaviorItems().size(), equalTo(3));
-        assertThat(widget.behaviorItems().getElement(2).getValue(), equalTo("Three"));
+        widget.propItems().addElement(removed);
+        assertThat(widget.propItems().size(), equalTo(3));
+        assertThat(widget.propItems().getElement(2).getValue(), equalTo("Three"));
         assertThat(list_changes.get(), equalTo(2));
 
         // Notification on changed element vs. changed list of elements
         assertThat(prop_changes.get(), equalTo(0));
-        widget.behaviorItems().getElement(0).setValue("ONE!");
+        widget.propItems().getElement(0).setValue("ONE!");
         assertThat(prop_changes.get(), equalTo(1));
         assertThat(list_changes.get(), equalTo(2));
     }
@@ -145,7 +146,7 @@ public class ArrayWidgetPropertyUnitTest
     {
         final DemoWidget widget = new DemoWidget();
         // Set value to non-default
-        widget.behaviorItems().getValue().get(1).setValue("Another (2)");
+        widget.propItems().getValue().get(1).setValue("Another (2)");
         // Persist to XML
         final String xml = ModelWriter.getXML(Arrays.asList(widget));
         System.out.println(xml);
@@ -168,5 +169,45 @@ public class ArrayWidgetPropertyUnitTest
         System.out.println("items[1]: " + item);
         assertThat(item, not(nullValue()));
         assertThat(item.getValue(), equalTo("Two"));
+    }
+
+    @Test
+    public void testPathAccess() throws Exception
+    {
+        final XYPlotWidget widget = new XYPlotWidget();
+
+        widget.propTitle().setValue("The Title");
+        widget.propXAxis().title().setValue("X Axis");
+        widget.propYAxes().getElement(0).title().setValue("Y 1");
+
+        String value;
+        value = widget.getPropertyValue("title");
+        assertThat(value, equalTo("The Title"));
+
+        value = widget.getPropertyValue("x_axis.title");
+        assertThat(value, equalTo("X Axis"));
+
+        value = widget.getPropertyValue("y_axes[0].title");
+        assertThat(value, equalTo("Y 1"));
+
+        try
+        {
+            widget.getPropertyValue("y_axes[5].title");
+            fail("Access beyond array size");
+        }
+        catch (IndexOutOfBoundsException ex)
+        {
+            assertThat(ex.getMessage(), containsString("element 5"));
+        }
+
+        try
+        {
+            widget.getPropertyValue("y_axes[5.title");
+            fail("Bad array element syntax");
+        }
+        catch (IllegalArgumentException ex)
+        {
+            assertThat(ex.getMessage().toLowerCase(), containsString("missing"));
+        }
     }
 }

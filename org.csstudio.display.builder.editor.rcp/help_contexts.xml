@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<contexts>
+  <context id="display_builder" title="Display Builder">
+    <description>Editor and runtime for control system display panels</description>
+    <topic href="doc/display.builder.html" label="Display Builder"/>
+  </context>
+</contexts>

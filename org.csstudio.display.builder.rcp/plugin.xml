@@ -4,10 +4,17 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            class="org.csstudio.display.builder.rcp.run.RuntimeViewPart"
+            class="org.csstudio.display.builder.rcp.RuntimeViewPart"
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
             id="org.csstudio.display.builder.rcp.run.RuntimeViewPart"
-            name="%RuntimeView"
+            name="%Runtime"
+            restorable="true">
+      </view>
+      <view
+            class="org.csstudio.display.builder.rcp.run.PlaceHolderView"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
+            id="org.csstudio.display.builder.rcp.run.placeHolder"
+            name="%Runtime"
             restorable="true">
       </view>
    </extension>
@@ -39,8 +46,68 @@
             icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
             id="org.csstudio.display.builder.rcp.RuntimeLauncher"
             launcher="org.csstudio.display.builder.rcp.run.RuntimeLauncher"
-            name="%RuntimeView">
+            name="%Runtime">
       </editor>
+      <editor
+            default="false"
+            extensions="opi"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
+            id="org.csstudio.display.builder.rcp.RuntimeLauncher"
+            launcher="org.csstudio.display.builder.rcp.run.RuntimeLauncher"
+            name="%Runtime">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="org.csstudio.display.builder.rcp.RuntimePerspective"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/display.png"
+            id="org.csstudio.display.builder.rcp.runtimeperspective"
+            name="%Runtime">
+      </perspective>
+   </extension>
+   <extension
+         point="org.csstudio.display.builder.model.widgets">
+      <widget
+            category="CONTROL"
+            class="org.csstudio.display.builder.rcp.widgets.FileSelectorWidget"
+            description="%FileSelector_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.rcp/icons/open_file.png"
+            name="%FileSelector"
+            type="fileselector">
+      </widget>
+   </extension>
+   <extension
+         point="org.csstudio.display.builder.representation.widgets">
+      <representation
+            class="org.csstudio.display.builder.rcp.widgets.FileSelectorRepresentation"
+            type="fileselector">
+      </representation>
+   </extension>
+   <extension
+         id="runtime"
+         point="org.eclipse.core.runtime.applications">
+      <application
+            cardinality="singleton-global"
+            icon="icons/open_file.png"
+            thread="main"
+            visible="true">
+         <run
+               class="org.csstudio.display.builder.rcp.RuntimeApplication">
+         </run>
+      </application>
+   </extension>
+   <extension
+         id="runtime"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="org.csstudio.display.builder.rcp.runtime"
+            name="DisplayRuntime">
+         <property
+               name="appName"
+               value="DisplayRuntime">
+         </property>
+      </product>
    </extension>
 
 </plugin>

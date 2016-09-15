@@ -7,19 +7,23 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFormat;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayPrecision;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayShowUnits;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFormat;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPrecision;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propShowUnits;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
@@ -76,6 +80,14 @@ public class TextUpdateWidget extends VisibleWidget
             {
                 TextUpdateWidget text_widget = (TextUpdateWidget)widget;
                 TextUpdateWidget.readLegacyFormat(xml, text_widget.format, text_widget.precision, text_widget.pv_name);
+
+                // Legacy text update had a "text" property that allowed using
+                // it just like a label - no pv_name.
+                // Some scripts would even update the 'text' concurrent with a pv_name...
+                final Optional<String> text = XMLUtil.getChildString(xml, "text");
+                if (text.isPresent()  &&  text.get().length() > 0  &&
+                    ((MacroizedWidgetProperty<String>) text_widget.propPVName()).getSpecification().isEmpty())
+                    logger.log(Level.WARNING, "Replace with Label: " + text_widget + " has 'text' but no 'pv_name'");
             }
             return true;
         }
@@ -118,10 +130,18 @@ public class TextUpdateWidget extends VisibleWidget
             case 6: // COMPACT
                 format.setValue(FormatOption.COMPACT);
                 break;
+            case 7: // ENG (since Aug. 2016)
+                format.setValue(FormatOption.ENGINEERING);
+                break;
             default:
                 format.setValue(FormatOption.DEFAULT);
             }
         }
+
+        // If legacy requested precision-from-PV, mark that in precision
+        element = XMLUtil.getChildElement(xml, "precision_from_pv");
+        if (element != null  &&  Boolean.parseBoolean(XMLUtil.getString(element)))
+            precision.setValue(-1);
 
         // Remove legacy longString attribute from PV,
         // instead use STRING formatting
@@ -158,61 +178,61 @@ public class TextUpdateWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
-        properties.add(displayBorderAlarmSensitive.createProperty(this, true));
-        properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.READ_BACKGROUND)));
-        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        properties.add(format = displayFormat.createProperty(this, FormatOption.DEFAULT));
-        properties.add(precision = displayPrecision.createProperty(this, 2));
-        properties.add(show_units = displayShowUnits.createProperty(this, true));
-        properties.add(value = runtimeValue.createProperty(this, null));
+        properties.add(pv_name = propPVName.createProperty(this, ""));
+        properties.add(propBorderAlarmSensitive.createProperty(this, true));
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.READ_BACKGROUND)));
+        properties.add(format = propFormat.createProperty(this, FormatOption.DEFAULT));
+        properties.add(precision = propPrecision.createProperty(this, -1));
+        properties.add(show_units = propShowUnits.createProperty(this, true));
+        properties.add(value = runtimePropValue.createProperty(this, null));
     }
 
-    /** @return Behavior 'pv_name' */
-    public WidgetProperty<String> behaviorPVName()
+    /** @return 'pv_name' property */
+    public WidgetProperty<String> propPVName()
     {
         return pv_name;
     }
 
-    /** @return Display 'foreground_color' */
-    public WidgetProperty<WidgetColor> displayForegroundColor()
+    /** @return 'foreground_color' property */
+    public WidgetProperty<WidgetColor> propForegroundColor()
     {
         return foreground;
     }
 
-    /** @return Display 'background_color' */
-    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    /** @return 'background_color' property */
+    public WidgetProperty<WidgetColor> propBackgroundColor()
     {
         return background;
     }
 
-    /** @return Display 'font' */
-    public WidgetProperty<WidgetFont> displayFont()
+    /** @return 'font' property */
+    public WidgetProperty<WidgetFont> propFont()
     {
         return font;
     }
 
-    /** @return Display 'format' */
-    public WidgetProperty<FormatOption> displayFormat()
+    /** @return 'format' property */
+    public WidgetProperty<FormatOption> propFormat()
     {
         return format;
     }
 
-    /** @return Display 'precision' */
-    public WidgetProperty<Integer> displayPrecision()
+    /** @return 'precision' property */
+    public WidgetProperty<Integer> propPrecision()
     {
         return precision;
     }
 
-    /** @return Display 'show_units' */
-    public WidgetProperty<Boolean> displayShowUnits()
+    /** @return 'show_units' property */
+    public WidgetProperty<Boolean> propShowUnits()
     {
         return show_units;
     }
 
-    /** @return Runtime 'value' */
-    public WidgetProperty<VType> runtimeValue()
+    /** @return Runtime 'value' property */
+    public WidgetProperty<VType> runtimePropValue()
     {
         return value;
     }

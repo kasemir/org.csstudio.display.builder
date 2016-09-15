@@ -11,8 +11,8 @@ import static java.lang.Math.PI;
 import static java.lang.Math.round;
 import static java.lang.Math.sin;
 import static java.lang.System.currentTimeMillis;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
 
 import org.csstudio.display.builder.model.Widget;
 
@@ -28,8 +28,8 @@ class DummyPositionUpdater implements Runnable
     public DummyPositionUpdater(final Widget widget)
     {
         this.widget = widget;
-        this.x = widget.getProperty(positionX).getValue();
-        this.width = widget.getProperty(positionWidth).getValue();
+        this.x = widget.getProperty(propX).getValue();
+        this.width = widget.getProperty(propWidth).getValue();
     }
 
     @Override
@@ -37,7 +37,7 @@ class DummyPositionUpdater implements Runnable
     {
         final int current_width = (int)round(width + 10.0*sin(2.0*PI * currentTimeMillis()/1000.0));
         // Change width while keeping right edge of widget in same location
-        widget.getProperty(positionX).setValue(x + width - current_width);
-        widget.getProperty(positionWidth).setValue(current_width);
+        widget.getProperty(propX).setValue(x + width - current_width);
+        widget.getProperty(propWidth).setValue(current_width);
     }
 }

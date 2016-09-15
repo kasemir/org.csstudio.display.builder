@@ -10,11 +10,9 @@
   <y>-1</y>
   <widget type="combo" version="2.0.0">
     <name>Combo</name>
-    <x>61</x>
-    <y>292</y>
+    <y>251</y>
     <width>150</width>
     <height>27</height>
-    <border_alarm_sensitive>true</border_alarm_sensitive>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -33,27 +31,25 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update</name>
-    <x>61</x>
-    <y>341</y>
+    <y>300</y>
     <width>150</width>
     <height>25</height>
     <pv_name>loc://test&lt;String&gt;</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_1</name>
-    <x>249</x>
-    <y>471</y>
+    <x>188</x>
+    <y>430</y>
     <width>190</width>
     <height>25</height>
     <pv_name>Target_Diag:TIS:fitPD.SCAN</pv_name>
   </widget>
   <widget type="combo" version="2.0.0">
     <name>Combo_ReadOnly</name>
-    <x>249</x>
-    <y>422</y>
+    <x>188</x>
+    <y>381</y>
     <width>190</width>
     <height>27</height>
-    <border_alarm_sensitive>true</border_alarm_sensitive>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -71,8 +67,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
-    <x>61</x>
-    <y>261</y>
+    <y>220</y>
     <width>150</width>
     <text>Items from property</text>
     <font>
@@ -82,8 +77,8 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
-    <x>249</x>
-    <y>391</y>
+    <x>188</x>
+    <y>350</y>
     <width>190</width>
     <text>Items from PV (read-only)</text>
     <font>
@@ -93,11 +88,10 @@
   </widget>
   <widget type="combo" version="2.0.0">
     <name>Combo_ItemsFromPV</name>
-    <x>249</x>
-    <y>292</y>
+    <x>188</x>
+    <y>251</y>
     <width>190</width>
     <height>27</height>
-    <border_alarm_sensitive>true</border_alarm_sensitive>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -115,16 +109,16 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_2</name>
-    <x>249</x>
-    <y>341</y>
+    <x>188</x>
+    <y>300</y>
     <width>190</width>
     <height>25</height>
     <pv_name>loc://test3&lt;VEnum&gt;(0, "High", "Medium", "Low")</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
-    <x>249</x>
-    <y>261</y>
+    <x>188</x>
+    <y>220</y>
     <width>190</width>
     <text>Items from PV (writeable)</text>
     <font>
@@ -134,11 +128,9 @@
   </widget>
   <widget type="combo" version="2.0.0">
     <name>Combo_Macros</name>
-    <x>61</x>
-    <y>422</y>
+    <y>381</y>
     <width>150</width>
     <height>27</height>
-    <border_alarm_sensitive>true</border_alarm_sensitive>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -157,16 +149,14 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_3</name>
-    <x>61</x>
-    <y>471</y>
+    <y>430</y>
     <width>150</width>
     <height>25</height>
     <pv_name>loc://test2&lt;String&gt;</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
-    <x>61</x>
-    <y>391</y>
+    <y>350</y>
     <width>150</width>
     <text>Items with macros</text>
     <font>
@@ -176,11 +166,9 @@
   </widget>
   <widget type="combo" version="2.0.0">
     <name>Combo_BadMatch</name>
-    <x>61</x>
-    <y>562</y>
+    <y>521</y>
     <width>150</width>
     <height>27</height>
-    <border_alarm_sensitive>true</border_alarm_sensitive>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -199,8 +187,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
-    <x>61</x>
-    <y>531</y>
+    <y>490</y>
     <width>150</width>
     <text>Items don't match PV</text>
     <font>
@@ -210,8 +197,6 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
-    <x>51</x>
-    <y>31</y>
     <width>220</width>
     <height>30</height>
     <text>Combo Box Widget</text>
@@ -222,8 +207,7 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
-    <x>61</x>
-    <y>71</y>
+    <y>30</y>
     <width>378</width>
     <height>70</height>
     <text>Combo boxes can read/write a list of string values to a PV.
@@ -233,16 +217,15 @@ value is still shown.</text>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry</name>
-    <x>61</x>
-    <y>611</y>
+    <y>570</y>
     <width>150</width>
     <height>25</height>
     <pv_name>loc://test4&lt;VEnum&gt;(1, "High", "Medium", "Low")</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
-    <x>249</x>
-    <y>562</y>
+    <x>188</x>
+    <y>521</y>
     <width>190</width>
     <height>74</height>
     <text>Allowed values:
@@ -252,8 +235,7 @@ value is still shown.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
-    <x>61</x>
-    <y>691</y>
+    <y>650</y>
     <width>260</width>
     <text>Can be configured to be ugly:</text>
     <font>
@@ -263,8 +245,7 @@ value is still shown.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
-    <x>61</x>
-    <y>191</y>
+    <y>150</y>
     <width>378</width>
     <height>60</height>
     <text>The property "Items From PV" controls whether the items
@@ -273,8 +254,7 @@ enum PV) or from the "Items" property.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_10</name>
-    <x>61</x>
-    <y>161</y>
+    <y>120</y>
     <width>260</width>
     <text>Items from PV</text>
     <font>
@@ -284,10 +264,9 @@ enum PV) or from the "Items" property.</text>
   </widget>
   <widget type="combo" version="2.0.0">
     <name>Combo Box</name>
-    <x>71</x>
-    <y>731</y>
+    <y>681</y>
     <width>200</width>
-    <height>70</height>
+    <height>110</height>
     <foreground_color>
       <color name="Off" red="60" green="100" blue="60">
       </color>
@@ -297,7 +276,7 @@ enum PV) or from the "Items" property.</text>
       </color>
     </background_color>
     <font>
-      <font name="Oddball" family="Comic Sans MS" style="REGULAR" size="40.0">
+      <font name="Oddball" family="PakTypeNaqsh" style="REGULAR" size="40.0">
       </font>
     </font>
     <pv_name>loc://test&lt;String&gt;("0")</pv_name>
@@ -307,5 +286,71 @@ enum PV) or from the "Items" property.</text>
       <item>2</item>
     </items>
     <items_from_pv>false</items_from_pv>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button</name>
+    <x>421</x>
+    <y>300</y>
+    <width>140</width>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+combo = ScriptUtil.findWidgetByName(widget, "Combo")
+
+items = combo.getItems()
+
+ScriptUtil.showMessageDialog(widget,
+                                                 "Orignal items:\n" + "\n".join(items))
+
+combo.setItems( [ "Ene", "Mene", "Muh" ] )
+
+ScriptUtil.getPrimaryPV(combo).write("Mene")
+
+ScriptUtil.showMessageDialog(widget,
+                                                 "Check the combo box now!")
+]]></text>
+        </script>
+        <description>Update Items</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_11</name>
+    <x>421</x>
+    <y>150</y>
+    <width>378</width>
+    <height>111</height>
+    <text>Ideally, the items for the combo box
+are obtained from an "enum" PV,
+or they are fixed and configured
+as properties of the widget.
+
+In special cases, a script can access the items.</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_12</name>
+    <x>421</x>
+    <y>120</y>
+    <width>260</width>
+    <text>Script Support</text>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_13</name>
+    <x>421</x>
+    <y>350</y>
+    <width>260</width>
+    <height>58</height>
+    <text>This button will show, then update
+the items of the top left combo box.</text>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
   </widget>
 </display>

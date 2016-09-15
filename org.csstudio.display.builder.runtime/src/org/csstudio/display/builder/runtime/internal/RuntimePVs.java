@@ -7,15 +7,21 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.internal;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
+import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.csstudio.display.builder.runtime.pv.RuntimePVListener;
@@ -42,6 +48,7 @@ public class RuntimePVs
     private final ConcurrentMap<RuntimePV, PVInfo> pvs = new ConcurrentHashMap<>();
 
     /** Listener for tracking connection state of individual PV.
+     *  Can optionally also check for write access.
      *  Reference counted because widget may use the same PV
      *  multiple times, but connection state is only tracked once.
      */
@@ -49,6 +56,7 @@ public class RuntimePVs
     {
         private final AtomicInteger refs = new AtomicInteger();
         private volatile boolean connected = false;
+        private volatile boolean need_write_access = false;
 
         public int addReference()
         {
@@ -60,9 +68,26 @@ public class RuntimePVs
             return refs.decrementAndGet();
         }
 
+        public void trackWriteAccess()
+        {
+            need_write_access = true;
+        }
+
+        public boolean needWriteAccess()
+        {
+            return need_write_access;
+        }
+
         public boolean isConnected()
         {
             return connected;
+        }
+
+        @Override
+        public void permissionsChanged(final RuntimePV pv, final boolean readonly)
+        {
+            if (need_write_access)
+                updateWriteAccess();
         }
 
         @Override
@@ -88,16 +113,24 @@ public class RuntimePVs
         this.widget = widget;
     }
 
-    /** @param pv PV to track */
-    public void addPV(final RuntimePV pv)
+    /** @param pv PV to track
+     *  @param need_write_access Does widget need write access to this PV?
+     */
+    public void addPV(final RuntimePV pv, final boolean need_write_access)
     {
         final PVInfo info = pvs.computeIfAbsent(pv, (p) -> new PVInfo());
         if (info.addReference() == 1)
         {
             // Awaiting connections for at least one PV, so widget is for now disconnected
             if (widget instanceof VisibleWidget)
-                ((VisibleWidget)widget).runtimeConnected().setValue(false);
+                ((VisibleWidget)widget).runtimePropConnected().setValue(false);
             pv.addListener(info);
+        }
+        if (need_write_access)
+        {
+            info.trackWriteAccess();
+            // Initial update
+            info.permissionsChanged(pv, pv.isReadonly());
         }
     }
 
@@ -135,7 +168,25 @@ public class RuntimePVs
         // else: For sure not connected
 
         if (widget instanceof VisibleWidget)
-            ((VisibleWidget)widget).runtimeConnected().setValue(all_connected);
+            ((VisibleWidget)widget).runtimePropConnected().setValue(all_connected);
+    }
+
+    /** Update write access indication of the widget */
+    private void updateWriteAccess()
+    {
+        int need_to_write = 0, can_write = 0;
+        for (Map.Entry<RuntimePV, PVInfo> entry : pvs.entrySet())
+            if (entry.getValue().needWriteAccess())
+            {
+                ++need_to_write;
+                if (! entry.getKey().isReadonly())
+                    ++can_write;
+            }
+        logger.log(Level.FINE, "{0} can write {1} out of {2} PVs", new Object[] { widget, can_write, need_to_write });
+        final boolean enable = need_to_write == 0  ||  can_write > 0;
+        final Optional<WidgetProperty<Boolean>> enabled = widget.checkProperty(propEnabled);
+        if (enabled.isPresent())
+            enabled.get().setValue(enable);
     }
 
     /** @return All PVs of this widget */

@@ -40,6 +40,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
 
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
+    private final DirtyFlag dirty_enable = new DirtyFlag();
     private volatile List<String> items = Collections.emptyList();
     private volatile int index = -1;
     private volatile Callback<ListView<String>,ListCell<String>> cellFactory = null;
@@ -69,15 +70,16 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::styleChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayForegroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::styleChanged);
-        model_widget.displayFont().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
 
-        model_widget.runtimeValue().addUntypedPropertyListener(this::contentChanged);
-        model_widget.behaviorItemsFromPV().addUntypedPropertyListener(this::contentChanged);
-        model_widget.behaviorItems().addUntypedPropertyListener(this::contentChanged);
+        model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propItemsFromPV().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propItems().addUntypedPropertyListener(this::contentChanged);
+        model_widget.propEnabled().addUntypedPropertyListener(this::enableChanged);
 
         styleChanged(null, null, null);
     }
@@ -105,16 +107,24 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        cellFactory = createCellFactory(JFXUtil.convert(model_widget.displayForegroundColor().getValue()),
-                                        JFXUtil.convert(model_widget.displayBackgroundColor().getValue()),
-                                        JFXUtil.convert(model_widget.displayFont().getValue()) );
+        cellFactory = createCellFactory(JFXUtil.convert(model_widget.propForegroundColor().getValue()),
+                                        JFXUtil.convert(model_widget.propBackgroundColor().getValue()),
+                                        JFXUtil.convert(model_widget.propFont().getValue()) );
 
         dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
 
+    private void enableChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        dirty_enable.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
+
     /** @param value Current value of PV
-     *  @return Text to show, "<pv name>" if disconnected (no value)
+     *  @param fromPV Use items from enum?
+     *  @return List of items, potentially adding the current value to the items originally in the combo
      */
     private List<String> computeItems(final VType value, final boolean fromPV)
     {
@@ -125,21 +135,18 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         }
         else
         {
-            List<String> new_items = new ArrayList<String>();
-            List<WidgetProperty<String>> itemProps = model_widget.behaviorItems().getValue();
-            int new_index = -1;
-            String currValue = VTypeUtil.getValueString(value, false);
-            for (WidgetProperty<String> itemProp : itemProps)
-            {
+            final List<String> new_items = new ArrayList<String>();
+            for (WidgetProperty<String> itemProp : model_widget.propItems().getValue())
                 new_items.add(itemProp.getValue());
-                if (itemProp.getValue().equals(currValue))
-                    new_index = new_items.size()-1;
-            }
+
+            final String currValue = VTypeUtil.getValueString(value, false);
+            int new_index = new_items.indexOf(currValue);
             if (new_index < 0)
             {
                 new_items.add(currValue);
                 new_index = items.size()-1;
             }
+
             index = new_index;
             return new_items;
         }
@@ -147,8 +154,8 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
 
     private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        VType value = model_widget.runtimeValue().getValue();
-        boolean fromPV = model_widget.behaviorItemsFromPV().getValue() && value instanceof VEnum;
+        VType value = model_widget.runtimePropValue().getValue();
+        boolean fromPV = model_widget.propItemsFromPV().getValue() && value instanceof VEnum;
         items = computeItems(value, fromPV); //also sets index
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
@@ -160,8 +167,8 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
         super.updateChanges();
         if (dirty_style.checkAndClear())
         {
-            jfx_node.setPrefSize(model_widget.positionWidth().getValue(),
-                                 model_widget.positionHeight().getValue());
+            jfx_node.setPrefSize(model_widget.propWidth().getValue(),
+                                 model_widget.propHeight().getValue());
             if (cellFactory != null)
             {
                 //jfx_node.setCellFactory(cellFactory);
@@ -181,5 +188,7 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
                 active = false;
             }
         }
+        if (dirty_enable.checkAndClear())
+            jfx_node.setDisable(! model_widget.propEnabled().getValue());
     }
 }

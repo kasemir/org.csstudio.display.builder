@@ -7,8 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -108,8 +108,8 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
     {
         super.registerListeners();
 
-        final Optional<WidgetProperty<Boolean>> border = model_widget.checkProperty(displayBorderAlarmSensitive);
-        final Optional<WidgetProperty<VType>> value = model_widget.checkProperty(runtimeValue);
+        final Optional<WidgetProperty<Boolean>> border = model_widget.checkProperty(propBorderAlarmSensitive);
+        final Optional<WidgetProperty<VType>> value = model_widget.checkProperty(runtimePropValue);
         if (border.isPresent()  &&  value.isPresent())
         {
             value_prop = value.get();
@@ -122,7 +122,7 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
             value_prop.addUntypedPropertyListener(this::valueChanged);
         }
 
-        model_widget.runtimeConnected().addPropertyListener(this::connectionChanged);
+        model_widget.runtimePropConnected().addPropertyListener(this::connectionChanged);
     }
 
     private void connectionChanged(final WidgetProperty<Boolean> property, final Boolean was_connected, final Boolean is_connected)

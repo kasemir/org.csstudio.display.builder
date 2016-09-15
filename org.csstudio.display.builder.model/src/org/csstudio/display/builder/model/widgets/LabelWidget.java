@@ -7,13 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayHorizontalAlignment;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayText;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayTransparent;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayVerticalAlignment;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontalAlignment;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propText;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTransparent;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propVerticalAlignment;
 
 import java.util.Arrays;
 import java.util.List;
@@ -71,13 +71,13 @@ public class LabelWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(text = displayText.createProperty(this, Messages.LabelWidget_Text));
-        properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        properties.add(transparent = displayTransparent.createProperty(this, true));
-        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        properties.add(horizontal_alignment = displayHorizontalAlignment.createProperty(this, HorizontalAlignment.LEFT));
-        properties.add(vertical_alignment = displayVerticalAlignment.createProperty(this, VerticalAlignment.TOP));
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(text = propText.createProperty(this, Messages.LabelWidget_Text));
+        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(transparent = propTransparent.createProperty(this, true));
+        properties.add(horizontal_alignment = propHorizontalAlignment.createProperty(this, HorizontalAlignment.LEFT));
+        properties.add(vertical_alignment = propVerticalAlignment.createProperty(this, VerticalAlignment.TOP));
     }
 
     @Override
@@ -91,20 +91,20 @@ public class LabelWidget extends VisibleWidget
         return super.getConfigurator(persisted_version);
     }
 
-    /** @return Display 'text' */
-    public WidgetProperty<String> displayText()
+    /** @return 'text' property */
+    public WidgetProperty<String> propText()
     {
         return text;
     }
 
-    /** @return Display 'foreground_color' */
-    public WidgetProperty<WidgetColor> displayForegroundColor()
+    /** @return 'foreground_color' property */
+    public WidgetProperty<WidgetColor> propForegroundColor()
     {
         return foreground;
     }
 
-    /** @return Display 'background_color' */
-    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    /** @return 'background_color' property */
+    public WidgetProperty<WidgetColor> propBackgroundColor()
     {
         return background;
     }
@@ -115,20 +115,20 @@ public class LabelWidget extends VisibleWidget
         return transparent;
     }
 
-    /** @return Display 'font' */
-    public WidgetProperty<WidgetFont> displayFont()
+    /** @return 'font' property */
+    public WidgetProperty<WidgetFont> propFont()
     {
         return font;
     }
 
-    /** @return Display 'horizontal_alignment' */
-    public WidgetProperty<HorizontalAlignment> displayHorizontalAlignment()
+    /** @return 'horizontal_alignment' property */
+    public WidgetProperty<HorizontalAlignment> propHorizontalAlignment()
     {
         return horizontal_alignment;
     }
 
-    /** @return Display 'vertical_alignment' */
-    public WidgetProperty<VerticalAlignment> displayVerticalAlignment()
+    /** @return 'vertical_alignment' property */
+    public WidgetProperty<VerticalAlignment> propVerticalAlignment()
     {
         return vertical_alignment;
     }

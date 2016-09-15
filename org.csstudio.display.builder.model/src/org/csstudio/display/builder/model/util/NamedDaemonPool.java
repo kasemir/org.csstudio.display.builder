@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.model.util;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -41,18 +41,35 @@ public class NamedDaemonPool implements ThreadFactory
      */
     public static ExecutorService createThreadPool(final String name)
     {
+        // Idea was this:
         // Runtime tasks are likely waiting on I/O,
-        // so having more threads than CPU cores.
-        // Still limiting number of threads to some multiple of CPU cores
+        // so have more threads than CPU cores.
+        // Still, limit number of threads to some multiple of CPU cores
         // to prevent erroneous creation of a gazillion threads.
         // Core pool size of 0 and timeout results in all threads being
         // closed when none are used for some time.
         // Queue to hold submitted runnables while all threads are busy.
-        return new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors()*10,
-                10L, TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(),
-                new NamedDaemonPool(name));
+        //
+        //      final int threads = Runtime.getRuntime().availableProcessors()*10;
+        //      return new ThreadPoolExecutor(0, threads,
+        //              10L, TimeUnit.SECONDS,
+        //              new LinkedBlockingQueue<Runnable>(),
+        //              new NamedDaemonPool(name));
+        //
+        // In reality, when a thread executing on the DisplayRuntime pool
+        // would then submit other threads for execution, those
+        // would be invoked sequentially, with only one thread active at a time?!
 
+        // Basically Executors.newCachedThreadPool():
+        // Submitted runnables are executed ASAP,
+        // either on new thread or one that was in the cache.
+        // This allows multiple embedded displays to all load in parallel.
+        // Cache clears after 10 seconds.
+        // Downside: No way to avoid a gazillion threads.
+        return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                10L, TimeUnit.SECONDS,
+                new SynchronousQueue<Runnable>(),
+                new NamedDaemonPool(name));
     }
 
     public NamedDaemonPool(final String name)

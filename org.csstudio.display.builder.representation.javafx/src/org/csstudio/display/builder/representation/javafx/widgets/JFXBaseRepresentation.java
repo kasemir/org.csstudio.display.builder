@@ -13,6 +13,7 @@ import java.util.Optional;
 
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
@@ -29,6 +30,7 @@ import javafx.scene.Parent;
  *  @param <MW> Model widget
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget> extends WidgetRepresentation<Parent, Node, MW>
 {
     /** JFX node (or root of sub scene graph) that represents the widget
@@ -53,7 +55,7 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
             {
                 if (container.get() instanceof TabsWidget)
                 {   // Locate model_widget inside one of the Tab's children
-                    final List<TabItemProperty> tabs = ((TabsWidget) container.get()).displayTabs().getValue();
+                    final List<TabItemProperty> tabs = ((TabsWidget) container.get()).propTabs().getValue();
                     for (TabItemProperty tab : tabs)
                     {
                         final int i = tab.children().getValue().indexOf(model_widget);
@@ -117,6 +119,27 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
      */
     abstract protected JFX createJFXNode() throws Exception;
 
+    /** @param widget Widget
+     *  @return JFX node used to represent the widget
+     */
+    public static Node getJFXNode(final Widget widget)
+    {
+        if (widget instanceof DisplayModel)
+        {   // Display doesn't have a representation.
+            // Find one of its widgets, then use its parent node
+            final DisplayModel model = (DisplayModel) widget;
+            final List<Widget> children = model.getChildren();
+            if (children.isEmpty())
+                return null;
+            return getJFXNode(children.get(0)).getParent();
+        }
+        final JFXBaseRepresentation<Node, Widget> representation =
+                widget.getUserData(Widget.USER_DATA_REPRESENTATION);
+        if (representation == null)
+            throw new NullPointerException("Missing representation for " + widget);
+        return representation.jfx_node;
+    }
+
     /** {@inheritDoc} */
     @Override
     public void dispose()
@@ -147,11 +170,11 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
      */
     protected void registerListeners()
     {
-        visible = model_widget.checkProperty(CommonWidgetProperties.positionVisible).orElse(null);
+        visible = model_widget.checkProperty(CommonWidgetProperties.propVisible).orElse(null);
         if (visible != null)
             visible.addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionX().addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionY().addUntypedPropertyListener(this::positionChanged);
+        model_widget.propX().addUntypedPropertyListener(this::positionChanged);
+        model_widget.propY().addUntypedPropertyListener(this::positionChanged);
         // Would like to also listen to positionWidth & height,
         // then call jfx_node.resizeRelocate(x, y, width, height),
         // but resizeRelocate tends to ignore the width & height on
@@ -171,10 +194,15 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
     {
         if (dirty_position.checkAndClear())
         {
-            jfx_node.relocate(model_widget.positionX().getValue(),
-                              model_widget.positionY().getValue());
+            jfx_node.relocate(model_widget.propX().getValue(),
+                              model_widget.propY().getValue());
             if (visible != null)
-                jfx_node.setVisible(visible.getValue());
+            {   // In edit more, somewhat 'hide', but remain visible
+                if (toolkit.isEditMode())
+                    jfx_node.setDisable(! visible.getValue());
+                else
+                    jfx_node.setVisible(visible.getValue());
+            }
         }
     }
 }

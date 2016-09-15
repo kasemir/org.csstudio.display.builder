@@ -13,10 +13,19 @@ package org.csstudio.javafx;
  */
 public interface StringTableListener
 {
-    /** Invoked when the data of the table changes
+    /** Invoked when the headers and data of the table changes
      *
      *  <p>May be the result of user editing a cell,
      *  adding a column etc.
+     *
+     *  @param table Table that changed
+     */
+    public void tableChanged(StringTable table);
+
+    /** Invoked when the data of the table changes,
+     *
+     *  <p>May be the result of user editing a cell,
+     *  where the columns otherwise stayed the same
      *
      *  @param table Table that changed
      */

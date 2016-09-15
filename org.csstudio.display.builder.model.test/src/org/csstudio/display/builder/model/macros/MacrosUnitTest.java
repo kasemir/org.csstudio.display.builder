@@ -74,11 +74,31 @@ public class MacrosUnitTest
         assertThat(MacroHandler.replace(macros, "${NOT_CLOSED"), equalTo("${NOT_CLOSED"));
     }
 
+    /**
+     * Test macros with default values
+     * 
+     * @throws Exception on error
+     */
+    @Test
+    public void testDefaults() throws Exception
+    {
+        Macros macros = new Macros();
+        macros.add("A", "a");
+        System.out.println(macros);
+
+        assertThat(MacroHandler.replace(macros, "Empty default ${S=} value"), equalTo("Empty default  value"));
+        assertThat(MacroHandler.replace(macros, "Invalid-name default ${ S=X}"), equalTo("Invalid-name default ${ S=X}"));
+        assertThat(MacroHandler.replace(macros, "Default ${S=X} value"), equalTo("Default X value"));
+        assertThat(MacroHandler.replace(macros, "Default ${S = X + Y = Z} value"), equalTo("Default X + Y = Z value"));
+        assertThat(MacroHandler.replace(macros, "Doesn't use default: ${S = $(A=z)}"), equalTo("Doesn't use default: a"));
+    }
+
+
     /** Test recursive macro error
      *  @throws Exception on error
      */
     @Test
-    public void testReursion() throws Exception
+    public void testRecursion() throws Exception
     {
         final Macros macros = new Macros();
         macros.add("S", "$(S)");
@@ -86,6 +106,15 @@ public class MacrosUnitTest
         {
             MacroHandler.replace(macros, "Never ending $(S)");
             fail("Didn't detect recursive macro");
+        }
+        catch (Exception ex)
+        {
+            assertThat(ex.getMessage(), containsString(/* [Rr] */ "ecursive"));
+        }
+
+        try
+        {
+            MacroHandler.replace(macros, "Recursive $(S=a) default");
         }
         catch (Exception ex)
         {

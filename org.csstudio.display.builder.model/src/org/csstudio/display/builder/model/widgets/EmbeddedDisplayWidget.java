@@ -8,8 +8,8 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFile;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetMacros;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
 
 import java.util.Arrays;
 import java.util.List;
@@ -75,7 +75,7 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         }
     }
 
-    private static final WidgetPropertyDescriptor<Resize> displayResize =
+    private static final WidgetPropertyDescriptor<Resize> propResize =
         new WidgetPropertyDescriptor<Resize>(
             WidgetPropertyCategory.DISPLAY, "resize", Messages.WidgetProperties_ResizeBehavior)
     {
@@ -87,7 +87,11 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         }
     };
 
-    private static final WidgetPropertyDescriptor<Double> runtimeScale =
+    private static final WidgetPropertyDescriptor<String> propGroupName =
+        CommonWidgetProperties.newStringPropertyDescriptor(
+            WidgetPropertyCategory.DISPLAY, "group_name", Messages.EmbeddedDisplayWidget_GroupName);
+
+    private static final WidgetPropertyDescriptor<Double> runtimePropScale =
     CommonWidgetProperties.newDoublePropertyDescriptor(
         WidgetPropertyCategory.RUNTIME, "scale", Messages.WidgetProperties_ScaleFactor);
 
@@ -123,11 +127,11 @@ public class EmbeddedDisplayWidget extends VisibleWidget
                 return false;
 
             // Fall back to legacy "opi_file" for display file
-            if (XMLUtil.getChildElement(xml, displayFile.getName()) == null)
+            if (XMLUtil.getChildElement(xml, propFile.getName()) == null)
             {
                 final Optional<String> opi_file = XMLUtil.getChildString(xml, "opi_file");
                 if (opi_file.isPresent())
-                    widget.setPropertyValue(displayFile, opi_file.get());
+                    widget.setPropertyValue(propFile, opi_file.get());
             }
 
             // Transition legacy "resize_behaviour"
@@ -138,11 +142,11 @@ public class EmbeddedDisplayWidget extends VisibleWidget
                 {   // 0=SIZE_OPI_TO_CONTAINER, 1=SIZE_CONTAINER_TO_OPI, 2=CROP_OPI, 3=SCROLL_OPI
                     final int old_resize = Integer.parseInt(XMLUtil.getString(element));
                     if (old_resize == 0)
-                        widget.setPropertyValue(displayResize, Resize.ResizeContent);
+                        widget.setPropertyValue(propResize, Resize.ResizeContent);
                     else if (old_resize == 1)
-                        widget.setPropertyValue(displayResize, Resize.SizeToContent);
+                        widget.setPropertyValue(propResize, Resize.SizeToContent);
                     else
-                        widget.setPropertyValue(displayResize, Resize.None);
+                        widget.setPropertyValue(propResize, Resize.None);
                 }
                 catch (NumberFormatException ex)
                 {
@@ -157,6 +161,7 @@ public class EmbeddedDisplayWidget extends VisibleWidget
     private volatile WidgetProperty<String> file;
     private volatile WidgetProperty<Resize> resize;
     private volatile WidgetProperty<Double> scale;
+    private volatile WidgetProperty<String> group_name;
 
     public EmbeddedDisplayWidget()
     {
@@ -167,36 +172,43 @@ public class EmbeddedDisplayWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(macros = widgetMacros.createProperty(this, new Macros()));
-        properties.add(file = displayFile.createProperty(this, ""));
-        properties.add(resize = displayResize.createProperty(this, Resize.None));
-        properties.add(scale = runtimeScale.createProperty(this, 1.0));
+        properties.add(file = propFile.createProperty(this, ""));
+        properties.add(macros = propMacros.createProperty(this, new Macros()));
+        properties.add(resize = propResize.createProperty(this, Resize.None));
+        properties.add(group_name = propGroupName.createProperty(this, ""));
+        properties.add(scale = runtimePropScale.createProperty(this, 1.0));
 
         // Initial size
-        positionWidth().setValue(300);
-        positionHeight().setValue(200);
+        propWidth().setValue(300);
+        propHeight().setValue(200);
     }
 
-    /** @return Widget 'macros' */
-    public WidgetProperty<Macros> widgetMacros()
+    /** @return 'macros' property */
+    public WidgetProperty<Macros> propMacros()
     {
         return macros;
     }
 
-    /** @return Display 'file' */
-    public WidgetProperty<String> displayFile()
+    /** @return 'file' property */
+    public WidgetProperty<String> propFile()
     {
         return file;
     }
 
-    /** @return Display 'resize' */
-    public WidgetProperty<Resize> displayResize()
+    /** @return 'resize' property */
+    public WidgetProperty<Resize> propResize()
     {
         return resize;
     }
 
-    /** @return Runtime 'scale' */
-    public WidgetProperty<Double> runtimeScale()
+    /** @return 'group_name' property */
+    public WidgetProperty<String> propGroupName()
+    {
+        return group_name;
+    }
+
+    /** @return Runtime 'scale' property */
+    public WidgetProperty<Double> runtimePropScale()
     {
         return scale;
     }
@@ -215,7 +227,7 @@ public class EmbeddedDisplayWidget extends VisibleWidget
     public Macros getEffectiveMacros()
     {
         final Macros base = super.getEffectiveMacros();
-        final Macros my_macros = widgetMacros().getValue();
+        final Macros my_macros = propMacros().getValue();
         return base == null ? my_macros : Macros.merge(base, my_macros);
     }
 }

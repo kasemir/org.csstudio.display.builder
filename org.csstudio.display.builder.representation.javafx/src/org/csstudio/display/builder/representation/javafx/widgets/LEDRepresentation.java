@@ -24,8 +24,8 @@ public class LEDRepresentation extends BaseLEDRepresentation<LEDWidget>
     {
         return new Color[]
         {
-            JFXUtil.convert(model_widget.offColor().getValue()),
-            JFXUtil.convert(model_widget.onColor().getValue())
+            JFXUtil.convert(model_widget.propOffColor().getValue()),
+            JFXUtil.convert(model_widget.propOnColor().getValue())
         };
     }
 
@@ -33,7 +33,7 @@ public class LEDRepresentation extends BaseLEDRepresentation<LEDWidget>
     protected int computeColorIndex(final VType value)
     {
         int number = VTypeUtil.getValueNumber(value).intValue();
-        final int bit = model_widget.bit().getValue();
+        final int bit = model_widget.propBit().getValue();
         if (bit >= 0)
             number &= (1 << bit);
         return number == 0 ? 0 : 1;
@@ -43,7 +43,7 @@ public class LEDRepresentation extends BaseLEDRepresentation<LEDWidget>
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.offColor().addUntypedPropertyListener(this::configChanged);
-        model_widget.onColor().addUntypedPropertyListener(this::configChanged);
+        model_widget.propOffColor().addUntypedPropertyListener(this::configChanged);
+        model_widget.propOnColor().addUntypedPropertyListener(this::configChanged);
     }
 }

@@ -7,9 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.test;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHeight;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
@@ -31,10 +31,10 @@ public class RepresentationDemoSWT
 
         final Display display = new Display();
         final Shell shell = new Shell(display);
-        shell.setText(model.getPropertyValue(widgetName));
+        shell.setText(model.getPropertyValue(propName));
 
-        shell.setSize(model.getPropertyValue(positionWidth),
-                      model.getPropertyValue(positionHeight));
+        shell.setSize(model.getPropertyValue(propWidth),
+                      model.getPropertyValue(propHeight));
 
         final ToolkitRepresentation<Composite, Control> toolkit =
                 new SWTRepresentation(display);

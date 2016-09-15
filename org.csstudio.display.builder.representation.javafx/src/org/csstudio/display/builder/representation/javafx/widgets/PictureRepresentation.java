@@ -65,11 +65,11 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::styleChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
 
-        model_widget.displayStretch().addPropertyListener(this::styleChanged);
-        model_widget.positionRotation().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propStretch().addPropertyListener(this::styleChanged);
+        model_widget.propRotation().addUntypedPropertyListener(this::styleChanged);
         styleChanged(null, null, null);
 
         //TODO: add way to disable border or remove permanently
@@ -77,8 +77,8 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
 
         // This is one of those weird cases where getValue calls setValue and fires the listener.
         // So register listener after getValue called
-        final String img_name = model_widget.displayFile().getValue();
-        model_widget.displayFile().addPropertyListener(this::contentChanged);
+        final String img_name = model_widget.propFile().getValue();
+        model_widget.propFile().addPropertyListener(this::contentChanged);
         ModelThreadPool.getExecutor().execute(() -> contentChanged(null, null, img_name));
         //ModelThreadPool.getExecutor().execute(() -> contentChanged(null, null, model_widget.displayFile().getValue()));
 
@@ -114,7 +114,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
             //final String base_path = "platform:/plugin/org.csstudio.display.representation.javafx/icons/add.png"; //$NON-NLS-1$
 
             // expand macros in the file name
-            final String expanded_path = MacroHandler.replace(model_widget.getEffectiveMacros(), base_path);
+            final String expanded_path = MacroHandler.replace(model_widget.getMacrosOrProperties(), base_path);
 
             // Resolve new image file relative to the source widget model (not 'top'!)
             // Get the display model from the widget tied to this representation
@@ -195,13 +195,13 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
         }
         if (dirty_style.checkAndClear())
         {
-            Integer widg_w = model_widget.positionWidth().getValue();
-            Integer widg_h = model_widget.positionHeight().getValue();
+            Integer widg_w = model_widget.propWidth().getValue();
+            Integer widg_h = model_widget.propHeight().getValue();
             Integer pic_w = widg_w;
             Integer pic_h = widg_h;
 
             // preserve aspect ratio
-            if (!model_widget.displayStretch().getValue())
+            if (!model_widget.propStretch().getValue())
             {
 
                 double w_prime = pic_h * native_ratio;
@@ -218,8 +218,8 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
 
             Integer final_pic_w, final_pic_h;
 
-            double cos_a = Math.cos(Math.toRadians(model_widget.positionRotation().getValue()));
-            double sin_a = Math.sin(Math.toRadians(model_widget.positionRotation().getValue()));
+            double cos_a = Math.cos(Math.toRadians(model_widget.propRotation().getValue()));
+            double sin_a = Math.sin(Math.toRadians(model_widget.propRotation().getValue()));
             double pic_bb_w = pic_w * Math.abs(cos_a) + pic_h * Math.abs(sin_a);
             double pic_bb_h = pic_w * Math.abs(sin_a) + pic_h * Math.abs(cos_a);
 
@@ -245,7 +245,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
             //jfx_node.maxHeight(final_pic_h);
 
             // Rotate around the center of the resized image
-            rotation.setAngle(model_widget.positionRotation().getValue());
+            rotation.setAngle(model_widget.propRotation().getValue());
             rotation.setPivotX(final_pic_w / 2.0);
             rotation.setPivotY(final_pic_h / 2.0);
 

@@ -7,25 +7,22 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorLimitsFromPV;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMaximum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorMinimum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFillColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFillColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.WidgetPropertyCategory;
-import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
@@ -57,6 +54,7 @@ public class ProgressBarWidget extends VisibleWidget
         }
     };
 
+    //TODO: BOY thermometer where show bulb property false
     /** Widget configurator to read legacy *.opi files*/
     private static class ProgressBarConfigurator extends WidgetConfigurator
     {
@@ -70,10 +68,10 @@ public class ProgressBarWidget extends VisibleWidget
                 throws Exception
         {
             //Legacy tank widget was always vertical; needs horizontal=false
-            if (XMLUtil.getChildElement(xml, displayHorizontal.getName()) == null)
+            if (xml_version.getMajor() < 2 && XMLUtil.getChildElement(xml, propHorizontal.getName()) == null)
             {
                 final Document doc = xml.getOwnerDocument();
-                final Element new_el = doc.createElement(displayHorizontal.getName());
+                final Element new_el = doc.createElement(propHorizontal.getName());
                 final Text falze = doc.createTextNode("false");
                 new_el.appendChild(falze);
                 xml.appendChild(new_el);
@@ -90,10 +88,6 @@ public class ProgressBarWidget extends VisibleWidget
     {
         return new ProgressBarConfigurator(persisted_version);
     }
-
-    /** Display 'horizontal': Change whether orientation is horizontal or, if false, vertical */
-    public static final WidgetPropertyDescriptor<Boolean> displayHorizontal =
-        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "horizontal", Messages.Horizontal);
 
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<Boolean> limits_from_pv;
@@ -112,53 +106,53 @@ public class ProgressBarWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(fill_color = displayFillColor.createProperty(this, new WidgetColor(60, 255, 60)));
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
-        properties.add(limits_from_pv = behaviorLimitsFromPV.createProperty(this, true));
-        properties.add(minimum = behaviorMinimum.createProperty(this, 0.0));
-        properties.add(maximum = behaviorMaximum.createProperty(this, 100.0));
-        properties.add(value = runtimeValue.createProperty(this, null));
-        properties.add(horizontal = displayHorizontal.createProperty(this, true));
+        properties.add(pv_name = propPVName.createProperty(this, ""));
+        properties.add(fill_color = propFillColor.createProperty(this, new WidgetColor(60, 255, 60)));
+        properties.add(limits_from_pv = propLimitsFromPV.createProperty(this, true));
+        properties.add(minimum = propMinimum.createProperty(this, 0.0));
+        properties.add(maximum = propMaximum.createProperty(this, 100.0));
+        properties.add(horizontal = propHorizontal.createProperty(this, true));
+        properties.add(value = runtimePropValue.createProperty(this, null));
     }
 
-    /** @return Display 'fill_color' */
-    public WidgetProperty<WidgetColor> displayFillColor()
+    /** @return 'fill_color' property */
+    public WidgetProperty<WidgetColor> propFillColor()
     {
         return fill_color;
     }
 
-    /** @return Behavior 'pv_name' */
-    public WidgetProperty<String> behaviorPVName()
+    /** @return 'pv_name' property */
+    public WidgetProperty<String> propPVName()
     {
         return pv_name;
     }
 
-    /** @return Behavior 'limits_from_pv' */
-    public WidgetProperty<Boolean> behaviorLimitsFromPV()
+    /** @return 'limits_from_pv' property */
+    public WidgetProperty<Boolean> propLimitsFromPV()
     {
         return limits_from_pv;
     }
 
-    /** @return Behavior 'minimum' */
-    public WidgetProperty<Double> behaviorMinimum()
+    /** @return 'minimum' property */
+    public WidgetProperty<Double> propMinimum()
     {
         return minimum;
     }
 
-    /** @return Behavior 'maximum' */
-    public WidgetProperty<Double> behaviorMaximum()
+    /** @return 'maximum' property */
+    public WidgetProperty<Double> propMaximum()
     {
         return maximum;
     }
 
-    /** @return Runtime 'value' */
-    public WidgetProperty<VType> runtimeValue()
+    /** @return Runtime 'value' property */
+    public WidgetProperty<VType> runtimePropValue()
     {
         return value;
     }
 
-    /** @return 'horizontal' */
-    public WidgetProperty<Boolean> displayHorizontal()
+    /** @return 'horizontal' property */
+    public WidgetProperty<Boolean> propHorizontal()
     {
         return horizontal;
     }

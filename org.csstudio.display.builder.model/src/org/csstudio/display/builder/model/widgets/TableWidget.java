@@ -7,23 +7,24 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newRuntimeValue;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
-import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.displayToolbar;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidth;
+import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.Messages;
@@ -83,30 +84,30 @@ public class TableWidget extends VisibleWidget
     };
 
     /** Structure for column configuration */
-    private static final WidgetPropertyDescriptor<Boolean> behaviorEditable =
+    private static final WidgetPropertyDescriptor<Boolean> propEditable =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "editable", "Editable");
 
     private static final WidgetPropertyDescriptor<String> columnOption =
             newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "option", "Option");
 
-    private static final ArrayWidgetProperty.Descriptor<WidgetProperty<String>> columnOptions =
+    private static final ArrayWidgetProperty.Descriptor<WidgetProperty<String>> propOptions =
         new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.DISPLAY, "options", "Options",
                                              (widget, index) ->
                                              columnOption.createProperty(widget, "Option " + (index + 1)),
                                              /* minimum size */ 0);
 
-    private static final StructuredWidgetProperty.Descriptor displayColumn =
+    private static final StructuredWidgetProperty.Descriptor propColumn =
         new Descriptor(WidgetPropertyCategory.DISPLAY, "column", "Column");
 
     public static class ColumnProperty extends StructuredWidgetProperty
     {
         public ColumnProperty(final Widget widget, final String name)
         {
-            super(displayColumn, widget,
-                  Arrays.asList(widgetName.createProperty(widget, name),
-                                positionWidth.createProperty(widget, 50),
-                                behaviorEditable.createProperty(widget, true),
-                                columnOptions.createProperty(widget, Collections.emptyList())));
+            super(propColumn, widget,
+                  Arrays.asList(propName.createProperty(widget, name),
+                                propWidth.createProperty(widget, 50),
+                                propEditable.createProperty(widget, true),
+                                propOptions.createProperty(widget, Collections.emptyList())));
         }
 
         public WidgetProperty<String> name()                          { return getElement(0); }
@@ -118,7 +119,7 @@ public class TableWidget extends VisibleWidget
     };
 
     /** 'columns' array */
-    public static final ArrayWidgetProperty.Descriptor<ColumnProperty> displayColumns =
+    public static final ArrayWidgetProperty.Descriptor<ColumnProperty> propColumns =
         new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.DISPLAY, "columns", "Columns",
                                              (widget, index) ->
                                              new ColumnProperty(widget, "Column " + (index + 1)));
@@ -150,11 +151,11 @@ public class TableWidget extends VisibleWidget
         };
 
     /** PV for runtime info about selection */
-    private static final WidgetPropertyDescriptor<String> selectionPV =
+    private static final WidgetPropertyDescriptor<String> propSelectionPV =
         newStringPropertyDescriptor(WidgetPropertyCategory.MISC, "selection_pv", Messages.WidgetProperties_SelectionPV);
 
     /** Runtime info about selection */
-    private static final WidgetPropertyDescriptor<VType> selectionInfo =
+    private static final WidgetPropertyDescriptor<VType> runtimePropSelectionInfo =
         newRuntimeValue("selection", Messages.WidgetProperties_Selection);
 
     /** Configurator for legacy XML files */
@@ -193,7 +194,7 @@ public class TableWidget extends VisibleWidget
         if (el == null)
             return;
         int col = -1;
-        final ArrayWidgetProperty<ColumnProperty> columns = widget.displayColumns();
+        final ArrayWidgetProperty<ColumnProperty> columns = widget.propColumns();
         for (Element row : XMLUtil.getChildElements(el, "row"))
         {
             ++col;
@@ -249,17 +250,17 @@ public class TableWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(displayBorderAlarmSensitive.createProperty(this, true));
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
-        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        properties.add(show_toolbar = displayToolbar.createProperty(this,false));
-        properties.add(columns = displayColumns.createProperty(this, Arrays.asList(  new ColumnProperty(this, "Column 1") )));
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
+        properties.add(propBorderAlarmSensitive.createProperty(this, true));
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(show_toolbar = propToolbar.createProperty(this,false));
+        properties.add(columns = propColumns.createProperty(this, Arrays.asList(  new ColumnProperty(this, "Column 1") )));
+        properties.add(pv_name = propPVName.createProperty(this, ""));
         properties.add(value = runtimeValue.createProperty(this, null));
-        properties.add(editable = behaviorEditable.createProperty(this, true));
-        properties.add(selection_pv = selectionPV.createProperty(this, ""));
-        properties.add(selection = selectionInfo.createProperty(this, null));
+        properties.add(editable = propEditable.createProperty(this, true));
+        properties.add(selection_pv = propSelectionPV.createProperty(this, ""));
+        properties.add(selection = runtimePropSelectionInfo.createProperty(this, null));
     }
 
     @Override
@@ -268,34 +269,56 @@ public class TableWidget extends VisibleWidget
         return new CustomConfigurator(persisted_version);
     }
 
-    /** @return Display 'background_color' */
-    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    /** @return 'background_color' property */
+    public WidgetProperty<WidgetColor> propBackgroundColor()
     {
         return background;
     }
 
-    /** @return Display 'foreground_color' */
-    public WidgetProperty<WidgetColor> displayForegroundColor()
+    /** @return 'foreground_color' property */
+    public WidgetProperty<WidgetColor> propForegroundColor()
     {
         return foreground;
     }
 
-    /** @return Display 'font' */
-    public WidgetProperty<WidgetFont> displayFont()
+    /** @return 'font' property */
+    public WidgetProperty<WidgetFont> propFont()
     {
         return font;
     }
 
-    /** @return Display 'show_toolbar' */
-    public WidgetProperty<Boolean> displayToolbar()
+    /** @return 'show_toolbar' property */
+    public WidgetProperty<Boolean> propToolbar()
     {
         return show_toolbar;
     }
 
-    /** @return Display 'columns' */
-    public ArrayWidgetProperty<ColumnProperty> displayColumns()
+    /** @return 'columns' property */
+    public ArrayWidgetProperty<ColumnProperty> propColumns()
     {
         return columns;
+    }
+
+    /** @return Column headers */
+    public List<String> getHeaders()
+    {
+        return columns.getValue().stream()
+                                 .map(col -> col.name().getValue())
+                                 .collect(Collectors.toList());
+    }
+
+    /** Define columns based on column names
+     *
+     *  <p>Clears the table, i.e. sets value to empty data.
+     *
+     *  @param headers Names of the columns
+     */
+    public void setHeaders(final List<String> headers)
+    {
+        setValue(Collections.emptyList());
+        columns.setValue(headers.stream()
+                                .map(header -> new ColumnProperty(this, header))
+                                .collect(Collectors.toList()));
     }
 
     /** Get options for a column's values
@@ -340,14 +363,14 @@ public class TableWidget extends VisibleWidget
             options_prop.getElement(i).setValue(Objects.toString(options.get(i)));
     }
 
-    /** @return Behavior 'pv_name' */
-    public WidgetProperty<String> behaviorPVName()
+    /** @return 'pv_name' property */
+    public WidgetProperty<String> propPVName()
     {
         return pv_name;
     }
 
-    /** @return Runtime 'value' */
-    public WidgetProperty<Object> runtimeValue()
+    /** @return Runtime 'value' property */
+    public WidgetProperty<Object> runtimePropValue()
     {
         return value;
     }
@@ -423,20 +446,20 @@ public class TableWidget extends VisibleWidget
             return Arrays.asList(Arrays.asList(Objects.toString(the_value)));
     }
 
-    /** @return Behavior 'editable' */
-    public WidgetProperty<Boolean> behaviorEditable()
+    /** @return 'editable' property */
+    public WidgetProperty<Boolean> propEditable()
     {
         return editable;
     }
 
     /** @return Misc. 'selection_pv' */
-    public WidgetProperty<String> miscSelectionPV()
+    public WidgetProperty<String> propSelectionPV()
     {
         return selection_pv;
     }
 
-    /** @return Runtime 'selection' */
-    public WidgetProperty<VType> runtimeSelection()
+    /** @return Runtime 'selection' property */
+    public WidgetProperty<VType> runtimePropSelection()
     {
         return selection;
     }

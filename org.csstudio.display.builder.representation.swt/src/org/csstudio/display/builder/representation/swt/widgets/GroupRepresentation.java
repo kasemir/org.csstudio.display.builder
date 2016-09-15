@@ -38,9 +38,9 @@ public class GroupRepresentation extends SWTBaseRepresentation<Group, GroupWidge
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.widgetName().addUntypedPropertyListener(this::borderChanged);
-        model_widget.positionWidth().addUntypedPropertyListener(this::borderChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::borderChanged);
+        model_widget.propName().addUntypedPropertyListener(this::borderChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::borderChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::borderChanged);
     }
 
     private void borderChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -55,7 +55,7 @@ public class GroupRepresentation extends SWTBaseRepresentation<Group, GroupWidge
         super.updateChanges();
         if (dirty_border.checkAndClear())
         {
-            control.setText(model_widget.widgetName().getValue());
+            control.setText(model_widget.propName().getValue());
         }
     }
 }

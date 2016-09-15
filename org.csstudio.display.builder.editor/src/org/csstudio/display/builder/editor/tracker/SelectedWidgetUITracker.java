@@ -29,6 +29,7 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.Tracker;
 
@@ -62,6 +63,8 @@ public class SelectedWidgetUITracker extends Tracker
 
     /** Inline editor for widget's PV name or text */
     private TextField inline_editor = null;
+    /** Autocomplete menu for PV name inline editor */
+    private final AutocompleteMenu autocomplete_menu = new AutocompleteMenu();
 
     /** Widgets to track */
     private List<Widget> widgets = Collections.emptyList();
@@ -202,9 +205,9 @@ public class SelectedWidgetUITracker extends Tracker
     private void createInlineEditor(final Widget widget)
     {
         // Check for an inline-editable property
-        Optional<WidgetProperty<String>> check = widget.checkProperty(CommonWidgetProperties.behaviorPVName);
+        Optional<WidgetProperty<String>> check = widget.checkProperty(CommonWidgetProperties.propPVName);
         if (! check.isPresent())
-            check = widget.checkProperty(CommonWidgetProperties.displayText);
+            check = widget.checkProperty(CommonWidgetProperties.propText);
         if (! check.isPresent())
             return;
 
@@ -216,6 +219,10 @@ public class SelectedWidgetUITracker extends Tracker
         inline_editor.relocate(tracker.getX(), tracker.getY());
         inline_editor.resize(Math.max(100, tracker.getWidth()), Math.max(20, tracker.getHeight()));
         getChildren().add(inline_editor);
+
+        //add autocomplete menu if editing property PVName
+        if (property.getName().equals(CommonWidgetProperties.propPVName.getName()))
+            autocomplete_menu.attachField(inline_editor);
 
         // On enter, update the property. On Escape, just close
         inline_editor.setOnKeyPressed(event ->
@@ -242,10 +249,16 @@ public class SelectedWidgetUITracker extends Tracker
         inline_editor.requestFocus();
     }
 
+    public AutocompleteMenu getAutocompleteMenu()
+    {
+        return autocomplete_menu;
+    }
+
     private void closeInlineEditor()
     {
         getChildren().remove(inline_editor);
         inline_editor = null;
+        autocomplete_menu.removeField(inline_editor);
     }
 
     /** Tracker is in front of the widgets that it handles,
@@ -308,8 +321,8 @@ public class SelectedWidgetUITracker extends Tracker
 
                 if (orig_parent_children == parent_children)
                 {   // Slightly faster since parent stays the same
-                    widget.positionX().setValue((int) (orig.getMinX() + dx));
-                    widget.positionY().setValue((int) (orig.getMinY() + dy));
+                    widget.propX().setValue((int) (orig.getMinX() + dx));
+                    widget.propY().setValue((int) (orig.getMinY() + dy));
                 }
                 else
                 {   // Update to new parent
@@ -322,11 +335,11 @@ public class SelectedWidgetUITracker extends Tracker
                                new Object[] { widget, orig_parent_children.getWidget(), old_offset,
                                                       parent_children.getWidget(), new_offset});
                     // Account for old and new display offset
-                    widget.positionX().setValue((int) (orig.getMinX() + dx + old_offset.getX() - new_offset.getX()));
-                    widget.positionY().setValue((int) (orig.getMinY() + dy + old_offset.getY() - new_offset.getY()));
+                    widget.propX().setValue((int) (orig.getMinX() + dx + old_offset.getX() - new_offset.getX()));
+                    widget.propY().setValue((int) (orig.getMinY() + dy + old_offset.getY() - new_offset.getY()));
                 }
-                widget.positionWidth().setValue((int) Math.max(1, orig.getWidth() + dw));
-                widget.positionHeight().setValue((int) Math.max(1, orig.getHeight() + dh));
+                widget.propWidth().setValue((int) Math.max(1, orig.getWidth() + dw));
+                widget.propHeight().setValue((int) Math.max(1, orig.getHeight() + dh));
 
                 undo.add(new UpdateWidgetLocationAction(widget,
                                                         orig_parent_children,
@@ -409,10 +422,10 @@ public class SelectedWidgetUITracker extends Tracker
     {
         for (final Widget widget : widgets)
         {
-            widget.positionX().addPropertyListener(position_listener);
-            widget.positionY().addPropertyListener(position_listener);
-            widget.positionWidth().addPropertyListener(position_listener);
-            widget.positionHeight().addPropertyListener(position_listener);
+            widget.propX().addPropertyListener(position_listener);
+            widget.propY().addPropertyListener(position_listener);
+            widget.propWidth().addPropertyListener(position_listener);
+            widget.propHeight().addPropertyListener(position_listener);
         }
     }
 
@@ -420,10 +433,10 @@ public class SelectedWidgetUITracker extends Tracker
     {
         for (final Widget widget : widgets)
         {
-            widget.positionX().removePropertyListener(position_listener);
-            widget.positionY().removePropertyListener(position_listener);
-            widget.positionWidth().removePropertyListener(position_listener);
-            widget.positionHeight().removePropertyListener(position_listener);
+            widget.propX().removePropertyListener(position_listener);
+            widget.propY().removePropertyListener(position_listener);
+            widget.propWidth().removePropertyListener(position_listener);
+            widget.propHeight().removePropertyListener(position_listener);
         }
     }
 }

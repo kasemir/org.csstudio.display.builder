@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="1.0.0">
+  <name>template</name>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <width>281</width>
+    <height>31</height>
+    <text>Master Display</text>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>Group1</name>
+    <x>10</x>
+    <y>31</y>
+    <width>150</width>
+    <height>200</height>
+    <widget type="label" version="2.0.0">
+      <name>Label_2</name>
+      <x>14</x>
+      <y>23</y>
+      <height>40</height>
+      <text>Value of
+&lt;$(pv_name)&gt;</text>
+    </widget>
+    <widget type="textupdate" version="2.0.0">
+      <name>Text Update</name>
+      <x>14</x>
+      <y>63</y>
+      <pv_name>$(pv_name)</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>Group</name>
+    <x>230</x>
+    <y>31</y>
+    <width>160</width>
+    <height>200</height>
+    <widget type="label" version="2.0.0">
+      <name>Label_3</name>
+      <x>14</x>
+      <y>23</y>
+      <height>40</height>
+      <text>Value of
+&lt;$(pv_name)&gt;</text>
+    </widget>
+    <widget type="progressbar" version="2.0.0">
+      <name>Progress Bar</name>
+      <x>14</x>
+      <y>63</y>
+      <pv_name>$(pv_name)</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>$(groupname)</name>
+    <x>230</x>
+    <y>31</y>
+    <width>160</width>
+    <height>200</height>
+    <widget type="label" version="2.0.0">
+      <name>Label_3</name>
+      <x>14</x>
+      <y>23</y>
+      <height>40</height>
+      <text>Value of
+&lt;$(pv_name)&gt;</text>
+    </widget>
+    <widget type="progressbar" version="2.0.0">
+      <name>Progress Bar</name>
+      <x>14</x>
+      <y>63</y>
+      <pv_name>$(pv_name)</pv_name>
+    </widget>
+  </widget>
+  <widget type="group" version="2.0.0">
+    <name>Group2</name>
+    <x>10</x>
+    <y>231</y>
+    <width>150</width>
+    <height>200</height>
+    <style>3</style>
+    <widget type="label" version="2.0.0">
+      <name>Label_5</name>
+      <x>14</x>
+      <y>63</y>
+      <text>Hi!</text>
+    </widget>
+  </widget>
+</display>

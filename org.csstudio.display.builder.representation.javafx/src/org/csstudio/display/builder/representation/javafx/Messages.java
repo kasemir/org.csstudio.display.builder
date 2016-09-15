@@ -63,6 +63,9 @@ public class Messages extends NLS
     public static String MacrosTable_ValueHint;
     public static String MoveDown;
     public static String MoveUp;
+    public static String Password;
+    public static String Password_Error;
+    public static String Password_Prompt;
     public static String PointsDialog_Info;
     public static String PointsDialog_Title;
     public static String PointsTable_Empty;
@@ -105,6 +108,7 @@ public class Messages extends NLS
     public static String WidgetInfoDialog_Info_Fmt;
     public static String WidgetInfoDialog_Name;
     public static String WidgetInfoDialog_Property;
+    public static String WidgetInfoDialog_State;
     public static String WidgetInfoDialog_TabMacros;
     public static String WidgetInfoDialog_TabProperties;
     public static String WidgetInfoDialog_TabPVs;

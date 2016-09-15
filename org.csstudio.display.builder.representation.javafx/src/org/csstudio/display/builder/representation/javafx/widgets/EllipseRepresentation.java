@@ -38,16 +38,16 @@ public class EllipseRepresentation extends JFXBaseRepresentation<Ellipse, Ellips
     {
         // JFX Ellipse is based on center, not top-left corner,
         // so can't use the default from super.registerListeners();
-        model_widget.positionVisible().addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionX().addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionY().addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionWidth().addUntypedPropertyListener(this::positionChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::positionChanged);
+        model_widget.propVisible().addUntypedPropertyListener(this::positionChanged);
+        model_widget.propX().addUntypedPropertyListener(this::positionChanged);
+        model_widget.propY().addUntypedPropertyListener(this::positionChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::positionChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::positionChanged);
 
-        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.displayTransparent().addUntypedPropertyListener(this::lookChanged);
-        model_widget.displayLineColor().addUntypedPropertyListener(this::lookChanged);
-        model_widget.displayLineWidth().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propTransparent().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propLineColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propLineWidth().addUntypedPropertyListener(this::lookChanged);
     }
 
     private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -65,10 +65,10 @@ public class EllipseRepresentation extends JFXBaseRepresentation<Ellipse, Ellips
 
     private void updateColors()
     {
-        background = model_widget.displayTransparent().getValue()
+        background = model_widget.propTransparent().getValue()
                    ? Color.TRANSPARENT
-                   : JFXUtil.convert(model_widget.displayBackgroundColor().getValue());
-        line_color = JFXUtil.convert(model_widget.displayLineColor().getValue());
+                   : JFXUtil.convert(model_widget.propBackgroundColor().getValue());
+        line_color = JFXUtil.convert(model_widget.propLineColor().getValue());
     }
 
     @Override
@@ -77,13 +77,13 @@ public class EllipseRepresentation extends JFXBaseRepresentation<Ellipse, Ellips
         // Not using default handling of X/Y super.updateChanges();
         if (dirty_position.checkAndClear())
         {
-            if (model_widget.positionVisible().getValue())
+            if (model_widget.propVisible().getValue())
             {
                 jfx_node.setVisible(true);
-                final int x = model_widget.positionX().getValue();
-                final int y = model_widget.positionY().getValue();
-                final int w = model_widget.positionWidth().getValue();
-                final int h = model_widget.positionHeight().getValue();
+                final int x = model_widget.propX().getValue();
+                final int y = model_widget.propY().getValue();
+                final int w = model_widget.propWidth().getValue();
+                final int h = model_widget.propHeight().getValue();
                 jfx_node.setCenterX(x + w/2);
                 jfx_node.setCenterY(y + h/2);
                 jfx_node.setRadiusX(w/2);
@@ -96,7 +96,7 @@ public class EllipseRepresentation extends JFXBaseRepresentation<Ellipse, Ellips
         {
             jfx_node.setFill(background);
             jfx_node.setStroke(line_color);
-            jfx_node.setStrokeWidth(model_widget.displayLineWidth().getValue());
+            jfx_node.setStrokeWidth(model_widget.propLineWidth().getValue());
             jfx_node.setStrokeType(StrokeType.INSIDE);
         }
     }

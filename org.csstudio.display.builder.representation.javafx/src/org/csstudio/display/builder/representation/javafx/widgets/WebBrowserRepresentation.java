@@ -9,14 +9,13 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import java.io.InputStream;
 
-import javafx.collections.ListChangeListener;
-
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.util.ResourceUtil;
 
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -75,7 +74,7 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         //--protected methods
         protected void goToURL(String url)
         {
-            if (!url.startsWith("http://"))
+            if (!url.startsWith("http://") && !url.startsWith("https://"))
                 if (url.equals(""))
                     url = "about:blank";
                 else
@@ -251,33 +250,36 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
     @Override
     public Region createJFXNode() throws Exception
     {
-        boolean toolbar = model_widget.displayShowToolbar().getValue();
-        Region browser = toolbar ?
-                        new BrowserWithToolbar(model_widget.widgetURL().getValue()) :
-                        new Browser(model_widget.widgetURL().getValue());
+        boolean toolbar = model_widget.propShowToolbar().getValue();
         if (toolkit.isEditMode())
         {
+            BrowserWithToolbar browser = new BrowserWithToolbar(model_widget.propWidgetURL().getValue())
+            {
+                @Override
+                protected void goToURL(String url)
+                {
+                } //prevent navigation while editing position/properties/etc
+            };
             browser.setOnMousePressed((event) ->
             {
                 event.consume();
                 toolkit.fireClick(model_widget, event.isControlDown());
             });
-            if (toolbar)
-            {
-                ((BrowserWithToolbar)browser).disableToolbar();
-            }
+            browser.disableToolbar();
+            return browser;
         }
-        return browser;
+        return toolbar ? new BrowserWithToolbar(model_widget.propWidgetURL().getValue())
+                : new Browser(model_widget.propWidgetURL().getValue());
     }
 
     @Override
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
         if (!toolkit.isEditMode())
-            model_widget.widgetURL().addPropertyListener(this::urlChanged);
+            model_widget.propWidgetURL().addPropertyListener(this::urlChanged);
         //the showToolbar property cannot be changed at runtime
    }
 
@@ -299,13 +301,13 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         super.updateChanges();
         if (dirty_size.checkAndClear())
         {
-            width = model_widget.positionWidth().getValue();
-            height = model_widget.positionHeight().getValue();
+            width = model_widget.propWidth().getValue();
+            height = model_widget.propHeight().getValue();
             jfx_node.requestLayout();
         }
         if (dirty_url.checkAndClear())
         {
-            ((Browser)jfx_node).goToURL(model_widget.widgetURL().getValue());
+            ((Browser)jfx_node).goToURL(model_widget.propWidgetURL().getValue());
         }
     }
 }

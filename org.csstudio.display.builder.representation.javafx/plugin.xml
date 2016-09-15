@@ -4,12 +4,16 @@
    <extension
          point="org.csstudio.display.builder.representation.widgets">
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.ActionButtonRepresentation"
+            type="action_button">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.ArcRepresentation"
             type="arc">
       </representation>
       <representation
-            class="org.csstudio.display.builder.representation.javafx.widgets.ActionButtonRepresentation"
-            type="action_button">
+            class="org.csstudio.display.builder.representation.javafx.widgets.ArrayRepresentation"
+            type="array">
       </representation>
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.BoolButtonRepresentation"
@@ -64,6 +68,10 @@
             type="progressbar">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.RadioRepresentation"
+            type="radio">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.RectangleRepresentation"
             type="rectangle">
       </representation>
@@ -86,6 +94,10 @@
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepresentation"
             type="textupdate">
+      </representation>
+      <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.ThermometerRepresentation"
+            type="thermometer">
       </representation>
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation"

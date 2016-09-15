@@ -7,12 +7,16 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets.plots;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.displayToolbar;
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.Messages;
@@ -42,6 +46,9 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class XYPlotWidget extends VisibleWidget
 {
+    /** Matcher for detecting legacy property names */
+    private static final Pattern LEGACY_AXIS_PATTERN = Pattern.compile("axis_([0-9]+)_([a-z_]+)");
+
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("xyplot", WidgetCategory.PLOT,
@@ -251,60 +258,82 @@ public class XYPlotWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        properties.add(title = PlotWidgetProperties.displayTitle.createProperty(this, ""));
-        properties.add(title_font = PlotWidgetProperties.titleFontProperty.createProperty(this, NamedWidgetFonts.HEADER2));
-        properties.add(show_toolbar = displayToolbar.createProperty(this,false));
-        properties.add(show_legend = PlotWidgetProperties.displayLegend.createProperty(this, true));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
+        properties.add(title = PlotWidgetProperties.propTitle.createProperty(this, ""));
+        properties.add(title_font = PlotWidgetProperties.propTitleFont.createProperty(this, NamedWidgetFonts.HEADER2));
+        properties.add(show_toolbar = propToolbar.createProperty(this,false));
+        properties.add(show_legend = PlotWidgetProperties.propLegend.createProperty(this, true));
         properties.add(x_axis = AxisWidgetProperty.create(this, Messages.PlotWidget_X));
-        properties.add(y_axes = PlotWidgetProperties.behaviorYAxes.createProperty(this, Arrays.asList(YAxisWidgetProperty.create(this, Messages.PlotWidget_Y))));
-        properties.add(traces = PlotWidgetProperties.behaviorTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this))));
+        properties.add(y_axes = PlotWidgetProperties.propYAxes.createProperty(this, Arrays.asList(YAxisWidgetProperty.create(this, Messages.PlotWidget_Y))));
+        properties.add(traces = PlotWidgetProperties.propTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this))));
     }
 
-    /** @return Display 'background_color' */
-    public WidgetProperty<WidgetColor> displayBackground()
+    @Override
+    public WidgetProperty<?> getProperty(final String name)
+    {
+        // Translate legacy property names:
+        // 'axis_1_log_scale', 'axis_1_minimum', '..maximum', '.._axis_title', '.._auto_scale'
+        final Matcher matcher = LEGACY_AXIS_PATTERN.matcher(name);
+        if (matcher.matches())
+        {
+            final int index = Integer.parseInt(matcher.group(1));
+            // Check for index 0 (x_axis.*) or 1.. (y_axes[0].*)
+            final String axis = (index == 0)
+                ? "x_axis."
+                : "y_axes[" + (index-1) + "].";
+            final String new_name = axis + matcher.group(2)
+                                                  .replace("axis_title", "title")
+                                                  .replace("auto_scale", "autoscale");
+            logger.log(Level.WARNING, "Deprecated access to " + this + " property '" + name + "'. Use '" + new_name + "'");
+            return getProperty(new_name);
+        }
+        return super.getProperty(name);
+    }
+
+    /** @return 'background_color' property */
+    public WidgetProperty<WidgetColor> propBackground()
     {
         return background;
     }
 
-    /** @return Display 'title' */
-    public WidgetProperty<String> displayTitle()
+    /** @return 'title' property */
+    public WidgetProperty<String> propTitle()
     {
         return title;
     }
 
-    /** @return Display 'title_font' */
-    public WidgetProperty<WidgetFont> displayTitleFont()
+    /** @return 'title_font' property */
+    public WidgetProperty<WidgetFont> propTitleFont()
     {
         return title_font;
     }
 
-    /** @return Display 'show_toolbar' */
-    public WidgetProperty<Boolean> displayToolbar()
+    /** @return 'show_toolbar' property */
+    public WidgetProperty<Boolean> propToolbar()
     {
         return show_toolbar;
     }
 
-    /** @return Display 'show_legend' */
-    public WidgetProperty<Boolean> displayLegend()
+    /** @return 'show_legend' property */
+    public WidgetProperty<Boolean> propLegend()
     {
         return show_legend;
     }
 
-    /** @return Behavior 'x_axis' */
-    public AxisWidgetProperty behaviorXAxis()
+    /** @return 'x_axis' property */
+    public AxisWidgetProperty propXAxis()
     {
         return x_axis;
     }
 
-    /** @return Behavior 'y_axes' */
-    public ArrayWidgetProperty<YAxisWidgetProperty> behaviorYAxes()
+    /** @return 'y_axes' property */
+    public ArrayWidgetProperty<YAxisWidgetProperty> propYAxes()
     {
         return y_axes;
     }
 
-    /** @return Behavior 'traces' */
-    public ArrayWidgetProperty<TraceWidgetProperty> behaviorTraces()
+    /** @return 'traces' property */
+    public ArrayWidgetProperty<TraceWidgetProperty> propTraces()
     {
         return traces;
     }

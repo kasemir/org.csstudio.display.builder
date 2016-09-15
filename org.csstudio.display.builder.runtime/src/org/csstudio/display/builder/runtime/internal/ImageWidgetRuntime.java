@@ -80,7 +80,7 @@ public class ImageWidgetRuntime  extends WidgetRuntime<ImageWidget>
         super.start();
 
         // Connect cursor info PV
-        final String cursor_pv_name = widget.miscCursorInfoPV().getValue();
+        final String cursor_pv_name = widget.propCursorInfoPV().getValue();
         if (! cursor_pv_name.isEmpty())
         {
             logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, cursor_pv_name });
@@ -88,7 +88,7 @@ public class ImageWidgetRuntime  extends WidgetRuntime<ImageWidget>
             {
                 final RuntimePV pv = PVFactory.getPV(cursor_pv_name);
                 addPV(pv);
-                widget.runtimeCursorInfo().addPropertyListener(cursor_listener);
+                widget.runtimePropCursorInfo().addPropertyListener(cursor_listener);
                 cursor_pv = pv;
             }
             catch (Exception ex)
@@ -98,7 +98,7 @@ public class ImageWidgetRuntime  extends WidgetRuntime<ImageWidget>
         }
 
         // Connect ROI PVs
-        for (ROIWidgetProperty roi : widget.miscROIs().getValue())
+        for (ROIWidgetProperty roi : widget.propROIs().getValue())
         {
             bindROI(roi.x_pv(), roi.x_value());
             bindROI(roi.y_pv(), roi.y_value());
@@ -188,7 +188,7 @@ public class ImageWidgetRuntime  extends WidgetRuntime<ImageWidget>
         cursor_pv = null;
         if (pv != null)
         {
-            widget.runtimeCursorInfo().removePropertyListener(cursor_listener);
+            widget.runtimePropCursorInfo().removePropertyListener(cursor_listener);
             removePV(pv);
             PVFactory.releasePV(pv);
         }

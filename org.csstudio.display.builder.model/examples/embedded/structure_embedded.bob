@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Display</name>
+  <macros>
+    <groupname>MacroGroupName</groupname>
+  </macros>
   <x>-1</x>
   <y>-1</y>
   <widget type="label" version="2.0.0">
@@ -25,7 +28,6 @@ The container provides scroll bars when the content is too large.
 Alternatively, the content can be resized to match the container,
 or the container can resize to match the content, but these options
 are always a compromise that often results in inconsistent widget sizes.</text>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded</name>
@@ -115,9 +117,8 @@ are always a compromise that often results in inconsistent widget sizes.</text>
     <y>431</y>
     <width>511</width>
     <height>50</height>
-    <text>A typical use case defines for example a macro-based "Motor" display,
+    <text>A typical use case defines, for example, a macro-based "Motor" display,
 then shows several motors via the Embedded Display Widget:</text>
-    <vertical_alignment>0</vertical_alignment>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded Display_1</name>
@@ -147,10 +148,7 @@ then shows several motors via the Embedded Display Widget:</text>
     <height>100</height>
     <text>The content of the embedded display widget,
 i.e. the file to display, can be modified at runtime.
-This example updates the display file name from a script,
-which is meant as a demonstration of the technical functionality
-and not likely to be useful in an operational display.</text>
-    <vertical_alignment>0</vertical_alignment>
+This example updates the display file name from a script.</text>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded Display</name>
@@ -159,8 +157,65 @@ and not likely to be useful in an operational display.</text>
     <height>210</height>
     <scripts>
       <script file="update_display.py">
-        <pv_name>sim://ramp(0, 2, 2)</pv_name>
+        <pv_name>sim://ramp(0, 3, 2)</pv_name>
       </script>
     </scripts>
+  </widget>
+  <widget type="embedded" version="2.0.0">
+    <name>group_name_ex_1</name>
+    <macros>
+      <pv_name>sim://sine</pv_name>
+    </macros>
+    <x>651</x>
+    <y>481</y>
+    <width>160</width>
+    <height>220</height>
+    <file>template.bob</file>
+    <group_name>Group1</group_name>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_5</name>
+    <x>651</x>
+    <y>431</y>
+    <width>511</width>
+    <height>50</height>
+    <text>Another case uses the "group_name" property to show parts of some larger
+template or master display, possibly setting different macros.</text>
+  </widget>
+  <widget type="embedded" version="2.0.0">
+    <name>group_name_ex_2</name>
+    <macros>
+      <pv_name>sim://sine</pv_name>
+    </macros>
+    <x>821</x>
+    <y>481</y>
+    <width>160</width>
+    <height>220</height>
+    <file>template.bob</file>
+    <group_name>Group2</group_name>
+  </widget>
+  <widget type="embedded" version="2.0.0">
+    <name>group_name_ex_3</name>
+    <macros>
+      <pv_name>sim://ramp(1,5,.5)</pv_name>
+    </macros>
+    <x>981</x>
+    <y>481</y>
+    <width>160</width>
+    <height>220</height>
+    <file>template.bob</file>
+    <group_name>Group1</group_name>
+  </widget>
+  <widget type="embedded" version="2.0.0">
+    <name>group_name_ex_4</name>
+    <macros>
+      <pv_name>sim://ramp(1,5,.5)</pv_name>
+    </macros>
+    <x>651</x>
+    <y>701</y>
+    <width>170</width>
+    <height>220</height>
+    <file>template.bob</file>
+    <group_name>$(groupname)</group_name>
   </widget>
 </display>

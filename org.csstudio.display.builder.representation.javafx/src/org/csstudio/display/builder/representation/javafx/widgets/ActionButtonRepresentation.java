@@ -103,7 +103,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
      */
     private ButtonBase makeBaseButton()
     {
-        final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
+        final List<ActionInfo> actions = model_widget.propActions().getValue();
         final ButtonBase result;
         if (actions.size() < 2)
         {
@@ -154,10 +154,10 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         // a) That way we can format it beyond just "[ action1, action2, ..]"
         // b) Macro won't be re-evaluated as actions change,
         //    while this code will always use current actions
-        final StringWidgetProperty text_prop = (StringWidgetProperty)model_widget.displayText();
+        final StringWidgetProperty text_prop = (StringWidgetProperty)model_widget.propText();
         if ("$(actions)".equals(text_prop.getSpecification()))
         {
-            final List<ActionInfo> actions = model_widget.behaviorActions().getValue();
+            final List<ActionInfo> actions = model_widget.propActions().getValue();
             if (actions.size() < 1)
                 return Messages.ActionButton_NoActions;
             if (actions.size() > 1)
@@ -204,15 +204,26 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
     {
         updateColors();
         super.registerListeners();
-        model_widget.positionWidth().addUntypedPropertyListener(this::representationChanged);
-        model_widget.positionHeight().addUntypedPropertyListener(this::representationChanged);
-        model_widget.displayText().addUntypedPropertyListener(this::representationChanged);
-        model_widget.displayFont().addUntypedPropertyListener(this::representationChanged);
-        model_widget.displayBackgroundColor().addUntypedPropertyListener(this::buttonChanged);
-        model_widget.displayForegroundColor().addUntypedPropertyListener(this::buttonChanged);
-        model_widget.behaviorActions().addUntypedPropertyListener(this::buttonChanged);
+
+        model_widget.propWidth().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propText().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propEnabled().addUntypedPropertyListener(this::representationChanged);
+
+        model_widget.propBackgroundColor().addUntypedPropertyListener(this::buttonChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::buttonChanged);
+        model_widget.propActions().addUntypedPropertyListener(this::buttonChanged);
     }
 
+    /** Complete button needs to be updated */
+    private void buttonChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        dirty_actionls.mark();
+        representationChanged(property, old_value, new_value);
+    }
+
+    /** Only details of the existing button need to be updated */
     private void representationChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         updateColors();
@@ -220,22 +231,16 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         toolkit.scheduleUpdate(this);
     }
 
-    private void buttonChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
-    {
-        dirty_actionls.mark();
-        representationChanged(property, old_value, new_value);
-    }
-
     private void updateColors()
     {
-        text_fill = "-fx-text-fill: " + JFXUtil.webRGB(model_widget.displayForegroundColor().getValue()) + ";";
+        text_fill = "-fx-text-fill: " + JFXUtil.webRGB(model_widget.propForegroundColor().getValue()) + ";";
 
-        foreground = JFXUtil.convert(model_widget.displayForegroundColor().getValue());
+        foreground = JFXUtil.convert(model_widget.propForegroundColor().getValue());
 
-        final String bg = JFXUtil.webRGB(model_widget.displayBackgroundColor().getValue());
+        final String bg = JFXUtil.webRGB(model_widget.propBackgroundColor().getValue());
         fx_base = "-fx-base: " + bg + ";";
 
-        background = JFXUtil.shadedStyle(model_widget.displayBackgroundColor().getValue());
+        background = JFXUtil.shadedStyle(model_widget.propBackgroundColor().getValue());
     }
 
     @Override
@@ -252,9 +257,10 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             button_text = makeButtonText();
             base.setText(button_text);
             base.setTextFill(foreground);
-            base.setPrefSize(model_widget.positionWidth().getValue(),
-                             model_widget.positionHeight().getValue());
-            base.setFont(JFXUtil.convert(model_widget.displayFont().getValue()));
+            base.setPrefSize(model_widget.propWidth().getValue(),
+                             model_widget.propHeight().getValue());
+            base.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
+            base.setDisable(! model_widget.propEnabled().getValue());
         }
     }
 }

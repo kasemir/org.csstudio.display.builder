@@ -29,8 +29,17 @@
                type="org.csstudio.opibuilder.widgets.arc">
          </alternates>
       </widget>
-
-
+      <widget
+            category="STRUCTURE"
+            class="org.csstudio.display.builder.model.widgets.ArrayWidget"
+            description="%ArrayWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/array.gif"
+            name="%ArrayWidget_Name"
+            type="array">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.array">
+         </alternates>
+      </widget>
       <widget
             category="CONTROL"
             class="org.csstudio.display.builder.model.widgets.BoolButtonWidget"
@@ -98,6 +107,28 @@
             type="embedded">
          <alternates
                type="org.csstudio.opibuilder.widgets.linkingContainer">
+         </alternates>
+      </widget>
+      <widget
+            category="STRUCTURE"
+            class="org.csstudio.display.builder.model.widgets.GroupWidget"
+            description="%GroupWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/group.png"
+            name="%GroupWidget_Name"
+            type="group">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.groupingContainer">
+         </alternates>
+      </widget>
+      <widget
+            category="PLOT"
+            class="org.csstudio.display.builder.model.widgets.plots.ImageWidget"
+            description="%ImageWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/image.png"
+            name="%ImageWidget_Name"
+            type="image">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.intensityGraph">
          </alternates>
       </widget>
       <widget
@@ -181,6 +212,20 @@
          </alternates>
       </widget>
       <widget
+            category="CONTROL"
+            class="org.csstudio.display.builder.model.widgets.RadioWidget"
+            description="%RadioWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/radiobutton.gif"
+            name="%RadioWidget_Name"
+            type="radio">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.radioBox">
+         </alternates>
+         <alternates
+               type="org.csstudio.opibuilder.widgets.choiceButton">
+         </alternates>
+      </widget>
+      <widget
             category="GRAPHIC"
             class="org.csstudio.display.builder.model.widgets.RectangleWidget"
             description="%RectangleWidget_Description"
@@ -192,17 +237,6 @@
          </alternates>
          <alternates
                type="org.csstudio.opibuilder.widgets.RoundedRectangle">
-         </alternates>
-      </widget>
-      <widget
-            category="STRUCTURE"
-            class="org.csstudio.display.builder.model.widgets.GroupWidget"
-            description="%GroupWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/group.png"
-            name="%GroupWidget_Name"
-            type="group">
-         <alternates
-               type="org.csstudio.opibuilder.widgets.groupingContainer">
          </alternates>
       </widget>
       <widget
@@ -285,6 +319,17 @@
          </alternates>
       </widget>
       <widget
+            category="MONITOR"
+            class="org.csstudio.display.builder.model.widgets.ThermometerWidget"
+            description="%ThermometerWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/Thermo.gif"
+            name="%ThermometerWidgetWidget_Name"
+            type="thermometer">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.thermometer">
+         </alternates>
+      </widget>
+      <widget
             category="MISC"
             class="org.csstudio.display.builder.model.widgets.WebBrowserWidget"
             description="%WebBrowserWidget_Description"
@@ -304,17 +349,6 @@
             type="xyplot">
          <alternates
                type="org.csstudio.opibuilder.widgets.xyGraph">
-         </alternates>
-      </widget>
-      <widget
-            category="MONITOR"
-            class="org.csstudio.display.builder.model.widgets.plots.ImageWidget"
-            description="%ImageWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/image.png"
-            name="%ImageWidget_Name"
-            type="image">
-         <alternates
-               type="org.csstudio.opibuilder.widgets.intensityGraph">
          </alternates>
       </widget>
    </extension>

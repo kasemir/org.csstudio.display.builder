@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
+  <title>Properties</title>
+  <link rel="stylesheet" href="PLUGINS_ROOT/PRODUCT_PLUGIN/book.css" type="text/css"></link>
+</head>
+<body>
+
+<h1>Properties</h1>
+
+<h2>Common Properties</h2>
+<p><img src="images/properties_palette.png" alt="Properties Palette" style="float:right;"/>
+Every widget has properties "x", "y", "width", and "height" that define its position within the display.</p>
+
+<p>Every widget also has a "name" that can be used to identify a widget.</p>
+
+<p>Many widgets have a "foreground_color" or "font", which define characteristics of any text or similar elements.</p>
+
+<h2>Specific Properties</h2>
+<p>Many widgets have some properties that are very specific to the functionality of just that widget, properties that
+are not found in other widgets. The Image Widget, for example, has "Data Height" and "Data Width", which describe the
+number of rows and columns, respectively, to show of the input data.
+</p>
+
+<h2>Property Names</h2>
+<p>In the display editor, the "Properties" panel will show each property with a name like "Text" or "Foreground Color",
+and a user interface for setting the value of that property. For "Text", for example, you can enter the text; and for
+"Foreground Color", you can select the color from a dialog.
+</p>
+
+<p>The property names shown in the editor can be localized, i.e. translated into different languages. Each property
+also has an internal name that is not localized because it uniquely identifies the property in the display and also
+when accessed by <a href="doc/rules.html">Rules</a> or <a href="scripts.html">Scripts</a>.
+</p>
+
+<p>The internal name is typically based on the English property name, but all lowercase with underscores instead of spaces.
+The internal name for "Foreground Color" is "foreground_color".
+</p>
+
+<h2>Array and Structure Properties</h2>
+
+<p>Some widgets contain properties that are arrays and/or structures.
+For example, the Multi-State LED has a "states" property that is an array.
+The elements of the array are in turn structures with a "value" and a "color".
+For access from Rules or Scripts these properties can be accessed via names (for structured
+properties) and indices (for array properties); for example:
+<pre>states[0].value</pre>
+<pre>states[1].color</pre>
+</p>
+
+</body>
+</html>

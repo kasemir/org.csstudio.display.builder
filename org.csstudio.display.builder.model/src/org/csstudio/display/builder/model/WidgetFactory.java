@@ -24,6 +24,7 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.ArcWidget;
+import org.csstudio.display.builder.model.widgets.ArrayWidget;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
 import org.csstudio.display.builder.model.widgets.ByteMonitorWidget;
 import org.csstudio.display.builder.model.widgets.CheckBoxWidget;
@@ -38,6 +39,7 @@ import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.PolygonWidget;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
+import org.csstudio.display.builder.model.widgets.RadioWidget;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
 import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
@@ -46,6 +48,7 @@ import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
+import org.csstudio.display.builder.model.widgets.ThermometerWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
@@ -111,6 +114,7 @@ public class WidgetFactory
     {
         addWidgetType(ActionButtonWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ArcWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(ArrayWidget.WIDGET_DESCRIPTOR);
         addWidgetType(BoolButtonWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ByteMonitorWidget.WIDGET_DESCRIPTOR);
         addWidgetType(CheckBoxWidget.WIDGET_DESCRIPTOR);
@@ -126,6 +130,7 @@ public class WidgetFactory
         addWidgetType(PolygonWidget.WIDGET_DESCRIPTOR);
         addWidgetType(PolylineWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ProgressBarWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(RadioWidget.WIDGET_DESCRIPTOR);
         addWidgetType(RectangleWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ScaledSliderWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ScrollBarWidget.WIDGET_DESCRIPTOR);
@@ -134,6 +139,7 @@ public class WidgetFactory
         addWidgetType(TabsWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextEntryWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextUpdateWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(ThermometerWidget.WIDGET_DESCRIPTOR);
         addWidgetType(WebBrowserWidget.WIDGET_DESCRIPTOR);
         addWidgetType(XYPlotWidget.WIDGET_DESCRIPTOR);
     }

@@ -28,7 +28,9 @@ Try Nightly Snapshot
 --------------------
 
 1. Download the 'Basic EPICS' or SNS version of CS-Studio from http://ics-web.sns.ornl.gov/css/nightly
-2. Start css with command-line options `-vmargs -Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi` or assert that these settings are in the css.ini file
+2. Start css with command-line options `-vmargs -Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`. Instead of using the command line option,
+   these settings can also be added to the product's css.ini file (Windows, Linux)
+   or the css.app/Contents/Info.plist (Mac OS X).
 3. Open the menu `Help`, `Install New Software`. Enter `http://ics-web.sns.ornl.gov/css/display.builder`
    as a site, select the display builder for installation, follow the steps in the installation dialog, restart.
 4. Open the menu `CS-Studio`, `Utilities`, `Install Samples` to install the `Display Builder` examples.
@@ -60,7 +62,11 @@ Development Details
    define target that's suitable for CS-Studio development.
    For example, use the current IDE and add a "Directory" pointing to a CSS product's `plugins/` directory.
  * In product start config, add VM options
-   `-Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`
+   `-Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`.
+   If you then get the startup error "ENTRY org.eclipse.osgi .. MESSAGE Bundle org.eclipse.fx.osgi not found",
+   assert that the org.eclipse.osgi and org.eclipse.fx.osgi plugin jar files reside
+   in the same directory
+   (https://www.eclipse.org/forums/index.php/t/757375).
  * Some demos may use PVs from an EPICS `softIoc` for `org.csstudio.display.builder.runtime.test/examples/demo.db`
 
 ### Source Import into IDE
@@ -105,7 +111,23 @@ Registers the Display Builder editor for *.opi and *.bob files.
 Display files can be executed from within the editor,
 or via a `File`, `Top Displays` menu entry configured
 via `org.csstudio.display.builder.rcp/top_displays`.
+
+__Standalone Runtime product:__
+
+ * org.csstudio.display.builder/repository/display_runtime.product
  
+This product executes the display builder runtime as a standalone program.
+The configuration settings (EPICS CA address list, ..) and the initial display file
+to open need to be provided on the command line:
+
+    USAGE: DisplayRuntime [options] /path/to/display.bob
+    Options:
+     -help                                        Display command line options
+     -pluginCustomization /path/to/settings.ini   Macros, Channel Access, .. configuration
+ 
+Note that you may also need to add
+`-vmargs -Dorg.osgi.framework.bundle.parent=ext -Dosgi.framework.extensions=org.eclipse.fx.osgi`
+to the end of the command line.
 
 __Command-line build:__
 
@@ -117,17 +139,23 @@ Allows compilation from command line, for example to automate a nightly build. R
 Code Overview
 -------------
 
-`org.csstudio.display.builder.model`:
+`org.csstudio.display.builder.model`,
 Describes a DisplayModel as a hierarchy of Widgets which each have Properties.
+Can load displays from local file system and "http:.." URLs.
+`examples/` directory holds example displays.
 
 `org.csstudio.display.builder.representation`, 
 `org.csstudio.display.builder.representation.javafx`,
 `org.csstudio.display.builder.representation.swt`:
 Graphical rendering of model on screen, with implementation for Java FX and SWT.
+(SWT implementation is very limited)
 
 `org.csstudio.display.builder.runtime`:
 Connects widgets to process variables, executes scripts, executes actions when
 user presses buttons etc.
+
+`org.csstudio.display.builder.model.rcp`:
+RCP fragment for model adds support for workspace files.
 
 `org.csstudio.display.builder.rcp`:
 Combines model, representation (Java FX) and runtime into RCP 'View'
@@ -149,6 +177,9 @@ Utilities; Generic, Java FX, Plot widget.
 
 `org.csstudio.display.builder.feature`:
 Eclipse feature for all of the above.
+
+`repository` and `build`:
+P2 repository files and Maven/Tycho build support. 
 
 
 Basic widgets can be added by implementing a Model and a Representation,
@@ -183,7 +214,7 @@ Register via extension point.
 To support standalone testing w/o RCP, also add to `WidgetFactory#registerKnownWidgets`.
 
 Major TODOs:
- * Add many more widgets and their properties.
+ * Add more widgets and their properties.
 
 ####  Representation
 
@@ -201,9 +232,8 @@ The representation needs to add listeners to model properties of interest.
 On change, it can prepare the UI update, which is then scheduled via `ToolkitRepresentation.scheduleUpdate()`
 to occur on the UI thread in a throttled manner.
 
-
 Major TODOs:
- * A ton of widgets and their representation.
+ * Mode widgets and their representation.
  
 ####  Runtime
 
@@ -228,7 +258,6 @@ The base `WidgetRuntime` handles the following:
    Similarly, "rules" are converted into scripts and then executed.
 
 Major TODOs:
-
  * None?
  
 ####  Editor
@@ -248,17 +277,13 @@ Major TODOs:
 
 ####  Eclipse Integration
 
-Everything can be tested in form of JUnit tests or 'main' type demos.
+RCP integration uses an SWT FXCanvas to display the JavaFX representation within
+a current version of Eclipse/RCP.
 
-RCP integration uses SWT FXCanvas.
-
-RCP 'View' for the runtime.
-
-RCP 'Editor' for editor.
+An RCP 'View' hosts the display runtime, while an RCP 'Editor' is used for the display editor.
 
 Major TODOs:
-
- * Context menus.
+ * None?
 
 
 Performance: JavaFX vs. SWT
@@ -370,7 +395,7 @@ Similar to BOY, macros can be in the format `$(macro_name)` as well as `${macro_
 
 In contrast to EDM and BOY, macros are simply defined and possibly re-defined in the following order:
 
-  1. TODO Preferences
+  1. Preferences
   2. OpenDisplayAction
   3. EmbeddedWidget
   4. DisplayModel
@@ -380,6 +405,11 @@ While BOY limits macros to string-based properties, more properties now support 
 For example, the numeric 'x' position can be specified as $(POS).
 If the macro does not expand to a valid specification, for example if the macro POS has the value 'eight'
 instead of '8', the default value for that property will be used, and a warning is logged.
+
+For displays that are meant as templates, to be invoked with macros,
+standalone testing is possible by using the syntax `$(macro_name=default_value)`.
+When such displays are invoked with macros, their values are replaced.
+If they are invoked without macros, the default value is used.
 
 BOY resp. EDM had options to _not_ inherit parent macros as well as to _not_ replace
 the values of existing macros. The new implementation will always inherit all parent macros
@@ -466,6 +496,12 @@ from org.csstudio.display.builder.runtime.script import PVUtil
 widget.setPropertyValue("text", PVUtil.getString(pvs[0]))
 ```
 
+__Pyton__
+
+In addition to Jython, the display builder supports real C-Python scripts.
+They are invoked via Py4J, and a helper library is provided that allows
+writing Jython as well as Python script in a common way.
+Check online help for details.
 
 __Java Script__
 

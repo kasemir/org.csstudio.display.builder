@@ -123,7 +123,13 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
             final AxisRange<Double> range = ranges.get(i);
             final YAxisImpl<XTYPE> axis = yaxes.get(i);
             if (axis.setValueRange(range.getLow(), range.getHigh()))
+            {   // Manually adjusting the axis range disables autoscale
+                // (setAutoscale() will trigger another layout/refresh,
+                //  likely handled by update throttle)
+                if (axis.isAutoscale())
+                    axis.setAutoscale(false);
                 plot.fireYAxisChange(axis);
+            }
         }
     }
 }

@@ -80,8 +80,8 @@ public class ActionUtil
 
             // Model is standalone; source_widget (Action button, ..) is _not_ the parent,
             // but it does add macros to those already defined in the display file.
-            final Macros combined_macros = Macros.merge(macros, new_model.widgetMacros().getValue());
-            new_model.widgetMacros().setValue(combined_macros);
+            final Macros combined_macros = Macros.merge(macros, new_model.propMacros().getValue());
+            new_model.propMacros().setValue(combined_macros);
 
             // On UI thread...
             final DisplayModel top_model = RuntimeUtil.getTopDisplayModel(source_widget);
@@ -103,11 +103,12 @@ public class ActionUtil
             else
             {
                 final Future<Object> wait_for_ui = toolkit.submit(() ->
-                {   // Create new top-level
+                {   // Create new top-level window
                     // TODO Distinguish 'window'/'tab'
-                    final Object parent = toolkit.openNewWindow(new_model, ActionUtil::handleClose);
-                    // Represent it
-                    toolkit.representModel(parent, new_model);
+                    final ToolkitRepresentation<Object, Object> new_toolkit =
+                        toolkit.openNewWindow(new_model, ActionUtil::handleClose);
+                    if (new_toolkit != toolkit)
+                        RuntimeUtil.hookRepresentationListener(new_toolkit);
                     return null;
                 });
                 // Back in background thread, create new runtime

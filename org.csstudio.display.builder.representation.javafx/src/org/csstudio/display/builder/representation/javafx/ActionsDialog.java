@@ -61,6 +61,8 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
     // Prompt if embedded text should be deleted when changing to external file
     // Read existing file into embedded text when switching from file to embedded
 
+    private final AutocompleteMenu menu;
+
     /** Actions edited by the dialog */
     private final ObservableList<ActionInfo> actions = FXCollections.observableArrayList();
 
@@ -119,6 +121,20 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
      */
     public ActionsDialog(final List<ActionInfo> initial_actions)
     {
+        this(initial_actions, new AutocompleteMenu());
+    }
+
+    /**
+     * Create dialog
+     * 
+     * @param initial_actions Initial list of actions
+     * @param menu {@link AutocompleteMenu} to use for PV names (must not be
+     *            null)
+     */
+    public ActionsDialog(final List<ActionInfo> initial_actions, final AutocompleteMenu menu)
+    {
+        this.menu = menu;
+
         actions.addAll(initial_actions);
 
         setTitle(Messages.ActionsDialog_Title);
@@ -228,6 +244,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
 
         getDialogPane().setContent(layout);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        getDialogPane().getStylesheets().add(getClass().getResource("opibuilder.css").toExternalForm());
         setResizable(true);
 
         // Show and initialize *_details sub-pane for selected action
@@ -387,6 +404,8 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
 
         write_pv_details.add(new Label(Messages.ActionsDialog_PVName), 0, 1);
         write_pv_name = new TextField();
+        menu.attachField(write_pv_name);
+        setOnHidden((event) -> menu.removeField(write_pv_name));
         write_pv_name.textProperty().addListener(update);
         write_pv_details.add(write_pv_name, 1, 1);
 

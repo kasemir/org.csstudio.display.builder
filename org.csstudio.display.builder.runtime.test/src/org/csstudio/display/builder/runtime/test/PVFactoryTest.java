@@ -24,6 +24,7 @@ import org.junit.Test;
 /** JUnit demo of the {@link PVFactory}
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class PVFactoryTest
 {
     @BeforeClass

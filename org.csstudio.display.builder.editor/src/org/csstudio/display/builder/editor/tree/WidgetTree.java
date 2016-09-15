@@ -45,6 +45,7 @@ import javafx.util.Callback;
 
 /** Tree view of widget hierarchy
  *  @author Kay Kasemir
+ *  @author Claudio Rosati
  */
 @SuppressWarnings("nls")
 public class WidgetTree
@@ -150,16 +151,12 @@ public class WidgetTree
     {
         final VBox box = new VBox();
 
-        final Label header = new Label("Widgets");
-        header.setMaxWidth(Double.MAX_VALUE);
-        header.getStyleClass().add("header");
-
         tree_view.setShowRoot(false);
         tree_view.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tree_view.setCellFactory(cell_factory);
 
         VBox.setVgrow(tree_view, Priority.ALWAYS);
-        box.getChildren().addAll(header, tree_view);
+        box.getChildren().addAll(tree_view);
 
         bindSelections();
 
@@ -271,7 +268,7 @@ public class WidgetTree
         TreeItem<WidgetOrTab> item_parent = null;
         if (widget_parent instanceof TabsWidget)
         {
-            for (TabItemProperty tab : ((TabsWidget)widget_parent).displayTabs().getValue())
+            for (TabItemProperty tab : ((TabsWidget)widget_parent).propTabs().getValue())
             {
                 index = tab.children().getValue().indexOf(added_widget);
                 if (index >= 0)
@@ -295,11 +292,11 @@ public class WidgetTree
         item.setExpanded(true);
         item_parent.getChildren().add(index, item);
 
-        added_widget.widgetName().addPropertyListener(name_listener);
+        added_widget.propName().addPropertyListener(name_listener);
 
         if (added_widget instanceof TabsWidget)
         {
-            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)added_widget).displayTabs();
+            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)added_widget).propTabs();
             addTabs(tabs.getValue());
             tabs.addPropertyListener(tabs_property_listener);
         }
@@ -351,12 +348,12 @@ public class WidgetTree
     {
         if (removed_widget instanceof TabsWidget)
         {
-            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)removed_widget).displayTabs();
+            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)removed_widget).propTabs();
             tabs.removePropertyListener(tabs_property_listener);
             removeTabs(tabs.getValue());
         }
 
-        removed_widget.widgetName().removePropertyListener(name_listener);
+        removed_widget.propName().removePropertyListener(name_listener);
 
         final ChildrenProperty children = ChildrenProperty.getChildren(removed_widget);
         if (children != null)
@@ -377,7 +374,7 @@ public class WidgetTree
     {
         if (widget instanceof TabsWidget)
         {
-            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)widget).displayTabs();
+            final ArrayWidgetProperty<TabItemProperty> tabs = ((TabsWidget)widget).propTabs();
             tabs.removePropertyListener(tabs_property_listener);
             for (TabItemProperty tab : tabs.getValue())
             {
@@ -386,7 +383,7 @@ public class WidgetTree
             }
         }
 
-        widget.widgetName().removePropertyListener(name_listener);
+        widget.propName().removePropertyListener(name_listener);
         final ChildrenProperty children = ChildrenProperty.getChildren(widget);
         if (children != null)
         {

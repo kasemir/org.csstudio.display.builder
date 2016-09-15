@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.test;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
@@ -33,7 +33,7 @@ public class RepresentationDemoJavaFXinSWT
 
         final Display display = new Display();
         final Shell shell = new Shell(display);
-        shell.setText(model.getPropertyValue(widgetName));
+        shell.setText(model.getPropertyValue(propName));
         shell.setLayout(new RowLayout());
 
         // Requires defining classpath variable JFXSWT as

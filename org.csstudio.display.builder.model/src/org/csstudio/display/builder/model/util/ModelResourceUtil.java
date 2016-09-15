@@ -98,14 +98,14 @@ public class ModelResourceUtil extends ResourceUtil
         return path;
     }
 
-    /** Obtain location, i.e. directory of file or URL up to the last element
+    /** Obtain directory of file. For URL, this is the path up to the last element
      *
      *  <p>For a <code>null</code> path, the location will also be <code>null</code>.
      *
      *  @param path Complete path, i.e. "/some/location/resource"
      *  @return Location, i.e. "/some/location" without trailing "/", or "."
      */
-    public static String getLocation(String path)
+    public static String getDirectory(String path)
     {
         if (path == null)
             return null;
@@ -117,7 +117,23 @@ public class ModelResourceUtil extends ResourceUtil
         return ".";
     }
 
-    /** @param resource_name Resource that may be relative to workspace
+    /** Obtain the local path for a resource
+     *
+     *  <p>When the workspace is supported, this
+     *  translates a workspace location into an absolute
+     *  location.
+     *
+     *  <p>Note that the resource must not exist:
+     *  This can also be used to translate
+     *    /some/workspace/file.txt
+     *  into the absolute
+     *    /location/of/workspace/some/workspace/file.txt
+     *  that the caller wants to create,
+     *  i.e. the file does not exist, yet.
+     *  The parent directory of the resource, however,
+     *  must exist.
+     *
+     *  @param resource_name Resource that may be relative to workspace
      *  @return Location in local file system or <code>null</code>
      */
     public static String getLocalPath(final String resource_name)
@@ -130,7 +146,8 @@ public class ModelResourceUtil extends ResourceUtil
         }
 
         final File file = new File(resource_name);
-        if (file.exists())
+        final File parent = file.getParentFile();
+        if (parent != null  &&  parent.exists())
             return file.getAbsolutePath();
 
         return null;
@@ -156,7 +173,7 @@ public class ModelResourceUtil extends ResourceUtil
         parent_display = normalize(parent_display);
 
         // Remove last segment from parent_display to get path
-        String result = getLocation(parent_display) + "/" + display_path;
+        String result = getDirectory(parent_display) + "/" + display_path;
 
         // Collapse  "some/path/remove/../else/file.opi"
         int up = result.indexOf("/../");

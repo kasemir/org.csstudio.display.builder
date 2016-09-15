@@ -7,10 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.swt;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
@@ -63,15 +67,16 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     }
 
     @Override
-    public Composite openNewWindow(final DisplayModel model, final Consumer<DisplayModel> close_request_handler)
+    public ToolkitRepresentation<Composite, Control> openNewWindow(final DisplayModel model, final Consumer<DisplayModel> close_request_handler) throws Exception
     {
         final Shell shell = new Shell(display);
-        shell.setText(model.widgetName().getValue());
-        shell.setSize(model.positionWidth().getValue(),
-                      model.positionHeight().getValue());
+        shell.setText(model.propName().getValue());
+        shell.setSize(model.propWidth().getValue(),
+                      model.propHeight().getValue());
         shell.open();
         shell.addDisposeListener((e) -> handleClose(shell, close_request_handler));
-        return shell;
+        representModel(shell, model);
+        return this;
     }
 
     @Override
@@ -130,15 +135,49 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     }
 
     @Override
-    public void showMessageDialog(final boolean is_warning, final String message)
+    public void showMessageDialog(final Widget widget, final String message)
     {
         logger.log(Level.WARNING, "showMessageDialog('" + message + "') is not implemented");
     }
 
     @Override
-    public boolean showConfirmationDialog(final String question)
+    public void showErrorDialog(final Widget widget, final String error)
+    {
+        logger.log(Level.WARNING, "showErrorDialog('" + error + "') is not implemented");
+    }
+
+    @Override
+    public boolean showConfirmationDialog(final Widget widget, final String question)
     {
         logger.log(Level.WARNING, "showConfirmationDialog('" + question + "') is not implemented");
         return false;
+    }
+
+    @Override
+    public String showSelectionDialog(final Widget widget, final String title, final List<String> options)
+    {
+        logger.log(Level.WARNING, "showSelectionDialog('" + title + "') is not implemented");
+        return null;
+    }
+
+    @Override
+    public String showPasswordDialog(final Widget widget, final String title, final String correct_password)
+    {
+        logger.log(Level.WARNING, "showPasswordDialog('" + title + "') is not implemented");
+        return null;
+    }
+
+    @Override
+    public String showSaveAsDialog(final Widget widget, final String initial_value)
+    {
+        logger.log(Level.WARNING, "showSaveAsDialog('" + initial_value + "') is not implemented");
+        return null;
+    }
+
+    @Override
+    public Future<Boolean> playAudio(final String url)
+    {
+        logger.log(Level.WARNING, "playAudio('" + url + "') is not implemented");
+        return CompletableFuture.completedFuture(false);
     }
 }

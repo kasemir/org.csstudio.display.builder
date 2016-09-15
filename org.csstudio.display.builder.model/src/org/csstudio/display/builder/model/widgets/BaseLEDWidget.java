@@ -7,13 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHeight;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propY;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.List;
 
@@ -38,7 +38,7 @@ public class BaseLEDWidget extends VisibleWidget
         {   // Border was included in the size,
             // so with the same nominal size an "alarm sensitive" LED
             // was smaller than a non-a.s. LED */
-            if (widget.getProperty(displayBorderAlarmSensitive).getValue())
+            if (widget.getProperty(propBorderAlarmSensitive).getValue())
             {
                 final int border = Integer.parseInt(XMLUtil.getChildString(xml, "border_width").orElse("1"));
                 // In principle, border goes around the widget,
@@ -46,13 +46,13 @@ public class BaseLEDWidget extends VisibleWidget
                 // and Width, Height by 2*border.
                 // But when comparing older files, border was added to X, Y twice
                 // as well as size?!
-                WidgetProperty<Integer> prop = widget.getProperty(positionX);
+                WidgetProperty<Integer> prop = widget.getProperty(propX);
                 prop.setValue(prop.getValue() + 2*border);
-                prop = widget.getProperty(positionY);
+                prop = widget.getProperty(propY);
                 prop.setValue(prop.getValue() + 2*border);
-                prop = widget.getProperty(positionWidth);
+                prop = widget.getProperty(propWidth);
                 prop.setValue(prop.getValue() - 2*border);
-                prop = widget.getProperty(positionHeight);
+                prop = widget.getProperty(propHeight);
                 prop.setValue(prop.getValue() - 2*border);
             }
         }
@@ -79,23 +79,23 @@ public class BaseLEDWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
-        properties.add(displayBorderAlarmSensitive.createProperty(this, true));
-        properties.add(value = runtimeValue.createProperty(this, null));
+        properties.add(pv_name = propPVName.createProperty(this, ""));
+        properties.add(propBorderAlarmSensitive.createProperty(this, true));
+        properties.add(value = runtimePropValue.createProperty(this, null));
 
         // Initial size
-        positionWidth().setValue(20);
-        positionHeight().setValue(20);
+        propWidth().setValue(20);
+        propHeight().setValue(20);
     }
 
-    /** @return Behavior 'pv_name' */
-    public WidgetProperty<String> behaviorPVName()
+    /** @return 'pv_name' property */
+    public WidgetProperty<String> propPVName()
     {
         return pv_name;
     }
 
-    /** @return Runtime 'value' */
-    public WidgetProperty<VType> runtimeValue()
+    /** @return Runtime 'value' property */
+    public WidgetProperty<VType> runtimePropValue()
     {
         return value;
     }

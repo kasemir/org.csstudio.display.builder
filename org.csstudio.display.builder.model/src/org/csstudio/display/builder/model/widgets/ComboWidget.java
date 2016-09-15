@@ -7,16 +7,19 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayBorderAlarmSensitive;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayFont;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayForegroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimeValue;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.Messages;
@@ -86,7 +89,7 @@ public class ComboWidget extends VisibleWidget
                         return false;
 
                     final Document doc = xml.getOwnerDocument();
-                    Element items_from = doc.createElement(behaviorItemsFromPV.getName());
+                    Element items_from = doc.createElement(propItemsFromPV.getName());
 
                     if (frompv_el.getFirstChild() != null)
                     {
@@ -114,26 +117,27 @@ public class ComboWidget extends VisibleWidget
         return new ComboConfigurator(persisted_version);
     }
 
-    /** Behavior 'item': element for list of 'items' property */
-    private static final WidgetPropertyDescriptor<String> behaviorItem =
+    /** 'item' property: element for list of 'items' property */
+    private static final WidgetPropertyDescriptor<String> propItem =
             CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "item", Messages.ComboWidget_Item);
 
-    /** Behavior 'items': list of items (string properties) for combo box */
-    public static final WidgetPropertyDescriptor< List<WidgetProperty<String>> > behaviorItems =
+    /** 'items' property: list of items (string properties) for combo box */
+    public static final ArrayWidgetProperty.Descriptor<WidgetProperty<String> > propItems =
             new ArrayWidgetProperty.Descriptor< WidgetProperty<String> >(WidgetPropertyCategory.BEHAVIOR, "items", Messages.ComboWidget_Items,
-                                                                         (widget, index) -> behaviorItem.createProperty(widget, "Item " + index));
+                                                                         (widget, index) -> propItem.createProperty(widget, "Item " + index));
 
-    /** Behavior 'items_from_pv': If PV is enum PV, get items from PV? */
-    public static final WidgetPropertyDescriptor<Boolean> behaviorItemsFromPV =
+    /** 'items_from_pv' property: If PV is enum PV, get items from PV? */
+    public static final WidgetPropertyDescriptor<Boolean> propItemsFromPV =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "items_from_pv", Messages.ComboWidget_ItemsFromPV);
 
-    private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<VType> value;
-    private volatile WidgetProperty< List<WidgetProperty<String>> > items; //TODO: update to use type VEnum? or what type?
+    private volatile WidgetProperty<String> pv_name;
+    private volatile ArrayWidgetProperty<WidgetProperty<String>> items;
     private volatile WidgetProperty<Boolean> items_from_pv;
+    private volatile WidgetProperty<Boolean> enabled;
 
     public ComboWidget()
     {
@@ -144,55 +148,82 @@ public class ComboWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = behaviorPVName.createProperty(this, ""));
-        properties.add(displayBorderAlarmSensitive.createProperty(this, true));
-        properties.add(foreground = displayForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
-        properties.add(background = displayBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
-        properties.add(font = displayFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        properties.add(value = runtimeValue.createProperty(this, null));
-        properties.add(items = behaviorItems.createProperty(this,  new ArrayList<WidgetProperty<String>>()));
-        properties.add(items_from_pv = behaviorItemsFromPV.createProperty(this, true));
+        properties.add(propBorderAlarmSensitive.createProperty(this, true));
+        properties.add(pv_name = propPVName.createProperty(this, ""));
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
+        properties.add(value = runtimePropValue.createProperty(this, null));
+        properties.add(items = propItems.createProperty(this, Collections.emptyList()));
+        properties.add(items_from_pv = propItemsFromPV.createProperty(this, true));
+        properties.add(enabled = propEnabled.createProperty(this, true));
     }
 
-    /** @return Behavior 'pv_name' */
-    public WidgetProperty<String> behaviorPVName()
-    {
-        return pv_name;
-    }
-
-    /** @return Display 'foreground_color' */
-    public WidgetProperty<WidgetColor> displayForegroundColor()
+    /** @return 'foreground_color' property */
+    public WidgetProperty<WidgetColor> propForegroundColor()
     {
         return foreground;
     }
 
-    /** @return Display 'background_color' */
-    public WidgetProperty<WidgetColor> displayBackgroundColor()
+    /** @return 'background_color' property */
+    public WidgetProperty<WidgetColor> propBackgroundColor()
     {
         return background;
     }
 
-    /** @return Display 'font' */
-    public WidgetProperty<WidgetFont> displayFont()
+    /** @return 'font' property */
+    public WidgetProperty<WidgetFont> propFont()
     {
         return font;
     }
 
-    /** @return Runtime 'value' */
-    public WidgetProperty<VType> runtimeValue()
+    /** @return Runtime 'value' property */
+    public WidgetProperty<VType> runtimePropValue()
     {
         return value;
     }
 
-    /** @return Behavior 'items_from_PV' */
-    public WidgetProperty<Boolean> behaviorItemsFromPV()
+    /** @return 'pv_name' property */
+    public WidgetProperty<String> propPVName()
+    {
+        return pv_name;
+    }
+
+    /** @return 'items' property */
+    public ArrayWidgetProperty<WidgetProperty<String>> propItems()
+    {
+        return items;
+    }
+
+    /** Convenience routine for script to fetch items
+     *  @return Items currently offered by the combo
+     */
+    public Collection<String> getItems()
+    {
+        return items.getValue().stream()
+                               .map(item_prop -> item_prop.getValue())
+                               .collect(Collectors.toList());
+    }
+
+    /** Convenience routine for script to set items
+     *  @param new_items Items to offer in combo
+     */
+    public void setItems(final Collection<String> new_items)
+    {
+        items.setValue(new_items.stream()
+                                .map(item_text -> propItem.createProperty(this, item_text))
+                                .collect(Collectors.toList()));
+    }
+
+    /** @return 'items_from_PV' property */
+    public WidgetProperty<Boolean> propItemsFromPV()
     {
         return items_from_pv;
     }
 
-    /** @return Behavior 'items' */
-    public WidgetProperty< List<WidgetProperty<String>> > behaviorItems()
+    /** @return 'enabled' property */
+    public WidgetProperty<Boolean> propEnabled()
     {
-        return items;
+        return enabled;
     }
 }

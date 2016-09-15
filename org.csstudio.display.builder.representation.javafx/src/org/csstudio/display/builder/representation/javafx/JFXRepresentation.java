@@ -8,10 +8,15 @@
 package org.csstudio.display.builder.representation.javafx;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -20,6 +25,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.ArcWidget;
+import org.csstudio.display.builder.model.widgets.ArrayWidget;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
 import org.csstudio.display.builder.model.widgets.ByteMonitorWidget;
 import org.csstudio.display.builder.model.widgets.CheckBoxWidget;
@@ -34,13 +40,16 @@ import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.PolygonWidget;
 import org.csstudio.display.builder.model.widgets.PolylineWidget;
 import org.csstudio.display.builder.model.widgets.ProgressBarWidget;
+import org.csstudio.display.builder.model.widgets.RadioWidget;
 import org.csstudio.display.builder.model.widgets.RectangleWidget;
 import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
+import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
 import org.csstudio.display.builder.model.widgets.SpinnerWidget;
 import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
+import org.csstudio.display.builder.model.widgets.ThermometerWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
@@ -49,6 +58,7 @@ import org.csstudio.display.builder.representation.WidgetRepresentation;
 import org.csstudio.display.builder.representation.WidgetRepresentationFactory;
 import org.csstudio.display.builder.representation.javafx.widgets.ActionButtonRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ArcRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.ArrayRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.BoolButtonRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ByteMonitorRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.CheckBoxRepresentation;
@@ -56,6 +66,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.ComboRepresent
 import org.csstudio.display.builder.representation.javafx.widgets.EllipseRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.EmbeddedDisplayRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.GroupRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LEDRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.MultiStateLEDRepresentation;
@@ -63,16 +74,20 @@ import org.csstudio.display.builder.representation.javafx.widgets.PictureReprese
 import org.csstudio.display.builder.representation.javafx.widgets.PolygonRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.PolylineRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ProgressBarRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.RadioRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.RectangleRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ScaledSliderRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.ScrollBarRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.SpinnerRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TableRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TabsRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.ThermometerRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.WebBrowserRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation;
+import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.Styles;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
@@ -87,8 +102,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaPlayer.Status;
 
 /** Represent model items in JavaFX toolkit
  *
@@ -171,6 +190,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     {
         factories.put(ActionButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ActionButtonRepresentation());
         factories.put(ArcWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ArcRepresentation());
+        factories.put(ArrayWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new ArrayRepresentation());
         factories.put(BoolButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new BoolButtonRepresentation());
         factories.put(ByteMonitorWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ByteMonitorRepresentation());
         factories.put(CheckBoxWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new CheckBoxRepresentation());
@@ -186,13 +206,17 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(PolygonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new PolygonRepresentation());
         factories.put(PolylineWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new PolylineRepresentation());
         factories.put(ProgressBarWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ProgressBarRepresentation());
+        factories.put(RadioWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new RadioRepresentation());
         factories.put(RectangleWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new RectangleRepresentation());
         factories.put(ScaledSliderWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ScaledSliderRepresentation());
         factories.put(SpinnerWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new SpinnerRepresentation());
+        factories.put(ScrollBarWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ScrollBarRepresentation());
         factories.put(TableWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TableRepresentation());
         factories.put(TabsWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TabsRepresentation());
         factories.put(TextEntryWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextEntryRepresentation());
         factories.put(TextUpdateWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextUpdateRepresentation());
+        factories.put(ThermometerWidget.WIDGET_DESCRIPTOR.getType(),
+                () -> (WidgetRepresentation) new ThermometerRepresentation());
         factories.put(WebBrowserWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new WebBrowserRepresentation());
         factories.put(XYPlotWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new XYPlotRepresentation());
     }
@@ -281,7 +305,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public Parent openNewWindow(final DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception
+    public ToolkitRepresentation<Parent, Node> openNewWindow(final DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception
     {   // Use JFXStageRepresentation or RCP-based implementation
         throw new IllegalStateException("Not implemented");
     }
@@ -309,22 +333,27 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
 
     @Override
     public void execute(final Runnable command)
-    {
-        Platform.runLater(command);
+    {   // If already on app thread, execute right away
+        if (Platform.isFxApplicationThread())
+            command.run();
+        else
+            Platform.runLater(command);
     }
 
     @Override
-    public void showMessageDialog(final boolean is_warning, final String message)
+    public void showMessageDialog(final Widget widget, final String message)
     {
+        final Node node = JFXBaseRepresentation.getJFXNode(widget);
         final CountDownLatch done = new CountDownLatch(1);
         execute( ()->
         {
-            final Alert alert = new Alert(is_warning
-                                          ? Alert.AlertType.WARNING
-                                          : Alert.AlertType.INFORMATION,
-                                          message);
-            alert.setTitle(is_warning ? "Warning" : "Information");
-            alert.setHeaderText(null);
+            final Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            DialogHelper.positionDialog(alert, node, -100, -50);
+            alert.setResizable(true);
+            alert.setTitle("Message");
+            // "header text" allows for larger content than the "content text"
+            alert.setContentText(null);
+            alert.setHeaderText(message);
             alert.showAndWait();
             done.countDown();
         });
@@ -339,19 +368,47 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public boolean showConfirmationDialog(final String question)
+    public void showErrorDialog(final Widget widget, final String error)
     {
+        final Node node = JFXBaseRepresentation.getJFXNode(widget);
+        final CountDownLatch done = new CountDownLatch(1);
+        execute( ()->
+        {
+            final Alert alert = new Alert(Alert.AlertType.WARNING);
+            DialogHelper.positionDialog(alert, node, -100, -50);
+            alert.setResizable(true);
+            alert.setTitle("Error");
+            alert.setHeaderText(error);
+            alert.showAndWait();
+            done.countDown();
+        });
+        try
+        {
+            done.await();
+        }
+        catch (InterruptedException ex)
+        {
+            // Ignore
+        }
+    }
+
+    @Override
+    public boolean showConfirmationDialog(final Widget widget, final String question)
+    {
+        final Node node = JFXBaseRepresentation.getJFXNode(widget);
         final CompletableFuture<Boolean> done = new CompletableFuture<>();
         execute( ()->
         {
-            final Alert alert = new Alert(Alert.AlertType.CONFIRMATION, question);
+            final Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            DialogHelper.positionDialog(alert, node, -100, -50);
+            alert.setResizable(true);
             alert.setTitle("Please Confirm");
-            alert.setHeaderText(null);
+            alert.setHeaderText(question);
             // Setting "Yes", "No" buttons
             alert.getButtonTypes().clear();
             alert.getButtonTypes().add(ButtonType.YES);
             alert.getButtonTypes().add(ButtonType.NO);
-            Optional<ButtonType> result = alert.showAndWait();
+            final Optional<ButtonType> result = alert.showAndWait();
             // NOTE that button type OK/YES/APPLY checked in here must match!
             done.complete(result.isPresent()  &&  result.get() == ButtonType.YES);
         });
@@ -364,5 +421,192 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
             logger.log(Level.WARNING, "Confirmation dialog ('" + question + "') failed", ex);
         }
         return false;
+    }
+
+    @Override
+    public String showSelectionDialog(final Widget widget, final String title, final List<String> options)
+    {
+        final Node node = JFXBaseRepresentation.getJFXNode(widget);
+        final CompletableFuture<String> done = new CompletableFuture<>();
+        execute( ()->
+        {
+            final ChoiceDialog<String> dialog = new ChoiceDialog<>(null, options);
+            DialogHelper.positionDialog(dialog, node, -100, -50);
+
+            dialog.setHeaderText(title);
+            final Optional<String> result = dialog.showAndWait();
+            done.complete(result.orElse(null));
+        });
+        try
+        {
+            return done.get();
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Selection dialog ('" + title + ", ..') failed", ex);
+        }
+        return null;
+    }
+
+    @Override
+    public String showPasswordDialog(final Widget widget, final String title, final String correct_password)
+    {
+        final Node node = JFXBaseRepresentation.getJFXNode(widget);
+        final CompletableFuture<String> done = new CompletableFuture<>();
+        execute( ()->
+        {
+            final PasswordDialog dialog = new PasswordDialog(title, correct_password);
+            DialogHelper.positionDialog(dialog, node, -100, -50);
+            final Optional<String> result = dialog.showAndWait();
+            done.complete(result.orElse(null));
+        });
+        try
+        {
+            return done.get();
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Password dialog ('" + title + ", ..') failed", ex);
+        }
+        return null;
+    }
+
+    @Override
+    public String showSaveAsDialog(final Widget widget, final String initial_value)
+    {
+        // This is implemented in the RCP_JFXRepresentation, using the workspace.
+        // Could provide a file-system based dialog here for use without RCP/workspace.
+        logger.log(Level.WARNING, "showSaveAsDialog('" + initial_value + "') is not implemented");
+        return null;
+    }
+
+    // Future for controlling the audio player
+    private class AudioFuture implements Future<Boolean>
+    {
+        private volatile MediaPlayer player;
+
+        AudioFuture(final MediaPlayer player)
+        {
+            this.player = player;
+            // Player by default just stays in "PLAYING" state
+            player.setOnEndOfMedia(() -> player.stop());
+            player.play();
+            logger.log(Level.INFO, "Playing " + this);
+        }
+
+        @Override
+        public boolean isDone()
+        {
+            switch (player.getStatus())
+            {
+            case UNKNOWN:
+            case READY:
+            case PLAYING:
+            case PAUSED:
+            case STALLED:
+                return false;
+            case HALTED:
+            case STOPPED:
+            case DISPOSED:
+            default:
+                return true;
+            }
+        }
+
+        @Override
+        public boolean cancel(boolean mayInterruptIfRunning)
+        {
+            logger.log(Level.INFO, "Stopping " + this);
+            final boolean stopped = !isDone();
+
+            // TODO On Linux, playback of WAV doesn't work. Just stays in PLAYING state.
+            // Worse: player.stop() as well as player.dispose() hang
+            execute(() ->
+            {
+                player.stop();
+            });
+
+            return stopped;
+        }
+
+        @Override
+        public boolean isCancelled()
+        {
+            return player.getStatus() == Status.STOPPED;
+        }
+
+        @Override
+        public Boolean get() throws InterruptedException, ExecutionException
+        {
+            while (! isDone())
+            {
+                logger.log(Level.FINE, "Awaiting end " + this);
+                Thread.sleep(100);
+            }
+            return !isCancelled();
+        }
+
+        @Override
+        public Boolean get(final long timeout, final TimeUnit unit)
+                throws InterruptedException, ExecutionException,
+                TimeoutException
+        {
+            final long end = System.currentTimeMillis() + unit.toMillis(timeout);
+            while (! isDone())
+            {
+                logger.log(Level.FINE, "Awaiting end " + this);
+                Thread.sleep(100);
+                if (System.currentTimeMillis() >= end)
+                    throw new TimeoutException("Timeout for " + this);
+            }
+            return !isCancelled();
+        }
+
+        @Override
+        protected void finalize() throws Throwable
+        {
+            logger.log(Level.INFO, "Disposing " + this);
+            player.dispose();
+            player = null;
+        }
+
+        @Override
+        public String toString()
+        {
+            final MediaPlayer copy = player;
+            if (copy == null)
+                return "Disposed autio player";
+            return "Audio player for " + player.getMedia().getSource() + " (" + player.getStatus() + ")";
+        }
+    }
+
+    @Override
+    public Future<Boolean> playAudio(final String url)
+    {
+        final CompletableFuture<AudioFuture> result = new CompletableFuture<>();
+        // Create on UI thread
+        execute(() ->
+        {
+            try
+            {
+                final Media sound = new Media(url);
+                final MediaPlayer player = new MediaPlayer(sound);
+                result.complete(new AudioFuture(player));
+            }
+            catch (Exception ex)
+            {
+                result.completeExceptionally(ex);
+            }
+        });
+
+        try
+        {
+            return result.get();
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Audio playback error for " + url, ex);
+        }
+        return CompletableFuture.completedFuture(false);
     }
 }

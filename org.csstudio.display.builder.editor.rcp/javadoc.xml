@@ -27,12 +27,19 @@
     <property name="myclasspath" refid="classpath"/>
     <!-- Emit the property to the ant console -->
     <echo message="Classpath: ${myclasspath}"/>
-    <javadoc classpathref="classpath" destdir="${out}" author="false" access="public" version="true" use="false" windowtitle="Display Builder API" overview="doc/javadoc_overview.html" useexternalfile="yes" additionalparam="-notimestamp">
+    <javadoc classpathref="classpath" destdir="${out}" author="false" access="public"
+    	     version="true" use="false" windowtitle="Display Builder API"
+    	     overview="doc/javadoc_overview.html"
+    	     useexternalfile="yes" additionalparam="-notimestamp">
       <doctitle><![CDATA[<h1>Display Builder API</h1>]]></doctitle>
       <fileset dir="..">
         <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/Widget.java"/>
+        <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/WidgetProperty.java"/>
         <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/DisplayModel.java"/>
+        <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/macros/Macros.java"/>
+        <include name="org.csstudio.display.builder.model/src/org/csstudio/display/builder/model/**/*Widget.java"/>
         <include name="org.csstudio.display.builder.runtime/src/org/csstudio/display/builder/runtime/script/*.java"/>
+        <include name="org.csstudio.display.builder.runtime/src/org/csstudio/display/builder/runtime/pv/RuntimePV.java"/>
         <exclude name="**/WhateverThing.java"/>
       </fileset>
       <group title="Script API" packages="org.csstudio.display.builder.*"/>

@@ -26,6 +26,7 @@ import org.eclipse.ui.IEditorLauncher;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class RuntimeLauncher implements IEditorLauncher
 {
     @Override

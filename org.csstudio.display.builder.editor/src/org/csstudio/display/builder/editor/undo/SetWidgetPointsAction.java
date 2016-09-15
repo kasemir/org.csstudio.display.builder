@@ -7,10 +7,10 @@
  ******************************************************************************/
 package org.csstudio.display.builder.editor.undo;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionX;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.positionY;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHeight;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propY;
 
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.editor.poly.PointsBinding;
@@ -33,10 +33,10 @@ public class SetWidgetPointsAction extends UndoableAction
                                  final Points points)
     {
         this(property, points,
-             property.getWidget().getPropertyValue(positionX),
-             property.getWidget().getPropertyValue(positionY),
-             property.getWidget().getPropertyValue(positionWidth),
-             property.getWidget().getPropertyValue(positionHeight));
+             property.getWidget().getPropertyValue(propX),
+             property.getWidget().getPropertyValue(propY),
+             property.getWidget().getPropertyValue(propWidth),
+             property.getWidget().getPropertyValue(propHeight));
     }
 
     public SetWidgetPointsAction(final WidgetProperty<Points> property,
@@ -47,10 +47,10 @@ public class SetWidgetPointsAction extends UndoableAction
         super(Messages.SetWidgetPoints);
         this.property = property;
         this.orig_points = property.getValue();
-        this.orig_x = property.getWidget().getPropertyValue(positionX);
-        this.orig_y = property.getWidget().getPropertyValue(positionY);
-        this.orig_width = property.getWidget().getPropertyValue(positionWidth);
-        this.orig_height = property.getWidget().getPropertyValue(positionHeight);
+        this.orig_x = property.getWidget().getPropertyValue(propX);
+        this.orig_y = property.getWidget().getPropertyValue(propY);
+        this.orig_width = property.getWidget().getPropertyValue(propWidth);
+        this.orig_height = property.getWidget().getPropertyValue(propHeight);
         this.points = points;
         this.x = x;
         this.y = y;
@@ -64,10 +64,10 @@ public class SetWidgetPointsAction extends UndoableAction
         // Prevent PointsBinding from scaling points as width/height is adjusted
         PointsBinding.setScaling(false);
         property.setValue(points);
-        property.getWidget().setPropertyValue(positionX, x);
-        property.getWidget().setPropertyValue(positionY, y);
-        property.getWidget().setPropertyValue(positionWidth, width);
-        property.getWidget().setPropertyValue(positionHeight, height);
+        property.getWidget().setPropertyValue(propX, x);
+        property.getWidget().setPropertyValue(propY, y);
+        property.getWidget().setPropertyValue(propWidth, width);
+        property.getWidget().setPropertyValue(propHeight, height);
         PointsBinding.setScaling(true);
     }
 
@@ -77,10 +77,10 @@ public class SetWidgetPointsAction extends UndoableAction
         // Prevent PointsBinding from scaling points as width/height is adjusted
         PointsBinding.setScaling(false);
         property.setValue(orig_points);
-        property.getWidget().setPropertyValue(positionX, orig_x);
-        property.getWidget().setPropertyValue(positionY, orig_y);
-        property.getWidget().setPropertyValue(positionWidth, orig_width);
-        property.getWidget().setPropertyValue(positionHeight, orig_height);
+        property.getWidget().setPropertyValue(propX, orig_x);
+        property.getWidget().setPropertyValue(propY, orig_y);
+        property.getWidget().setPropertyValue(propWidth, orig_width);
+        property.getWidget().setPropertyValue(propHeight, orig_height);
         PointsBinding.setScaling(true);
     }
 }

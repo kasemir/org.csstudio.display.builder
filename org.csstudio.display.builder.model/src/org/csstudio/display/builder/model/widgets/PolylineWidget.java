@@ -7,20 +7,26 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayLineColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayLineWidth;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.displayPoints;
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPoints;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.XMLUtil;
+import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.Points;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.osgi.framework.Version;
@@ -33,8 +39,6 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class PolylineWidget extends VisibleWidget
 {
-    // TODO Add Polyline Arrows
-
     /** Legacy polyline used 1.0.0 */
     private static final Version version = new Version(2, 0, 0);
 
@@ -50,6 +54,44 @@ public class PolylineWidget extends VisibleWidget
         public Widget createWidget()
         {
             return new PolylineWidget();
+        }
+    };
+
+    /** Polyline widget arrows */
+    public enum Arrows
+    {
+        //The order of these enum constants is important.
+        //The bits of the number returned by calling ordinal() on one
+        //of them is useful for determining which arrows are used.
+        NONE(Messages.Arrows_None), //NONE.ordinal() = 0 = 0b00 has no arrows
+        FROM(Messages.Arrows_From), //FROM.ordinal() = 1 = 0b01 has only a from-arrow
+        TO(Messages.Arrows_To),     //  TO.ordinal() = 2 = 0b10 has only a to-arrow
+        BOTH(Messages.Arrows_Both); //BOTH.ordinal() = 3 = 0b11 has both arrows
+
+        private final String name;
+
+        private Arrows(final String name)
+        {
+            this.name = name;
+        }
+
+        @Override
+        public String toString()
+        {
+            return name;
+        }
+    }
+
+    /** Display 'arrows' */
+    private static final WidgetPropertyDescriptor<Arrows> propArrows =
+        new WidgetPropertyDescriptor<Arrows>(
+            WidgetPropertyCategory.DISPLAY, "arrows", Messages.Arrows)
+    {
+        @Override
+        public EnumWidgetProperty<Arrows> createProperty(final Widget widget,
+                                                        final Arrows default_value)
+        {
+            return new EnumWidgetProperty<Arrows>(this, widget, default_value);
         }
     };
 
@@ -70,10 +112,11 @@ public class PolylineWidget extends VisibleWidget
             if (xml != null)
             {
                 final Document doc = widget_xml.getOwnerDocument();
-                Element line = doc.createElement(displayLineColor.getName());
+                Element line = doc.createElement(propLineColor.getName());
                 final Element c = XMLUtil.getChildElement(xml, "color");
                 line.appendChild(c.cloneNode(true));
                 widget_xml.appendChild(line);
+                widget_xml.removeChild(xml);
             }
 
             // Parse updated XML
@@ -84,6 +127,7 @@ public class PolylineWidget extends VisibleWidget
     private volatile WidgetProperty<WidgetColor> line_color;
     private volatile WidgetProperty<Integer> line_width;
     private volatile WidgetProperty<Points> points;
+    private volatile WidgetProperty<Arrows> arrows;
 
     public PolylineWidget()
     {
@@ -91,18 +135,30 @@ public class PolylineWidget extends VisibleWidget
     }
 
     @Override
-    protected void defineProperties(final List<WidgetProperty<?>> properties)
-    {
-        super.defineProperties(properties);
-        properties.add(line_color = displayLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
-        properties.add(line_width = displayLineWidth.createProperty(this, 3));
-        properties.add(points = displayPoints.createProperty(this, new Points()));
-    }
-
-    @Override
     public Version getVersion()
     {
         return version;
+    }
+
+    @Override
+    protected void defineProperties(final List<WidgetProperty<?>> properties)
+    {
+        super.defineProperties(properties);
+        properties.add(line_width = propLineWidth.createProperty(this, 3));
+        properties.add(line_color = propLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
+        properties.add(arrows = propArrows.createProperty(this, Arrows.NONE));
+        properties.add(points = propPoints.createProperty(this, new Points()));
+    }
+
+    @Override
+    public WidgetProperty<?> getProperty(final String name)
+    {
+        if ("background_color".equals(name))
+        {
+            logger.log(Level.WARNING, "Deprecated access to " + this + " property 'background_color'. Use 'line_color'");
+            return line_color;
+        }
+        return super.getProperty(name);
     }
 
     @Override
@@ -115,21 +171,27 @@ public class PolylineWidget extends VisibleWidget
             return super.getConfigurator(persisted_version);
     }
 
-    /** @return Display 'line_color' */
-    public WidgetProperty<WidgetColor> displayLineColor()
+    /** @return 'line_color' property */
+    public WidgetProperty<WidgetColor> propLineColor()
     {
         return line_color;
     }
 
-    /** @return Display 'line_width' */
-    public WidgetProperty<Integer> displayLineWidth()
+    /** @return 'line_width' property */
+    public WidgetProperty<Integer> propLineWidth()
     {
         return line_width;
     }
 
-    /** @return Display 'points' */
-    public WidgetProperty<Points> displayPoints()
+    /** @return 'points' property */
+    public WidgetProperty<Points> propPoints()
     {
         return points;
+    }
+
+    /** @return 'arrows' property */
+    public WidgetProperty<Arrows> propArrows()
+    {
+        return arrows;
     }
 }

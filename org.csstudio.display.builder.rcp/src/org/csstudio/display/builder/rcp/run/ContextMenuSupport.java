@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.run;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.behaviorPVName;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.rcp.Plugin.logger;
 
 import java.net.URL;
@@ -20,11 +20,13 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.representation.ToolkitListener;
+import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeAction;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -37,9 +39,13 @@ import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+
+import javafx.scene.Node;
+import javafx.scene.Scene;
 
 /** Context menu
  *
@@ -55,6 +61,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 @SuppressWarnings("nls")
 public class ContextMenuSupport
 {
+    private Shell shell;
+
     /** SWT/JFace Action for a model's ActionInfo
      *
      *  <p>Shows the ActionInfo's description and icon,
@@ -128,16 +136,35 @@ public class ContextMenuSupport
             manager.add(new WidgetInfoAction(context_menu_widget));
 
             // Actions of the widget
-            for (ActionInfo info : context_menu_widget.behaviorActions().getValue())
+            for (ActionInfo info : context_menu_widget.propActions().getValue())
                 manager.add(new ActionInfoWrapper(context_menu_widget, info));
 
             // Actions of the widget runtime
             final WidgetRuntime<Widget> runtime = RuntimeUtil.getRuntime(context_menu_widget);
+            if (runtime == null)
+                throw new NullPointerException("Missing runtime for " + context_menu_widget);
             for (RuntimeAction info : runtime.getRuntimeActions())
                 manager.add(new RuntimeActionWrapper(context_menu_widget, info));
         }
+
         // Placeholder for ProcessVariable object contributions
-        manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+        manager.add(new GroupMarker(IWorkbenchActionConstants.MB_ADDITIONS));
+
+        manager.add(new Separator());
+
+        if (context_menu_widget != null)
+        {
+            final Node node = JFXBaseRepresentation.getJFXNode(context_menu_widget);
+            final Scene scene = node.getScene();
+
+            manager.add(new SendEMailAction(shell, scene));
+            manager.add(new SendLogbookAction(shell, scene));
+        }
+
+        // Placeholder for the display editor.
+        // If editor.rcp plugin is included, it adds "Open in editor"
+        manager.add(new Separator("display_editor"));
+        manager.add(new ReloadDisplayAction());
     };
 
     /** Create SWT context menu
@@ -145,8 +172,10 @@ public class ContextMenuSupport
      *  @param parent Parent SWT widget
      *  @param representation Representation
      */
-    ContextMenuSupport(final IWorkbenchPartSite site, final Composite parent, final RCP_JFXRepresentation representation)
+    public ContextMenuSupport(final IWorkbenchPartSite site, final Composite parent, final RCP_JFXRepresentation representation)
     {
+        shell = site.getShell();
+
         // Tried to use a JFX context menu on the individual items,
         // but adding the existing PV contributions requires parsing
         // the registry and creating suitable JFX menu entries.
@@ -169,15 +198,16 @@ public class ContextMenuSupport
         final Menu menu = mm.createContextMenu(parent);
         // .. but _don't_ attach to SWT control
         //     parent.setMenu(menu);
+
         // Menu is shown by representation listener _after_
         // setting the selection to widget's PV
-        representation.addListener(new ToolkitListener()
+        final ToolkitListener tkl = new ToolkitListener()
         {
             @Override
             public void handleContextMenu(final Widget widget)
             {
                 IStructuredSelection sel = StructuredSelection.EMPTY;
-                final Optional<WidgetProperty<String>> name_prop = widget.checkProperty(behaviorPVName);
+                final Optional<WidgetProperty<String>> name_prop = widget.checkProperty(propPVName);
                 if (name_prop.isPresent())
                 {
                     final String pv_name = name_prop.get().getValue();
@@ -190,7 +220,10 @@ public class ContextMenuSupport
                 context_menu_widget = widget;
                 menu.setVisible(true);
             }
-        });
+        };
+        representation.addListener(tkl);
+        parent.addDisposeListener(event -> representation.removeListener(tkl));
+
         // Clear context_menu_widget reference when menu closed
         menu.addMenuListener(new MenuAdapter()
         {

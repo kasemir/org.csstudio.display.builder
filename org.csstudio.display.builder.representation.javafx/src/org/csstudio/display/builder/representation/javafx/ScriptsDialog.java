@@ -31,8 +31,10 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -54,6 +56,8 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     // If already "EmbeddedPy" and file is selected, prompt if embedded script should be deleted.
     // If already "EmbeddedPy" and Embedded JS is selected, prompt if type should be changed from python to JS.
     // If already "EmbeddedJS", ..
+
+    private final AutocompleteMenu menu;
 
     /** ScriptPV info as property-based item for table */
     public static class PVItem
@@ -143,10 +147,16 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
     private ScriptItem selected_script_item = null;
 
-
-    /** @param scripts Scripts to show/edit in the dialog */
     public ScriptsDialog(final List<ScriptInfo> scripts)
     {
+        this(scripts, new AutocompleteMenu());
+    }
+
+    /** @param scripts Scripts to show/edit in the dialog */
+    public ScriptsDialog(final List<ScriptInfo> scripts, final AutocompleteMenu menu)
+    {
+        this.menu = menu;
+
         setTitle(Messages.ScriptsDialog_Title);
         setHeaderText(Messages.ScriptsDialog_Info);
 
@@ -155,6 +165,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
         getDialogPane().setContent(createContent());
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        getDialogPane().getStylesheets().add(getClass().getResource("opibuilder.css").toExternalForm());
         setResizable(true);
 
         setResultConverter(button ->
@@ -331,13 +342,88 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         }
     }
 
+    /**
+     * {@link PVItem} {@link TableCell} with {@link AutocompleteMenu}
+     * 
+     * @author Amanda Carpenter
+     */
+    private class AutoCompletedTableCell extends TableCell<PVItem, String>
+    {
+        private TextField textField;
+        private final AutocompleteMenu menu;
+
+        public AutoCompletedTableCell(final AutocompleteMenu menu)
+        {
+            this.menu = menu;
+        }
+
+        @Override
+        public void startEdit()
+        {
+            if (!isEmpty())
+            {
+                super.startEdit();
+                createTextField();
+                setText(null);
+                setGraphic(textField);
+                menu.attachField(textField);
+                textField.selectAll();
+            }
+        }
+
+        @Override
+        public void cancelEdit()
+        {
+            super.cancelEdit();
+            setText(getItem());
+            setGraphic(null);
+        }
+
+        @Override
+        public void updateItem(String item, boolean empty)
+        {
+            super.updateItem(item, empty);
+            if (empty)
+            {
+                setText(null);
+                setGraphic(null);
+            } else if (isEditing())
+            {
+                if (textField != null)
+                    textField.setText(getItem() == null ? "" : getItem());
+                setText(null);
+                setGraphic(textField);
+            } else
+            {
+                setText(getItem() == null ? "" : getItem());
+                setGraphic(null);
+                if (textField != null)
+                    menu.removeField(textField);
+            }
+        }
+
+        private void createTextField()
+        {
+            if (textField == null)
+            {
+                textField = new TextField(getItem() == null ? "" : getItem());
+                textField.setOnAction((event) ->
+                {
+                    commitEdit(textField.getText());
+                });
+            } else
+                textField.setText(getItem() == null ? "" : getItem());
+            textField.setMinWidth(getWidth() - getGraphicTextGap() * 2);
+        }
+    }
+
     /** @return Node for UI elements that edit the PVs of a script */
     private Node createPVsTable()
     {
         // Create table with editable 'name' column
         final TableColumn<PVItem, String> name_col = new TableColumn<>(Messages.ScriptsDialog_ColPV);
         name_col.setCellValueFactory(new PropertyValueFactory<PVItem, String>("name"));
-        name_col.setCellFactory(TextFieldTableCell.forTableColumn());
+        name_col.setCellFactory((col) -> new AutoCompletedTableCell(menu));
         name_col.setOnEditCommit(event ->
         {
             final int row = event.getTablePosition().getRow();

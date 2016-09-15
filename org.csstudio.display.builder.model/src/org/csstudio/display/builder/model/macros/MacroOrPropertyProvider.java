@@ -8,12 +8,13 @@
 package org.csstudio.display.builder.model.macros;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.widgetType;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propType;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 
 /** Provides values from macros, falling back to widget properties
@@ -43,19 +44,18 @@ public class MacroOrPropertyProvider implements MacroValueProvider
         // uniquely identifies the display
         if ("DID".equals(name))
         {
+            // Have properties of a widget, need display model.
             // Every widget must have a 'type' property,
-            // so fetch that to get the widget and then the display
-            int id;
+            // so fetch that to get the widget and then the display.
             try
             {
-                id = System.identityHashCode(properties.get(widgetType.getName()).getWidget().getDisplayModel());
+                return properties.get(propType.getName()).getWidget().getDisplayModel().getID();
             }
             catch (Exception ex)
             {
                 logger.log(Level.WARNING, "Cannot obtain display ID for $(DID)", ex);
                 return "DP00";
             }
-            return "DP" + Integer.toHexString(id);
         }
 
         // Automatic macro for Display NAME
@@ -63,7 +63,7 @@ public class MacroOrPropertyProvider implements MacroValueProvider
         {
             try
             {
-                return properties.get(widgetType.getName()).getWidget().getDisplayModel().widgetName().getValue();
+                return properties.get(propType.getName()).getWidget().getDisplayModel().propName().getValue();
             }
             catch (Exception ex)
             {
@@ -92,5 +92,13 @@ public class MacroOrPropertyProvider implements MacroValueProvider
             return prop_val.toString();
         }
         return null;
+    }
+
+    @Override
+    public String toString()
+    {
+        // Properties always contain "name". Use that to fetch widget.
+        final Widget widget = properties.get("name").getWidget();
+        return widget + " macros or properties: " + macros.toString();
     }
 }

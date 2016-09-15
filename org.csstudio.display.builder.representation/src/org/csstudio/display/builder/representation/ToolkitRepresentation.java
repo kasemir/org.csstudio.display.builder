@@ -157,29 +157,30 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
 
     /** Open new top-level window
      *
-     *  <p>Is invoked with the _initial_ model.
-     *  <code>representModel</code> is then called to create the
+     *  <p>Is invoked with the _initial_ model,
+     *  calling <code>representModel</code> to create the
      *  individual widget representations.
      *
-     *  <p>If the model is replaced, <code>disposeRepresentation</code>
-     *  will be called with the current model, and then
-     *  <code>representModel</code> with the new model.
+     *  <p>To later replace the model, call <code>disposeRepresentation</code>
+     *  with the current model, and then <code>representModel</code> with the new model.
      *
      *  @param model {@link DisplayModel} that provides name and initial size
      *  @param close_handler Will be invoked when user closes the window
      *                       with the then active model, i.e. the model
      *                       provided in last call to <code>representModel</code>.
      *                       Should stop runtime, dispose representation.
-     *  @return Toolkit parent (Pane, Container, ..)
-     *          for representing model items in the newly created window
+     *  @return The new ToolkitRepresentation of the new window
      *  @throws Exception on error
      */
-    abstract public TWP openNewWindow(DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception;
+    abstract public ToolkitRepresentation<TWP, TW> openNewWindow(DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception;
 
     /** @param color Background color to use for the overall window */
     abstract public void setBackground(WidgetColor color);
 
     /** Create toolkit widgets for a display model.
+     *
+     *  <p>The parent may be the top-level parent of a window,
+     *  or the parent of an EmbeddedWidget representation.
      *
      *  @param parent Toolkit parent (Pane, Container, ..)
      *  @param model Display model
@@ -193,7 +194,10 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         // Attach toolkit
         model.setUserData(DisplayModel.USER_DATA_TOOLKIT, this);
 
-        setBackground(model.displayBackgroundColor().getValue());
+        // TODO There's only one 'background' for the toolkit,
+        // but the model represented here could be the top-level model (OK)
+        // or a sub-model from an embedded widget (not OK to change the background)
+        setBackground(model.propBackgroundColor().getValue());
 
         // DisplayModel itself is _not_ represented,
         // but all its children, recursively
@@ -203,7 +207,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         model.runtimeChildren().addPropertyListener(container_children_listener);
 
         // Listen to model background
-        model.displayBackgroundColor().addPropertyListener(back_color_listener);
+        model.propBackgroundColor().addPropertyListener(back_color_listener);
     }
 
     /** Create representation for each child of a ContainerWidget
@@ -271,7 +275,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         final TWP parent = disposeChildren(model, model.runtimeChildren());
         model.clearUserData(DisplayModel.USER_DATA_TOOLKIT);
 
-        model.displayBackgroundColor().removePropertyListener(back_color_listener);
+        model.propBackgroundColor().removePropertyListener(back_color_listener);
 
         logger.log(Level.FINE, "No longer tracking changes to children of {0}", model);
         model.runtimeChildren().removePropertyListener(container_children_listener);
@@ -329,6 +333,10 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     }
 
     /** Execute command in toolkit's UI thread.
+     *
+     *  <p>If already on the UI thread, command
+     *  may execute right away.
+     *
      *  @param command Command to execute
      */
     @Override
@@ -339,10 +347,22 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *  <p>Calling thread is blocked until user closes the dialog
      *  by pressing "OK".
      *
+     *  @param widget Widget, used to create and position the dialog
      *  @param is_warning Whether to style dialog as warning or information
      *  @param message Message to display on dialog
      */
-    abstract public void showMessageDialog(boolean is_warning, String message);
+    abstract public void showMessageDialog(Widget widget, String message);
+
+    /** Show error dialog.
+     *
+     *  <p>Calling thread is blocked until user closes the dialog
+     *  by pressing "OK".
+     *
+     *  @param widget Widget, used to create and position the dialog
+     *  @param is_warning Whether to style dialog as warning or information
+     *  @param message Message to display on dialog
+     */
+    abstract public void showErrorDialog(Widget widget, String error);
 
     /** Show confirmation dialog.
      *
@@ -350,10 +370,60 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *  by selecting either "Yes" or "No"
      *  ("Confirm", "Cancel", depending on implementation).
      *
+     *  @param widget Widget, used to create and position the dialog
      *  @param mesquestionsage Message to display on dialog
      *  @return <code>true</code> if user selected "Yes" ("Confirm")
      */
-    abstract public boolean showConfirmationDialog(String question);
+    abstract public boolean showConfirmationDialog(Widget widget, String question);
+
+    /** Show dialog for selecting one item from a list.
+     *
+     *  <p>Call blocks until the user closes the dialog
+     *  by either selecting an item and pressing "OK",
+     *  or by pressing "Cancel".
+     *
+     *  @param widget Widget, used to create and position the dialog
+     *  @param title Dialog title
+     *  @param options Options to show in dialog
+     *  @return Selected item or <code>null</code>
+     */
+    abstract public String showSelectionDialog(Widget widget, String title, List<String> options);
+
+    /** Show dialog for entering a password.
+     *
+     *  <p>Call blocks until the user closes the dialog
+     *  by either entering a password and pressing "OK",
+     *  or by pressing "Cancel".
+     *
+     *  <p>When a <code>correct_password</code> is provided to the call,
+     *  the password entered by the user is checked against it,
+     *  prompting until the user enters the correct one.
+     *
+     *  <p>When no <code>correct_password</code> is provided to the call,
+     *  any password entered by the user is returned.
+     *  The calling script would then check the password and maybe open
+     *  the dialog again.
+     *
+     *  @param widget Widget, used to create and position the dialog
+     *  @param title Dialog title
+     *  @param correct_password Password to check
+     *  @return Entered password or <code>null</code>
+     */
+    abstract public String showPasswordDialog(final Widget widget, final String title, final String correct_password);
+
+    /** Show file "Save As" dialog for selecting/entering a new file name
+     *
+     *  @param initial_value Initial path and file name
+     *  @return Path and file name or <code>null</code>
+     */
+    abstract public String showSaveAsDialog(Widget widget, final String initial_value);
+
+    /** Play audio
+     *  @param url URL for the audio. At least "file://.." and "http://.." should be supported.
+     *  @return Future to await end of playback or cancel.
+     *          Boolean value will indicate successful playback
+     */
+    abstract public Future<Boolean> playAudio(final String url);
 
     /** Execute callable in toolkit's UI thread.
      *  @param <T> Type to return
@@ -368,16 +438,24 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         return future;
     }
 
-    /** @param listener Listener to add */
+    /** Add a toolkit listener
+     *  @param listener Listener to add
+     *  @throws IllegalArgumentException when adding the same listener more than once
+     */
     public void addListener(final ToolkitListener listener)
     {
+        if (listeners.contains(listener))
+            throw new IllegalArgumentException("Duplicate listener");
         listeners.add(listener);
     }
 
-    /** @param listener Listener to remove */
-    public void removeListener(final ToolkitListener listener)
+    /** Remove a toolkit listener
+     *  @param listener Listener to remove
+     *  @return <code>true</code> if that listener was registered
+     */
+    public boolean removeListener(final ToolkitListener listener)
     {
-        listeners.remove(listener);
+        return listeners.remove(listener);
     }
 
     /** Notify listeners that action has been invoked
@@ -453,6 +531,15 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
                 logger.log(Level.WARNING, "Failure when writing " + value + " for " + widget, ex);
             }
         }
+    }
+
+    /** Close the toolkit's "window" that displays a model
+     *  @param model Model that has been represented in this toolkit
+     *  @throws Exception on error
+     */
+    public void closeWindow(final DisplayModel model) throws Exception
+    {
+        throw new Exception("Not implemented");
     }
 
     /** Orderly shutdown */

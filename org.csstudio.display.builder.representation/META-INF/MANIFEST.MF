@@ -5,6 +5,7 @@ Bundle-Description: Base for Representation of a display model
 Bundle-SymbolicName: org.csstudio.display.builder.representation;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.csstudio.display.builder.model;bundle-version="1.0.0"
+Require-Bundle: org.eclipse.core.runtime,
+ org.csstudio.display.builder.model;bundle-version="1.0.0"
 Bundle-Vendor: Kay Kasemir - SNS
 Export-Package: org.csstudio.display.builder.representation

@@ -17,6 +17,7 @@ import org.csstudio.display.builder.rcp.Plugin;
 import org.csstudio.display.builder.runtime.RuntimePlugin;
 import org.csstudio.display.builder.runtime.pv.PVFactory;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.ComboFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IPersistentPreferenceStore;
@@ -174,6 +175,9 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
                 doStore();
             }
         });
+
+        addField(new BooleanFieldEditor(org.csstudio.display.builder.rcp.Preferences.SHOW_RUNTIME_STACKS,
+                "Show Runtime Perspective Placeholders", getFieldEditorParent()));
     }
 
     @Override

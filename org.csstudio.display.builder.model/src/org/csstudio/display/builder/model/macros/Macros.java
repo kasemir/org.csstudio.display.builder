@@ -58,6 +58,12 @@ public class Macros implements MacroValueProvider
     {
     }
 
+    /** @return Are the macros empty? */
+    public boolean isEmpty()
+    {
+        return macros.isEmpty();
+    }
+
     /** Merge two macro maps
      *
      *  <p>Optimized for cases where <code>base</code> or <code>addition</code> are empty,

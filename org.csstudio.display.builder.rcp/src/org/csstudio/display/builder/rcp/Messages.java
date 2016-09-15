@@ -18,11 +18,17 @@ public class Messages extends NLS
     private static final String BUNDLE_NAME = "org.csstudio.display.builder.rcp.messages";
 
     // Keep in alphabetical order!
+    public static String DefaultLogbookText;
     public static String NavigateBack;
     public static String NavigateBack_TT;
     public static String NavigateForward;
     public static String NavigateForward_TT;
+    public static String ReloadDisplay;
+    public static String SelectWorkspaceFile;
+    public static String SendToLogbook;
     public static String TopDisplays;
+    public static String WidgetProperties_Filespace;
+    public static String WidgetProperties_Filecomponent;
     public static String Zoom_All;
     public static String Zoom_Height;
     public static String Zoom_Width;
