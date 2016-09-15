@@ -7,12 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,13 +28,12 @@ import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
-import org.diirt.vtype.VType;
 
 /** Widget that writes to PV from selection of items
  *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
-public class RadioWidget extends VisibleWidget
+public class RadioWidget extends PVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -68,10 +64,8 @@ public class RadioWidget extends VisibleWidget
     public static final WidgetPropertyDescriptor<Boolean> propItemsFromPV =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "items_from_pv", Messages.ComboWidget_ItemsFromPV);
 
-    private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetFont> font;
-    private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<List<WidgetProperty<String>>> items;
     private volatile WidgetProperty<Boolean> items_from_pv;
     private volatile WidgetProperty<Boolean> horizontal;
@@ -85,20 +79,11 @@ public class RadioWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = propPVName.createProperty(this, ""));
-        properties.add(propBorderAlarmSensitive.createProperty(this, true));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
-        properties.add(value = runtimePropValue.createProperty(this, null));
         properties.add(items = propItems.createProperty(this, Arrays.asList(propItem.createProperty(this, "Item"))));
         properties.add(items_from_pv = propItemsFromPV.createProperty(this, true));
         properties.add(horizontal = propHorizontal.createProperty(this, true));
-    }
-
-    /** @return 'pv_name' property */
-    public WidgetProperty<String> propPVName()
-    {
-        return pv_name;
     }
 
     /** @return 'foreground_color' property */
@@ -111,12 +96,6 @@ public class RadioWidget extends VisibleWidget
     public WidgetProperty<WidgetFont> propFont()
     {
         return font;
-    }
-
-    /** @return Runtime 'value' property */
-    public WidgetProperty<VType> runtimePropValue()
-    {
-        return value;
     }
 
     /** @return 'items_from_PV' property */

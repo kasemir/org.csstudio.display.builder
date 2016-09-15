@@ -9,16 +9,13 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPageIncrement;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propStepIncrement;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,13 +27,12 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
-import org.diirt.vtype.VType;
 
 /** Widget that can read/write numeric PV via scrollbar
  *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
-public class ScrollBarWidget extends VisibleWidget
+public class ScrollBarWidget extends PVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -61,7 +57,6 @@ public class ScrollBarWidget extends VisibleWidget
     public static final WidgetPropertyDescriptor<Double> propBarLength =
         newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "bar_length", Messages.ScrollBar_BarLength);
 
-    private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<Double> minimum;
     private volatile WidgetProperty<Double> maximum;
     private volatile WidgetProperty<Boolean> limits_from_pv;
@@ -83,9 +78,6 @@ public class ScrollBarWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(propPVName.createProperty(this, ""));
-        properties.add(value = runtimePropValue.createProperty(this, null));
-        properties.add(propBorderAlarmSensitive.createProperty(this, true));
         properties.add(minimum = propMinimum.createProperty(this, 0.0));
         properties.add(maximum = propMaximum.createProperty(this, 100.0));
         properties.add(limits_from_pv = propLimitsFromPV.createProperty(this, false));
@@ -95,12 +87,6 @@ public class ScrollBarWidget extends VisibleWidget
         properties.add(step_increment = propStepIncrement.createProperty(this, 1.0));
         properties.add(page_increment = propPageIncrement.createProperty(this, 10.0));
         properties.add(enabled = propEnabled.createProperty(this, true));
-    }
-
-    /** @return Runtime 'value' property*/
-    public WidgetProperty<VType> runtimePropValue()
-    {
-        return value;
     }
 
     /** @return 'minimum' property */

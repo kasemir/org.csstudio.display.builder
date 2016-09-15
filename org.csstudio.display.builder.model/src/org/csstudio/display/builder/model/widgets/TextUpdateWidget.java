@@ -9,14 +9,11 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFormat;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPrecision;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propShowUnits;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +35,6 @@ import org.csstudio.display.builder.model.properties.FormatOption;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
-import org.diirt.vtype.VType;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
 
@@ -46,7 +42,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class TextUpdateWidget extends VisibleWidget
+public class TextUpdateWidget extends PVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -79,7 +75,7 @@ public class TextUpdateWidget extends VisibleWidget
             if (xml_version.getMajor() < 2)
             {
                 TextUpdateWidget text_widget = (TextUpdateWidget)widget;
-                TextUpdateWidget.readLegacyFormat(xml, text_widget.format, text_widget.precision, text_widget.pv_name);
+                TextUpdateWidget.readLegacyFormat(xml, text_widget.format, text_widget.precision, text_widget.propPVName());
 
                 // Legacy text update had a "text" property that allowed using
                 // it just like a label - no pv_name.
@@ -154,14 +150,12 @@ public class TextUpdateWidget extends VisibleWidget
         }
     }
 
-    private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<FormatOption> format;
     private volatile WidgetProperty<Integer> precision;
     private volatile WidgetProperty<Boolean> show_units;
-    private volatile WidgetProperty<VType> value;
 
     public TextUpdateWidget()
     {
@@ -178,21 +172,12 @@ public class TextUpdateWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = propPVName.createProperty(this, ""));
-        properties.add(propBorderAlarmSensitive.createProperty(this, true));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.READ_BACKGROUND)));
         properties.add(format = propFormat.createProperty(this, FormatOption.DEFAULT));
         properties.add(precision = propPrecision.createProperty(this, -1));
         properties.add(show_units = propShowUnits.createProperty(this, true));
-        properties.add(value = runtimePropValue.createProperty(this, null));
-    }
-
-    /** @return 'pv_name' property */
-    public WidgetProperty<String> propPVName()
-    {
-        return pv_name;
     }
 
     /** @return 'foreground_color' property */
@@ -231,9 +216,4 @@ public class TextUpdateWidget extends VisibleWidget
         return show_units;
     }
 
-    /** @return Runtime 'value' property */
-    public WidgetProperty<VType> runtimePropValue()
-    {
-        return value;
-    }
 }

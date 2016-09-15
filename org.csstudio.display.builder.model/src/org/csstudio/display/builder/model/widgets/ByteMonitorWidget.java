@@ -8,12 +8,9 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static  org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,13 +24,12 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.diirt.vtype.VType;
 
 /** Widget that displays the bits in an Integer or Long Integer value as a set of LEDs
  *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
-public class ByteMonitorWidget extends VisibleWidget
+public class ByteMonitorWidget extends PVWidget
 {
     /** Widget descriptor */
 	public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -80,7 +76,6 @@ public class ByteMonitorWidget extends VisibleWidget
     public static final WidgetPropertyDescriptor<Boolean> propSquareLED =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "square_led", Messages.ByteMonitor_SquareLED);
 
-    private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<WidgetColor> off_color;
     private volatile WidgetProperty<WidgetColor> on_color;
     private volatile WidgetProperty<Integer> startBit;
@@ -98,9 +93,6 @@ public class ByteMonitorWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(propPVName.createProperty(this, ""));
-        properties.add(value = runtimePropValue.createProperty(this, null));
-        properties.add(propBorderAlarmSensitive.createProperty(this, true));
         properties.add(startBit = propStartBit.createProperty(this,0));
         properties.add(numBits = propNumBits.createProperty(this,8));
         properties.add(bitReverse = propBitReverse.createProperty(this,false));
@@ -108,12 +100,6 @@ public class ByteMonitorWidget extends VisibleWidget
         properties.add(square_led = propSquareLED.createProperty(this,false));
         properties.add(off_color = propOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
         properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
-    }
-
-    /** @return Runtime 'value' property */
-    public WidgetProperty<VType> runtimePropValue()
-    {
-        return value;
     }
 
     /** @return 'off_color' property */

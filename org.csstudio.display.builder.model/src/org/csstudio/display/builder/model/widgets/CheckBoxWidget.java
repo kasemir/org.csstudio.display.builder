@@ -10,10 +10,7 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBit;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,13 +24,12 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.properties.WidgetFont;
-import org.diirt.vtype.VType;
 
 @SuppressWarnings("nls")
 /** Widget that can read/write a bit in a PV
  *  @author Amanda Carpenter
  */
-public class CheckBoxWidget extends VisibleWidget
+public class CheckBoxWidget extends PVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -58,7 +54,6 @@ public class CheckBoxWidget extends VisibleWidget
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "auto_size", Messages.AutoSize);
 
     private volatile WidgetProperty<Integer> bit;
-    private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<String> label;
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<Boolean> auto_size;
@@ -67,10 +62,7 @@ public class CheckBoxWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(propPVName.createProperty(this, ""));
-        properties.add(propBorderAlarmSensitive.createProperty(this, true));
         properties.add(bit = propBit.createProperty(this, 0));
-        properties.add(value = runtimePropValue.createProperty(this, null));
         properties.add(label = propLabel.createProperty(this, Messages.Checkbox_Label));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(auto_size = propAutoSize.createProperty(this, false));
@@ -85,12 +77,6 @@ public class CheckBoxWidget extends VisibleWidget
     public WidgetProperty<Integer> propBit()
     {
         return bit;
-    }
-
-    /** @return Runtime 'value' property */
-    public WidgetProperty<VType> runtimePropValue()
-    {
-        return value;
     }
 
     /** @return 'label' property */

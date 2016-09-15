@@ -12,7 +12,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propText;
 
 import java.util.Arrays;
@@ -41,7 +40,7 @@ import org.w3c.dom.Text;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class ActionButtonWidget extends VisibleWidget
+public class ActionButtonWidget extends PVWidget
 {
     final static Logger logger = Logger.getLogger(ActionButtonWidget.class.getName());
 
@@ -131,7 +130,6 @@ public class ActionButtonWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(propPVName.createProperty(this, ""));
         properties.add(text = propText.createProperty(this, "$(actions)"));
         properties.add(macros = propMacros.createProperty(this, new Macros()));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));

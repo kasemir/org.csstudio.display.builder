@@ -144,7 +144,7 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         columnsChanged(model_widget.propColumns(), null, model_widget.propColumns().getValue());
         model_widget.propColumns().addPropertyListener(this::columnsChanged);
 
-        model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
+        model_widget.runtimeValue().addPropertyListener(this::valueChanged);
     }
 
     private void updateSelection(final int[] rows, final int[] cols)

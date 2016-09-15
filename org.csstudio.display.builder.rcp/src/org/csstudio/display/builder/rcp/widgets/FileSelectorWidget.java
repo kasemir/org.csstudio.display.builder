@@ -7,9 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.rcp.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
-
 import java.util.List;
 
 import org.csstudio.display.builder.model.Widget;
@@ -19,15 +16,14 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
-import org.csstudio.display.builder.model.widgets.VisibleWidget;
+import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.rcp.Messages;
-import org.diirt.vtype.VType;
 
 /** Widget for selecting a file
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class FileSelectorWidget extends VisibleWidget
+public class FileSelectorWidget extends PVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -90,10 +86,8 @@ public class FileSelectorWidget extends VisibleWidget
         }
     };
 
-    private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<Filespace> filespace;
     private volatile WidgetProperty<FileComponent> component;
-    private volatile WidgetProperty<VType> value;
 
 
     public FileSelectorWidget()
@@ -107,16 +101,8 @@ public class FileSelectorWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = propPVName.createProperty(this, ""));
         properties.add(filespace = propFilespace.createProperty(this, Filespace.WORKSPACE));
         properties.add(component = propFilecomponent.createProperty(this, FileComponent.FULL));
-        properties.add(value = runtimePropValue.createProperty(this, null));
-    }
-
-    /** @return 'pv_name' property */
-    public WidgetProperty<String> propPVName()
-    {
-        return pv_name;
     }
 
     /** @return 'filespace' property */
@@ -131,9 +117,4 @@ public class FileSelectorWidget extends VisibleWidget
         return component;
     }
 
-    /** @return Runtime 'value' property */
-    public WidgetProperty<VType> runtimePropValue()
-    {
-        return value;
-    }
 }

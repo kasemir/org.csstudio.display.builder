@@ -63,6 +63,9 @@ import org.w3c.dom.Element;
  *  TODO Some API for script to setCellBackground(row, column)
  *  TODO Some API for script to setCellColor(row, column)
  *
+ *  <B>Note:</B> this class cannot inherit from {@link PVWidget}
+ *  because of the peculiar usage of "runtime value".
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -126,7 +129,7 @@ public class TableWidget extends VisibleWidget
 
 
     /** 'value', but compared to usual value not limited to VType */
-    private static final WidgetPropertyDescriptor<Object> runtimeValue =
+    private static final WidgetPropertyDescriptor<Object> runtimeValueDescriptor =
         new WidgetPropertyDescriptor<Object>(WidgetPropertyCategory.RUNTIME, "value", Messages.WidgetProperties_Value)
         {
             @Override
@@ -257,7 +260,7 @@ public class TableWidget extends VisibleWidget
         properties.add(show_toolbar = propToolbar.createProperty(this,false));
         properties.add(columns = propColumns.createProperty(this, Arrays.asList(  new ColumnProperty(this, "Column 1") )));
         properties.add(pv_name = propPVName.createProperty(this, ""));
-        properties.add(value = runtimeValue.createProperty(this, null));
+        properties.add(value = runtimeValueDescriptor.createProperty(this, null));
         properties.add(editable = propEditable.createProperty(this, true));
         properties.add(selection_pv = propSelectionPV.createProperty(this, ""));
         properties.add(selection = runtimePropSelectionInfo.createProperty(this, null));
@@ -369,8 +372,8 @@ public class TableWidget extends VisibleWidget
         return pv_name;
     }
 
-    /** @return Runtime 'value' property */
-    public WidgetProperty<Object> runtimePropValue()
+    /** @return Runtime 'value' */
+    public WidgetProperty<Object> runtimeValue()
     {
         return value;
     }

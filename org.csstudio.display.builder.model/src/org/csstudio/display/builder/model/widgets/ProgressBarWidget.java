@@ -12,8 +12,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +24,6 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.diirt.vtype.VType;
 import org.osgi.framework.Version;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -37,7 +34,7 @@ import org.w3c.dom.Text;
  *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
-public class ProgressBarWidget extends VisibleWidget
+public class ProgressBarWidget extends PVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -89,12 +86,10 @@ public class ProgressBarWidget extends VisibleWidget
         return new ProgressBarConfigurator(persisted_version);
     }
 
-    private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<Boolean> limits_from_pv;
     private volatile WidgetProperty<Double> minimum;
     private volatile WidgetProperty<Double> maximum;
     private volatile WidgetProperty<WidgetColor> fill_color;
-    private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<Boolean> horizontal;
 
     public ProgressBarWidget()
@@ -106,25 +101,17 @@ public class ProgressBarWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = propPVName.createProperty(this, ""));
         properties.add(fill_color = propFillColor.createProperty(this, new WidgetColor(60, 255, 60)));
         properties.add(limits_from_pv = propLimitsFromPV.createProperty(this, true));
         properties.add(minimum = propMinimum.createProperty(this, 0.0));
         properties.add(maximum = propMaximum.createProperty(this, 100.0));
         properties.add(horizontal = propHorizontal.createProperty(this, true));
-        properties.add(value = runtimePropValue.createProperty(this, null));
     }
 
     /** @return 'fill_color' property */
     public WidgetProperty<WidgetColor> propFillColor()
     {
         return fill_color;
-    }
-
-    /** @return 'pv_name' property */
-    public WidgetProperty<String> propPVName()
-    {
-        return pv_name;
     }
 
     /** @return 'limits_from_pv' property */
@@ -143,12 +130,6 @@ public class ProgressBarWidget extends VisibleWidget
     public WidgetProperty<Double> propMaximum()
     {
         return maximum;
-    }
-
-    /** @return Runtime 'value' property */
-    public WidgetProperty<VType> runtimePropValue()
-    {
-        return value;
     }
 
     /** @return 'horizontal' property */
