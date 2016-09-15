@@ -12,9 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 
-import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
@@ -146,11 +144,8 @@ public class PropertyPanelSection extends GridPane
                     field = new Label(String.valueOf(property.getValue()), icon);
 
                 } catch ( Exception ex ) {
-
-                    DisplayEditor.logger.log(Level.WARNING, "Unable to load icon for type: " + type , ex);
-
+                    //  Some widgets have no icon (e.g. DisplayModel).
                     field = new Label(String.valueOf(property.getValue()));
-
                 }
 
             } else {

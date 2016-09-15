@@ -9,18 +9,15 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHeight;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propY;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.List;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.XMLUtil;
-import org.diirt.vtype.VType;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
 
@@ -28,7 +25,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class BaseLEDWidget extends VisibleWidget
+public class BaseLEDWidget extends PVWidget
 {
     /** Helper for configurator to handle legacy LED sizing */
     protected static void handle_legacy_position(final Widget widget, final Version xml_version, final Element xml)
@@ -58,9 +55,6 @@ public class BaseLEDWidget extends VisibleWidget
         }
     }
 
-    private volatile WidgetProperty<String> pv_name;
-    private volatile WidgetProperty<VType> value;
-
     /** Widget constructor.
      *  @param type Widget type
      */
@@ -79,24 +73,10 @@ public class BaseLEDWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = propPVName.createProperty(this, ""));
-        properties.add(propBorderAlarmSensitive.createProperty(this, true));
-        properties.add(value = runtimePropValue.createProperty(this, null));
 
         // Initial size
         propWidth().setValue(20);
         propHeight().setValue(20);
     }
 
-    /** @return 'pv_name' property */
-    public WidgetProperty<String> propPVName()
-    {
-        return pv_name;
-    }
-
-    /** @return Runtime 'value' property */
-    public WidgetProperty<VType> runtimePropValue()
-    {
-        return value;
-    }
 }

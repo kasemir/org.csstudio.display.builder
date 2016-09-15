@@ -10,8 +10,6 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 import static org.csstudio.display.builder.model.properties.InsetsWidgetProperty.runtimePropInsets;
 
 import java.util.Arrays;
@@ -30,7 +28,6 @@ import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.diirt.vtype.VType;
 
 /**
  * An Array Widget contains copies of a child widget. Each copy is assigned the
@@ -39,7 +36,7 @@ import org.diirt.vtype.VType;
  * @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
-public class ArrayWidget extends VisibleWidget
+public class ArrayWidget extends PVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -73,11 +70,9 @@ public class ArrayWidget extends VisibleWidget
     }
 
     private volatile WidgetProperty<Macros> macros;
-    private volatile WidgetProperty<String> pv_name;
     private volatile ChildrenProperty children;
     private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetColor> background;
-    private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<int[]> insets;
 
     public ArrayWidget()
@@ -89,14 +84,12 @@ public class ArrayWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = propPVName.createProperty(this, ""));
         properties.add(macros = propMacros.createProperty(this, new Macros()));
         properties.add(children = new ArrayWidgetChildrenProperty(this));
         properties.add(foreground = propForegroundColor.createProperty(this,
                 WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this,
                 WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        properties.add(value = runtimePropValue.createProperty(this, null));
         properties.add(insets = runtimePropInsets.createProperty(this, new int[] { 0, 0 }));
     }
 
@@ -119,12 +112,6 @@ public class ArrayWidget extends VisibleWidget
         return macros;
     }
 
-    /** @return 'pv_name' property */
-    public WidgetProperty<String> propPVName()
-    {
-        return pv_name;
-    }
-
     /** @return Runtime 'children' property*/
     public ChildrenProperty runtimePropChildren()
     {
@@ -141,12 +128,6 @@ public class ArrayWidget extends VisibleWidget
     public WidgetProperty<WidgetColor> displayBackgroundColor()
     {
         return background;
-    }
-
-    /** @return Runtime 'value' property*/
-    public WidgetProperty<VType> runtimePropValue()
-    {
-        return value;
     }
 
     /** @return Runtime 'insets' property */

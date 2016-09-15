@@ -12,16 +12,13 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPageIncrement;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propStepIncrement;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,13 +35,12 @@ import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
-import org.diirt.vtype.VType;
 
 /** Widget that can read/write numeric PV via scaled slider
  *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
-public class ScaledSliderWidget extends VisibleWidget
+public class ScaledSliderWidget extends PVWidget
 {
     /** Widget descriptor */
 public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -129,7 +125,6 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     public static final WidgetPropertyDescriptor<Boolean> propShowLoLo =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_lolo", Messages.WidgetProperties_ShowLoLo);
 
-    private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<Boolean> horizontal;
     private volatile WidgetProperty<Double> page_increment;
     private volatile WidgetProperty<Double> step_increment;
@@ -168,9 +163,6 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(propPVName.createProperty(this, ""));
-        properties.add(value = runtimePropValue.createProperty(this, null));
-        properties.add(propBorderAlarmSensitive.createProperty(this, true));
         properties.add(horizontal = propHorizontal.createProperty(this, true));
         properties.add(step_increment = propStepIncrement.createProperty(this, 1.0));
         properties.add(page_increment = propPageIncrement.createProperty(this, 10.0));
@@ -193,12 +185,6 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         properties.add(show_hi = propShowHi.createProperty(this, true));
         properties.add(show_lo = propShowLo.createProperty(this, true));
         properties.add(show_lolo = propShowLoLo.createProperty(this, true));
-    }
-
-    /** @return Runtime 'value' property */
-    public WidgetProperty<VType> runtimePropValue()
-    {
-        return value;
     }
 
     /** @return 'horizontal' property */
