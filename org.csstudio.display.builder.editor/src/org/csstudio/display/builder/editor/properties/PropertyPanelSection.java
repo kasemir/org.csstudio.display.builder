@@ -12,12 +12,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
+import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
@@ -39,9 +42,12 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -87,9 +93,16 @@ public class PropertyPanelSection extends GridPane
                 category = property.getCategory();
 
                 final Label header = new Label(category.getDescription());
+
                 header.getStyleClass().add("property_category");
                 header.setMaxWidth(Double.MAX_VALUE);
                 add(header, 0, getNextGridRow(), 2, 1);
+
+                Separator separator = new Separator();
+
+                separator.getStyleClass().add("property_separator");
+                add(separator, 0, getNextGridRow(), 2, 1);
+
             }
 
             this.createPropertyUI(undo, property, other, 0);
@@ -119,16 +132,37 @@ public class PropertyPanelSection extends GridPane
 
         if (property.isReadonly())
         {
-            final TextField text = new TextField();
-            text.setText(String.valueOf(property.getValue()));
-            text.setDisable(true);
 
-//            // if type ... add icon
-//            if ( property.getName().equals(CommonWidgetProperties.propType.getName()) ) {
-//            property.getWidget().
-//            }
+            //  If "Type", use a label with an icon.
+            if ( property.getName().equals(CommonWidgetProperties.propType.getName()) ) {
 
-            field = text;
+                String type = property.getWidget().getType();
+
+                try {
+
+                    Image image = new Image(WidgetFactory.getInstance().getWidgetDescriptor(type).getIconStream());
+                    ImageView icon = new ImageView(image);
+
+                    field = new Label(String.valueOf(property.getValue()), icon);
+
+                } catch ( Exception ex ) {
+
+                    DisplayEditor.logger.log(Level.WARNING, "Unable to load icon for type: " + type , ex);
+
+                    field = new Label(String.valueOf(property.getValue()));
+
+                }
+
+            } else {
+
+                final TextField text = new TextField();
+                text.setText(String.valueOf(property.getValue()));
+                text.setDisable(true);
+
+                field = text;
+
+            }
+
         }
         else if (property instanceof ColorWidgetProperty)
         {
@@ -323,6 +357,11 @@ public class PropertyPanelSection extends GridPane
 
             add(header, 0, getNextGridRow(), 2, 1);
 
+            Separator separator = new Separator();
+
+            separator.getStyleClass().add("property_separator");
+            add(separator, 0, getNextGridRow(), 2, 1);
+
             for (WidgetProperty<?> elem : struct.getValue())
                 this.createPropertyUI(undo, elem, other, -1);
 
@@ -349,6 +388,11 @@ public class PropertyPanelSection extends GridPane
             add(label, 0, row);
             add(spinner, 1, row);
 
+            Separator separator = new Separator();
+
+            separator.getStyleClass().add("property_separator");
+            add(separator, 0, getNextGridRow(), 2, 1);
+
             // array elements
             List<WidgetProperty<?>> wpeList = array.getValue();
 
@@ -367,6 +411,11 @@ public class PropertyPanelSection extends GridPane
             endlabel.getStyleClass().add("array_property_end");
             add(endlabel, 0, getNextGridRow(), 2, 1);
 
+            separator = new Separator();
+
+            separator.getStyleClass().add("property_separator");
+            add(separator, 0, getNextGridRow(), 2, 1);
+
             return;
         }
         // As new property types are added, they might need to be handled:
@@ -382,9 +431,16 @@ public class PropertyPanelSection extends GridPane
         label.getStyleClass().add("property_name");
         field.getStyleClass().add("property_value");
 
-        final int row = getNextGridRow();
+        int row = getNextGridRow();
+
         add(label, 0, row);
         add(field, 1, row);
+
+        Separator separator = new Separator();
+
+        separator.getStyleClass().add("property_separator");
+        add(separator, 0, getNextGridRow(), 2, 1);
+
     }
 
     public AutocompleteMenu getAutocompleteMenu()
