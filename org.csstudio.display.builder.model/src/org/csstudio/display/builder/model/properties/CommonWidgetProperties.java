@@ -192,11 +192,25 @@ public class CommonWidgetProperties
 
     /** 'width' property */
     public static final WidgetPropertyDescriptor<Integer> propWidth =
-        newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "width", Messages.WidgetProperties_Width);
+        new WidgetPropertyDescriptor<Integer>(WidgetPropertyCategory.POSITION, "width", Messages.WidgetProperties_Width)
+    {
+        @Override
+        public WidgetProperty<Integer> createProperty(final Widget widget, final Integer value)
+        {
+            return new IntegerWidgetProperty(this, widget, value, 1, Integer.MAX_VALUE);
+        }
+    };
 
     /** 'height' property */
     public static final WidgetPropertyDescriptor<Integer> propHeight =
-        newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "height", Messages.WidgetProperties_Height);
+        new WidgetPropertyDescriptor<Integer>(WidgetPropertyCategory.POSITION, "height", Messages.WidgetProperties_Height)
+    {
+        @Override
+        public WidgetProperty<Integer> createProperty(final Widget widget, final Integer value)
+        {
+            return new IntegerWidgetProperty(this, widget, value, 1, Integer.MAX_VALUE);
+        }
+    };
 
     /** 'visible' property */
     public static final WidgetPropertyDescriptor<Boolean> propVisible =

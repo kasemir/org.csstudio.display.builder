@@ -282,6 +282,10 @@ public class SelectedWidgetUITracker extends Tracker
     @Override
     public void setPosition(final double x, final double y, double width, double height)
     {
+        if (width < 1.0)
+            width = 1.0;
+        if (height < 1.0)
+            height = 1.0;
         super.setPosition(x, y, width, height);
         // As tracker is being moved, highlight group under tracker
         group_handler.locateParent(x, y, width, height);
