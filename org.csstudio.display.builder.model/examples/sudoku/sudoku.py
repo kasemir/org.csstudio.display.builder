@@ -75,7 +75,7 @@ display = widget.getDisplayModel()
 text = WidgetColorService.getColor(NamedWidgetColors.TEXT)
 
 def createBoard():
-    background = display.displayBackgroundColor().getValue()
+    background = display.propBackgroundColor().getValue()
     index = 0
     for row in range(9):
         for col in range(9):
@@ -86,7 +86,7 @@ def createBoard():
                 pvs[calcPVIndex(row, col)].write(str(value))
             else:
                 pvs[calcPVIndex(row, col)].write(" ")
-                cell.setPropertyValue("background_color", cell.displayBackgroundColor().getDefaultValue())
+                cell.setPropertyValue("background_color", cell.propBackgroundColor().getDefaultValue())
             cell.setPropertyValue("foreground_color", text)
 
 pvs[1].write(0) #prevent solving
