@@ -8,12 +8,9 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,7 +35,6 @@ import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
-import org.diirt.vtype.VType;
 import org.osgi.framework.Version;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,7 +43,7 @@ import org.w3c.dom.Element;
  *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
-public class ComboWidget extends VisibleWidget
+public class ComboWidget extends PVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -133,8 +129,6 @@ public class ComboWidget extends VisibleWidget
     private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetFont> font;
-    private volatile WidgetProperty<VType> value;
-    private volatile WidgetProperty<String> pv_name;
     private volatile ArrayWidgetProperty<WidgetProperty<String>> items;
     private volatile WidgetProperty<Boolean> items_from_pv;
     private volatile WidgetProperty<Boolean> enabled;
@@ -148,12 +142,9 @@ public class ComboWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(propBorderAlarmSensitive.createProperty(this, true));
-        properties.add(pv_name = propPVName.createProperty(this, ""));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
-        properties.add(value = runtimePropValue.createProperty(this, null));
         properties.add(items = propItems.createProperty(this, Collections.emptyList()));
         properties.add(items_from_pv = propItemsFromPV.createProperty(this, true));
         properties.add(enabled = propEnabled.createProperty(this, true));
@@ -175,18 +166,6 @@ public class ComboWidget extends VisibleWidget
     public WidgetProperty<WidgetFont> propFont()
     {
         return font;
-    }
-
-    /** @return Runtime 'value' property */
-    public WidgetProperty<VType> runtimePropValue()
-    {
-        return value;
-    }
-
-    /** @return 'pv_name' property */
-    public WidgetProperty<String> propPVName()
-    {
-        return pv_name;
     }
 
     /** @return 'items' property */

@@ -37,7 +37,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
-/** Widget that provides button for invoking actions
+/**
+ * Widget that provides button for invoking actions.
+ *
+ *  <B>Note:</B> this class cannot inherit from {@link PVWidget}
+ *  because doesn't need active border and the "runtime value".
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -115,6 +120,7 @@ public class ActionButtonWidget extends VisibleWidget
         return new ActionButtonConfigurator(persisted_version);
     }
 
+    private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<Boolean> enabled;
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<String> text;
@@ -131,13 +137,18 @@ public class ActionButtonWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(propPVName.createProperty(this, ""));
+        properties.add(pv_name = propPVName.createProperty(this, ""));
         properties.add(text = propText.createProperty(this, "$(actions)"));
         properties.add(macros = propMacros.createProperty(this, new Macros()));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
         properties.add(enabled = propEnabled.createProperty(this, true));
+    }
+
+    /** @return 'pv_name' property */
+    public final WidgetProperty<String> propPVName ( ) {
+        return pv_name;
     }
 
     /** @return Widget 'macros' */

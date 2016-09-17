@@ -12,8 +12,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,13 +26,12 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
-import org.diirt.vtype.VType;
 
 /** Widget that provides button for making a binary change
  *  @author Megan Grodowitz
  */
 @SuppressWarnings("nls")
-public class BoolButtonWidget extends VisibleWidget
+public class BoolButtonWidget extends PVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -61,7 +58,6 @@ public class BoolButtonWidget extends VisibleWidget
 
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<Integer> bit;
-    private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<WidgetColor> off_color;
     private volatile WidgetProperty<WidgetColor> on_color;
     private volatile WidgetProperty<String> off_label;
@@ -77,10 +73,8 @@ public class BoolButtonWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(propPVName.createProperty(this, ""));
         properties.add(bit = propBit.createProperty(this, 0));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        properties.add(value = runtimePropValue.createProperty(this, null));
         properties.add(off_label = propOffLabel.createProperty(this, Messages.BoolWidget_OffLabel));
         properties.add(off_color = propOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
         properties.add(on_label = propOnLabel.createProperty(this, Messages.BoolWidget_OnLabel));
@@ -110,12 +104,6 @@ public class BoolButtonWidget extends VisibleWidget
     public WidgetProperty<Integer> propBit()
     {
         return bit;
-    }
-
-    /** @return Runtime 'value' property */
-    public WidgetProperty<VType> runtimePropValue()
-    {
-        return value;
     }
 
     /** @return 'off_color' property*/

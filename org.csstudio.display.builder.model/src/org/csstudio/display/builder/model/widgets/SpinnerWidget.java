@@ -13,11 +13,9 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPageIncrement;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPrecision;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propStepIncrement;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,13 +32,12 @@ import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.FormatOption;
 import org.csstudio.display.builder.model.properties.WidgetColor;
-import org.diirt.vtype.VType;
 
 /** Widget that represents a spinner
  *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
-public class SpinnerWidget extends VisibleWidget
+public class SpinnerWidget extends PVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -62,12 +59,10 @@ public class SpinnerWidget extends VisibleWidget
 
     //TODO: spinner format uses only Decimal, Exponential, and Hex; also (new?) Engineering?
 
-    private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<FormatOption> format; //includes decimal, exponential, and hex
     private volatile WidgetProperty<Integer> precision;
-    private volatile WidgetProperty<VType> value;
     private volatile WidgetProperty<Double> minimum;
     private volatile WidgetProperty<Double> maximum;
     private volatile WidgetProperty<Boolean> limits_from_pv;
@@ -86,24 +81,16 @@ public class SpinnerWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(pv_name = propPVName.createProperty(this, ""));
         properties.add(format = propFormat.createProperty(this, FormatOption.DECIMAL));
         properties.add(precision = propPrecision.createProperty(this, -1));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.WRITE_BACKGROUND)));
-        properties.add(value = runtimePropValue.createProperty(this, null));
         properties.add(minimum = propMinimum.createProperty(this, 0.0));
         properties.add(maximum = propMaximum.createProperty(this, 100.0));
         properties.add(limits_from_pv = propLimitsFromPV.createProperty(this, true));
         properties.add(step_increment = propStepIncrement.createProperty(this, 1.0));
         properties.add(page_increment = propPageIncrement.createProperty(this, 10.0));
         properties.add(buttons_on_left = propButtonsOnLeft.createProperty(this, false));
-    }
-
-    /** @return 'pv_name' property */
-    public WidgetProperty<String> propPVName()
-    {
-        return pv_name;
     }
 
     /** @return 'background_color' property */
@@ -128,12 +115,6 @@ public class SpinnerWidget extends VisibleWidget
     public WidgetProperty<Integer> propPrecision()
     {
         return precision;
-    }
-
-    /** @return Runtime 'value' property */
-    public WidgetProperty<VType> runtimePropValue()
-    {
-        return value;
     }
 
     /** @return 'minimum' property */

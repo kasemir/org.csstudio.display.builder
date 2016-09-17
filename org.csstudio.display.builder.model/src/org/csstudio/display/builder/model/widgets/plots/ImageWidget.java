@@ -8,11 +8,8 @@
 package org.csstudio.display.builder.model.widgets.plots;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
 
 import java.util.Arrays;
@@ -41,7 +38,7 @@ import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
-import org.csstudio.display.builder.model.widgets.VisibleWidget;
+import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.diirt.vtype.VType;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
@@ -50,7 +47,7 @@ import org.w3c.dom.Element;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class ImageWidget extends VisibleWidget
+public class ImageWidget extends PVWidget
 {
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -301,7 +298,6 @@ public class ImageWidget extends VisibleWidget
     private volatile ColorBarProperty color_bar;
     private volatile AxisWidgetProperty x_axis;
     private volatile AxisWidgetProperty y_axis;
-    private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<Integer> data_width;
     private volatile WidgetProperty<Integer> data_height;
     private volatile WidgetProperty<Boolean> data_autoscale;
@@ -312,8 +308,6 @@ public class ImageWidget extends VisibleWidget
     private volatile WidgetProperty<VType> cursor_info;
     private volatile ArrayWidgetProperty<ROIWidgetProperty> rois;
 
-    private WidgetProperty<VType> value;
-
     public ImageWidget()
     {
         super(WIDGET_DESCRIPTOR.getType(), 400, 300);
@@ -323,8 +317,6 @@ public class ImageWidget extends VisibleWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(propBorderAlarmSensitive.createProperty(this, true));
-        properties.add(pv_name = propPVName.createProperty(this, ""));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         properties.add(show_toolbar = propToolbar.createProperty(this,false));
         properties.add(data_colormap = propDataColormap.createProperty(this, ColorMap.VIRIDIS));
@@ -337,7 +329,6 @@ public class ImageWidget extends VisibleWidget
         properties.add(data_autoscale = PlotWidgetProperties.propAutoscale.createProperty(this, true));
         properties.add(data_minimum = propMinimum.createProperty(this, 0.0));
         properties.add(data_maximum = propMaximum.createProperty(this, 255.0));
-        properties.add(value = runtimePropValue.createProperty(this, null));
         properties.add(cursor_info_pv = propCursorInfoPV.createProperty(this, ""));
         properties.add(cursor_info = runtimePropCursorInfo.createProperty(this, null));
         properties.add(rois = propROIs.createProperty(this, Collections.emptyList()));
@@ -386,12 +377,6 @@ public class ImageWidget extends VisibleWidget
         return y_axis;
     }
 
-    /** @return 'pv_name' property */
-    public WidgetProperty<String> propPVName()
-    {
-        return pv_name;
-    }
-
     /** @return 'data_width' property */
     public WidgetProperty<Integer> propDataWidth()
     {
@@ -426,12 +411,6 @@ public class ImageWidget extends VisibleWidget
     public WidgetProperty<Double> propDataMaximum()
     {
         return data_maximum;
-    }
-
-    /** @return Runtime 'value' property */
-    public WidgetProperty<VType> runtimePropValue()
-    {
-        return value;
     }
 
     /** @return 'cursor_info_pv' property */
