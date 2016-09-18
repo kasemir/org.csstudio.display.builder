@@ -47,6 +47,7 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
         model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propWrapWords().addUntypedPropertyListener(this::styleChanged);
 
         model_widget.propFormat().addUntypedPropertyListener(this::contentChanged);
         model_widget.propPrecision().addUntypedPropertyListener(this::contentChanged);
@@ -107,6 +108,7 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
             color = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
             jfx_node.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
+            jfx_node.setWrapText(model_widget.propWrapWords().getValue());
         }
         if (dirty_content.checkAndClear())
             jfx_node.setText(value_text);
