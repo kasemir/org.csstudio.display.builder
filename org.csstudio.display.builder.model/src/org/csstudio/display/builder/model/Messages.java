@@ -182,6 +182,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Visible;
     public static String WidgetProperties_Width;
     public static String WidgetProperties_WidthPVName;
+    public static String WidgetProperties_WrapWords;
     public static String WidgetProperties_X;
     public static String WidgetProperties_XPVName;
     public static String WidgetProperties_Y;

@@ -351,6 +351,10 @@ public class CommonWidgetProperties
         }
     };
 
+    /** 'wrap_words' property: Wrap words to fit width of widget? */
+    public static final WidgetPropertyDescriptor<Boolean> propWrapWords =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "wrap_words", Messages.WidgetProperties_WrapWords);
+
     /** Property for the 'off' color */
     public static final WidgetPropertyDescriptor<WidgetColor> propOffColor = new WidgetPropertyDescriptor<WidgetColor>(
             WidgetPropertyCategory.DISPLAY, "off_color", Messages.WidgetProperties_OffColor)

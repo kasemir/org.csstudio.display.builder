@@ -14,6 +14,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propText;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTransparent;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propVerticalAlignment;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWrapWords;
 
 import java.util.Arrays;
 import java.util.List;
@@ -61,6 +62,7 @@ public class LabelWidget extends VisibleWidget
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<HorizontalAlignment> horizontal_alignment;
     private volatile WidgetProperty<VerticalAlignment> vertical_alignment;
+    private volatile WidgetProperty<Boolean> wrap_words;
 
     public LabelWidget()
     {
@@ -78,6 +80,7 @@ public class LabelWidget extends VisibleWidget
         properties.add(transparent = propTransparent.createProperty(this, true));
         properties.add(horizontal_alignment = propHorizontalAlignment.createProperty(this, HorizontalAlignment.LEFT));
         properties.add(vertical_alignment = propVerticalAlignment.createProperty(this, VerticalAlignment.TOP));
+        properties.add(wrap_words = propWrapWords.createProperty(this, true));
     }
 
     @Override
@@ -131,5 +134,11 @@ public class LabelWidget extends VisibleWidget
     public WidgetProperty<VerticalAlignment> propVerticalAlignment()
     {
         return vertical_alignment;
+    }
+
+    /** @return 'wrap_words' property */
+    public WidgetProperty<Boolean> propWrapWords()
+    {
+        return wrap_words;
     }
 }
