@@ -58,7 +58,7 @@ public class SelectedWidgetUITracker extends Tracker
     private final ParentHandler group_handler;
     private final UndoableActionManager undo;
 
-    private final TrackerGridConstraint grid_constraint = new TrackerGridConstraint(10);
+    private final TrackerGridConstraint grid_constraint;
     private final TrackerSnapConstraint snap_constraint = new TrackerSnapConstraint(this);
 
     /** Inline editor for widget's PV name or text */
@@ -91,6 +91,7 @@ public class SelectedWidgetUITracker extends Tracker
         this.toolkit = toolkit;
         this.group_handler = group_handler;
         this.undo = undo;
+        this.grid_constraint = new TrackerGridConstraint(toolkit);
 
         setVisible(false);
 
