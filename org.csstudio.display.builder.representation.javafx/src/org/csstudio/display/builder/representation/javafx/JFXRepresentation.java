@@ -7,6 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +100,9 @@ import org.eclipse.core.runtime.RegistryFactory;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -104,10 +111,15 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
+import javafx.scene.paint.ImagePattern;
 
 /** Represent model items in JavaFX toolkit
  *
@@ -154,6 +166,15 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
 
     /** Zoom to fit display's height */
     public static final double ZOOM_HEIGHT = -2.0;
+
+    /** Width of the grid lines. */
+    private static final float GRID_LINE_WIDTH = 0.222F;
+
+    private Color backgroundColor = Color.WHITE;
+    private Color gridColor = Color.GRAY;
+    private int gridStepX = 20;
+    private int gridStepY = 20;
+    private boolean gridVisible = false;
 
     /** Constructor
      *  @param edit_mode Edit mode?
@@ -215,8 +236,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(TabsWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TabsRepresentation());
         factories.put(TextEntryWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextEntryRepresentation());
         factories.put(TextUpdateWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextUpdateRepresentation());
-        factories.put(ThermometerWidget.WIDGET_DESCRIPTOR.getType(),
-                () -> (WidgetRepresentation) new ThermometerRepresentation());
+        factories.put(ThermometerWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ThermometerRepresentation());
         factories.put(WebBrowserWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new WebBrowserRepresentation());
         factories.put(XYPlotWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new XYPlotRepresentation());
     }
@@ -311,9 +331,91 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public void setBackground(final WidgetColor color)
-    {
-        model_root.setStyle("-fx-background: " + JFXUtil.webRGB(color));
+    public void setBackground ( final WidgetColor color ) {
+
+        if ( isEditMode() ) {
+            try {
+                model_root.setStyle("-fx-background: linear-gradient(from 0px 0px to 10px 10px, reflect, #D2A2A2 48%, #D2A2A2 2%, #D2D2A2 48% #D2D2A2 2%)");
+            } catch ( Exception ex ) {
+            }
+        } else {
+            model_root.setStyle("-fx-background: " + JFXUtil.webRGB(color));
+        }
+
+        if ( color != null ) {
+
+            backgroundColor = new Color(color.getRed(), color.getGreen(), color.getBlue());
+
+            updateBackground();
+
+        }
+
+    }
+
+    @Override
+    public void setDisplayHeight ( Integer height ) {
+        if ( height != null ) {
+            Platform.runLater(() -> ((Pane) model_root.getContent()).setPrefHeight(height.doubleValue()));
+        }
+    }
+
+    @Override
+    public void setDisplayWidth ( Integer width ) {
+        if ( width != null ) {
+            Platform.runLater(() -> ((Pane) model_root.getContent()).setPrefWidth(width.doubleValue()));
+        }
+    }
+
+    @Override
+    public void setGridColor ( WidgetColor color ) {
+
+        if ( color != null ) {
+
+            gridColor = new Color(color.getRed(), color.getGreen(), color.getBlue());
+
+            updateBackground();
+
+        }
+
+    }
+
+    @Override
+    public void setGridVisible ( Boolean visible ) {
+
+        if ( visible != null ) {
+
+            gridVisible = visible;
+
+            updateBackground();
+
+        }
+
+    }
+
+    @Override
+    public void setGridStepX ( Integer stepX ) {
+
+        if ( stepX != null ) {
+
+            gridStepX = stepX;
+
+            updateBackground();
+
+        }
+
+    }
+
+    @Override
+    public void setGridStepY ( Integer stepY ) {
+
+        if ( stepY != null ) {
+
+            gridStepY = stepY;
+
+            updateBackground();
+
+        }
+
     }
 
     @Override
@@ -480,6 +582,37 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         return null;
     }
 
+    private void updateBackground() {
+
+        BufferedImage image = new BufferedImage(gridStepX, gridStepY, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = image.createGraphics();
+
+        g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+
+        g2d.setBackground(backgroundColor);
+        g2d.clearRect(0, 0, gridStepX, gridStepY);
+
+        if ( gridVisible ) {
+            g2d.setColor(gridColor);
+            g2d.setStroke(new BasicStroke(GRID_LINE_WIDTH));
+            g2d.drawLine(0, 0, gridStepX, 0);
+            g2d.drawLine(0, 0, 0, gridStepY);
+        }
+
+        WritableImage wimage = new WritableImage(gridStepX, gridStepY);
+
+        SwingFXUtils.toFXImage(image, wimage);
+
+        ImagePattern pattern = new ImagePattern(wimage, 0, 0, gridStepX, gridStepY, false);
+
+        ((Pane) model_root.getContent()).setBackground(new Background(new BackgroundFill(pattern, CornerRadii.EMPTY, Insets.EMPTY)));
+
+    }
+
     // Future for controlling the audio player
     private class AudioFuture implements Future<Boolean>
     {
@@ -609,4 +742,17 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         }
         return CompletableFuture.completedFuture(false);
     }
+
+
+    @Override
+    public Integer getGridStepX ( ) {
+        return gridStepX;
+    }
+
+
+    @Override
+    public Integer getGridStepY ( ) {
+        return gridStepX;
+    }
+
 }

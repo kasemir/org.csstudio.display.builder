@@ -180,4 +180,45 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
         logger.log(Level.WARNING, "playAudio('" + url + "') is not implemented");
         return CompletableFuture.completedFuture(false);
     }
+
+    @Override
+    public void setGridColor ( WidgetColor color ) {
+        // Not implemented
+    }
+
+    @Override
+    public void setGridVisible ( Boolean visible ) {
+        // Not implemented
+    }
+
+    @Override
+    public void setGridStepX ( Integer gridStepX ) {
+        // Not implemented
+    }
+
+    @Override
+    public void setGridStepY ( Integer gridStepY ) {
+        // Not implemented
+    }
+
+    @Override
+    public Integer getGridStepX ( ) {
+        return 10;
+    }
+
+    @Override
+    public Integer getGridStepY ( ) {
+        return 10;
+    }
+
+    @Override
+    public void setDisplayHeight ( Integer height ) {
+        // Not implemented
+    }
+
+    @Override
+    public void setDisplayWidth ( Integer width ) {
+        // Not implemented
+    }
+
 }
