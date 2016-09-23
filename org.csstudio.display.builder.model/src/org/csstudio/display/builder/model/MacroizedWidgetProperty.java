@@ -77,9 +77,19 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
      */
     public void setSpecification(final String specification)
     {
-        this.specification = specification;
-        this.value = null;
-        firePropertyChange(this, null, null);
+        try
+        {   // If spec. parses, use (and restrict) it
+            final T old = value;
+            value = restrictValue(parseExpandedSpecification(specification));
+            this.specification = computeSpecification(value);
+            firePropertyChange(this, old, value);
+        }
+        catch (Exception ex)
+        {   // Set "as is".
+            this.specification = specification;
+            value = null;
+            firePropertyChange(this, null, null);
+        }
     }
 
     /** Determine specification for a value
