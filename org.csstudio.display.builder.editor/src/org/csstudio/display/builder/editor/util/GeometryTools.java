@@ -36,7 +36,7 @@ public class GeometryTools
      *  @param widget Model widget, must already be in the model, i.e. have a parent
      *  @return {@link Point2D} Offset of the widget relative to the display model
      */
-    public static Point2D getDisplayOffset(Widget widget)
+    public static Point2D getDisplayOffset(final Widget widget)
     {
         return getContainerOffset(widget.getParent().orElse(null));
     }
@@ -54,9 +54,14 @@ public class GeometryTools
         int dx = 0, dy = 0;
 
         while (container != null)
-        {
-            dx += container.propX().getValue();
-            dy += container.propY().getValue();
+        {   // Ignore the x/y location of the display model,
+            // it's used as origin coordinate for standalone window,
+            // not as offset within a display
+            if (! (container instanceof DisplayModel))
+            {
+                dx += container.propX().getValue();
+                dy += container.propY().getValue();
+            }
             final int[] insets = InsetsWidgetProperty.getInsets(container);
             if (insets != null)
             {
