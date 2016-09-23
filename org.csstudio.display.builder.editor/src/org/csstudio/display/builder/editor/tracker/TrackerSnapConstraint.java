@@ -203,8 +203,6 @@ public class TrackerSnapConstraint extends TrackerConstraint
         }
     }
 
-
-
     public TrackerSnapConstraint ( final Group group, final ToolkitRepresentation<Parent, Node> toolkit ) {
 
         this.toolkit = toolkit;
@@ -223,14 +221,24 @@ public class TrackerSnapConstraint extends TrackerConstraint
     }
 
     @Override
-    public void setEnabled(final boolean enabled)
-    {
+    public void setEnabled ( final boolean enabled ) {
+
         super.setEnabled(enabled);
-        if (! enabled)
-        {
-            horiz_guide.setVisible(false);
-            vert_guide.setVisible(false);
+
+        if ( !enabled ) {
+            setVisible(false);
         }
+
+    }
+
+    /**
+     * Sets the guidelines visible or not.
+     *
+     * @param visible {@code true} if guidelines must be visible, {@code false} otherwise.
+     */
+    public void setVisible ( boolean visible ) {
+        horiz_guide.setVisible(visible);
+        vert_guide.setVisible(visible);
     }
 
     /** Configure tracker
@@ -260,7 +268,7 @@ public class TrackerSnapConstraint extends TrackerConstraint
             horiz_guide.setStartX(x);
             horiz_guide.setStartY(0);
             horiz_guide.setEndX(x);
-            horiz_guide.setEndY(getHeight());
+            horiz_guide.setEndY(toolkit.getDisplayHeight() - 1);
             horiz_guide.setVisible(true);
         }
         if (result.vert == SnapResult.INVALID)
@@ -270,30 +278,12 @@ public class TrackerSnapConstraint extends TrackerConstraint
             y = result.vert;
             vert_guide.setStartX(0);
             vert_guide.setStartY(y);
-            vert_guide.setEndX(getWidth());
+            vert_guide.setEndX(toolkit.getDisplayWidth() - 1);
             vert_guide.setEndY(y);
             vert_guide.setVisible(true);
         }
 
         return new Point2D(x, y);
-    }
-
-    private final double getHeight()
-    {
-        return toolkit.getDisplayHeight();
-//        Node parent = horiz_guide.getParent();
-//        while (parent != null && !(parent instanceof Pane))
-//            parent = parent.getParent();
-//        return Math.max(parent != null ? ((Pane) parent).getHeight() : 0, horiz_guide.getScene().getHeight());
-    }
-
-    private final double getWidth()
-    {
-        return toolkit.getDisplayWidth();
-//        Node parent = vert_guide.getParent();
-//        while (parent != null && !(parent instanceof Pane))
-//            parent = parent.getParent();
-//        return Math.max(parent != null ? ((Pane) parent).getWidth() : 0, vert_guide.getScene().getWidth());
     }
 
 }

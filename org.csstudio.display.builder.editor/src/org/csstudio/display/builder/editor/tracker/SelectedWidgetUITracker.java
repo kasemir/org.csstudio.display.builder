@@ -424,6 +424,15 @@ public class SelectedWidgetUITracker extends Tracker
         tracker.requestFocus();
     }
 
+    @Override
+    protected void endMouseDrag ( final MouseEvent event ) {
+
+        super.endMouseDrag(event);
+
+        snap_constraint.setVisible(false);
+
+    }
+
     private void bindToWidgets()
     {
         for (final Widget widget : widgets)

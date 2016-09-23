@@ -354,7 +354,10 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
 
     @Override
     public Integer getDisplayHeight ( ) {
-        return (int) ((Pane) model_root.getContent()).getMinHeight();
+        /*
+         * NOTE: the current height is returned, so snap guidelines are displayed correctly.
+         */
+        return (int) ((Pane) model_root.getContent()).getHeight();
     }
 
     @Override
@@ -366,7 +369,10 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
 
     @Override
     public Integer getDisplayWidth ( ) {
-        return (int) ((Pane) model_root.getContent()).getMinWidth();
+        /*
+         * NOTE: the current width is returned, so snap guidelines are displayed correctly.
+         */
+        return (int) ((Pane) model_root.getContent()).getWidth();
     }
 
     @Override
