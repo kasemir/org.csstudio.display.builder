@@ -221,4 +221,22 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
         // Not implemented
     }
 
+    /* (non-Javadoc)
+     * @see org.csstudio.display.builder.representation.ToolkitRepresentation#getDisplayHeight()
+     */
+    @Override
+    public Integer getDisplayHeight ( ) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see org.csstudio.display.builder.representation.ToolkitRepresentation#getDisplayWidth()
+     */
+    @Override
+    public Integer getDisplayWidth ( ) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

@@ -353,16 +353,26 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
+    public Integer getDisplayHeight ( ) {
+        return (int) ((Pane) model_root.getContent()).getMinHeight();
+    }
+
+    @Override
     public void setDisplayHeight ( Integer height ) {
         if ( height != null ) {
-            Platform.runLater(() -> ((Pane) model_root.getContent()).setPrefHeight(height.doubleValue()));
+            Platform.runLater(() -> ((Pane) model_root.getContent()).setMinHeight(height.doubleValue()));
         }
+    }
+
+    @Override
+    public Integer getDisplayWidth ( ) {
+        return (int) ((Pane) model_root.getContent()).getMinWidth();
     }
 
     @Override
     public void setDisplayWidth ( Integer width ) {
         if ( width != null ) {
-            Platform.runLater(() -> ((Pane) model_root.getContent()).setPrefWidth(width.doubleValue()));
+            Platform.runLater(() -> ((Pane) model_root.getContent()).setMinWidth(width.doubleValue()));
         }
     }
 
