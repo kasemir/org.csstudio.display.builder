@@ -59,7 +59,7 @@ public class SelectedWidgetUITracker extends Tracker
     private final UndoableActionManager undo;
 
     private final TrackerGridConstraint grid_constraint;
-    private final TrackerSnapConstraint snap_constraint = new TrackerSnapConstraint(this);
+    private final TrackerSnapConstraint snap_constraint;
 
     /** Inline editor for widget's PV name or text */
     private TextField inline_editor = null;
@@ -91,6 +91,7 @@ public class SelectedWidgetUITracker extends Tracker
         this.toolkit = toolkit;
         this.group_handler = group_handler;
         this.undo = undo;
+        this.snap_constraint = new TrackerSnapConstraint(this, toolkit);
         this.grid_constraint = new TrackerGridConstraint(toolkit);
 
         setVisible(false);
@@ -421,6 +422,15 @@ public class SelectedWidgetUITracker extends Tracker
 
         // Get focus to allow use of arrow keys
         tracker.requestFocus();
+    }
+
+    @Override
+    protected void endMouseDrag ( final MouseEvent event ) {
+
+        super.endMouseDrag(event);
+
+        snap_constraint.setVisible(false);
+
     }
 
     private void bindToWidgets()

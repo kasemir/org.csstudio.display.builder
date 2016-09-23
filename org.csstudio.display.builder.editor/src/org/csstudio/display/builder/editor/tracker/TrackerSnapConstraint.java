@@ -16,12 +16,13 @@ import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.representation.ToolkitRepresentation;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
-import javafx.scene.layout.Pane;
+import javafx.scene.Parent;
 import javafx.scene.shape.Line;
 
 /** Constraint on the movement of the Tracker that snaps to other widgets
@@ -54,6 +55,7 @@ public class TrackerSnapConstraint extends TrackerConstraint
     private DisplayModel model = null;
     private List<Widget>selected_widgets = Collections.emptyList();
 
+    private final ToolkitRepresentation<Parent, Node> toolkit;
     private final Line horiz_guide, vert_guide;
 
 
@@ -201,26 +203,42 @@ public class TrackerSnapConstraint extends TrackerConstraint
         }
     }
 
-    public TrackerSnapConstraint(final Group group)
-    {
-        horiz_guide = new Line();
+    public TrackerSnapConstraint ( final Group group, final ToolkitRepresentation<Parent, Node> toolkit ) {
+
+        this.toolkit = toolkit;
+        this.horiz_guide = new Line();
+
         horiz_guide.getStyleClass().add("guide_line");
         horiz_guide.setVisible(false);
-        vert_guide = new Line();
+
+        this.vert_guide = new Line();
+
         vert_guide.getStyleClass().add("guide_line");
         vert_guide.setVisible(false);
+
         group.getChildren().addAll(horiz_guide, vert_guide);
+
     }
 
     @Override
-    public void setEnabled(final boolean enabled)
-    {
+    public void setEnabled ( final boolean enabled ) {
+
         super.setEnabled(enabled);
-        if (! enabled)
-        {
-            horiz_guide.setVisible(false);
-            vert_guide.setVisible(false);
+
+        if ( !enabled ) {
+            setVisible(false);
         }
+
+    }
+
+    /**
+     * Sets the guidelines visible or not.
+     *
+     * @param visible {@code true} if guidelines must be visible, {@code false} otherwise.
+     */
+    public void setVisible ( boolean visible ) {
+        horiz_guide.setVisible(visible);
+        vert_guide.setVisible(visible);
     }
 
     /** Configure tracker
@@ -250,7 +268,8 @@ public class TrackerSnapConstraint extends TrackerConstraint
             horiz_guide.setStartX(x);
             horiz_guide.setStartY(0);
             horiz_guide.setEndX(x);
-            horiz_guide.setEndY(getHeight());
+            //  '-2' is necessary because the display model's bounds width is greater than 1.
+            horiz_guide.setEndY(toolkit.getDisplayHeight() - 2);
             horiz_guide.setVisible(true);
         }
         if (result.vert == SnapResult.INVALID)
@@ -260,28 +279,13 @@ public class TrackerSnapConstraint extends TrackerConstraint
             y = result.vert;
             vert_guide.setStartX(0);
             vert_guide.setStartY(y);
-            vert_guide.setEndX(getWidth());
+            //  '-2' is necessary because the display model's bounds width is greater than 1.
+            vert_guide.setEndX(toolkit.getDisplayWidth() - 2);
             vert_guide.setEndY(y);
             vert_guide.setVisible(true);
         }
 
         return new Point2D(x, y);
-    }
-
-    private final double getHeight()
-    {
-        Node parent = horiz_guide.getParent();
-        while (parent != null && !(parent instanceof Pane))
-            parent = parent.getParent();
-        return Math.max(parent != null ? ((Pane) parent).getHeight() : 0, horiz_guide.getScene().getHeight());
-    }
-
-    private final double getWidth()
-    {
-        Node parent = vert_guide.getParent();
-        while (parent != null && !(parent instanceof Pane))
-            parent = parent.getParent();
-        return Math.max(parent != null ? ((Pane) parent).getWidth() : 0, vert_guide.getScene().getWidth());
     }
 
 }

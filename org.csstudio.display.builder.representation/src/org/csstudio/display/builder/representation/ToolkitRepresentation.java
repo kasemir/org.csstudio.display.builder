@@ -195,9 +195,19 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     abstract public void setBackground(WidgetColor color);
 
     /**
+     * @return The current display height.
+     */
+    abstract public Integer getDisplayHeight ( );
+
+    /**
      * @param height The new display height.
      */
     abstract public void setDisplayHeight ( Integer height );
+
+    /**
+     * @return The current display width.
+     */
+    abstract public Integer getDisplayWidth ( );
 
     /**
      * @param width The new display width.
