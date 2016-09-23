@@ -120,6 +120,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.paint.ImagePattern;
+import javafx.scene.shape.Line;
 
 /** Represent model items in JavaFX toolkit
  *
@@ -175,6 +176,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     private int gridStepX = 20;
     private int gridStepY = 20;
     private boolean gridVisible = false;
+    private Line horiz_bound, vert_bound;
 
     /** Constructor
      *  @param edit_mode Edit mode?
@@ -250,18 +252,27 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     private volatile ScrollPane model_root;
     private volatile Group model_parent;
 
-    /** Create scrollpane etc. for hosting the model
-     *  @return ScrollPane
-     *  @throws IllegalStateException if had already been called
+    /**
+     * Create scrollpane etc. for hosting the model
+     *
+     * @return ScrollPane
+     * @throws IllegalStateException if had already been called
      */
-    final public ScrollPane createModelRoot()
-    {
-        if (model_root != null)
+    final public ScrollPane createModelRoot ( ) {
+
+        if ( model_root != null )
             throw new IllegalStateException("Already created model root");
+
         model_parent = new Group();
-        final Pane scroll_body = new Pane(model_parent);
+        vert_bound = new Line();
+        horiz_bound = new Line();
+
+        final Pane scroll_body = new Pane(model_parent, vert_bound, horiz_bound);
+
         model_root = new ScrollPane(scroll_body);
+
         return model_root;
+
     }
 
     /** @see JFXRepresentation#createScene(DisplayModel)
@@ -362,9 +373,25 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
 
     @Override
     public void setDisplayHeight ( Integer height ) {
+
         if ( height != null ) {
-            Platform.runLater(() -> ((Pane) model_root.getContent()).setMinHeight(height.doubleValue()));
+
+            final double h = height.doubleValue();
+
+            Platform.runLater(() -> {
+
+                ((Pane) model_root.getContent()).setMinHeight(h);
+
+                if ( isEditMode() ) {
+                    horiz_bound.setStartY(h - 1);
+                    horiz_bound.setEndY(h - 1);
+                    vert_bound.setEndY(h - 1);
+                }
+
+            });
+
         }
+
     }
 
     @Override
@@ -377,9 +404,25 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
 
     @Override
     public void setDisplayWidth ( Integer width ) {
+
         if ( width != null ) {
-            Platform.runLater(() -> ((Pane) model_root.getContent()).setMinWidth(width.doubleValue()));
+
+            final double w = width.doubleValue();
+
+            Platform.runLater(() -> {
+
+                ((Pane) model_root.getContent()).setMinWidth(w);
+
+                if ( isEditMode() ) {
+                    horiz_bound.setEndX(w - 1);
+                    vert_bound.setStartX(w - 1);
+                    vert_bound.setEndX(w - 1);
+                }
+
+            });
+
         }
+
     }
 
     @Override
@@ -437,8 +480,29 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     @Override
     public void representModel(final Parent root, final DisplayModel model) throws Exception
     {
+
         root.getProperties().put(ACTIVE_MODEL, model);
         super.representModel(root, model);
+
+        if ( isEditMode() ) {
+
+            double h = model.propHeight().getValue().doubleValue();
+            double w = model.propWidth().getValue().doubleValue();
+
+            horiz_bound.getStyleClass().add("display_model_bounds");
+            horiz_bound.setStartX(0);
+            horiz_bound.setStartY(h - 1);
+            horiz_bound.setEndX(w - 1);
+            horiz_bound.setEndY(h - 1);
+
+            vert_bound.getStyleClass().add("display_model_bounds");
+            vert_bound.setStartX(w - 1);
+            vert_bound.setStartY(0);
+            vert_bound.setEndX(w - 1);
+            vert_bound.setEndY(h - 1);
+
+        }
+
     }
 
     @Override

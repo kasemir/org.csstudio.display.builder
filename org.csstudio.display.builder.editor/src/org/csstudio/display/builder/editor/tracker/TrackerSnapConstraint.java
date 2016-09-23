@@ -268,7 +268,8 @@ public class TrackerSnapConstraint extends TrackerConstraint
             horiz_guide.setStartX(x);
             horiz_guide.setStartY(0);
             horiz_guide.setEndX(x);
-            horiz_guide.setEndY(toolkit.getDisplayHeight() - 1);
+            //  '-2' is necessary because the display model's bounds width is greater than 1.
+            horiz_guide.setEndY(toolkit.getDisplayHeight() - 2);
             horiz_guide.setVisible(true);
         }
         if (result.vert == SnapResult.INVALID)
@@ -278,7 +279,8 @@ public class TrackerSnapConstraint extends TrackerConstraint
             y = result.vert;
             vert_guide.setStartX(0);
             vert_guide.setStartY(y);
-            vert_guide.setEndX(toolkit.getDisplayWidth() - 1);
+            //  '-2' is necessary because the display model's bounds width is greater than 1.
+            vert_guide.setEndX(toolkit.getDisplayWidth() - 2);
             vert_guide.setEndY(y);
             vert_guide.setVisible(true);
         }
