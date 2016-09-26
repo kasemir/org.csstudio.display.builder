@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model.widgets;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBit;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLabelsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnColor;
 
@@ -62,6 +63,7 @@ public class BoolButtonWidget extends PVWidget
     private volatile WidgetProperty<String> off_label;
     private volatile WidgetProperty<String> on_label;
     private volatile WidgetProperty<WidgetFont> font;
+    private volatile WidgetProperty<Boolean> labels_from_pv;
 
 
     public BoolButtonWidget()
@@ -79,8 +81,8 @@ public class BoolButtonWidget extends PVWidget
         properties.add(on_label = propOnLabel.createProperty(this, Messages.BoolWidget_OnLabel));
         properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(labels_from_pv = propLabelsFromPV.createProperty(this, false));
     }
-
 
     /** @return 'off_label' property */
     public WidgetProperty<String> propOffLabel()
@@ -116,5 +118,11 @@ public class BoolButtonWidget extends PVWidget
     public WidgetProperty<WidgetFont> propFont()
     {
         return font;
+    }
+
+    /** @return 'labels_from_pv' property */
+    public WidgetProperty<Boolean> propLabelsFromPV()
+    {
+        return labels_from_pv;
     }
 }

@@ -9,6 +9,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
+import java.util.List;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
@@ -16,11 +17,11 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
@@ -40,6 +41,18 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     protected volatile int use_bit = 0;
     protected volatile Integer rt_value = 0;
 
+    // Design decision: Plain Button.
+    // JFX ToggleButton appears natural to reflect two states,
+    // but this type of button is updated by both the user
+    // (press to 'push', 'release') and the PV.
+    // When user pushes button, value is sent to PV
+    // and the button should update its state as the
+    // update is received from the PV.
+    // The ToggleButton, however, will 'select' or not
+    // just because of the user interaction.
+    // If this is then in addition updated by the PV,
+    // the ToggleButton tends to 'flicker'.
+
     private volatile Button button;
     private volatile Ellipse led;
 
@@ -51,32 +64,14 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     @Override
     public ButtonBase createJFXNode() throws Exception
     {
-        final ButtonBase base;
         led = new Ellipse();
         button = new Button("BoolButton", led);
         button.setOnAction(event -> handlePress());
-        base = button;
 
         // Model has width/height, but JFX widget has min, pref, max size.
         // updateChanges() will set the 'pref' size, so make min use that as well.
-        base.setMinSize(ButtonBase.USE_PREF_SIZE, ButtonBase.USE_PREF_SIZE);
-
-        // Monitor keys that modify the OpenDisplayActionInfo.Target.
-        // Use filter to capture event that's otherwise already handled.
-        base.addEventFilter(MouseEvent.MOUSE_PRESSED, this::checkModifiers);
-        return base;
-    }
-
-    /** @param event Mouse event to check for target modifier keys */
-    private void checkModifiers(final MouseEvent event)
-    {
-        // At least on Linux, a Control-click or Shift-click
-        // will not 'arm' the button, so the click is basically ignored.
-        // Force the 'arm', so user can Control-click or Shift-click to
-        // invoke the button
-        if (event.isControlDown() ||
-            event.isShiftDown())
-            jfx_node.arm();
+        button.setMinSize(ButtonBase.USE_PREF_SIZE, ButtonBase.USE_PREF_SIZE);
+        return button;
     }
 
     /** @param respond to button press */
@@ -99,12 +94,9 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         model_widget.propOffLabel().addUntypedPropertyListener(this::representationChanged);
         model_widget.propOffColor().addUntypedPropertyListener(this::representationChanged);
         model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
-
-        bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
         model_widget.propBit().addPropertyListener(this::bitChanged);
         model_widget.runtimePropValue().addPropertyListener(this::contentChanged);
-
-        //representationChanged(null,null,null);
+        bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
     }
 
     protected Color[] createColors()
@@ -129,12 +121,22 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     private void bitChanged(final WidgetProperty<Integer> property, final Integer old_value, final Integer new_value)
     {
         use_bit = new_value;
-
         stateChanged();
     }
 
     private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
+        if ((new_value instanceof VEnum)  &&
+            model_widget.propLabelsFromPV().getValue())
+        {
+            final List<String> labels = ((VEnum) new_value).getLabels();
+            if (labels.size() == 2)
+            {
+                model_widget.propOffLabel().setValue(labels.get(0));
+                model_widget.propOnLabel().setValue(labels.get(1));
+            }
+        }
+
         rt_value = VTypeUtil.getValueNumber(new_value).intValue();
         stateChanged();
     }
@@ -154,34 +156,24 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     public void updateChanges()
     {
         super.updateChanges();
-        if (dirty_content.checkAndClear())
-        {
-            jfx_node.setText(value_label);
-
-            led.setFill(
-                    // Put highlight in top-left corner, about 0.2 wide,
-                    // relative to actual size of LED
-                    new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
-                                       new Stop(0, value_color.interpolate(Color.WHITESMOKE, 0.8)),
-                                       new Stop(1, value_color)));
-        }
+        boolean update_content = dirty_content.checkAndClear();
         if (dirty_representation.checkAndClear())
         {
-            jfx_node.setText(value_label);
-
             jfx_node.setPrefSize(model_widget.propWidth().getValue(),
                                  model_widget.propHeight().getValue());
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
-
-            led.setFill(
-                    // Put highlight in top-left corner, about 0.2 wide,
-                    // relative to actual size of LED
-                    new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
-                                       new Stop(0, value_color.interpolate(Color.WHITESMOKE, 0.8)),
-                                       new Stop(1, value_color)));
-
             led.setRadiusX(model_widget.propWidth().getValue() / 15.0);
             led.setRadiusY(model_widget.propWidth().getValue() / 10.0);
+            update_content = true;
+        }
+        if (update_content)
+        {
+            jfx_node.setText(value_label);
+            // Put highlight in top-left corner, about 0.2 wide,
+            // relative to actual size of LED
+            led.setFill(new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
+                                           new Stop(0, value_color.interpolate(Color.WHITESMOKE, 0.8)),
+                                           new Stop(1, value_color)));
         }
     }
 }
