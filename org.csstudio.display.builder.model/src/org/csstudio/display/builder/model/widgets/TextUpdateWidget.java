@@ -14,6 +14,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFormat;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPrecision;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propShowUnits;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWrapWords;
 
 import java.util.Arrays;
 import java.util.List;
@@ -156,6 +157,7 @@ public class TextUpdateWidget extends PVWidget
     private volatile WidgetProperty<FormatOption> format;
     private volatile WidgetProperty<Integer> precision;
     private volatile WidgetProperty<Boolean> show_units;
+    private volatile WidgetProperty<Boolean> wrap_words;
 
     public TextUpdateWidget()
     {
@@ -178,6 +180,7 @@ public class TextUpdateWidget extends PVWidget
         properties.add(format = propFormat.createProperty(this, FormatOption.DEFAULT));
         properties.add(precision = propPrecision.createProperty(this, -1));
         properties.add(show_units = propShowUnits.createProperty(this, true));
+        properties.add(wrap_words = propWrapWords.createProperty(this, true));
     }
 
     /** @return 'foreground_color' property */
@@ -216,4 +219,9 @@ public class TextUpdateWidget extends PVWidget
         return show_units;
     }
 
+    /** @return 'wrap_words' property */
+    public WidgetProperty<Boolean> propWrapWords()
+    {
+        return wrap_words;
+    }
 }

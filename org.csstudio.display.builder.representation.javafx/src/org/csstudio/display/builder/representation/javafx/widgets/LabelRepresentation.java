@@ -50,6 +50,7 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
         model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
         model_widget.propHorizontalAlignment().addUntypedPropertyListener(this::styleChanged);
         model_widget.propVerticalAlignment().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propWrapWords().addUntypedPropertyListener(this::styleChanged);
         model_widget.propText().addUntypedPropertyListener(this::contentChanged);
     }
 
@@ -87,6 +88,7 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
             jfx_node.setPrefSize(model_widget.propWidth().getValue(),
                                  model_widget.propHeight().getValue());
             jfx_node.setAlignment(pos);
+            jfx_node.setWrapText(model_widget.propWrapWords().getValue());
             if (model_widget.displayTransparent().getValue())
             {   // No fill
                 jfx_node.setBackground(null);

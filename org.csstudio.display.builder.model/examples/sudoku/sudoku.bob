@@ -90,11 +90,11 @@
   </scripts>
   <widget type="label" version="2.0.0">
     <name>HeaderLabel</name>
+    <text>Sudoku Solver</text>
     <x>15</x>
     <y>8</y>
     <width>260</width>
     <height>31</height>
-    <text>Sudoku Solver</text>
     <font>
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
@@ -109,6 +109,7 @@
     <style>2</style>
     <widget type="textupdate" version="2.0.0">
       <name>cell00</name>
+      <pv_name>loc://00&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>2</y>
       <width>20</width>
@@ -253,10 +254,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://00&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell01</name>
+      <pv_name>loc://01&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>2</y>
       <width>20</width>
@@ -401,10 +402,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://01&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell02</name>
+      <pv_name>loc://02&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>2</y>
       <width>20</width>
@@ -549,10 +550,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://02&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell10</name>
+      <pv_name>loc://10&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>24</y>
       <width>20</width>
@@ -697,10 +698,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://10&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell11</name>
+      <pv_name>loc://11&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>24</y>
       <width>20</width>
@@ -845,10 +846,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://11&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell12</name>
+      <pv_name>loc://12&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>24</y>
       <width>20</width>
@@ -993,10 +994,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://12&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell20</name>
+      <pv_name>loc://20&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>46</y>
       <width>20</width>
@@ -1141,10 +1142,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://20&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell21</name>
+      <pv_name>loc://21&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>46</y>
       <width>20</width>
@@ -1289,10 +1290,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://21&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell22</name>
+      <pv_name>loc://22&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>46</y>
       <width>20</width>
@@ -1437,7 +1438,6 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://22&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
   </widget>
   <widget type="group" version="2.0.0">
@@ -1449,6 +1449,7 @@
     <style>2</style>
     <widget type="textupdate" version="2.0.0">
       <name>cell03</name>
+      <pv_name>loc://03&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>2</y>
       <width>20</width>
@@ -1593,10 +1594,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://03&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell04</name>
+      <pv_name>loc://04&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>2</y>
       <width>20</width>
@@ -1741,10 +1742,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://04&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell05</name>
+      <pv_name>loc://05&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>2</y>
       <width>20</width>
@@ -1889,10 +1890,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://05&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell13</name>
+      <pv_name>loc://13&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>24</y>
       <width>20</width>
@@ -2037,10 +2038,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://13&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell14</name>
+      <pv_name>loc://14&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>24</y>
       <width>20</width>
@@ -2185,10 +2186,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://14&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell15</name>
+      <pv_name>loc://15&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>24</y>
       <width>20</width>
@@ -2333,10 +2334,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://15&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell23</name>
+      <pv_name>loc://23&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>46</y>
       <width>20</width>
@@ -2481,10 +2482,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://23&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell24</name>
+      <pv_name>loc://24&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>46</y>
       <width>20</width>
@@ -2629,10 +2630,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://24&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell25</name>
+      <pv_name>loc://25&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>46</y>
       <width>20</width>
@@ -2777,7 +2778,6 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://25&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
   </widget>
   <widget type="group" version="2.0.0">
@@ -2789,6 +2789,7 @@
     <style>2</style>
     <widget type="textupdate" version="2.0.0">
       <name>cell06</name>
+      <pv_name>loc://06&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>2</y>
       <width>20</width>
@@ -2933,10 +2934,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://06&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell07</name>
+      <pv_name>loc://07&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>2</y>
       <width>20</width>
@@ -3081,10 +3082,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://07&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell08</name>
+      <pv_name>loc://08&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>2</y>
       <width>20</width>
@@ -3229,10 +3230,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://08&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell17</name>
+      <pv_name>loc://17&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>24</y>
       <width>20</width>
@@ -3377,10 +3378,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://17&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell18</name>
+      <pv_name>loc://18&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>24</y>
       <width>20</width>
@@ -3525,10 +3526,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://18&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell16</name>
+      <pv_name>loc://16&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>24</y>
       <width>20</width>
@@ -3673,10 +3674,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://16&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell26</name>
+      <pv_name>loc://26&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>46</y>
       <width>20</width>
@@ -3821,10 +3822,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://26&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell27</name>
+      <pv_name>loc://27&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>46</y>
       <width>20</width>
@@ -3969,10 +3970,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://27&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell28</name>
+      <pv_name>loc://28&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>46</y>
       <width>20</width>
@@ -4117,7 +4118,6 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://28&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
   </widget>
   <widget type="group" version="2.0.0">
@@ -4129,6 +4129,7 @@
     <style>2</style>
     <widget type="textupdate" version="2.0.0">
       <name>cell64</name>
+      <pv_name>loc://64&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>2</y>
       <width>20</width>
@@ -4273,10 +4274,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://64&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell65</name>
+      <pv_name>loc://65&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>2</y>
       <width>20</width>
@@ -4421,10 +4422,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://65&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell63</name>
+      <pv_name>loc://63&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>2</y>
       <width>20</width>
@@ -4569,10 +4570,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://63&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell73</name>
+      <pv_name>loc://73&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>24</y>
       <width>20</width>
@@ -4717,10 +4718,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://73&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell74</name>
+      <pv_name>loc://74&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>24</y>
       <width>20</width>
@@ -4865,10 +4866,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://74&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell75</name>
+      <pv_name>loc://75&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>24</y>
       <width>20</width>
@@ -5013,10 +5014,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://75&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell83</name>
+      <pv_name>loc://83&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>46</y>
       <width>20</width>
@@ -5161,10 +5162,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://83&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell84</name>
+      <pv_name>loc://84&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>46</y>
       <width>20</width>
@@ -5309,10 +5310,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://84&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell85</name>
+      <pv_name>loc://85&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>46</y>
       <width>20</width>
@@ -5457,7 +5458,6 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://85&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
   </widget>
   <widget type="group" version="2.0.0">
@@ -5469,6 +5469,7 @@
     <style>2</style>
     <widget type="textupdate" version="2.0.0">
       <name>cell30</name>
+      <pv_name>loc://30&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>2</y>
       <width>20</width>
@@ -5613,10 +5614,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://30&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell31</name>
+      <pv_name>loc://31&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>2</y>
       <width>20</width>
@@ -5761,10 +5762,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://31&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell32</name>
+      <pv_name>loc://32&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>2</y>
       <width>20</width>
@@ -5909,10 +5910,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://32&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell42</name>
+      <pv_name>loc://42&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>24</y>
       <width>20</width>
@@ -6057,10 +6058,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://42&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell41</name>
+      <pv_name>loc://41&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>24</y>
       <width>20</width>
@@ -6205,10 +6206,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://41&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell40</name>
+      <pv_name>loc://40&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>24</y>
       <width>20</width>
@@ -6353,10 +6354,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://40&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell52</name>
+      <pv_name>loc://52&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>46</y>
       <width>20</width>
@@ -6501,10 +6502,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://52&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell51</name>
+      <pv_name>loc://51&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>46</y>
       <width>20</width>
@@ -6649,10 +6650,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://51&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell50</name>
+      <pv_name>loc://50&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>46</y>
       <width>20</width>
@@ -6797,7 +6798,6 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://50&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
   </widget>
   <widget type="group" version="2.0.0">
@@ -6809,6 +6809,7 @@
     <style>2</style>
     <widget type="textupdate" version="2.0.0">
       <name>cell60</name>
+      <pv_name>loc://60&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>2</y>
       <width>20</width>
@@ -6953,10 +6954,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://60&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell61</name>
+      <pv_name>loc://61&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>2</y>
       <width>20</width>
@@ -7101,10 +7102,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://61&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell62</name>
+      <pv_name>loc://62&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>2</y>
       <width>20</width>
@@ -7249,10 +7250,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://62&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell70</name>
+      <pv_name>loc://70&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>24</y>
       <width>20</width>
@@ -7397,10 +7398,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://70&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell71</name>
+      <pv_name>loc://71&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>24</y>
       <width>20</width>
@@ -7545,10 +7546,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://71&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell72</name>
+      <pv_name>loc://72&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>24</y>
       <width>20</width>
@@ -7693,10 +7694,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://72&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell80</name>
+      <pv_name>loc://80&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>46</y>
       <width>20</width>
@@ -7841,10 +7842,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://80&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell81</name>
+      <pv_name>loc://81&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>46</y>
       <width>20</width>
@@ -7989,10 +7990,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://81&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell82</name>
+      <pv_name>loc://82&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>46</y>
       <width>20</width>
@@ -8137,7 +8138,6 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://82&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
   </widget>
   <widget type="group" version="2.0.0">
@@ -8149,6 +8149,7 @@
     <style>2</style>
     <widget type="textupdate" version="2.0.0">
       <name>cell33</name>
+      <pv_name>loc://33&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>2</y>
       <width>20</width>
@@ -8293,10 +8294,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://33&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell34</name>
+      <pv_name>loc://34&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>2</y>
       <width>20</width>
@@ -8441,10 +8442,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://34&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell35</name>
+      <pv_name>loc://35&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>2</y>
       <width>20</width>
@@ -8589,10 +8590,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://35&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell43</name>
+      <pv_name>loc://43&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>24</y>
       <width>20</width>
@@ -8737,10 +8738,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://43&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell45</name>
+      <pv_name>loc://45&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>24</y>
       <width>20</width>
@@ -8885,10 +8886,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://45&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell44</name>
+      <pv_name>loc://44&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>24</y>
       <width>20</width>
@@ -9033,10 +9034,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://44&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell53</name>
+      <pv_name>loc://53&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>46</y>
       <width>20</width>
@@ -9181,10 +9182,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://53&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell54</name>
+      <pv_name>loc://54&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>46</y>
       <width>20</width>
@@ -9329,10 +9330,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://54&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell55</name>
+      <pv_name>loc://55&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>46</y>
       <width>20</width>
@@ -9477,7 +9478,6 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://55&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
   </widget>
   <widget type="group" version="2.0.0">
@@ -9489,6 +9489,7 @@
     <style>2</style>
     <widget type="textupdate" version="2.0.0">
       <name>cell46</name>
+      <pv_name>loc://46&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>24</y>
       <width>20</width>
@@ -9633,10 +9634,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://46&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell47</name>
+      <pv_name>loc://47&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>24</y>
       <width>20</width>
@@ -9781,10 +9782,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://47&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell48</name>
+      <pv_name>loc://48&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>24</y>
       <width>20</width>
@@ -9929,10 +9930,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://48&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell56</name>
+      <pv_name>loc://56&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>46</y>
       <width>20</width>
@@ -10077,10 +10078,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://56&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell57</name>
+      <pv_name>loc://57&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>46</y>
       <width>20</width>
@@ -10225,10 +10226,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://57&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell58</name>
+      <pv_name>loc://58&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>46</y>
       <width>20</width>
@@ -10373,10 +10374,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://58&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell36</name>
+      <pv_name>loc://36&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>2</y>
       <width>20</width>
@@ -10521,10 +10522,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://36&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell37</name>
+      <pv_name>loc://37&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>2</y>
       <width>20</width>
@@ -10669,10 +10670,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://37&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell38</name>
+      <pv_name>loc://38&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>2</y>
       <width>20</width>
@@ -10817,7 +10818,6 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://38&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
   </widget>
   <widget type="group" version="2.0.0">
@@ -10829,6 +10829,7 @@
     <style>2</style>
     <widget type="textupdate" version="2.0.0">
       <name>cell88</name>
+      <pv_name>loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>46</y>
       <width>20</width>
@@ -10973,10 +10974,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell87</name>
+      <pv_name>loc://87&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>46</y>
       <width>20</width>
@@ -11121,10 +11122,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://87&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell86</name>
+      <pv_name>loc://86&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>46</y>
       <width>20</width>
@@ -11269,10 +11270,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://86&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell68</name>
+      <pv_name>loc://68&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>2</y>
       <width>20</width>
@@ -11417,10 +11418,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://68&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell67</name>
+      <pv_name>loc://67&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>2</y>
       <width>20</width>
@@ -11565,10 +11566,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://67&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell66</name>
+      <pv_name>loc://66&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>2</y>
       <width>20</width>
@@ -11713,10 +11714,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://66&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell78</name>
+      <pv_name>loc://78&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>46</x>
       <y>24</y>
       <width>20</width>
@@ -11861,10 +11862,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://78&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell77</name>
+      <pv_name>loc://77&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>24</x>
       <y>24</y>
       <width>20</width>
@@ -12009,10 +12010,10 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://77&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
     <widget type="textupdate" version="2.0.0">
       <name>cell76</name>
+      <pv_name>loc://76&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
       <x>2</x>
       <y>24</y>
       <width>20</width>
@@ -12157,7 +12158,6 @@
           <pv_name trigger="false">loc://88&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
         </script>
       </scripts>
-      <pv_name>loc://76&lt;VEnum&gt;(0," ","1","2","3","4","5","6","7","8","9","#","_")</pv_name>
     </widget>
   </widget>
   <widget type="action_button" version="2.0.0">
@@ -12165,7 +12165,6 @@
     <x>15</x>
     <y>328</y>
     <width>199</width>
-    <text>$(actions)</text>
     <actions>
       <action type="write_pv">
         <pv_name>loc://solve(0)</pv_name>
@@ -12265,7 +12264,6 @@
     <x>15</x>
     <y>288</y>
     <width>44</width>
-    <text>$(actions)</text>
     <actions>
       <action type="write_pv">
         <pv_name>loc://start(1)</pv_name>
@@ -12296,7 +12294,6 @@
     <x>92</x>
     <y>288</y>
     <width>44</width>
-    <text>$(actions)</text>
     <actions>
       <action type="write_pv">
         <pv_name>loc://start(1)</pv_name>
@@ -12327,7 +12324,6 @@
     <x>170</x>
     <y>288</y>
     <width>44</width>
-    <text>$(actions)</text>
     <actions>
       <action type="write_pv">
         <pv_name>loc://start(1)</pv_name>
@@ -12355,10 +12351,10 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>LoadPuzzleLabel</name>
+    <text>Load puzzle</text>
     <x>15</x>
     <y>258</y>
     <width>199</width>
-    <text>Load puzzle</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -12367,10 +12363,10 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>HowToPlayLabel</name>
+    <text>How to Play</text>
     <x>275</x>
     <y>8</y>
     <width>120</width>
-    <text>How to Play</text>
     <font>
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
       </font>
@@ -12378,10 +12374,6 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>InstuctionsLabel</name>
-    <x>275</x>
-    <y>39</y>
-    <width>370</width>
-    <height>205</height>
     <text>Try to fill the squares so that every row, column, and
 3x3 block has exactly the digits 1-9.
 
@@ -12394,13 +12386,16 @@ Click "Auto-Solve", and the solver will try to complete
 the puzzle for you. You can load a new puzzle to
 play by clicking on the "Load puzzle" buttons, or
 re-load the current puzzle to re-set your answers.</text>
+    <x>275</x>
+    <y>39</y>
+    <width>370</width>
+    <height>205</height>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Debug</name>
     <x>275</x>
     <y>288</y>
     <visible>false</visible>
-    <text>$(actions)</text>
     <actions>
       <action type="write_pv">
         <pv_name>loc://start(1)</pv_name>

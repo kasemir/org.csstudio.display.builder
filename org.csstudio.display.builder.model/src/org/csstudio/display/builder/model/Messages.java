@@ -132,6 +132,10 @@ public class Messages extends NLS
     public static String WidgetProperties_Font;
     public static String WidgetProperties_ForegroundColor;
     public static String WidgetProperties_Format;
+    public static String WidgetProperties_GridColor;
+    public static String WidgetProperties_GridStepX;
+    public static String WidgetProperties_GridStepY;
+    public static String WidgetProperties_GridVisible;
     public static String WidgetProperties_Height;
     public static String WidgetProperties_HeightPVName;
     public static String WidgetProperties_Horizontal;
@@ -182,6 +186,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Visible;
     public static String WidgetProperties_Width;
     public static String WidgetProperties_WidthPVName;
+    public static String WidgetProperties_WrapWords;
     public static String WidgetProperties_X;
     public static String WidgetProperties_XPVName;
     public static String WidgetProperties_Y;

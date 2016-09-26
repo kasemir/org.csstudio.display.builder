@@ -134,5 +134,14 @@ public class WidgetPropertySubscriptionUnitTest
         // and another value update
         assertThat(name_prop.getValue(), equalTo("New Name"));
         assertThat(updates.get(), equalTo(2));
+
+        // Setting the specification to something that does
+        // not contain macros will set the value right away
+        name_prop.setSpecification("Plain Text");
+        assertThat(updates.get(), equalTo(3));
+        assertThat(name_prop.getSpecification(), equalTo("Plain Text"));
+        // Fetching the value does _not_ trigger another update
+        assertThat(name_prop.getValue(), equalTo("Plain Text"));
+        assertThat(updates.get(), equalTo(3));
     }
 }

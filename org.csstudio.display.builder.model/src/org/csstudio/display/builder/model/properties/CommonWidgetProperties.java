@@ -55,12 +55,26 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<Integer> newIntegerPropertyDescriptor(final WidgetPropertyCategory category,
                                                                                        final String name, final String description)
     {
+        return newIntegerPropertyDescriptor(category, name, description, Integer.MIN_VALUE, Integer.MAX_VALUE);
+    }
+
+    /** Constructor for Integer property
+     *  @param category Widget property category
+     *  @param name Internal name of the property
+     *  @param description Human-readable description
+     *  @param min Minimum value
+     *  @param max Maximum value
+     */
+    public static final WidgetPropertyDescriptor<Integer> newIntegerPropertyDescriptor(final WidgetPropertyCategory category,
+                                                                                       final String name, final String description,
+                                                                                       final int min, final int max)
+    {
         return new WidgetPropertyDescriptor<Integer>(category, name, description)
         {
             @Override
             public WidgetProperty<Integer> createProperty(final Widget widget, final Integer value)
             {
-                return new IntegerWidgetProperty(this, widget, value);
+                return new IntegerWidgetProperty(this, widget, value, min, max);
             }
         };
     }
@@ -184,33 +198,23 @@ public class CommonWidgetProperties
 
     /** 'x' property */
     public static final WidgetPropertyDescriptor<Integer> propX =
-        newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "x", Messages.WidgetProperties_X);
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "x", Messages.WidgetProperties_X,
+                                     0, Integer.MAX_VALUE);
 
     /** 'y' property */
     public static final WidgetPropertyDescriptor<Integer> propY =
-        newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "y", Messages.WidgetProperties_Y);
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "y", Messages.WidgetProperties_Y,
+                                     0, Integer.MAX_VALUE);
 
     /** 'width' property */
     public static final WidgetPropertyDescriptor<Integer> propWidth =
-        new WidgetPropertyDescriptor<Integer>(WidgetPropertyCategory.POSITION, "width", Messages.WidgetProperties_Width)
-    {
-        @Override
-        public WidgetProperty<Integer> createProperty(final Widget widget, final Integer value)
-        {
-            return new IntegerWidgetProperty(this, widget, value, 1, Integer.MAX_VALUE);
-        }
-    };
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "width", Messages.WidgetProperties_Width,
+                                     1, Integer.MAX_VALUE);
 
     /** 'height' property */
     public static final WidgetPropertyDescriptor<Integer> propHeight =
-        new WidgetPropertyDescriptor<Integer>(WidgetPropertyCategory.POSITION, "height", Messages.WidgetProperties_Height)
-    {
-        @Override
-        public WidgetProperty<Integer> createProperty(final Widget widget, final Integer value)
-        {
-            return new IntegerWidgetProperty(this, widget, value, 1, Integer.MAX_VALUE);
-        }
-    };
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.POSITION, "height", Messages.WidgetProperties_Height,
+                                     1, Integer.MAX_VALUE);
 
     /** 'visible' property */
     public static final WidgetPropertyDescriptor<Boolean> propVisible =
@@ -350,6 +354,10 @@ public class CommonWidgetProperties
             return new EnumWidgetProperty<VerticalAlignment>(this, widget, default_value);
         }
     };
+
+    /** 'wrap_words' property: Wrap words to fit width of widget? */
+    public static final WidgetPropertyDescriptor<Boolean> propWrapWords =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "wrap_words", Messages.WidgetProperties_WrapWords);
 
     /** Property for the 'off' color */
     public static final WidgetPropertyDescriptor<WidgetColor> propOffColor = new WidgetPropertyDescriptor<WidgetColor>(
