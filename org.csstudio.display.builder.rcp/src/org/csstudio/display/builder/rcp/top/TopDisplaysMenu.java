@@ -9,7 +9,6 @@ package org.csstudio.display.builder.rcp.top;
 
 import static org.csstudio.display.builder.rcp.Plugin.logger;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -18,7 +17,6 @@ import org.csstudio.display.builder.rcp.DisplayInfoXMLUtil;
 import org.csstudio.display.builder.rcp.Messages;
 import org.csstudio.display.builder.rcp.OpenDisplayAction;
 import org.csstudio.display.builder.rcp.Preferences;
-import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -30,29 +28,21 @@ import org.eclipse.ui.actions.CompoundContributionItem;
 @SuppressWarnings("nls")
 public class TopDisplaysMenu extends CompoundContributionItem
 {
-    private static List<IAction> createDisplayActions() throws Exception
-    {
-        final String setting = Preferences.getTopDisplays();
-        final List<DisplayInfo> displays = DisplayInfoXMLUtil.fromDisplaysXML(setting);
-        final List<IAction> actions = new ArrayList<>(displays.size());
-        displays.forEach(info -> actions.add(new OpenDisplayAction(info)));
-        return actions;
-    }
-
     @Override
     protected IContributionItem[] getContributionItems()
     {
         final IMenuManager items = new MenuManager(Messages.TopDisplays, OpenDisplayAction.getIcon(), null);
         try
         {
-            for (IAction action : createDisplayActions())
-                items.add(action);
+            final String setting = Preferences.getTopDisplays();
+            final List<DisplayInfo> displays = DisplayInfoXMLUtil.fromDisplaysXML(setting);
+            for (DisplayInfo display : displays)
+                items.add(new OpenDisplayAction(display));
         }
         catch (Exception ex)
         {
             logger.log(Level.WARNING, "Cannot create 'top displays'", ex);
         }
-
         return new IContributionItem[] { items };
     }
 }
