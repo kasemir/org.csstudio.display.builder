@@ -36,6 +36,7 @@ import org.diirt.vtype.VType;
  * @author claudiorosati, European Spallation Source ERIC
  * @version 1.0.0 15 Sep 2016
  */
+@SuppressWarnings("nls")
 public class PVWidget extends VisibleWidget {
 
     private volatile WidgetProperty<String> pv_name;
