@@ -383,7 +383,31 @@ public class CommonWidgetProperties
         }
     };
 
+    /** Property for the 'off' label */
+    public static final WidgetPropertyDescriptor<String> propOffLabel = new WidgetPropertyDescriptor<String>(
+            WidgetPropertyCategory.DISPLAY, "off_label", Messages.WidgetProperties_OffLabel)
+    {
+        @Override
+        public WidgetProperty<String> createProperty(final Widget widget, final String default_label)
+        {
+            return new StringWidgetProperty(this, widget, default_label);
+        }
+    };
 
+    /** Property for the 'on' label */
+    public static final WidgetPropertyDescriptor<String> propOnLabel = new WidgetPropertyDescriptor<String>(
+            WidgetPropertyCategory.DISPLAY, "on_label", Messages.WidgetProperties_OnLabel)
+    {
+        @Override
+        public WidgetProperty<String> createProperty(final Widget widget, final String default_label)
+        {
+            return new StringWidgetProperty(this, widget, default_label);
+        }
+    };
+
+    /** Fetch labels from PV? */
+    public static final WidgetPropertyDescriptor<Boolean> propLabelsFromPV =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "labels_from_pv", Messages.WidgetProperties_LabelsFromPV);
 
     /** 'pv_name' property: Primary PV Name */
     public static final WidgetPropertyDescriptor<String> propPVName =

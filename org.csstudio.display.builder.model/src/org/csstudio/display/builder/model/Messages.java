@@ -140,6 +140,7 @@ public class Messages extends NLS
     public static String WidgetProperties_HeightPVName;
     public static String WidgetProperties_Horizontal;
     public static String WidgetProperties_HorizontalAlignment;
+    public static String WidgetProperties_LabelsFromPV;
     public static String WidgetProperties_Insets;
     public static String WidgetProperties_LevelHi;
     public static String WidgetProperties_LevelHiHi;
@@ -154,7 +155,11 @@ public class Messages extends NLS
     public static String WidgetProperties_Minimum;
     public static String WidgetProperties_Name;
     public static String WidgetProperties_OffColor;
+    public static String WidgetProperties_OffImage;
+    public static String WidgetProperties_OffLabel;
     public static String WidgetProperties_OnColor;
+    public static String WidgetProperties_OnImage;
+    public static String WidgetProperties_OnLabel;
     public static String WidgetProperties_PageIncrement;
     public static String WidgetProperties_Points;
     public static String WidgetProperties_Precision;

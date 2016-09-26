@@ -21,6 +21,7 @@ import org.w3c.dom.Element;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class StringWidgetProperty extends MacroizedWidgetProperty<String>
 {
     /** Constructor
@@ -58,5 +59,16 @@ public class StringWidgetProperty extends MacroizedWidgetProperty<String>
     public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
         setSpecification(XMLUtil.getString(property_xml));
+    }
+
+    /** @return Debug representation */
+    @Override
+    public String toString()
+    {
+        final String safe_copy = value;
+        if (safe_copy == null)
+            return "'" + getName() + "' = '" + specification + "'";
+        else
+            return "'" + getName() + "' = '" + value + "'";
     }
 }

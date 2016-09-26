@@ -7,8 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
@@ -21,6 +25,7 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
@@ -88,6 +93,10 @@ public class MultiStateLEDWidget extends BaseLEDWidget
                 if (element != null)
                     states.getElement(state).state().readFromXML(model_reader, element);
 
+                element = XMLUtil.getChildElement(xml, "state_label_" + state);
+                if (element != null)
+                    states.getElement(state).label().readFromXML(model_reader, element);
+
                 ++state;
             }
             // Widget starts with 2 states. If legacy replaced those and added more: OK.
@@ -95,6 +104,13 @@ public class MultiStateLEDWidget extends BaseLEDWidget
             // but then a 1-state LED is really illdefined
 
             BaseLEDWidget.handle_legacy_position(widget, xml_version, xml);
+
+            // If legacy widgets was configured to not use labels, clear them
+            final Optional<String> show = XMLUtil.getChildString(xml, "show_boolean_label");
+            if (show.isPresent()  &&  !XMLUtil.parseBoolean(show.get(), false))
+                for (int i=0; i<states.size(); ++i)
+                    states.getElement(i).label().setValue("");
+
             return true;
         }
     }
@@ -102,6 +118,9 @@ public class MultiStateLEDWidget extends BaseLEDWidget
     // Elements of the 'state' structure
     private static final WidgetPropertyDescriptor<Integer> propStateValue =
         CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "value", "Value");
+
+    private static final WidgetPropertyDescriptor<String> propStateLabel =
+        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "label", "Label");
 
     private static final WidgetPropertyDescriptor<WidgetColor> propStateColor =
         CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "color", "Color");
@@ -120,10 +139,12 @@ public class MultiStateLEDWidget extends BaseLEDWidget
         {
             super(behaviorState, widget,
                   Arrays.asList(propStateValue.createProperty(widget, state),
+                                propStateLabel.createProperty(widget, "State " + (state + 1)),
                                 propStateColor.createProperty(widget, getDefaultColor(state))));
         }
         public WidgetProperty<Integer> state()      { return getElement(0); }
-        public WidgetProperty<WidgetColor> color()  { return getElement(1); }
+        public WidgetProperty<String> label()       { return getElement(1); }
+        public WidgetProperty<WidgetColor> color()  { return getElement(2); }
     };
 
     // Helper for obtaining initial color for each state
@@ -159,6 +180,8 @@ public class MultiStateLEDWidget extends BaseLEDWidget
                                                                             new StateWidgetProperty(this, 1))));
         properties.add(fallback = propFallbackColor.createProperty(this,
                                                                 WidgetColorService.getColor(NamedWidgetColors.ALARM_INVALID)));
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
     }
 
     /** @return 'states' property */

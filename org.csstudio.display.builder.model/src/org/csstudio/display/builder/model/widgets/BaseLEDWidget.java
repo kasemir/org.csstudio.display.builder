@@ -13,11 +13,11 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propY;
 
-import java.util.List;
-
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.XMLUtil;
+import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
 
@@ -55,12 +55,15 @@ public class BaseLEDWidget extends PVWidget
         }
     }
 
+    protected volatile WidgetProperty<WidgetFont> font;
+    protected volatile WidgetProperty<WidgetColor> foreground;
+
     /** Widget constructor.
      *  @param type Widget type
      */
     public BaseLEDWidget(final String type)
     {
-        super(type);
+        super(type, 20, 20);
     }
 
     @Override
@@ -69,14 +72,20 @@ public class BaseLEDWidget extends PVWidget
         return new Version(2, 0, 0);
     }
 
-    @Override
-    protected void defineProperties(final List<WidgetProperty<?>> properties)
-    {
-        super.defineProperties(properties);
+    // Note: _NOT_ defining the  common font, foreground properties
+    //       so that derived widgets can control their order within
+    //       lists of properties.
+    // protected void defineProperties(final List<WidgetProperty<?>> properties)
 
-        // Initial size
-        propWidth().setValue(20);
-        propHeight().setValue(20);
+    /** @return 'font' property */
+    public WidgetProperty<WidgetFont> propFont()
+    {
+        return font;
     }
 
+    /** @return 'foreground' property*/
+    public WidgetProperty<WidgetColor> propForegroundColor()
+    {
+        return foreground;
+    }
 }
