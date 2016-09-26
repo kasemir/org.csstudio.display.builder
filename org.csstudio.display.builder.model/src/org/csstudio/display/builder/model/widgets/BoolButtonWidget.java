@@ -56,12 +56,12 @@ public class BoolButtonWidget extends PVWidget
     public static final WidgetPropertyDescriptor<String> propOffLabel =
         newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "off_label", Messages.BoolWidget_OffLabel);
 
-    private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<Integer> bit;
     private volatile WidgetProperty<WidgetColor> off_color;
     private volatile WidgetProperty<WidgetColor> on_color;
     private volatile WidgetProperty<String> off_label;
     private volatile WidgetProperty<String> on_label;
+    private volatile WidgetProperty<WidgetFont> font;
 
 
     public BoolButtonWidget()
@@ -74,11 +74,11 @@ public class BoolButtonWidget extends PVWidget
     {
         super.defineProperties(properties);
         properties.add(bit = propBit.createProperty(this, 0));
-        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(off_label = propOffLabel.createProperty(this, Messages.BoolWidget_OffLabel));
         properties.add(off_color = propOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
         properties.add(on_label = propOnLabel.createProperty(this, Messages.BoolWidget_OnLabel));
         properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
     }
 
 
@@ -92,12 +92,6 @@ public class BoolButtonWidget extends PVWidget
     public WidgetProperty<String> propOnLabel()
     {
         return on_label;
-    }
-
-    /** @return 'font' property */
-    public WidgetProperty<WidgetFont> propFont()
-    {
-        return font;
     }
 
     /** @return 'bit' property */
@@ -118,4 +112,9 @@ public class BoolButtonWidget extends PVWidget
         return on_color;
     }
 
+    /** @return 'font' property */
+    public WidgetProperty<WidgetFont> propFont()
+    {
+        return font;
+    }
 }

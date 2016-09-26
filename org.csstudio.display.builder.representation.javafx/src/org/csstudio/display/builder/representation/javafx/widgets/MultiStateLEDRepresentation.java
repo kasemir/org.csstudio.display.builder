@@ -48,6 +48,13 @@ public class MultiStateLEDRepresentation extends BaseLEDRepresentation<MultiStat
     }
 
     @Override
+    protected String computeLabel(final int color_index)
+    {
+        // TODO Return label of matching state
+        return "";
+    }
+
+    @Override
     protected void registerListeners()
     {
         super.registerListeners();

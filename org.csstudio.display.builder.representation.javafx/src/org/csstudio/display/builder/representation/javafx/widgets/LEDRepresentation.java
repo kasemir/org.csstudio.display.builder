@@ -40,10 +40,20 @@ public class LEDRepresentation extends BaseLEDRepresentation<LEDWidget>
     }
 
     @Override
+    protected String computeLabel(final int color_index)
+    {
+        if (color_index == 1)
+            return model_widget.propOnLabel().getValue();
+        return model_widget.propOffLabel().getValue();
+    }
+
+    @Override
     protected void registerListeners()
     {
         super.registerListeners();
         model_widget.propOffColor().addUntypedPropertyListener(this::configChanged);
         model_widget.propOnColor().addUntypedPropertyListener(this::configChanged);
+        model_widget.propOffLabel().addUntypedPropertyListener(this::configChanged);
+        model_widget.propOnLabel().addUntypedPropertyListener(this::configChanged);
     }
 }
