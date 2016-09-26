@@ -50,6 +50,9 @@
          <alternates
                type="org.csstudio.opibuilder.widgets.BoolButton">
          </alternates>
+         <alternates
+               type="org.csstudio.opibuilder.widgets.ImageBoolButton">
+         </alternates>
       </widget>
       <widget
             category="MONITOR"

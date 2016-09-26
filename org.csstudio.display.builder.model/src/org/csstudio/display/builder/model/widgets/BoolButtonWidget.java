@@ -15,7 +15,9 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLabelsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffLabel;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnLabel;
 
 import java.util.Arrays;
 import java.util.List;
@@ -45,7 +47,8 @@ public class BoolButtonWidget extends PVWidget
             "Boolean Button",
             "platform:/plugin/org.csstudio.display.builder.model/icons/bool_button.gif",
             "Button that can toggle one bit of a PV value between 1 and 0",
-            Arrays.asList("org.csstudio.opibuilder.widgets.BoolButton"))
+            Arrays.asList("org.csstudio.opibuilder.widgets.BoolButton",
+                          "org.csstudio.opibuilder.widgets.ImageBoolButton"))
     {
         @Override
         public Widget createWidget()
@@ -54,26 +57,28 @@ public class BoolButtonWidget extends PVWidget
         }
     };
 
-    /** 'on label' property: Text to display when state is on */
-    public static final WidgetPropertyDescriptor<String> propOnLabel =
-        newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "on_label", Messages.BoolWidget_OnLabel);
-
-    /** 'off label' property: Text to display */
-    public static final WidgetPropertyDescriptor<String> propOffLabel =
-        newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "off_label", Messages.BoolWidget_OffLabel);
+    private static final WidgetPropertyDescriptor<String> propOffImage =
+        newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "off_image", Messages.WidgetProperties_OffImage);
+    private static final WidgetPropertyDescriptor<String> propOnImage =
+        newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "on_image", Messages.WidgetProperties_OnImage);
 
     private volatile WidgetProperty<Integer> bit;
-    private volatile WidgetProperty<WidgetColor> off_color;
-    private volatile WidgetProperty<WidgetColor> on_color;
     private volatile WidgetProperty<String> off_label;
+    private volatile WidgetProperty<WidgetColor> off_color;
+    private volatile WidgetProperty<String> off_image;
     private volatile WidgetProperty<String> on_label;
+    private volatile WidgetProperty<WidgetColor> on_color;
+    private volatile WidgetProperty<String> on_image;
+    // TODO Stretch To Fit (See Picture Widget)?
+
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<Boolean> labels_from_pv;
     private volatile WidgetProperty<Boolean> enabled;
 
-
+    // TODO Legacy configurator
+    // "off_image", "on_image"
 
     public BoolButtonWidget()
     {
@@ -85,27 +90,17 @@ public class BoolButtonWidget extends PVWidget
     {
         super.defineProperties(properties);
         properties.add(bit = propBit.createProperty(this, 0));
-        properties.add(off_label = propOffLabel.createProperty(this, Messages.BoolWidget_OffLabel));
+        properties.add(off_label = propOffLabel.createProperty(this, "Off"));
         properties.add(off_color = propOffColor.createProperty(this, new WidgetColor(60, 100, 60)));
-        properties.add(on_label = propOnLabel.createProperty(this, Messages.BoolWidget_OnLabel));
+        properties.add(off_image = propOffImage.createProperty(this, ""));
+        properties.add(on_label = propOnLabel.createProperty(this, "On"));
         properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
+        properties.add(on_image = propOnImage.createProperty(this, ""));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
         properties.add(labels_from_pv = propLabelsFromPV.createProperty(this, false));
         properties.add(enabled = propEnabled.createProperty(this, true));
-    }
-
-    /** @return 'off_label' property */
-    public WidgetProperty<String> propOffLabel()
-    {
-        return off_label;
-    }
-
-    /** @return 'on_label' property */
-    public WidgetProperty<String> propOnLabel()
-    {
-        return on_label;
     }
 
     /** @return 'bit' property */
@@ -114,16 +109,40 @@ public class BoolButtonWidget extends PVWidget
         return bit;
     }
 
+    /** @return 'off_label' property */
+    public WidgetProperty<String> propOffLabel()
+    {
+        return off_label;
+    }
+
     /** @return 'off_color' property*/
     public WidgetProperty<WidgetColor> propOffColor()
     {
         return off_color;
     }
 
+    /** @return 'off_image' property */
+    public WidgetProperty<String> propOffImage()
+    {
+        return off_image;
+    }
+
+    /** @return 'on_label' property */
+    public WidgetProperty<String> propOnLabel()
+    {
+        return on_label;
+    }
+
     /** @return 'on_color' property */
     public WidgetProperty<WidgetColor> propOnColor()
     {
         return on_color;
+    }
+
+    /** @return 'on_image' property */
+    public WidgetProperty<String> propOnImage()
+    {
+        return on_image;
     }
 
     /** @return 'font' property */

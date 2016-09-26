@@ -155,8 +155,10 @@ public class Messages extends NLS
     public static String WidgetProperties_Minimum;
     public static String WidgetProperties_Name;
     public static String WidgetProperties_OffColor;
-    public static String WidgetProperties_OnColor;
+    public static String WidgetProperties_OffImage;
     public static String WidgetProperties_OffLabel;
+    public static String WidgetProperties_OnColor;
+    public static String WidgetProperties_OnImage;
     public static String WidgetProperties_OnLabel;
     public static String WidgetProperties_PageIncrement;
     public static String WidgetProperties_Points;

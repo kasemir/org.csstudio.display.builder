@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -22,6 +24,8 @@ import org.diirt.vtype.VType;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
@@ -36,7 +40,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
 {
 
     private final DirtyFlag dirty_representation = new DirtyFlag();
-    private final DirtyFlag dirty_content = new DirtyFlag();
+    private final DirtyFlag dirty_value = new DirtyFlag();
     private volatile int on_state = 1;
     private volatile int use_bit = 0;
     private volatile Integer rt_value = 0;
@@ -62,6 +66,8 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     private volatile Color value_color;
     private volatile String[] state_labels;
     private volatile String value_label;
+    private volatile ImageView[] state_images;
+    private volatile ImageView value_image;
 
     @Override
     public ButtonBase createJFXNode() throws Exception
@@ -91,16 +97,20 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         representationChanged(null,null,null);
         model_widget.propWidth().addUntypedPropertyListener(this::representationChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propOnLabel().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propOnColor().addUntypedPropertyListener(this::representationChanged);
         model_widget.propOffLabel().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propOffImage().addUntypedPropertyListener(this::imagesChanged);
         model_widget.propOffColor().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propOnLabel().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propOnImage().addUntypedPropertyListener(this::imagesChanged);
+        model_widget.propOnColor().addUntypedPropertyListener(this::representationChanged);
         model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::representationChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::representationChanged);
         model_widget.propEnabled().addUntypedPropertyListener(this::representationChanged);
         model_widget.propBit().addPropertyListener(this::bitChanged);
-        model_widget.runtimePropValue().addPropertyListener(this::contentChanged);
+        model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
+
+        imagesChanged(null, null, null);
         bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
     }
 
@@ -109,8 +119,9 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         on_state = ((use_bit < 0) ? (rt_value != 0) : (((rt_value >> use_bit) & 1) == 1)) ? 1 : 0;
         value_color = state_colors[on_state];
         value_label = state_labels[on_state];
+        value_image = state_images[on_state];
 
-        dirty_content.mark();
+        dirty_value.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -120,7 +131,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         stateChanged();
     }
 
-    private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
+    private void valueChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
         if ((new_value instanceof VEnum)  &&
             model_widget.propLabelsFromPV().getValue())
@@ -135,6 +146,34 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
 
         rt_value = VTypeUtil.getValueNumber(new_value).intValue();
         stateChanged();
+    }
+
+    private void imagesChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        state_images = new ImageView[]
+        {
+            loadImage(model_widget.propOffImage().getValue()),
+            loadImage(model_widget.propOnImage().getValue())
+        };
+    }
+
+    private ImageView loadImage(final String path)
+    {
+        if (path.isEmpty())
+            return null;
+        try
+        {
+            // Resolve image file relative to the source widget model (not 'top'!)
+            final DisplayModel widget_model = model_widget.getDisplayModel();
+            final String parent_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+            final String resolved = ModelResourceUtil.resolveResource(parent_file, path);
+            return new ImageView(new Image(ModelResourceUtil.openResourceStream(resolved)));
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, model_widget + " cannot load image", ex);
+        }
+        return null;
     }
 
     private void representationChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -158,7 +197,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     public void updateChanges()
     {
         super.updateChanges();
-        boolean update_content = dirty_content.checkAndClear();
+        boolean update_value = dirty_value.checkAndClear();
         if (dirty_representation.checkAndClear())
         {
             jfx_node.setPrefSize(model_widget.propWidth().getValue(),
@@ -169,16 +208,23 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
             led.setRadiusX(model_widget.propWidth().getValue() / 15.0);
             led.setRadiusY(model_widget.propWidth().getValue() / 10.0);
             jfx_node.setDisable(! model_widget.propEnabled().getValue());
-            update_content = true;
+            update_value = true;
         }
-        if (update_content)
+        if (update_value)
         {
             jfx_node.setText(value_label);
-            // Put highlight in top-left corner, about 0.2 wide,
-            // relative to actual size of LED
-            led.setFill(new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
-                                           new Stop(0, value_color.interpolate(Color.WHITESMOKE, 0.8)),
-                                           new Stop(1, value_color)));
+            final ImageView image = value_image;
+            if (image == null)
+            {
+                jfx_node.setGraphic(led);
+                // Put highlight in top-left corner, about 0.2 wide,
+                // relative to actual size of LED
+                led.setFill(new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
+                        new Stop(0, value_color.interpolate(Color.WHITESMOKE, 0.8)),
+                        new Stop(1, value_color)));
+            }
+            else
+                jfx_node.setGraphic(image);
         }
     }
 }
