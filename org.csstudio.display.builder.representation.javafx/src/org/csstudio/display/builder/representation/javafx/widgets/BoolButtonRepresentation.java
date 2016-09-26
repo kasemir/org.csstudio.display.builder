@@ -94,6 +94,9 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         model_widget.propOffLabel().addUntypedPropertyListener(this::representationChanged);
         model_widget.propOffColor().addUntypedPropertyListener(this::representationChanged);
         model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propEnabled().addUntypedPropertyListener(this::representationChanged);
         model_widget.propBit().addPropertyListener(this::bitChanged);
         model_widget.runtimePropValue().addPropertyListener(this::contentChanged);
         bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
@@ -162,8 +165,12 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
             jfx_node.setPrefSize(model_widget.propWidth().getValue(),
                                  model_widget.propHeight().getValue());
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
+            // XXX Pre-compute the colors?
+            jfx_node.setTextFill(JFXUtil.convert(model_widget.propForegroundColor().getValue()));
+            jfx_node.setStyle(JFXUtil.shadedStyle(model_widget.propBackgroundColor().getValue()));
             led.setRadiusX(model_widget.propWidth().getValue() / 15.0);
             led.setRadiusY(model_widget.propWidth().getValue() / 10.0);
+            jfx_node.setDisable(! model_widget.propEnabled().getValue());
             update_content = true;
         }
         if (update_content)

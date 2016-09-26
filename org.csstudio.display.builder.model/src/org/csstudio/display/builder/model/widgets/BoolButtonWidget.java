@@ -8,8 +8,11 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBit;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLabelsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOffColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propOnColor;
@@ -24,7 +27,9 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 
@@ -63,7 +68,11 @@ public class BoolButtonWidget extends PVWidget
     private volatile WidgetProperty<String> off_label;
     private volatile WidgetProperty<String> on_label;
     private volatile WidgetProperty<WidgetFont> font;
+    private volatile WidgetProperty<WidgetColor> background;
+    private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<Boolean> labels_from_pv;
+    private volatile WidgetProperty<Boolean> enabled;
+
 
 
     public BoolButtonWidget()
@@ -81,7 +90,10 @@ public class BoolButtonWidget extends PVWidget
         properties.add(on_label = propOnLabel.createProperty(this, Messages.BoolWidget_OnLabel));
         properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
+        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
         properties.add(labels_from_pv = propLabelsFromPV.createProperty(this, false));
+        properties.add(enabled = propEnabled.createProperty(this, true));
     }
 
     /** @return 'off_label' property */
@@ -120,9 +132,27 @@ public class BoolButtonWidget extends PVWidget
         return font;
     }
 
+    /** @return 'background_color' property */
+    public WidgetProperty<WidgetColor> propBackgroundColor()
+    {
+        return background;
+    }
+
+    /** @return 'foreground_color' property */
+    public WidgetProperty<WidgetColor> propForegroundColor()
+    {
+        return foreground;
+    }
+
     /** @return 'labels_from_pv' property */
     public WidgetProperty<Boolean> propLabelsFromPV()
     {
         return labels_from_pv;
+    }
+
+    /** @return 'enabled' property */
+    public WidgetProperty<Boolean> propEnabled()
+    {
+        return enabled;
     }
 }
