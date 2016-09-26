@@ -19,6 +19,14 @@
       </view>
    </extension>
    <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.csstudio.display.builder.rcp.top.ToolbarTopDisplaysHandler"
+            id="ToolbarTopDisplays"
+            name="%TopDisplays">
+      </command>
+   </extension>
+   <extension
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
@@ -27,6 +35,23 @@
                class="org.csstudio.display.builder.rcp.top.TopDisplaysMenu"
                id="org.csstudio.display.builder.rcp.menu.displays">
          </dynamic>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="org.csstudio.display.builder.rcp.runtime_toolbar">
+            <command
+                  commandId="ToolbarTopDisplays"
+                  icon="platform:/plugin/org.csstudio.display.builder.model/icons/runtime.png"
+                  style="pulldown">
+            </command>
+         </toolbar>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            class="org.csstudio.display.builder.rcp.top.TopDisplaysToolbarItems"
+            locationURI="menu:ToolbarTopDisplays">
       </menuContribution>
    </extension>
    <extension
@@ -109,5 +134,4 @@
          </property>
       </product>
    </extension>
-
 </plugin>

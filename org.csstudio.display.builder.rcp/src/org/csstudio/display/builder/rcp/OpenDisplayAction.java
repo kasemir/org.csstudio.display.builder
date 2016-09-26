@@ -25,7 +25,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 public class OpenDisplayAction extends Action
 {
     private final static ImageDescriptor icon =
-        AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/display.png");
+        AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/runtime.png");
 
     private final DisplayInfo info;
 
