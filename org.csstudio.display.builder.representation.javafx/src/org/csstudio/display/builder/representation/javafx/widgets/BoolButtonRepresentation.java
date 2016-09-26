@@ -37,9 +37,9 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
 
     private final DirtyFlag dirty_representation = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
-    protected volatile int on_state = 1;
-    protected volatile int use_bit = 0;
-    protected volatile Integer rt_value = 0;
+    private volatile int on_state = 1;
+    private volatile int use_bit = 0;
+    private volatile Integer rt_value = 0;
 
     // Design decision: Plain Button.
     // JFX ToggleButton appears natural to reflect two states,
@@ -56,10 +56,12 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     private volatile Button button;
     private volatile Ellipse led;
 
-    protected volatile Color[] state_colors;
-    protected volatile Color value_color;
-    protected volatile String[] state_labels;
-    protected volatile String value_label;
+    private volatile String background;
+    private volatile Color foreground;
+    private volatile Color[] state_colors;
+    private volatile Color value_color;
+    private volatile String[] state_labels;
+    private volatile String value_label;
 
     @Override
     public ButtonBase createJFXNode() throws Exception
@@ -102,15 +104,6 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
     }
 
-    protected Color[] createColors()
-    {
-        return new Color[]
-        {
-            JFXUtil.convert(model_widget.propOffColor().getValue()),
-            JFXUtil.convert(model_widget.propOnColor().getValue())
-        };
-    }
-
     private void stateChanged()
     {
         on_state = ((use_bit < 0) ? (rt_value != 0) : (((rt_value >> use_bit) & 1) == 1)) ? 1 : 0;
@@ -144,10 +137,16 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         stateChanged();
     }
 
-
     private void representationChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        state_colors = createColors();
+        foreground = JFXUtil.convert(model_widget.propForegroundColor().getValue());
+        background = JFXUtil.shadedStyle(model_widget.propBackgroundColor().getValue());
+        state_colors = new Color[]
+        {
+            JFXUtil.convert(model_widget.propOffColor().getValue()),
+            JFXUtil.convert(model_widget.propOnColor().getValue())
+        };
+
         state_labels = new String[] { model_widget.propOffLabel().getValue(), model_widget.propOnLabel().getValue() };
         value_color = state_colors[on_state];
         value_label = state_labels[on_state];
@@ -165,9 +164,8 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
             jfx_node.setPrefSize(model_widget.propWidth().getValue(),
                                  model_widget.propHeight().getValue());
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
-            // XXX Pre-compute the colors?
-            jfx_node.setTextFill(JFXUtil.convert(model_widget.propForegroundColor().getValue()));
-            jfx_node.setStyle(JFXUtil.shadedStyle(model_widget.propBackgroundColor().getValue()));
+            jfx_node.setTextFill(foreground);
+            jfx_node.setStyle(background);
             led.setRadiusX(model_widget.propWidth().getValue() / 15.0);
             led.setRadiusY(model_widget.propWidth().getValue() / 10.0);
             jfx_node.setDisable(! model_widget.propEnabled().getValue());
