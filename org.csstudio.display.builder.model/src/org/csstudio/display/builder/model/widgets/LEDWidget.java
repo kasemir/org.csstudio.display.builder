@@ -77,6 +77,7 @@ public class LEDWidget extends BaseLEDWidget
             final LEDWidget led = (LEDWidget) widget;
             BaseLEDWidget.handle_legacy_position(led, xml_version, xml);
 
+            // If legacy widgets was configured to not use labels, clear them
             final Optional<String> show = XMLUtil.getChildString(xml, "show_boolean_label");
             if (show.isPresent()  &&  !XMLUtil.parseBoolean(show.get(), false))
             {
@@ -110,6 +111,9 @@ public class LEDWidget extends BaseLEDWidget
         properties.add(on_color = propOnColor.createProperty(this, new WidgetColor(60, 255, 60)));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        // Ideally, widgets should fetch their information from a PV,
+        // but the LED does not allow much room for text,
+        // so the default text from the PV is likely too large..
         properties.add(labels_from_pv = propLabelsFromPV.createProperty(this, false));
     }
 
@@ -141,6 +145,12 @@ public class LEDWidget extends BaseLEDWidget
     public WidgetProperty<WidgetColor> propOnColor()
     {
         return on_color;
+    }
+
+    /** @return 'labels_from_pv' property */
+    public WidgetProperty<Boolean> propLabelsFromPV()
+    {
+        return labels_from_pv;
     }
 
     @Override
