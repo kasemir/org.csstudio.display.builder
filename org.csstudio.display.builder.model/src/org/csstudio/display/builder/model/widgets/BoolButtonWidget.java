@@ -21,19 +21,25 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
 
 /** Widget that provides button for making a binary change
  *  @author Megan Grodowitz
@@ -48,12 +54,40 @@ public class BoolButtonWidget extends PVWidget
             "platform:/plugin/org.csstudio.display.builder.model/icons/bool_button.gif",
             "Button that can toggle one bit of a PV value between 1 and 0",
             Arrays.asList("org.csstudio.opibuilder.widgets.BoolButton",
-                          "org.csstudio.opibuilder.widgets.ImageBoolButton"))
+                          "org.csstudio.opibuilder.widgets.ImageBoolButton",
+                          "org.csstudio.opibuilder.widgets.BoolSwitch"))
     {
         @Override
         public Widget createWidget()
         {
             return new BoolButtonWidget();
+        }
+    };
+
+    /** Handle legacy widged config */
+    private static class CustomConfigurator extends WidgetConfigurator
+    {
+        public CustomConfigurator(Version xml_version)
+        {
+            super(xml_version);
+        }
+
+        @Override
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget, final Element xml)
+                throws Exception
+        {
+            if (! super.configureFromXML(model_reader, widget, xml))
+                return false;
+
+            final BoolButtonWidget button = (BoolButtonWidget) widget;
+            // If legacy widgets was configured to not use labels, clear them
+            final Optional<String> show = XMLUtil.getChildString(xml, "show_boolean_label");
+            if (show.isPresent()  &&  !XMLUtil.parseBoolean(show.get(), false))
+            {
+                button.propOffLabel().setValue("");
+                button.propOnLabel().setValue("");
+            }
+            return true;
         }
     };
 
@@ -77,12 +111,16 @@ public class BoolButtonWidget extends PVWidget
     private volatile WidgetProperty<Boolean> labels_from_pv;
     private volatile WidgetProperty<Boolean> enabled;
 
-    // TODO Legacy configurator
-    // "off_image", "on_image"
-
     public BoolButtonWidget()
     {
         super(WIDGET_DESCRIPTOR.getType(), 100, 30);
+    }
+
+    @Override
+    public WidgetConfigurator getConfigurator(Version persisted_version)
+            throws Exception
+    {
+        return new CustomConfigurator(persisted_version);
     }
 
     @Override

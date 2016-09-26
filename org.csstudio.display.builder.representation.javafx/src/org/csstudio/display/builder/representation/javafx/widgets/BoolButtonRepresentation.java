@@ -200,13 +200,16 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         boolean update_value = dirty_value.checkAndClear();
         if (dirty_representation.checkAndClear())
         {
-            jfx_node.setPrefSize(model_widget.propWidth().getValue(),
-                                 model_widget.propHeight().getValue());
+            final int wid = model_widget.propWidth().getValue(),
+                      hei = model_widget.propHeight().getValue();
+            jfx_node.setPrefSize(wid, hei);
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
             jfx_node.setTextFill(foreground);
             jfx_node.setStyle(background);
-            led.setRadiusX(model_widget.propWidth().getValue() / 15.0);
-            led.setRadiusY(model_widget.propWidth().getValue() / 10.0);
+
+            final int size = Math.max(wid, hei);
+            led.setRadiusX(size / 15.0);
+            led.setRadiusY(size / 10.0);
             jfx_node.setDisable(! model_widget.propEnabled().getValue());
             update_value = true;
         }

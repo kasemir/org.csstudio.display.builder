@@ -52,7 +52,7 @@
     <effect_3d>true</effect_3d>
     <enabled>true</enabled>
     <font>
-      <opifont.name fontName=".Helvetica Neue DeskInterface" height="13" style="0">Default</opifont.name>
+      <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
     </font>
     <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
     <foreground_color>
@@ -70,7 +70,7 @@
     <on_label>ON</on_label>
     <password></password>
     <push_action_index>0</push_action_index>
-    <pv_name></pv_name>
+    <pv_name>loc://on_off(0)</pv_name>
     <pv_value />
     <released_action_index>0</released_action_index>
     <rules />
@@ -89,8 +89,8 @@ $(pv_value)</tooltip>
     <widget_type>Boolean Switch</widget_type>
     <width>50</width>
     <wuid>-4c2c328a:15481c109f9:-7f60</wuid>
-    <x>84</x>
-    <y>36</y>
+    <x>29</x>
+    <y>27</y>
   </widget>
   <widget typeId="org.csstudio.opibuilder.widgets.BoolButton" version="1.0.0">
     <actions hook="false" hook_all="false" />
@@ -111,13 +111,14 @@ $(pv_value)</tooltip>
     <effect_3d>true</effect_3d>
     <enabled>true</enabled>
     <font>
-      <opifont.name fontName=".Helvetica Neue DeskInterface" height="13" style="0">Default</opifont.name>
+      <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
     </font>
     <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
     <height>50</height>
+    <labels_from_pv>false</labels_from_pv>
     <name>Boolean Button</name>
     <off_color>
       <color name="Off" red="60" green="100" blue="60" />
@@ -129,7 +130,7 @@ $(pv_value)</tooltip>
     <on_label>ON</on_label>
     <password></password>
     <push_action_index>0</push_action_index>
-    <pv_name></pv_name>
+    <pv_name>loc://on_off(0)</pv_name>
     <pv_value />
     <released_action_index>0</released_action_index>
     <rules />
@@ -150,8 +151,8 @@ $(pv_value)</tooltip>
     <widget_type>Boolean Button</widget_type>
     <width>100</width>
     <wuid>-4c2c328a:15481c109f9:-7f5f</wuid>
-    <x>84</x>
-    <y>174</y>
+    <x>4</x>
+    <y>181</y>
   </widget>
   <widget typeId="org.csstudio.opibuilder.widgets.symbol.bool.BoolControlWidget" version="1.0.0">
     <actions hook="false" hook_all="false" />
@@ -181,14 +182,14 @@ $(pv_value)</tooltip>
     <flip_horizontal>false</flip_horizontal>
     <flip_vertical>false</flip_vertical>
     <font>
-      <opifont.name fontName=".Helvetica Neue DeskInterface" height="13" style="0">Default</opifont.name>
+      <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
     </font>
     <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
     <foreground_color>
       <color red="192" green="192" blue="192" />
     </foreground_color>
-    <height>250</height>
-    <image_file>../pic/Yellow-Rose.png</image_file>
+    <height>39</height>
+    <image_file>../pic/switch_on.gif</image_file>
     <name>Boolean Symbol Control</name>
     <no_animation>false</no_animation>
     <off_color>
@@ -211,7 +212,7 @@ $(pv_value)</tooltip>
       </row>
     </permutation_matrix>
     <push_action_index>0</push_action_index>
-    <pv_name>loc://test</pv_name>
+    <pv_name>loc://on_off(0)</pv_name>
     <pv_value />
     <released_action_index>0</released_action_index>
     <rules />
@@ -230,10 +231,10 @@ $(pv_value)</tooltip>
     <transparency>false</transparency>
     <visible>true</visible>
     <widget_type>Boolean Symbol Control</widget_type>
-    <width>226</width>
+    <width>52</width>
     <wuid>-4c2c328a:15481c109f9:-7f5e</wuid>
-    <x>84</x>
-    <y>286</y>
+    <x>197</x>
+    <y>173</y>
   </widget>
   <widget typeId="org.csstudio.opibuilder.widgets.ImageBoolButton" version="1.0.0">
     <actions hook="false" hook_all="false" />
@@ -256,22 +257,22 @@ $(pv_value)</tooltip>
     <data_type>0</data_type>
     <enabled>true</enabled>
     <font>
-      <opifont.name fontName=".Helvetica Neue DeskInterface" height="13" style="0">Default</opifont.name>
+      <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
     </font>
     <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
-    <height>250</height>
+    <height>39</height>
     <name>Image Boolean Button</name>
     <no_animation>false</no_animation>
-    <off_image>../pic/Yellow-Rose.png</off_image>
+    <off_image>../pic/switch_off.gif</off_image>
     <off_label>OFF</off_label>
-    <on_image>../pic/grasshopper.jpg</on_image>
+    <on_image>../pic/switch_on.gif</on_image>
     <on_label>ON</on_label>
     <password></password>
     <push_action_index>0</push_action_index>
-    <pv_name>loc://test1</pv_name>
+    <pv_name>loc://on_off(0)</pv_name>
     <pv_value />
     <released_action_index>0</released_action_index>
     <rules />
@@ -290,9 +291,175 @@ $(pv_value)</tooltip>
     <transparency>false</transparency>
     <visible>true</visible>
     <widget_type>Image Boolean Button</widget_type>
-    <width>226</width>
+    <width>52</width>
     <wuid>-4c2c328a:15481c109f9:-7d4b</wuid>
-    <x>351</x>
-    <y>53</y>
+    <x>209</x>
+    <y>36</y>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <auto_size>false</auto_size>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <border_color>
+      <color red="0" green="128" blue="255" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <font>
+      <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+    </font>
+    <foreground_color>
+      <color red="0" green="0" blue="0" />
+    </foreground_color>
+    <height>26</height>
+    <horizontal_alignment>0</horizontal_alignment>
+    <name>Label</name>
+    <rules />
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <show_scrollbar>false</show_scrollbar>
+    <text>Boolean Switch
+</text>
+    <tooltip></tooltip>
+    <transparent>true</transparent>
+    <vertical_alignment>1</vertical_alignment>
+    <visible>true</visible>
+    <widget_type>Label</widget_type>
+    <width>121</width>
+    <wrap_words>true</wrap_words>
+    <wuid>3927e321:1576837e369:-7fed</wuid>
+    <x>0</x>
+    <y>0</y>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <auto_size>false</auto_size>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <border_color>
+      <color red="0" green="128" blue="255" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <font>
+      <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+    </font>
+    <foreground_color>
+      <color red="0" green="0" blue="0" />
+    </foreground_color>
+    <height>26</height>
+    <horizontal_alignment>0</horizontal_alignment>
+    <name>Label_1</name>
+    <rules />
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <show_scrollbar>false</show_scrollbar>
+    <text>Boolean Button
+</text>
+    <tooltip></tooltip>
+    <transparent>true</transparent>
+    <vertical_alignment>1</vertical_alignment>
+    <visible>true</visible>
+    <widget_type>Label</widget_type>
+    <width>121</width>
+    <wrap_words>true</wrap_words>
+    <wuid>3927e321:1576837e369:-7fe9</wuid>
+    <x>4</x>
+    <y>140</y>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <auto_size>false</auto_size>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <border_color>
+      <color red="0" green="128" blue="255" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <font>
+      <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+    </font>
+    <foreground_color>
+      <color red="0" green="0" blue="0" />
+    </foreground_color>
+    <height>26</height>
+    <horizontal_alignment>0</horizontal_alignment>
+    <name>Label_2</name>
+    <rules />
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <show_scrollbar>false</show_scrollbar>
+    <text>Image Boolean Button</text>
+    <tooltip></tooltip>
+    <transparent>true</transparent>
+    <vertical_alignment>1</vertical_alignment>
+    <visible>true</visible>
+    <widget_type>Label</widget_type>
+    <width>157</width>
+    <wrap_words>true</wrap_words>
+    <wuid>3927e321:1576837e369:-7fdb</wuid>
+    <x>197</x>
+    <y>2</y>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <auto_size>false</auto_size>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <border_color>
+      <color red="0" green="128" blue="255" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <font>
+      <opifont.name fontName="Sans" height="10" style="0">Default</opifont.name>
+    </font>
+    <foreground_color>
+      <color red="0" green="0" blue="0" />
+    </foreground_color>
+    <height>26</height>
+    <horizontal_alignment>0</horizontal_alignment>
+    <name>Label_3</name>
+    <rules />
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <show_scrollbar>false</show_scrollbar>
+    <text>Boolean Symbol</text>
+    <tooltip></tooltip>
+    <transparent>true</transparent>
+    <vertical_alignment>1</vertical_alignment>
+    <visible>true</visible>
+    <widget_type>Label</widget_type>
+    <width>157</width>
+    <wrap_words>true</wrap_words>
+    <wuid>3927e321:1576837e369:-7fbb</wuid>
+    <x>197</x>
+    <y>140</y>
   </widget>
 </display>
