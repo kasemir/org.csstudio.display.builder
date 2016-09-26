@@ -70,15 +70,29 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
 
     /** Update the specification.
      *
-     *  <p>Invalidates the typed value of the property,
+     *  <p>If specification contains macros,
+     *  this invalidates the typed value of the property,
      *  which is re-calculated when fetched the next time.
      *
      *  @param specification Specification of the value. Text that may contain macros
      */
     public void setSpecification(final String specification)
     {
+        // If specification contains macros,
+        // clear value so that it can be evaluated
+        // later, presumably once the macro values
+        // have been provided.
+        if (MacroHandler.containsMacros(specification))
+        {
+            this.specification = specification;
+            value = null;
+            firePropertyChange(this, null, null);
+            return;
+        }
+        // Specification contains no macros
+        // -> Try to parse & restrict it
         try
-        {   // If spec. parses, use (and restrict) it
+        {
             final T old = value;
             value = restrictValue(parseExpandedSpecification(specification));
             this.specification = computeSpecification(value);
@@ -86,6 +100,11 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
         }
         catch (Exception ex)
         {   // Set "as is".
+            // When getValue() is called once macro values have
+            // been provided, parsing might actually succeed because
+            // of macro values,
+            // or the same 'ex' will be reported if the problem
+            // still persists.
             this.specification = specification;
             value = null;
             firePropertyChange(this, null, null);
