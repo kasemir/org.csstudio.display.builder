@@ -22,7 +22,6 @@ import javafx.scene.paint.Color;
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
 public class MultiStateLEDRepresentation extends BaseLEDRepresentation<MultiStateLEDWidget>
 {
     private final UntypedWidgetPropertyListener state_listener = (prop, old, value) -> configChanged(prop, old, value);
