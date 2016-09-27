@@ -12,8 +12,10 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFormat;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontalAlignment;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPrecision;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propShowUnits;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propVerticalAlignment;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWrapWords;
 
 import java.util.Arrays;
@@ -33,7 +35,9 @@ import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.FormatOption;
+import org.csstudio.display.builder.model.properties.HorizontalAlignment;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
+import org.csstudio.display.builder.model.properties.VerticalAlignment;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.osgi.framework.Version;
@@ -157,6 +161,8 @@ public class TextUpdateWidget extends PVWidget
     private volatile WidgetProperty<FormatOption> format;
     private volatile WidgetProperty<Integer> precision;
     private volatile WidgetProperty<Boolean> show_units;
+    private volatile WidgetProperty<HorizontalAlignment> horizontal_alignment;
+    private volatile WidgetProperty<VerticalAlignment> vertical_alignment;
     private volatile WidgetProperty<Boolean> wrap_words;
 
     public TextUpdateWidget()
@@ -180,6 +186,8 @@ public class TextUpdateWidget extends PVWidget
         properties.add(format = propFormat.createProperty(this, FormatOption.DEFAULT));
         properties.add(precision = propPrecision.createProperty(this, -1));
         properties.add(show_units = propShowUnits.createProperty(this, true));
+        properties.add(horizontal_alignment = propHorizontalAlignment.createProperty(this, HorizontalAlignment.LEFT));
+        properties.add(vertical_alignment = propVerticalAlignment.createProperty(this, VerticalAlignment.TOP));
         properties.add(wrap_words = propWrapWords.createProperty(this, true));
     }
 
@@ -217,6 +225,18 @@ public class TextUpdateWidget extends PVWidget
     public WidgetProperty<Boolean> propShowUnits()
     {
         return show_units;
+    }
+
+    /** @return 'horizontal_alignment' property */
+    public WidgetProperty<HorizontalAlignment> propHorizontalAlignment()
+    {
+        return horizontal_alignment;
+    }
+
+    /** @return 'vertical_alignment' property */
+    public WidgetProperty<VerticalAlignment> propVerticalAlignment()
+    {
+        return vertical_alignment;
     }
 
     /** @return 'wrap_words' property */

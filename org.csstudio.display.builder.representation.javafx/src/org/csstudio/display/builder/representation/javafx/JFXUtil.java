@@ -11,10 +11,13 @@ import static org.csstudio.display.builder.representation.ToolkitRepresentation.
 
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.properties.HorizontalAlignment;
+import org.csstudio.display.builder.model.properties.VerticalAlignment;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.util.ResourceUtil;
 
+import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
@@ -150,5 +153,17 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
     public static ImageView getIcon(final String name)
     {
         return getImageView("platform:/plugin/org.csstudio.display.builder.representation.javafx/icons/" + name);
+    }
+
+    /** Compute JFX alignment 'Pos' from widget properties
+     *  @param horiz {@link HorizontalAlignment}
+     *  @param vert {@link VerticalAlignment}
+     *  @return {@link Pos}
+     */
+    public static Pos computePos(final HorizontalAlignment horiz, final VerticalAlignment vert)
+    {
+        // This depends on the order of 'Pos' and uses Pos.BOTTOM_*, not Pos.BASELINE_*.
+        // Could use if/switch orgy to be independent from 'Pos' ordinals.
+        return Pos.values()[vert.ordinal() * 3 + horiz.ordinal()];
     }
 }
