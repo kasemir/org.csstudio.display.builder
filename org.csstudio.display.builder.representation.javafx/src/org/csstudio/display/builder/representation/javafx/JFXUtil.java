@@ -133,11 +133,12 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
         }
     }
 
-    /** @param image_path Path to an image, may use "plugin://.."
-     *  @return ImageView
+    /** @param name Name of icon in this plugin
+     *  @return {@link ImageView}
      */
-    public static ImageView getImageView(final String image_path)
+    public static ImageView getIcon(final String name)
     {
+        final String image_path = "platform:/plugin/org.csstudio.display.builder.representation.javafx/icons/" + name;
         try
         {
             return new ImageView(new Image(ResourceUtil.openPlatformResource(image_path)));
@@ -147,12 +148,6 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
             logger.log(Level.WARNING, "Cannot load " + image_path, ex);
         }
         return null;
-    }
-
-    /** Name of icon in this plugin */
-    public static ImageView getIcon(final String name)
-    {
-        return getImageView("platform:/plugin/org.csstudio.display.builder.representation.javafx/icons/" + name);
     }
 
     /** Compute JFX alignment 'Pos' from widget properties
