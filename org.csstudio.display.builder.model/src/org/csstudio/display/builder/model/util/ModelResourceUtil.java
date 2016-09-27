@@ -74,9 +74,14 @@ public class ModelResourceUtil extends ResourceUtil
                isURL(path);
     }
 
-    /** Normalize a windows-type path with '\'
-     *  @param path Path that may use Windows '\'
-     *  @return Path with only '/'
+    /** Normalize path
+     *
+     *  <p>Patch windows-type path with '\' into
+     *  forward slashes,
+     *  and collapse ".." up references.
+     *
+     *  @param path Path that may use Windows '\' or ".."
+     *  @return Path with only '/' and up-references resolved
      */
     public static String normalize(String path)
     {
@@ -84,7 +89,7 @@ public class ModelResourceUtil extends ResourceUtil
         // Each \ is doubled as \\ to get one '\' into the string,
         // then doubled once more to tell regex that we want a '\'
         path = path.replaceAll("\\\\(?!\\\\)", "/");
-        //collapse /../ file navigation
+        // Collapse "something/../" into "something/"
         int up = path.indexOf("/../");
         while (up >=0)
         {
@@ -174,17 +179,7 @@ public class ModelResourceUtil extends ResourceUtil
 
         // Remove last segment from parent_display to get path
         String result = getDirectory(parent_display) + "/" + display_path;
-
-        // Collapse  "some/path/remove/../else/file.opi"
-        int up = result.indexOf("/../");
-        while (up >= 0)
-        {   // Locate start of path segment before "/../"
-            final int sep = result.lastIndexOf('/', up-1);
-            if (sep < 0)
-                return result;
-            result = result.substring(0, sep) + result.substring(up + 3);
-            up = result.indexOf("/../");
-        }
+        result = normalize(result);
 
         return result;
     }
