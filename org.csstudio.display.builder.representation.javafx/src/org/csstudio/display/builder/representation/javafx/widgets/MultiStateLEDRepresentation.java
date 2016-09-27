@@ -86,6 +86,6 @@ public class MultiStateLEDRepresentation extends BaseLEDRepresentation<MultiStat
         final int N = states.size();
         if (color_index >= 0  &&  color_index < N)
             return states.get(color_index).label().getValue();
-        return "";
+        return model_widget.propFallbackLabel().getValue();
     }
 }

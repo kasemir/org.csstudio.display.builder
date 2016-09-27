@@ -78,7 +78,11 @@ public class MultiStateLEDWidget extends BaseLEDWidget
             final MultiStateLEDWidget model_widget = (MultiStateLEDWidget) widget;
             Element element = XMLUtil.getChildElement(xml, "state_color_fallback");
             if (element != null)
-                model_widget.fallback.readFromXML(model_reader, element);
+                model_widget.fallback_color.readFromXML(model_reader, element);
+
+            element = XMLUtil.getChildElement(xml, "state_label_fallback");
+            if (element != null)
+                model_widget.fallback_label.readFromXML(model_reader, element);
 
             // Handle legacy state_value_0, state_color_0, ..1, ..2, ..
             final ArrayWidgetProperty<StateWidgetProperty> states = model_widget.states;
@@ -125,8 +129,11 @@ public class MultiStateLEDWidget extends BaseLEDWidget
     private static final WidgetPropertyDescriptor<WidgetColor> propStateColor =
         CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "color", "Color");
 
+    private static final WidgetPropertyDescriptor<String> propFallbackLabel =
+        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "fallback_label", "Fallback Label");
+
     private static final WidgetPropertyDescriptor<WidgetColor> propFallbackColor =
-            CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "fallback", "Fallback Color");
+            CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "fallback_color", "Fallback Color");
 
     // 'state' structure that describes one state
     private static final StructuredWidgetProperty.Descriptor behaviorState =
@@ -164,7 +171,8 @@ public class MultiStateLEDWidget extends BaseLEDWidget
                     (widget, state) -> new StateWidgetProperty(widget, state));
 
     private volatile ArrayWidgetProperty<StateWidgetProperty> states;
-    private volatile WidgetProperty<WidgetColor> fallback;
+    private volatile WidgetProperty<WidgetColor> fallback_color;
+    private volatile WidgetProperty<String> fallback_label;
 
     public MultiStateLEDWidget()
     {
@@ -175,13 +183,14 @@ public class MultiStateLEDWidget extends BaseLEDWidget
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
-        properties.add(states = propStates.createProperty(this,
-                                                              Arrays.asList(new StateWidgetProperty(this, 0),
-                                                                            new StateWidgetProperty(this, 1))));
-        properties.add(fallback = propFallbackColor.createProperty(this,
-                                                                WidgetColorService.getColor(NamedWidgetColors.ALARM_INVALID)));
+        properties.add(states = propStates.createProperty(this, Arrays.asList(new StateWidgetProperty(this, 0),
+                                                                              new StateWidgetProperty(this, 1))));
+        properties.add(fallback_label = propFallbackLabel.createProperty(this, "Err"));
+        properties.add(fallback_color =
+                       propFallbackColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.ALARM_INVALID)));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
-        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
+        properties.add(foreground =
+                       propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
     }
 
     /** @return 'states' property */
@@ -190,10 +199,16 @@ public class MultiStateLEDWidget extends BaseLEDWidget
         return states;
     }
 
-    /** @return 'fallback' property */
+    /** @return 'fallback_label' property */
+    public WidgetProperty<String> propFallbackLabel()
+    {
+        return fallback_label;
+    }
+
+    /** @return 'fallback_color' property */
     public WidgetProperty<WidgetColor> propFallbackColor()
     {
-        return fallback;
+        return fallback_color;
     }
 
     @Override
