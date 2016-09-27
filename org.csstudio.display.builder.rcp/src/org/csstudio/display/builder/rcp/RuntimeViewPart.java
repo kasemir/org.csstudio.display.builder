@@ -189,9 +189,11 @@ public class RuntimeViewPart extends ViewPart
 		}
 	}
 
-	@Override
+    @Override
     public void createPartControl(final Composite parent)
     {
+	    RCPHacks.hideUnrelatedUI(getSite().getPage());
+
         parent.setLayout(new FillLayout());
         fx_canvas = new FXCanvas(parent, SWT.NONE);
 
