@@ -40,7 +40,6 @@ import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
-import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.MultiLineInputDialog;
@@ -58,7 +57,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.stage.Window;
 
 /** Section of Property panel
  *  @author Kay Kasemir
@@ -237,10 +235,9 @@ public class PropertyPanelSection extends GridPane
                 {
                     final Widget widget = file_prop.getWidget();
                     final String parent_file = widget.getDisplayModel().getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-                    final Window window = JFXBaseRepresentation.getJFXNode(widget).getScene().getWindow();
-                    final String filename = FilenameSupport.promptForFilename(window, file_prop);
+                    final String filename = FilenameSupport.promptForFilename(file_prop);
                     final String relative = ModelResourceUtil.getRelativePath(parent_file, filename);
-                    file_prop.setValue(relative);
+                    undo.execute(new SetMacroizedWidgetPropertyAction(file_prop, relative));
                 }
                 catch (Exception ex)
                 {

@@ -8,11 +8,14 @@
 package org.csstudio.display.builder.editor.util;
 
 import java.io.File;
+import java.util.function.Function;
 
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.FilenameWidgetProperty;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -30,14 +33,14 @@ public class FilenameSupport
         new ExtensionFilter(Messages.FileTypeDisplays, "*.bob")
     };
 
-    public static String promptForFilename(final Window window, final FilenameWidgetProperty file_prop)
+    /** Default file prompt that uses local file system */
+    private static final Function<FilenameWidgetProperty, String> local_file_prompt = file_prop ->
     {
-        // TODO By default, use dialog for local file system
-        // TODO With RCP, allow installation of workspace resource dialog
+        final Widget widget = file_prop.getWidget();
         final FileChooser dialog = new FileChooser();
         try
         {
-            final DisplayModel model = file_prop.getWidget().getDisplayModel();
+            final DisplayModel model = widget.getDisplayModel();
             final File initial = new File(ModelResourceUtil.resolveResource(model, file_prop.getValue()));
             if (initial.exists())
             {
@@ -50,9 +53,35 @@ public class FilenameSupport
             // Can't set initial file name, ignore.
         }
         dialog.getExtensionFilters().addAll(file_extensions);
+        final Window window = JFXBaseRepresentation.getJFXNode(widget).getScene().getWindow();
         final File selected = dialog.showOpenDialog(window);
         if (selected == null)
             return null;
         return selected.getPath();
+    };
+
+    private static Function<FilenameWidgetProperty, String> file_prompt = local_file_prompt;
+
+    /** Install function that will be called to prompt for files
+     *
+     *  Default uses local file system.
+     *  RCP plugin can install a workspace-based file dialog.
+     *
+     *  @param prompt Function that receives original file name property,
+     *                prompts user for new file (via file dialog),
+     *                and returns selected new file or <code>null</code>
+     */
+    public static void setFilePrompt(Function<FilenameWidgetProperty, String> prompt)
+    {
+        file_prompt = prompt;
+    }
+
+    /** Prompt for file name
+     *  @param file_prop {@link FilenameWidgetProperty} that provides initial value
+     *  @return Selected file name or <code>null</code>
+     */
+    public static String promptForFilename(final FilenameWidgetProperty file_prop)
+    {
+        return file_prompt.apply(file_prop);
     }
 }
