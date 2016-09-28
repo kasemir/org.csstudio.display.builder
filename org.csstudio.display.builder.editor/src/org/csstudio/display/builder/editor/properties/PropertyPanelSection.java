@@ -7,14 +7,19 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
+import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
+import org.csstudio.display.builder.editor.util.FilenameSupport;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
@@ -33,7 +38,9 @@ import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
 import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
+import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.MultiLineInputDialog;
@@ -51,6 +58,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.stage.Window;
 
 /** Section of Property panel
  *  @author Kay Kasemir
@@ -136,34 +144,29 @@ public class PropertyPanelSection extends GridPane
 
         if (property.isReadonly())
         {
-
             //  If "Type", use a label with an icon.
-            if ( property.getName().equals(CommonWidgetProperties.propType.getName()) ) {
-
-                String type = property.getWidget().getType();
-
-                try {
-
-                    Image image = new Image(WidgetFactory.getInstance().getWidgetDescriptor(type).getIconStream());
-                    ImageView icon = new ImageView(image);
+            if (property.getName().equals(CommonWidgetProperties.propType.getName()))
+            {
+                final String type = property.getWidget().getType();
+                try
+                {
+                    final Image image = new Image(WidgetFactory.getInstance().getWidgetDescriptor(type).getIconStream());
+                    final ImageView icon = new ImageView(image);
 
                     field = new Label(String.valueOf(property.getValue()), icon);
-
-                } catch ( Exception ex ) {
-                    //  Some widgets have no icon (e.g. DisplayModel).
+                }
+                catch (Exception ex)
+                {   //  Some widgets have no icon (e.g. DisplayModel).
                     field = new Label(String.valueOf(property.getValue()));
                 }
-
-            } else {
-
+            }
+            else
+            {
                 final TextField text = new TextField();
                 text.setText(String.valueOf(property.getValue()));
                 text.setDisable(true);
-
                 field = text;
-
             }
-
         }
         else if (property instanceof ColorWidgetProperty)
         {
@@ -230,8 +233,19 @@ public class PropertyPanelSection extends GridPane
             final Button select_file = new Button("...");
             select_file.setOnAction(event ->
             {
-                // TODO Add file selector
-                // TODO Make file name relative
+                try
+                {
+                    final Widget widget = file_prop.getWidget();
+                    final String parent_file = widget.getDisplayModel().getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+                    final Window window = JFXBaseRepresentation.getJFXNode(widget).getScene().getWindow();
+                    final String filename = FilenameSupport.promptForFilename(window, file_prop);
+                    final String relative = ModelResourceUtil.getRelativePath(parent_file, filename);
+                    file_prop.setValue(relative);
+                }
+                catch (Exception ex)
+                {
+                    logger.log(Level.WARNING, "Cannot prompt for " + file_prop, ex);
+                }
             });
             final MacroizedWidgetPropertyBinding binding = new MacroizedWidgetPropertyBinding(undo, text, file_prop, other);
             bindings.add(binding);

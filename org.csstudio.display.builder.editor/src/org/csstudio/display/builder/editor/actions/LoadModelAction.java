@@ -12,9 +12,9 @@ import java.io.File;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorDemoGUI;
 import org.csstudio.display.builder.editor.Messages;
+import org.csstudio.display.builder.editor.util.FilenameSupport;
 
 import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 
 /** Prompt for file name to save model
@@ -45,17 +45,16 @@ public class LoadModelAction extends ActionDescription
             dialog.setInitialDirectory(file.getParentFile());
             dialog.setInitialFileName(file.getName());
         }
-        dialog.getExtensionFilters().addAll(new ExtensionFilter(Messages.FileTypeDisplays, "*.opi"),
-                                            new ExtensionFilter(Messages.FileTypeAll, "*.*"));
+        dialog.getExtensionFilters().addAll(FilenameSupport.file_extensions);
         file = dialog.showOpenDialog(window);
         if (file == null)
             return;
 
-        // If file has no extension, use *.opi.
+        // If file has no extension, use *.bob.
         // Check only the filename, not the complete path for '.'!
         int sep = file.getName().lastIndexOf('.');
         if (sep < 0)
-            file = new File(file.getPath() + ".opi");
+            file = new File(file.getPath() + ".bob");
 
         editor.loadModel(file);
     }

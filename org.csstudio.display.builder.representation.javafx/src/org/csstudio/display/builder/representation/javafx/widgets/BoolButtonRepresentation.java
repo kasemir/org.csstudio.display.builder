@@ -165,8 +165,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         {
             // Resolve image file relative to the source widget model (not 'top'!)
             final DisplayModel widget_model = model_widget.getDisplayModel();
-            final String parent_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-            final String resolved = ModelResourceUtil.resolveResource(parent_file, path);
+            final String resolved = ModelResourceUtil.resolveResource(widget_model, path);
             return new ImageView(new Image(ModelResourceUtil.openResourceStream(resolved)));
         }
         catch (Exception ex)
