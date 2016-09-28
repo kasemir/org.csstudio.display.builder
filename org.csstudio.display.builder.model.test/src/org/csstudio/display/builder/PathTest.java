@@ -66,4 +66,29 @@ public class PathTest
         path = ModelResourceUtil.combineDisplayPaths("https://webopi.sns.gov/webopi/opi/Instruments.opi", "/home/beamline/main.bob");
         assertThat(path, equalTo("/home/beamline/main.bob"));
     }
+
+    @Test
+    public void testRelative() throws Exception
+    {
+        String parent = "/one/of/my/directories/parent.bob";
+
+        String path = ModelResourceUtil.getRelativePath(parent, "/one/of/my/directories/other.bob");
+        assertThat(path, equalTo("other.bob"));
+
+        path = ModelResourceUtil.getRelativePath(parent, "/one/of/my/alternate_dirs/example.bob");
+        assertThat(path, equalTo("../alternate_dirs/example.bob"));
+
+        path = ModelResourceUtil.getRelativePath(parent, "/one/main.bob");
+        assertThat(path, equalTo("../../../main.bob"));
+
+        path = ModelResourceUtil.getRelativePath(parent, "/elsewhere/file.txt");
+        assertThat(path, equalTo("/elsewhere/file.txt"));
+
+        parent = "http://server/folder/main/file.bob";
+        path = ModelResourceUtil.getRelativePath(parent, "http://server/folder/main/other.bob");
+        assertThat(path, equalTo("other.bob"));
+
+        path = ModelResourceUtil.getRelativePath(parent, "http://server/folder/share/common.bob");
+        assertThat(path, equalTo("../share/common.bob"));
+    }
 }

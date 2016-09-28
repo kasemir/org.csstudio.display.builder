@@ -119,10 +119,8 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
             // Resolve new image file relative to the source widget model (not 'top'!)
             // Get the display model from the widget tied to this representation
             final DisplayModel widget_model = model_widget.getDisplayModel();
-            // Get the parent file path from the display model
-            final String parent_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
             // Resolve the image path using the parent model file path
-            img_path = ModelResourceUtil.resolveResource(parent_file, expanded_path);
+            img_path = ModelResourceUtil.resolveResource(widget_model, expanded_path);
         }
         catch (Exception e)
         {
