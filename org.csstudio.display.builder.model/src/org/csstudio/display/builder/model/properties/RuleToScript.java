@@ -198,8 +198,16 @@ public class RuleToScript
         }
 
         script_str += "\n## Process variable extraction\n";
+        script_str += "## Use any of the following valid variable names in an expression:\n";
 
         Map<String,String> pvm = pvNameOptions(rule.getPVs().size());
+
+        for (Map.Entry<String, String> entry : pvm.entrySet())
+        {
+            script_str += "##     " + entry.getKey() + "\n";
+        }
+        script_str += "\n";
+
         Map<String,String> output_pvm = new HashMap<String,String>();
         for (ExpressionInfo<?> expr : rule.getExpressions())
         {

@@ -10,8 +10,11 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.BaseLEDWidget;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
 
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -25,15 +28,19 @@ import javafx.scene.shape.Ellipse;
 @SuppressWarnings("nls")
 abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBaseRepresentation<Pane, LED>
 {
-    private final DirtyFlag dirty_size = new DirtyFlag();
+    private final DirtyFlag styleChanged = new DirtyFlag();
     protected final DirtyFlag dirty_content = new DirtyFlag();
 
     protected volatile Color[] colors = new Color[0];
 
     protected volatile Color value_color;
 
+    protected volatile String value_label;
+
     /** Actual LED Ellipse inside {@link Pane} to allow for border */
     private Ellipse led;
+
+    protected Label label;
 
     @Override
     public Pane createJFXNode() throws Exception
@@ -43,7 +50,9 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
 
         led = new Ellipse();
         led.getStyleClass().add("led");
-        final Pane pane = new Pane(led);
+        label = new Label();
+        label.setAlignment(Pos.CENTER);
+        final Pane pane = new Pane(led, label);
         pane.setMinSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
         pane.setMaxSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
         return pane;
@@ -60,18 +69,27 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
      */
     abstract protected int computeColorIndex(final VType value);
 
+    /** Compute the label for currently active color index
+     *  @param color_index Color index returned by <code>computeColorIndex()</code>
+     *  @return String to show in label
+     */
+    abstract protected String computeLabel(final int color_index);
+
     @Override
     protected void registerListeners()
     {
         super.registerListeners();
-        model_widget.propWidth().addPropertyListener(this::sizeChanged);
-        model_widget.propHeight().addPropertyListener(this::sizeChanged);
+        model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.runtimePropValue().addPropertyListener(this::contentChanged);
+        contentChanged(null, null, null);
     }
 
-    private void sizeChanged(final WidgetProperty<Integer> property, final Integer old_value, final Integer new_value)
+    private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        dirty_size.mark();
+        styleChanged.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -96,6 +114,7 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
         if (value_index >= save_colors.length)
             value_index = save_colors.length-1;
         value_color = save_colors[value_index];
+        value_label = computeLabel(value_index);
 
         dirty_content.mark();
         toolkit.scheduleUpdate(this);
@@ -105,8 +124,12 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
     public void updateChanges()
     {
         super.updateChanges();
-        if (dirty_size.checkAndClear())
+        if (styleChanged.checkAndClear())
         {
+            final Color color = JFXUtil.convert(model_widget.propForegroundColor().getValue());
+            label.setTextFill(color);
+            label.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
+
             final int w = model_widget.propWidth().getValue();
             final int h = model_widget.propHeight().getValue();
 
@@ -115,13 +138,18 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
             led.setCenterY(h/2);
             led.setRadiusX(w/2);
             led.setRadiusY(h/2);
+
+            label.setPrefSize(w, h);
         }
         if (dirty_content.checkAndClear())
+        {
             led.setFill(
                 // Put highlight in top-left corner, about 0.2 wide,
                 // relative to actual size of LED
                 new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
                                    new Stop(0, value_color.interpolate(Color.WHITESMOKE, 0.8)),
                                    new Stop(1, value_color)));
+            label.setText(value_label);
+        }
     }
 }

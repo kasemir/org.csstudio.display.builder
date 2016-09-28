@@ -15,6 +15,7 @@ import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -30,6 +31,7 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
     private volatile String value_text = "<?>";
+    private volatile Pos pos;
 
     @Override
     public Label createJFXNode() throws Exception
@@ -42,13 +44,16 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
     protected void registerListeners()
     {
         super.registerListeners();
+        pos = JFXUtil.computePos(model_widget.propHorizontalAlignment().getValue(),
+                                 model_widget.propVerticalAlignment().getValue());
         model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propHorizontalAlignment().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propVerticalAlignment().addUntypedPropertyListener(this::styleChanged);
         model_widget.propWrapWords().addUntypedPropertyListener(this::styleChanged);
-
         model_widget.propFormat().addUntypedPropertyListener(this::contentChanged);
         model_widget.propPrecision().addUntypedPropertyListener(this::contentChanged);
         model_widget.propShowUnits().addUntypedPropertyListener(this::contentChanged);
@@ -59,6 +64,8 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        pos = JFXUtil.computePos(model_widget.propHorizontalAlignment().getValue(),
+                                 model_widget.propVerticalAlignment().getValue());
         dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -108,6 +115,7 @@ public class TextUpdateRepresentation extends RegionBaseRepresentation<Label, Te
             color = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
             jfx_node.setBackground(new Background(new BackgroundFill(color, CornerRadii.EMPTY, Insets.EMPTY)));
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
+            jfx_node.setAlignment(pos);
             jfx_node.setWrapText(model_widget.propWrapWords().getValue());
         }
         if (dirty_content.checkAndClear())

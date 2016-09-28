@@ -26,6 +26,9 @@ public class PathTest
 
         path = ModelResourceUtil.normalize("C:\\some path\\subdir\\file.opi");
         assertThat(path, equalTo("C:/some path/subdir/file.opi"));
+
+        path = ModelResourceUtil.normalize("/old/../new/path/../dir/file.opi");
+        assertThat(path, equalTo("/new/dir/file.opi"));
     }
 
     @Test
@@ -57,10 +60,10 @@ public class PathTest
         path = ModelResourceUtil.combineDisplayPaths("examples/dummy.opi", "scripts/test.py");
         assertThat(path, equalTo("examples/scripts/test.py"));
 
-        path = ModelResourceUtil.combineDisplayPaths("https://webopi.sns.gov/webopi/opi/Instruments.opi", "../../share/opi/Motors/motor.opi");
+        path = ModelResourceUtil.combineDisplayPaths("https://webopi.sns.gov/webopi/opi/Instruments.bob", "../../share/opi/Motors/motor.opi");
         assertThat(path, equalTo("https://webopi.sns.gov/share/opi/Motors/motor.opi"));
 
-        path = ModelResourceUtil.combineDisplayPaths("https://webopi.sns.gov/webopi/opi/Instruments.opi", "/home/beamline/main.opi");
-        assertThat(path, equalTo("/home/beamline/main.opi"));
+        path = ModelResourceUtil.combineDisplayPaths("https://webopi.sns.gov/webopi/opi/Instruments.opi", "/home/beamline/main.bob");
+        assertThat(path, equalTo("/home/beamline/main.bob"));
     }
 }

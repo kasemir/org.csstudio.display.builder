@@ -9,8 +9,6 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.properties.HorizontalAlignment;
-import org.csstudio.display.builder.model.properties.VerticalAlignment;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
@@ -29,7 +27,7 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
 {
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
-    private Pos pos;
+    private volatile Pos pos;
 
     @Override
     public Label createJFXNode() throws Exception
@@ -41,7 +39,8 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
     protected void registerListeners()
     {
         super.registerListeners();
-        pos = computePos();
+        pos = JFXUtil.computePos(model_widget.propHorizontalAlignment().getValue(),
+                                 model_widget.propVerticalAlignment().getValue());
         model_widget.propWidth().addUntypedPropertyListener(this::styleChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::styleChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
@@ -54,18 +53,10 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
         model_widget.propText().addUntypedPropertyListener(this::contentChanged);
     }
 
-    private Pos computePos()
-    {
-        final HorizontalAlignment horiz = model_widget.propHorizontalAlignment().getValue();
-        final VerticalAlignment vert = model_widget.propVerticalAlignment().getValue();
-        // This depends on the order of 'Pos' and uses Pos.BOTTOM_*, not Pos.BASELINE_*.
-        // Could use if/switch orgy to be independent from 'Pos' ordinals.
-        return Pos.values()[vert.ordinal() * 3 + horiz.ordinal()];
-    }
-
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        pos = computePos();
+        pos = JFXUtil.computePos(model_widget.propHorizontalAlignment().getValue(),
+                                 model_widget.propVerticalAlignment().getValue());
         dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
