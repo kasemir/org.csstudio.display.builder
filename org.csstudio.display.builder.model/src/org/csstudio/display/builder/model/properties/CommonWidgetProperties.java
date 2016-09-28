@@ -299,9 +299,15 @@ public class CommonWidgetProperties
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "horizontal", Messages.WidgetProperties_Horizontal);
 
     /** 'file' property: File to display */
-    //TODO: Add editor support for filenames. Change from String to filename type
     public static final WidgetPropertyDescriptor<String> propFile =
-        newStringPropertyDescriptor(WidgetPropertyCategory.WIDGET, "file", Messages.WidgetProperties_File);
+        new WidgetPropertyDescriptor<String>(WidgetPropertyCategory.WIDGET, "file", Messages.WidgetProperties_File)
+        {
+            @Override
+            public WidgetProperty<String> createProperty(final Widget widget, final String value)
+            {
+                return new FilenameWidgetProperty(this, widget, value);
+            }
+        };
 
     /** 'points' property: Points to display */
     public static final WidgetPropertyDescriptor<Points> propPoints =

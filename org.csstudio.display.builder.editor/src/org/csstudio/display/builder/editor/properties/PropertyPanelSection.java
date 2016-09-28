@@ -27,6 +27,7 @@ import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
+import org.csstudio.display.builder.model.properties.FilenameWidgetProperty;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
@@ -64,11 +65,6 @@ public class PropertyPanelSection extends GridPane
     private boolean show_categories;
     private static final AutocompleteMenu autocomplete_menu = new AutocompleteMenu();
 
-    public PropertyPanelSection()
-    {
-
-    }
-
     public void fill(final UndoableActionManager undo,
             final Collection<WidgetProperty<?>> properties,
             final List<Widget> other,
@@ -104,7 +100,7 @@ public class PropertyPanelSection extends GridPane
 
             }
 
-            this.createPropertyUI(undo, property, other, 0);
+            createPropertyUI(undo, property, other, 0);
         }
     }
 
@@ -121,6 +117,15 @@ public class PropertyPanelSection extends GridPane
         return next_row;
     }
 
+    /** Some 'simple' properties are handled
+     *  in static method to allow use in the
+     *  RulesDialog
+     *  @param undo
+     *  @param bindings
+     *  @param property
+     *  @param other
+     *  @return
+     */
     public static Node bindSimplePropertyField (
             final UndoableActionManager undo,
             List<WidgetPropertyBinding<?,?>> bindings,
@@ -186,6 +191,7 @@ public class PropertyPanelSection extends GridPane
             combo.setPromptText(property.getDefaultValue().toString());
             combo.setEditable(true);
             combo.getItems().addAll(enum_prop.getLabels());
+            combo.setMaxWidth(Double.MAX_VALUE);
             final EnumWidgetPropertyBinding binding =
                     new EnumWidgetPropertyBinding(undo, combo, enum_prop, other);
             bindings.add(binding);
@@ -198,6 +204,7 @@ public class PropertyPanelSection extends GridPane
             combo.setPromptText(property.getDefaultValue().toString());
             combo.setEditable(true);
             combo.getItems().addAll("true", "false");
+            combo.setMaxWidth(Double.MAX_VALUE);
             final BooleanWidgetPropertyBinding binding =
                     new BooleanWidgetPropertyBinding(undo, combo, (BooleanWidgetProperty)property, other);
             bindings.add(binding);
@@ -214,28 +221,47 @@ public class PropertyPanelSection extends GridPane
             binding.bind();
             field = map_button;
         }
+        else if (property instanceof FilenameWidgetProperty)
+        {
+            final FilenameWidgetProperty file_prop = (FilenameWidgetProperty)property;
+            final TextField text = new TextField();
+            text.setPromptText(file_prop.getDefaultValue().toString());
+            text.setMaxWidth(Double.MAX_VALUE);
+            final Button select_file = new Button("...");
+            select_file.setOnAction(event ->
+            {
+                // TODO Add file selector
+                // TODO Make file name relative
+            });
+            final MacroizedWidgetPropertyBinding binding = new MacroizedWidgetPropertyBinding(undo, text, file_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = new HBox(text, select_file);
+            HBox.setHgrow(text, Priority.ALWAYS);
+        }
         else if (property instanceof MacroizedWidgetProperty)
         {
             final MacroizedWidgetProperty<?> macro_prop = (MacroizedWidgetProperty<?>)property;
             final TextField text = new TextField();
             text.setPromptText(macro_prop.getDefaultValue().toString());
             final MacroizedWidgetPropertyBinding binding = (property.getName().contains("pv"))
-                    ? new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other)
+                ? new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other)
+                {
+                    @Override
+                    public void bind()
                     {
-                        @Override
-                        public void bind()
-                        {
-                            super.bind();
-                            autocomplete_menu.attachField(text);
-                        }
+                        super.bind();
+                        autocomplete_menu.attachField(text);
+                    }
 
-                        @Override
-                        public void unbind()
-                        {
-                            super.unbind();
-                            autocomplete_menu.removeField(text);
-                        }
-                    } : new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
+                    @Override
+                    public void unbind()
+                    {
+                        super.unbind();
+                        autocomplete_menu.removeField(text);
+                    }
+                }
+                : new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
             bindings.add(binding);
             binding.bind();
             if (CommonWidgetProperties.propText.getName().equals(property.getName()))
@@ -293,7 +319,6 @@ public class PropertyPanelSection extends GridPane
         label.setMaxWidth(Double.MAX_VALUE);
         label.setMinWidth(100);
         label.setTooltip(new Tooltip(property.getDescription()));
-        GridPane.setHgrow(label, Priority.ALWAYS);
         //this.setGridLinesVisible(true);
 
         Node field = bindSimplePropertyField(undo, bindings, property, other);
@@ -345,25 +370,20 @@ public class PropertyPanelSection extends GridPane
         }
         else if (property instanceof StructuredWidgetProperty)
         {
-
             final StructuredWidgetProperty struct = (StructuredWidgetProperty) property;
             final Label header = new Label(struct.getDescription() + ( structureIndex > 0 ? " " + String.valueOf(1 + structureIndex) : ""));
-
             header.getStyleClass().add("structure_property_name");
             header.setMaxWidth(Double.MAX_VALUE);
 
             add(header, 0, getNextGridRow(), 2, 1);
 
-            Separator separator = new Separator();
-
+            final Separator separator = new Separator();
             separator.getStyleClass().add("property_separator");
             add(separator, 0, getNextGridRow(), 2, 1);
 
             for (WidgetProperty<?> elem : struct.getValue())
                 this.createPropertyUI(undo, elem, other, -1);
-
             return;
-
         }
         else if (property instanceof ArrayWidgetProperty)
         {
@@ -428,16 +448,15 @@ public class PropertyPanelSection extends GridPane
         label.getStyleClass().add("property_name");
         field.getStyleClass().add("property_value");
 
-        int row = getNextGridRow();
-
+        final int row = getNextGridRow();
+        GridPane.setHgrow(label, Priority.ALWAYS);
+        GridPane.setHgrow(field, Priority.ALWAYS);
         add(label, 0, row);
         add(field, 1, row);
 
-        Separator separator = new Separator();
-
+        final Separator separator = new Separator();
         separator.getStyleClass().add("property_separator");
         add(separator, 0, getNextGridRow(), 2, 1);
-
     }
 
     public AutocompleteMenu getAutocompleteMenu()
@@ -445,7 +464,9 @@ public class PropertyPanelSection extends GridPane
         return autocomplete_menu;
     }
 
-    /** Clear the property UI */
+    /** Clear the property UI
+     *  <P>Removes all property bindings and their UI
+     */
     public void clear()
     {
         bindings.forEach(WidgetPropertyBinding::unbind);
