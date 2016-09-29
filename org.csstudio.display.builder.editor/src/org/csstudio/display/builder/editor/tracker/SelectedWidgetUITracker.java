@@ -92,7 +92,7 @@ public class SelectedWidgetUITracker extends Tracker
         this.toolkit = toolkit;
         this.group_handler = group_handler;
         this.undo = undo;
-        this.snap_constraint = new TrackerSnapConstraint(this, toolkit);
+        this.snap_constraint = new TrackerSnapConstraint(this);
         this.grid_constraint = new TrackerGridConstraint();
 
         setVisible(false);

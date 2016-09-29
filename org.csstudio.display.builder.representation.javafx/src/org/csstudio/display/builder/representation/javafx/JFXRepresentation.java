@@ -337,14 +337,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public Integer getDisplayHeight ( ) {
-        /*
-         * NOTE: the current height is returned, so snap guidelines are displayed correctly.
-         */
-        return (int) ((Pane) model_root.getContent()).getHeight();
-    }
-
-    @Override
     public void setDisplayHeight ( Integer height ) {
 
         if ( height != null ) {
@@ -365,14 +357,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
 
         }
 
-    }
-
-    @Override
-    public Integer getDisplayWidth ( ) {
-        /*
-         * NOTE: the current width is returned, so snap guidelines are displayed correctly.
-         */
-        return (int) ((Pane) model_root.getContent()).getWidth();
     }
 
     @Override
@@ -590,9 +574,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         if (isEditMode())
             model_root.setStyle("-fx-background: linear-gradient(from 0px 0px to 10px 10px, reflect, #D2A2A2 48%, #D2A2A2 2%, #D2D2A2 48% #D2D2A2 2%)");
         else
-        {
             model_root.setStyle("-fx-background: " + JFXUtil.webRGB(background));
-        }
 
         final Color backgroundColor = new Color(background.getRed(), background.getGreen(), background.getBlue());
 

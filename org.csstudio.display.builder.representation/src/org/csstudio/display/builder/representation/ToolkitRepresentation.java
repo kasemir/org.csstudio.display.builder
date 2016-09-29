@@ -180,19 +180,9 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     abstract public ToolkitRepresentation<TWP, TW> openNewWindow(DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception;
 
     /**
-     * @return The current display height.
-     */
-    abstract public Integer getDisplayHeight ( );
-
-    /**
      * @param height The new display height.
      */
     abstract public void setDisplayHeight ( Integer height );
-
-    /**
-     * @return The current display width.
-     */
-    abstract public Integer getDisplayWidth ( );
 
     /**
      * @param width The new display width.
