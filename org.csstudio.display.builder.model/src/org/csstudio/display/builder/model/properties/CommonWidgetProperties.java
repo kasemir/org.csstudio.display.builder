@@ -47,6 +47,24 @@ public class CommonWidgetProperties
         };
     }
 
+    /** Constructor for filename property
+     *  @param category Widget property category
+     *  @param name Internal name of the property
+     *  @param description Human-readable description
+     */
+    public static final WidgetPropertyDescriptor<String> newFilenamePropertyDescriptor(final WidgetPropertyCategory category,
+                                                                                     final String name, final String description)
+    {
+        return new WidgetPropertyDescriptor<String>(category, name, description)
+        {
+            @Override
+            public WidgetProperty<String> createProperty(final Widget widget, final String value)
+            {
+                return new FilenameWidgetProperty(this, widget, value);
+            }
+        };
+    }
+
     /** Constructor for Integer property
      *  @param category Widget property category
      *  @param name Internal name of the property
@@ -299,9 +317,8 @@ public class CommonWidgetProperties
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "horizontal", Messages.WidgetProperties_Horizontal);
 
     /** 'file' property: File to display */
-    //TODO: Add editor support for filenames. Change from String to filename type
     public static final WidgetPropertyDescriptor<String> propFile =
-        newStringPropertyDescriptor(WidgetPropertyCategory.WIDGET, "file", Messages.WidgetProperties_File);
+        newFilenamePropertyDescriptor(WidgetPropertyCategory.WIDGET, "file", Messages.WidgetProperties_File);
 
     /** 'points' property: Points to display */
     public static final WidgetPropertyDescriptor<Points> propPoints =

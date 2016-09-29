@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newFilenamePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBit;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
@@ -92,9 +92,9 @@ public class BoolButtonWidget extends PVWidget
     };
 
     private static final WidgetPropertyDescriptor<String> propOffImage =
-        newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "off_image", Messages.WidgetProperties_OffImage);
+        newFilenamePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "off_image", Messages.WidgetProperties_OffImage);
     private static final WidgetPropertyDescriptor<String> propOnImage =
-        newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "on_image", Messages.WidgetProperties_OnImage);
+        newFilenamePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "on_image", Messages.WidgetProperties_OnImage);
 
     private volatile WidgetProperty<Integer> bit;
     private volatile WidgetProperty<String> off_label;

@@ -299,8 +299,7 @@ public class ScriptUtil
         try
         {
             final DisplayModel widget_model = widget.getDisplayModel();
-            final String display_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-            final String resolved = ModelResourceUtil.resolveResource(display_file, audio_file);
+            final String resolved = ModelResourceUtil.resolveResource(widget_model, audio_file);
             String url;
             if (resolved.startsWith("http:") || resolved.startsWith("https:"))
                 url = resolved;

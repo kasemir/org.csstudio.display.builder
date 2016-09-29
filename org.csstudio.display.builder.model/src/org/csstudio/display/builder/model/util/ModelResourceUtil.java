@@ -74,6 +74,49 @@ public class ModelResourceUtil extends ResourceUtil
                isURL(path);
     }
 
+    /** Obtain a relative path
+     *
+     *  <p>Returns original 'path' if it cannot be expressed
+     *  relative to the 'parent'.
+     *  @param parent Parent file, for example "/one/of/my/directories/parent.bob"
+     *  @param path Path to make relative, for example "/one/of/my/alternate_dirs/example.bob"
+     *  @return Relative path, e.d. "../alternate_dirs/example.bob"
+     */
+    public static String getRelativePath(final String parent, final String path)
+    {
+        // Locate common path elements
+        final String[] parent_elements = getDirectory(parent).split("/");
+        final String[] path_elements = normalize(path).split("/");
+        final int len = Math.min(parent_elements.length, path_elements.length);
+        int i;
+        for (i=0; i<len; ++i)
+            if (! parent_elements[i].equals(path_elements[i]))
+                break;
+        // Anything in common?
+        if (i == 0  ||
+            (i == 1 && parent_elements[0].length() == 0))
+            return path;
+
+        // Go 'up' from the parent directory to the common directory
+        final StringBuilder relative = new StringBuilder();
+        for (int up = parent_elements.length - i; up > 0; --up)
+        {
+            if (relative.length() > 0)
+                relative.append("/");
+            relative.append("..");
+        }
+
+        // Go down from common directory
+        for (/**/; i<path_elements.length; ++i)
+        {
+            if (relative.length() > 0)
+                relative.append("/");
+            relative.append(path_elements[i]);
+        }
+
+        return relative.toString();
+    }
+
     /** Normalize path
      *
      *  <p>Patch windows-type path with '\' into
@@ -182,6 +225,20 @@ public class ModelResourceUtil extends ResourceUtil
         result = normalize(result);
 
         return result;
+    }
+
+    /** Attempt to resolve a resource relative to a display
+    *
+    *  <p>For *.opi files, checks if there is an updated .bob file.
+    *
+    *  @param model {@link DisplayModel}
+    *  @param resource_name Resource path. If relative, it is resolved relative to the parent display
+    *  @return Resolved file name. May also be the original name if no idea how to adjust it
+    */
+    public static String resolveResource(final DisplayModel model, final String resource_name)
+    {
+        final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+        return resolveResource(parent_display, resource_name);
     }
 
     /** Attempt to resolve a resource relative to a display
