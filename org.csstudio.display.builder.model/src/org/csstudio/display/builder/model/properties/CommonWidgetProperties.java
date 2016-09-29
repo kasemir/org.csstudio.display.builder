@@ -47,6 +47,24 @@ public class CommonWidgetProperties
         };
     }
 
+    /** Constructor for filename property
+     *  @param category Widget property category
+     *  @param name Internal name of the property
+     *  @param description Human-readable description
+     */
+    public static final WidgetPropertyDescriptor<String> newFilenamePropertyDescriptor(final WidgetPropertyCategory category,
+                                                                                     final String name, final String description)
+    {
+        return new WidgetPropertyDescriptor<String>(category, name, description)
+        {
+            @Override
+            public WidgetProperty<String> createProperty(final Widget widget, final String value)
+            {
+                return new FilenameWidgetProperty(this, widget, value);
+            }
+        };
+    }
+
     /** Constructor for Integer property
      *  @param category Widget property category
      *  @param name Internal name of the property
@@ -300,14 +318,7 @@ public class CommonWidgetProperties
 
     /** 'file' property: File to display */
     public static final WidgetPropertyDescriptor<String> propFile =
-        new WidgetPropertyDescriptor<String>(WidgetPropertyCategory.WIDGET, "file", Messages.WidgetProperties_File)
-        {
-            @Override
-            public WidgetProperty<String> createProperty(final Widget widget, final String value)
-            {
-                return new FilenameWidgetProperty(this, widget, value);
-            }
-        };
+        newFilenamePropertyDescriptor(WidgetPropertyCategory.WIDGET, "file", Messages.WidgetProperties_File);
 
     /** 'points' property: Points to display */
     public static final WidgetPropertyDescriptor<Points> propPoints =
