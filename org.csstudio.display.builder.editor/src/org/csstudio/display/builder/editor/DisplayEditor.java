@@ -289,6 +289,7 @@ public class DisplayEditor
         widget_naming.clear();
         selection.clear();
         group_handler.setModel(model);
+        selection_tracker.setModel(model);
 
         final DisplayModel old_model = this.model;
         if (old_model != null)

@@ -171,11 +171,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     /** Width of the grid lines. */
     private static final float GRID_LINE_WIDTH = 0.222F;
 
-    private Color backgroundColor = Color.WHITE;
-    private Color gridColor = Color.GRAY;
-    private int gridStepX = 20;
-    private int gridStepY = 20;
-    private boolean gridVisible = false;
     private Line horiz_bound, vert_bound;
 
     /** Constructor
@@ -249,6 +244,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         return () -> (WidgetRepresentation<Parent, Node, Widget>) config.createExecutableExtension("class");
     }
 
+    private volatile Pane scroll_body;
     private volatile ScrollPane model_root;
     private volatile Group model_parent;
 
@@ -266,9 +262,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         model_parent = new Group();
         vert_bound = new Line();
         horiz_bound = new Line();
-
-        final Pane scroll_body = new Pane(model_parent, vert_bound, horiz_bound);
-
+        scroll_body = new Pane(model_parent, vert_bound, horiz_bound);
         model_root = new ScrollPane(scroll_body);
 
         return model_root;
@@ -342,139 +336,22 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public void setBackground ( final WidgetColor color ) {
+    public void updateDisplaySize()
+    {
+        final int width = model.propWidth().getValue();
+        final int height = model.propHeight().getValue();
+        scroll_body.setMinWidth(width);
+        scroll_body.setMinHeight(height);
 
-        if ( isEditMode() ) {
-            try {
-                model_root.setStyle("-fx-background: linear-gradient(from 0px 0px to 10px 10px, reflect, #D2A2A2 48%, #D2A2A2 2%, #D2D2A2 48% #D2D2A2 2%)");
-            } catch ( Exception ex ) {
-            }
-        } else {
-            model_root.setStyle("-fx-background: " + JFXUtil.webRGB(color));
+        if (isEditMode())
+        {
+            horiz_bound.setStartY(height - 1);
+            horiz_bound.setEndX(width - 1);
+            horiz_bound.setEndY(height - 1);
+            vert_bound.setStartX(width - 1);
+            vert_bound.setEndY(height - 1);
+            vert_bound.setEndX(width - 1);
         }
-
-        if ( color != null ) {
-
-            backgroundColor = new Color(color.getRed(), color.getGreen(), color.getBlue());
-
-            updateBackground();
-
-        }
-
-    }
-
-    @Override
-    public Integer getDisplayHeight ( ) {
-        /*
-         * NOTE: the current height is returned, so snap guidelines are displayed correctly.
-         */
-        return (int) ((Pane) model_root.getContent()).getHeight();
-    }
-
-    @Override
-    public void setDisplayHeight ( Integer height ) {
-
-        if ( height != null ) {
-
-            final double h = height.doubleValue();
-
-            Platform.runLater(() -> {
-
-                ((Pane) model_root.getContent()).setMinHeight(h);
-
-                if ( isEditMode() ) {
-                    horiz_bound.setStartY(h - 1);
-                    horiz_bound.setEndY(h - 1);
-                    vert_bound.setEndY(h - 1);
-                }
-
-            });
-
-        }
-
-    }
-
-    @Override
-    public Integer getDisplayWidth ( ) {
-        /*
-         * NOTE: the current width is returned, so snap guidelines are displayed correctly.
-         */
-        return (int) ((Pane) model_root.getContent()).getWidth();
-    }
-
-    @Override
-    public void setDisplayWidth ( Integer width ) {
-
-        if ( width != null ) {
-
-            final double w = width.doubleValue();
-
-            Platform.runLater(() -> {
-
-                ((Pane) model_root.getContent()).setMinWidth(w);
-
-                if ( isEditMode() ) {
-                    horiz_bound.setEndX(w - 1);
-                    vert_bound.setStartX(w - 1);
-                    vert_bound.setEndX(w - 1);
-                }
-
-            });
-
-        }
-
-    }
-
-    @Override
-    public void setGridColor ( WidgetColor color ) {
-
-        if ( color != null ) {
-
-            gridColor = new Color(color.getRed(), color.getGreen(), color.getBlue());
-
-            updateBackground();
-
-        }
-
-    }
-
-    @Override
-    public void setGridVisible ( Boolean visible ) {
-
-        if ( visible != null ) {
-
-            gridVisible = visible;
-
-            updateBackground();
-
-        }
-
-    }
-
-    @Override
-    public void setGridStepX ( Integer stepX ) {
-
-        if ( stepX != null ) {
-
-            gridStepX = stepX;
-
-            updateBackground();
-
-        }
-
-    }
-
-    @Override
-    public void setGridStepY ( Integer stepY ) {
-
-        if ( stepY != null ) {
-
-            gridStepY = stepY;
-
-            updateBackground();
-
-        }
-
     }
 
     @Override
@@ -662,10 +539,25 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         return null;
     }
 
-    private void updateBackground() {
+    @Override
+    protected void updateBackground()
+    {
+        final WidgetColor background = model.propBackgroundColor().getValue();
+        if (isEditMode())
+            model_root.setStyle("-fx-background: linear-gradient(from 0px 0px to 10px 10px, reflect, #D2A2A2 48%, #D2A2A2 2%, #D2D2A2 48% #D2D2A2 2%)");
+        else
+            model_root.setStyle("-fx-background: " + JFXUtil.webRGB(background));
 
-        BufferedImage image = new BufferedImage(gridStepX, gridStepY, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = image.createGraphics();
+        final Color backgroundColor = new Color(background.getRed(), background.getGreen(), background.getBlue());
+
+        final boolean gridVisible = isEditMode() ? model.propGridVisible().getValue() : false;
+        final int gridStepX = model.propGridStepX().getValue(),
+                  gridStepY = model.propGridStepY().getValue();
+        final WidgetColor grid_rgb = model.propGridColor().getValue();
+        final Color gridColor = new Color(grid_rgb.getRed(), grid_rgb.getGreen(), grid_rgb.getBlue());
+
+        final BufferedImage image = new BufferedImage(gridStepX, gridStepY, BufferedImage.TYPE_INT_ARGB);
+        final Graphics2D g2d = image.createGraphics();
 
         g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -676,21 +568,18 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         g2d.setBackground(backgroundColor);
         g2d.clearRect(0, 0, gridStepX, gridStepY);
 
-        if ( gridVisible ) {
+        if (gridVisible)
+        {
             g2d.setColor(gridColor);
             g2d.setStroke(new BasicStroke(GRID_LINE_WIDTH));
             g2d.drawLine(0, 0, gridStepX, 0);
             g2d.drawLine(0, 0, 0, gridStepY);
         }
 
-        WritableImage wimage = new WritableImage(gridStepX, gridStepY);
-
+        final WritableImage wimage = new WritableImage(gridStepX, gridStepY);
         SwingFXUtils.toFXImage(image, wimage);
-
-        ImagePattern pattern = new ImagePattern(wimage, 0, 0, gridStepX, gridStepY, false);
-
-        ((Pane) model_root.getContent()).setBackground(new Background(new BackgroundFill(pattern, CornerRadii.EMPTY, Insets.EMPTY)));
-
+        final ImagePattern pattern = new ImagePattern(wimage, 0, 0, gridStepX, gridStepY, false);
+        scroll_body.setBackground(new Background(new BackgroundFill(pattern, CornerRadii.EMPTY, Insets.EMPTY)));
     }
 
     // Future for controlling the audio player
@@ -822,17 +711,4 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         }
         return CompletableFuture.completedFuture(false);
     }
-
-
-    @Override
-    public Integer getGridStepX ( ) {
-        return gridStepX;
-    }
-
-
-    @Override
-    public Integer getGridStepY ( ) {
-        return gridStepX;
-    }
-
 }
