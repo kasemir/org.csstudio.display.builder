@@ -21,6 +21,7 @@ import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.runtime.script.ScriptUtil;
 
 /** Action Helper
  *  @author Kay Kasemir
@@ -119,6 +120,7 @@ public class ActionUtil
         catch (final Exception ex)
         {
             logger.log(Level.WARNING, "Error handling " + action, ex);
+            ScriptUtil.showErrorDialog(source_widget, "Cannot open " + action.getFile() + ".\n\nSee log for details.");
         }
     }
 
@@ -147,6 +149,7 @@ public class ActionUtil
         catch (final Exception ex)
         {
             logger.log(Level.WARNING, action + " failed", ex);
+            ScriptUtil.showErrorDialog(source_widget, "Cannot write " + action.getPV() + ".\n\nSee log for details.");
         }
     }
 
@@ -164,6 +167,7 @@ public class ActionUtil
         catch (final Throwable ex)
         {
             logger.log(Level.WARNING, action + " failed", ex);
+            ScriptUtil.showErrorDialog(source_widget, "Cannot execute " + action.getInfo().getPath() + ".\n\nSee log for details.");
         }
     }
 }
