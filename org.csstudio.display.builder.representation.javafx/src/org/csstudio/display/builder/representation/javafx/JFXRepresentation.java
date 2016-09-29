@@ -171,7 +171,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     /** Width of the grid lines. */
     private static final float GRID_LINE_WIDTH = 0.222F;
 
-    private Color backgroundColor = Color.WHITE;
     private Line horiz_bound, vert_bound;
 
     /** Constructor
@@ -335,28 +334,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     public ToolkitRepresentation<Parent, Node> openNewWindow(final DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception
     {   // Use JFXStageRepresentation or RCP-based implementation
         throw new IllegalStateException("Not implemented");
-    }
-
-    @Override
-    public void setBackground ( final WidgetColor color ) {
-
-        if ( isEditMode() ) {
-            try {
-                model_root.setStyle("-fx-background: linear-gradient(from 0px 0px to 10px 10px, reflect, #D2A2A2 48%, #D2A2A2 2%, #D2D2A2 48% #D2D2A2 2%)");
-            } catch ( Exception ex ) {
-            }
-        } else {
-            model_root.setStyle("-fx-background: " + JFXUtil.webRGB(color));
-        }
-
-        if ( color != null ) {
-
-            backgroundColor = new Color(color.getRed(), color.getGreen(), color.getBlue());
-
-            updateBackground();
-
-        }
-
     }
 
     @Override
@@ -609,6 +586,16 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     @Override
     protected void updateBackground()
     {
+        final WidgetColor background = model.propBackgroundColor().getValue();
+        if (isEditMode())
+            model_root.setStyle("-fx-background: linear-gradient(from 0px 0px to 10px 10px, reflect, #D2A2A2 48%, #D2A2A2 2%, #D2D2A2 48% #D2D2A2 2%)");
+        else
+        {
+            model_root.setStyle("-fx-background: " + JFXUtil.webRGB(background));
+        }
+
+        final Color backgroundColor = new Color(background.getRed(), background.getGreen(), background.getBlue());
+
         final boolean gridVisible = isEditMode() ? model.propGridVisible().getValue() : false;
         final int gridStepX = model.propGridStepX().getValue(),
                   gridStepY = model.propGridStepY().getValue();

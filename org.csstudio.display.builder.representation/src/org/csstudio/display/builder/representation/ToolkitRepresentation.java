@@ -27,7 +27,6 @@ import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ActionInfo;
-import org.csstudio.display.builder.model.properties.WidgetColor;
 
 /** Representation for a toolkit.
  *
@@ -91,17 +90,14 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
 
     protected DisplayModel model;
 
-    /** Update background color */
-    private WidgetPropertyListener<WidgetColor> back_color_listener = ( property, old_color, new_color ) -> execute( ( ) -> setBackground(new_color));
-
     /** Update display height */
     private WidgetPropertyListener<Integer> display_height_listener = ( p, o, n ) -> execute( ( ) -> setDisplayHeight(model.propHeight().getValue()));
 
     /** Update display width */
     private WidgetPropertyListener<Integer> display_width_listener = ( p, o, n ) -> execute( ( ) -> setDisplayWidth(model.propWidth().getValue()));
 
-    /** Update grid */
-    private UntypedWidgetPropertyListener grid_listener = ( p, o, n ) -> execute( ( ) -> updateBackground());
+    /** Update background color, grid */
+    private UntypedWidgetPropertyListener background_listener = ( p, o, n ) -> execute( ( ) -> updateBackground());
 
     /** Constructor
      *  @param edit_mode Edit mode?
@@ -183,9 +179,6 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     abstract public ToolkitRepresentation<TWP, TW> openNewWindow(DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception;
 
-    /** @param color Background color to use for the overall window */
-    abstract public void setBackground(WidgetColor color);
-
     /**
      * @return The current display height.
      */
@@ -225,13 +218,6 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         // Attach toolkit
         model.setUserData(DisplayModel.USER_DATA_TOOLKIT, this);
 
-        // TODO There's only one 'background' for the toolkit,
-        // but the model represented here could be the top-level model (OK)
-        // or a sub-model from an embedded widget (not OK to change the background)
-        setBackground(model.propBackgroundColor().getValue());
-        setDisplayWidth(model.propWidth().getValue());
-        setDisplayHeight(model.propHeight().getValue());
-
         // DisplayModel itself is _not_ represented,
         // but all its children, recursively
         representChildren(parent, model, model.runtimeChildren());
@@ -239,19 +225,24 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         logger.log(Level.FINE, "Tracking changes to children of {0}", model);
         model.runtimeChildren().addPropertyListener(container_children_listener);
 
+        // TODO There's only one 'background' for the toolkit,
+        // but the model represented here could be the top-level model (OK)
+        // or a sub-model from an embedded widget (not OK to change the background)
         // Listen to model background
-        model.propBackgroundColor().addPropertyListener(back_color_listener);
+        model.propBackgroundColor().addUntypedPropertyListener(background_listener);
+        setDisplayWidth(model.propWidth().getValue());
+        setDisplayHeight(model.propHeight().getValue());
         model.propWidth().addPropertyListener(display_width_listener);
         model.propHeight().addPropertyListener(display_height_listener);
 
         if (edit_mode)
         {
-            model.propGridVisible().addUntypedPropertyListener(grid_listener);
-            model.propGridColor().addUntypedPropertyListener(grid_listener);
-            model.propGridStepX().addUntypedPropertyListener(grid_listener);
-            model.propGridStepY().addUntypedPropertyListener(grid_listener);
+            model.propGridVisible().addUntypedPropertyListener(background_listener);
+            model.propGridColor().addUntypedPropertyListener(background_listener);
+            model.propGridStepX().addUntypedPropertyListener(background_listener);
+            model.propGridStepY().addUntypedPropertyListener(background_listener);
             // Initial update
-            grid_listener.propertyChanged(null, null, null);
+            background_listener.propertyChanged(null, null, null);
         }
     }
 
@@ -328,15 +319,15 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
 
         if (isEditMode())
         {
-            model.propGridStepY().removePropertyListener(grid_listener);
-            model.propGridStepX().removePropertyListener(grid_listener);
-            model.propGridColor().removePropertyListener(grid_listener);
-            model.propGridVisible().removePropertyListener(grid_listener);
+            model.propGridStepY().removePropertyListener(background_listener);
+            model.propGridStepX().removePropertyListener(background_listener);
+            model.propGridColor().removePropertyListener(background_listener);
+            model.propGridVisible().removePropertyListener(background_listener);
         }
 
         model.propHeight().removePropertyListener(display_height_listener);
         model.propWidth().removePropertyListener(display_width_listener);
-        model.propBackgroundColor().removePropertyListener(back_color_listener);
+        model.propBackgroundColor().removePropertyListener(background_listener);
 
         logger.log(Level.FINE, "No longer tracking changes to children of {0}", model);
         model.runtimeChildren().removePropertyListener(container_children_listener);
