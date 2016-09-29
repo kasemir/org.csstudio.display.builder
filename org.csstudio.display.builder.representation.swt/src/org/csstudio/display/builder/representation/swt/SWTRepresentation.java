@@ -174,14 +174,4 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
         logger.log(Level.WARNING, "playAudio('" + url + "') is not implemented");
         return CompletableFuture.completedFuture(false);
     }
-
-    @Override
-    public void setDisplayHeight ( Integer height ) {
-        // Not implemented
-    }
-
-    @Override
-    public void setDisplayWidth ( Integer width ) {
-        // Not implemented
-    }
 }

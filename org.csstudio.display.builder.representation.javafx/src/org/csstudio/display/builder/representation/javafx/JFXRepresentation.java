@@ -244,6 +244,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         return () -> (WidgetRepresentation<Parent, Node, Widget>) config.createExecutableExtension("class");
     }
 
+    private volatile Pane scroll_body;
     private volatile ScrollPane model_root;
     private volatile Group model_parent;
 
@@ -261,9 +262,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         model_parent = new Group();
         vert_bound = new Line();
         horiz_bound = new Line();
-
-        final Pane scroll_body = new Pane(model_parent, vert_bound, horiz_bound);
-
+        scroll_body = new Pane(model_parent, vert_bound, horiz_bound);
         model_root = new ScrollPane(scroll_body);
 
         return model_root;
@@ -337,49 +336,22 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public void setDisplayHeight ( Integer height ) {
+    public void updateDisplaySize()
+    {
+        final int width = model.propWidth().getValue();
+        final int height = model.propHeight().getValue();
+        scroll_body.setMinWidth(width);
+        scroll_body.setMinHeight(height);
 
-        if ( height != null ) {
-
-            final double h = height.doubleValue();
-
-            Platform.runLater(() -> {
-
-                ((Pane) model_root.getContent()).setMinHeight(h);
-
-                if ( isEditMode() ) {
-                    horiz_bound.setStartY(h - 1);
-                    horiz_bound.setEndY(h - 1);
-                    vert_bound.setEndY(h - 1);
-                }
-
-            });
-
+        if (isEditMode())
+        {
+            horiz_bound.setStartY(height - 1);
+            horiz_bound.setEndX(width - 1);
+            horiz_bound.setEndY(height - 1);
+            vert_bound.setStartX(width - 1);
+            vert_bound.setEndY(height - 1);
+            vert_bound.setEndX(width - 1);
         }
-
-    }
-
-    @Override
-    public void setDisplayWidth ( Integer width ) {
-
-        if ( width != null ) {
-
-            final double w = width.doubleValue();
-
-            Platform.runLater(() -> {
-
-                ((Pane) model_root.getContent()).setMinWidth(w);
-
-                if ( isEditMode() ) {
-                    horiz_bound.setEndX(w - 1);
-                    vert_bound.setStartX(w - 1);
-                    vert_bound.setEndX(w - 1);
-                }
-
-            });
-
-        }
-
     }
 
     @Override
@@ -607,8 +579,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         final WritableImage wimage = new WritableImage(gridStepX, gridStepY);
         SwingFXUtils.toFXImage(image, wimage);
         final ImagePattern pattern = new ImagePattern(wimage, 0, 0, gridStepX, gridStepY, false);
-
-        ((Pane) model_root.getContent()).setBackground(new Background(new BackgroundFill(pattern, CornerRadii.EMPTY, Insets.EMPTY)));
+        scroll_body.setBackground(new Background(new BackgroundFill(pattern, CornerRadii.EMPTY, Insets.EMPTY)));
     }
 
     // Future for controlling the audio player

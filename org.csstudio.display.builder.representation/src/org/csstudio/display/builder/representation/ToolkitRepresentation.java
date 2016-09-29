@@ -90,11 +90,8 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
 
     protected DisplayModel model;
 
-    /** Update display height */
-    private WidgetPropertyListener<Integer> display_height_listener = ( p, o, n ) -> execute( ( ) -> setDisplayHeight(model.propHeight().getValue()));
-
-    /** Update display width */
-    private WidgetPropertyListener<Integer> display_width_listener = ( p, o, n ) -> execute( ( ) -> setDisplayWidth(model.propWidth().getValue()));
+    /** Update display width, height from model */
+    private WidgetPropertyListener<Integer> display_size_listener = ( p, o, n ) -> execute( ( ) -> updateDisplaySize());
 
     /** Update background color, grid */
     private UntypedWidgetPropertyListener background_listener = ( p, o, n ) -> execute( ( ) -> updateBackground());
@@ -179,16 +176,6 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     abstract public ToolkitRepresentation<TWP, TW> openNewWindow(DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception;
 
-    /**
-     * @param height The new display height.
-     */
-    abstract public void setDisplayHeight ( Integer height );
-
-    /**
-     * @param width The new display width.
-     */
-    abstract public void setDisplayWidth ( Integer width );
-
     /** Create toolkit widgets for a display model.
      *
      *  <p>The parent may be the top-level parent of a window,
@@ -220,20 +207,26 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         // or a sub-model from an embedded widget (not OK to change the background)
         // Listen to model background
         model.propBackgroundColor().addUntypedPropertyListener(background_listener);
-        setDisplayWidth(model.propWidth().getValue());
-        setDisplayHeight(model.propHeight().getValue());
-        model.propWidth().addPropertyListener(display_width_listener);
-        model.propHeight().addPropertyListener(display_height_listener);
+
+        // Track display size w/ initial update
+        model.propWidth().addPropertyListener(display_size_listener);
+        model.propHeight().addPropertyListener(display_size_listener);
+        display_size_listener.propertyChanged(null, null, null);
 
         if (edit_mode)
-        {
+        {   // Track grid changes w/ initial update
             model.propGridVisible().addUntypedPropertyListener(background_listener);
             model.propGridColor().addUntypedPropertyListener(background_listener);
             model.propGridStepX().addUntypedPropertyListener(background_listener);
             model.propGridStepY().addUntypedPropertyListener(background_listener);
-            // Initial update
             background_listener.propertyChanged(null, null, null);
         }
+    }
+
+    /** Update display size from model */
+    protected void updateDisplaySize()
+    {
+        // Default: Do nothing
     }
 
     /** Update background, using background color and grid information from model */
@@ -241,6 +234,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     {
         // Default: Grid, background not shown
     }
+
 
     /** Create representation for each child of a ContainerWidget
      *  @param parent    Toolkit parent (Pane, Container, ..)
@@ -315,8 +309,8 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
             model.propGridVisible().removePropertyListener(background_listener);
         }
 
-        model.propHeight().removePropertyListener(display_height_listener);
-        model.propWidth().removePropertyListener(display_width_listener);
+        model.propHeight().removePropertyListener(display_size_listener);
+        model.propWidth().removePropertyListener(display_size_listener);
         model.propBackgroundColor().removePropertyListener(background_listener);
 
         logger.log(Level.FINE, "No longer tracking changes to children of {0}", model);
