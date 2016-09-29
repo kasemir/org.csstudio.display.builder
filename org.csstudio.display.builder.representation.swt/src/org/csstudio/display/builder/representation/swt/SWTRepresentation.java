@@ -182,26 +182,6 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     }
 
     @Override
-    public void setGridColor ( WidgetColor color ) {
-        // Not implemented
-    }
-
-    @Override
-    public void setGridVisible ( Boolean visible ) {
-        // Not implemented
-    }
-
-    @Override
-    public void setGridStepX ( Integer gridStepX ) {
-        // Not implemented
-    }
-
-    @Override
-    public void setGridStepY ( Integer gridStepY ) {
-        // Not implemented
-    }
-
-    @Override
     public void setDisplayHeight ( Integer height ) {
         // Not implemented
     }

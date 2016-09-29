@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ActionInfo;
@@ -88,7 +89,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
             }
     };
 
-    private DisplayModel model;
+    protected DisplayModel model;
 
     /** Update background color */
     private WidgetPropertyListener<WidgetColor> back_color_listener = ( property, old_color, new_color ) -> execute( ( ) -> setBackground(new_color));
@@ -99,17 +100,8 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     /** Update display width */
     private WidgetPropertyListener<Integer> display_width_listener = ( p, o, n ) -> execute( ( ) -> setDisplayWidth(model.propWidth().getValue()));
 
-    /** Update grid visibility */
-    private WidgetPropertyListener<Boolean> grid_visible_listener = ( p, o, n ) -> execute( ( ) -> setGridVisible(model.propGridVisible().getValue()));
-
-    /** Update grid color */
-    private WidgetPropertyListener<WidgetColor> grid_color_listener = ( p, o, n ) -> execute( ( ) -> setGridColor(n));
-
-    /** Update horizontal grid step */
-    private WidgetPropertyListener<Integer> grid_step_x_listener = ( p, o, n ) -> execute( ( ) -> setGridStepX(model.propGridStepX().getValue()));
-
-    /** Update vertical grid step */
-    private WidgetPropertyListener<Integer> grid_step_y_listener = ( p, o, n ) -> execute( ( ) -> setGridStepY(model.propGridStepY().getValue()));
+    /** Update grid */
+    private UntypedWidgetPropertyListener grid_listener = ( p, o, n ) -> execute( ( ) -> updateBackground());
 
     /** Constructor
      *  @param edit_mode Edit mode?
@@ -214,26 +206,6 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      */
     abstract public void setDisplayWidth ( Integer width );
 
-    /**
-     * @param color The new grid color.
-     */
-    abstract public void setGridColor ( WidgetColor color );
-
-    /**
-     * @param visible {@code true} if the grid must be drawn, {@code false} otherwise.
-     */
-    abstract public void setGridVisible ( Boolean visible );
-
-    /**
-     * @param gridStepX The new horizontal grid step size.
-     */
-    abstract public void setGridStepX ( Integer gridStepX );
-
-    /**
-     * @param gridStepY The new vertical grid step size.
-     */
-    abstract public void setGridStepY ( Integer gridStepY );
-
     /** Create toolkit widgets for a display model.
      *
      *  <p>The parent may be the top-level parent of a window,
@@ -257,10 +229,6 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         // but the model represented here could be the top-level model (OK)
         // or a sub-model from an embedded widget (not OK to change the background)
         setBackground(model.propBackgroundColor().getValue());
-        setGridVisible(isEditMode() ? model.propGridVisible().getValue() : false);
-        setGridColor(model.propGridColor().getValue());
-        setGridStepX(model.propGridStepX().getValue());
-        setGridStepY(model.propGridStepY().getValue());
         setDisplayWidth(model.propWidth().getValue());
         setDisplayHeight(model.propHeight().getValue());
 
@@ -276,13 +244,21 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         model.propWidth().addPropertyListener(display_width_listener);
         model.propHeight().addPropertyListener(display_height_listener);
 
-        if ( edit_mode ) {
-            model.propGridVisible().addPropertyListener(grid_visible_listener);
-            model.propGridColor().addPropertyListener(grid_color_listener);
-            model.propGridStepX().addPropertyListener(grid_step_x_listener);
-            model.propGridStepY().addPropertyListener(grid_step_y_listener);
+        if (edit_mode)
+        {
+            model.propGridVisible().addUntypedPropertyListener(grid_listener);
+            model.propGridColor().addUntypedPropertyListener(grid_listener);
+            model.propGridStepX().addUntypedPropertyListener(grid_listener);
+            model.propGridStepY().addUntypedPropertyListener(grid_listener);
+            // Initial update
+            grid_listener.propertyChanged(null, null, null);
         }
+    }
 
+    /** Update background, using background color and grid information from model */
+    protected void updateBackground()
+    {
+        // Default: Grid, background not shown
     }
 
     /** Create representation for each child of a ContainerWidget
@@ -350,11 +326,12 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         final TWP parent = disposeChildren(model, model.runtimeChildren());
         model.clearUserData(DisplayModel.USER_DATA_TOOLKIT);
 
-        if ( isEditMode() ) {
-            model.propGridStepY().removePropertyListener(grid_step_y_listener);
-            model.propGridStepX().removePropertyListener(grid_step_x_listener);
-            model.propGridColor().removePropertyListener(grid_color_listener);
-            model.propGridVisible().removePropertyListener(grid_visible_listener);
+        if (isEditMode())
+        {
+            model.propGridStepY().removePropertyListener(grid_listener);
+            model.propGridStepX().removePropertyListener(grid_listener);
+            model.propGridColor().removePropertyListener(grid_listener);
+            model.propGridVisible().removePropertyListener(grid_listener);
         }
 
         model.propHeight().removePropertyListener(display_height_listener);

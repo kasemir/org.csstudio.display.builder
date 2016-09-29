@@ -172,10 +172,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     private static final float GRID_LINE_WIDTH = 0.222F;
 
     private Color backgroundColor = Color.WHITE;
-    private Color gridColor = Color.GRAY;
-    private int gridStepX = 20;
-    private int gridStepY = 20;
-    private boolean gridVisible = false;
     private Line horiz_bound, vert_bound;
 
     /** Constructor
@@ -426,58 +422,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     @Override
-    public void setGridColor ( WidgetColor color ) {
-
-        if ( color != null ) {
-
-            gridColor = new Color(color.getRed(), color.getGreen(), color.getBlue());
-
-            updateBackground();
-
-        }
-
-    }
-
-    @Override
-    public void setGridVisible ( Boolean visible ) {
-
-        if ( visible != null ) {
-
-            gridVisible = visible;
-
-            updateBackground();
-
-        }
-
-    }
-
-    @Override
-    public void setGridStepX ( Integer stepX ) {
-
-        if ( stepX != null ) {
-
-            gridStepX = stepX;
-
-            updateBackground();
-
-        }
-
-    }
-
-    @Override
-    public void setGridStepY ( Integer stepY ) {
-
-        if ( stepY != null ) {
-
-            gridStepY = stepY;
-
-            updateBackground();
-
-        }
-
-    }
-
-    @Override
     public void representModel(final Parent root, final DisplayModel model) throws Exception
     {
 
@@ -662,10 +606,17 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         return null;
     }
 
-    private void updateBackground() {
+    @Override
+    protected void updateBackground()
+    {
+        final boolean gridVisible = isEditMode() ? model.propGridVisible().getValue() : false;
+        final int gridStepX = model.propGridStepX().getValue(),
+                  gridStepY = model.propGridStepY().getValue();
+        final WidgetColor grid_rgb = model.propGridColor().getValue();
+        final Color gridColor = new Color(grid_rgb.getRed(), grid_rgb.getGreen(), grid_rgb.getBlue());
 
-        BufferedImage image = new BufferedImage(gridStepX, gridStepY, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2d = image.createGraphics();
+        final BufferedImage image = new BufferedImage(gridStepX, gridStepY, BufferedImage.TYPE_INT_ARGB);
+        final Graphics2D g2d = image.createGraphics();
 
         g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -676,21 +627,19 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         g2d.setBackground(backgroundColor);
         g2d.clearRect(0, 0, gridStepX, gridStepY);
 
-        if ( gridVisible ) {
+        if (gridVisible)
+        {
             g2d.setColor(gridColor);
             g2d.setStroke(new BasicStroke(GRID_LINE_WIDTH));
             g2d.drawLine(0, 0, gridStepX, 0);
             g2d.drawLine(0, 0, 0, gridStepY);
         }
 
-        WritableImage wimage = new WritableImage(gridStepX, gridStepY);
-
+        final WritableImage wimage = new WritableImage(gridStepX, gridStepY);
         SwingFXUtils.toFXImage(image, wimage);
-
-        ImagePattern pattern = new ImagePattern(wimage, 0, 0, gridStepX, gridStepY, false);
+        final ImagePattern pattern = new ImagePattern(wimage, 0, 0, gridStepX, gridStepY, false);
 
         ((Pane) model_root.getContent()).setBackground(new Background(new BackgroundFill(pattern, CornerRadii.EMPTY, Insets.EMPTY)));
-
     }
 
     // Future for controlling the audio player
