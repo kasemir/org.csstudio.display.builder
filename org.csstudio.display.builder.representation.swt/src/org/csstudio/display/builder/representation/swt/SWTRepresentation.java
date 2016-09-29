@@ -202,16 +202,6 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     }
 
     @Override
-    public Integer getGridStepX ( ) {
-        return 10;
-    }
-
-    @Override
-    public Integer getGridStepY ( ) {
-        return 10;
-    }
-
-    @Override
     public void setDisplayHeight ( Integer height ) {
         // Not implemented
     }

@@ -225,19 +225,9 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     abstract public void setGridVisible ( Boolean visible );
 
     /**
-     * @return The current horizontal grid step size.
-     */
-    abstract public Integer getGridStepX ( );
-
-    /**
      * @param gridStepX The new horizontal grid step size.
      */
     abstract public void setGridStepX ( Integer gridStepX );
-
-    /**
-     * @return The current vertical grid step size.
-     */
-    abstract public Integer getGridStepY ( );
 
     /**
      * @param gridStepY The new vertical grid step size.

@@ -822,17 +822,4 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         }
         return CompletableFuture.completedFuture(false);
     }
-
-
-    @Override
-    public Integer getGridStepX ( ) {
-        return gridStepX;
-    }
-
-
-    @Override
-    public Integer getGridStepY ( ) {
-        return gridStepX;
-    }
-
 }
