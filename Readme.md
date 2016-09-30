@@ -38,10 +38,6 @@ Try Nightly Snapshot
    press the green `Execute` button in the toolbar.
 6. In the Navigator, right-click on some folder and invoke `New/Other..`, `Display Editor/New Display` to create your first own display.
 
-You should install the "Liberation" fonts from https://fedorahosted.org/liberation-fonts
-which are used by the examples.
-Mac OS X: Double-click each *.ttf to preview, then click "Install Font".
-   
 
 Development Details
 -------------------
