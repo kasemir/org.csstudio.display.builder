@@ -16,12 +16,10 @@ import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
 
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.shape.Line;
 
@@ -55,8 +53,8 @@ public class TrackerSnapConstraint extends TrackerConstraint
     private DisplayModel model = null;
     private List<Widget>selected_widgets = Collections.emptyList();
 
-    private final ToolkitRepresentation<Parent, Node> toolkit;
     private final Line horiz_guide, vert_guide;
+
 
 
     /** Horizontal and/or vertical position to which we 'snapped' */
@@ -203,40 +201,33 @@ public class TrackerSnapConstraint extends TrackerConstraint
         }
     }
 
-    public TrackerSnapConstraint ( final Group group, final ToolkitRepresentation<Parent, Node> toolkit ) {
-
-        this.toolkit = toolkit;
-        this.horiz_guide = new Line();
-
+    /** @param group Group where snap lines are added */
+    public TrackerSnapConstraint(final Group group)
+    {
+        horiz_guide = new Line();
         horiz_guide.getStyleClass().add("guide_line");
         horiz_guide.setVisible(false);
 
-        this.vert_guide = new Line();
-
+        vert_guide = new Line();
         vert_guide.getStyleClass().add("guide_line");
         vert_guide.setVisible(false);
 
         group.getChildren().addAll(horiz_guide, vert_guide);
-
     }
 
     @Override
-    public void setEnabled ( final boolean enabled ) {
-
+    public void setEnabled (final boolean enabled)
+    {
         super.setEnabled(enabled);
-
-        if ( !enabled ) {
+        if (!enabled)
             setVisible(false);
-        }
-
     }
 
-    /**
-     * Sets the guidelines visible or not.
-     *
-     * @param visible {@code true} if guidelines must be visible, {@code false} otherwise.
+    /** Sets the guidelines visible or not.
+     *  @param visible {@code true} if guidelines must be visible, {@code false} otherwise.
      */
-    public void setVisible ( boolean visible ) {
+    public void setVisible(final boolean visible)
+    {
         horiz_guide.setVisible(visible);
         vert_guide.setVisible(visible);
     }
@@ -251,7 +242,6 @@ public class TrackerSnapConstraint extends TrackerConstraint
         this.selected_widgets = selected_widgets;
     }
 
-
     @Override
     public Point2D constrain(double x, double y)
     {
@@ -259,6 +249,17 @@ public class TrackerSnapConstraint extends TrackerConstraint
         final SnapSearch task = new SnapSearch(Arrays.asList(model), x, y);
         final SnapResult result = task.compute();
         // System.out.println("Done");
+
+        // Editor's viewport that's used to determine size of snap lines
+        final Parent viewport;
+        try
+        {
+            viewport = horiz_guide.getParent().getParent().getParent();
+        }
+        catch (Throwable ex)
+        {
+            throw new IllegalStateException("Expecting editor's Pane to obtain size of current viewport", ex);
+        }
 
         if (result.horiz == SnapResult.INVALID)
             horiz_guide.setVisible(false);
@@ -268,8 +269,12 @@ public class TrackerSnapConstraint extends TrackerConstraint
             horiz_guide.setStartX(x);
             horiz_guide.setStartY(0);
             horiz_guide.setEndX(x);
-            //  '-2' is necessary because the display model's bounds width is greater than 1.
-            horiz_guide.setEndY(toolkit.getDisplayHeight() - 2);
+
+            //  '-3':
+            // Snap lines will become part of the viewport.
+            // If they touch end edge of the viewport, the viewport will grow to include the snap lines.
+            // resulting in a growing viewport as the mouse is moved and the snaplines are updated.
+            horiz_guide.setEndY(viewport.getBoundsInLocal().getHeight() - 3);
             horiz_guide.setVisible(true);
         }
         if (result.vert == SnapResult.INVALID)
@@ -279,13 +284,12 @@ public class TrackerSnapConstraint extends TrackerConstraint
             y = result.vert;
             vert_guide.setStartX(0);
             vert_guide.setStartY(y);
-            //  '-2' is necessary because the display model's bounds width is greater than 1.
-            vert_guide.setEndX(toolkit.getDisplayWidth() - 2);
+            //  '-3': See above
+            vert_guide.setEndX(viewport.getBoundsInLocal().getWidth() - 3);
             vert_guide.setEndY(y);
             vert_guide.setVisible(true);
         }
 
         return new Point2D(x, y);
     }
-
 }

@@ -37,6 +37,7 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
     {
         try
         {
+            CommonFonts.install();
             font_calibration = new JFXFontCalibration().getCalibrationFactor();
         }
         catch (Exception ex)

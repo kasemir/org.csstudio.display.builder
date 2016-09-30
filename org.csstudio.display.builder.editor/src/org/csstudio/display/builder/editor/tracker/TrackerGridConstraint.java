@@ -8,34 +8,32 @@
 package org.csstudio.display.builder.editor.tracker;
 
 
-import org.csstudio.display.builder.representation.ToolkitRepresentation;
+import org.csstudio.display.builder.model.DisplayModel;
 
 import javafx.geometry.Point2D;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 
 
-/**
- * Constraint on the movement of the Tracker that snaps to a gird
- *
- * @author Kay Kasemir
+/** Constraint on the movement of the Tracker that snaps to a gird
+ *  @author Kay Kasemir
  */
-public class TrackerGridConstraint extends TrackerConstraint {
+public class TrackerGridConstraint extends TrackerConstraint
+{
+    private volatile DisplayModel model = null;
 
-    private final ToolkitRepresentation<Parent, Node> toolkit;
-
-    /** @param size Size of grid squares */
-    public TrackerGridConstraint ( final ToolkitRepresentation<Parent, Node> toolkit ) {
-        this.toolkit = toolkit;
+    public void configure(final DisplayModel model)
+    {
+        this.model = model;
     }
 
     @Override
-    public Point2D constrain ( final double x, final double y ) {
-
-         int grid_x = toolkit.getGridStepX();
-         int grid_y = toolkit.getGridStepY();
-
-        return new Point2D(Math.floor(( x + grid_x / 2 ) / grid_x) * grid_x, Math.floor(( y + grid_y / 2 ) / grid_y) * grid_y);
-
+    public Point2D constrain (final double x, final double y)
+    {
+        final DisplayModel copy = model;
+        if (copy == null)
+            return new Point2D(x, y);
+        final int grid_x = copy.propGridStepX().getValue(),
+                  grid_y = copy.propGridStepY().getValue();
+        return new Point2D(Math.floor(( x + grid_x / 2 ) / grid_x) * grid_x,
+                           Math.floor(( y + grid_y / 2 ) / grid_y) * grid_y);
     }
 }

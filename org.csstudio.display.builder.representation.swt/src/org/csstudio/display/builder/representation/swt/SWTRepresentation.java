@@ -80,12 +80,6 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     }
 
     @Override
-    public void setBackground(final WidgetColor color)
-    {
-        // Not implemented
-    }
-
-    @Override
     public void representModel(final Composite shell, final DisplayModel model)
             throws Exception
     {
@@ -180,63 +174,4 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
         logger.log(Level.WARNING, "playAudio('" + url + "') is not implemented");
         return CompletableFuture.completedFuture(false);
     }
-
-    @Override
-    public void setGridColor ( WidgetColor color ) {
-        // Not implemented
-    }
-
-    @Override
-    public void setGridVisible ( Boolean visible ) {
-        // Not implemented
-    }
-
-    @Override
-    public void setGridStepX ( Integer gridStepX ) {
-        // Not implemented
-    }
-
-    @Override
-    public void setGridStepY ( Integer gridStepY ) {
-        // Not implemented
-    }
-
-    @Override
-    public Integer getGridStepX ( ) {
-        return 10;
-    }
-
-    @Override
-    public Integer getGridStepY ( ) {
-        return 10;
-    }
-
-    @Override
-    public void setDisplayHeight ( Integer height ) {
-        // Not implemented
-    }
-
-    @Override
-    public void setDisplayWidth ( Integer width ) {
-        // Not implemented
-    }
-
-    /* (non-Javadoc)
-     * @see org.csstudio.display.builder.representation.ToolkitRepresentation#getDisplayHeight()
-     */
-    @Override
-    public Integer getDisplayHeight ( ) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.csstudio.display.builder.representation.ToolkitRepresentation#getDisplayWidth()
-     */
-    @Override
-    public Integer getDisplayWidth ( ) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
 }

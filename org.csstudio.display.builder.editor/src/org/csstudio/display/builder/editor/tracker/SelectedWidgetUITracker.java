@@ -22,6 +22,7 @@ import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.ParentHandler;
 import org.csstudio.display.builder.model.ChildrenProperty;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -91,8 +92,8 @@ public class SelectedWidgetUITracker extends Tracker
         this.toolkit = toolkit;
         this.group_handler = group_handler;
         this.undo = undo;
-        this.snap_constraint = new TrackerSnapConstraint(this, toolkit);
-        this.grid_constraint = new TrackerGridConstraint(toolkit);
+        this.snap_constraint = new TrackerSnapConstraint(this);
+        this.grid_constraint = new TrackerGridConstraint();
 
         setVisible(false);
 
@@ -140,6 +141,11 @@ public class SelectedWidgetUITracker extends Tracker
 
         // When tracker moved, update widgets
         setListener(this::updateWidgetsFromTracker);
+    }
+
+    public void setModel(final DisplayModel model)
+    {
+        grid_constraint.configure(model);
     }
 
     /** Apply enabled constraints to requested position
@@ -425,12 +431,10 @@ public class SelectedWidgetUITracker extends Tracker
     }
 
     @Override
-    protected void endMouseDrag ( final MouseEvent event ) {
-
+    protected void endMouseDrag (final MouseEvent event)
+    {   // Hide snap lines when drag ends
         super.endMouseDrag(event);
-
         snap_constraint.setVisible(false);
-
     }
 
     private void bindToWidgets()
