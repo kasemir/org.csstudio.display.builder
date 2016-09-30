@@ -20,6 +20,15 @@
 // Leading/trailing spaces around each element are OK, but if the font family
 // is "Liberation Sans", it has to be typed with just that one space between
 // "Liberation" and "Sans"
+//
+// Speaking of "Liberation Sans":
+// The display builder includes the "Liberation" fonts
+// from https://fedorahosted.org/liberation-fonts.
+// Their use is encouraged because the resulting displays
+// will always render correctly.
+// When using other fonts, for example "Arial" on Windows,
+// the font might not be available to a display builder
+// runtime that is executing on Mac OS or Linux.
 
 // Predefined fonts that this file could re-define
 Default      = Liberation Sans - regular - 14
