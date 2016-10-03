@@ -23,6 +23,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
@@ -158,7 +159,7 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         final String file = model_widget.propFile().getValue();
         final String group = model_widget.propGroupName().getValue();
         // Load embedded display in background thread
-        toolkit.execute(() -> updateEmbeddedDisplay(file, group));
+        ModelThreadPool.getExecutor().execute(() -> updateEmbeddedDisplay(file, group));
     }
 
     /** Load and represent embedded display
