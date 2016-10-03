@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ActionInfo;
@@ -89,12 +88,6 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     };
 
     protected DisplayModel model;
-
-    /** Update display width, height from model */
-    private WidgetPropertyListener<Integer> display_size_listener = ( p, o, n ) -> execute( ( ) -> updateDisplaySize());
-
-    /** Update background color, grid */
-    private UntypedWidgetPropertyListener background_listener = ( p, o, n ) -> execute( ( ) -> updateBackground());
 
     /** Constructor
      *  @param edit_mode Edit mode?
@@ -190,7 +183,8 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     {
         Objects.requireNonNull(parent, "Missing toolkit parent item");
 
-        this.model = model;
+        if (model.isTopDisplayModel())
+            this.model = model;
 
         // Attach toolkit
         model.setUserData(DisplayModel.USER_DATA_TOOLKIT, this);
@@ -201,40 +195,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
 
         logger.log(Level.FINE, "Tracking changes to children of {0}", model);
         model.runtimeChildren().addPropertyListener(container_children_listener);
-
-        // TODO There's only one 'background' for the toolkit,
-        // but the model represented here could be the top-level model (OK)
-        // or a sub-model from an embedded widget (not OK to change the background)
-        // Listen to model background
-        model.propBackgroundColor().addUntypedPropertyListener(background_listener);
-
-        // Track display size w/ initial update
-        model.propWidth().addPropertyListener(display_size_listener);
-        model.propHeight().addPropertyListener(display_size_listener);
-        display_size_listener.propertyChanged(null, null, null);
-
-        if (edit_mode)
-        {   // Track grid changes w/ initial update
-            model.propGridVisible().addUntypedPropertyListener(background_listener);
-            model.propGridColor().addUntypedPropertyListener(background_listener);
-            model.propGridStepX().addUntypedPropertyListener(background_listener);
-            model.propGridStepY().addUntypedPropertyListener(background_listener);
-            background_listener.propertyChanged(null, null, null);
-        }
     }
-
-    /** Update display size from model */
-    protected void updateDisplaySize()
-    {
-        // Default: Do nothing
-    }
-
-    /** Update background, using background color and grid information from model */
-    protected void updateBackground()
-    {
-        // Default: Grid, background not shown
-    }
-
 
     /** Create representation for each child of a ContainerWidget
      *  @param parent    Toolkit parent (Pane, Container, ..)
@@ -300,18 +261,6 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
     {
         final TWP parent = disposeChildren(model, model.runtimeChildren());
         model.clearUserData(DisplayModel.USER_DATA_TOOLKIT);
-
-        if (isEditMode())
-        {
-            model.propGridStepY().removePropertyListener(background_listener);
-            model.propGridStepX().removePropertyListener(background_listener);
-            model.propGridColor().removePropertyListener(background_listener);
-            model.propGridVisible().removePropertyListener(background_listener);
-        }
-
-        model.propHeight().removePropertyListener(display_size_listener);
-        model.propWidth().removePropertyListener(display_size_listener);
-        model.propBackgroundColor().removePropertyListener(background_listener);
 
         logger.log(Level.FINE, "No longer tracking changes to children of {0}", model);
         model.runtimeChildren().removePropertyListener(container_children_listener);

@@ -19,7 +19,6 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.util.NamedDaemonPool;
-import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.runtime.script.internal.ScriptSupport;
@@ -88,29 +87,6 @@ public class RuntimeUtil
         return executor;
     }
 
-    /** Locate top display model.
-     *
-     *  <p>For embedded displays, <code>getDisplayModel</code>
-     *  only provides the embedded model.
-     *  This method traverse up via the {@link EmbeddedDisplayWidget}
-     *  to the top-level display model.
-     *
-     *  @param widget Widget within model
-     *  @return Top-level {@link DisplayModel} for widget
-     *  @throws Exception if widget is not part of a model
-     */
-    public static DisplayModel getTopDisplayModel(final Widget widget) throws Exception
-    {
-        DisplayModel model = widget.getDisplayModel();
-        while (true)
-        {
-            final EmbeddedDisplayWidget embedder = model.getUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET);
-            if (embedder == null)
-                return model;
-            model = getTopDisplayModel(embedder);
-        }
-    }
-
     /** Obtain script support
      *
      *  <p>Script support is associated with the top-level display model
@@ -124,7 +100,7 @@ public class RuntimeUtil
      */
     public static ScriptSupport getScriptSupport(final Widget widget) throws Exception
     {
-        final DisplayModel model = getTopDisplayModel(widget);
+        final DisplayModel model = widget.getTopDisplayModel();
         // During display startup, several widgets will concurrently request script support.
         // Assert that only one ScriptSupport is created.
         // Synchronizing on the model seems straight forward because this is about script support

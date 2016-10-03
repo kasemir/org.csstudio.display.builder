@@ -86,7 +86,7 @@ public class ActionUtil
             new_model.propMacros().setValue(combined_macros);
 
             // On UI thread...
-            final DisplayModel top_model = RuntimeUtil.getTopDisplayModel(source_widget);
+            final DisplayModel top_model = source_widget.getTopDisplayModel();
             final ToolkitRepresentation<Object, Object> toolkit = ToolkitRepresentation.getToolkit(top_model);
             if (action.getTarget() == OpenDisplayActionInfo.Target.REPLACE)
             {   // Replace the 'top'. Stop old runtime.
