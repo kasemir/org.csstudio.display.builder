@@ -18,6 +18,7 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.rcp.run.ContextMenuSupport;
 import org.csstudio.display.builder.rcp.run.DisplayNavigation;
 import org.csstudio.display.builder.rcp.run.NavigationAction;
@@ -328,7 +329,7 @@ public class RuntimeViewPart extends ViewPart
     {
         try
         {
-            final DisplayModel model = RuntimeUtil.loadModel(null, info.getPath());
+            final DisplayModel model = ModelLoader.loadModel(null, info.getPath());
 
             // This code is called
             // 1) From OpenDisplayAction

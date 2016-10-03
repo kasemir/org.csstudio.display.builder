@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.representation.javafx.JFXStageRepresentation;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.vtype.pv.PV;
@@ -55,7 +56,7 @@ public class RuntimeDemoJavaFX extends Application
     {
         try
         {
-            final DisplayModel model = RuntimeUtil.loadModel("examples/dummy.opi", Settings.display_path);
+            final DisplayModel model = ModelLoader.loadModel("examples/dummy.opi", Settings.display_path);
 
             // Representation needs to be created in UI thread
             toolkit.execute(() -> representModel(model));

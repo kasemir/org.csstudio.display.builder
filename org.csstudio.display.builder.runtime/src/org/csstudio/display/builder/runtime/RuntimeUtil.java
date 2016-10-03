@@ -17,9 +17,7 @@ import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
-import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.properties.ActionInfo;
-import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.NamedDaemonPool;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.representation.ToolkitListener;
@@ -88,22 +86,6 @@ public class RuntimeUtil
     public static ExecutorService getExecutor()
     {
         return executor;
-    }
-
-    /** Load model
-     *
-     *  @param parent_display Path to a 'parent' file, may be <code>null</code>
-     *  @param display_file Model file
-     *  @return {@link DisplayModel}
-     *  @throws Exception on error
-     */
-    public static DisplayModel loadModel(final String parent_display, final String display_file) throws Exception
-    {
-        final String resolved_name = ModelResourceUtil.resolveResource(parent_display, display_file);
-        final ModelReader reader = new ModelReader(ModelResourceUtil.openResourceStream(resolved_name));
-        final DisplayModel model = reader.readModel();
-        model.setUserData(DisplayModel.USER_DATA_INPUT_FILE, resolved_name);
-        return model;
     }
 
     /** Locate top display model.

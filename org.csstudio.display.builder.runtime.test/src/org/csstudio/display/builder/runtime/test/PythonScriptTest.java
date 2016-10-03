@@ -12,7 +12,7 @@ import static org.junit.Assert.assertThat;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.runtime.RuntimeUtil;
+import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.runtime.script.internal.Script;
 import org.csstudio.display.builder.runtime.script.internal.ScriptSupport;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class PythonScriptTest
     {
         System.setProperty("python.import.site", "false");
 
-        final DisplayModel display = RuntimeUtil.loadModel("../org.csstudio.display.builder.runtime.test/examples/dummy.opi", "script_test.opi");
+        final DisplayModel display = ModelLoader.loadModel("../org.csstudio.display.builder.runtime.test/examples/dummy.opi", "script_test.opi");
 
         final Widget widget = display.getChildren().parallelStream().filter(w -> w.getName().equals("Label 100")).findFirst().get();
 
