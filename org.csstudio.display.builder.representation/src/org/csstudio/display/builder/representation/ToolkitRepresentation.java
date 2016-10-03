@@ -282,7 +282,8 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
             disposeWidget(widget);
         }
 
-        return container.clearUserData(Widget.USER_DATA_TOOLKIT_PARENT);
+        final TWP parent = container.clearUserData(Widget.USER_DATA_TOOLKIT_PARENT);
+        return parent;
     }
 
     /** Remove toolkit widget for model widget
