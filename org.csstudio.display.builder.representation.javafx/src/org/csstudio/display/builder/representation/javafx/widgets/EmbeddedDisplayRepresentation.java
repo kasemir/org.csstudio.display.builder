@@ -32,6 +32,7 @@ import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.transform.Scale;
 
 /** Creates JavaFX item for model widget
@@ -71,9 +72,17 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         // Panning tends to 'jerk' the content when clicked
         // scroll.setPannable(true);
 
-
         if (toolkit.isEditMode())
-        {
+        {   // Capture mouse clicks, use them to select the model_widget,
+            // instead of passing them through to the embedded model
+            // where they would select widgets from the body of this
+            // embedded widget
+            scroll.addEventFilter(MouseEvent.MOUSE_PRESSED, event ->
+            {
+                event.consume();
+                if (event.isPrimaryButtonDown())
+                    toolkit.fireClick(model_widget, event.isControlDown());
+            });
         }
         else
         {
