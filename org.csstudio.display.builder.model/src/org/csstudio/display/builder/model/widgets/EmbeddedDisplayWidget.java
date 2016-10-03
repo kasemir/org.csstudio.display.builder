@@ -94,10 +94,6 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         CommonWidgetProperties.newStringPropertyDescriptor(
             WidgetPropertyCategory.DISPLAY, "group_name", Messages.EmbeddedDisplayWidget_GroupName);
 
-    private static final WidgetPropertyDescriptor<Double> runtimePropScale =
-    CommonWidgetProperties.newDoublePropertyDescriptor(
-        WidgetPropertyCategory.RUNTIME, "scale", Messages.WidgetProperties_ScaleFactor);
-
     private static final WidgetPropertyDescriptor<DisplayModel> runtimeModel =
         new WidgetPropertyDescriptor<DisplayModel>(WidgetPropertyCategory.RUNTIME, "embedded_model", "Embedded Model")
         {
@@ -182,7 +178,6 @@ public class EmbeddedDisplayWidget extends VisibleWidget
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<String> file;
     private volatile WidgetProperty<Resize> resize;
-    private volatile WidgetProperty<Double> scale;
     private volatile WidgetProperty<String> group_name;
     private volatile WidgetProperty<DisplayModel> embedded_model;
 
@@ -199,7 +194,6 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         properties.add(macros = propMacros.createProperty(this, new Macros()));
         properties.add(resize = propResize.createProperty(this, Resize.None));
         properties.add(group_name = propGroupName.createProperty(this, ""));
-        properties.add(scale = runtimePropScale.createProperty(this, 1.0)); // TODO Remove scale
         properties.add(embedded_model = runtimeModel.createProperty(this, null));
 
         // Initial size
@@ -229,14 +223,6 @@ public class EmbeddedDisplayWidget extends VisibleWidget
     public WidgetProperty<String> propGroupName()
     {
         return group_name;
-    }
-
-    /** @return Runtime 'scale' property
-     *  */
-    @Deprecated
-    public WidgetProperty<Double> runtimePropScale()
-    {
-        return scale;
     }
 
     /** @return Runtime 'model' property for the embedded display */

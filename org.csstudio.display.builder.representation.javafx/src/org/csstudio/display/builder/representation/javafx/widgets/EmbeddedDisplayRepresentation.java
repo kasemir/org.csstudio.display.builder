@@ -46,13 +46,15 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
 
     private final DirtyFlag dirty_sizes = new DirtyFlag();
 
+    private volatile double zoom_factor = 1.0;
+
     /** Inner group that holds child widgets */
     private Group inner;
     private Scale zoom;
     private ScrollPane scroll;
 
     /** Track active model in a thread-safe way
-     *  to assert that each one is repesented and removed
+     *  to assert that each one is represented and removed
      */
     private final AtomicReference<DisplayModel> active_content_model = new AtomicReference<>();
 
@@ -110,15 +112,43 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         model_widget.propWidth().addUntypedPropertyListener(this::sizesChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::sizesChanged);
         model_widget.propResize().addUntypedPropertyListener(this::sizesChanged);
-        model_widget.runtimePropScale().addUntypedPropertyListener(this::sizesChanged);
 
         model_widget.propFile().addUntypedPropertyListener(this::fileChanged);
         model_widget.propGroupName().addUntypedPropertyListener(this::fileChanged);
         fileChanged(null, null, null);
     }
 
+    private volatile boolean resizing = false;
+
     private void sizesChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        if (resizing)
+            return;
+
+        final Resize resize = model_widget.propResize().getValue();
+        final DisplayModel content_model = active_content_model.get();
+        if (content_model != null)
+        {
+            final int content_width = content_model.propWidth().getValue();
+            final int content_height = content_model.propHeight().getValue();
+            if (resize == Resize.ResizeContent)
+            {
+                final double zoom_x = content_width  > 0 ? (double)model_widget.propWidth().getValue()  / content_width : 1.0;
+                final double zoom_y = content_height > 0 ? (double)model_widget.propHeight().getValue() / content_height : 1.0;
+                zoom_factor = Math.min(zoom_x, zoom_y);
+            }
+            else if (resize == Resize.SizeToContent)
+            {
+                zoom_factor = 1.0;
+                resizing = true;
+                if (content_width > 0)
+                    model_widget.propWidth().setValue(content_width);
+                if (content_height > 0)
+                    model_widget.propHeight().setValue(content_height);
+                resizing = false;
+            }
+        }
+
         dirty_sizes.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -269,23 +299,7 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
     {
         try
         {
-            final Resize resize = model_widget.propResize().getValue();
-            final int content_width = content_model.propWidth().getValue();
-            final int content_height = content_model.propHeight().getValue();
-            if (resize == Resize.ResizeContent)
-            {
-                final double zoom_x = content_width  > 0 ? (double)model_widget.propWidth().getValue()  / content_width : 1.0;
-                final double zoom_y = content_height > 0 ? (double)model_widget.propHeight().getValue() / content_height : 1.0;
-                final double zoom = Math.min(zoom_x, zoom_y);
-                model_widget.runtimePropScale().setValue(zoom);
-            }
-            else if (resize == Resize.SizeToContent)
-            {
-                if (content_width > 0)
-                    model_widget.propWidth().setValue(content_width);
-                if (content_height > 0)
-                    model_widget.propHeight().setValue(content_height);
-            }
+            sizesChanged(null, null, null);
             toolkit.representModel(inner, content_model);
         }
         catch (final Exception ex)
@@ -362,9 +376,8 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
             }
             else if (resize == Resize.ResizeContent)
             {
-                final double factor = model_widget.runtimePropScale().getValue();
-                zoom.setX(factor);
-                zoom.setY(factor);
+                zoom.setX(zoom_factor);
+                zoom.setY(zoom_factor);
                 scroll.setHbarPolicy(ScrollBarPolicy.NEVER);
                 scroll.setVbarPolicy(ScrollBarPolicy.NEVER);
             }

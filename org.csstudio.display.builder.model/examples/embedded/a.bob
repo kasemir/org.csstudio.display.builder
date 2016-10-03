@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>A</name>
-  <x>-1</x>
-  <y>-1</y>
-  <width>250</width>
-  <height>180</height>
+  <width>300</width>
+  <height>200</height>
   <scripts>
     <script file="init.py">
       <pv_name>loc://trigger$(DID)(1)</pv_name>
@@ -16,19 +14,19 @@
     <height>200</height>
     <widget type="label" version="2.0.0">
       <name>Label_2</name>
+      <text>This is some example display</text>
       <x>1</x>
       <y>11</y>
       <width>239</width>
       <height>24</height>
-      <text>This is some example display</text>
     </widget>
     <widget type="label" version="2.0.0">
       <name>Label_3</name>
+      <text>Macro M = $(M)</text>
       <x>1</x>
       <y>65</y>
       <width>239</width>
       <height>24</height>
-      <text>Macro M = $(M)</text>
     </widget>
   </widget>
 </display>
