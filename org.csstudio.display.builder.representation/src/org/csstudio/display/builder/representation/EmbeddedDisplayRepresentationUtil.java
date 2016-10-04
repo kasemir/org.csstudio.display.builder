@@ -77,6 +77,9 @@ public class EmbeddedDisplayRepresentationUtil
                 final DisplayModel display = model_widget.getDisplayModel();
                 final String parent_display = display.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
                 embedded_model = ModelLoader.loadModel(parent_display, display_file);
+                // Tell embedded model that it is held by this widget,
+                // which provides access to macros of model_widget.
+                embedded_model.setUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET, model_widget);
                 if (!group_name.isEmpty())
                     reduceDisplayModelToGroup(model_widget, display_file, embedded_model, group_name);
                 // Adjust model name to reflect source file
@@ -90,10 +93,7 @@ public class EmbeddedDisplayRepresentationUtil
                 embedded_model = createErrorModel(model_widget, message);
                 model_widget.runtimePropConnected().setValue(false);
             }
-
         }
-        // Tell embedded model that it is held by this widget
-        embedded_model.setUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET, model_widget);
         return embedded_model;
     }
 
@@ -171,6 +171,7 @@ public class EmbeddedDisplayRepresentationUtil
         error_model.propWidth().setValue(wid);
         error_model.propHeight().setValue(hei);
         error_model.runtimeChildren().addChild(info);
+        error_model.setUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET, model_widget);
         return error_model;
     }
 
