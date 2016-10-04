@@ -276,10 +276,14 @@ public class RuntimeViewPart extends ViewPart
         representation.execute(() ->
         {
             final Rectangle bounds = fx_canvas.getBounds();
-
             final TextArea text = new TextArea(message);
             text.setEditable(false);
-            text.setPrefSize(bounds.width, bounds.height);
+            // Try to fill the view.
+            // Use default if layout has not happened on new view.
+            if (bounds.isEmpty())
+                text.setPrefSize(1000, 800);
+            else
+                text.setPrefSize(bounds.width, bounds.height);
 
             JFXRepresentation.getChildren(root).setAll(text);
         });
