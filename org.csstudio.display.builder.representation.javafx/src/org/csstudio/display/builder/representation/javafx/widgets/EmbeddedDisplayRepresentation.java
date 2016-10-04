@@ -11,8 +11,6 @@ import static org.csstudio.display.builder.representation.EmbeddedDisplayReprese
 import static org.csstudio.display.builder.representation.EmbeddedDisplayRepresentationUtil.loadDisplayModel;
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -20,7 +18,7 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.util.NamedDaemonPool;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 
@@ -42,39 +40,17 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
 
     private volatile double zoom_factor = 1.0;
 
-    /** Inner group that holds child widgets */
-    private Group inner;
+    /** Inner group that holds child widgets
+     *
+     *  <p>Set to null when representation is disposed,
+     *  which is used as indicator to pending display updates.
+     */
+    private volatile Group inner;
+
     private Scale zoom;
     private ScrollPane scroll;
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedDaemonPool("EmbeddedDisplayLoader"));
-
-    /** The display file (and optional group inside that display) to load.
-     *
-     *  <p>Handled by a single thread executor.
-     *
-     *  <p>Typical result:
-     *
-     *  pending_display_and_group = requested display A,
-     *  executor handles it and clears pending_display_and_group.
-     *
-     *  <p>Example when file and group properties can change faster than the
-     *  background thread which loads the display and represents it:
-     *
-     *  pending_display_and_group = requested display A,
-     *  executor handles it and clears pending_display_and_group.
-     *
-     *  pending_display_and_group = requested display B,
-     *  while executor is still busy and queues the submitted runnable.
-     *
-     *  pending_display_and_group = requested display C,
-     *  while executor is still busy and queues the submitted runnable.
-     *
-     *  Executor (submitted for B) handles C and clears pending_display_and_group.
-     *
-     *  Finally, runnable submitted for C runs, finds pending_display_and_group clear
-     *  and just returns.
-     */
+    /** The display file (and optional group inside that display) to load */
     private final AtomicReference<Pair<String, String>> pending_display_and_group = new AtomicReference<>();
 
     /** Track active model in a thread-safe way
@@ -179,12 +155,11 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
 
     private void fileChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-
-
         final Pair<String, String> file_and_group =
             new Pair<>(model_widget.propFile().getValue(),
                        model_widget.propGroupName().getValue());
 
+        // TODO Remove debug printouts
         System.out.println("Requested: " + file_and_group.getKey() + " (" + file_and_group.getValue() + ")");
 
         final Pair<String, String> skipped = pending_display_and_group.getAndSet(file_and_group);
@@ -193,16 +168,34 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
             System.out.println("Skipped: " + skipped.getKey() + " (" + skipped.getValue() + ")");
 
         // Load embedded display in background thread
-        executor.execute(() ->
+        ModelThreadPool.getExecutor().submit(() ->
         {
-            final Pair<String, String> handle = pending_display_and_group.getAndSet(null);
-            if (handle == null)
+            // Serialize the background threads.
+            // Example:
+            // Displays A, B, C have been requested in quick succession.
+            // pending_display_and_group=A submitted to executor thread A.
+            // While handling A, pending_display_and_group=B submitted to executor thread B.
+            // Thread B will be blocked in synchronize.
+            // Then pending_display_and_group=C submitted to executor thread C.
+            // As thread A finishes, thread B finds pending_display_and_group==C.
+            // As thread C finally continues, it finds pending_display_and_group empty.
+            // --> Showing A, then C, skipping B.
+            synchronized (pending_display_and_group)
             {
-                System.out.println("Nothing to handle");
-                return;
+                final Pair<String, String> handle = pending_display_and_group.getAndSet(null);
+                if (handle == null)
+                {
+                    System.out.println("Nothing to handle");
+                    return;
+                }
+                if (inner == null)
+                {
+                    System.out.println("Aborted: " + handle.getKey() + " (" + handle.getValue() + ")");
+                    return;
+                }
+                System.out.println("Handling: " + handle.getKey() + " (" + handle.getValue() + ")");
+                updateEmbeddedDisplay(handle.getKey(), handle.getValue());
             }
-            System.out.println("Handling: " + handle.getKey() + " (" + handle.getValue() + ")");
-            updateEmbeddedDisplay(handle.getKey(), handle.getValue());
         });
     }
 
@@ -296,6 +289,6 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
     public void dispose()
     {
         super.dispose();
-        executor.shutdown();
+        inner = null;
     }
 }
