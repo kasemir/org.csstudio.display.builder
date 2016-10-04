@@ -62,25 +62,10 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
             default: break;
             }
         });
-        //do not respond to mouse clicks in edit mode
-        if (toolkit.isEditMode())
-        {
-            scrollbar.addEventFilter(MouseEvent.MOUSE_PRESSED,(event) ->
-            {
-                event.consume();
-                toolkit.fireClick(model_widget, event.isControlDown());
-            });
-        }
-        else //prevent UI value update while actively changing
-        {
-            scrollbar.addEventFilter(MouseEvent.MOUSE_PRESSED,(event) ->
-            {
-                isValueChanging = true;
-            });
-            scrollbar.addEventFilter(MouseEvent.MOUSE_RELEASED,(event) ->
-            {
-                isValueChanging = false;
-            });
+        if (! toolkit.isEditMode())
+        {   // Prevent UI value update while actively changing
+            scrollbar.addEventFilter(MouseEvent.MOUSE_PRESSED,  event -> isValueChanging = true);
+            scrollbar.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> isValueChanging = false);
         }
         limitsChanged(null, null, null);
 

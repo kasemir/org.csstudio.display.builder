@@ -28,7 +28,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -81,21 +80,8 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         // Panning tends to 'jerk' the content when clicked
         // scroll.setPannable(true);
 
-        if (toolkit.isEditMode())
-        {   // Capture mouse clicks, use them to select the model_widget,
-            // instead of passing them through to the embedded model
-            // where they would select widgets from the body of this
-            // embedded widget
-            scroll.addEventFilter(MouseEvent.MOUSE_PRESSED, event ->
-            {
-                event.consume();
-                if (event.isPrimaryButtonDown())
-                    toolkit.fireClick(model_widget, event.isControlDown());
-            });
-        }
-        else
-        {
-            // Hide border around the ScrollPane
+        if (!toolkit.isEditMode())
+        {   // Hide border around the ScrollPane
             // Details changed w/ JFX versions, see
             // http://stackoverflow.com/questions/17540137/javafx-scrollpane-border-and-background/17540428#17540428
             scroll.setStyle("-fx-background-color:transparent;");

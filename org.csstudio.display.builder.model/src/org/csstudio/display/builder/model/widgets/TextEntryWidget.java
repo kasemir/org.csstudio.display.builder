@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
@@ -14,19 +15,25 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFormat;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPrecision;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propShowUnits;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWrapWords;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.FormatOption;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
@@ -54,6 +61,9 @@ public class TextEntryWidget extends PVWidget
         }
     };
 
+    public static final WidgetPropertyDescriptor<Boolean> propMultiLine =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "multi_line", Messages.WidgetProperties_MultiLine);
+
     private static class CustomWidgetConfigurator extends WidgetConfigurator
     {
         public CustomWidgetConfigurator(final Version xml_version)
@@ -71,6 +81,10 @@ public class TextEntryWidget extends PVWidget
             {
                 TextEntryWidget text_widget = (TextEntryWidget)widget;
                 TextUpdateWidget.readLegacyFormat(xml, text_widget.format, text_widget.precision, text_widget.propPVName());
+
+                final Optional<String> text = XMLUtil.getChildString(xml, "multiline_input");
+                if (text.isPresent()  &&  Boolean.parseBoolean(text.get()))
+                    text_widget.propMultiLine().setValue(true);
             }
             return true;
         }
@@ -83,6 +97,8 @@ public class TextEntryWidget extends PVWidget
     private volatile WidgetProperty<FormatOption> format;
     private volatile WidgetProperty<Integer> precision;
     private volatile WidgetProperty<Boolean> show_units;
+    private volatile WidgetProperty<Boolean> wrap_words;
+    private volatile WidgetProperty<Boolean> multi_line;
 
     public TextEntryWidget()
     {
@@ -112,7 +128,9 @@ public class TextEntryWidget extends PVWidget
         properties.add(precision = propPrecision.createProperty(this, -1));
         properties.add(show_units = propShowUnits.createProperty(this, true));
         properties.add(enabled = propEnabled.createProperty(this, true));
-   }
+        properties.add(wrap_words = propWrapWords.createProperty(this, false));
+        properties.add(multi_line = propMultiLine.createProperty(this, false));
+    }
 
     /** @return 'foreground_color' property */
     public WidgetProperty<WidgetColor> propForegroundColor()
@@ -156,4 +174,15 @@ public class TextEntryWidget extends PVWidget
         return enabled;
     }
 
+    /** @return 'wrap_words' property */
+    public WidgetProperty<Boolean> propWrapWords()
+    {
+        return wrap_words;
+    }
+
+    /** @return 'multi_line' property */
+    public WidgetProperty<Boolean> propMultiLine()
+    {
+        return multi_line;
+    }
 }

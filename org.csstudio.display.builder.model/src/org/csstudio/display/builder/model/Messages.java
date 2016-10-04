@@ -153,6 +153,7 @@ public class Messages extends NLS
     public static String WidgetProperties_MajorTickStepHint;
     public static String WidgetProperties_Maximum;
     public static String WidgetProperties_Minimum;
+    public static String WidgetProperties_MultiLine;
     public static String WidgetProperties_Name;
     public static String WidgetProperties_OffColor;
     public static String WidgetProperties_OffImage;

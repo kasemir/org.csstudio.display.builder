@@ -136,13 +136,6 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         // Use filter to capture event that's otherwise already handled.
         result.addEventFilter(MouseEvent.MOUSE_PRESSED, this::checkModifiers);
 
-        if (toolkit.isEditMode())
-            result.setOnMousePressed((event) ->
-            {
-                event.consume();
-                toolkit.fireClick(model_widget, event.isControlDown());
-            });
-
         return result;
     }
 
