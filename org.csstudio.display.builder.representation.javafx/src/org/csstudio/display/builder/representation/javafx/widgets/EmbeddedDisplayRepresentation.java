@@ -22,12 +22,17 @@ import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 import org.csstudio.display.builder.representation.EmbeddedDisplayRepresentationUtil.DisplayAndGroup;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
-import javafx.scene.Group;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Pane;
 import javafx.scene.transform.Scale;
 
 /** Creates JavaFX item for model widget
@@ -40,12 +45,12 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
 
     private volatile double zoom_factor = 1.0;
 
-    /** Inner group that holds child widgets
+    /** Inner pane that holds child widgets
      *
      *  <p>Set to null when representation is disposed,
      *  which is used as indicator to pending display updates.
      */
-    private volatile Group inner;
+    private volatile Pane inner;
 
     private Scale zoom;
     private ScrollPane scroll;
@@ -69,7 +74,7 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         // inner.setTranslateX() and ..Y() to compensate.
         // Using a separate Scale transformation does not have that problem.
         // See http://stackoverflow.com/questions/10707880/javafx-scale-and-translate-operation-results-in-anomaly
-        inner = new Group();
+        inner = new Pane();
         inner.getTransforms().add(zoom = new Scale());
 
         scroll = new ScrollPane(inner);
@@ -125,6 +130,12 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         if (resizing)
             return;
 
+        final int widget_width = model_widget.propWidth().getValue();
+        final int widget_height = model_widget.propHeight().getValue();
+        // "-2" to prevent triggering scrollbars
+        inner.setMinWidth(widget_width-2);
+        inner.setMinHeight(widget_height-2);
+
         final Resize resize = model_widget.propResize().getValue();
         final DisplayModel content_model = active_content_model.get();
         if (content_model != null)
@@ -133,8 +144,8 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
             final int content_height = content_model.propHeight().getValue();
             if (resize == Resize.ResizeContent)
             {
-                final double zoom_x = content_width  > 0 ? (double)model_widget.propWidth().getValue()  / content_width : 1.0;
-                final double zoom_y = content_height > 0 ? (double)model_widget.propHeight().getValue() / content_height : 1.0;
+                final double zoom_x = content_width  > 0 ? (double)widget_width  / content_width : 1.0;
+                final double zoom_y = content_height > 0 ? (double)widget_height / content_height : 1.0;
                 zoom_factor = Math.min(zoom_x, zoom_y);
             }
             else if (resize == Resize.SizeToContent)
@@ -243,6 +254,8 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         {
             sizesChanged(null, null, null);
             toolkit.representModel(inner, content_model);
+            // TODO
+            inner.setBackground(new Background(new BackgroundFill(JFXUtil.convert(content_model.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY)));
         }
         catch (final Exception ex)
         {
