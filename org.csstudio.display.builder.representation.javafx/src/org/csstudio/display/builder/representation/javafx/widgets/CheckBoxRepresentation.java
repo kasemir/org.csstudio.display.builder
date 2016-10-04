@@ -41,7 +41,9 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
     {
         final CheckBox checkbox = new CheckBox(label);
         checkbox.setMinSize(ButtonBase.USE_PREF_SIZE, ButtonBase.USE_PREF_SIZE);
-        checkbox.setOnAction(event -> handlePress());
+
+        if (! toolkit.isEditMode())
+            checkbox.setOnAction(event -> handlePress());
         return checkbox;
     }
 
@@ -51,6 +53,11 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
         logger.log(Level.FINE, "{0} pressed", model_widget);
         int new_val = (bit < 0) ? (value == 0 ? 1 : 0) : (value ^ (1 << bit));
         toolkit.fireWrite(model_widget, new_val);
+        // Ideally, PV will soon report the written value.
+        // But for now restore the 'current' value of the PV
+        // because PV may not change as desired,
+        // so assert that widget always reflects the correct value.
+        valueChanged(null, null, model_widget.runtimePropValue().getValue());
     }
 
     @Override
