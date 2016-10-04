@@ -372,10 +372,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         root.getProperties().put(ACTIVE_MODEL, model);
         super.representModel(root, model);
 
-        // TODO There's only one 'background' for the toolkit,
-        // but the model represented here could be the top-level model (OK)
-        // or a sub-model from an embedded widget (not OK to change the background)
-
         // In edit mode, indicate overall bounds of the top-level model
         if (model.isTopDisplayModel())
         {
@@ -574,10 +570,31 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     private void updateBackground()
     {
         final WidgetColor background = model.propBackgroundColor().getValue();
-        if (isEditMode())
-            model_root.setStyle("-fx-background: linear-gradient(from 0px 0px to 10px 10px, reflect, #D2A2A2 48%, #D2A2A2 2%, #D2D2A2 48% #D2D2A2 2%)");
-        else
-            model_root.setStyle("-fx-background: " + JFXUtil.webRGB(background));
+
+        // Setting the "-fx-background:" of the root node propagates
+        // to all child nodes in the scene graph.
+        //
+        //        if (isEditMode())
+        //            model_root.setStyle("-fx-background: linear-gradient(from 0px 0px to 10px 10px, reflect, #D2A2A2 48%, #D2A2A2 2%, #D2D2A2 48% #D2D2A2 2%)");
+        //        else
+        //            model_root.setStyle("-fx-background: " + JFXUtil.webRGB(background));
+        //
+        // In edit mode, this results in error messages because the linear-gradient doesn't "work" for all nodes:
+        //
+        // javafx.scene.CssStyleHelper (calculateValue)
+        // Caught java.lang.ClassCastException: javafx.scene.paint.LinearGradient cannot be cast to javafx.scene.paint.Color
+        // while converting value for
+        // '-fx-background-color' from rule '*.text-input' in stylesheet ..jfxrt.jar!/com/sun/javafx/scene/control/skin/modena/modena.bss
+        // '-fx-effect' from rule '*.scroll-bar:vertical>*.increment-button>*.increment-arrow' in StyleSheet ...  jfxrt.jar!/com/sun/javafx/scene/control/skin/modena/modena.bss
+        // '-fx-effect' from rule '*.scroll-bar:vertical>*.decrement-button>*.decrement-arrow' in stylesheet ... modena.bss
+        // '-fx-effect' from rule '*.scroll-bar:horizontal>*.increment-button>*.increment-arrow' in stylesheet ... modena.bss
+        //
+        // In the runtime, the background color style is applied to for example the TextEntryRepresentation,
+        // overriding its jfx_node.setBackground(..) setting.
+
+        // Setting just the scroll body background to a plain color or grid image provides basic color control.
+        // In edit mode, the horiz_bound, vert_bound lines and grid provide sufficient
+        // visual indication of the display size.
 
         final Color backgroundColor = new Color(background.getRed(), background.getGreen(), background.getBlue());
 

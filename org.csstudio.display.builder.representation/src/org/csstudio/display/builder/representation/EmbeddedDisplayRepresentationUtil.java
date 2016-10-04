@@ -68,6 +68,7 @@ public class EmbeddedDisplayRepresentationUtil
         if (display_file.isEmpty())
         {   // Empty model for empty file name
             embedded_model = new DisplayModel();
+            embedded_model.setUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET, model_widget);
             model_widget.runtimePropConnected().setValue(true);
         }
         else
