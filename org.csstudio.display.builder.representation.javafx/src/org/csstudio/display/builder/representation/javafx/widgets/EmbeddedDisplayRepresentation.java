@@ -159,44 +159,46 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
             new Pair<>(model_widget.propFile().getValue(),
                        model_widget.propGroupName().getValue());
 
-        // TODO Remove debug printouts
-        System.out.println("Requested: " + file_and_group.getKey() + " (" + file_and_group.getValue() + ")");
-
+        // System.out.println("Requested: " + file_and_group.getKey() + " (" + file_and_group.getValue() + ")");
         final Pair<String, String> skipped = pending_display_and_group.getAndSet(file_and_group);
-
         if (skipped != null)
-            System.out.println("Skipped: " + skipped.getKey() + " (" + skipped.getValue() + ")");
+            logger.log(Level.FINE, "Skipped: {0} ({1})", new Object[] { skipped.getKey(), skipped.getValue() });
 
         // Load embedded display in background thread
-        ModelThreadPool.getExecutor().submit(() ->
+        ModelThreadPool.getExecutor().execute(this::updatePendingDisplay);
+    }
+
+    /** Update to the next pending display
+     *
+     *  <p>Synchronized to serialize the background threads.
+     *
+     *  <p>Example: Displays A, B, C are requested in quick succession.
+     *
+     *  <p>pending_display_and_group=A is submitted to executor thread A.
+     *
+     *  <p>While handling A, pending_display_and_group=B is submitted to executor thread B.
+     *  Thread B will be blocked in synchronized method.
+     *
+     *  <p>Then pending_display_and_group=C is submitted to executor thread C.
+     *  As thread A finishes, thread B finds pending_display_and_group==C.
+     *  As thread C finally continues, it finds pending_display_and_group empty.
+     *  --> Showing A, then C, skipping B.
+     */
+    private synchronized void updatePendingDisplay()
+    {
+        final Pair<String, String> handle = pending_display_and_group.getAndSet(null);
+        if (handle == null)
         {
-            // Serialize the background threads.
-            // Example:
-            // Displays A, B, C have been requested in quick succession.
-            // pending_display_and_group=A submitted to executor thread A.
-            // While handling A, pending_display_and_group=B submitted to executor thread B.
-            // Thread B will be blocked in synchronize.
-            // Then pending_display_and_group=C submitted to executor thread C.
-            // As thread A finishes, thread B finds pending_display_and_group==C.
-            // As thread C finally continues, it finds pending_display_and_group empty.
-            // --> Showing A, then C, skipping B.
-            synchronized (pending_display_and_group)
-            {
-                final Pair<String, String> handle = pending_display_and_group.getAndSet(null);
-                if (handle == null)
-                {
-                    System.out.println("Nothing to handle");
-                    return;
-                }
-                if (inner == null)
-                {
-                    System.out.println("Aborted: " + handle.getKey() + " (" + handle.getValue() + ")");
-                    return;
-                }
-                System.out.println("Handling: " + handle.getKey() + " (" + handle.getValue() + ")");
-                updateEmbeddedDisplay(handle.getKey(), handle.getValue());
-            }
-        });
+            // System.out.println("Nothing to handle");
+            return;
+        }
+        if (inner == null)
+        {
+            // System.out.println("Aborted: " + handle.getKey() + " (" + handle.getValue() + ")");
+            return;
+        }
+        // System.out.println("Handling: " + handle.getKey() + " (" + handle.getValue() + ")");
+        updateEmbeddedDisplay(handle.getKey(), handle.getValue());
     }
 
     /** Load and represent embedded display
