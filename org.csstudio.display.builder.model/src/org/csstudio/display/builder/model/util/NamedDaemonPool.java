@@ -24,9 +24,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SuppressWarnings("nls")
 public class NamedDaemonPool implements ThreadFactory
 {
-    private final String name;
+    private static final AtomicInteger instance = new AtomicInteger();
 
-    private final AtomicInteger instance = new AtomicInteger();
+    private final String name;
 
     // Using one thread per CPU core should make best use of the CPU.
     // Having just one such ExecutorService, however, may not be optimal:
