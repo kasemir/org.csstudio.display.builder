@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.swt.SWTRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
@@ -78,7 +79,7 @@ public class RuntimeDemoSWT implements Runnable
     {
         try
         {
-            final DisplayModel model = RuntimeUtil.loadModel("examples/dummy.opi", Settings.display_path);
+            final DisplayModel model = ModelLoader.loadModel("examples/dummy.opi", Settings.display_path);
 
             // Representation needs to be created in UI thread
             toolkit.execute(() -> representModel(display, model));

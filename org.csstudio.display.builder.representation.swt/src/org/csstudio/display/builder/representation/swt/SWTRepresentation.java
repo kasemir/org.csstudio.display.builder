@@ -84,8 +84,8 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
             throws Exception
     {
         super.representModel(shell, model);
-        if (! (shell instanceof Shell))
-            throw new IllegalStateException("Expected Shell, got " + shell);
+        if (! (shell instanceof Composite))
+            throw new IllegalStateException("Expected Composite, got " + shell);
         shell.setData(ACTIVE_MODEL, model);
     }
 
@@ -93,8 +93,8 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     public Composite disposeRepresentation(DisplayModel model)
     {
         final Composite shell = super.disposeRepresentation(model);
-        if (! (shell instanceof Shell))
-            throw new IllegalStateException("Expected Shell, got " + shell);
+        if (! (shell instanceof Composite))
+            throw new IllegalStateException("Expected Composite, got " + shell);
         shell.setData(ACTIVE_MODEL, null);
         return shell;
     }
@@ -116,7 +116,10 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     @Override
     public void execute(final Runnable command)
     {
-        display.asyncExec(command);
+        if (display.getThread() == Thread.currentThread())
+            command.run();
+        else
+            display.asyncExec(command);
     }
 
     /** Convert model color into JFX color

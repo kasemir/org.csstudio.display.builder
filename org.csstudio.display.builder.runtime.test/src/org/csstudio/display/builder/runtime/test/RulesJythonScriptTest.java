@@ -7,14 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.runtime.RuntimeUtil;
-import org.csstudio.display.builder.runtime.script.internal.Script;
-import org.csstudio.display.builder.runtime.script.internal.ScriptSupport;
+import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.vtype.pv.PV;
 import org.csstudio.vtype.pv.PVPool;
 import org.csstudio.vtype.pv.local.LocalPVFactory;
@@ -29,7 +24,7 @@ public class RulesJythonScriptTest
     @Test
     public void testJythonScript() throws Exception
     {
-        final DisplayModel display = RuntimeUtil.loadModel("../org.csstudio.display.builder.runtime.test/examples/dummy.opi", "rules_test.opi");
+        final DisplayModel display = ModelLoader.loadModel("../org.csstudio.display.builder.runtime.test/examples/dummy.opi", "rules_test.opi");
 
         final Widget widget = display.getChildren().parallelStream().filter(w -> w.getName().equals("Rectangle")).findFirst().get();
 
@@ -39,7 +34,7 @@ public class RulesJythonScriptTest
         PVPool.addPVFactory(new LocalPVFactory());
         final PV pv = PVPool.getPV(pv_name);
         pv.write(1);
-        
+
         // Set widget variable in script
         //final ScriptSupport scripting = new ScriptSupport();
         //final Script script = scripting.compile("../org.csstudio.display.builder.runtime.test/examples/updateText.py");

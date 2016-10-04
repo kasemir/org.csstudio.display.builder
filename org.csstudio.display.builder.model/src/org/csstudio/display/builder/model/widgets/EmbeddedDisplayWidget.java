@@ -13,10 +13,13 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Messages;
+import org.csstudio.display.builder.model.RuntimeWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
@@ -91,10 +94,25 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         CommonWidgetProperties.newStringPropertyDescriptor(
             WidgetPropertyCategory.DISPLAY, "group_name", Messages.EmbeddedDisplayWidget_GroupName);
 
-    private static final WidgetPropertyDescriptor<Double> runtimePropScale =
-    CommonWidgetProperties.newDoublePropertyDescriptor(
-        WidgetPropertyCategory.RUNTIME, "scale", Messages.WidgetProperties_ScaleFactor);
-
+    private static final WidgetPropertyDescriptor<DisplayModel> runtimeModel =
+        new WidgetPropertyDescriptor<DisplayModel>(WidgetPropertyCategory.RUNTIME, "embedded_model", "Embedded Model")
+        {
+            @Override
+            public WidgetProperty<DisplayModel> createProperty(final Widget widget, DisplayModel default_value)
+            {
+                return new RuntimeWidgetProperty<DisplayModel>(runtimeModel, widget, default_value)
+                {
+                    @Override
+                    public void setValueFromObject(final Object value)
+                            throws Exception
+                    {
+                        if (! (value instanceof DisplayModel))
+                            throw new IllegalArgumentException("Expected DisplayModel, got " + Objects.toString(value));
+                        doSetValue((DisplayModel)value, true);
+                    }
+                };
+            }
+        };
 
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
@@ -160,8 +178,8 @@ public class EmbeddedDisplayWidget extends VisibleWidget
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<String> file;
     private volatile WidgetProperty<Resize> resize;
-    private volatile WidgetProperty<Double> scale;
     private volatile WidgetProperty<String> group_name;
+    private volatile WidgetProperty<DisplayModel> embedded_model;
 
     public EmbeddedDisplayWidget()
     {
@@ -176,7 +194,7 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         properties.add(macros = propMacros.createProperty(this, new Macros()));
         properties.add(resize = propResize.createProperty(this, Resize.None));
         properties.add(group_name = propGroupName.createProperty(this, ""));
-        properties.add(scale = runtimePropScale.createProperty(this, 1.0));
+        properties.add(embedded_model = runtimeModel.createProperty(this, null));
 
         // Initial size
         propWidth().setValue(300);
@@ -207,10 +225,10 @@ public class EmbeddedDisplayWidget extends VisibleWidget
         return group_name;
     }
 
-    /** @return Runtime 'scale' property */
-    public WidgetProperty<Double> runtimePropScale()
+    /** @return Runtime 'model' property for the embedded display */
+    public WidgetProperty<DisplayModel> runtimePropEmbeddedModel()
     {
-        return scale;
+        return embedded_model;
     }
 
     @Override

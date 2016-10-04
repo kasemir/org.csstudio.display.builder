@@ -91,6 +91,15 @@ public class DisplayModel extends Widget
         super(WIDGET_TYPE, 800, 600);
     }
 
+    /** @return <code>true</code> if this display is a top-level display,
+     *          <code>false</code> if it's held by an embedded widget
+     */
+    public final boolean isTopDisplayModel()
+    {
+        final EmbeddedDisplayWidget embedder = getUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET);
+        return embedder == null;
+    }
+
     @Override
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {

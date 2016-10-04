@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.representation.javafx.JFXStageRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
@@ -125,7 +126,7 @@ public class RuntimeApplication implements IApplication
     {
         try
         {
-            final DisplayModel model = RuntimeUtil.loadModel(null, display_path);
+            final DisplayModel model = ModelLoader.loadModel(null, display_path);
 
             // Representation needs to be created in UI thread
             toolkit.execute(() -> representModel(model));
