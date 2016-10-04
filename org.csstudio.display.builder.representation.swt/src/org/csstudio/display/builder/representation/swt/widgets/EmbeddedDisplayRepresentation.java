@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.representation.EmbeddedDisplayRepresentationUtil.DisplayAndGroup;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
@@ -32,6 +33,9 @@ public class EmbeddedDisplayRepresentation extends SWTBaseRepresentation<Composi
 
     /** Inner composite that holds child widgets */
     private Composite inner;
+
+    /** The display file (and optional group inside that display) to load */
+    private final AtomicReference<DisplayAndGroup> pending_display_and_group = new AtomicReference<>();
 
     /** Track active model in a thread-safe way
      *  to assert that each one is represented and removed
@@ -57,7 +61,6 @@ public class EmbeddedDisplayRepresentation extends SWTBaseRepresentation<Composi
     protected void registerListeners()
     {
         super.registerListeners();
-
         model_widget.propFile().addUntypedPropertyListener(this::fileChanged);
         model_widget.propGroupName().addUntypedPropertyListener(this::fileChanged);
         fileChanged(null, null, null);
@@ -65,11 +68,37 @@ public class EmbeddedDisplayRepresentation extends SWTBaseRepresentation<Composi
 
     private void fileChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        final String file = model_widget.propFile().getValue();
-        final String group = model_widget.propGroupName().getValue();
+        final DisplayAndGroup file_and_group = new DisplayAndGroup(model_widget);
+        final DisplayAndGroup skipped = pending_display_and_group.getAndSet(file_and_group);
+        if (skipped != null)
+            logger.log(Level.FINE, "Skipped: {0}", skipped);
         // Load embedded display in background thread
-        ModelThreadPool.getExecutor().execute(() -> updateEmbeddedDisplay(file, group));
+        ModelThreadPool.getExecutor().execute(this::updatePendingDisplay);
     }
+
+    /** Update to the next pending display
+    *
+    *  <p>Synchronized to serialize the background threads.
+    *
+    *  <p>Example: Displays A, B, C are requested in quick succession.
+    *
+    *  <p>pending_display_and_group=A is submitted to executor thread A.
+    *
+    *  <p>While handling A, pending_display_and_group=B is submitted to executor thread B.
+    *  Thread B will be blocked in synchronized method.
+    *
+    *  <p>Then pending_display_and_group=C is submitted to executor thread C.
+    *  As thread A finishes, thread B finds pending_display_and_group==C.
+    *  As thread C finally continues, it finds pending_display_and_group empty.
+    *  --> Showing A, then C, skipping B.
+    */
+   private synchronized void updatePendingDisplay()
+   {
+       final DisplayAndGroup handle = pending_display_and_group.getAndSet(null);
+       if (handle == null)
+           return;
+       updateEmbeddedDisplay(handle.getDisplayFile(), handle.getGroupName());
+   }
 
     /** Load and represent embedded display
      *  @param display_file

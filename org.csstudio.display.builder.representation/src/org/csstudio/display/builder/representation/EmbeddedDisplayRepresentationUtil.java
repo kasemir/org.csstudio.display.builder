@@ -27,6 +27,36 @@ public class EmbeddedDisplayRepresentationUtil
     /** Timeout used to await UI thread operations to prevent deadlock */
     private static final long TIMEOUT_MS = 5000;
 
+    /** Display file name and optional group within that display */
+    public static class DisplayAndGroup
+    {
+        private final String display_file, group_name;
+
+        public DisplayAndGroup(final EmbeddedDisplayWidget widget)
+        {
+            display_file = widget.propFile().getValue();
+            group_name = widget.propGroupName().getValue();
+        }
+
+        public String getDisplayFile()
+        {
+            return display_file;
+        }
+
+        public String getGroupName()
+        {
+            return group_name;
+        }
+
+        @Override
+        public String toString()
+        {
+            if (group_name.isEmpty())
+                return display_file;
+            return display_file + " (Group " + group_name + ")";
+        }
+    }
+
     /** Load display model, optionally trimmed to group
      *  @param display_file
      *  @param group_name
