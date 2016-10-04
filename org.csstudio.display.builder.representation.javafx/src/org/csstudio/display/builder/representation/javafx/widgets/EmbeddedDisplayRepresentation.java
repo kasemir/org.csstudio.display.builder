@@ -11,6 +11,8 @@ import static org.csstudio.display.builder.representation.EmbeddedDisplayReprese
 import static org.csstudio.display.builder.representation.EmbeddedDisplayRepresentationUtil.loadDisplayModel;
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
@@ -18,7 +20,7 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.util.ModelThreadPool;
+import org.csstudio.display.builder.model.util.NamedDaemonPool;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 
@@ -28,6 +30,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.transform.Scale;
+import javafx.util.Pair;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -44,11 +47,43 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
     private Scale zoom;
     private ScrollPane scroll;
 
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedDaemonPool("EmbeddedDisplayLoader"));
+
+    /** The display file (and optional group inside that display) to load.
+     *
+     *  <p>Handled by a single thread executor.
+     *
+     *  <p>Typical result:
+     *
+     *  pending_display_and_group = requested display A,
+     *  executor handles it and clears pending_display_and_group.
+     *
+     *  <p>Example when file and group properties can change faster than the
+     *  background thread which loads the display and represents it:
+     *
+     *  pending_display_and_group = requested display A,
+     *  executor handles it and clears pending_display_and_group.
+     *
+     *  pending_display_and_group = requested display B,
+     *  while executor is still busy and queues the submitted runnable.
+     *
+     *  pending_display_and_group = requested display C,
+     *  while executor is still busy and queues the submitted runnable.
+     *
+     *  Executor (submitted for B) handles C and clears pending_display_and_group.
+     *
+     *  Finally, runnable submitted for C runs, finds pending_display_and_group clear
+     *  and just returns.
+     */
+    private final AtomicReference<Pair<String, String>> pending_display_and_group = new AtomicReference<>();
+
     /** Track active model in a thread-safe way
      *  to assert that each one is represented and removed
      */
     private final AtomicReference<DisplayModel> active_content_model = new AtomicReference<>();
 
+    /** Flag to avoid recursion when this code changes the widget size */
+    private volatile boolean resizing = false;
 
     @Override
     public ScrollPane createJFXNode() throws Exception
@@ -109,8 +144,6 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         fileChanged(null, null, null);
     }
 
-    private volatile boolean resizing = false;
-
     private void sizesChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         if (resizing)
@@ -146,10 +179,31 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
 
     private void fileChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        final String file = model_widget.propFile().getValue();
-        final String group = model_widget.propGroupName().getValue();
+
+
+        final Pair<String, String> file_and_group =
+            new Pair<>(model_widget.propFile().getValue(),
+                       model_widget.propGroupName().getValue());
+
+        System.out.println("Requested: " + file_and_group.getKey() + " (" + file_and_group.getValue() + ")");
+
+        final Pair<String, String> skipped = pending_display_and_group.getAndSet(file_and_group);
+
+        if (skipped != null)
+            System.out.println("Skipped: " + skipped.getKey() + " (" + skipped.getValue() + ")");
+
         // Load embedded display in background thread
-        ModelThreadPool.getExecutor().execute(() -> updateEmbeddedDisplay(file, group));
+        executor.execute(() ->
+        {
+            final Pair<String, String> handle = pending_display_and_group.getAndSet(null);
+            if (handle == null)
+            {
+                System.out.println("Nothing to handle");
+                return;
+            }
+            System.out.println("Handling: " + handle.getKey() + " (" + handle.getValue() + ")");
+            updateEmbeddedDisplay(handle.getKey(), handle.getValue());
+        });
     }
 
     /** Load and represent embedded display
@@ -236,5 +290,12 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
                 scroll.setVbarPolicy(ScrollBarPolicy.NEVER);
             }
         }
+    }
+
+    @Override
+    public void dispose()
+    {
+        super.dispose();
+        executor.shutdown();
     }
 }
