@@ -80,18 +80,12 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     }
 
     @Override
-    public void setBackground(final WidgetColor color)
-    {
-        // Not implemented
-    }
-
-    @Override
     public void representModel(final Composite shell, final DisplayModel model)
             throws Exception
     {
         super.representModel(shell, model);
-        if (! (shell instanceof Shell))
-            throw new IllegalStateException("Expected Shell, got " + shell);
+        if (! (shell instanceof Composite))
+            throw new IllegalStateException("Expected Composite, got " + shell);
         shell.setData(ACTIVE_MODEL, model);
     }
 
@@ -99,8 +93,8 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     public Composite disposeRepresentation(DisplayModel model)
     {
         final Composite shell = super.disposeRepresentation(model);
-        if (! (shell instanceof Shell))
-            throw new IllegalStateException("Expected Shell, got " + shell);
+        if (! (shell instanceof Composite))
+            throw new IllegalStateException("Expected Composite, got " + shell);
         shell.setData(ACTIVE_MODEL, null);
         return shell;
     }
@@ -122,7 +116,10 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
     @Override
     public void execute(final Runnable command)
     {
-        display.asyncExec(command);
+        if (display.getThread() == Thread.currentThread())
+            command.run();
+        else
+            display.asyncExec(command);
     }
 
     /** Convert model color into JFX color
@@ -180,63 +177,4 @@ public class SWTRepresentation extends ToolkitRepresentation<Composite, Control>
         logger.log(Level.WARNING, "playAudio('" + url + "') is not implemented");
         return CompletableFuture.completedFuture(false);
     }
-
-    @Override
-    public void setGridColor ( WidgetColor color ) {
-        // Not implemented
-    }
-
-    @Override
-    public void setGridVisible ( Boolean visible ) {
-        // Not implemented
-    }
-
-    @Override
-    public void setGridStepX ( Integer gridStepX ) {
-        // Not implemented
-    }
-
-    @Override
-    public void setGridStepY ( Integer gridStepY ) {
-        // Not implemented
-    }
-
-    @Override
-    public Integer getGridStepX ( ) {
-        return 10;
-    }
-
-    @Override
-    public Integer getGridStepY ( ) {
-        return 10;
-    }
-
-    @Override
-    public void setDisplayHeight ( Integer height ) {
-        // Not implemented
-    }
-
-    @Override
-    public void setDisplayWidth ( Integer width ) {
-        // Not implemented
-    }
-
-    /* (non-Javadoc)
-     * @see org.csstudio.display.builder.representation.ToolkitRepresentation#getDisplayHeight()
-     */
-    @Override
-    public Integer getDisplayHeight ( ) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.csstudio.display.builder.representation.ToolkitRepresentation#getDisplayWidth()
-     */
-    @Override
-    public Integer getDisplayWidth ( ) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
 }

@@ -108,7 +108,7 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
         //================
         //--fields
         final WebHistory history = webEngine.getHistory();
-        
+
         //--toolbar controls
         //TODO: remove button text when icons work
         HBox toolbar;
@@ -173,7 +173,7 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
             foreButton.setDisable(index >= history.getEntries().size()-1);
             backButton.setDisable(index == 0);
         }
-        
+
         //================
         //--constructor
         public BrowserWithToolbar(String url)
@@ -191,7 +191,7 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
             addressBar.setEditable(true);
             webEngine.locationProperty().addListener(this::locationChanged);
             history.getEntries().addListener(this::entriesChanged);
-            
+
             final String imageDirectory =
                     "platform:/plugin/org.csstudio.display.builder.model/icons/browser/";
             for (int i = 0; i < controls.length; i++)
@@ -260,11 +260,6 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
                 {
                 } //prevent navigation while editing position/properties/etc
             };
-            browser.setOnMousePressed((event) ->
-            {
-                event.consume();
-                toolkit.fireClick(model_widget, event.isControlDown());
-            });
             browser.disableToolbar();
             return browser;
         }

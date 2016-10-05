@@ -7,6 +7,9 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
 
@@ -15,8 +18,6 @@ import java.util.List;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
-import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
-import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 
@@ -61,44 +62,20 @@ public class DisplayModel extends Widget
     private final Macros preference_macros = Preferences.getMacros();
 
     /** 'grid_visible' property */
-    public static final WidgetPropertyDescriptor<Boolean> propGridVisible = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC, "grid_visible", Messages.WidgetProperties_GridVisible);
+    public static final WidgetPropertyDescriptor<Boolean> propGridVisible = newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC, "grid_visible", Messages.WidgetProperties_GridVisible);
 
     /** 'grid_color' property */
-    public static final WidgetPropertyDescriptor<WidgetColor> propGridColor = CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.MISC, "grid_color", Messages.WidgetProperties_GridColor);
+    public static final WidgetPropertyDescriptor<WidgetColor> propGridColor = newColorPropertyDescriptor(WidgetPropertyCategory.MISC, "grid_color", Messages.WidgetProperties_GridColor);
 
     /** 'grid_step_x' property */
-    public static final WidgetPropertyDescriptor<Integer> propGridStepX = new WidgetPropertyDescriptor<Integer>(WidgetPropertyCategory.MISC, "grid_step_x", Messages.WidgetProperties_GridStepX) {
-        @Override
-        public WidgetProperty<Integer> createProperty ( final Widget widget, final Integer value ) {
-            return new IntegerWidgetProperty(this, widget, value) {
-                @Override
-                protected Integer restrictValue ( final Integer requested_value ) {
-                    if ( requested_value < 4 ) {
-                        return 4;
-                    } else {
-                        return requested_value;
-                    }
-                }
-            };
-        }
-    };
+    public static final WidgetPropertyDescriptor<Integer> propGridStepX =
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.MISC, "grid_step_x", Messages.WidgetProperties_GridStepX,
+                                     4, Integer.MAX_VALUE);
 
     /** 'grid_step_y' property */
-    public static final WidgetPropertyDescriptor<Integer> propGridStepY = new WidgetPropertyDescriptor<Integer>(WidgetPropertyCategory.MISC, "grid_step_y", Messages.WidgetProperties_GridStepY) {
-        @Override
-        public WidgetProperty<Integer> createProperty ( final Widget widget, final Integer value ) {
-            return new IntegerWidgetProperty(this, widget, value) {
-                @Override
-                protected Integer restrictValue ( final Integer requested_value ) {
-                    if ( requested_value < 4 ) {
-                        return 4;
-                    } else {
-                        return requested_value;
-                    }
-                }
-            };
-        }
-    };
+    public static final WidgetPropertyDescriptor<Integer> propGridStepY =
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.MISC, "grid_step_y", Messages.WidgetProperties_GridStepY,
+                                     4, Integer.MAX_VALUE);
 
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<WidgetColor> background;
@@ -114,13 +91,22 @@ public class DisplayModel extends Widget
         super(WIDGET_TYPE, 800, 600);
     }
 
+    /** @return <code>true</code> if this display is a top-level display,
+     *          <code>false</code> if it's held by an embedded widget
+     */
+    public final boolean isTopDisplayModel()
+    {
+        final EmbeddedDisplayWidget embedder = getUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET);
+        return embedder == null;
+    }
+
     @Override
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
         properties.add(macros = propMacros.createProperty(this, new Macros()));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        properties.add(gridVisible = propGridVisible.createProperty(this, false));
+        properties.add(gridVisible = propGridVisible.createProperty(this, true));
         properties.add(gridColor = propGridColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.GRID)));
         properties.add(gridStepX = propGridStepX.createProperty(this, 10));
         properties.add(gridStepY = propGridStepY.createProperty(this, 10));
@@ -180,28 +166,32 @@ public class DisplayModel extends Widget
     }
 
     /** @return 'background_color' property */
-    public WidgetProperty<WidgetColor> propBackgroundColor ( ) {
+    public WidgetProperty<WidgetColor> propBackgroundColor()
+    {
         return background;
     }
 
     /** @return 'grid_color' property */
-    public WidgetProperty<WidgetColor> propGridColor ( ) {
+    public WidgetProperty<WidgetColor> propGridColor()
+    {
         return gridColor;
     }
 
     /** @return 'grid_step_x' property */
-    public WidgetProperty<Integer> propGridStepX ( ) {
+    public WidgetProperty<Integer> propGridStepX()
+    {
         return gridStepX;
     }
 
     /** @return 'grid_step_y' property */
-    public WidgetProperty<Integer> propGridStepY ( ) {
+    public WidgetProperty<Integer> propGridStepY()
+    {
         return gridStepY;
     }
 
     /** @return 'grid_visible' property */
-    public WidgetProperty<Boolean> propGridVisible ( ) {
+    public WidgetProperty<Boolean> propGridVisible()
+    {
         return gridVisible;
     }
-
 }

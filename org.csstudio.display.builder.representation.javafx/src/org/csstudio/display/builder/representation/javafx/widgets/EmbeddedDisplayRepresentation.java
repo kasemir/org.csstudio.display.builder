@@ -7,16 +7,31 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import static org.csstudio.display.builder.representation.EmbeddedDisplayRepresentationUtil.checkCompletion;
+import static org.csstudio.display.builder.representation.EmbeddedDisplayRepresentationUtil.loadDisplayModel;
+import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
+
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
+
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
+import org.csstudio.display.builder.representation.EmbeddedDisplayRepresentationUtil.DisplayAndGroup;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
-import javafx.scene.Group;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Pane;
 import javafx.scene.transform.Scale;
 
 /** Creates JavaFX item for model widget
@@ -26,14 +41,29 @@ import javafx.scene.transform.Scale;
 public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<ScrollPane, EmbeddedDisplayWidget>
 {
     private final DirtyFlag dirty_sizes = new DirtyFlag();
-    private final DirtyFlag dirty_info = new DirtyFlag();
 
-    /** Inner group that holds child widgets */
-    private Group inner;
+    private volatile double zoom_factor = 1.0;
+
+    /** Inner pane that holds child widgets
+     *
+     *  <p>Set to null when representation is disposed,
+     *  which is used as indicator to pending display updates.
+     */
+    private volatile Pane inner;
+
     private Scale zoom;
     private ScrollPane scroll;
-    private Label info = null;
-    private volatile String info_text = "";
+
+    /** The display file (and optional group inside that display) to load */
+    private final AtomicReference<DisplayAndGroup> pending_display_and_group = new AtomicReference<>();
+
+    /** Track active model in a thread-safe way
+     *  to assert that each one is represented and removed
+     */
+    private final AtomicReference<DisplayModel> active_content_model = new AtomicReference<>();
+
+    /** Flag to avoid recursion when this code changes the widget size */
+    private volatile boolean resizing = false;
 
     @Override
     public ScrollPane createJFXNode() throws Exception
@@ -43,22 +73,15 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         // inner.setTranslateX() and ..Y() to compensate.
         // Using a separate Scale transformation does not have that problem.
         // See http://stackoverflow.com/questions/10707880/javafx-scale-and-translate-operation-results-in-anomaly
-        inner = new Group();
+        inner = new Pane();
         inner.getTransforms().add(zoom = new Scale());
 
         scroll = new ScrollPane(inner);
         // Panning tends to 'jerk' the content when clicked
         // scroll.setPannable(true);
 
-
-        if (toolkit.isEditMode())
-        {
-            info = new Label();
-            inner.getChildren().add(info);
-        }
-        else
-        {
-            // Hide border around the ScrollPane
+        if (!toolkit.isEditMode())
+        {   // Hide border around the ScrollPane
             // Details changed w/ JFX versions, see
             // http://stackoverflow.com/questions/17540137/javafx-scrollpane-border-and-background/17540428#17540428
             scroll.setStyle("-fx-background-color:transparent;");
@@ -82,35 +105,148 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
         model_widget.propWidth().addUntypedPropertyListener(this::sizesChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::sizesChanged);
         model_widget.propResize().addUntypedPropertyListener(this::sizesChanged);
-        model_widget.runtimePropScale().addUntypedPropertyListener(this::sizesChanged);
-        if (info == null)
-            // Prevent initial update
-            dirty_info.checkAndClear();
-        else
-        {
-            model_widget.propFile().addUntypedPropertyListener(this::infoChanged);
-            model_widget.propGroupName().addUntypedPropertyListener(this::infoChanged);
-            // Initial info
-            infoChanged(null, null, null);
-        }
+
+        model_widget.propFile().addUntypedPropertyListener(this::fileChanged);
+        model_widget.propGroupName().addUntypedPropertyListener(this::fileChanged);
+        fileChanged(null, null, null);
     }
 
     private void sizesChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        if (resizing)
+            return;
+
+        final int widget_width = model_widget.propWidth().getValue();
+        final int widget_height = model_widget.propHeight().getValue();
+        // "-2" to prevent triggering scrollbars
+        inner.setMinWidth(widget_width-2);
+        inner.setMinHeight(widget_height-2);
+
+        final Resize resize = model_widget.propResize().getValue();
+        final DisplayModel content_model = active_content_model.get();
+        if (content_model != null)
+        {
+            final int content_width = content_model.propWidth().getValue();
+            final int content_height = content_model.propHeight().getValue();
+            if (resize == Resize.ResizeContent)
+            {
+                final double zoom_x = content_width  > 0 ? (double)widget_width  / content_width : 1.0;
+                final double zoom_y = content_height > 0 ? (double)widget_height / content_height : 1.0;
+                zoom_factor = Math.min(zoom_x, zoom_y);
+            }
+            else if (resize == Resize.SizeToContent)
+            {
+                zoom_factor = 1.0;
+                resizing = true;
+                if (content_width > 0)
+                    model_widget.propWidth().setValue(content_width);
+                if (content_height > 0)
+                    model_widget.propHeight().setValue(content_height);
+                resizing = false;
+            }
+        }
+
         dirty_sizes.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    private void infoChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    private void fileChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        String file = model_widget.propFile().getValue();
-        String group = model_widget.propGroupName().getValue();
-        if (group.isEmpty())
-            info_text = file;
-        else
-            info_text = file + " (" + group + ")";
-        dirty_info.mark();
-        toolkit.scheduleUpdate(this);
+        final DisplayAndGroup file_and_group = new DisplayAndGroup(model_widget);
+
+        // System.out.println("Requested: " + file_and_group);
+        final DisplayAndGroup skipped = pending_display_and_group.getAndSet(file_and_group);
+        if (skipped != null)
+            logger.log(Level.FINE, "Skipped: {0}", skipped);
+
+        // Load embedded display in background thread
+        ModelThreadPool.getExecutor().execute(this::updatePendingDisplay);
+    }
+
+    /** Update to the next pending display
+     *
+     *  <p>Synchronized to serialize the background threads.
+     *
+     *  <p>Example: Displays A, B, C are requested in quick succession.
+     *
+     *  <p>pending_display_and_group=A is submitted to executor thread A.
+     *
+     *  <p>While handling A, pending_display_and_group=B is submitted to executor thread B.
+     *  Thread B will be blocked in synchronized method.
+     *
+     *  <p>Then pending_display_and_group=C is submitted to executor thread C.
+     *  As thread A finishes, thread B finds pending_display_and_group==C.
+     *  As thread C finally continues, it finds pending_display_and_group empty.
+     *  --> Showing A, then C, skipping B.
+     */
+    private synchronized void updatePendingDisplay()
+    {
+        final DisplayAndGroup handle = pending_display_and_group.getAndSet(null);
+        if (handle == null)
+        {
+            // System.out.println("Nothing to handle");
+            return;
+        }
+        if (inner == null)
+        {
+            // System.out.println("Aborted: " + handle);
+            return;
+        }
+        // System.out.println("Handling: " + handle);
+        updateEmbeddedDisplay(handle.getDisplayFile(), handle.getGroupName());
+    }
+
+    /** Load and represent embedded display
+     *  @param display_file
+     *  @param group_name
+     */
+    private void updateEmbeddedDisplay(final String display_file, final String group_name)
+    {
+        try
+        {   // Load new model (potentially slow)
+            final DisplayModel new_model = loadDisplayModel(model_widget, display_file, group_name);
+
+            // Atomically update the 'active' model
+            final DisplayModel old_model = active_content_model.getAndSet(new_model);
+
+            if (old_model != null)
+            {   // Dispose old model
+                final Future<Object> completion = toolkit.submit(() ->
+                {
+                    toolkit.disposeRepresentation(old_model);
+                    return null;
+                });
+                checkCompletion(model_widget, completion, "timeout disposing old representation");
+            }
+            // Represent new model on UI thread
+            final Future<Object> completion = toolkit.submit(() ->
+            {
+                representContent(new_model);
+                return null;
+            });
+            checkCompletion(model_widget, completion, "timeout representing new content");
+            model_widget.runtimePropEmbeddedModel().setValue(new_model);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Failed to handle embedded display " + display_file, ex);
+        }
+    }
+
+    /** @param content_model Model to represent */
+    private void representContent(final DisplayModel content_model)
+    {
+        try
+        {
+            sizesChanged(null, null, null);
+            toolkit.representModel(inner, content_model);
+            // TODO
+            inner.setBackground(new Background(new BackgroundFill(JFXUtil.convert(content_model.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY)));
+        }
+        catch (final Exception ex)
+        {
+            logger.log(Level.WARNING, "Failed to represent embedded display", ex);
+        }
     }
 
     @Override
@@ -133,9 +269,8 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
             }
             else if (resize == Resize.ResizeContent)
             {
-                final double factor = model_widget.runtimePropScale().getValue();
-                zoom.setX(factor);
-                zoom.setY(factor);
+                zoom.setX(zoom_factor);
+                zoom.setY(zoom_factor);
                 scroll.setHbarPolicy(ScrollBarPolicy.NEVER);
                 scroll.setVbarPolicy(ScrollBarPolicy.NEVER);
             }
@@ -147,7 +282,12 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
                 scroll.setVbarPolicy(ScrollBarPolicy.NEVER);
             }
         }
-        if (dirty_info.checkAndClear())
-            info.setText(info_text);
+    }
+
+    @Override
+    public void dispose()
+    {
+        super.dispose();
+        inner = null;
     }
 }

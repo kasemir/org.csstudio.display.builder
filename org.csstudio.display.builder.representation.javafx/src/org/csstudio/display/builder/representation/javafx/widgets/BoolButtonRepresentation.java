@@ -9,18 +9,23 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
+import java.util.List;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
@@ -35,48 +40,46 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
 {
 
     private final DirtyFlag dirty_representation = new DirtyFlag();
-    private final DirtyFlag dirty_content = new DirtyFlag();
-    protected volatile int on_state = 1;
-    protected volatile int use_bit = 0;
-    protected volatile Integer rt_value = 0;
+    private final DirtyFlag dirty_value = new DirtyFlag();
+    private volatile int on_state = 1;
+    private volatile int use_bit = 0;
+    private volatile Integer rt_value = 0;
+
+    // Design decision: Plain Button.
+    // JFX ToggleButton appears natural to reflect two states,
+    // but this type of button is updated by both the user
+    // (press to 'push', 'release') and the PV.
+    // When user pushes button, value is sent to PV
+    // and the button should update its state as the
+    // update is received from the PV.
+    // The ToggleButton, however, will 'select' or not
+    // just because of the user interaction.
+    // If this is then in addition updated by the PV,
+    // the ToggleButton tends to 'flicker'.
 
     private volatile Button button;
     private volatile Ellipse led;
 
-    protected volatile Color[] state_colors;
-    protected volatile Color value_color;
-    protected volatile String[] state_labels;
-    protected volatile String value_label;
+    private volatile String background;
+    private volatile Color foreground;
+    private volatile Color[] state_colors;
+    private volatile Color value_color;
+    private volatile String[] state_labels;
+    private volatile String value_label;
+    private volatile ImageView[] state_images;
+    private volatile ImageView value_image;
 
     @Override
     public ButtonBase createJFXNode() throws Exception
     {
-        final ButtonBase base;
         led = new Ellipse();
         button = new Button("BoolButton", led);
         button.setOnAction(event -> handlePress());
-        base = button;
 
         // Model has width/height, but JFX widget has min, pref, max size.
         // updateChanges() will set the 'pref' size, so make min use that as well.
-        base.setMinSize(ButtonBase.USE_PREF_SIZE, ButtonBase.USE_PREF_SIZE);
-
-        // Monitor keys that modify the OpenDisplayActionInfo.Target.
-        // Use filter to capture event that's otherwise already handled.
-        base.addEventFilter(MouseEvent.MOUSE_PRESSED, this::checkModifiers);
-        return base;
-    }
-
-    /** @param event Mouse event to check for target modifier keys */
-    private void checkModifiers(final MouseEvent event)
-    {
-        // At least on Linux, a Control-click or Shift-click
-        // will not 'arm' the button, so the click is basically ignored.
-        // Force the 'arm', so user can Control-click or Shift-click to
-        // invoke the button
-        if (event.isControlDown() ||
-            event.isShiftDown())
-            jfx_node.arm();
+        button.setMinSize(ButtonBase.USE_PREF_SIZE, ButtonBase.USE_PREF_SIZE);
+        return button;
     }
 
     /** @param respond to button press */
@@ -94,26 +97,21 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         representationChanged(null,null,null);
         model_widget.propWidth().addUntypedPropertyListener(this::representationChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propOnLabel().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propOnColor().addUntypedPropertyListener(this::representationChanged);
         model_widget.propOffLabel().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propOffImage().addUntypedPropertyListener(this::imagesChanged);
         model_widget.propOffColor().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propOnLabel().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propOnImage().addUntypedPropertyListener(this::imagesChanged);
+        model_widget.propOnColor().addUntypedPropertyListener(this::representationChanged);
         model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
-
-        bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propBackgroundColor().addUntypedPropertyListener(this::representationChanged);
+        model_widget.propEnabled().addUntypedPropertyListener(this::representationChanged);
         model_widget.propBit().addPropertyListener(this::bitChanged);
-        model_widget.runtimePropValue().addPropertyListener(this::contentChanged);
+        model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
 
-        //representationChanged(null,null,null);
-    }
-
-    protected Color[] createColors()
-    {
-        return new Color[]
-        {
-            JFXUtil.convert(model_widget.propOffColor().getValue()),
-            JFXUtil.convert(model_widget.propOnColor().getValue())
-        };
+        imagesChanged(null, null, null);
+        bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
     }
 
     private void stateChanged()
@@ -121,28 +119,72 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         on_state = ((use_bit < 0) ? (rt_value != 0) : (((rt_value >> use_bit) & 1) == 1)) ? 1 : 0;
         value_color = state_colors[on_state];
         value_label = state_labels[on_state];
+        value_image = state_images[on_state];
 
-        dirty_content.mark();
+        dirty_value.mark();
         toolkit.scheduleUpdate(this);
     }
 
     private void bitChanged(final WidgetProperty<Integer> property, final Integer old_value, final Integer new_value)
     {
         use_bit = new_value;
-
         stateChanged();
     }
 
-    private void contentChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
+    private void valueChanged(final WidgetProperty<VType> property, final VType old_value, final VType new_value)
     {
+        if ((new_value instanceof VEnum)  &&
+            model_widget.propLabelsFromPV().getValue())
+        {
+            final List<String> labels = ((VEnum) new_value).getLabels();
+            if (labels.size() == 2)
+            {
+                model_widget.propOffLabel().setValue(labels.get(0));
+                model_widget.propOnLabel().setValue(labels.get(1));
+            }
+        }
+
         rt_value = VTypeUtil.getValueNumber(new_value).intValue();
         stateChanged();
     }
 
+    private void imagesChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        state_images = new ImageView[]
+        {
+            loadImage(model_widget.propOffImage().getValue()),
+            loadImage(model_widget.propOnImage().getValue())
+        };
+    }
+
+    private ImageView loadImage(final String path)
+    {
+        if (path.isEmpty())
+            return null;
+        try
+        {
+            // Resolve image file relative to the source widget model (not 'top'!)
+            final DisplayModel widget_model = model_widget.getDisplayModel();
+            final String resolved = ModelResourceUtil.resolveResource(widget_model, path);
+            return new ImageView(new Image(ModelResourceUtil.openResourceStream(resolved)));
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, model_widget + " cannot load image", ex);
+        }
+        return null;
+    }
 
     private void representationChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        state_colors = createColors();
+        foreground = JFXUtil.convert(model_widget.propForegroundColor().getValue());
+        background = JFXUtil.shadedStyle(model_widget.propBackgroundColor().getValue());
+        state_colors = new Color[]
+        {
+            JFXUtil.convert(model_widget.propOffColor().getValue()),
+            JFXUtil.convert(model_widget.propOnColor().getValue())
+        };
+
         state_labels = new String[] { model_widget.propOffLabel().getValue(), model_widget.propOnLabel().getValue() };
         value_color = state_colors[on_state];
         value_label = state_labels[on_state];
@@ -154,34 +196,37 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
     public void updateChanges()
     {
         super.updateChanges();
-        if (dirty_content.checkAndClear())
-        {
-            jfx_node.setText(value_label);
-
-            led.setFill(
-                    // Put highlight in top-left corner, about 0.2 wide,
-                    // relative to actual size of LED
-                    new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
-                                       new Stop(0, value_color.interpolate(Color.WHITESMOKE, 0.8)),
-                                       new Stop(1, value_color)));
-        }
+        boolean update_value = dirty_value.checkAndClear();
         if (dirty_representation.checkAndClear())
         {
-            jfx_node.setText(value_label);
-
-            jfx_node.setPrefSize(model_widget.propWidth().getValue(),
-                                 model_widget.propHeight().getValue());
+            final int wid = model_widget.propWidth().getValue(),
+                      hei = model_widget.propHeight().getValue();
+            jfx_node.setPrefSize(wid, hei);
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
+            jfx_node.setTextFill(foreground);
+            jfx_node.setStyle(background);
 
-            led.setFill(
-                    // Put highlight in top-left corner, about 0.2 wide,
-                    // relative to actual size of LED
-                    new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
-                                       new Stop(0, value_color.interpolate(Color.WHITESMOKE, 0.8)),
-                                       new Stop(1, value_color)));
-
-            led.setRadiusX(model_widget.propWidth().getValue() / 15.0);
-            led.setRadiusY(model_widget.propWidth().getValue() / 10.0);
+            final int size = Math.max(wid, hei);
+            led.setRadiusX(size / 15.0);
+            led.setRadiusY(size / 10.0);
+            jfx_node.setDisable(! model_widget.propEnabled().getValue());
+            update_value = true;
+        }
+        if (update_value)
+        {
+            jfx_node.setText(value_label);
+            final ImageView image = value_image;
+            if (image == null)
+            {
+                jfx_node.setGraphic(led);
+                // Put highlight in top-left corner, about 0.2 wide,
+                // relative to actual size of LED
+                led.setFill(new RadialGradient(0, 0, 0.3, 0.3, 0.4, true, CycleMethod.NO_CYCLE,
+                        new Stop(0, value_color.interpolate(Color.WHITESMOKE, 0.8)),
+                        new Stop(1, value_color)));
+            }
+            else
+                jfx_node.setGraphic(image);
         }
     }
 }

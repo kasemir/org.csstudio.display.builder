@@ -55,7 +55,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
     private final DirtyFlag dirty_actionls = new DirtyFlag();
 
     private volatile ButtonBase base;
-    private volatile String background, text_fill, fx_base;
+    private volatile String background;
     private volatile Color foreground;
     private volatile String button_text;
 
@@ -121,14 +121,12 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             for (final ActionInfo action : actions)
             {
                 final MenuItem item = new MenuItem(makeActionText(action));
-                //item.setStyle("-fx-background-color: slateblue; -fx-text-fill: white;");
-                item.setStyle(background + " " + text_fill);
                 item.setOnAction(event -> handleAction(action));
                 button.getItems().add(item);
             }
             result = button;
         }
-        result.setStyle(background + " " + fx_base);
+        result.setStyle(background);
 
         // Model has width/height, but JFX widget has min, pref, max size.
         // updateChanges() will set the 'pref' size, so make min use that as well.
@@ -137,13 +135,6 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         // Monitor keys that modify the OpenDisplayActionInfo.Target.
         // Use filter to capture event that's otherwise already handled.
         result.addEventFilter(MouseEvent.MOUSE_PRESSED, this::checkModifiers);
-
-        if (toolkit.isEditMode())
-            result.setOnMousePressed((event) ->
-            {
-                event.consume();
-                toolkit.fireClick(model_widget, event.isControlDown());
-            });
 
         return result;
     }
@@ -233,13 +224,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
 
     private void updateColors()
     {
-        text_fill = "-fx-text-fill: " + JFXUtil.webRGB(model_widget.propForegroundColor().getValue()) + ";";
-
         foreground = JFXUtil.convert(model_widget.propForegroundColor().getValue());
-
-        final String bg = JFXUtil.webRGB(model_widget.propBackgroundColor().getValue());
-        fx_base = "-fx-base: " + bg + ";";
-
         background = JFXUtil.shadedStyle(model_widget.propBackgroundColor().getValue());
     }
 

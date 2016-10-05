@@ -125,15 +125,6 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         GridPane.setConstraints(axis, 0, 0, 1, 1, HPos.CENTER, VPos.CENTER);
         GridPane.setConstraints(slider, 0, 1, 1, 1, HPos.CENTER, VPos.CENTER);
         pane.getChildren().add(slider);
-        //do not respond to mouse clicks in edit mode
-        if (toolkit.isEditMode())
-        {
-            slider.setOnMousePressed((event) ->
-            {
-                event.consume();
-                toolkit.fireClick(model_widget, event.isControlDown());
-            });
-        }
         return pane;
     }
 

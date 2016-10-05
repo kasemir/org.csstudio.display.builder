@@ -19,7 +19,6 @@ import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
-import org.csstudio.display.builder.runtime.RuntimeUtil;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.diirt.vtype.VType;
@@ -120,7 +119,7 @@ public class ScriptUtil
     {
         try
         {
-            final DisplayModel model = RuntimeUtil.getTopDisplayModel(widget);
+            final DisplayModel model = widget.getTopDisplayModel();
             final ToolkitRepresentation<Object, Object> toolkit = ToolkitRepresentation.getToolkit(model);
             toolkit.closeWindow(model);
         }
@@ -299,8 +298,7 @@ public class ScriptUtil
         try
         {
             final DisplayModel widget_model = widget.getDisplayModel();
-            final String display_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-            final String resolved = ModelResourceUtil.resolveResource(display_file, audio_file);
+            final String resolved = ModelResourceUtil.resolveResource(widget_model, audio_file);
             String url;
             if (resolved.startsWith("http:") || resolved.startsWith("https:"))
                 url = resolved;

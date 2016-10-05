@@ -7,14 +7,19 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
+import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
+import org.csstudio.display.builder.editor.util.FilenameSupport;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
@@ -27,13 +32,16 @@ import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
+import org.csstudio.display.builder.model.properties.FilenameWidgetProperty;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
 import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.MultiLineInputDialog;
 
 import javafx.scene.Node;
@@ -62,11 +70,6 @@ public class PropertyPanelSection extends GridPane
     private Collection<WidgetProperty<?>> properties = Collections.emptyList();
     private boolean show_categories;
     private static final AutocompleteMenu autocomplete_menu = new AutocompleteMenu();
-
-    public PropertyPanelSection()
-    {
-
-    }
 
     public void fill(final UndoableActionManager undo,
             final Collection<WidgetProperty<?>> properties,
@@ -103,7 +106,7 @@ public class PropertyPanelSection extends GridPane
 
             }
 
-            this.createPropertyUI(undo, property, other, 0);
+            createPropertyUI(undo, property, other, 0);
         }
     }
 
@@ -120,6 +123,15 @@ public class PropertyPanelSection extends GridPane
         return next_row;
     }
 
+    /** Some 'simple' properties are handled
+     *  in static method to allow use in the
+     *  RulesDialog
+     *  @param undo
+     *  @param bindings
+     *  @param property
+     *  @param other
+     *  @return
+     */
     public static Node bindSimplePropertyField (
             final UndoableActionManager undo,
             List<WidgetPropertyBinding<?,?>> bindings,
@@ -130,34 +142,29 @@ public class PropertyPanelSection extends GridPane
 
         if (property.isReadonly())
         {
-
             //  If "Type", use a label with an icon.
-            if ( property.getName().equals(CommonWidgetProperties.propType.getName()) ) {
-
-                String type = property.getWidget().getType();
-
-                try {
-
-                    Image image = new Image(WidgetFactory.getInstance().getWidgetDescriptor(type).getIconStream());
-                    ImageView icon = new ImageView(image);
+            if (property.getName().equals(CommonWidgetProperties.propType.getName()))
+            {
+                final String type = property.getWidget().getType();
+                try
+                {
+                    final Image image = new Image(WidgetFactory.getInstance().getWidgetDescriptor(type).getIconStream());
+                    final ImageView icon = new ImageView(image);
 
                     field = new Label(String.valueOf(property.getValue()), icon);
-
-                } catch ( Exception ex ) {
-                    //  Some widgets have no icon (e.g. DisplayModel).
+                }
+                catch (Exception ex)
+                {   //  Some widgets have no icon (e.g. DisplayModel).
                     field = new Label(String.valueOf(property.getValue()));
                 }
-
-            } else {
-
+            }
+            else
+            {
                 final TextField text = new TextField();
                 text.setText(String.valueOf(property.getValue()));
                 text.setDisable(true);
-
                 field = text;
-
             }
-
         }
         else if (property instanceof ColorWidgetProperty)
         {
@@ -185,6 +192,7 @@ public class PropertyPanelSection extends GridPane
             combo.setPromptText(property.getDefaultValue().toString());
             combo.setEditable(true);
             combo.getItems().addAll(enum_prop.getLabels());
+            combo.setMaxWidth(Double.MAX_VALUE);
             final EnumWidgetPropertyBinding binding =
                     new EnumWidgetPropertyBinding(undo, combo, enum_prop, other);
             bindings.add(binding);
@@ -197,6 +205,7 @@ public class PropertyPanelSection extends GridPane
             combo.setPromptText(property.getDefaultValue().toString());
             combo.setEditable(true);
             combo.getItems().addAll("true", "false");
+            combo.setMaxWidth(Double.MAX_VALUE);
             final BooleanWidgetPropertyBinding binding =
                     new BooleanWidgetPropertyBinding(undo, combo, (BooleanWidgetProperty)property, other);
             bindings.add(binding);
@@ -213,28 +222,57 @@ public class PropertyPanelSection extends GridPane
             binding.bind();
             field = map_button;
         }
+        else if (property instanceof FilenameWidgetProperty)
+        {
+            final FilenameWidgetProperty file_prop = (FilenameWidgetProperty)property;
+            final TextField text = new TextField();
+            text.setPromptText(file_prop.getDefaultValue().toString());
+            text.setMaxWidth(Double.MAX_VALUE);
+            final Button select_file = new Button("...");
+            select_file.setOnAction(event ->
+            {
+                try
+                {
+                    final Widget widget = file_prop.getWidget();
+                    final String parent_file = widget.getDisplayModel().getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+                    final String filename = FilenameSupport.promptForFilename(file_prop);
+                    final String relative = ModelResourceUtil.getRelativePath(parent_file, filename);
+                    undo.execute(new SetMacroizedWidgetPropertyAction(file_prop, relative));
+                }
+                catch (Exception ex)
+                {
+                    logger.log(Level.WARNING, "Cannot prompt for " + file_prop, ex);
+                }
+            });
+            final MacroizedWidgetPropertyBinding binding = new MacroizedWidgetPropertyBinding(undo, text, file_prop, other);
+            bindings.add(binding);
+            binding.bind();
+            field = new HBox(text, select_file);
+            HBox.setHgrow(text, Priority.ALWAYS);
+        }
         else if (property instanceof MacroizedWidgetProperty)
         {
             final MacroizedWidgetProperty<?> macro_prop = (MacroizedWidgetProperty<?>)property;
             final TextField text = new TextField();
             text.setPromptText(macro_prop.getDefaultValue().toString());
             final MacroizedWidgetPropertyBinding binding = (property.getName().contains("pv"))
-                    ? new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other)
+                ? new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other)
+                {
+                    @Override
+                    public void bind()
                     {
-                        @Override
-                        public void bind()
-                        {
-                            super.bind();
-                            autocomplete_menu.attachField(text);
-                        }
+                        super.bind();
+                        autocomplete_menu.attachField(text);
+                    }
 
-                        @Override
-                        public void unbind()
-                        {
-                            super.unbind();
-                            autocomplete_menu.removeField(text);
-                        }
-                    } : new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
+                    @Override
+                    public void unbind()
+                    {
+                        super.unbind();
+                        autocomplete_menu.removeField(text);
+                    }
+                }
+                : new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
             bindings.add(binding);
             binding.bind();
             if (CommonWidgetProperties.propText.getName().equals(property.getName()))
@@ -243,6 +281,7 @@ public class PropertyPanelSection extends GridPane
                 open_editor.setOnAction(event ->
                 {
                     final MultiLineInputDialog dialog = new MultiLineInputDialog(macro_prop.getSpecification());
+                    DialogHelper.positionDialog(dialog, open_editor, -600, 0);
                     final Optional<String> result = dialog.showAndWait();
                     if (!result.isPresent())
                         return;
@@ -291,7 +330,6 @@ public class PropertyPanelSection extends GridPane
         label.setMaxWidth(Double.MAX_VALUE);
         label.setMinWidth(100);
         label.setTooltip(new Tooltip(property.getDescription()));
-        GridPane.setHgrow(label, Priority.ALWAYS);
         //this.setGridLinesVisible(true);
 
         Node field = bindSimplePropertyField(undo, bindings, property, other);
@@ -343,25 +381,20 @@ public class PropertyPanelSection extends GridPane
         }
         else if (property instanceof StructuredWidgetProperty)
         {
-
             final StructuredWidgetProperty struct = (StructuredWidgetProperty) property;
             final Label header = new Label(struct.getDescription() + ( structureIndex > 0 ? " " + String.valueOf(1 + structureIndex) : ""));
-
             header.getStyleClass().add("structure_property_name");
             header.setMaxWidth(Double.MAX_VALUE);
 
             add(header, 0, getNextGridRow(), 2, 1);
 
-            Separator separator = new Separator();
-
+            final Separator separator = new Separator();
             separator.getStyleClass().add("property_separator");
             add(separator, 0, getNextGridRow(), 2, 1);
 
             for (WidgetProperty<?> elem : struct.getValue())
                 this.createPropertyUI(undo, elem, other, -1);
-
             return;
-
         }
         else if (property instanceof ArrayWidgetProperty)
         {
@@ -426,16 +459,15 @@ public class PropertyPanelSection extends GridPane
         label.getStyleClass().add("property_name");
         field.getStyleClass().add("property_value");
 
-        int row = getNextGridRow();
-
+        final int row = getNextGridRow();
+        GridPane.setHgrow(label, Priority.ALWAYS);
+        GridPane.setHgrow(field, Priority.ALWAYS);
         add(label, 0, row);
         add(field, 1, row);
 
-        Separator separator = new Separator();
-
+        final Separator separator = new Separator();
         separator.getStyleClass().add("property_separator");
         add(separator, 0, getNextGridRow(), 2, 1);
-
     }
 
     public AutocompleteMenu getAutocompleteMenu()
@@ -443,7 +475,9 @@ public class PropertyPanelSection extends GridPane
         return autocomplete_menu;
     }
 
-    /** Clear the property UI */
+    /** Clear the property UI
+     *  <P>Removes all property bindings and their UI
+     */
     public void clear()
     {
         bindings.forEach(WidgetPropertyBinding::unbind);

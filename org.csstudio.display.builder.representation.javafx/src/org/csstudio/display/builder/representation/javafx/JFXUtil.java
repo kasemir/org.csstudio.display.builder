@@ -11,10 +11,13 @@ import static org.csstudio.display.builder.representation.ToolkitRepresentation.
 
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.properties.HorizontalAlignment;
+import org.csstudio.display.builder.model.properties.VerticalAlignment;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.util.ResourceUtil;
 
+import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
@@ -34,6 +37,7 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
     {
         try
         {
+            CommonFonts.install();
             font_calibration = new JFXFontCalibration().getCalibrationFactor();
         }
         catch (Exception ex)
@@ -130,11 +134,12 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
         }
     }
 
-    /** @param image_path Path to an image, may use "plugin://.."
-     *  @return ImageView
+    /** @param name Name of icon in this plugin
+     *  @return {@link ImageView}
      */
-    public static ImageView getImageView(final String image_path)
+    public static ImageView getIcon(final String name)
     {
+        final String image_path = "platform:/plugin/org.csstudio.display.builder.representation.javafx/icons/" + name;
         try
         {
             return new ImageView(new Image(ResourceUtil.openPlatformResource(image_path)));
@@ -146,9 +151,15 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
         return null;
     }
 
-    /** Name of icon in this plugin */
-    public static ImageView getIcon(final String name)
+    /** Compute JFX alignment 'Pos' from widget properties
+     *  @param horiz {@link HorizontalAlignment}
+     *  @param vert {@link VerticalAlignment}
+     *  @return {@link Pos}
+     */
+    public static Pos computePos(final HorizontalAlignment horiz, final VerticalAlignment vert)
     {
-        return getImageView("platform:/plugin/org.csstudio.display.builder.representation.javafx/icons/" + name);
+        // This depends on the order of 'Pos' and uses Pos.BOTTOM_*, not Pos.BASELINE_*.
+        // Could use if/switch orgy to be independent from 'Pos' ordinals.
+        return Pos.values()[vert.ordinal() * 3 + horiz.ordinal()];
     }
 }

@@ -74,9 +74,57 @@ public class ModelResourceUtil extends ResourceUtil
                isURL(path);
     }
 
-    /** Normalize a windows-type path with '\'
-     *  @param path Path that may use Windows '\'
-     *  @return Path with only '/'
+    /** Obtain a relative path
+     *
+     *  <p>Returns original 'path' if it cannot be expressed
+     *  relative to the 'parent'.
+     *  @param parent Parent file, for example "/one/of/my/directories/parent.bob"
+     *  @param path Path to make relative, for example "/one/of/my/alternate_dirs/example.bob"
+     *  @return Relative path, e.d. "../alternate_dirs/example.bob"
+     */
+    public static String getRelativePath(final String parent, final String path)
+    {
+        // Locate common path elements
+        final String[] parent_elements = getDirectory(parent).split("/");
+        final String[] path_elements = normalize(path).split("/");
+        final int len = Math.min(parent_elements.length, path_elements.length);
+        int i;
+        for (i=0; i<len; ++i)
+            if (! parent_elements[i].equals(path_elements[i]))
+                break;
+        // Anything in common?
+        if (i == 0  ||
+            (i == 1 && parent_elements[0].length() == 0))
+            return path;
+
+        // Go 'up' from the parent directory to the common directory
+        final StringBuilder relative = new StringBuilder();
+        for (int up = parent_elements.length - i; up > 0; --up)
+        {
+            if (relative.length() > 0)
+                relative.append("/");
+            relative.append("..");
+        }
+
+        // Go down from common directory
+        for (/**/; i<path_elements.length; ++i)
+        {
+            if (relative.length() > 0)
+                relative.append("/");
+            relative.append(path_elements[i]);
+        }
+
+        return relative.toString();
+    }
+
+    /** Normalize path
+     *
+     *  <p>Patch windows-type path with '\' into
+     *  forward slashes,
+     *  and collapse ".." up references.
+     *
+     *  @param path Path that may use Windows '\' or ".."
+     *  @return Path with only '/' and up-references resolved
      */
     public static String normalize(String path)
     {
@@ -84,7 +132,7 @@ public class ModelResourceUtil extends ResourceUtil
         // Each \ is doubled as \\ to get one '\' into the string,
         // then doubled once more to tell regex that we want a '\'
         path = path.replaceAll("\\\\(?!\\\\)", "/");
-        //collapse /../ file navigation
+        // Collapse "something/../" into "something/"
         int up = path.indexOf("/../");
         while (up >=0)
         {
@@ -174,19 +222,23 @@ public class ModelResourceUtil extends ResourceUtil
 
         // Remove last segment from parent_display to get path
         String result = getDirectory(parent_display) + "/" + display_path;
-
-        // Collapse  "some/path/remove/../else/file.opi"
-        int up = result.indexOf("/../");
-        while (up >= 0)
-        {   // Locate start of path segment before "/../"
-            final int sep = result.lastIndexOf('/', up-1);
-            if (sep < 0)
-                return result;
-            result = result.substring(0, sep) + result.substring(up + 3);
-            up = result.indexOf("/../");
-        }
+        result = normalize(result);
 
         return result;
+    }
+
+    /** Attempt to resolve a resource relative to a display
+    *
+    *  <p>For *.opi files, checks if there is an updated .bob file.
+    *
+    *  @param model {@link DisplayModel}
+    *  @param resource_name Resource path. If relative, it is resolved relative to the parent display
+    *  @return Resolved file name. May also be the original name if no idea how to adjust it
+    */
+    public static String resolveResource(final DisplayModel model, final String resource_name)
+    {
+        final String parent_display = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+        return resolveResource(parent_display, resource_name);
     }
 
     /** Attempt to resolve a resource relative to a display
@@ -328,6 +380,11 @@ public class ModelResourceUtil extends ResourceUtil
      */
     public static InputStream openResourceStream(final String resource_name) throws Exception
     {
+//        {   // Artificial delay to simulate slow file access (1..5 seconds)
+//            final long milli = Math.round(1000 + Math.random()*4000);
+//            Thread.sleep(milli);
+//        }
+
         if (resource_name.startsWith("platform:"))
             return openPlatformResource(resource_name);
 
