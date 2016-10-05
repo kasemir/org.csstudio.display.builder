@@ -92,6 +92,9 @@
     <!-- Features -->
     <module>org.csstudio.display.builder.feature</module>
 
+    <!-- Databrowser 3 -->
+    <module>databrowser3</module>
+
     <!-- Repository -->
     <module>repository</module>
   </modules>
