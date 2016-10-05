@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+       point="org.csstudio.display.builder.model.widgets">
+     
+     <widget
+            category="MONITOR"
+            class="org.csstudio.display.builder.model.widgets.DataBrowserWidget"
+            description="DataBrowser 3 widget"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/databrowser.png"
+            name="DataBrowser 3"
+            type="byte_monitor">
+      </widget>
+   </extension>
+
+</plugin>
