@@ -11,28 +11,16 @@ import org.csstudio.javafx.rtplot.RTTimePlot;
 import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.swt.widgets.Composite;
-import org.csstudio.opibuilder.editparts.AbstractBaseEditPart;
 
 /** OPI Figure that displays data browser plot on screen,
  *  holds a Data Browser Plot
  *
  *  @author Kay Kasemir
  */
-//public class DataBrowserWidgetFigure extends AbstractSWTWidgetFigure<RTTimePlot>
 public class DataBrowserWidgetFigure extends Figure
 {
     /** Data Browser plot */
     private ModelBasedPlot plot;
-
-    /** Initialize
-     *  @param filename Configuration file name
-     */
-    public DataBrowserWidgetFigure(final AbstractBaseEditPart editPart, final String selectionValuePv, final boolean showValueLabels)
-    {
-        //super(editPart);
-
-        plot.getPlot().showCrosshair(showValueLabels);
-    }
 
     //@Override
     protected RTTimePlot createSWTWidget(final Composite parent, final int style) throws Exception

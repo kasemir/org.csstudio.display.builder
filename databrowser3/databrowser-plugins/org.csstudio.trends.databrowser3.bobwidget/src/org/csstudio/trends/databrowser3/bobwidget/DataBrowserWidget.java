@@ -18,10 +18,10 @@ import org.csstudio.display.builder.model.widgets.VisibleWidget;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class DataBrowserWidgetModel extends VisibleWidget
+public class DataBrowserWidget extends VisibleWidget
 {
 
-    public DataBrowserWidgetModel(String type)
+    public DataBrowserWidget(String type)
     {
         super(type);
         // TODO Auto-generated constructor stub
