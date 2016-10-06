@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Display</name>
-  <x>-1</x>
-  <y>-1</y>
   <widget type="label" version="2.0.0">
     <name>Label</name>
     <text>Scripts</text>
@@ -13,18 +11,18 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
+    <text>Scripts allow modifications of the display at runtime
+that go beyond the usual PV-based update of a widget.</text>
     <y>41</y>
     <width>381</width>
     <height>50</height>
-    <text>Scripts allow modifications of the display at runtime
-that go beyond the usual PV-based update of a widget.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
+    <text>The use of scripts should be limited!</text>
     <y>91</y>
     <width>301</width>
     <height>30</height>
-    <text>The use of scripts should be limited!</text>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
@@ -32,31 +30,28 @@ that go beyond the usual PV-based update of a widget.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
-    <x>381</x>
-    <y>201</y>
-    <width>381</width>
-    <height>80</height>
     <text>Bad examples of using a script:
 - Turn control system display into video game.
 - Perform automation of the control system in the display.
 - Handle interlocks for the control system in the display.</text>
+    <x>381</x>
+    <y>201</y>
+    <width>381</width>
+    <height>80</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
-    <y>121</y>
-    <width>521</width>
-    <height>80</height>
     <text>Scripts should only be employed to solve very few and specific cases.
 
 The script API cannot be guaranteed to remain available as the display builder
 evolves. Scripts may need to be updated as the API changes.
 </text>
+    <y>121</y>
+    <width>521</width>
+    <height>80</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
-    <y>201</y>
-    <width>381</width>
-    <height>140</height>
     <text>Acceptable examples of using a script:
 - Improve the visualization of the control system state
   in a few, carefully selected cases.
@@ -64,26 +59,29 @@ evolves. Scripts may need to be updated as the API changes.
   a web service lookup, for a specific need that is not
   generic enough to create a new widget or
   PV data source.</text>
+    <y>201</y>
+    <width>381</width>
+    <height>140</height>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update</name>
+    <pv_name>sim://ramp(-5,5,0.1)</pv_name>
     <x>11</x>
     <y>481</y>
     <width>70</width>
-    <pv_name>sim://ramp(-5,5,0.1)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
     <x>141</x>
     <y>481</y>
-    <foreground_color>
-      <color name="Attention" red="255" green="160" blue="0">
-      </color>
-    </foreground_color>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
     </font>
+    <foreground_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </foreground_color>
     <scripts>
       <script file="scripts/update_text.py">
         <pv_name>sim://ramp(-5,5,0.1)</pv_name>
@@ -92,10 +90,10 @@ evolves. Scripts may need to be updated as the API changes.
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
+    <text>Update Label Text</text>
     <y>451</y>
     <width>180</width>
     <height>30</height>
-    <text>Update Label Text</text>
     <font>
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
       </font>
@@ -103,21 +101,21 @@ evolves. Scripts may need to be updated as the API changes.
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
+    <text>Script attached to label, triggered by the PV,
+updates the label's text to indicate positive or negative value.</text>
     <y>511</y>
     <width>381</width>
     <height>50</height>
-    <text>Script attached to label, triggered by the PV,
-updates the label's text to indicate positive or negative value.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
-    <y>551</y>
-    <width>391</width>
-    <height>80</height>
     <text>Such a check could be performed on the IOC, updating
 an enum PV with the "Positive", "Negative" text, then
 using a plain Text Update widget to show the result. Or
 a rule could be attached to the label's text property.</text>
+    <y>551</y>
+    <width>391</width>
+    <height>80</height>
     <font>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
@@ -125,17 +123,17 @@ a rule could be attached to the label's text property.</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_1</name>
+    <pv_name>sim://ramp(-5,5,0.1)</pv_name>
     <x>11</x>
     <y>671</y>
     <width>70</width>
-    <pv_name>sim://ramp(-5,5,0.1)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_11</name>
+    <text>Update Label Position</text>
     <y>641</y>
     <width>281</width>
     <height>30</height>
-    <text>Update Label Position</text>
     <font>
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
       </font>
@@ -143,21 +141,21 @@ a rule could be attached to the label's text property.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_12</name>
-    <y>701</y>
-    <width>381</width>
-    <height>70</height>
     <text>Script attached to label, triggered by the PV,
 updates the label's position based on that PV
 and some other local PVs which are used to pass in 
 constant configuration parameters.</text>
+    <y>701</y>
+    <width>381</width>
+    <height>70</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_13</name>
+    <text>Not clear why one would want to do this.
+Clearly a counterexample for the use of scripts.</text>
     <y>781</y>
     <width>391</width>
     <height>50</height>
-    <text>Not clear why one would want to do this.
-Clearly a counterexample for the use of scripts.</text>
     <font>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
@@ -165,10 +163,14 @@ Clearly a counterexample for the use of scripts.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_10</name>
+    <text>I'm moving!</text>
     <x>141</x>
     <y>671</y>
     <width>90</width>
-    <text>I'm moving!</text>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
     <foreground_color>
       <color name="STOP" red="255" green="0" blue="0">
       </color>
@@ -178,10 +180,6 @@ Clearly a counterexample for the use of scripts.</text>
       </color>
     </background_color>
     <transparent>false</transparent>
-    <font>
-      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
-      </font>
-    </font>
     <scripts>
       <script file="scripts/update_x.py">
         <pv_name>sim://ramp(-5,5,0.1)</pv_name>
@@ -192,18 +190,18 @@ Clearly a counterexample for the use of scripts.</text>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry</name>
+    <pv_name>loc://pv_name("sim://sine")</pv_name>
     <x>541</x>
     <y>481</y>
     <width>210</width>
-    <pv_name>loc://pv_name("sim://sine")</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_14</name>
+    <text>Update PV Name</text>
     <x>411</x>
     <y>451</y>
     <width>180</width>
     <height>30</height>
-    <text>Update PV Name</text>
     <font>
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
       </font>
@@ -211,18 +209,18 @@ Clearly a counterexample for the use of scripts.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_15</name>
+    <text>Enter PV Name:</text>
     <x>411</x>
     <y>481</y>
     <width>120</width>
-    <text>Enter PV Name:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_16</name>
+    <text>Script will update the PV name of the Text Update:</text>
     <x>411</x>
     <y>511</y>
     <width>330</width>
     <height>30</height>
-    <text>Script will update the PV name of the Text Update:</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_2</name>
@@ -238,21 +236,21 @@ Clearly a counterexample for the use of scripts.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_17</name>
+    <text>Value of PV:</text>
     <x>411</x>
     <y>541</y>
     <width>120</width>
-    <text>Value of PV:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_18</name>
-    <x>411</x>
-    <y>581</y>
-    <width>470</width>
-    <height>90</height>
     <text>This could be useful to update the PVs of a display.
 On the other hand, the display structure may be easier to understand
 and long term maintenance is simplified when using buttons that open
 new displays, passing macros for the PV names...</text>
+    <x>411</x>
+    <y>581</y>
+    <width>470</width>
+    <height>90</height>
     <font>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
@@ -260,18 +258,18 @@ new displays, passing macros for the PV names...</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_19</name>
+    <text>&lt;- Active</text>
     <x>201</x>
     <y>831</y>
     <width>90</width>
-    <text>&lt;- Active</text>
-    <foreground_color>
-      <color name="Attention" red="255" green="160" blue="0">
-      </color>
-    </foreground_color>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
     </font>
+    <foreground_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </foreground_color>
     <scripts>
       <script file="scripts/update_x.py">
         <pv_name>loc://mode(0)</pv_name>
@@ -282,32 +280,32 @@ new displays, passing macros for the PV names...</text>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_1</name>
+    <pv_name>loc://mode(0)</pv_name>
     <x>11</x>
     <y>831</y>
-    <pv_name>loc://mode(0)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_20</name>
+    <text>Mode 1</text>
     <x>151</x>
     <y>831</y>
     <width>60</width>
-    <text>Mode 1</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_21</name>
+    <text>Mode 2</text>
     <x>301</x>
     <y>831</y>
     <width>60</width>
-    <text>Mode 2</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_23</name>
-    <y>901</y>
-    <width>391</width>
-    <height>50</height>
     <text>Is this good or gimmickry?
 LEDs next to each mode that are 'on' for the active mode
 would avoid scripts and maybe overall be better.</text>
+    <y>901</y>
+    <width>391</width>
+    <height>50</height>
     <font>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
@@ -315,11 +313,11 @@ would avoid scripts and maybe overall be better.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_24</name>
+    <text>Similar: Enter mode values 0 or 1,
+and the "Active" label moves next to the selected mode.</text>
     <y>861</y>
     <width>361</width>
     <height>40</height>
-    <text>Similar: Enter mode values 0 or 1,
-and the "Active" label moves next to the selected mode.</text>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button</name>
@@ -347,11 +345,11 @@ and the "Active" label moves next to the selected mode.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_25</name>
+    <text>Longer Examples</text>
     <x>411</x>
     <y>671</y>
     <width>270</width>
     <height>30</height>
-    <text>Longer Examples</text>
     <font>
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
       </font>
@@ -359,21 +357,21 @@ and the "Active" label moves next to the selected mode.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_26</name>
-    <x>411</x>
-    <y>701</y>
-    <width>430</width>
-    <height>83</height>
     <text>These examples include scripts that remain active as long
 as the display is open, continuously updating the widgets
 in the display, or use a script that performs a comparably
 lengthy computation before updating the display.</text>
+    <x>411</x>
+    <y>701</y>
+    <width>430</width>
+    <height>83</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_22</name>
+    <text>Search Path</text>
     <x>411</x>
     <y>841</y>
     <width>130</width>
-    <text>Search Path</text>
     <font>
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
       </font>
@@ -381,13 +379,13 @@ lengthy computation before updating the display.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_27</name>
+    <text>The Jython search path is configured via a display builder preference.
+In addition, the location of each invoked script is added to allow
+"import" from files in the same location of the script.</text>
     <x>411</x>
     <y>871</y>
     <width>452</width>
     <height>70</height>
-    <text>The Jython search path is configured via a display builder preference.
-In addition, the location of each invoked script is added to allow
-"import" from files in the same location of the script.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_28</name>
@@ -395,15 +393,15 @@ In addition, the location of each invoked script is added to allow
     <y>961</y>
     <width>690</width>
     <height>170</height>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
     <background_color>
       <color name="Read_Background" red="240" green="240" blue="240">
       </color>
     </background_color>
     <transparent>false</transparent>
-    <font>
-      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
-      </font>
-    </font>
     <scripts>
       <script file="EmbeddedPy">
         <text><![CDATA[# Embedded python script
@@ -418,21 +416,21 @@ widget.setPropertyValue("text", path)]]></text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_29</name>
+    <text>Current search path:</text>
     <x>411</x>
     <y>931</y>
     <width>232</width>
     <height>30</height>
-    <text>Current search path:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_30</name>
+    <text>For performance reasons, the Jython state is shared, so the
+search path will grow over time as scripts are invoked
+from new locations.</text>
     <x>411</x>
     <y>1141</y>
     <width>452</width>
     <height>70</height>
-    <text>For performance reasons, the Jython state is shared, so the
-search path will grow over time as scripts are invoked
-from new locations.</text>
     <font>
       <font name="Fine Print" family="Liberation Sans" style="REGULAR" size="12.0">
       </font>
@@ -476,18 +474,18 @@ from new locations.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_32</name>
-    <y>351</y>
-    <width>521</width>
-    <height>50</height>
     <text>The examples on this page use Jython. To see similar examples implemented
 using "native" Python, click the button below. For an explanation of Python
 (and Jython) script API, refer to Display Builder Help.</text>
+    <y>351</y>
+    <width>521</width>
+    <height>50</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_33</name>
+    <text>Python vs Jython</text>
     <y>331</y>
     <width>151</width>
-    <text>Python vs Jython</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -507,10 +505,10 @@ using "native" Python, click the button below. For an explanation of Python
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_31</name>
+    <text>Script PVs, 'Trigger'</text>
     <y>991</y>
     <width>281</width>
     <height>30</height>
-    <text>Script PVs, 'Trigger'</text>
     <font>
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
       </font>
@@ -518,9 +516,6 @@ using "native" Python, click the button below. For an explanation of Python
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_34</name>
-    <y>1021</y>
-    <width>391</width>
-    <height>400</height>
     <text>Each script needs at least one PV marked as a "Trigger".
 The script is invoked (triggered) when receiving
 the first value of that PV,
@@ -543,6 +538,9 @@ By the time the script executes, it sees the current
 state of all PVs: Some may not be connected,
 some may already have changed their values
 once more.</text>
+    <y>1021</y>
+    <width>391</width>
+    <height>400</height>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_6</name>
@@ -554,6 +552,18 @@ once more.</text>
         <file>python/scripts_python_detail.bob</file>
         <target>replace</target>
         <description>Detail</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_7</name>
+    <x>960</x>
+    <y>790</y>
+    <actions>
+      <action type="open_display">
+        <file>script_util/porting.opi</file>
+        <target>replace</target>
+        <description>Porting</description>
       </action>
     </actions>
   </widget>
