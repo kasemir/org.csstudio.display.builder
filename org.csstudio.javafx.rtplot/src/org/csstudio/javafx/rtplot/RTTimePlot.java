@@ -142,4 +142,10 @@ public class RTTimePlot extends RTPlot<Instant>
         if (was_scrolling != null)
             was_scrolling.cancel(false);
     }
+
+    public Image getImage()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

@@ -88,9 +88,12 @@
     <module>org.csstudio.javafx</module>
     <module>org.csstudio.javafx.rtplot</module>
     <module>org.csstudio.javafx.rtplot.test</module>
-
+    
     <!-- Features -->
     <module>org.csstudio.display.builder.feature</module>
+
+    <!-- Databrowser 3 -->
+    <module>databrowser3</module>
 
     <!-- Repository -->
     <module>repository</module>
