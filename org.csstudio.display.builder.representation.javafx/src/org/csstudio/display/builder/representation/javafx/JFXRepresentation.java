@@ -101,6 +101,7 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.RegistryFactory;
 
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Bounds;
@@ -159,6 +160,10 @@ import javafx.scene.shape.Line;
 @SuppressWarnings("nls")
 public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
 {
+    /** Adjustment for scroll body size to prevent scroll bars from being displayed */
+    // XXX Would be good to understand this value instead of 2-by-trial-and-error
+    private static final int SCROLLBAR_ADJUST = 2;
+
     public static final String ACTIVE_MODEL = "_active_model";
 
     /** Zoom to fit display */
@@ -173,13 +178,16 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     /** Width of the grid lines. */
     private static final float GRID_LINE_WIDTH = 0.222F;
 
-    /** Update display width, height from model */
-    private WidgetPropertyListener<Integer> display_size_listener = ( p, o, n ) -> execute( ( ) -> updateDisplaySize());
+    /** Update model size indicators (in edit mode) */
+    private WidgetPropertyListener<Integer> model_size_listener = ( p, o, n ) -> execute( ( ) -> updateModelSizeIndicators());
 
     /** Update background color, grid */
     private UntypedWidgetPropertyListener background_listener = ( p, o, n ) -> execute( ( ) -> updateBackground());
 
     private Line horiz_bound, vert_bound;
+    private Group model_parent;
+    private Pane scroll_body;
+    private ScrollPane model_root;
 
     /** Constructor
      *  @param edit_mode Edit mode?
@@ -252,10 +260,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         return () -> (WidgetRepresentation<Parent, Node, Widget>) config.createExecutableExtension("class");
     }
 
-    private volatile Pane scroll_body;
-    private volatile ScrollPane model_root;
-    private volatile Group model_parent;
-
     /** Create scrollpane etc. for hosting the model
      *
      *  @return ScrollPane
@@ -279,7 +283,11 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
             vert_bound.setStartY(0);
             scroll_body.getChildren().addAll(vert_bound, horiz_bound);
         }
+
         model_root = new ScrollPane(scroll_body);
+        final InvalidationListener resized = prop -> handleViewportChanges();
+        model_root.widthProperty().addListener(resized);
+        model_root.heightProperty().addListener(resized);
 
         return model_root;
     }
@@ -350,14 +358,40 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         throw new IllegalStateException("Not implemented");
     }
 
-    /** Update display size from model */
-    private void updateDisplaySize()
+    /** Handle changes in on-screen size of this representation */
+    private void handleViewportChanges()
+    {
+        final DisplayModel copy = model;
+        if (copy == null)
+            return;
+
+        final int model_width = copy.propWidth().getValue();
+        final int model_height = copy.propHeight().getValue();
+        final int view_width = (int) model_root.getWidth();
+        final int view_height = (int) model_root.getHeight();
+
+        // If on-screen viewport is larger than model,
+        // grow the scroll_body so that the complete area is
+        // filled with the background color
+        // and - in edit mode - the grid.
+        // If the viewport is smaller, use the model's size
+        // to get appropriate scrollbars.
+        if (view_width >= model_width)
+            scroll_body.setMinWidth(view_width-SCROLLBAR_ADJUST);
+        else
+            scroll_body.setMinWidth(model_width);
+
+        if (view_height >= model_height)
+            scroll_body.setMinHeight(view_height-SCROLLBAR_ADJUST);
+        else
+            scroll_body.setMinHeight(model_height);
+    }
+
+    /** Update lines that indicate model's size in edit mode */
+    private void updateModelSizeIndicators()
     {
         final int width = model.propWidth().getValue();
         final int height = model.propHeight().getValue();
-        scroll_body.setMinWidth(width);
-        scroll_body.setMinHeight(height);
-
         horiz_bound.setStartY(height - 1);
         horiz_bound.setEndX(width - 1);
         horiz_bound.setEndY(height - 1);
@@ -381,9 +415,9 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
             if (isEditMode())
             {
                 // Track display size w/ initial update
-                model.propWidth().addPropertyListener(display_size_listener);
-                model.propHeight().addPropertyListener(display_size_listener);
-                display_size_listener.propertyChanged(null, null, null);
+                model.propWidth().addPropertyListener(model_size_listener);
+                model.propHeight().addPropertyListener(model_size_listener);
+                model_size_listener.propertyChanged(null, null, null);
 
                 // Track grid changes w/ initial update
                 model.propGridVisible().addUntypedPropertyListener(background_listener);
@@ -407,8 +441,8 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
                 model.propGridStepX().removePropertyListener(background_listener);
                 model.propGridColor().removePropertyListener(background_listener);
                 model.propGridVisible().removePropertyListener(background_listener);
-                model.propHeight().removePropertyListener(display_size_listener);
-                model.propWidth().removePropertyListener(display_size_listener);
+                model.propHeight().removePropertyListener(model_size_listener);
+                model.propWidth().removePropertyListener(model_size_listener);
             }
         }
 
