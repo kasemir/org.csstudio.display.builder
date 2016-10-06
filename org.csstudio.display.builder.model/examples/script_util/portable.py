@@ -12,7 +12,7 @@
 # The PVUtil also offers a very similar API,
 # only the package name differs.
 # 
-#	from org.csstudio.opibuilder.scriptUtil import PVUtil
+#   from org.csstudio.opibuilder.scriptUtil import PVUtil
 #
 # needs to change into
 #
@@ -23,7 +23,7 @@
 # will simply 'run', issuing a warning that the package
 # name has been patched:
 #
-# 	from org.csstudio.opibuilder.scriptUtil import PVUtil
+#   from org.csstudio.opibuilder.scriptUtil import PVUtil
 #   widget.setPropertyValue("text", "Hello")
 
 # To write a portable script, check for the display builder's widget type:
@@ -33,8 +33,8 @@ if display_builder:
     from org.csstudio.display.builder.runtime.script import PVUtil, ScriptUtil
     ScriptUtil.getLogger().info("Executing in display builder")
 else:
-	from org.csstudio.opibuilder.scriptUtil import PVUtil, ConsoleUtil
-	ConsoleUtil.writeInfo("Executing in BOY")
+    from org.csstudio.opibuilder.scriptUtil import PVUtil, ConsoleUtil
+    ConsoleUtil.writeInfo("Executing in BOY")
 
 # This API is now the same:
 val = PVUtil.getDouble(pvs[0])
