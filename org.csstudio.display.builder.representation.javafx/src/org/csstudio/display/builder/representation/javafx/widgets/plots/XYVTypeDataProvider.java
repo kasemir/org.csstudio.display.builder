@@ -74,9 +74,6 @@ public class XYVTypeDataProvider implements PlotDataProvider<Double>
         final double x = x_data == null ? index : x_data.getDouble(index);
         final double y = y_data.getDouble(index);
 
-        if (x_data == null)
-            System.out.println("NULL");
-
         final double min, max;
         if (error_data.size() <= 0)
             min = max = Double.NaN; // No error data

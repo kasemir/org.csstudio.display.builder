@@ -104,7 +104,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             {
             case NONE:     return TraceType.NONE;
             case STEP:     return TraceType.AREA;
-            case ERRORBAR: return TraceType.AREA_DIRECT; // TODO Use to-be-implemented error bars mode
+            case ERRORBAR: return TraceType.ERROR_BARS;
             case LINE:
             default:       return TraceType.AREA_DIRECT;
             }

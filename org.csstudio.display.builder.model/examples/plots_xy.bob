@@ -289,14 +289,14 @@ one for the "X" and one for the "Y" axis.</text>
     <show_legend>false</show_legend>
     <scripts>
       <script file="EmbeddedPy">
-        <text><![CDATA[# Embedded python script
-from org.csstudio.display.builder.runtime.script import PVUtil, ValueUtil, ScriptUtil
+        <text><![CDATA[# pvs[0] - Value
+# pvs[1] - Local PV to which error bar info is written
+
+from org.csstudio.display.builder.runtime.script import PVUtil
 from math import sqrt
 
 values = PVUtil.getDoubleArray(pvs[0])
 err = [ sqrt(y) for y in values ]
-ScriptUtil.getLogger().info(str(values))
-ScriptUtil.getLogger().info(str(err))
 pvs[1].write(err)
 ]]></text>
         <pv_name>sim://sinewave(5, 5, 10, 2, 0, 100)</pv_name>
@@ -341,7 +341,7 @@ pvs[1].write(err)
         <y_pv>sim://sinewave(5, 5, 10, 2, 0, 100)</y_pv>
         <err_pv>loc://errors(0, 0)</err_pv>
         <axis>0</axis>
-        <trace_type>1</trace_type>
+        <trace_type>3</trace_type>
         <color>
           <color red="0" green="0" blue="255">
           </color>
@@ -353,10 +353,10 @@ pvs[1].write(err)
       <trace>
         <name>Demo</name>
         <x_pv></x_pv>
-        <y_pv>sim://sinewave(2, 5, 10, 2, 100, 120)</y_pv>
+        <y_pv>sim://sinewave(2, 6, 10, 0.2, 100, 120)</y_pv>
         <err_pv></err_pv>
         <axis>0</axis>
-        <trace_type>3</trace_type>
+        <trace_type>1</trace_type>
         <color>
           <color red="0" green="255" blue="150">
           </color>
