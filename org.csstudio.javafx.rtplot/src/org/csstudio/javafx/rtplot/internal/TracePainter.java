@@ -7,13 +7,14 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.javafx.rtplot.PointType;
 import org.csstudio.javafx.rtplot.Trace;
@@ -28,6 +29,7 @@ import org.csstudio.javafx.rtplot.internal.util.ScreenTransform;
  *  @param <XTYPE> Data type of horizontal {@link Axis}
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class TracePainter<XTYPE extends Comparable<XTYPE>>
 {
     // Implementation notes:
@@ -108,7 +110,7 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
         try
         {
             final TraceType type = trace.getType();
-            Logger.getLogger("TracePainer").log(Level.ALL, "Painting trace type " + type.toString());
+            logger.log(Level.ALL, "Painting trace type " + type.toString());
 
             switch (type)
             {
@@ -149,12 +151,10 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
                 drawValueLines(gc, x_transform, y_axis, data, trace.getWidth());
                 break;
             case ERROR_BARS:
-                // TODO The 'area' is using the wring values
-                // --- Remove this once area has been debugged:
-                gc.setPaint(tpcolor);
-                drawMinMaxArea(gc, x_transform, y_axis, data);
-                gc.setPaint(color);
-                // --- ^^^ Remove ^^^
+                // Compare error bars to area
+                // gc.setPaint(tpcolor);
+                // drawMinMaxArea(gc, x_transform, y_axis, data);
+                // gc.setPaint(color);
                 drawValueLines(gc, x_transform, y_axis, data, trace.getWidth());
                 drawErrorBars(gc, x_transform, y_axis, data, trace.getPointSize());
                 break;
@@ -268,11 +268,13 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
             final ScreenTransform<XTYPE> x_transform, final YAxisImpl<XTYPE> y_axis,
             final PlotDataProvider<XTYPE> data)
     {
-        final IntList pos = new IntList(INITIAL_ARRAY_SIZE);
-        final IntList min = new IntList(INITIAL_ARRAY_SIZE);
-        final IntList max = new IntList(INITIAL_ARRAY_SIZE);
-
         final int N = data.size();
+        // Assume N, might use less because end up with sections
+        // separated by Double.NaN
+        final IntList pos = new IntList(N);
+        final IntList min = new IntList(N);
+        final IntList max = new IntList(N);
+
         for (int i = 0;  i < N;  ++i)
         {
             final PlotDataItem<XTYPE> item = data.get(i);
@@ -500,17 +502,17 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
 
         // 'direct' outline, point-to-point
         // Turn pos/min/max into array required by fillPolygon:
+        // First sequence of x[], min[],
+        // then x[], max[i] in reverse.
         final int N2 = N * 2;
         final int xpoints[] = new int[N2];
         final int ypoints[] = new int[N2];
-
-        int head = 0, tail = N2;
+        int tail = N2-1;
         for (int i=0; i<N; ++i)
-        {
-            xpoints[head++] = pos.get(i);
-            ypoints[head] = min.get(i);
-            ypoints[--tail] = max.get(i);
-            xpoints[tail] = pos.get(i);
+        {   // i == 'head'
+            xpoints[i] = xpoints[tail] = pos.get(i);
+            ypoints[i] = min.get(i);
+            ypoints[tail--] = max.get(i);
         }
         gc.fillPolygon(xpoints, ypoints, N2);
 
