@@ -150,6 +150,24 @@ public class XYPlotWidget extends VisibleWidget
             }
         }
 
+        private PlotWidgetTraceType mapTraceType(final int legacy_type)
+        {
+            switch (legacy_type)
+            {
+            case 2: // POINT
+                return PlotWidgetTraceType.NONE;
+            case 6: // STEP_HORIZONTALLY
+                return PlotWidgetTraceType.STEP;
+            case 0: // SOLID_LINE
+            case 1: // DASH_LINE
+            case 3: // BAR
+            case 4: // AREA
+            case 5: // STEP_VERTICALLY
+            default:
+                return PlotWidgetTraceType.LINE;
+            }
+        }
+
         private PlotWidgetPointType mapPointType(final int legacy_style)
         {
             switch (legacy_style)
@@ -211,6 +229,9 @@ public class XYPlotWidget extends VisibleWidget
                 Element element = XMLUtil.getChildElement(xml, "trace_" + legacy_trace + "_trace_color");
                 if (element != null)
                     trace.traceColor().readFromXML(model_reader, element);
+
+                XMLUtil.getChildInteger(xml, "trace_" + legacy_trace + "_trace_type")
+                        .ifPresent(type -> trace.traceType().setValue(mapTraceType(type)));
 
                 XMLUtil.getChildInteger(xml, "trace_" + legacy_trace + "_point_size")
                        .ifPresent(size -> trace.tracePointSize().setValue(size));

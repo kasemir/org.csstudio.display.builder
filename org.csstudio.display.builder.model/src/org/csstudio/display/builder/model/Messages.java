@@ -58,6 +58,7 @@ public class Messages extends NLS
     public static String Middle;
     public static String PlotWidget_AutoScale;
     public static String PlotWidget_Color;
+    public static String PlotWidget_ErrorPV;
     public static String PlotWidget_LogScale;
     public static String PlotWidget_PointSize;
     public static String PlotWidget_PointType;
@@ -68,6 +69,7 @@ public class Messages extends NLS
     public static String PlotWidget_TitleFont;
     public static String PlotWidget_Trace;
     public static String PlotWidget_Traces;
+    public static String PlotWidget_TraceType;
     public static String PlotWidget_X;
     public static String PlotWidget_XAxis;
     public static String PlotWidget_XPV;
@@ -102,6 +104,10 @@ public class Messages extends NLS
     public static String Target_Tab;
     public static String Target_Window;
     public static String Top;
+    public static String TraceType_Errorbar;
+    public static String TraceType_Line;
+    public static String TraceType_None;
+    public static String TraceType_Step;
     public static String Vertical;
     public static String WebBrowser_showToolbar;
     public static String WebBrowser_URL;

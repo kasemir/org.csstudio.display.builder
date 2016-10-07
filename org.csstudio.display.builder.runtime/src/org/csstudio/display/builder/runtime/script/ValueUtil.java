@@ -15,6 +15,7 @@ import java.util.Objects;
 import org.csstudio.display.builder.model.properties.FormatOption;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
+import org.diirt.util.array.CollectionNumbers;
 import org.diirt.util.array.ListDouble;
 import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.VByteArray;
@@ -105,6 +106,30 @@ public class ValueUtil
             return headers;
         }
         return new String[0];
+    }
+
+    /** Try to get a 'double' type array from a value.
+     *  @param value Value of a PV
+     *  @return Current value as double[].
+     *          Will return single-element array for scalar value,
+     *          including <code>{ Double.NaN }</code> in case the value type
+     *          does not decode into a number.
+     */
+    public static double[] getDoubleArray(final VType value)
+    {
+        if (value instanceof VNumberArray)
+        {
+            final ListNumber list = ((VNumberArray) value).getData();
+            final Object wrapped = CollectionNumbers.wrappedArray(list);
+            if (wrapped instanceof double[])
+                return (double[]) wrapped;
+
+            final double[] result = new double[list.size()];
+            for (int i = 0; i < result.length; i++)
+                result[i] = list.getDouble(i);
+            return result;
+        }
+        return new double[] { getDouble(value) };
     }
 
     /** Get a table from PV

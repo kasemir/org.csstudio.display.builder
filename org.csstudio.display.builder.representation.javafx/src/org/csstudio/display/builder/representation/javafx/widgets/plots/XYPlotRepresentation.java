@@ -16,10 +16,12 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetPointType;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.AxisWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.TraceWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.YAxisWidgetProperty;
+import org.csstudio.display.builder.model.widgets.plots.PlotWidgetTraceType;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
@@ -29,6 +31,8 @@ import org.csstudio.javafx.rtplot.RTValuePlot;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.TraceType;
 import org.csstudio.javafx.rtplot.YAxis;
+import org.diirt.util.array.ArrayDouble;
+import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 
@@ -61,7 +65,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     {
         private final TraceWidgetProperty model_trace;
         private final XYVTypeDataProvider data = new XYVTypeDataProvider();
-        private final UntypedWidgetPropertyListener trace_listener = this::traceChanged, value_listener = this::valueChanged;
+        private final UntypedWidgetPropertyListener trace_listener = this::traceChanged,
+                                                    value_listener = this::valueChanged;
         private final Trace<Double> trace;
 
         TraceHandler(final TraceWidgetProperty model_trace)
@@ -70,20 +75,39 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
             trace = plot.addTrace(getDisplayName(), "", data,
                                   JFXUtil.convert(model_trace.traceColor().getValue()),
-                                  TraceType.SINGLE_LINE_DIRECT, 1,
+                                  map(model_trace.traceType().getValue()),
+                                  model_trace.traceWidth().getValue(),
                                   map(model_trace.tracePointType().getValue()),
                                   model_trace.tracePointSize().getValue(),
                                   model_trace.traceYAxis().getValue());
 
             model_trace.traceName().addUntypedPropertyListener(trace_listener);
-            // Not tracking X PV. Only matters to runtime.
+            // Not tracking X and Error PVs. Only matter to runtime.
+            // Y PV name is shown in legend, so track that for the editor.
             model_trace.traceYPV().addUntypedPropertyListener(trace_listener);
             model_trace.traceYAxis().addUntypedPropertyListener(trace_listener);
+            model_trace.traceType().addUntypedPropertyListener(trace_listener);
             model_trace.traceColor().addUntypedPropertyListener(trace_listener);
+            model_trace.traceWidth().addUntypedPropertyListener(trace_listener);
             model_trace.tracePointType().addUntypedPropertyListener(trace_listener);
             model_trace.tracePointSize().addUntypedPropertyListener(trace_listener);
             model_trace.traceXValue().addUntypedPropertyListener(value_listener);
             model_trace.traceYValue().addUntypedPropertyListener(value_listener);
+            model_trace.traceErrorValue().addUntypedPropertyListener(value_listener);
+        }
+
+        private TraceType map(final PlotWidgetTraceType value)
+        {
+            // AREA* types create just a line if the input data is
+            // a plain array, but will also handle VStatistics
+            switch (value)
+            {
+            case NONE:     return TraceType.NONE;
+            case STEP:     return TraceType.AREA;
+            case ERRORBAR: return TraceType.ERROR_BARS;
+            case LINE:
+            default:       return TraceType.AREA_DIRECT;
+            }
         }
 
         private PointType map(final PlotWidgetPointType value)
@@ -103,7 +127,9 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         private void traceChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
         {
             trace.setName(getDisplayName());
+            trace.setType(map(model_trace.traceType().getValue()));
             trace.setColor(JFXUtil.convert(model_trace.traceColor().getValue()));
+            trace.setWidth(model_trace.traceWidth().getValue());
             trace.setPointType(map(model_trace.tracePointType().getValue()));
             trace.setPointSize(model_trace.tracePointSize().getValue());
 
@@ -117,13 +143,31 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         {
             try
             {
-                final VType x_value = model_trace.traceXValue().getValue();
                 final VType y_value = model_trace.traceYValue().getValue();
-                if (! (x_value instanceof VNumberArray  &&  y_value instanceof VNumberArray))
+                final ListNumber y_data = (y_value instanceof VNumberArray) ? ((VNumberArray)y_value).getData() : null;
+
+                final VType x_value = model_trace.traceXValue().getValue();
+                final ListNumber x_data = (x_value instanceof VNumberArray) ? ((VNumberArray)x_value).getData() : null;
+
+                if (y_data == null)
+                {   // Clear data
+                    data.setData(XYVTypeDataProvider.EMPTY, XYVTypeDataProvider.EMPTY, XYVTypeDataProvider.EMPTY);
+                    plot.requestUpdate();
                     return;
+                }
 
                 trace.setUnits(((VNumberArray)y_value).getUnits());
-                data.setData( ((VNumberArray)x_value).getData(), ((VNumberArray)y_value).getData());
+
+                final VType error_value = model_trace.traceErrorValue().getValue();
+                final ListNumber error;
+                if (error_value == null)
+                    error = XYVTypeDataProvider.EMPTY;
+                else if (error_value instanceof VNumberArray)
+                    error = ((VNumberArray)error_value).getData();
+                else
+                    error = new ArrayDouble(VTypeUtil.getValueNumber(error_value).doubleValue());
+
+                data.setData(x_data, y_data, error);
                 plot.requestUpdate();
             }
             catch (Exception ex)
@@ -137,11 +181,15 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             model_trace.traceName().removePropertyListener(trace_listener);
             model_trace.traceYPV().removePropertyListener(trace_listener);
             model_trace.traceYAxis().removePropertyListener(trace_listener);
+            model_trace.traceType().removePropertyListener(trace_listener);
             model_trace.traceColor().removePropertyListener(trace_listener);
+            model_trace.traceWidth().removePropertyListener(trace_listener);
+
             model_trace.tracePointType().removePropertyListener(trace_listener);
             model_trace.tracePointSize().removePropertyListener(trace_listener);
             model_trace.traceXValue().removePropertyListener(value_listener);
             model_trace.traceYValue().removePropertyListener(value_listener);
+            model_trace.traceErrorValue().removePropertyListener(value_listener);
             plot.removeTrace(trace);
         }
     };

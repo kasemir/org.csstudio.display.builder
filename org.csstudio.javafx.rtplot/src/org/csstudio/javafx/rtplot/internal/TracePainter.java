@@ -148,6 +148,16 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
             case SINGLE_LINE_DIRECT:
                 drawValueLines(gc, x_transform, y_axis, data, trace.getWidth());
                 break;
+            case ERROR_BARS:
+                // TODO The 'area' is using the wring values
+                // --- Remove this once area has been debugged:
+                gc.setPaint(tpcolor);
+                drawMinMaxArea(gc, x_transform, y_axis, data);
+                gc.setPaint(color);
+                // --- ^^^ Remove ^^^
+                drawValueLines(gc, x_transform, y_axis, data, trace.getWidth());
+                drawErrorBars(gc, x_transform, y_axis, data, trace.getPointSize());
+                break;
             default:
                 drawValueStaircase(gc, x_transform, y_axis, data, trace.getWidth());
             }
@@ -376,7 +386,45 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
         poly_y.clear();
     }
 
-    /** Draw values of data as direct line
+    /** Draw error bar for each value
+     *  @param gc GC
+     *  @param x_transform Horizontal axis
+     *  @param y_axis Value axis
+     *  @param data Data
+     *  @param size
+     */
+    final private void drawErrorBars(final Graphics2D gc,
+            final ScreenTransform<XTYPE> x_transform, final YAxisImpl<XTYPE> y_axis,
+            final PlotDataProvider<XTYPE> data, final int size)
+    {
+        final int N = data.size();
+        for (int i=0; i<N; ++i)
+        {
+            final PlotDataItem<XTYPE> item = data.get(i);
+            final int x = clipX(Math.round(x_transform.transform(item.getPosition())));
+            final double value = item.getValue();
+            if (!Double.isNaN(value))
+            {
+                final int y = clipY(y_axis.getScreenCoord(value));
+                final double min = item.getMin();
+                if (!Double.isNaN(min))
+                {
+                    final int ym = clipY(y_axis.getScreenCoord(min));
+                    gc.drawLine(x, y, x, ym);
+                    gc.drawLine(x-size/2, ym, x+size/2, ym);
+                }
+                final double max = item.getMax();
+                if (!Double.isNaN(max))
+                {
+                    final int ym = clipY(y_axis.getScreenCoord(max));
+                    gc.drawLine(x, y, x, ym);
+                    gc.drawLine(x-size/2, ym, x+size/2, ym);
+                }
+            }
+        }
+    }
+
+    /** Draw point for each value
      *  @param gc GC
      *  @param x_transform Horizontal axis
      *  @param y_axis Value axis

@@ -8,10 +8,8 @@ import javafx.application.Application;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
@@ -71,15 +69,6 @@ public class WebBrowserDemo extends Application
         }
 
         //================
-        //--private methods
-        private Node createSpacer()
-        {
-            Region spacer = new Region();
-            HBox.setHgrow(spacer, Priority.ALWAYS);
-            return spacer;
-        }
-
-        //================
         //--protected methods
         protected void goToURL(String url)
         {
@@ -118,7 +107,7 @@ public class WebBrowserDemo extends Application
         //================
         //--fields
         final WebHistory history = webEngine.getHistory();
-        
+
         //--toolbar controls
         //TODO: remove button text when icons work
         HBox toolbar;
@@ -205,7 +194,7 @@ public class WebBrowserDemo extends Application
             //addressBar.setOnShowing(this::handleShowing);
             webEngine.locationProperty().addListener(this::locationChanged);
             history.getEntries().addListener(this::entriesChanged);
-            
+
             final String imageDirectory =
                     "platform:/plugin/org.csstudio.display.builder.model/icons/browser/";
             for (int i = 0; i < controls.length; i++)
