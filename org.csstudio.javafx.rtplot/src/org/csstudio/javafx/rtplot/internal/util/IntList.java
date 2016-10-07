@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014-2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2014-2016 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 /** List of <code>int</code>
  *
- *  <p>Fundamentally like <code>List<Integer></code>,
+ *  <p>Fundamentally like <code>List&lt;Integer></code>,
  *  but avoids boxing operations.
  *
  *  @author Kay Kasemir
