@@ -24,7 +24,6 @@ import org.diirt.util.array.ListNumber;
  *
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
 public class XYVTypeDataProvider implements PlotDataProvider<Double>
 {
     public final static ListNumber EMPTY = new ArrayDouble(new double[0], true);
@@ -32,22 +31,23 @@ public class XYVTypeDataProvider implements PlotDataProvider<Double>
     final private ReadWriteLock lock = new ReentrantReadWriteLock();
 
     private volatile ListNumber x_data, y_data, error_data;
+    private volatile int size = 0;
 
+    /** Set the plot's data
+     *  @param x_data X data, may be <code>null</code>
+     *  @param y_data Y data
+     *  @param error_data Error data
+     *  @throws Exception
+     */
     public void setData(final ListNumber x_data, final ListNumber y_data, final ListNumber error_data) throws Exception
     {
         lock.writeLock().lock();
         try
         {
-            // If both X and Y are provided, their size must match
-            if (x_data != null  &&   x_data.size() != y_data.size())
-            {
-                this.x_data = null;
-                this.y_data = null;
-                throw new Exception("X/Y data size difference: " + x_data.size() + " vs. " + y_data.size());
-            }
             // In principle, error_data should have 1 element or same size as X and Y..
             this.x_data = x_data;
             this.y_data = y_data;
+            size = x_data == null ? y_data.size() : Math.min(x_data.size(), y_data.size());
             this.error_data = error_data;
         }
         finally
@@ -65,7 +65,7 @@ public class XYVTypeDataProvider implements PlotDataProvider<Double>
     @Override
     public int size()
     {
-        return y_data == null ? 0 : y_data.size();
+        return size;
     }
 
     @Override
