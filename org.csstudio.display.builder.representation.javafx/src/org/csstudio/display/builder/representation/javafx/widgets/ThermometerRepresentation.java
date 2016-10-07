@@ -41,7 +41,6 @@ import javafx.scene.shape.VLineTo;
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
  */
-@SuppressWarnings("nls")
 public class ThermometerRepresentation extends RegionBaseRepresentation<Region, ThermometerWidget>
 {
     private final DirtyFlag dirty_look = new DirtyFlag();

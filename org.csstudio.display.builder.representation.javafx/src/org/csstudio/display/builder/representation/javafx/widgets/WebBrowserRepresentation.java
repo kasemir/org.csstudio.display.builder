@@ -19,7 +19,6 @@ import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ComboBox;
@@ -59,15 +58,6 @@ public class WebBrowserRepresentation extends RegionBaseRepresentation<Region, W
             getStyleClass().add("browser");
             getChildren().add(browser);
             goToURL(url);
-        }
-
-        //================
-        //--private methods
-        private Node createSpacer()
-        {
-            Region spacer = new Region();
-            HBox.setHgrow(spacer, Priority.ALWAYS);
-            return spacer;
         }
 
         //================
