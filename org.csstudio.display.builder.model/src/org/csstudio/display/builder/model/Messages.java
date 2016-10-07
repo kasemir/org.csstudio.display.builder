@@ -58,6 +58,7 @@ public class Messages extends NLS
     public static String Middle;
     public static String PlotWidget_AutoScale;
     public static String PlotWidget_Color;
+    public static String PlotWidget_ErrorPV;
     public static String PlotWidget_LogScale;
     public static String PlotWidget_PointSize;
     public static String PlotWidget_PointType;

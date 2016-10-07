@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Display</name>
-  <width>600</width>
+  <width>1150</width>
   <height>900</height>
   <widget type="label" version="2.0.0">
     <name>Label</name>
@@ -32,6 +32,7 @@ one for the "X" and one for the "Y" axis.</text>
         <name></name>
         <x_pv>sim://sawtooth(0, 100, 100, 1, 0, 102)</x_pv>
         <y_pv>sim://sinewave(1, 50, 100, 0.1, 70, 90)</y_pv>
+        <err_pv></err_pv>
         <axis>0</axis>
         <trace_type>1</trace_type>
         <color>
@@ -46,6 +47,7 @@ one for the "X" and one for the "Y" axis.</text>
         <name></name>
         <x_pv>sim://sawtooth(0, 100, 100, 1, 0, 102)</x_pv>
         <y_pv>sim://sinewave(1, 50, 100, 0.1, 10, 100)</y_pv>
+        <err_pv></err_pv>
         <axis>0</axis>
         <trace_type>0</trace_type>
         <color>
@@ -277,5 +279,146 @@ one for the "X" and one for the "Y" axis.</text>
     <x>41</x>
     <y>691</y>
     <width>70</width>
+  </widget>
+  <widget type="xyplot" version="2.0.0">
+    <name>X/Y Plot_2</name>
+    <x>591</x>
+    <y>91</y>
+    <width>511</width>
+    <height>340</height>
+    <show_legend>false</show_legend>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[# Embedded python script
+from org.csstudio.display.builder.runtime.script import PVUtil, ValueUtil, ScriptUtil
+from math import sqrt
+
+values = PVUtil.getDoubleArray(pvs[0])
+err = [ sqrt(y) for y in values ]
+ScriptUtil.getLogger().info(str(values))
+ScriptUtil.getLogger().info(str(err))
+pvs[1].write(err)
+]]></text>
+        <pv_name>sim://sinewave(5, 5, 10, 2, 0, 100)</pv_name>
+        <pv_name trigger="false">loc://errors(0, 0)</pv_name>
+      </script>
+    </scripts>
+    <x_axis>
+      <title>X</title>
+      <autoscale>false</autoscale>
+      <minimum>0.0</minimum>
+      <maximum>10.0</maximum>
+      <title_font>
+        <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+        </font>
+      </title_font>
+      <scale_font>
+        <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+        </font>
+      </scale_font>
+    </x_axis>
+    <y_axes>
+      <y_axis>
+        <title>Y</title>
+        <autoscale>false</autoscale>
+        <log_scale>false</log_scale>
+        <minimum>0.0</minimum>
+        <maximum>120.0</maximum>
+        <title_font>
+          <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+          </font>
+        </title_font>
+        <scale_font>
+          <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+          </font>
+        </scale_font>
+      </y_axis>
+    </y_axes>
+    <traces>
+      <trace>
+        <name>Counts</name>
+        <x_pv>loc://xxx(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)</x_pv>
+        <y_pv>sim://sinewave(5, 5, 10, 2, 0, 100)</y_pv>
+        <err_pv>loc://errors(0, 0)</err_pv>
+        <axis>0</axis>
+        <trace_type>1</trace_type>
+        <color>
+          <color red="0" green="0" blue="255">
+          </color>
+        </color>
+        <line_width>3</line_width>
+        <point_type>0</point_type>
+        <point_size>10</point_size>
+      </trace>
+      <trace>
+        <name>Demo</name>
+        <x_pv></x_pv>
+        <y_pv>sim://sinewave(2, 5, 10, 2, 100, 120)</y_pv>
+        <err_pv></err_pv>
+        <axis>0</axis>
+        <trace_type>3</trace_type>
+        <color>
+          <color red="0" green="255" blue="150">
+          </color>
+        </color>
+        <line_width>1</line_width>
+        <point_type>0</point_type>
+        <point_size>10</point_size>
+      </trace>
+    </traces>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_23</name>
+    <text>Error Bars</text>
+    <x>591</x>
+    <y>441</y>
+    <width>221</width>
+    <font>
+      <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_25</name>
+    <text>The data for a trace typically consists of two PVs:
+
+X PV: A waveform that provides the horizontal coordinates.
+Y PV: A waveform that provides the vertical coordinates, i.e. values.
+Both waveforms must have the same length.
+
+
+If only a Y PV is provided, the array index 0 .. (size of(Y) -1) is
+used for the horizontal coordinate.
+
+
+To display error bars, three PVs need to be provided:
+
+X PV: A waveform that provides the horizontal coordinates.
+Y PV: A waveform that provides the vertical coordinates, i.e. values.
+Error PV: Absolute error for each of the Y values.
+All waveforms must have the same length.
+</text>
+    <x>591</x>
+    <y>471</y>
+    <width>511</width>
+    <height>300</height>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_26</name>
+    <text>In this example, the Y PV triggers a script
+which computes the error values into a local PV.
+That local PV is then used as the error bar waveform.</text>
+    <x>591</x>
+    <y>771</y>
+    <width>429</width>
+    <height>69</height>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
   </widget>
 </display>

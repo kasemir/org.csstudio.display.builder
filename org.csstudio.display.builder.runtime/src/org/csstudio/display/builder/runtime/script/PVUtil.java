@@ -94,6 +94,18 @@ public class PVUtil
         return ValueUtil.getLabels(getVType(pv));
     }
 
+    /** Try to get a 'double' type array from a PV.
+     *  @param pv the PV.
+     *  @return Current value as double[].
+     *          Will return single-element array for scalar value,
+     *          including <code>{ Double.NaN }</code> in case the value type
+     *          does not decode into a number.
+     */
+    public static double[] getDoubleArray(final RuntimePV pv) throws NullPointerException
+    {
+        return ValueUtil.getDoubleArray(getVType(pv));
+    }
+
     /** Get a table from PV
      *
      *  <p>Ideally, the PV holds a {@link VTable},
