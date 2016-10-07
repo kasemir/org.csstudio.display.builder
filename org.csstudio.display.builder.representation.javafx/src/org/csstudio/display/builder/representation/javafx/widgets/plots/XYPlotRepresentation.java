@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.widgets.plots.PlotWidgetPointType;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.AxisWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.TraceWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.YAxisWidgetProperty;
+import org.csstudio.display.builder.model.widgets.plots.PlotWidgetTraceType;
 import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
@@ -70,7 +71,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
 
             trace = plot.addTrace(getDisplayName(), "", data,
                                   JFXUtil.convert(model_trace.traceColor().getValue()),
-                                  TraceType.SINGLE_LINE_DIRECT, 1,
+                                  map(model_trace.traceType().getValue()),
+                                  model_trace.traceWidth().getValue(),
                                   map(model_trace.tracePointType().getValue()),
                                   model_trace.tracePointSize().getValue(),
                                   model_trace.traceYAxis().getValue());
@@ -79,11 +81,27 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             // Not tracking X PV. Only matters to runtime.
             model_trace.traceYPV().addUntypedPropertyListener(trace_listener);
             model_trace.traceYAxis().addUntypedPropertyListener(trace_listener);
+            model_trace.traceType().addUntypedPropertyListener(trace_listener);
             model_trace.traceColor().addUntypedPropertyListener(trace_listener);
+            model_trace.traceWidth().addUntypedPropertyListener(trace_listener);
             model_trace.tracePointType().addUntypedPropertyListener(trace_listener);
             model_trace.tracePointSize().addUntypedPropertyListener(trace_listener);
             model_trace.traceXValue().addUntypedPropertyListener(value_listener);
             model_trace.traceYValue().addUntypedPropertyListener(value_listener);
+        }
+
+        private TraceType map(final PlotWidgetTraceType value)
+        {
+            // AREA* types create just a line if the input data is
+            // a plain array, but will also handle VStatistics
+            switch (value)
+            {
+            case NONE:     return TraceType.NONE;
+            case STEP:     return TraceType.AREA;
+            case ERRORBAR: return TraceType.AREA; // TODO Use to-be-implemented error bars mode
+            case LINE:
+            default:       return TraceType.AREA_DIRECT;
+            }
         }
 
         private PointType map(final PlotWidgetPointType value)
@@ -103,7 +121,9 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         private void traceChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
         {
             trace.setName(getDisplayName());
+            trace.setType(map(model_trace.traceType().getValue()));
             trace.setColor(JFXUtil.convert(model_trace.traceColor().getValue()));
+            trace.setWidth(model_trace.traceWidth().getValue());
             trace.setPointType(map(model_trace.tracePointType().getValue()));
             trace.setPointSize(model_trace.tracePointSize().getValue());
 

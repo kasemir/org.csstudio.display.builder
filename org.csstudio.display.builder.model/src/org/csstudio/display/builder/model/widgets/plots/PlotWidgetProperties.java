@@ -163,6 +163,17 @@ public class PlotWidgetProperties
         CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "axis", Messages.PlotWidget_YAxis);
     private static final WidgetPropertyDescriptor<WidgetColor> traceColor =
         CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "color", Messages.PlotWidget_Color);
+    private static final WidgetPropertyDescriptor<PlotWidgetTraceType> traceType =
+        new WidgetPropertyDescriptor<PlotWidgetTraceType>(
+            WidgetPropertyCategory.BEHAVIOR, "trace_type", Messages.PlotWidget_TraceType)
+        {
+            @Override
+            public WidgetProperty<PlotWidgetTraceType> createProperty(final Widget widget,
+                                                                      final PlotWidgetTraceType default_value)
+            {
+                return new EnumWidgetProperty<PlotWidgetTraceType>(this, widget, default_value);
+            }
+        };
     private static final WidgetPropertyDescriptor<PlotWidgetPointType> tracePointType =
         new WidgetPropertyDescriptor<PlotWidgetPointType>(
             WidgetPropertyCategory.BEHAVIOR, "point_type", Messages.PlotWidget_PointType)
@@ -193,7 +204,9 @@ public class PlotWidgetProperties
                                 traceX.createProperty(widget, ""),
                                 traceY.createProperty(widget, ""),
                                 traceYAxis.createProperty(widget, 0),
+                                traceType.createProperty(widget, PlotWidgetTraceType.LINE),
                                 traceColor.createProperty(widget, new WidgetColor(0, 0, 255)),
+                                CommonWidgetProperties.propLineWidth.createProperty(widget, 1),
                                 tracePointType.createProperty(widget, PlotWidgetPointType.NONE),
                                 tracePointSize.createProperty(widget, 10),
                                 traceXValue.createProperty(widget, null),
@@ -203,11 +216,13 @@ public class PlotWidgetProperties
         public WidgetProperty<String> traceXPV()                    { return getElement(1); }
         public WidgetProperty<String> traceYPV()                    { return getElement(2); }
         public WidgetProperty<Integer> traceYAxis()                 { return getElement(3); }
-        public WidgetProperty<WidgetColor> traceColor()             { return getElement(4); }
-        public WidgetProperty<PlotWidgetPointType> tracePointType() { return getElement(5); }
-        public WidgetProperty<Integer> tracePointSize()             { return getElement(6); }
-        public WidgetProperty<VType> traceXValue()                  { return getElement(7); }
-        public WidgetProperty<VType> traceYValue()                  { return getElement(8); }
+        public WidgetProperty<PlotWidgetTraceType> traceType()      { return getElement(4); }
+        public WidgetProperty<WidgetColor> traceColor()             { return getElement(5); }
+        public WidgetProperty<Integer> traceWidth()                 { return getElement(6); }
+        public WidgetProperty<PlotWidgetPointType> tracePointType() { return getElement(7); }
+        public WidgetProperty<Integer> tracePointSize()             { return getElement(8); }
+        public WidgetProperty<VType> traceXValue()                  { return getElement(9); }
+        public WidgetProperty<VType> traceYValue()                  { return getElement(10); }
     };
 
     /** 'traces' array */
