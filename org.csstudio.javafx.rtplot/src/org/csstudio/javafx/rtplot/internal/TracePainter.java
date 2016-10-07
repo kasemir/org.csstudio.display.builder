@@ -151,10 +151,11 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
                 drawValueLines(gc, x_transform, y_axis, data, trace.getWidth());
                 break;
             case ERROR_BARS:
-                // Compare error bars to area
+                // Compare error bars to area and min/max lines
                 // gc.setPaint(tpcolor);
                 // drawMinMaxArea(gc, x_transform, y_axis, data);
                 // gc.setPaint(color);
+                // drawMinMaxLines(gc, x_transform, y_axis, data, trace.getWidth());
                 drawValueLines(gc, x_transform, y_axis, data, trace.getWidth());
                 drawErrorBars(gc, x_transform, y_axis, data, trace.getPointSize());
                 break;
