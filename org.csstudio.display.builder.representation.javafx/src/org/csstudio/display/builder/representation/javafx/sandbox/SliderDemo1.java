@@ -158,7 +158,7 @@ public class SliderDemo1 extends Application
         stage.show();
     }
 
-    private void reorient(Pane nodepane, MarkerAxis axis, Slider slider)
+    private void reorient(Pane nodepane, MarkerAxis<?> axis, Slider slider)
     {
         boolean horizontal = slider.getOrientation() == Orientation.HORIZONTAL;
         Pane newpane = horizontal ? new VBox(axis, slider) : new HBox(axis, slider);

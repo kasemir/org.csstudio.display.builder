@@ -3,21 +3,21 @@ package org.csstudio.display.builder.representation.javafx.sandbox;
 import javafx.application.Application;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Ellipse;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.*;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 
 //incorporate changing values, somehow
+@SuppressWarnings("nls")
 public class PaneEllipsesDemo extends Application
 {
 
@@ -33,7 +33,7 @@ public class PaneEllipsesDemo extends Application
     {
         Color [] value_colors = getColors(170); //10101010
         String[] labels = {"1","2","4","8","16","32","64","128"};
-        
+
         //===widget-relevant code===//
         Pane pane = new Pane();
         Ellipse ellipses [] = new Ellipse [number];
@@ -60,9 +60,9 @@ public class PaneEllipsesDemo extends Application
                 new LinearGradient(0, 0, 0.5, 0.5, true, CycleMethod.NO_CYCLE,
                                    new Stop(0, value_colors[i].interpolate(Color.WHITESMOKE, 0.8)),
                                    new Stop(1, value_colors[i])));
-        
+
         //=end widget-relevant code=//
-        
+
         //VBox.setVgrow(pane, Priority.NEVER);
         VBox vbox = new VBox(pane);
 
@@ -72,7 +72,7 @@ public class PaneEllipsesDemo extends Application
 
         stage.show();
     }
-    
+
     private final Text createText(String text) {
         final Text newText = new Text(text);
         newText.setFont(new Font(20));
