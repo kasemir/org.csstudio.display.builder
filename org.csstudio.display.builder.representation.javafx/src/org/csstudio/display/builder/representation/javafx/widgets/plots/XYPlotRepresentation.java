@@ -102,11 +102,12 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             // a plain array, but will also handle VStatistics
             switch (value)
             {
-            case NONE:     return TraceType.NONE;
-            case STEP:     return TraceType.AREA;
-            case ERRORBAR: return TraceType.ERROR_BARS;
+            case NONE:          return TraceType.NONE;
+            case STEP:          return TraceType.AREA;
+            case ERRORBAR:      return TraceType.ERROR_BARS;
+            case LINE_ERRORBAR: return TraceType.LINES_ERROR_BARS;
             case LINE:
-            default:       return TraceType.AREA_DIRECT;
+            default:            return TraceType.AREA_DIRECT;
             }
         }
 

@@ -347,7 +347,7 @@ pvs[1].write(err)
           </color>
         </color>
         <line_width>3</line_width>
-        <point_type>0</point_type>
+        <point_type>2</point_type>
         <point_size>10</point_size>
       </trace>
       <trace>

@@ -34,7 +34,10 @@ public enum TraceType
     SINGLE_LINE_DIRECT(Messages.TraceType_SingleLineDirect),
 
     /** Error bars, using direct line */
-    ERROR_BARS(Messages.TraceType_ErrorBars);
+    LINES_ERROR_BARS(Messages.TraceType_ErrorBars),
+
+    /** Error bars */
+    ERROR_BARS(Messages.TraceType_LinesErrorBars);
 
     final private String name;
 
