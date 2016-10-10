@@ -22,6 +22,7 @@ import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
 import org.csstudio.display.builder.representation.WidgetRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.input.MouseEvent;
@@ -78,14 +79,18 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
 
             if (toolkit.isEditMode())
             {   // Any visible item can be 'clicked' to allow editor to 'select' it
-                jfx_node.addEventFilter(MouseEvent.MOUSE_PRESSED, event ->
+                final EventHandler<MouseEvent> detect_click = event ->
                 {
                     if (event.isPrimaryButtonDown())
                     {
                         event.consume();
                         toolkit.fireClick(model_widget, event.isControlDown());
                     }
-                });
+                };
+                if (isFilteringEditModeClicks())
+                    jfx_node.addEventFilter(MouseEvent.MOUSE_PRESSED, detect_click);
+                else
+                    jfx_node.addEventHandler(MouseEvent.MOUSE_PRESSED, detect_click);
             }
             else
                 jfx_node.setOnContextMenuRequested((event) ->
@@ -97,6 +102,17 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
         registerListeners();
         updateChanges();
         return getChildParent(parent);
+    }
+
+    /** In edit mode, does this widget "filter" all mouse clicks
+     *  and use that to select the widget,
+     *  or does it only "handle" mouse clicks that way,
+     *  while still allowing clicks to pass on to the 'body' of the widget?
+     *  @return <code>true</code> to filter instead of handle mouse presses in edit mode
+     */
+    protected boolean isFilteringEditModeClicks()
+    {
+        return false;
     }
 
     // For what it's worth, in case the node eventually has a JFX contest menu:
