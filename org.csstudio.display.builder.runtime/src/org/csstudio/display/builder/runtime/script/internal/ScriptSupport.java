@@ -97,7 +97,16 @@ public class ScriptSupport
         String line;
         while ((line = reader.readLine()) != null)
         {
-            if (line.contains("scriptUtil"))
+            // Replace "from org.csstudio.opibuilder.scriptUtil" or
+            // "import org.csstudio.opibuilder.scriptUtil",
+            // but skip if this is indented within code that tries to handle portability, e.g.:
+            // if 'getVersion' in dir(widget):
+            //     .. new API
+            // else:
+            //     from org.csstudio.opibuilder.scriptUtil
+            if (line.length() > 0  &&
+                (line.charAt(0) == ' ' || line.charAt(0) == '\t') &&
+                line.contains("org.csstudio.opibuilder.scriptUtil"))
             {
                 if (! warned)
                 {

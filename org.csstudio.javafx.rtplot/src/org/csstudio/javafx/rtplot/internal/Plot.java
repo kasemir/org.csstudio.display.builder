@@ -120,15 +120,15 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         plot_area = new PlotPart("main", plot_part_listener);
         legend = new LegendPart<XTYPE>("legend", plot_part_listener);
 
-		if (active)
-		{
-		    setMouseMode(MouseMode.PAN);
-    		setOnMousePressed(this::mouseDown);
-    		setOnMouseMoved(this::mouseMove);
-    		setOnMouseDragged(this::mouseMove);
-    		setOnMouseReleased(this::mouseUp);
-    		setOnMouseExited(this::mouseExit);
-		}
+        if (active)
+        {
+            setMouseMode(MouseMode.PAN);
+            setOnMousePressed(this::mouseDown);
+            setOnMouseMoved(this::mouseMove);
+            setOnMouseDragged(this::mouseMove);
+            setOnMouseReleased(this::mouseUp);
+            setOnMouseExited(this::mouseExit);
+        }
     }
 
     /** @param listener Listener to add */
@@ -304,8 +304,8 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             annotations.add((AnnotationImpl)annotation);
         else
             annotations.add(new AnnotationImpl<XTYPE>(annotation.getTrace(), annotation.getPosition(),
-                                                      annotation.getValue(), annotation.getOffset(),
-                                                      annotation.getText()));
+                    annotation.getValue(), annotation.getOffset(),
+                    annotation.getText()));
         requestUpdate();
         fireAnnotationsChanged();
     }
@@ -322,7 +322,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
      *  @param value New value
      */
     public void updateAnnotation(final AnnotationImpl<XTYPE> annotation, final XTYPE position, final double value,
-                                 final Point2D offset)
+            final Point2D offset)
     {
         annotation.setLocation(position, value);
         annotation.setOffset(offset);
@@ -451,7 +451,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         final BufferedImage image = new BufferedImage(area_copy.width, area_copy.height, BufferedImage.TYPE_INT_ARGB);
         final Graphics2D gc = image.createGraphics();
 
-        gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         gc.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
         gc.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
         gc.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
@@ -632,8 +632,8 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             if (anno.getSelection() == AnnotationImpl.Selection.Body)
             {
                 anno.setOffset(
-                    new Point2D((int)(mouse_annotation_start_offset.getX() + current.getX() - start.getX()),
-                    		    (int)(mouse_annotation_start_offset.getY() + current.getY() - start.getY())));
+                        new Point2D((int)(mouse_annotation_start_offset.getX() + current.getX() - start.getX()),
+                                (int)(mouse_annotation_start_offset.getY() + current.getY() - start.getY())));
                 requestUpdate();
                 fireAnnotationsChanged();
             }
@@ -734,8 +734,8 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         {   // X axis increases going _right_ just like mouse 'x' coordinate
             if (Math.abs(start.getX() - current.getX()) > ZOOM_PIXEL_THRESHOLD)
             {
-            	final int low = (int) Math.min(start.getX(), current.getX());
-            	final int high = (int) Math.max(start.getX(), current.getX());
+                final int low = (int) Math.min(start.getX(), current.getX());
+                final int high = (int) Math.max(start.getX(), current.getX());
                 final AxisRange<XTYPE> original_x_range = x_axis.getValueRange();
                 final AxisRange<XTYPE> new_x_range = new AxisRange<>(x_axis.getValue(low), x_axis.getValue(high));
                 undo.execute(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_In_X, x_axis, original_x_range, new_x_range));
@@ -759,7 +759,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         else if (mouse_mode == MouseMode.ZOOM_IN_PLOT)
         {
             if (Math.abs(start.getX() - current.getX()) > ZOOM_PIXEL_THRESHOLD  ||
-                Math.abs(start.getY() - current.getY()) > ZOOM_PIXEL_THRESHOLD)
+                    Math.abs(start.getY() - current.getY()) > ZOOM_PIXEL_THRESHOLD)
             {   // X axis increases going _right_ just like mouse 'x' coordinate
                 int low = (int) Math.min(start.getX(), current.getX());
                 int high = (int) Math.max(start.getX(), current.getX());
@@ -804,13 +804,13 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             fireXAxisChange();
             // .. and Y axes
             final List<AxisRange<Double>> old_range = new ArrayList<>(y_axes.size()),
-                                          new_range = new ArrayList<>(y_axes.size());
+                    new_range = new ArrayList<>(y_axes.size());
             for (YAxisImpl<XTYPE> axis : y_axes)
             {
-                  old_range.add(axis.getValueRange());
-                  axis.zoom((int)y, factor);
-                  new_range.add(axis.getValueRange());
-                  fireYAxisChange(axis);
+                old_range.add(axis.getValueRange());
+                axis.zoom((int)y, factor);
+                new_range.add(axis.getValueRange());
+                fireYAxisChange(axis);
             }
             undo.execute(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_Out,
                     x_axis, orig_x, x_axis.getValueRange(), y_axes, old_range, new_range));

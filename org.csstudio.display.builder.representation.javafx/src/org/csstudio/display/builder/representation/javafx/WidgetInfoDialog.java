@@ -80,6 +80,9 @@ public class WidgetInfoDialog extends Dialog<Boolean>
         }
         final TabPane tabs = new TabPane(createProperties(widget), createPVs(pvs), createMacros(widget.getEffectiveMacros()));
         tabs.getTabs().forEach(tab -> tab.setClosable(false));
+        // If there are PVs, default to the "PVs" tab
+        if (pvs.size() > 0)
+            tabs.getSelectionModel().select(1);
 
         getDialogPane().setContent(tabs);
         getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE);

@@ -53,23 +53,10 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         return pane;
     }
 
-    private RadioButton createRadioButton(String text)
+    private RadioButton createRadioButton(final String text)
     {
         final RadioButton rb = new RadioButton(text);
         rb.setToggleGroup(toggle);
-        //mouse event handling is consistent with JFXBaseRepresentation
-        if (toolkit.isEditMode())
-            rb.setOnMousePressed((event) ->
-            {
-                event.consume();
-                toolkit.fireClick(model_widget, event.isControlDown());
-            });
-        else
-            rb.setOnContextMenuRequested((event) ->
-            {
-                event.consume();
-                toolkit.fireContextMenu(model_widget);
-            });
         return rb;
     }
 
@@ -94,7 +81,7 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
         contentChanged(null, null, null);
     }
 
-    private void valueChanged(ObservableValue<? extends Toggle> obs, Toggle oldval, Toggle newval)
+    private void valueChanged(final ObservableValue<? extends Toggle> obs, final Toggle oldval, final Toggle newval)
     {
         if (!active && newval != null)
         {
@@ -105,7 +92,8 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
                 Object value = FormatOptionHandler.parse(model_widget.runtimePropValue().getValue(),
                         ((RadioButton) newval).getText());
                 toolkit.fireWrite(model_widget, value);
-            } finally
+            }
+            finally
             {
                 active = false;
             }

@@ -4,13 +4,13 @@
   <macros>
     <groupname>MacroGroupName</groupname>
   </macros>
-  <x>-1</x>
-  <y>-1</y>
+  <width>1200</width>
+  <height>1000</height>
   <widget type="label" version="2.0.0">
     <name>Label</name>
+    <text>Embedded Display Widget</text>
     <width>311</width>
     <height>31</height>
-    <text>Embedded Display Widget</text>
     <font>
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
@@ -18,9 +18,6 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
-    <y>41</y>
-    <width>521</width>
-    <height>146</height>
     <text>Displays another *.bob file inside a widget.
 This widget is a 'container' that hosts another *.bob file as its 'content'.
 By default, both the container and its content remain their original size.
@@ -28,9 +25,13 @@ The container provides scroll bars when the content is too large.
 Alternatively, the content can be resized to match the container,
 or the container can resize to match the content, but these options
 are always a compromise that often results in inconsistent widget sizes.</text>
+    <y>41</y>
+    <width>521</width>
+    <height>146</height>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded</name>
+    <file>embedded.bob</file>
     <macros>
       <X>No resize</X>
     </macros>
@@ -38,15 +39,14 @@ are always a compromise that often results in inconsistent widget sizes.</text>
     <y>217</y>
     <width>140</width>
     <height>140</height>
-    <file>embedded.bob</file>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
+    <text>Scrollbars</text>
     <x>1</x>
     <y>187</y>
     <width>80</width>
     <height>26</height>
-    <text>Scrollbars</text>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -58,6 +58,7 @@ are always a compromise that often results in inconsistent widget sizes.</text>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded</name>
+    <file>embedded.bob</file>
     <macros>
       <X>Content shrinks</X>
     </macros>
@@ -65,16 +66,15 @@ are always a compromise that often results in inconsistent widget sizes.</text>
     <y>217</y>
     <width>140</width>
     <height>140</height>
-    <file>embedded.bob</file>
     <resize>1</resize>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
+    <text>Resize content</text>
     <x>181</x>
     <y>187</y>
     <width>103</width>
     <height>26</height>
-    <text>Resize content</text>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -86,23 +86,23 @@ are always a compromise that often results in inconsistent widget sizes.</text>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded</name>
+    <file>embedded.bob</file>
     <macros>
       <X>Widget grows</X>
     </macros>
     <x>361</x>
     <y>217</y>
-    <width>140</width>
-    <height>140</height>
-    <file>embedded.bob</file>
+    <width>180</width>
+    <height>180</height>
     <resize>2</resize>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
+    <text>Size to content</text>
     <x>361</x>
     <y>187</y>
     <width>103</width>
     <height>26</height>
-    <text>Size to content</text>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -114,24 +114,25 @@ are always a compromise that often results in inconsistent widget sizes.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
+    <text>A typical use case defines, for example, a macro-based "Motor" display,
+then shows several motors via the Embedded Display Widget:</text>
     <y>431</y>
     <width>511</width>
     <height>50</height>
-    <text>A typical use case defines, for example, a macro-based "Motor" display,
-then shows several motors via the Embedded Display Widget:</text>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded Display_1</name>
+    <file>motor.bob</file>
     <macros>
       <M>XPos</M>
     </macros>
     <y>481</y>
     <width>320</width>
     <height>210</height>
-    <file>motor.bob</file>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded Display_1</name>
+    <file>motor.bob</file>
     <macros>
       <M>YPos</M>
     </macros>
@@ -139,20 +140,19 @@ then shows several motors via the Embedded Display Widget:</text>
     <y>481</y>
     <width>320</width>
     <height>210</height>
-    <file>motor.bob</file>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
-    <y>701</y>
-    <width>431</width>
-    <height>100</height>
     <text>The content of the embedded display widget,
 i.e. the file to display, can be modified at runtime.
 This example updates the display file name from a script.</text>
+    <y>701</y>
+    <width>431</width>
+    <height>100</height>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded Display</name>
-    <y>801</y>
+    <y>770</y>
     <width>320</width>
     <height>210</height>
     <scripts>
@@ -163,6 +163,7 @@ This example updates the display file name from a script.</text>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>group_name_ex_1</name>
+    <file>template.bob</file>
     <macros>
       <pv_name>sim://sine</pv_name>
     </macros>
@@ -170,20 +171,20 @@ This example updates the display file name from a script.</text>
     <y>481</y>
     <width>160</width>
     <height>220</height>
-    <file>template.bob</file>
     <group_name>Group1</group_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
+    <text>Another case uses the "group_name" property to show parts of some larger
+template or master display, possibly setting different macros.</text>
     <x>651</x>
     <y>431</y>
     <width>511</width>
     <height>50</height>
-    <text>Another case uses the "group_name" property to show parts of some larger
-template or master display, possibly setting different macros.</text>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>group_name_ex_2</name>
+    <file>template.bob</file>
     <macros>
       <pv_name>sim://sine</pv_name>
     </macros>
@@ -191,11 +192,11 @@ template or master display, possibly setting different macros.</text>
     <y>481</y>
     <width>160</width>
     <height>220</height>
-    <file>template.bob</file>
     <group_name>Group2</group_name>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>group_name_ex_3</name>
+    <file>template.bob</file>
     <macros>
       <pv_name>sim://ramp(1,5,.5)</pv_name>
     </macros>
@@ -203,11 +204,11 @@ template or master display, possibly setting different macros.</text>
     <y>481</y>
     <width>160</width>
     <height>220</height>
-    <file>template.bob</file>
     <group_name>Group1</group_name>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>group_name_ex_4</name>
+    <file>template.bob</file>
     <macros>
       <pv_name>sim://ramp(1,5,.5)</pv_name>
     </macros>
@@ -215,7 +216,6 @@ template or master display, possibly setting different macros.</text>
     <y>701</y>
     <width>170</width>
     <height>220</height>
-    <file>template.bob</file>
     <group_name>$(groupname)</group_name>
   </widget>
 </display>

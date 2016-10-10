@@ -24,6 +24,7 @@ import javafx.scene.text.Font;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class CommonFonts
 {
     private final static String[] fonts = new String[]

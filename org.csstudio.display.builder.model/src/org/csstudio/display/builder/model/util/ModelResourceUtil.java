@@ -380,6 +380,11 @@ public class ModelResourceUtil extends ResourceUtil
      */
     public static InputStream openResourceStream(final String resource_name) throws Exception
     {
+//        {   // Artificial delay to simulate slow file access (1..5 seconds)
+//            final long milli = Math.round(1000 + Math.random()*4000);
+//            Thread.sleep(milli);
+//        }
+
         if (resource_name.startsWith("platform:"))
             return openPlatformResource(resource_name);
 

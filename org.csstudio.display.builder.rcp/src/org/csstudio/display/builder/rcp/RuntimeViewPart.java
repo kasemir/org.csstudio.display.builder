@@ -18,6 +18,7 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.rcp.run.ContextMenuSupport;
 import org.csstudio.display.builder.rcp.run.DisplayNavigation;
 import org.csstudio.display.builder.rcp.run.NavigationAction;
@@ -275,10 +276,14 @@ public class RuntimeViewPart extends ViewPart
         representation.execute(() ->
         {
             final Rectangle bounds = fx_canvas.getBounds();
-
             final TextArea text = new TextArea(message);
             text.setEditable(false);
-            text.setPrefSize(bounds.width, bounds.height);
+            // Try to fill the view.
+            // Use default if layout has not happened on new view.
+            if (bounds.isEmpty())
+                text.setPrefSize(1000, 800);
+            else
+                text.setPrefSize(bounds.width, bounds.height);
 
             JFXRepresentation.getChildren(root).setAll(text);
         });
@@ -328,7 +333,7 @@ public class RuntimeViewPart extends ViewPart
     {
         try
         {
-            final DisplayModel model = RuntimeUtil.loadModel(null, info.getPath());
+            final DisplayModel model = ModelLoader.loadModel(null, info.getPath());
 
             // This code is called
             // 1) From OpenDisplayAction

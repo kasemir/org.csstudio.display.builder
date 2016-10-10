@@ -67,6 +67,7 @@ public class XYPlotWidgetRuntime  extends WidgetRuntime<XYPlotWidget>
         {
             bind(trace.traceXPV(), trace.traceXValue());
             bind(trace.traceYPV(), trace.traceYValue());
+            bind(trace.traceErrorPV(), trace.traceErrorValue());
         }
     }
 

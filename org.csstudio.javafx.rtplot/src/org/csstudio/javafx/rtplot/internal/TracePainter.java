@@ -7,11 +7,14 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Stroke;
+import java.util.logging.Level;
 
 import org.csstudio.javafx.rtplot.PointType;
 import org.csstudio.javafx.rtplot.Trace;
@@ -26,6 +29,7 @@ import org.csstudio.javafx.rtplot.internal.util.ScreenTransform;
  *  @param <XTYPE> Data type of horizontal {@link Axis}
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class TracePainter<XTYPE extends Comparable<XTYPE>>
 {
     // Implementation notes:
@@ -73,8 +77,8 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
      *  @param trace Trace, has reference to its value axis
      */
     final public void paint(final Graphics2D gc, final Rectangle bounds,
-                            final ScreenTransform<XTYPE> x_transform, final YAxisImpl<XTYPE> y_axis,
-                            final Trace<XTYPE> trace)
+            final ScreenTransform<XTYPE> x_transform, final YAxisImpl<XTYPE> y_axis,
+            final Trace<XTYPE> trace)
     {
         x_min = bounds.x - OUTSIDE;
         x_max = bounds.x + bounds.width + OUTSIDE;
@@ -86,7 +90,10 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
         final Stroke old_width = gc.getStroke();
 
         final Color color = GraphicsUtils.convert(trace.getColor());
-        gc.setBackground(color);
+        final float fr = (float) (color.getRed() / 255.0);
+        final float fg = (float) (color.getGreen() / 255.0);
+        final float fb = (float) (color.getBlue() / 255.0);
+        final Color tpcolor = new Color(fr, fg, fb, (float) 0.2);
         gc.setColor(color);
 
         // TODO Optimize drawing
@@ -103,45 +110,58 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
         try
         {
             final TraceType type = trace.getType();
+            logger.log(Level.ALL, "Painting trace type " + type.toString());
+
             switch (type)
             {
-            // TODO
-//            case NONE:
-//                break;
-//            case AREA:
-//                gc.setAlpha(50);
-//                drawMinMaxArea(gc, x_transform, y_axis, data);
-//                gc.setAlpha(255);
-//                drawStdDevLines(gc, x_transform, y_axis, data, trace.getWidth());
-//                drawValueStaircase(gc, x_transform, y_axis, data, trace.getWidth());
-//                break;
-//            case AREA_DIRECT:
-//                gc.setAlpha(50);
-//                drawMinMaxArea(gc, x_transform, y_axis, data);
-//                gc.setAlpha(255);
-//                drawStdDevLines(gc, x_transform, y_axis, data, trace.getWidth());
-//                drawValueLines(gc, x_transform, y_axis, data, trace.getWidth());
-//                break;
-//            case LINES:
-//                drawMinMaxLines(gc, x_transform, y_axis, data, trace.getWidth());
-//                gc.setAlpha(50);
-//                drawStdDevLines(gc, x_transform, y_axis, data, trace.getWidth());
-//                gc.setAlpha(255);
-//                drawValueStaircase(gc, x_transform, y_axis, data, trace.getWidth());
-//                break;
-//            case LINES_DIRECT:
-//                drawMinMaxLines(gc, x_transform, y_axis, data, trace.getWidth());
-//                gc.setAlpha(50);
-//                drawStdDevLines(gc, x_transform, y_axis, data, trace.getWidth());
-//                gc.setAlpha(255);
-//                drawValueLines(gc, x_transform, y_axis, data, trace.getWidth());
-//                break;
-//            case SINGLE_LINE:
-//                drawValueStaircase(gc, x_transform, y_axis, data, trace.getWidth());
-//                break;
-//            case SINGLE_LINE_DIRECT:
-//                drawValueLines(gc, x_transform, y_axis, data, trace.getWidth());
-//                break;
+            case NONE:
+                break;
+            case AREA:
+                gc.setPaint(tpcolor);
+                drawMinMaxArea(gc, x_transform, y_axis, data);
+                gc.setPaint(color);
+                drawStdDevLines(gc, x_transform, y_axis, data, trace.getWidth());
+                drawValueStaircase(gc, x_transform, y_axis, data, trace.getWidth());
+                break;
+            case AREA_DIRECT:
+                gc.setPaint(tpcolor);
+                drawMinMaxArea(gc, x_transform, y_axis, data);
+                gc.setPaint(color);
+                drawStdDevLines(gc, x_transform, y_axis, data, trace.getWidth());
+                drawValueLines(gc, x_transform, y_axis, data, trace.getWidth());
+                break;
+            case LINES:
+                drawMinMaxLines(gc, x_transform, y_axis, data, trace.getWidth());
+                gc.setPaint(tpcolor);
+                drawStdDevLines(gc, x_transform, y_axis, data, trace.getWidth());
+                gc.setPaint(color);
+                drawValueStaircase(gc, x_transform, y_axis, data, trace.getWidth());
+                break;
+            case LINES_DIRECT:
+                drawMinMaxLines(gc, x_transform, y_axis, data, trace.getWidth());
+                gc.setPaint(tpcolor);
+                drawStdDevLines(gc, x_transform, y_axis, data, trace.getWidth());
+                gc.setPaint(color);
+                drawValueLines(gc, x_transform, y_axis, data, trace.getWidth());
+                break;
+            case SINGLE_LINE:
+                drawValueStaircase(gc, x_transform, y_axis, data, trace.getWidth());
+                break;
+            case SINGLE_LINE_DIRECT:
+                drawValueLines(gc, x_transform, y_axis, data, trace.getWidth());
+                break;
+            case LINES_ERROR_BARS:
+                drawErrorBars(gc, x_transform, y_axis, data, trace.getPointSize());
+                drawValueLines(gc, x_transform, y_axis, data, trace.getWidth());
+                break;
+            case ERROR_BARS:
+                // Compare error bars to area and min/max lines
+                // gc.setPaint(tpcolor);
+                // drawMinMaxArea(gc, x_transform, y_axis, data);
+                // gc.setPaint(color);
+                // drawMinMaxLines(gc, x_transform, y_axis, data, trace.getWidth());
+                drawErrorBars(gc, x_transform, y_axis, data, trace.getPointSize());
+                break;
             default:
                 drawValueStaircase(gc, x_transform, y_axis, data, trace.getWidth());
             }
@@ -211,34 +231,73 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
      *  @param data Data
      *  @param line_width
      */
-//    final private void drawValueLines(final GC gc,
-//            final ScreenTransform<XTYPE> x_transform, final YAxisImpl<XTYPE> y_axis,
-//            final PlotDataProvider<XTYPE> data, final int line_width)
-//    {
-//        final IntList value_poly = new IntList(INITIAL_ARRAY_SIZE);
-//        final int N = data.size();
-//        gc.setLineWidth(line_width);
-//        int last_x = -1, last_y = -1;
-//        for (int i=0; i<N; ++i)
-//        {
-//            final PlotDataItem<XTYPE> item = data.get(i);
-//            final int x = clipX(Math.round(x_transform.transform(item.getPosition())));
-//            final double value = item.getValue();
-//            if (Double.isNaN(value))
-//                flushPolyLine(gc, value_poly, line_width);
-//            else
-//            {
-//                final int y = clipY(y_axis.getScreenCoord(value));
-//                if (x == last_x  &&  y == last_y)
-//                    continue;
-//                value_poly.add(x);
-//                value_poly.add(y);
-//                last_x = x;
-//                last_y = y;
-//            }
-//        }
-//        flushPolyLine(gc, value_poly, line_width);
-//    }
+    final private void drawValueLines(final Graphics2D gc,
+            final ScreenTransform<XTYPE> x_transform, final YAxisImpl<XTYPE> y_axis,
+            final PlotDataProvider<XTYPE> data, final int line_width)
+    {
+        final IntList value_poly_x = new IntList(INITIAL_ARRAY_SIZE);
+        final IntList value_poly_y = new IntList(INITIAL_ARRAY_SIZE);
+        final int N = data.size();
+
+        gc.setStroke(new BasicStroke(line_width));
+        int last_x = -1, last_y = -1;
+        for (int i=0; i<N; ++i)
+        {
+            final PlotDataItem<XTYPE> item = data.get(i);
+            final int x = clipX(Math.round(x_transform.transform(item.getPosition())));
+            final double value = item.getValue();
+            if (Double.isNaN(value))
+                flushPolyLine(gc, value_poly_x, value_poly_y, line_width);
+            else
+            {
+                final int y = clipY(y_axis.getScreenCoord(value));
+                if (x == last_x  &&  y == last_y)
+                    continue;
+                value_poly_x.add(x);
+                value_poly_y.add(y);
+                last_x = x;
+                last_y = y;
+            }
+        }
+        flushPolyLine(gc, value_poly_x, value_poly_y, line_width);
+    }
+
+    /** Draw min/max outline
+     *  @param graphics2D GC
+     *  @param x_transform Horizontal axis
+     *  @param y_axis Value axis
+     *  @param data Data
+     */
+    final private void drawMinMaxArea(final Graphics2D gc,
+            final ScreenTransform<XTYPE> x_transform, final YAxisImpl<XTYPE> y_axis,
+            final PlotDataProvider<XTYPE> data)
+    {
+        final int N = data.size();
+        // Assume N, might use less because end up with sections
+        // separated by Double.NaN
+        final IntList pos = new IntList(N);
+        final IntList min = new IntList(N);
+        final IntList max = new IntList(N);
+
+        for (int i = 0;  i < N;  ++i)
+        {
+            final PlotDataItem<XTYPE> item = data.get(i);
+            double ymin = item.getMin();
+            double ymax = item.getMax();
+            if (Double.isNaN(ymin)  ||  Double.isNaN(ymax))
+                flushPolyFill(gc, pos, min, max);
+            else
+            {
+                final int x1 = clipX(x_transform.transform(item.getPosition()));
+                final int y1min = clipY(y_axis.getScreenCoord(ymin));
+                final int y1max = clipY(y_axis.getScreenCoord(ymax));
+                pos.add(x1);
+                min.add(y1min);
+                max.add(y1max);
+            }
+        }
+        flushPolyFill(gc, pos, min, max);
+    }
 
     /** Draw min/max outline
      *  @param gc GC
@@ -246,71 +305,38 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
      *  @param y_axis Value axis
      *  @param data Data
      */
-//    final private void drawMinMaxArea(final Graphics2D gc,
-//            final ScreenTransform<XTYPE> x_transform, final YAxisImpl<XTYPE> y_axis,
-//            final PlotDataProvider<XTYPE> data)
-//    {
-//        final IntList pos = new IntList(INITIAL_ARRAY_SIZE);
-//        final IntList min = new IntList(INITIAL_ARRAY_SIZE);
-//        final IntList max = new IntList(INITIAL_ARRAY_SIZE);
-//
-//        final int N = data.size();
-//        for (int i = 0;  i < N;  ++i)
-//        {
-//            final PlotDataItem<XTYPE> item = data.get(i);
-//            double ymin = item.getMin();
-//            double ymax = item.getMax();
-//            if (Double.isNaN(ymin)  ||  Double.isNaN(ymax))
-//                flushPolyFill(gc, pos, min, max);
-//            else
-//            {
-//                final int x1 = clipX(x_transform.transform(item.getPosition()));
-//                final int y1min = clipY(y_axis.getScreenCoord(ymin));
-//                final int y1max = clipY(y_axis.getScreenCoord(ymax));
-//                pos.add(x1);
-//                min.add(y1min);
-//                max.add(y1max);
-//            }
-//        }
-//        flushPolyFill(gc, pos, min, max);
-//    }
+    final private void drawMinMaxLines(final Graphics2D gc,
+            final ScreenTransform<XTYPE> x_transform, final YAxisImpl<XTYPE> y_axis,
+            final PlotDataProvider<XTYPE> data, final int line_width)
+    {
+        final IntList min_x = new IntList(INITIAL_ARRAY_SIZE);
+        final IntList max_x = new IntList(INITIAL_ARRAY_SIZE);
+        final IntList min_y = new IntList(INITIAL_ARRAY_SIZE);
+        final IntList max_y = new IntList(INITIAL_ARRAY_SIZE);
 
-    /** Draw min/max outline
-     *  @param gc GC
-     *  @param x_transform Horizontal axis
-     *  @param y_axis Value axis
-     *  @param data Data
-     */
-//    final private void drawMinMaxLines(final Graphics2D gc,
-//            final ScreenTransform<XTYPE> x_transform, final YAxisImpl<XTYPE> y_axis,
-//            final PlotDataProvider<XTYPE> data, final int line_width)
-//    {
-//        final IntList min = new IntList(INITIAL_ARRAY_SIZE);
-//        final IntList max = new IntList(INITIAL_ARRAY_SIZE);
-//
-//        final int N = data.size();
-//        for (int i = 0;  i < N;  ++i)
-//        {
-//            final PlotDataItem<XTYPE> item = data.get(i);
-//            double ymin = item.getMin();
-//            double ymax = item.getMax();
-//            if (Double.isNaN(ymin)  ||  Double.isNaN(ymax))
-//            {
-//                flushPolyLine(gc, min, line_width);
-//                flushPolyLine(gc, max, line_width);
-//            }
-//            else
-//            {
-//                final int x1 = clipX(x_transform.transform(item.getPosition()));
-//                final int y1min = clipY(y_axis.getScreenCoord(ymin));
-//                final int y1max = clipY(y_axis.getScreenCoord(ymax));
-//                min.add(x1);   min.add(y1min);
-//                max.add(x1);   max.add(y1max);
-//            }
-//        }
-//        flushPolyLine(gc, min, line_width);
-//        flushPolyLine(gc, max, line_width);
-//    }
+        final int N = data.size();
+        for (int i = 0;  i < N;  ++i)
+        {
+            final PlotDataItem<XTYPE> item = data.get(i);
+            double ymin = item.getMin();
+            double ymax = item.getMax();
+            if (Double.isNaN(ymin)  ||  Double.isNaN(ymax))
+            {
+                flushPolyLine(gc, min_x, min_y, line_width);
+                flushPolyLine(gc, max_x, max_y, line_width);
+            }
+            else
+            {
+                final int x1 = clipX(x_transform.transform(item.getPosition()));
+                final int y1min = clipY(y_axis.getScreenCoord(ymin));
+                final int y1max = clipY(y_axis.getScreenCoord(ymax));
+                min_x.add(x1);   min_y.add(y1min);
+                max_x.add(x1);   max_y.add(y1max);
+            }
+        }
+        flushPolyLine(gc, min_x, min_y, line_width);
+        flushPolyLine(gc, max_x, max_y, line_width);
+    }
 
     /** Draw std. deviation outline
      *  @param gc GC
@@ -319,35 +345,37 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
      *  @param data Data
      *  @param line_width
      */
-//    final private void drawStdDevLines(final Graphics2D gc, final ScreenTransform<XTYPE> x_transform, final YAxisImpl<XTYPE> y_axis,
-//            final PlotDataProvider<XTYPE> data, final int line_width)
-//    {
-//        final IntList lower_poly = new IntList(INITIAL_ARRAY_SIZE);
-//        final IntList upper_poly = new IntList(INITIAL_ARRAY_SIZE);
-//
-//        final int N = data.size();
-//        for (int i = 0;  i < N;  ++i)
-//        {
-//            final PlotDataItem<XTYPE> item = data.get(i);
-//            double value = item.getValue();
-//            double dev = item.getStdDev();
-//            if (Double.isNaN(value) ||  ! (dev > 0))
-//            {
-//                flushPolyLine(gc, lower_poly, line_width);
-//                flushPolyLine(gc, upper_poly, line_width);
-//            }
-//            else
-//            {
-//                final int x = clipX(x_transform.transform(item.getPosition()));
-//                final int low_y = clipY(y_axis.getScreenCoord(value - dev));
-//                final int upp_y = clipY(y_axis.getScreenCoord(value + dev));
-//                lower_poly.add(x);  lower_poly.add(low_y);
-//                upper_poly.add(x);  upper_poly.add(upp_y);
-//            }
-//        }
-//        flushPolyLine(gc, lower_poly, line_width);
-//        flushPolyLine(gc, upper_poly, line_width);
-//    }
+    final private void drawStdDevLines(final Graphics2D gc, final ScreenTransform<XTYPE> x_transform, final YAxisImpl<XTYPE> y_axis,
+            final PlotDataProvider<XTYPE> data, final int line_width)
+    {
+        final IntList lower_poly_y = new IntList(INITIAL_ARRAY_SIZE);
+        final IntList upper_poly_y = new IntList(INITIAL_ARRAY_SIZE);
+        final IntList lower_poly_x = new IntList(INITIAL_ARRAY_SIZE);
+        final IntList upper_poly_x = new IntList(INITIAL_ARRAY_SIZE);
+
+        final int N = data.size();
+        for (int i = 0;  i < N;  ++i)
+        {
+            final PlotDataItem<XTYPE> item = data.get(i);
+            double value = item.getValue();
+            double dev = item.getStdDev();
+            if (Double.isNaN(value) ||  ! (dev > 0))
+            {
+                flushPolyLine(gc, lower_poly_x, lower_poly_y, line_width);
+                flushPolyLine(gc, upper_poly_x, upper_poly_y, line_width);
+            }
+            else
+            {
+                final int x = clipX(x_transform.transform(item.getPosition()));
+                final int low_y = clipY(y_axis.getScreenCoord(value - dev));
+                final int upp_y = clipY(y_axis.getScreenCoord(value + dev));
+                lower_poly_x.add(x);  lower_poly_y.add(low_y);
+                upper_poly_x.add(x);  upper_poly_y.add(upp_y);
+            }
+        }
+        flushPolyLine(gc, lower_poly_x, lower_poly_y, line_width);
+        flushPolyLine(gc, upper_poly_x, upper_poly_y, line_width);
+    }
 
     /** @param gc GC
      *  @param poly Points of poly line, will be cleared
@@ -364,7 +392,45 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
         poly_y.clear();
     }
 
-    /** Draw values of data as direct line
+    /** Draw error bar for each value
+     *  @param gc GC
+     *  @param x_transform Horizontal axis
+     *  @param y_axis Value axis
+     *  @param data Data
+     *  @param size
+     */
+    final private void drawErrorBars(final Graphics2D gc,
+            final ScreenTransform<XTYPE> x_transform, final YAxisImpl<XTYPE> y_axis,
+            final PlotDataProvider<XTYPE> data, final int size)
+    {
+        final int N = data.size();
+        for (int i=0; i<N; ++i)
+        {
+            final PlotDataItem<XTYPE> item = data.get(i);
+            final int x = clipX(Math.round(x_transform.transform(item.getPosition())));
+            final double value = item.getValue();
+            if (!Double.isNaN(value))
+            {
+                final int y = clipY(y_axis.getScreenCoord(value));
+                final double min = item.getMin();
+                if (!Double.isNaN(min))
+                {
+                    final int ym = clipY(y_axis.getScreenCoord(min));
+                    gc.drawLine(x, y, x, ym);
+                    gc.drawLine(x-size/2, ym, x+size/2, ym);
+                }
+                final double max = item.getMax();
+                if (!Double.isNaN(max))
+                {
+                    final int ym = clipY(y_axis.getScreenCoord(max));
+                    gc.drawLine(x, y, x, ym);
+                    gc.drawLine(x-size/2, ym, x+size/2, ym);
+                }
+            }
+        }
+    }
+
+    /** Draw point for each value
      *  @param gc GC
      *  @param x_transform Horizontal axis
      *  @param y_axis Value axis
@@ -395,7 +461,7 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
                     break;
                 case DIAMONDS:
                     gc.fillPolygon(new int[] { x,        x+size/2, x,        x-size/2     },
-                                   new int[] { y-size/2, y,        y+size/2, y            }, 4);
+                            new int[] { y-size/2, y,        y+size/2, y            }, 4);
                     break;
                 case XMARKS:
                     gc.drawLine(x-size/2, y-size/2, x+size/2, y+size/2);
@@ -403,7 +469,7 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
                     break;
                 case TRIANGLES:
                     gc.fillPolygon(new int[] { x,        x+size/2, x-size/2 },
-                                   new int[] { y-size/2, y+size/2, y+size/2 }, 3);
+                            new int[] { y-size/2, y+size/2, y+size/2 }, 3);
                     break;
                 case CIRCLES:
                 default:
@@ -431,60 +497,31 @@ public class TracePainter<XTYPE extends Comparable<XTYPE>>
      *  @param min Minimum 'y' values in screen coords
      *  @param max .. maximum
      */
-//    @SuppressWarnings("unused")
-//    final private void flushPolyFill(final Graphics2D gc, final IntList pos, final IntList min, final IntList max)
-//    {
-//        final int N = pos.size();
-//        if (N <= 0)
-//            return;
-//
-//        if (true)
-//        {
-//            // 'direct' outline, point-to-point
-//            // Turn pos/min/max into array required by fillPolygon:
-//            // pos[0], min[0], pos[1], min[1], ..., pos[N-1], max[N-1], pos[N], max[N]
-//            final int N4 = N * 4;
-//            final int points[] = new int[N4];
-//            int head = 0, tail = N4;
-//            for (int i=0; i<N; ++i)
-//            {
-//                points[head++] = pos.get(i);
-//                points[head++] = min.get(i);
-//                points[--tail] = max.get(i);
-//                points[--tail] = pos.get(i);
-//            }
-//            gc.fillPolygon(points);
-//        }
-//        else
-//        {
-//            // 'staircase' outline
-//            final int points[] = new int[8*N-4];
-//
-//            int p = 0;
-//            points[p++] = pos.get(0);
-//            int ly = points[p++] = min.get(0);
-//            for (int i=1; i<N; ++i)
-//            {
-//                points[p++] = pos.get(i);
-//                points[p++] = ly;
-//                points[p++] = pos.get(i);
-//                ly = points[p++] = min.get(i);
-//            }
-//
-//            int lx = points[p++] = pos.get(N-1);
-//            points[p++] = max.get(N-1);
-//            for (int i=N-2; i>=0; --i)
-//            {
-//                points[p++] = lx;
-//                points[p++] = max.get(i);
-//                lx = points[p++] = pos.get(i);
-//                points[p++] = max.get(i);
-//            }
-//            gc.fillPolygon(points);
-//        }
-//
-//        pos.clear();
-//        min.clear();
-//        max.clear();
-//    }
+    //    @SuppressWarnings("unused")
+    final private void flushPolyFill(final Graphics2D gc, final IntList pos, final IntList min, final IntList max)
+    {
+        final int N = pos.size();
+        if (N <= 0)
+            return;
+
+        // 'direct' outline, point-to-point
+        // Turn pos/min/max into array required by fillPolygon:
+        // First sequence of x[], min[],
+        // then x[], max[i] in reverse.
+        final int N2 = N * 2;
+        final int xpoints[] = new int[N2];
+        final int ypoints[] = new int[N2];
+        int tail = N2-1;
+        for (int i=0; i<N; ++i)
+        {   // i == 'head'
+            xpoints[i] = xpoints[tail] = pos.get(i);
+            ypoints[i] = min.get(i);
+            ypoints[tail--] = max.get(i);
+        }
+        gc.fillPolygon(xpoints, ypoints, N2);
+
+        pos.clear();
+        min.clear();
+        max.clear();
+    }
 }

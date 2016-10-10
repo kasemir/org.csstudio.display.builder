@@ -26,7 +26,9 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.ArcWidget;
@@ -99,6 +101,7 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.RegistryFactory;
 
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Bounds;
@@ -157,6 +160,10 @@ import javafx.scene.shape.Line;
 @SuppressWarnings("nls")
 public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
 {
+    /** Adjustment for scroll body size to prevent scroll bars from being displayed */
+    // XXX Would be good to understand this value instead of 2-by-trial-and-error
+    private static final int SCROLLBAR_ADJUST = 2;
+
     public static final String ACTIVE_MODEL = "_active_model";
 
     /** Zoom to fit display */
@@ -171,7 +178,16 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     /** Width of the grid lines. */
     private static final float GRID_LINE_WIDTH = 0.222F;
 
+    /** Update model size indicators (in edit mode) */
+    private WidgetPropertyListener<Integer> model_size_listener = ( p, o, n ) -> execute( ( ) -> updateModelSizeIndicators());
+
+    /** Update background color, grid */
+    private UntypedWidgetPropertyListener background_listener = ( p, o, n ) -> execute( ( ) -> updateBackground());
+
     private Line horiz_bound, vert_bound;
+    private Group model_parent;
+    private Pane scroll_body;
+    private ScrollPane model_root;
 
     /** Constructor
      *  @param edit_mode Edit mode?
@@ -244,29 +260,36 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         return () -> (WidgetRepresentation<Parent, Node, Widget>) config.createExecutableExtension("class");
     }
 
-    private volatile Pane scroll_body;
-    private volatile ScrollPane model_root;
-    private volatile Group model_parent;
-
-    /**
-     * Create scrollpane etc. for hosting the model
+    /** Create scrollpane etc. for hosting the model
      *
-     * @return ScrollPane
-     * @throws IllegalStateException if had already been called
+     *  @return ScrollPane
+     *  @throws IllegalStateException if had already been called
      */
-    final public ScrollPane createModelRoot ( ) {
-
+    final public ScrollPane createModelRoot ()
+    {
         if ( model_root != null )
             throw new IllegalStateException("Already created model root");
 
         model_parent = new Group();
-        vert_bound = new Line();
-        horiz_bound = new Line();
-        scroll_body = new Pane(model_parent, vert_bound, horiz_bound);
+
+        scroll_body = new Pane(model_parent);
+        if (isEditMode())
+        {
+            horiz_bound = new Line();
+            horiz_bound.getStyleClass().add("display_model_bounds");
+            horiz_bound.setStartX(0);
+            vert_bound = new Line();
+            vert_bound.getStyleClass().add("display_model_bounds");
+            vert_bound.setStartY(0);
+            scroll_body.getChildren().addAll(vert_bound, horiz_bound);
+        }
+
         model_root = new ScrollPane(scroll_body);
+        final InvalidationListener resized = prop -> handleViewportChanges();
+        model_root.widthProperty().addListener(resized);
+        model_root.heightProperty().addListener(resized);
 
         return model_root;
-
     }
 
     /** @see JFXRepresentation#createScene(DisplayModel)
@@ -335,56 +358,94 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         throw new IllegalStateException("Not implemented");
     }
 
-    @Override
-    public void updateDisplaySize()
+    /** Handle changes in on-screen size of this representation */
+    private void handleViewportChanges()
+    {
+        final DisplayModel copy = model;
+        if (copy == null)
+            return;
+
+        final int model_width = copy.propWidth().getValue();
+        final int model_height = copy.propHeight().getValue();
+        final int view_width = (int) model_root.getWidth();
+        final int view_height = (int) model_root.getHeight();
+
+        // If on-screen viewport is larger than model,
+        // grow the scroll_body so that the complete area is
+        // filled with the background color
+        // and - in edit mode - the grid.
+        // If the viewport is smaller, use the model's size
+        // to get appropriate scrollbars.
+        if (view_width >= model_width)
+            scroll_body.setMinWidth(view_width-SCROLLBAR_ADJUST);
+        else
+            scroll_body.setMinWidth(model_width);
+
+        if (view_height >= model_height)
+            scroll_body.setMinHeight(view_height-SCROLLBAR_ADJUST);
+        else
+            scroll_body.setMinHeight(model_height);
+    }
+
+    /** Update lines that indicate model's size in edit mode */
+    private void updateModelSizeIndicators()
     {
         final int width = model.propWidth().getValue();
         final int height = model.propHeight().getValue();
-        scroll_body.setMinWidth(width);
-        scroll_body.setMinHeight(height);
-
-        if (isEditMode())
-        {
-            horiz_bound.setStartY(height - 1);
-            horiz_bound.setEndX(width - 1);
-            horiz_bound.setEndY(height - 1);
-            vert_bound.setStartX(width - 1);
-            vert_bound.setEndY(height - 1);
-            vert_bound.setEndX(width - 1);
-        }
+        horiz_bound.setStartY(height - 1);
+        horiz_bound.setEndX(width - 1);
+        horiz_bound.setEndY(height - 1);
+        vert_bound.setStartX(width - 1);
+        vert_bound.setEndY(height - 1);
+        vert_bound.setEndX(width - 1);
     }
 
     @Override
     public void representModel(final Parent root, final DisplayModel model) throws Exception
     {
-
         root.getProperties().put(ACTIVE_MODEL, model);
         super.representModel(root, model);
 
-        if ( isEditMode() ) {
+        // In edit mode, indicate overall bounds of the top-level model
+        if (model.isTopDisplayModel())
+        {
+            // Listen to model background
+            model.propBackgroundColor().addUntypedPropertyListener(background_listener);
 
-            double h = model.propHeight().getValue().doubleValue();
-            double w = model.propWidth().getValue().doubleValue();
+            if (isEditMode())
+            {
+                // Track display size w/ initial update
+                model.propWidth().addPropertyListener(model_size_listener);
+                model.propHeight().addPropertyListener(model_size_listener);
+                model_size_listener.propertyChanged(null, null, null);
 
-            horiz_bound.getStyleClass().add("display_model_bounds");
-            horiz_bound.setStartX(0);
-            horiz_bound.setStartY(h - 1);
-            horiz_bound.setEndX(w - 1);
-            horiz_bound.setEndY(h - 1);
-
-            vert_bound.getStyleClass().add("display_model_bounds");
-            vert_bound.setStartX(w - 1);
-            vert_bound.setStartY(0);
-            vert_bound.setEndX(w - 1);
-            vert_bound.setEndY(h - 1);
-
+                // Track grid changes w/ initial update
+                model.propGridVisible().addUntypedPropertyListener(background_listener);
+                model.propGridColor().addUntypedPropertyListener(background_listener);
+                model.propGridStepX().addUntypedPropertyListener(background_listener);
+                model.propGridStepY().addUntypedPropertyListener(background_listener);
+            }
+            background_listener.propertyChanged(null, null, null);
         }
-
     }
 
     @Override
     public Parent disposeRepresentation(final DisplayModel model)
     {
+        if (model.isTopDisplayModel())
+        {
+            model.propBackgroundColor().removePropertyListener(background_listener);
+            if (isEditMode())
+            {
+                model.propGridStepY().removePropertyListener(background_listener);
+                model.propGridStepX().removePropertyListener(background_listener);
+                model.propGridColor().removePropertyListener(background_listener);
+                model.propGridVisible().removePropertyListener(background_listener);
+                model.propHeight().removePropertyListener(model_size_listener);
+                model.propWidth().removePropertyListener(model_size_listener);
+            }
+        }
+
         final Parent root = super.disposeRepresentation(model);
         root.getProperties().remove(ACTIVE_MODEL);
         return root;
@@ -539,14 +600,35 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         return null;
     }
 
-    @Override
-    protected void updateBackground()
+    /** Update background, using background color and grid information from model */
+    private void updateBackground()
     {
         final WidgetColor background = model.propBackgroundColor().getValue();
-        if (isEditMode())
-            model_root.setStyle("-fx-background: linear-gradient(from 0px 0px to 10px 10px, reflect, #D2A2A2 48%, #D2A2A2 2%, #D2D2A2 48% #D2D2A2 2%)");
-        else
-            model_root.setStyle("-fx-background: " + JFXUtil.webRGB(background));
+
+        // Setting the "-fx-background:" of the root node propagates
+        // to all child nodes in the scene graph.
+        //
+        //        if (isEditMode())
+        //            model_root.setStyle("-fx-background: linear-gradient(from 0px 0px to 10px 10px, reflect, #D2A2A2 48%, #D2A2A2 2%, #D2D2A2 48% #D2D2A2 2%)");
+        //        else
+        //            model_root.setStyle("-fx-background: " + JFXUtil.webRGB(background));
+        //
+        // In edit mode, this results in error messages because the linear-gradient doesn't "work" for all nodes:
+        //
+        // javafx.scene.CssStyleHelper (calculateValue)
+        // Caught java.lang.ClassCastException: javafx.scene.paint.LinearGradient cannot be cast to javafx.scene.paint.Color
+        // while converting value for
+        // '-fx-background-color' from rule '*.text-input' in stylesheet ..jfxrt.jar!/com/sun/javafx/scene/control/skin/modena/modena.bss
+        // '-fx-effect' from rule '*.scroll-bar:vertical>*.increment-button>*.increment-arrow' in StyleSheet ...  jfxrt.jar!/com/sun/javafx/scene/control/skin/modena/modena.bss
+        // '-fx-effect' from rule '*.scroll-bar:vertical>*.decrement-button>*.decrement-arrow' in stylesheet ... modena.bss
+        // '-fx-effect' from rule '*.scroll-bar:horizontal>*.increment-button>*.increment-arrow' in stylesheet ... modena.bss
+        //
+        // In the runtime, the background color style is applied to for example the TextEntryRepresentation,
+        // overriding its jfx_node.setBackground(..) setting.
+
+        // Setting just the scroll body background to a plain color or grid image provides basic color control.
+        // In edit mode, the horiz_bound, vert_bound lines and grid provide sufficient
+        // visual indication of the display size.
 
         final Color backgroundColor = new Color(background.getRed(), background.getGreen(), background.getBlue());
 

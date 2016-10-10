@@ -21,8 +21,6 @@ import org.csstudio.javafx.StringTable;
 import org.csstudio.javafx.StringTableListener;
 import org.diirt.vtype.VTable;
 
-import javafx.scene.input.MouseEvent;
-
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
  */
@@ -78,16 +76,7 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
     {
         super.registerListeners();
 
-        if (toolkit.isEditMode())
-        {   // Capture clicks and use to select widget in editor,
-            // instead of interacting with the table
-            jfx_node.addEventFilter(MouseEvent.MOUSE_PRESSED, event ->
-            {
-                event.consume();
-                toolkit.fireClick(model_widget, event.isControlDown());
-            });
-        }
-        else
+        if (! toolkit.isEditMode())
         {
             jfx_node.setListener(new StringTableListener()
             {

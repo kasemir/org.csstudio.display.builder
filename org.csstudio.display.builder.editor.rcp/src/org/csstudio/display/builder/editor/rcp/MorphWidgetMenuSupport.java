@@ -15,12 +15,14 @@ import org.csstudio.display.builder.editor.undo.AddWidgetAction;
 import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.ArrayWidget;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Composite;
@@ -54,7 +56,7 @@ public class MorphWidgetMenuSupport
                 image = ImageDescriptor.createFromImageData(new ImageData(descriptor.getIconStream()));
             } catch (Exception e)
             {
-                logger.log(Level.WARNING, "Cannot create menu icon for widget type " + descr.getType(), e); //$NON-NLS-1$
+                logger.log(Level.WARNING, "Cannot create menu icon for widget type " + descr.getType(), e);
             }
             setImageDescriptor(image);
         }
@@ -150,8 +152,23 @@ public class MorphWidgetMenuSupport
             if (editor.getWidgetSelectionHandler().getSelection().isEmpty())
                 manager.add(new Action(Messages.ReplaceWith_NoWidgets) {});
             else
+            {   // Create menu that lists all widget types
+                WidgetCategory category = null;
                 for (WidgetDescriptor descr : WidgetFactory.getInstance().getWidgetDescriptions())
+                {   // Header for start of each category
+                    if (descr.getCategory() != category)
+                    {
+                        category = descr.getCategory();
+                        // Use disabled, empty action to show category name
+                        final Action info = new Action(category.getDescription()) {};
+                        info.setEnabled(false);
+                        manager.add(new Separator());
+                        manager.add(info);
+                        manager.add(new Separator());
+                    }
                     manager.add(new MorphAction(descr));
+                }
+            }
         });
 
         mm.setImageDescriptor(Plugin.getIcon("replace.png"));

@@ -24,6 +24,7 @@ import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.input.MouseEvent;
 
 /** Base class for all JavaFX widget representations
  *  @param <JFX> JFX Widget
@@ -77,10 +78,13 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
 
             if (toolkit.isEditMode())
             {   // Any visible item can be 'clicked' to allow editor to 'select' it
-                jfx_node.setOnMousePressed((event) ->
+                jfx_node.addEventFilter(MouseEvent.MOUSE_PRESSED, event ->
                 {
-                    event.consume();
-                    toolkit.fireClick(model_widget, event.isControlDown());
+                    if (event.isPrimaryButtonDown())
+                    {
+                        event.consume();
+                        toolkit.fireClick(model_widget, event.isControlDown());
+                    }
                 });
             }
             else

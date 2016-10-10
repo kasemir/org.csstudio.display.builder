@@ -20,7 +20,9 @@ import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
 
 import javafx.geometry.Insets;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -32,7 +34,7 @@ import javafx.scene.paint.Color;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class TextEntryRepresentation extends RegionBaseRepresentation<TextField, TextEntryWidget>
+public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputControl, TextEntryWidget>
 {
     /** Is user actively editing the content, so updates should be suppressed? */
     private volatile boolean active = false;
@@ -43,53 +45,79 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
     private volatile String value_text = "<?>";
 
     @Override
-    public TextField createJFXNode() throws Exception
+    public TextInputControl createJFXNode() throws Exception
     {
     	value_text = computeText(null);
-        final TextField text = new TextField();
+
+    	// Note implementation choice:
+    	// "multi_line" and "wrap_words" cannot change at runtime.
+    	// In editor, there is no visible difference,
+    	// and at runtime changes are simply not supported.
+    	final TextInputControl text;
+        if (model_widget.propMultiLine().getValue())
+        {
+            final TextArea area = new TextArea();
+            area.setWrapText(model_widget.propWrapWords().getValue());
+            text = area;
+        }
+        else
+            text = new TextField();
         text.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
-        // Initially used 'focus' to activate the widget, but
-        // when a display is opened, one of the text fields likely has the focus.
-        // That widget will then NOT show any value, because we're active as if the
-        // user just navigated into the field to edit it.
-        // Now requiring key press, including use of cursor keys, to activate.
-        text.setOnKeyPressed((final KeyEvent event) ->
+        if (! toolkit.isEditMode())
         {
-            switch (event.getCode())
+            // Initially used 'focus' to activate the widget, but
+            // when a display is opened, one of the text fields likely has the focus.
+            // That widget will then NOT show any value, because we're active as if the
+            // user just navigated into the field to edit it.
+            // Now requiring key press, including use of cursor keys, to activate.
+            text.setOnKeyPressed((final KeyEvent event) ->
             {
-            case ESCAPE:
-                if (active)
-                {   // Revert original value, leave active state
+                switch (event.getCode())
+                {
+                case ESCAPE:
+                    if (active)
+                    {   // Revert original value, leave active state
+                        restore();
+                        active = false;
+                    }
+                    break;
+                case ENTER:
+                    // Single line mode uses plain ENTER.
+                    // Multi line mode requires Control-ENTER.
+                    if (!isMultiLine()  ||  event.isControlDown())
+                    {
+                        // Submit value, leave active state
+                        submit();
+                        active = false;
+                    }
+                    break;
+                default:
+                    // Any other key results in active state
+                    active = true;
+                }
+            });
+            // While getting the focus does not activate the widget
+            // (first need to type something),
+            // _loosing_ focus de-activates the widget.
+            // Otherwise widget where one moves the cursor, then clicks
+            // someplace else would remain active and not show any updates
+            text.focusedProperty().addListener((prop, old, focused) ->
+            {
+                if (active  &&  !focused)
+                {
                     restore();
                     active = false;
                 }
-                break;
-            case ENTER:
-                // Submit value, leave active state
-                submit();
-                active = false;
-                break;
-            default:
-                // Any other key results in active state
-                active = true;
-            }
-        });
-        // While getting the focus does not activate the widget
-        // (first need to type something),
-        // _loosing_ focus de-activates the widget.
-        // Otherwise widget where one moves the cursor, then clicks
-        // someplace else would remain active and not show any updates
-        text.focusedProperty().addListener((prop, old, focused) ->
-        {
-            if (active  &&  !focused)
-            {
-                restore();
-                active = false;
-            }
-        });
-
+            });
+        }
         return text;
+    }
+
+    /** @return Using the multi-line TextArea? */
+    private boolean isMultiLine()
+    {
+        return jfx_node instanceof TextArea;
     }
 
     /** Restore representation to last known value,
@@ -143,6 +171,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
         super.registerListeners();
         model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
+
         model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
@@ -211,8 +240,18 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextField,
         {
             final String color = JFXUtil.webRGB(model_widget.propForegroundColor().getValue());
             String style = "-fx-text-fill:" + color + ";";
-            final Color background = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
-            jfx_node.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
+
+            if (isMultiLine())
+            {   // http://stackoverflow.com/questions/27700006/how-do-you-change-the-background-color-of-a-textfield-without-changing-the-border
+                style += "-fx-control-inner-background: " + JFXUtil.webRGB(model_widget.propBackgroundColor().getValue()) + ";";
+            }
+            else
+            {
+                final Color background = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
+                jfx_node.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
+            }
+
+
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
 
             // Don't disable the widget, because that would also remove the

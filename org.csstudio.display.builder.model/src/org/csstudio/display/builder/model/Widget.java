@@ -268,7 +268,7 @@ public class Widget
      *  <p>Note that for embedded displays, this would
      *  return the embedded model, not the top-level
      *  model of the window.
-     *  Compare <code>RuntimeUtil.getTopDisplayModel(widget)</code>
+     *  Compare <code>getTopDisplayModel()</code>
      *
      *  @return {@link DisplayModel} for widget
      *  @throws Exception if widget is not part of a model
@@ -281,6 +281,28 @@ public class Widget
         if (candidate instanceof DisplayModel)
             return (DisplayModel) candidate;
         throw new Exception("Missing DisplayModel for " + this);
+    }
+
+    /** Locate top display model.
+     *
+     *  <p>For embedded displays, <code>getDisplayModel</code>
+     *  only provides the embedded model.
+     *  This method traverses up via the {@link EmbeddedDisplayWidget}
+     *  to the top-level display model.
+     *
+     *  @return Top-level {@link DisplayModel} for widget
+     *  @throws Exception if widget is not part of a model
+     */
+    public final DisplayModel getTopDisplayModel() throws Exception
+    {
+        DisplayModel model = getDisplayModel();
+        while (true)
+        {
+           final EmbeddedDisplayWidget embedder = model.getUserData(DisplayModel.USER_DATA_EMBEDDING_WIDGET);
+           if (embedder == null)
+               return model;
+           model = embedder.getTopDisplayModel();
+       }
     }
 
     /** Called on construction to define widget's properties.

@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Text Entry</name>
-  <x>-1</x>
-  <y>-1</y>
+  <width>850</width>
   <widget type="label" version="2.0.0">
     <name>Label</name>
+    <text>Text Entry Widget</text>
     <width>241</width>
     <height>31</height>
-    <text>Text Entry Widget</text>
     <font>
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
@@ -15,34 +14,34 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
+    <text>Displays the value of a PV as text and allows entering a new value.</text>
     <y>41</y>
     <width>481</width>
     <height>30</height>
-    <text>Displays the value of a PV as text and allows entering a new value.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
+    <text>Example:</text>
     <y>91</y>
     <width>181</width>
-    <text>Example:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
+    <text>Can be configured to be ugly:</text>
     <y>131</y>
     <width>201</width>
-    <text>Can be configured to be ugly:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
+    <text>Default:</text>
     <y>261</y>
     <width>111</width>
-    <text>Default:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
+    <text>Formatting options:</text>
     <y>231</y>
     <width>201</width>
-    <text>Formatting options:</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -50,80 +49,77 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
+    <text>Don't show units:</text>
     <y>291</y>
     <width>161</width>
-    <text>Don't show units:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
+    <text>Decimal w/ 2 digits:</text>
     <y>321</y>
     <width>191</width>
-    <text>Decimal w/ 2 digits:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_10</name>
+    <text>Exponential Notation:</text>
     <y>351</y>
     <width>191</width>
-    <text>Exponential Notation:</text>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry</name>
+    <pv_name>sim://sine</pv_name>
     <x>201</x>
     <y>261</y>
     <width>210</width>
-    <pv_name>sim://sine</pv_name>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_1</name>
+    <pv_name>sim://sine</pv_name>
     <x>201</x>
     <y>291</y>
     <width>210</width>
     <show_units>false</show_units>
-    <pv_name>sim://sine</pv_name>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_2</name>
+    <pv_name>sim://sine</pv_name>
     <x>201</x>
     <y>321</y>
     <width>210</width>
     <format>1</format>
-    <pv_name>sim://sine</pv_name>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_3</name>
+    <pv_name>sim://sine</pv_name>
     <x>201</x>
     <y>351</y>
     <width>210</width>
     <format>2</format>
-    <pv_name>sim://sine</pv_name>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_4</name>
+    <pv_name>loc://number(3.14)</pv_name>
     <x>201</x>
     <y>91</y>
-    <pv_name>loc://number(3.14)</pv_name>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_5</name>
+    <pv_name>loc://number(3.14)</pv_name>
     <x>201</x>
     <y>131</y>
     <width>250</width>
     <height>70</height>
-    <background_color>
-      <color red="255" green="255" blue="77">
-      </color>
-    </background_color>
     <font>
       <font name="Oddball" family="PakTypeNaqsh" style="REGULAR" size="40.0">
       </font>
     </font>
-    <pv_name>loc://number(3.14)</pv_name>
+    <background_color>
+      <color red="255" green="255" blue="77">
+      </color>
+    </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_11</name>
-    <y>391</y>
-    <width>451</width>
-    <height>210</height>
     <text>The text entry widget updates whenever the value of the
 associated PV changes.
 
@@ -135,6 +131,48 @@ Pressing 'Escape' or selecting a different widget aborts editing
 and restores the original value of the PV.
 
 Pressing 'Enter' confirms editing and writes the entered value to the PV.</text>
+    <y>391</y>
+    <width>451</width>
+    <height>210</height>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_12</name>
+    <text>Multiple Lines:</text>
+    <x>481</x>
+    <y>231</y>
+    <width>201</width>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_6</name>
+    <pv_name>loc://long_text("Some long text...")</pv_name>
+    <x>481</x>
+    <y>261</y>
+    <width>289</width>
+    <height>110</height>
+    <wrap_words>true</wrap_words>
+    <multi_line>true</multi_line>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_13</name>
+    <text>The text entry widget can be "multi-lined",
+starting a new line on each newline character in the text.
+Optionally, it can also wrap words to a new line when
+reaching the end of a line.
+
+Since pressing 'Enter' now simply starts a new line,
+'Control-Enter' now confirms editing and writes the entered value to the PV.</text>
+    <x>481</x>
+    <y>391</y>
+    <width>359</width>
+    <height>210</height>
     <font>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>

@@ -29,6 +29,7 @@ import org.eclipse.ui.dialogs.ContainerSelectionDialog;
 /** Content of the {@link NewDisplayWizard}
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class NewDisplayWizardPage extends WizardPage
 {
     private final ISelection selection;

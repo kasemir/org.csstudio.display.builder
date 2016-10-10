@@ -82,8 +82,8 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
     public YAxisImpl(final String name, final PlotPartListener listener)
     {
         super(name, listener,
-              false,      // vertical
-              0.0, 10.0); // Initial range
+                false,      // vertical
+                0.0, 10.0); // Initial range
         label_provider = new AxisLabelProvider<XTYPE>(this);
     }
 
@@ -300,8 +300,8 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         double tick = ticks.getStart();
         double prev = ticks.getPrevious(tick);
         for (/**/;
-             (normal ? tick <= high_value : tick >= high_value)  &&  Double.isFinite(tick);
-             tick = ticks.getNext(tick))
+                (normal ? tick <= high_value : tick >= high_value)  &&  Double.isFinite(tick);
+                tick = ticks.getNext(tick))
         {
             // Minor ticks?
             for (int i=1; i<minor_ticks; ++i)
@@ -360,10 +360,10 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         {   // Draw labels at pre-computed locations
             if (i > 0)
                 GraphicsUtils.drawVerticalText(gc, label_x.get(i-1), label_y.get(i-1) - label_y_separation,
-                                               label_provider.getSeparator(), !is_right);
+                        label_provider.getSeparator(), !is_right);
             gc.setColor(GraphicsUtils.convert(label_provider.getColor()));
             GraphicsUtils.drawVerticalText(gc,
-                label_x.get(i), label_y.get(i), label_provider.getLabel(), !is_right);
+                    label_x.get(i), label_y.get(i), label_provider.getLabel(), !is_right);
             gc.setColor(old_fg);
             ++i;
         }

@@ -175,6 +175,28 @@ class JythonScriptSupport implements AutoCloseable
         logger.log(Level.FINE, "Time to create jython: {0} ms", (end - start));
     }
 
+    /** @param path Path to add to head of python search path */
+    private void addToPythonPath(final String path)
+    {
+        // Since using default PySystemState (see above), check if already in paths
+        final PyList paths = python.getSystemState().path;
+
+        // Prevent concurrent modification
+        synchronized (JythonScriptSupport.class)
+        {
+            final int index = paths.indexOf(path);
+            // Already top entry?
+            if (index == 0)
+                return;
+            // Remove if further down in the list
+            if (index > 0)
+                paths.remove(index);
+            // Add to front of list
+            paths.add(0, path);
+        }
+        logger.log(Level.FINE, "Adding to jython path: {0}", path);
+    }
+
     /** Parse and compile script file
      *
      *  @param path Path to add to search path, or <code>null</code>
@@ -186,14 +208,7 @@ class JythonScriptSupport implements AutoCloseable
     public Script compile(final String path, final String name, final InputStream stream) throws Exception
     {
         if (path != null)
-        {   // Since using default PySystemState (see above), check if already in paths
-            final PyList paths = python.getSystemState().path;
-            if (! paths.contains(path))
-            {
-                logger.log(Level.FINE, "Adding to jython path: {0}", path);
-                paths.add(0, path);
-            }
-        }
+            addToPythonPath(path);
         final long start = System.currentTimeMillis();
         final PyCode code = python.compile(new InputStreamReader(stream), name);
         final long end = System.currentTimeMillis();
