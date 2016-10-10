@@ -42,34 +42,30 @@ public class PolylineRepresentation extends JFXBaseRepresentation<Group, Polylin
 
     public static class Arrow extends Polygon
     {
-        private final int arrowLength = 20; //make non-final if arrow_length property added
-
-        Arrow() { super(); }
-
-        /**
-         * Adjust points of arrow
-         * 
-         * @param x1 x-coordinate for base of arrow (end of line)
-         * @param y1 y-coordinate for base of arrow (end of line)
-         * @param x2 x-coordinate for line extending from arrow
-         * @param y2 y-coordinate for line extending from arrow
+        /** Adjust points of arrow
+         *
+         *  @param x1 x-coordinate for base of arrow (end of line)
+         *  @param y1 y-coordinate for base of arrow (end of line)
+         *  @param x2 x-coordinate for line extending from arrow
+         *  @param y2 y-coordinate for line extending from arrow
+         *  @param length Arrow length
          */
-        public void adjustPoints(final double x1, final double y1, final double x2, final double y2)
+        public void adjustPoints(final double x1, final double y1, final double x2, final double y2, final int length)
         {
             getPoints().clear();
-            getPoints().addAll(points(x1, y1, x2, y2));
+            getPoints().addAll(points(x1, y1, x2, y2, length));
         }
 
         //calculates points from coordinates of arrow's extending line
-        private List<Double> points(final double x1, final double y1, final double x2, final double y2)
+        private List<Double> points(final double x1, final double y1, final double x2, final double y2, final int length)
         {
             //calculate lengths (x-projection, y-projection, and magnitude) of entire arrow, including extending line
             final double dx = x1 - x2;
             final double dy = y1 - y2;
             final double d = Math.sqrt(dx * dx + dy * dy);
             //calculate x- and y-coordinates for midpoint of arrow base
-            final double x0 = (d != 0) ? x1 - dx * arrowLength / d : x1;
-            final double y0 = (d != 0) ? y1 - dy * arrowLength / d : y1;
+            final double x0 = (d != 0) ? x1 - dx * length / d : x1;
+            final double y0 = (d != 0) ? y1 - dy * length / d : y1;
             //calculate offset between midpoint and ends of arrow base
             final double x_ = (y1 - y0) / 4;
             final double y_ = (x1 - x0) / 4;
@@ -89,6 +85,7 @@ public class PolylineRepresentation extends JFXBaseRepresentation<Group, Polylin
         model_widget.propLineWidth().addUntypedPropertyListener(this::displayChanged);
         model_widget.propPoints().addUntypedPropertyListener(this::displayChanged);
         model_widget.propArrows().addUntypedPropertyListener(this::displayChanged);
+        model_widget.propArrowLength().addUntypedPropertyListener(this::displayChanged);
     }
 
     private void displayChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -120,6 +117,7 @@ public class PolylineRepresentation extends JFXBaseRepresentation<Group, Polylin
                 final Color color = JFXUtil.convert(model_widget.propLineColor().getValue());
                 final int line_width = model_widget.propLineWidth().getValue();
                 final int arrows_val = model_widget.propArrows().getValue().ordinal();
+                final int length = model_widget.propArrowLength().getValue();
                 int i = 0;
                 for (Node child : children)
                 {
@@ -127,17 +125,17 @@ public class PolylineRepresentation extends JFXBaseRepresentation<Group, Polylin
                         ((Polyline) child).getPoints().setAll(points);
                     else //child instanceof Arrow
                     {
-                        Arrow arrow = (Arrow)child;
+                        final Arrow arrow = (Arrow)child;
                         arrow.setFill(color);
                         if ((i & arrows_val) != 0 && points.length > 3)
                         {
                             arrow.setVisible(true);
-                            if (i == 2) //to-arrow (pointing towards original point)
-                                arrow.adjustPoints(points[0], points[1], points[2], points[3]);
-                            else //i == 1 //from-arrow (point away from original point)
+                            if (i == 1) //to-arrow (pointing towards end point)
+                                arrow.adjustPoints(points[0], points[1], points[2], points[3], length);
+                            else //i == 2 //from-arrow (point towards first point)
                             {
                                 final int len = points.length;
-                                arrow.adjustPoints(points[len-2], points[len-1], points[len-4], points[len-3]);
+                                arrow.adjustPoints(points[len-2], points[len-1], points[len-4], points[len-3], length);
                             }
                         }
                         else

@@ -21,6 +21,7 @@ public class Messages extends NLS
     public static String ActiveTab;
     public static String ArrayWidget_Description;
     public static String ArrayWidget_Name;
+    public static String ArrowLength;
     public static String Arrows;
     public static String Arrows_None;
     public static String Arrows_From;
