@@ -75,6 +75,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         led = new Ellipse();
         button = new Button("BoolButton", led);
         button.setOnAction(event -> handlePress());
+        button.setMnemonicParsing(false);
 
         // Model has width/height, but JFX widget has min, pref, max size.
         // updateChanges() will set the 'pref' size, so make min use that as well.
