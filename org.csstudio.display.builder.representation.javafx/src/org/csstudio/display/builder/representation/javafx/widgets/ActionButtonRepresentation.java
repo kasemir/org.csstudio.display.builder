@@ -64,6 +64,11 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
 
     private Pane pane;
 
+    @Override
+    protected boolean isFilteringEditModeClicks()
+    {
+        return true;
+    }
 
     @Override
     public Pane createJFXNode() throws Exception
