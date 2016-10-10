@@ -262,6 +262,23 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
 
     /** {@inheritDoc} */
     @Override
+    public int[] getPixelGaps(final Graphics2D gc)
+    {
+        if (! isVisible())
+            return super.getPixelGaps(gc);
+
+        gc.setFont(label_font);
+        FontMetrics metrics = gc.getFontMetrics();
+
+        String mark = ticks.format(getValueRange().getLow());
+        final int low = metrics.stringWidth(mark);
+        mark = ticks.format(getValueRange().getHigh());
+        final int high = metrics.stringWidth(mark);
+        return new int[] { low / 2, high / 2 };
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void paint(final Graphics2D gc, final Rectangle plot_bounds)
     {
         if (! isVisible())

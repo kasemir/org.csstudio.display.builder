@@ -143,7 +143,6 @@ public class RTTank extends Canvas
     /** @param value Set value */
     public void setValue(final double value)
     {
-        System.out.println(value);
         this.value = value;
         requestUpdate();
     }
@@ -153,14 +152,18 @@ public class RTTank extends Canvas
     {
         final Rectangle scale_region = new Rectangle(bounds);
         scale_region.width = scale.getDesiredPixelSize(scale_region, gc);
+
+        final int[] ends = scale.getPixelGaps(gc);
+        scale_region.y += ends[1];
+        scale_region.height -= ends[0] + ends[1];
+
         scale.setBounds(scale_region);
-        plot_area.setBounds(bounds.x + scale_region.width, bounds.y, bounds.width-scale_region.width, bounds.height);
+        plot_area.setBounds(bounds.x + scale_region.width, bounds.y+ends[1], bounds.width-scale_region.width, bounds.height-ends[0]-ends[1]);
     }
 
     /** Draw all components into image buffer */
     protected Image updateImageBuffer()
     {
-System.out.println("Tank.updateImageBuffer()"); // TODO remove
         final Rectangle area_copy = area;
         if (area_copy.width <= 0  ||  area_copy.height <= 0)
             return null;

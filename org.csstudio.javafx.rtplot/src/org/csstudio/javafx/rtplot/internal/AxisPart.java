@@ -173,6 +173,24 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
      */
     abstract public int getDesiredPixelSize(Rectangle region, Graphics2D gc);
 
+    /** Determine the required gaps at the start/end of the axis.
+     *
+     *  <p>For a horizontal axis, this is the gap at the left and right
+     *  edge of the axis to allow for the first and the last
+     *  scale labels.
+     *
+     *  <p>For a vertical axis, this is the gap at the bottom and top
+     *  edge of the axis to allow for the first and the last
+     *  scale labels.
+     *
+     *  @param gc GC that can be used to determine font measurements
+     *  @return Gap in pixels for { start, end }
+     */
+    public int[] getPixelGaps(final Graphics2D gc)
+    {
+        return new int[] { 0, 0 };
+    }
+
     /** {@inheritDoc} */
     @Override
     final public int getScreenCoord(final T value)
