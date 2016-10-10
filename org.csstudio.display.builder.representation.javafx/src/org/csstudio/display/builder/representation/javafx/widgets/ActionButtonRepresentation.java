@@ -128,6 +128,9 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         }
         result.setStyle(background);
 
+        result.getStyleClass().add("action_button");
+
+
         // Model has width/height, but JFX widget has min, pref, max size.
         // updateChanges() will set the 'pref' size, so make min use that as well.
         result.setMinSize(ButtonBase.USE_PREF_SIZE, ButtonBase.USE_PREF_SIZE);
