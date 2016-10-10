@@ -213,9 +213,6 @@
          <alternates
                type="org.csstudio.opibuilder.widgets.progressbar">
          </alternates>
-         <alternates
-               type="org.csstudio.opibuilder.widgets.tank">
-         </alternates>
       </widget>
       <widget
             category="CONTROL"
@@ -300,8 +297,17 @@
                type="org.csstudio.opibuilder.widgets.tab">
          </alternates>
       </widget>
-
-
+      <widget
+            category="MONITOR"
+            class="org.csstudio.display.builder.model.widgets.TankWidget"
+            description="%TankWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/tank.png"
+            name="%TankWidget_Name"
+            type="tank">
+         <alternates
+               type="org.csstudio.opibuilder.widgets.tank">
+         </alternates>
+      </widget>
       <widget
             category="CONTROL"
             class="org.csstudio.display.builder.model.widgets.TextEntryWidget"

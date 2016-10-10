@@ -13,12 +13,14 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.csstudio.javafx.rtplot.internal.PlotPart;
 import org.csstudio.javafx.rtplot.internal.PlotPartListener;
 import org.csstudio.javafx.rtplot.internal.YAxisImpl;
+import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
 
 import javafx.application.Platform;
@@ -27,6 +29,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.text.Font;
 
 /** Tank with scale
  *
@@ -113,22 +116,34 @@ public class RTTank extends Canvas
         });
     }
 
-    /** @param color Background color */
-    public void setBackground(final Color color)
+    /** @param font Scale font */
+    public void setFont(final Font font)
     {
-        background = color;
+        scale.setScaleFont(font);
+    }
+
+    /** @param color Background color */
+    public void setBackground(final javafx.scene.paint.Color color)
+    {
+        background = GraphicsUtils.convert(Objects.requireNonNull(color));
+    }
+
+    /** @param color Foreground color */
+    public void setForeground(final javafx.scene.paint.Color color)
+    {
+        scale.setColor(color);
     }
 
     /** @param color Color for empty region */
-    public void setEmptyColor(final Color color)
+    public void setEmptyColor(final javafx.scene.paint.Color color)
     {
-        empty = color;
+        empty = GraphicsUtils.convert(Objects.requireNonNull(color));
     }
 
     /** @param color Color for filled region */
-    public void setFillColor(final Color color)
+    public void setFillColor(final javafx.scene.paint.Color color)
     {
-        fill = color;
+        fill = GraphicsUtils.convert(Objects.requireNonNull(color));
     }
 
     /** Set value range
@@ -143,7 +158,10 @@ public class RTTank extends Canvas
     /** @param value Set value */
     public void setValue(final double value)
     {
-        this.value = value;
+        if (Double.isFinite(value))
+            this.value = value;
+        else
+            this.value = scale.getValueRange().getLow();
         requestUpdate();
     }
 

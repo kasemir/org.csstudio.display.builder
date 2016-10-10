@@ -46,6 +46,7 @@ import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
 import org.csstudio.display.builder.model.widgets.SpinnerWidget;
 import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
+import org.csstudio.display.builder.model.widgets.TankWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.model.widgets.ThermometerWidget;
@@ -137,6 +138,7 @@ public class WidgetFactory
         addWidgetType(SpinnerWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TableWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TabsWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(TankWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextEntryWidget.WIDGET_DESCRIPTOR);
         addWidgetType(TextUpdateWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ThermometerWidget.WIDGET_DESCRIPTOR);
