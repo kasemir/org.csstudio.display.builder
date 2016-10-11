@@ -341,6 +341,9 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
             ticks.compute(safe_range.getLow(), safe_range.getHigh(), gc, getBounds().width);
         else
             ticks.compute(safe_range.getLow(), safe_range.getHigh(), gc, getBounds().height);
+        // If ticks changed, the layout of tick labels may change
+        requestLayout();
+        requestRefresh();
         dirty_ticks = false;
     }
 
