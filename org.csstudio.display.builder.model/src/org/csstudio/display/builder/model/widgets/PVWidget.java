@@ -22,7 +22,6 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBorderAlarmSensitive;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTooltip;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 
 import java.util.List;
@@ -41,7 +40,6 @@ import org.diirt.vtype.VType;
 public class PVWidget extends VisibleWidget
 {
     private volatile WidgetProperty<String> pv_name;
-    private volatile WidgetProperty<String> tooltip;
     private volatile WidgetProperty<VType>  value;
 
     /** @param type Widget type. */
@@ -66,20 +64,19 @@ public class PVWidget extends VisibleWidget
         properties.add(pv_name = propPVName.createProperty(this, ""));
         properties.add(value = runtimePropValue.createProperty(this, null));
         properties.add(propBorderAlarmSensitive.createProperty(this, true));
-        // Every PV-based widget has a tool tip that by default shows the PV and value
-        properties.add(tooltip = propTooltip.createProperty(this, "$(pv_name)\n$(pv_value)"));
+    }
+
+    @Override
+    protected String getInitialTooltip()
+    {
+        // PV-based widgets shows the PV and value
+        return "$(pv_name)\n$(pv_value)";
     }
 
     /** @return 'pv_name' property */
     public final WidgetProperty<String> propPVName()
     {
         return pv_name;
-    }
-
-    /** @return 'tooltip' property */
-    public final WidgetProperty<String> propTooltip()
-    {
-        return tooltip;
     }
 
     /** @return Runtime 'pv_value' property */
