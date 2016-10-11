@@ -110,6 +110,8 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
     public void setLabelFont(final javafx.scene.text.Font font)
     {
         label_font = GraphicsUtils.convert(font);
+        requestLayout();
+        requestRefresh();
     }
 
     /** {@inheritDoc} */
@@ -124,6 +126,9 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
     public void setScaleFont(final javafx.scene.text.Font font)
     {
         scale_font = GraphicsUtils.convert(font);
+        dirty_ticks = true;
+        requestLayout();
+        requestRefresh();
     }
 
     /** {@inheritDoc} */

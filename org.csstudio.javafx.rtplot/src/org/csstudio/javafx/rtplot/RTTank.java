@@ -119,6 +119,7 @@ public class RTTank extends Canvas
     /** @param font Scale font */
     public void setFont(final Font font)
     {
+        scale.setLabelFont(font);
         scale.setScaleFont(font);
     }
 

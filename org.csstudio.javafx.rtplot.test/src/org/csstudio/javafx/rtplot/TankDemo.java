@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 /** @author Kay Kasemir
@@ -31,11 +32,12 @@ public class TankDemo extends Application
 
         final RTTank tank = new RTTank();
 
-        tank.setRange(0, 120);
-
 		final Pane root = new Pane(tank);
 		tank.widthProperty().bind(root.widthProperty());
 		tank.heightProperty().bind(root.heightProperty());
+
+		tank.setFont(Font.font("Liberation Mono", 50.0));
+		tank.setRange(0, 120);
 
         final Scene scene = new Scene(root, 800, 600);
         stage.setScene(scene);
