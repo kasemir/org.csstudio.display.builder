@@ -200,6 +200,10 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
         // but resizeRelocate tends to ignore the width & height on
         // several widgets (Rectangle), so have to call their
         // setWith() & setHeight() in specific representation.
+
+        if (! toolkit.isEditMode())
+            model_widget.checkProperty(CommonWidgetProperties.propTooltip)
+                        .ifPresent(prop -> TooltipSupport.attach(jfx_node, prop));
     }
 
     private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)

@@ -34,3 +34,16 @@
 {
    -fx-padding: 0.333333em 0em 0.333333em 0em;
 }
+
+/* Default button padding in modena.css is white-on-black */
+.tooltip
+{
+    -fx-background: rgba(231,243,253);
+    -fx-text-fill: black;
+    -fx-background-color: rgba(231,243,253,0.8);
+    -fx-background-radius: 6px;
+    -fx-background-insets: 0;
+    -fx-padding: 0.3em 0.35em 0.3em 0.35em;
+    -fx-font-size: 10pt;
+}
+

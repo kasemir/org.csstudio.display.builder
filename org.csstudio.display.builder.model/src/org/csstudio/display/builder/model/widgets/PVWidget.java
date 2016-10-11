@@ -37,46 +37,51 @@ import org.diirt.vtype.VType;
  * @version 1.0.0 15 Sep 2016
  */
 @SuppressWarnings("nls")
-public class PVWidget extends VisibleWidget {
-
+public class PVWidget extends VisibleWidget
+{
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<VType>  value;
 
-    /**
-     * @param type Widget type.
-     */
-    public PVWidget ( String type ) {
+    /** @param type Widget type. */
+    public PVWidget(final String type )
+    {
         super(type);
     }
 
-    /**
-     * @param type Widget type.
-     * @param default_width Default widget width.
-     * @param default_height Default widget height.
+    /** @param type Widget type.
+     *  @param default_width Default widget width.
+     *  @param default_height Default widget height.
      */
-    public PVWidget ( String type, int default_width, int default_height ) {
+    public PVWidget(final String type, final int default_width, final int default_height)
+    {
         super(type, default_width, default_height);
     }
 
-    /** @return 'pv_name' property */
-    public final WidgetProperty<String> propPVName ( ) {
-        return pv_name;
-    }
-
-    /** @return Runtime 'value' property */
-    public WidgetProperty<VType> runtimePropValue ( ) {
-        return value;
-    }
-
     @Override
-    protected void defineProperties ( final List<WidgetProperty<?>> properties ) {
-
+    protected void defineProperties (final List<WidgetProperty<?>> properties )
+    {
         super.defineProperties(properties);
-
         properties.add(pv_name = propPVName.createProperty(this, ""));
         properties.add(value = runtimePropValue.createProperty(this, null));
         properties.add(propBorderAlarmSensitive.createProperty(this, true));
-
     }
 
+    @Override
+    protected String getInitialTooltip()
+    {
+        // PV-based widgets shows the PV and value
+        return "$(pv_name)\n$(pv_value)";
+    }
+
+    /** @return 'pv_name' property */
+    public final WidgetProperty<String> propPVName()
+    {
+        return pv_name;
+    }
+
+    /** @return Runtime 'pv_value' property */
+    public WidgetProperty<VType> runtimePropValue()
+    {
+        return value;
+    }
 }

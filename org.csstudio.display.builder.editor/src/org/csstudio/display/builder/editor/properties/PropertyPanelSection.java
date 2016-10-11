@@ -275,7 +275,8 @@ public class PropertyPanelSection extends GridPane
                 : new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other);
             bindings.add(binding);
             binding.bind();
-            if (CommonWidgetProperties.propText.getName().equals(property.getName()))
+            if (CommonWidgetProperties.propText.getName().equals(property.getName())  ||
+                CommonWidgetProperties.propTooltip.getName().equals(property.getName()))
             {   // Allow editing multi-line text in dialog
                 final Button open_editor = new Button("...");
                 open_editor.setOnAction(event ->
@@ -293,6 +294,7 @@ public class PropertyPanelSection extends GridPane
                     }
                 });
                 field = new HBox(text, open_editor);
+                HBox.setHgrow(text, Priority.ALWAYS);
             }
             else
                 field = text;
@@ -308,7 +310,6 @@ public class PropertyPanelSection extends GridPane
             field = points_field;
         }
         return field;
-
     }
 
     /** Add UI items for displaying or editing property

@@ -44,6 +44,6 @@ abstract public class RuntimeWidgetProperty<T> extends WidgetProperty<T>
     @Override
     public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
-        throw new Exception("Runtime property " + getName() + " is not persisted");
+        // Runtime properties are not read from XML
     }
 }
