@@ -126,7 +126,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
 
     /**
      * Create dialog
-     * 
+     *
      * @param initial_actions Initial list of actions
      * @param menu {@link AutocompleteMenu} to use for PV names (must not be
      *            null)
@@ -312,6 +312,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         };
 
         final GridPane open_display_details = new GridPane();
+        // open_display_details.setGridLinesVisible(true);
         open_display_details.setHgap(10);
         open_display_details.setVgap(10);
 
@@ -324,7 +325,14 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         open_display_details.add(new Label(Messages.ActionsDialog_DisplayPath), 0, 1);
         open_display_path = new TextField();
         open_display_path.textProperty().addListener(update);
-        open_display_details.add(open_display_path, 1, 1);
+        final Button select = new Button("...");
+        select.setOnAction(event ->
+        {
+            // TODO  FilenameSupport.promptForFilename(file_prop)
+        });
+        final HBox path_box = new HBox(open_display_path, select);
+        HBox.setHgrow(open_display_path, Priority.ALWAYS);
+        open_display_details.add(path_box, 1, 1);
 
         final HBox modes_box = new HBox(10);
         open_display_targets = new ToggleGroup();

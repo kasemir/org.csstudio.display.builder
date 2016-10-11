@@ -5,12 +5,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.editor.util;
+package org.csstudio.display.builder.representation.javafx;
 
 import java.io.File;
 import java.util.function.Function;
 
-import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.FilenameWidgetProperty;

@@ -10,10 +10,10 @@ package org.csstudio.display.builder.editor.rcp;
 import java.util.function.Function;
 import java.util.logging.Logger;
 
-import org.csstudio.display.builder.editor.util.FilenameSupport;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.properties.FilenameWidgetProperty;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.representation.javafx.FilenameSupport;
 import org.csstudio.ui.util.dialogs.ResourceSelectionDialog;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;

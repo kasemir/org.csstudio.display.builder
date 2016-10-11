@@ -45,6 +45,8 @@ public class Messages extends NLS
     public static String ColorMapDialog_Value;
     public static String Column;
     public static String Copy;
+    public static String FileTypeAll;
+    public static String FileTypeDisplays;
     public static String FontDialog_ExampleText;
     public static String FontDialog_Family;
     public static String FontDialog_Info;
