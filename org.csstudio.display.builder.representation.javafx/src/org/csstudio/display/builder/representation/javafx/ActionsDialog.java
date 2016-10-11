@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ActionInfo.ActionType;
@@ -60,6 +61,8 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
     // XXX: Smoother handling of script type changes
     // Prompt if embedded text should be deleted when changing to external file
     // Read existing file into embedded text when switching from file to embedded
+
+    private final Widget widget;
 
     private final AutocompleteMenu menu;
 
@@ -117,22 +120,22 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
     };
 
     /** Create dialog
+     *  @param widget Widget
      *  @param initial_actions Initial list of actions
      */
-    public ActionsDialog(final List<ActionInfo> initial_actions)
+    public ActionsDialog(final Widget widget, final List<ActionInfo> initial_actions)
     {
-        this(initial_actions, new AutocompleteMenu());
+        this(widget, initial_actions, new AutocompleteMenu());
     }
 
-    /**
-     * Create dialog
-     *
-     * @param initial_actions Initial list of actions
-     * @param menu {@link AutocompleteMenu} to use for PV names (must not be
-     *            null)
+    /** Create dialog
+     *  @param widget Widget
+     *  @param initial_actions Initial list of actions
+     *  @param menu {@link AutocompleteMenu} to use for PV names (must not be null)
      */
-    public ActionsDialog(final List<ActionInfo> initial_actions, final AutocompleteMenu menu)
+    public ActionsDialog(final Widget widget, final List<ActionInfo> initial_actions, final AutocompleteMenu menu)
     {
+        this.widget = widget;
         this.menu = menu;
 
         actions.addAll(initial_actions);
@@ -328,7 +331,19 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         final Button select = new Button("...");
         select.setOnAction(event ->
         {
-            // TODO  FilenameSupport.promptForFilename(file_prop)
+            try
+            {
+                final String path = FilenameSupport.promptForRelativePath(widget, open_display_path.getText());
+                if (path != null)
+                    open_display_path.setText(path);
+                // XXX When the filename support dialog closes,
+                //     which under RCP is an SWT dialog,
+                //     this dialog ends up hidden under the main RCP window..
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot prompt for filename", ex);
+            }
         });
         final HBox path_box = new HBox(open_display_path, select);
         HBox.setHgrow(open_display_path, Priority.ALWAYS);
@@ -472,7 +487,26 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         execute_script_details.add(new Label(Messages.ActionsDialog_ScriptPath), 0, 1);
         execute_script_file = new TextField();
         execute_script_file.textProperty().addListener(update);
-        execute_script_details.add(execute_script_file, 1, 1);
+        final Button select = new Button("...");
+        select.setOnAction(event ->
+        {
+            try
+            {
+                final String path = FilenameSupport.promptForRelativePath(widget, execute_script_file.getText());
+                if (path != null)
+                    execute_script_file.setText(path);
+                // XXX When the filename support dialog closes,
+                //     which under RCP is an SWT dialog,
+                //     this dialog ends up hidden under the main RCP window..
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot prompt for filename", ex);
+            }
+        });
+        final HBox path_box = new HBox(execute_script_file, select);
+        HBox.setHgrow(execute_script_file, Priority.ALWAYS);
+        execute_script_details.add(path_box, 1, 1);
 
         final Button btn_file = new Button(Messages.ScriptsDialog_BtnFile, JFXUtil.getIcon("open_file.png"));
         btn_file.setOnAction(event ->

@@ -8,7 +8,7 @@
 package org.csstudio.display.builder.representation.javafx;
 
 import java.io.File;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
@@ -33,18 +33,17 @@ public class FilenameSupport
     };
 
     /** Default file prompt that uses local file system */
-    private static final Function<FilenameWidgetProperty, String> local_file_prompt = file_prop ->
+    private static final BiFunction<Widget, String, String>  local_file_prompt = (widget, initial) ->
     {
-        final Widget widget = file_prop.getWidget();
         final FileChooser dialog = new FileChooser();
         try
         {
             final DisplayModel model = widget.getDisplayModel();
-            final File initial = new File(ModelResourceUtil.resolveResource(model, file_prop.getValue()));
-            if (initial.exists())
+            final File file = new File(ModelResourceUtil.resolveResource(model, initial));
+            if (file.exists())
             {
-                dialog.setInitialDirectory(initial.getParentFile());
-                dialog.setInitialFileName(initial.getName());
+                dialog.setInitialDirectory(file.getParentFile());
+                dialog.setInitialFileName(file.getName());
             }
         }
         catch (Exception ex)
@@ -59,28 +58,34 @@ public class FilenameSupport
         return selected.getPath();
     };
 
-    private static Function<FilenameWidgetProperty, String> file_prompt = local_file_prompt;
+    private static BiFunction<Widget, String, String> file_prompt = local_file_prompt;
 
     /** Install function that will be called to prompt for files
      *
      *  Default uses local file system.
      *  RCP plugin can install a workspace-based file dialog.
      *
-     *  @param prompt Function that receives original file name property,
+     *  @param prompt Function that receives a Widget and original file name,
      *                prompts user for new file (via file dialog),
      *                and returns selected new file or <code>null</code>
      */
-    public static void setFilePrompt(Function<FilenameWidgetProperty, String> prompt)
+    public static void setFilePrompt(BiFunction<Widget, String, String> prompt)
     {
         file_prompt = prompt;
     }
 
     /** Prompt for file name
-     *  @param file_prop {@link FilenameWidgetProperty} that provides initial value
+     *  @param widget Widget that needs a file name
+     *  @param initial Initial value
      *  @return Selected file name or <code>null</code>
      */
-    public static String promptForFilename(final FilenameWidgetProperty file_prop)
+    public static String promptForRelativePath(final Widget widget, final String initial) throws Exception
     {
-        return file_prompt.apply(file_prop);
+        final String filename = file_prompt.apply(widget, initial);
+        if (filename == null)
+            return null;
+        final DisplayModel model = widget.getDisplayModel();
+        final String parent_file = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+        return ModelResourceUtil.getRelativePath(parent_file, filename);
     }
 }

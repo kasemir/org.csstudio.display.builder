@@ -41,8 +41,12 @@ public class ActionsPropertyBinding
     /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event ->
     {
-        final ActionsDialog dialog = new ActionsDialog(widget_property.getValue(), menu);
+        final ActionsDialog dialog = new ActionsDialog(widget_property.getWidget(), widget_property.getValue(), menu);
+
+        dialog.initOwner(jfx_node.getScene().getWindow());
+
         DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
+
         final Optional<List<ActionInfo>> result = dialog.showAndWait();
         if (result.isPresent())
         {
