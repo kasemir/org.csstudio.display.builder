@@ -96,10 +96,6 @@ public class Messages extends NLS
     public static String ScriptsDialog_DefaultEmbeddedJavaScript;
     public static String ScriptsDialog_DefaultEmbeddedPython;
     public static String ScriptsDialog_DefaultScriptFile;
-    public static String ScriptsDialog_FileBrowser_Title;
-    public static String ScriptsDialog_FileType_All;
-    public static String ScriptsDialog_FileType_JS;
-    public static String ScriptsDialog_FileType_Py;
     public static String ScriptsDialog_Info;
     public static String ScriptsDialog_PVsTT;
     public static String ScriptsDialog_ScriptsTT;

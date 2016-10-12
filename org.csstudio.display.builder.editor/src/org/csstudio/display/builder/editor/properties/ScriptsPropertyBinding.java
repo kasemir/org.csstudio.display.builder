@@ -44,7 +44,7 @@ public class ScriptsPropertyBinding
     /** Update model from user input */
     private EventHandler<ActionEvent> action_handler = event ->
     {
-        final ScriptsDialog dialog = new ScriptsDialog(widget_property.getValue(), menu);
+        final ScriptsDialog dialog = new ScriptsDialog(widget_property.getWidget(), widget_property.getValue(), menu);
         DialogHelper.positionDialog(dialog, DialogHelper.getContainer(jfx_node), -200, -200);
         final Optional<List<ScriptInfo>> result = dialog.showAndWait();
         if (result.isPresent())
