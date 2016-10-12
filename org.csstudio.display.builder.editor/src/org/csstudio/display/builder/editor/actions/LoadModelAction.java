@@ -12,7 +12,7 @@ import java.io.File;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorDemoGUI;
 import org.csstudio.display.builder.editor.Messages;
-import org.csstudio.display.builder.editor.util.FilenameSupport;
+import org.csstudio.display.builder.representation.javafx.FilenameSupport;
 
 import javafx.stage.FileChooser;
 import javafx.stage.Window;

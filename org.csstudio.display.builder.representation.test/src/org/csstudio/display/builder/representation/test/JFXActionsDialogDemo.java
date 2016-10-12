@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
@@ -39,6 +40,7 @@ public class JFXActionsDialogDemo  extends Application
     @Override
     public void start(final Stage stage)
     {
+        final Widget widget = new Widget("demo");
         final Macros macros = new Macros();
         macros.add("S", "Test");
         macros.add("N", "17");
@@ -46,7 +48,7 @@ public class JFXActionsDialogDemo  extends Application
                 new OpenDisplayActionInfo("Related Display", "../opi/some_file.opi", macros, Target.TAB),
                 new WritePVActionInfo("Reset", "Test:CS:Reset", "1"),
                 new ExecuteScriptActionInfo("Script", new ScriptInfo(ScriptInfo.EMBEDDED_PYTHON, "print 'hi'", Collections.emptyList())));
-        final ActionsDialog dialog = new ActionsDialog(actions);
+        final ActionsDialog dialog = new ActionsDialog(widget, actions);
         final Optional<List<ActionInfo>> result = dialog.showAndWait();
         if (result.isPresent())
         {

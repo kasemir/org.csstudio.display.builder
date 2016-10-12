@@ -17,9 +17,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
-import org.csstudio.display.builder.editor.util.FilenameSupport;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
-import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
@@ -38,8 +36,8 @@ import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
 import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
-import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
+import org.csstudio.display.builder.representation.javafx.FilenameSupport;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.MultiLineInputDialog;
@@ -234,10 +232,8 @@ public class PropertyPanelSection extends GridPane
                 try
                 {
                     final Widget widget = file_prop.getWidget();
-                    final String parent_file = widget.getDisplayModel().getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-                    final String filename = FilenameSupport.promptForFilename(file_prop);
-                    final String relative = ModelResourceUtil.getRelativePath(parent_file, filename);
-                    undo.execute(new SetMacroizedWidgetPropertyAction(file_prop, relative));
+                    final String filename = FilenameSupport.promptForRelativePath(widget, file_prop.getValue());
+                    undo.execute(new SetMacroizedWidgetPropertyAction(file_prop, filename));
                 }
                 catch (Exception ex)
                 {

@@ -7,12 +7,15 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx;
 
-import java.io.File;
+import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.javafx.MultiLineInputDialog;
@@ -42,9 +45,6 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.stage.Window;
 
 /** Dialog for editing {@link ScriptInfo}s
  *  @author Kay Kasemir
@@ -56,6 +56,8 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     // If already "EmbeddedPy" and file is selected, prompt if embedded script should be deleted.
     // If already "EmbeddedPy" and Embedded JS is selected, prompt if type should be changed from python to JS.
     // If already "EmbeddedJS", ..
+
+    private final Widget widget;
 
     private final AutocompleteMenu menu;
 
@@ -147,14 +149,18 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
     private ScriptItem selected_script_item = null;
 
-    public ScriptsDialog(final List<ScriptInfo> scripts)
+    public ScriptsDialog(final Widget widget, final List<ScriptInfo> scripts)
     {
-        this(scripts, new AutocompleteMenu());
+        this(widget, scripts, new AutocompleteMenu());
     }
 
-    /** @param scripts Scripts to show/edit in the dialog */
-    public ScriptsDialog(final List<ScriptInfo> scripts, final AutocompleteMenu menu)
+    /** @param widget Widget
+     *  @param scripts Scripts to show/edit in the dialog
+     *  @param menu AutocompleteMenu
+     */
+    public ScriptsDialog(final Widget widget, final List<ScriptInfo> scripts, final AutocompleteMenu menu)
     {
+        this.widget = widget;
         this.menu = menu;
 
         setTitle(Messages.ScriptsDialog_Title);
@@ -266,24 +272,20 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         btn_file.setDisable(true);
         btn_file.setOnAction(event ->
         {
-            final FileChooser dlg = new FileChooser();
-            dlg.setTitle(Messages.ScriptsDialog_FileBrowser_Title);
-            if (selected_script_item.file.get().length() > 0)
+            try
             {
-                File file = new File(selected_script_item.file.get());
-                dlg.setInitialDirectory(file.getParentFile());
-                dlg.setInitialFileName(file.getName());
+                final String path = FilenameSupport.promptForRelativePath(widget, selected_script_item.file.get());
+                if (path != null)
+                {
+                    selected_script_item.file.set(path);
+                    selected_script_item.text = null;
+                }
             }
-            dlg.getExtensionFilters().addAll(new ExtensionFilter(Messages.ScriptsDialog_FileType_Py, "*.py"),
-                    new ExtensionFilter(Messages.ScriptsDialog_FileType_JS, "*.js"),
-                    new ExtensionFilter(Messages.ScriptsDialog_FileType_All, "*.*"));
-            final Window window = btn_file.getScene().getWindow();
-            final File result = dlg.showOpenDialog(window);
-            if (result != null)
+            catch (Exception ex)
             {
-                selected_script_item.file.set(result.getPath());
-                selected_script_item.text = null;
+                logger.log(Level.WARNING, "Cannot prompt for filename", ex);
             }
+            FilenameSupport.performMostAwfulTerribleNoGoodHack(scripts_table);
         });
 
         btn_embed_py = new Button(Messages.ScriptsDialog_BtnEmbedPy, JFXUtil.getIcon("embedded_script.png"));
@@ -344,7 +346,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
 
     /**
      * {@link PVItem} {@link TableCell} with {@link AutocompleteMenu}
-     * 
+     *
      * @author Amanda Carpenter
      */
     private class AutoCompletedTableCell extends TableCell<PVItem, String>
