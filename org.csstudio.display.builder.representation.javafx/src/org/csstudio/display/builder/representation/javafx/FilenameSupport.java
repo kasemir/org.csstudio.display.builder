@@ -16,8 +16,10 @@ import org.csstudio.display.builder.model.properties.FilenameWidgetProperty;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 
+import javafx.scene.Node;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
 import javafx.stage.Window;;
 
 /** Helper for handling {@link FilenameWidgetProperty}
@@ -87,5 +89,29 @@ public class FilenameSupport
         final DisplayModel model = widget.getDisplayModel();
         final String parent_file = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
         return ModelResourceUtil.getRelativePath(parent_file, filename);
+    }
+
+
+    /** When running under RCP, the file dialog
+     *  is an SWT dialog.
+     *  Opening that SWT dialog brings the SWT main window (Eclipse app)
+     *  to the front, hiding the JFX ActionsDialog.
+     *  When then closing that file dialog, the ActionsDialog
+     *  is still active (modal dialog), but hidden behind
+     *  the RCP window, so application appears dead
+     *  until user can find the hidden ActionsDialog.
+     *
+     *  This most awful terrible no good hack
+     *  brings the ActionsDialog back to the front.
+     */
+    public static void performMostAwfulTerribleNoGoodHack(final Node node_in_dialog)
+    {
+        // Found no obvious API to locate the dialog's stage.
+        // Debugger showed that the dialog's window is a stage.
+        final Window window = node_in_dialog.getScene().getWindow();
+        if (window instanceof Stage)
+            ((Stage)window).toFront();
+        else
+            throw new IllegalStateException("Cannot bring ActionsDialog back to front");
     }
 }

@@ -9,7 +9,6 @@ package org.csstudio.display.builder.representation.javafx;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -48,9 +47,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.stage.Window;
 
 /** Dialog for editing {@link ActionInfo} list
  *  @author Kay Kasemir
@@ -336,9 +332,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
                 final String path = FilenameSupport.promptForRelativePath(widget, open_display_path.getText());
                 if (path != null)
                     open_display_path.setText(path);
-                // XXX When the filename support dialog closes,
-                //     which under RCP is an SWT dialog,
-                //     this dialog ends up hidden under the main RCP window..
+                FilenameSupport.performMostAwfulTerribleNoGoodHack(action_list);
             }
             catch (Exception ex)
             {
@@ -495,9 +489,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
                 final String path = FilenameSupport.promptForRelativePath(widget, execute_script_file.getText());
                 if (path != null)
                     execute_script_file.setText(path);
-                // XXX When the filename support dialog closes,
-                //     which under RCP is an SWT dialog,
-                //     this dialog ends up hidden under the main RCP window..
+                FilenameSupport.performMostAwfulTerribleNoGoodHack(action_list);
             }
             catch (Exception ex)
             {
@@ -507,30 +499,6 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         final HBox path_box = new HBox(execute_script_file, select);
         HBox.setHgrow(execute_script_file, Priority.ALWAYS);
         execute_script_details.add(path_box, 1, 1);
-
-        final Button btn_file = new Button(Messages.ScriptsDialog_BtnFile, JFXUtil.getIcon("open_file.png"));
-        btn_file.setOnAction(event ->
-        {
-            final FileChooser dlg = new FileChooser();
-            dlg.setTitle(Messages.ScriptsDialog_FileBrowser_Title);
-            if (execute_script_file.getText().length() > 0)
-            {
-                File file = new File(execute_script_file.getText());
-                dlg.setInitialDirectory(file.getParentFile());
-                dlg.setInitialFileName(file.getName());
-            }
-            dlg.getExtensionFilters().addAll(
-                    new ExtensionFilter(Messages.ScriptsDialog_FileType_All, "*.*"),
-                    new ExtensionFilter(Messages.ScriptsDialog_FileType_Py, "*.py"),
-                    new ExtensionFilter(Messages.ScriptsDialog_FileType_JS, "*.js"));
-            final Window window = btn_file.getScene().getWindow();
-            final File result = dlg.showOpenDialog(window);
-            if (result != null)
-            {
-                execute_script_file.setText(result.getPath());
-                execute_script_text.setText(null);
-            }
-        });
 
         final Button btn_embed_py = new Button(Messages.ScriptsDialog_BtnEmbedPy, JFXUtil.getIcon("embedded_script.png"));
         btn_embed_py.setOnAction(event ->
@@ -550,7 +518,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
                 execute_script_text.setText(Messages.ScriptsDialog_DefaultEmbeddedJavaScript);
         });
 
-        execute_script_details.add(new HBox(10, btn_file, btn_embed_py, btn_embed_js), 1, 2);
+        execute_script_details.add(new HBox(10, btn_embed_py, btn_embed_js), 1, 2);
 
         execute_script_details.add(new Label(Messages.ActionsDialog_ScriptText), 0, 3);
         execute_script_text = new TextArea();
