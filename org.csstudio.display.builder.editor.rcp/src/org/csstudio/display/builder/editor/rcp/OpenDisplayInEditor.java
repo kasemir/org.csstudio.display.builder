@@ -48,7 +48,7 @@ public class OpenDisplayInEditor extends AbstractHandler implements IHandler
             final DisplayInfo info = view.getDisplayInfo();
             try
             {
-                openDisplay(info);
+                open(info.getPath());
             }
             catch (Exception ex)
             {
@@ -58,19 +58,27 @@ public class OpenDisplayInEditor extends AbstractHandler implements IHandler
         return null;
     }
 
-    private void openDisplay(final DisplayInfo info) throws Exception
+    /** Open editor for a display
+     *
+     *  <p>For remote files (http://..), it prompts for a download
+     *  and then opens the local file.
+     *
+     *  @param display_path Path to the display file
+     *  @throws Exception on error
+     */
+    public static void open(final String display_path) throws Exception
     {
         // Locate workspace file
-        IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(info.getPath()));
+        IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(display_path));
         if (! file.exists())
         {
             // If there is no file, try to open the stream for the web URL or external file
-            final InputStream stream = ModelResourceUtil.openResourceStream(info.getPath());
+            final InputStream stream = ModelResourceUtil.openResourceStream(display_path);
 
             // If that succeeds, prompt for local file name
             final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
             if (! MessageDialog.openQuestion(shell, Messages.DownloadTitle,
-                    NLS.bind(Messages.DownloadPromptFMT, info.getPath())))
+                    NLS.bind(Messages.DownloadPromptFMT, display_path)))
             {
                 stream.close();
                 return;

@@ -20,6 +20,7 @@ public class Messages extends NLS
     // Keep in alphabetical order!
     public static String DownloadPromptFMT;
     public static String DownloadTitle;
+    public static String EditEmbededDisplay;
     public static String ExecuteDisplay;
     public static String NewDisplay_Browse;
     public static String NewDisplay_BrowseTitle;
