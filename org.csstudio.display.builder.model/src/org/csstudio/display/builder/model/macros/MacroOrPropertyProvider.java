@@ -12,6 +12,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.Widget;
@@ -89,7 +90,8 @@ public class MacroOrPropertyProvider implements MacroValueProvider
                 if (coll.size() == 1)
                     return coll.iterator().next().toString();
             }
-            return prop_val.toString();
+            // Value of property may be null, example: Initial pv_value
+            return Objects.toString(prop_val);
         }
         return null;
     }

@@ -26,6 +26,10 @@ import javafx.scene.control.Tooltip;
 @SuppressWarnings("nls")
 public class TooltipSupport
 {
+    /** Attach tool tip
+     *  @param node Node that should have the tool tip
+     *  @param tooltip_property Tool tip to show
+     */
     public static void attach(final Node node, final WidgetProperty<String> tooltip_property)
     {
         // Suppress tool tip if _initial_ text is empty.

@@ -202,8 +202,20 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
         // setWith() & setHeight() in specific representation.
 
         if (! toolkit.isEditMode())
-            model_widget.checkProperty(CommonWidgetProperties.propTooltip)
-                        .ifPresent(prop -> TooltipSupport.attach(jfx_node, prop));
+            attachTooltip();
+    }
+
+    /** Attach tool tip support
+     *
+     *  <p>By default, each widget that has a tool tip property
+     *  will get TooltipSupport attached to the jfx_node,
+     *  but derived classes can override in case the tool tip
+     *  needs to be attached to some other sub-node.
+     */
+    protected void attachTooltip()
+    {
+        model_widget.checkProperty(CommonWidgetProperties.propTooltip)
+                    .ifPresent(prop -> TooltipSupport.attach(jfx_node, prop));
     }
 
     private void positionChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)

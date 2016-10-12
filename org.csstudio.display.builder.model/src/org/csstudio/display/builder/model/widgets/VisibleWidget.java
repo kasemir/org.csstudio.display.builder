@@ -24,6 +24,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 public class VisibleWidget extends Widget
 {
     private WidgetProperty<Boolean> visible;
+    private WidgetProperty<String> tooltip;
     private WidgetProperty<Boolean> connected;
 
     /** Widget constructor.
@@ -56,7 +57,7 @@ public class VisibleWidget extends Widget
     {
         super.defineProperties(properties);
         properties.add(visible = propVisible.createProperty(this, true));
-        properties.add(propTooltip.createProperty(this, getInitialTooltip()));
+        properties.add(tooltip = propTooltip.createProperty(this, getInitialTooltip()));
         // Start 'connected', assuming there are no PVs
         properties.add(connected = runtimePropConnected.createProperty(this, true));
     }
@@ -72,6 +73,12 @@ public class VisibleWidget extends Widget
     public WidgetProperty<Boolean> propVisible()
     {
         return visible;
+    }
+
+    /** @return Property 'tooltip' */
+    public WidgetProperty<String> propTooltip()
+    {
+        return tooltip;
     }
 
     /** @return Runtime 'connected' property */

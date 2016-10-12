@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetConfigurator;
@@ -109,6 +110,16 @@ public class ActionButtonWidget extends VisibleWidget
             }
 
             super.configureFromXML(model_reader, widget, xml);
+
+            final ActionButtonWidget button = (ActionButtonWidget)widget;
+            final MacroizedWidgetProperty<String> tooltip = (MacroizedWidgetProperty<String>) button.propTooltip();
+            if (xml_version.getMajor() < 3)
+                // See getInitialTooltip()
+                tooltip.setSpecification(tooltip.getSpecification().replace("pv_value", "actions"));
+            // If there is no pv_name, remove from tool tip
+            if ( ((MacroizedWidgetProperty<String>)button.pv_name).getSpecification().isEmpty())
+                tooltip.setSpecification(tooltip.getSpecification().replace("$(pv_name)\n", ""));
+
             return true;
         }
     }
@@ -133,6 +144,14 @@ public class ActionButtonWidget extends VisibleWidget
         super(WIDGET_DESCRIPTOR.getType(), 100, 30);
     }
 
+    /** @return Widget version number */
+    @Override
+    public Version getVersion()
+    {
+        // org.csstudio.opibuilder.widgets.ActionButton used 2.0.0
+        return new Version(3, 0, 0);
+    }
+
     @Override
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
@@ -144,6 +163,14 @@ public class ActionButtonWidget extends VisibleWidget
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BUTTON_BACKGROUND)));
         properties.add(enabled = propEnabled.createProperty(this, true));
+    }
+
+    @Override
+    protected String getInitialTooltip()
+    {
+        // Default would show $(pv_value), which doesn't exist for this widget.
+        // Use $(actions) instead.
+        return "$(pv_name)\n$(actions)";
     }
 
     /** @return 'pv_name' property */
