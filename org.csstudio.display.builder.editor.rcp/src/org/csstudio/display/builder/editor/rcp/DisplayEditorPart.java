@@ -12,6 +12,7 @@ import static org.csstudio.display.builder.editor.rcp.Plugin.logger;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
@@ -28,11 +29,13 @@ import org.csstudio.display.builder.editor.rcp.actions.SelectAllAction;
 import org.csstudio.display.builder.editor.rcp.actions.UndoAction;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.ModelPlugin;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.JFXCursorFix;
 import org.csstudio.display.builder.rcp.Preferences;
@@ -195,8 +198,13 @@ public class DisplayEditorPart extends EditorPart
         {
             manager.add(execute);
 
-            if (! editor.getWidgetSelectionHandler().getSelection().isEmpty())
+            final List<Widget> selection = editor.getWidgetSelectionHandler().getSelection();
+            if (! selection.isEmpty())
+            {
+                if (selection.size() == 1  &&  selection.get(0) instanceof EmbeddedDisplayWidget)
+                    manager.add(new EditEmbeddedDisplayAction((EmbeddedDisplayWidget)selection.get(0)));
                 manager.add(morph);
+            }
 
             manager.add(perspective);
         });

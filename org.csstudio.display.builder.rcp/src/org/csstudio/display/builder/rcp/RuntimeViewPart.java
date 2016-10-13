@@ -11,12 +11,14 @@ import static org.csstudio.display.builder.rcp.Plugin.logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.lang.ref.WeakReference;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.rcp.run.ContextMenuSupport;
@@ -73,6 +75,9 @@ public class RuntimeViewPart extends ViewPart
 
     /** Display info that may have been received from memento */
     private volatile Optional<DisplayInfo> display_info = Optional.empty();
+
+    /** Widget that triggered a context menu */
+    private volatile WeakReference<Widget> active_widget = null;
 
     private FXCanvas fx_canvas;
 
@@ -209,7 +214,7 @@ public class RuntimeViewPart extends ViewPart
 
         createToolbarItems();
 
-        new ContextMenuSupport(getSite(), fx_canvas, representation);
+        new ContextMenuSupport(this, fx_canvas, representation);
 
         parent.addDisposeListener(e -> onDispose());
 
@@ -324,6 +329,41 @@ public class RuntimeViewPart extends ViewPart
     public DisplayInfo getDisplayInfo()
     {
         return display_info.orElse(null);
+    }
+
+    /** @return Widget that's active when opening a context menu. May be <code>null</code> */
+    public Widget getActiveWidget()
+    {
+        final WeakReference<Widget> ref = active_widget;
+        if (ref == null)
+            return null;
+        return ref.get();
+    }
+
+    /** Set active widget
+     *
+     *  <p>Only to be called from {@link ContextMenuSupport}.
+     *
+     *  @param widget Widget on which the context menu was called
+     */
+    public void setActiveWidget(final Widget widget)
+    {
+        // Keeps a weak reference.
+        // Keeping a strong reference would prevent the widget from
+        // being GC'ed when the display changes and no other
+        // context menu is ever invoked.
+        // Ideally, menu would clear the active widget when hidden,
+        // but lifecycle is as follows:
+        // 1) menu opens
+        // 2) menu item is selected, setting the active widget
+        // 3) menu closes
+        // 4) handler for selected item is invoked
+        // .. and the handler wants to get the active widget,
+        // so it can't be cleared in step 3.
+        if (widget == null)
+            active_widget = null;
+        else
+            active_widget = new WeakReference<Widget>(widget);
     }
 
     /** Load display model, schedule representation
