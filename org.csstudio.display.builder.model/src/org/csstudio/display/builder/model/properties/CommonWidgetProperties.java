@@ -16,6 +16,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.diirt.vtype.VType;
 
 /** Common widget properties.
@@ -270,6 +271,10 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<String> propText =
         newStringPropertyDescriptor(WidgetPropertyCategory.WIDGET, "text", Messages.WidgetProperties_Text);
 
+    /** 'tooltip' property: Text to display in tooltip */
+    public static final WidgetPropertyDescriptor<String> propTooltip =
+        newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "tooltip", Messages.WidgetProperties_Tooltip);
+
     /** 'format' property */
     public static final WidgetPropertyDescriptor<FormatOption> propFormat =
         new WidgetPropertyDescriptor<FormatOption>(
@@ -443,7 +448,20 @@ public class CommonWidgetProperties
         public WidgetProperty<List<ActionInfo>> createProperty(final Widget widget,
                                                                final List<ActionInfo> actions)
         {
-            return new ActionsWidgetProperty(this, widget, actions);
+            return new ActionsWidgetProperty(this, widget, actions)
+            {
+                @Override
+                public WidgetPropertyCategory getCategory()
+                {
+                    // For action button, show "actions" as top-level property.
+                    // This violates the consistent order of properties,
+                    // but for an action button the actions are THE property
+                    // which should not be listed prominently, not somewhere down the list.
+                    if (widget instanceof ActionButtonWidget)
+                        return WidgetPropertyCategory.WIDGET;
+                    return super.getCategory();
+                }
+            };
         }
     };
 
@@ -489,9 +507,9 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<Double> propMaximum =
         newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "maximum", Messages.WidgetProperties_Maximum);
 
-    /** Runtime 'value' property: Typically read from primary PV */
+    /** Runtime 'pv_value' property: Typically read from primary PV */
     public static final WidgetPropertyDescriptor<VType> runtimePropValue =
-        newRuntimeValue("value", Messages.WidgetProperties_Value);
+        newRuntimeValue("pv_value", Messages.WidgetProperties_Value);
 
     /** Runtime 'connected' property: Are all PVs of the widget connected? */
     public static final WidgetPropertyDescriptor<Boolean> runtimePropConnected =

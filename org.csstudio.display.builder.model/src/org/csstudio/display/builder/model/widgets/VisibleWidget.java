@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.widgets;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTooltip;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propVisible;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropConnected;
 
@@ -19,9 +20,11 @@ import org.csstudio.display.builder.model.WidgetProperty;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class VisibleWidget extends Widget
 {
     private WidgetProperty<Boolean> visible;
+    private WidgetProperty<String> tooltip;
     private WidgetProperty<Boolean> connected;
 
     /** Widget constructor.
@@ -54,14 +57,28 @@ public class VisibleWidget extends Widget
     {
         super.defineProperties(properties);
         properties.add(visible = propVisible.createProperty(this, true));
+        properties.add(tooltip = propTooltip.createProperty(this, getInitialTooltip()));
         // Start 'connected', assuming there are no PVs
         properties.add(connected = runtimePropConnected.createProperty(this, true));
+    }
+
+    /** @return Default, initial tool tip text */
+    protected String getInitialTooltip()
+    {   // Plain Widgets tend to have no tool tip
+        // (see PVWidget)
+        return "";
     }
 
     /** @return Property 'visible' */
     public WidgetProperty<Boolean> propVisible()
     {
         return visible;
+    }
+
+    /** @return Property 'tooltip' */
+    public WidgetProperty<String> propTooltip()
+    {
+        return tooltip;
     }
 
     /** @return Runtime 'connected' property */

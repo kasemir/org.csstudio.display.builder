@@ -411,6 +411,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         int plot_width = bounds.width;
 
         final List<YAxisImpl<XTYPE>> save_copy = new ArrayList<>(y_axes);
+        // TODO: Call axis.getPixelGaps(gc), determine max space needed above & below all axes,
         // First, lay out 'left' axes in reverse order to get "2, 1, 0" on the left of the plot.
         for (YAxisImpl<XTYPE> axis : save_copy)
             if (! axis.isOnRight())

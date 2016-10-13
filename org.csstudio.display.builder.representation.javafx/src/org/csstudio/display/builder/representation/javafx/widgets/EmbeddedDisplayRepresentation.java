@@ -66,6 +66,12 @@ public class EmbeddedDisplayRepresentation extends RegionBaseRepresentation<Scro
     private volatile boolean resizing = false;
 
     @Override
+    protected boolean isFilteringEditModeClicks()
+    {
+        return true;
+    }
+
+    @Override
     public ScrollPane createJFXNode() throws Exception
     {
         // inner.setScaleX() and setScaleY() zoom from the center

@@ -7,13 +7,13 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp;
 
-import java.util.function.Function;
+import java.util.function.BiFunction;
 import java.util.logging.Logger;
 
-import org.csstudio.display.builder.editor.util.FilenameSupport;
 import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.model.properties.FilenameWidgetProperty;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.representation.javafx.FilenameSupport;
 import org.csstudio.ui.util.dialogs.ResourceSelectionDialog;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -36,7 +36,7 @@ public class Plugin extends org.eclipse.core.runtime.Plugin
     public final static Logger logger = Logger.getLogger(Plugin.class.getName());
 
     /** File prompter for workspace resources */
-    private final static Function<FilenameWidgetProperty, String> workspace_file_prompt = file_prop ->
+    private final static BiFunction<Widget, String, String> workspace_file_prompt = (widget, initial) ->
     {
         final String[] extensions = new String[FilenameSupport.file_extensions.length];
         for (int i=0; i<extensions.length; ++i)
@@ -47,9 +47,9 @@ public class Plugin extends org.eclipse.core.runtime.Plugin
 
         try
         {
-            final DisplayModel model = file_prop.getWidget().getDisplayModel();
-            final Path initial = new Path(ModelResourceUtil.resolveResource(model, file_prop.getValue()));
-            dialog.setSelectedResource(initial);
+            final DisplayModel model = widget.getDisplayModel();
+            final Path path = new Path(ModelResourceUtil.resolveResource(model, initial));
+            dialog.setSelectedResource(path);
         }
         catch (Exception ex)
         {

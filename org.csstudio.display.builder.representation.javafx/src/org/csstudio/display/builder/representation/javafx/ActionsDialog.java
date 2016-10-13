@@ -9,11 +9,11 @@ package org.csstudio.display.builder.representation.javafx;
 
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ActionInfo.ActionType;
@@ -47,9 +47,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.stage.Window;
 
 /** Dialog for editing {@link ActionInfo} list
  *  @author Kay Kasemir
@@ -60,6 +57,8 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
     // XXX: Smoother handling of script type changes
     // Prompt if embedded text should be deleted when changing to external file
     // Read existing file into embedded text when switching from file to embedded
+
+    private final Widget widget;
 
     private final AutocompleteMenu menu;
 
@@ -117,22 +116,22 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
     };
 
     /** Create dialog
+     *  @param widget Widget
      *  @param initial_actions Initial list of actions
      */
-    public ActionsDialog(final List<ActionInfo> initial_actions)
+    public ActionsDialog(final Widget widget, final List<ActionInfo> initial_actions)
     {
-        this(initial_actions, new AutocompleteMenu());
+        this(widget, initial_actions, new AutocompleteMenu());
     }
 
-    /**
-     * Create dialog
-     * 
-     * @param initial_actions Initial list of actions
-     * @param menu {@link AutocompleteMenu} to use for PV names (must not be
-     *            null)
+    /** Create dialog
+     *  @param widget Widget
+     *  @param initial_actions Initial list of actions
+     *  @param menu {@link AutocompleteMenu} to use for PV names (must not be null)
      */
-    public ActionsDialog(final List<ActionInfo> initial_actions, final AutocompleteMenu menu)
+    public ActionsDialog(final Widget widget, final List<ActionInfo> initial_actions, final AutocompleteMenu menu)
     {
+        this.widget = widget;
         this.menu = menu;
 
         actions.addAll(initial_actions);
@@ -312,6 +311,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         };
 
         final GridPane open_display_details = new GridPane();
+        // open_display_details.setGridLinesVisible(true);
         open_display_details.setHgap(10);
         open_display_details.setVgap(10);
 
@@ -324,7 +324,24 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         open_display_details.add(new Label(Messages.ActionsDialog_DisplayPath), 0, 1);
         open_display_path = new TextField();
         open_display_path.textProperty().addListener(update);
-        open_display_details.add(open_display_path, 1, 1);
+        final Button select = new Button("...");
+        select.setOnAction(event ->
+        {
+            try
+            {
+                final String path = FilenameSupport.promptForRelativePath(widget, open_display_path.getText());
+                if (path != null)
+                    open_display_path.setText(path);
+                FilenameSupport.performMostAwfulTerribleNoGoodHack(action_list);
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot prompt for filename", ex);
+            }
+        });
+        final HBox path_box = new HBox(open_display_path, select);
+        HBox.setHgrow(open_display_path, Priority.ALWAYS);
+        open_display_details.add(path_box, 1, 1);
 
         final HBox modes_box = new HBox(10);
         open_display_targets = new ToggleGroup();
@@ -464,31 +481,24 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         execute_script_details.add(new Label(Messages.ActionsDialog_ScriptPath), 0, 1);
         execute_script_file = new TextField();
         execute_script_file.textProperty().addListener(update);
-        execute_script_details.add(execute_script_file, 1, 1);
-
-        final Button btn_file = new Button(Messages.ScriptsDialog_BtnFile, JFXUtil.getIcon("open_file.png"));
-        btn_file.setOnAction(event ->
+        final Button select = new Button("...");
+        select.setOnAction(event ->
         {
-            final FileChooser dlg = new FileChooser();
-            dlg.setTitle(Messages.ScriptsDialog_FileBrowser_Title);
-            if (execute_script_file.getText().length() > 0)
+            try
             {
-                File file = new File(execute_script_file.getText());
-                dlg.setInitialDirectory(file.getParentFile());
-                dlg.setInitialFileName(file.getName());
+                final String path = FilenameSupport.promptForRelativePath(widget, execute_script_file.getText());
+                if (path != null)
+                    execute_script_file.setText(path);
+                FilenameSupport.performMostAwfulTerribleNoGoodHack(action_list);
             }
-            dlg.getExtensionFilters().addAll(
-                    new ExtensionFilter(Messages.ScriptsDialog_FileType_All, "*.*"),
-                    new ExtensionFilter(Messages.ScriptsDialog_FileType_Py, "*.py"),
-                    new ExtensionFilter(Messages.ScriptsDialog_FileType_JS, "*.js"));
-            final Window window = btn_file.getScene().getWindow();
-            final File result = dlg.showOpenDialog(window);
-            if (result != null)
+            catch (Exception ex)
             {
-                execute_script_file.setText(result.getPath());
-                execute_script_text.setText(null);
+                logger.log(Level.WARNING, "Cannot prompt for filename", ex);
             }
         });
+        final HBox path_box = new HBox(execute_script_file, select);
+        HBox.setHgrow(execute_script_file, Priority.ALWAYS);
+        execute_script_details.add(path_box, 1, 1);
 
         final Button btn_embed_py = new Button(Messages.ScriptsDialog_BtnEmbedPy, JFXUtil.getIcon("embedded_script.png"));
         btn_embed_py.setOnAction(event ->
@@ -508,7 +518,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
                 execute_script_text.setText(Messages.ScriptsDialog_DefaultEmbeddedJavaScript);
         });
 
-        execute_script_details.add(new HBox(10, btn_file, btn_embed_py, btn_embed_js), 1, 2);
+        execute_script_details.add(new HBox(10, btn_embed_py, btn_embed_js), 1, 2);
 
         execute_script_details.add(new Label(Messages.ActionsDialog_ScriptText), 0, 3);
         execute_script_text = new TextArea();

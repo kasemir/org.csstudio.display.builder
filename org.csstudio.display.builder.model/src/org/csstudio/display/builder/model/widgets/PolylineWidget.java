@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPoints;
@@ -95,6 +96,10 @@ public class PolylineWidget extends VisibleWidget
         }
     };
 
+    private static final WidgetPropertyDescriptor<Integer> propArrowLength =
+        newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "arrow_length", Messages.ArrowLength,
+                                     2, Integer.MAX_VALUE);
+
     /** Handle legacy XML format */
     static class LegacyWidgetConfigurator extends WidgetConfigurator
     {
@@ -128,6 +133,7 @@ public class PolylineWidget extends VisibleWidget
     private volatile WidgetProperty<Integer> line_width;
     private volatile WidgetProperty<Points> points;
     private volatile WidgetProperty<Arrows> arrows;
+    private volatile WidgetProperty<Integer> arrow_length;
 
     public PolylineWidget()
     {
@@ -147,6 +153,7 @@ public class PolylineWidget extends VisibleWidget
         properties.add(line_width = propLineWidth.createProperty(this, 3));
         properties.add(line_color = propLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
         properties.add(arrows = propArrows.createProperty(this, Arrows.NONE));
+        properties.add(arrow_length = propArrowLength.createProperty(this, 20));
         properties.add(points = propPoints.createProperty(this, new Points()));
     }
 
@@ -183,15 +190,21 @@ public class PolylineWidget extends VisibleWidget
         return line_width;
     }
 
-    /** @return 'points' property */
-    public WidgetProperty<Points> propPoints()
-    {
-        return points;
-    }
-
     /** @return 'arrows' property */
     public WidgetProperty<Arrows> propArrows()
     {
         return arrows;
+    }
+
+    /** @return 'arrow_length' property */
+    public WidgetProperty<Integer> propArrowLength()
+    {
+        return arrow_length;
+    }
+
+    /** @return 'points' property */
+    public WidgetProperty<Points> propPoints()
+    {
+        return points;
     }
 }

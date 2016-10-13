@@ -262,6 +262,40 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
 
     /** {@inheritDoc} */
     @Override
+    public int[] getPixelGaps(final Graphics2D gc)
+    {
+        if (! isVisible())
+            return super.getPixelGaps(gc);
+
+        gc.setFont(scale_font);
+        final FontMetrics metrics = gc.getFontMetrics();
+
+        // Measure first tick
+        double tick = ticks.getStart();
+        String mark = ticks.format(tick);
+        int low = metrics.stringWidth(mark);
+        // System.out.println("Initial tick: " + mark + " (" + low + ")");
+
+        // Get last tick
+        final double low_value = range.getLow();
+        final double high_value = range.getHigh();
+        final boolean normal = low_value <= high_value;
+        double last = tick;
+        while ((normal ? tick <= high_value : tick >= high_value)  &&  Double.isFinite(tick))
+        {
+            last = tick;
+            tick = ticks.getNext(tick);
+        }
+        // Measure last tick
+        mark = ticks.format(last);
+        final int high = metrics.stringWidth(mark);
+        // System.out.println("Final tick: " + mark + " (" + high + ")");
+
+        return new int[] { low / 2, high / 2 };
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void paint(final Graphics2D gc, final Rectangle plot_bounds)
     {
         if (! isVisible())
@@ -380,7 +414,7 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
         final int mark_width = metrics.getHeight();
         final int x = is_right ? region.x + TICK_LENGTH : region.x + region.width - TICK_LENGTH - mark_width;
         final int y = getScreenCoord(tick)  - mark_height/2;
-        // gc.drawRect(x,  y, mark_width, mark_height);
+        // gc.drawRect(x,  y, mark_width, mark_height); // Debug outline of tick label
         GraphicsUtils.drawVerticalText(gc, x, y, mark, !is_right);
     }
 

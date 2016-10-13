@@ -110,6 +110,8 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
     public void setLabelFont(final javafx.scene.text.Font font)
     {
         label_font = GraphicsUtils.convert(font);
+        requestLayout();
+        requestRefresh();
     }
 
     /** {@inheritDoc} */
@@ -124,6 +126,9 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
     public void setScaleFont(final javafx.scene.text.Font font)
     {
         scale_font = GraphicsUtils.convert(font);
+        dirty_ticks = true;
+        requestLayout();
+        requestRefresh();
     }
 
     /** {@inheritDoc} */
@@ -172,6 +177,24 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
      *          For vertical axis, desired width in pixels.
      */
     abstract public int getDesiredPixelSize(Rectangle region, Graphics2D gc);
+
+    /** Determine the required gaps at the start/end of the axis.
+     *
+     *  <p>For a horizontal axis, this is the gap at the left and right
+     *  edge of the axis to allow for the first and the last
+     *  scale labels.
+     *
+     *  <p>For a vertical axis, this is the gap at the bottom and top
+     *  edge of the axis to allow for the first and the last
+     *  scale labels.
+     *
+     *  @param gc GC that can be used to determine font measurements
+     *  @return Gap in pixels for { start, end }
+     */
+    public int[] getPixelGaps(final Graphics2D gc)
+    {
+        return new int[] { 0, 0 };
+    }
 
     /** {@inheritDoc} */
     @Override
@@ -318,6 +341,9 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
             ticks.compute(safe_range.getLow(), safe_range.getHigh(), gc, getBounds().width);
         else
             ticks.compute(safe_range.getLow(), safe_range.getHigh(), gc, getBounds().height);
+        // If ticks changed, the layout of tick labels may change
+        requestLayout();
+        requestRefresh();
         dirty_ticks = false;
     }
 

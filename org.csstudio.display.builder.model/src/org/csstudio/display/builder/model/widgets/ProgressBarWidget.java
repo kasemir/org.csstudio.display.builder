@@ -42,7 +42,7 @@ public class ProgressBarWidget extends PVWidget
             "Progress Bar",
             "platform:/plugin/org.csstudio.display.builder.model/icons/progressbar.png",
             "Bar graph widget that 'fills' relative to numeric value of a PV",
-            Arrays.asList("org.csstudio.opibuilder.widgets.progressbar", "org.csstudio.opibuilder.widgets.tank"))
+            Arrays.asList("org.csstudio.opibuilder.widgets.progressbar"))
     {
         @Override
         public Widget createWidget()

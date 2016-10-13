@@ -10,6 +10,7 @@ package org.csstudio.display.builder.representation.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.representation.javafx.ScriptsDialog;
@@ -35,7 +36,7 @@ public class JFXScriptsDialogDemo extends Application
         scripts.add(new ScriptInfo("/tmp/demo1.py", new ScriptPV("pv1")));
         scripts.add(new ScriptInfo("/tmp/demo2.py", new ScriptPV("pv1"), new ScriptPV("pv2", false)));
 
-        final ScriptsDialog dialog = new ScriptsDialog(scripts);
+        final ScriptsDialog dialog = new ScriptsDialog(new Widget("demo"), scripts);
         System.out.println(dialog.showAndWait());
     }
 }

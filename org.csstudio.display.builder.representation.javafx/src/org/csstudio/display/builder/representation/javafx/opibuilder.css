@@ -18,3 +18,34 @@
 {
     -fx-font-weight:bold;
 }
+
+/* Default button padding in modena.css:
+ * .button
+ * {
+ *  -fx-padding: 0.333333em 0.666667em 0.333333em 0.666667em; (top right bottom left)
+ * }
+ * Compared to BOY, this reduces many button "labels" to "lab...".
+ * Since button labels are centered anyway,
+ * setting the left and right padding to 0em makes no visual
+ * difference for shorter labels, while at the same time allowing
+ * for labels that are as wide as the button.
+ * Removing the top/bottom padding helps with drop-down buttons,
+ * while again no impact on "small" text because it's centered anyway.
+ */
+.action_button
+{
+   -fx-padding: 0em 0em 0em 0em;
+}
+
+/* Default button padding in modena.css is white-on-black */
+.tooltip
+{
+    -fx-background: rgba(231,243,253);
+    -fx-text-fill: black;
+    -fx-background-color: rgba(231,243,253,0.8);
+    -fx-background-radius: 6px;
+    -fx-background-insets: 0;
+    -fx-padding: 0.3em 0.35em 0.3em 0.35em;
+    -fx-font-size: 10pt;
+}
+

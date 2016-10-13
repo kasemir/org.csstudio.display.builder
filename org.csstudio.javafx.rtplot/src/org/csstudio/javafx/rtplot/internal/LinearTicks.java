@@ -249,7 +249,7 @@ public class LinearTicks implements Ticks<Double>
             return "Inf";
         // Patch numbers that are "very close to zero"
         // to avoid "-0.00" or "0.0e-22"
-        if (Math.abs(num) < Math.abs(distance/1000))
+        if (Math.abs(num) < Math.abs(distance/100000))
             return num_fmt.format(0.0);
         return num_fmt.format(num);
     }
@@ -262,10 +262,9 @@ public class LinearTicks implements Ticks<Double>
             return "NaN";
         if (num.isInfinite())
             return "Inf";
-        // Patch numbers that are "very close to zero"
-        // to avoid "-0.00" or "0.0e-22"
-        if (Math.abs(num) < Math.abs(distance/1000))
-            return detailed_num_fmt.format(0.0);
+        // Do NOT patch numbers "very close to zero"
+        // in detailed format because that could
+        // hide what user wants to inspect
         return detailed_num_fmt.format(num);
     }
 

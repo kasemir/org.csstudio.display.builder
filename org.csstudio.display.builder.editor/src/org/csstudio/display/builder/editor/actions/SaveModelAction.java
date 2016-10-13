@@ -12,9 +12,9 @@ import java.io.File;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorDemoGUI;
 import org.csstudio.display.builder.editor.Messages;
+import org.csstudio.display.builder.representation.javafx.FilenameSupport;
 
 import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 
 /** Prompt for file name to save model
@@ -45,8 +45,7 @@ public class SaveModelAction extends ActionDescription
             dialog.setInitialDirectory(file.getParentFile());
             dialog.setInitialFileName(file.getName());
         }
-        dialog.getExtensionFilters().addAll(new ExtensionFilter(Messages.FileTypeDisplays, "*.opi"),
-                                            new ExtensionFilter(Messages.FileTypeAll, "*.*"));
+        dialog.getExtensionFilters().addAll(FilenameSupport.file_extensions);
         file = dialog.showSaveDialog(window);
         if (file == null)
             return;

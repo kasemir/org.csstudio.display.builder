@@ -64,6 +64,11 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
 
     private Pane pane;
 
+    @Override
+    protected boolean isFilteringEditModeClicks()
+    {
+        return true;
+    }
 
     @Override
     public Pane createJFXNode() throws Exception
@@ -127,6 +132,8 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             result = button;
         }
         result.setStyle(background);
+        result.getStyleClass().add("action_button");
+        result.setMnemonicParsing(false);
 
         // Model has width/height, but JFX widget has min, pref, max size.
         // updateChanges() will set the 'pref' size, so make min use that as well.
@@ -135,6 +142,9 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         // Monitor keys that modify the OpenDisplayActionInfo.Target.
         // Use filter to capture event that's otherwise already handled.
         result.addEventFilter(MouseEvent.MOUSE_PRESSED, this::checkModifiers);
+
+        // Need to attach TT to the specific button, not the common jfx_node Pane
+        TooltipSupport.attach(result, model_widget.propTooltip());
 
         return result;
     }
@@ -205,6 +215,14 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::buttonChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::buttonChanged);
         model_widget.propActions().addUntypedPropertyListener(this::buttonChanged);
+    }
+
+    @Override
+    protected void attachTooltip()
+    {
+        // Cannot attach tool tip to the jfx_node (Pane).
+        // Needs to be attached to actual button, which
+        // is done in makeBaseButton()
     }
 
     /** Complete button needs to be updated */

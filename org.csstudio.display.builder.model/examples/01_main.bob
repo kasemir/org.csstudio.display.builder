@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Main</name>
-  <x>-1</x>
-  <y>-1</y>
   <widget type="label" version="2.0.0">
     <name>Label</name>
+    <text>Display Builder Examples</text>
     <width>281</width>
     <height>31</height>
-    <text>Display Builder Examples</text>
     <font>
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
@@ -18,7 +16,6 @@
     <y>81</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>02_intro.bob</file>
@@ -33,7 +30,6 @@
     <y>121</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>graphics_label.bob</file>
@@ -48,7 +44,6 @@
     <y>121</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>monitors_textupdate.bob</file>
@@ -63,7 +58,6 @@
     <y>161</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>monitors_led.bob</file>
@@ -74,10 +68,10 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
+    <text>Information</text>
     <y>51</y>
     <width>141</width>
     <height>30</height>
-    <text>Information</text>
     <font>
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
       </font>
@@ -85,11 +79,11 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
+    <text>Widgets</text>
     <x>191</x>
     <y>51</y>
     <width>141</width>
     <height>30</height>
-    <text>Widgets</text>
     <font>
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
       </font>
@@ -97,11 +91,11 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
+    <text>Graphics</text>
     <x>191</x>
     <y>91</y>
     <width>141</width>
     <height>30</height>
-    <text>Graphics</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -109,11 +103,11 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
+    <text>Monitors</text>
     <x>332</x>
     <y>91</y>
     <width>110</width>
     <height>30</height>
-    <text>Monitors</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -121,11 +115,11 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
+    <text>Controls</text>
     <x>191</x>
     <y>291</y>
     <width>120</width>
     <height>30</height>
-    <text>Controls</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -133,11 +127,11 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
+    <text>Plots</text>
     <x>332</x>
     <y>291</y>
     <width>120</width>
     <height>30</height>
-    <text>Plots</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -149,7 +143,6 @@
     <y>321</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>plots_xy.bob</file>
@@ -164,7 +157,6 @@
     <y>361</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>plots_image.bob</file>
@@ -178,12 +170,11 @@
     <y>241</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
-        <file>10_scripts.bob</file>
+        <file>06_runtime.bob</file>
         <target>replace</target>
-        <description>Scripts</description>
+        <description>Runtime</description>
       </action>
     </actions>
   </widget>
@@ -192,7 +183,6 @@
     <y>121</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>03_properties.bob</file>
@@ -206,7 +196,6 @@
     <y>161</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>04_macros.bob</file>
@@ -220,7 +209,6 @@
     <y>201</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>05_actions.bob</file>
@@ -235,7 +223,6 @@
     <y>161</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>graphics_picture.bob</file>
@@ -246,11 +233,11 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
+    <text>Structure</text>
     <x>471</x>
     <y>91</y>
     <width>110</width>
     <height>30</height>
-    <text>Structure</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -262,7 +249,6 @@
     <y>161</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>embedded/structure_embedded.bob</file>
@@ -277,7 +263,6 @@
     <y>201</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>structure_tabs.bob</file>
@@ -292,7 +277,6 @@
     <y>121</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>structure_group.bob</file>
@@ -307,7 +291,6 @@
     <y>321</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>controls_textentry.bob</file>
@@ -322,7 +305,6 @@
     <y>361</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>control_toggle_buttons.bob</file>
@@ -337,7 +319,6 @@
     <y>401</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>control_action_buttons.bob</file>
@@ -352,7 +333,6 @@
     <y>201</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>graphics_poly.bob</file>
@@ -360,7 +340,6 @@
         <description>Polygon/line</description>
       </action>
     </actions>
-    <pv_name></pv_name>
   </widget>
   <widget type="action_button" version="2.0.0">
     <name>Action Button_18</name>
@@ -368,7 +347,6 @@
     <y>441</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>controls_spinner_slider_scrollbar.bob</file>
@@ -383,7 +361,6 @@
     <y>481</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>controls_combo.bob</file>
@@ -394,11 +371,11 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
+    <text>Miscellaneous</text>
     <x>471</x>
     <y>291</y>
     <width>120</width>
     <height>30</height>
-    <text>Miscellaneous</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -410,7 +387,6 @@
     <y>321</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>misc_webbrowser.bob</file>
@@ -425,7 +401,6 @@
     <y>201</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>monitors_bytemonitor.bob</file>
@@ -440,7 +415,6 @@
     <y>241</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>structure_array.bob</file>
@@ -455,7 +429,6 @@
     <y>561</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>controls_fileselector.bob</file>
@@ -470,12 +443,24 @@
     <y>521</y>
     <width>120</width>
     <height>26</height>
-    <text>$(actions)</text>
     <actions>
       <action type="open_display">
         <file>controls_radio.bob</file>
         <target>replace</target>
         <description>Radio Button</description>
+      </action>
+    </actions>
+  </widget>
+  <widget type="action_button" version="2.0.0">
+    <name>Action Button_24</name>
+    <y>280</y>
+    <width>120</width>
+    <height>26</height>
+    <actions>
+      <action type="open_display">
+        <file>10_scripts.bob</file>
+        <target>replace</target>
+        <description>Scripts</description>
       </action>
     </actions>
   </widget>

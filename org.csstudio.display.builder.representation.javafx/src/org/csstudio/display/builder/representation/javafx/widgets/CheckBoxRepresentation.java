@@ -41,6 +41,7 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
     {
         final CheckBox checkbox = new CheckBox(label);
         checkbox.setMinSize(ButtonBase.USE_PREF_SIZE, ButtonBase.USE_PREF_SIZE);
+        checkbox.setMnemonicParsing(false);
 
         if (! toolkit.isEditMode())
             checkbox.setOnAction(event -> handlePress());

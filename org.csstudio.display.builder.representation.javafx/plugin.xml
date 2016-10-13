@@ -88,6 +88,10 @@
             type="tab">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.TankRepresentation"
+            type="tank">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepresentation"
             type="textentry">
       </representation>

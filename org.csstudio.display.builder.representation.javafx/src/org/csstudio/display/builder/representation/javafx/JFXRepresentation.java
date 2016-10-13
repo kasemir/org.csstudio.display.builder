@@ -54,6 +54,7 @@ import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
 import org.csstudio.display.builder.model.widgets.SpinnerWidget;
 import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
+import org.csstudio.display.builder.model.widgets.TankWidget;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.model.widgets.TextUpdateWidget;
 import org.csstudio.display.builder.model.widgets.ThermometerWidget;
@@ -88,6 +89,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.ScrollBarRepre
 import org.csstudio.display.builder.representation.javafx.widgets.SpinnerRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TableRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TabsRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.TankRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextEntryRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.TextUpdateRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ThermometerRepresentation;
@@ -247,6 +249,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(ScrollBarWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ScrollBarRepresentation());
         factories.put(TableWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TableRepresentation());
         factories.put(TabsWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TabsRepresentation());
+        factories.put(TankWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TankRepresentation());
         factories.put(TextEntryWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextEntryRepresentation());
         factories.put(TextUpdateWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextUpdateRepresentation());
         factories.put(ThermometerWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ThermometerRepresentation());

@@ -21,6 +21,7 @@ public class Messages extends NLS
     public static String ActiveTab;
     public static String ArrayWidget_Description;
     public static String ArrayWidget_Name;
+    public static String ArrowLength;
     public static String Arrows;
     public static String Arrows_None;
     public static String Arrows_From;
@@ -133,6 +134,7 @@ public class Messages extends NLS
     public static String WidgetProperties_DataHeight;
     public static String WidgetProperties_DataWidth;
     public static String WidgetProperties_Direction;
+    public static String WidgetProperties_EmptyColor;
     public static String WidgetProperties_Enabled;
     public static String WidgetProperties_File;
     public static String WidgetProperties_FillColor;
@@ -191,6 +193,7 @@ public class Messages extends NLS
     public static String WidgetProperties_StepIncrement;
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Text;
+    public static String WidgetProperties_Tooltip;
     public static String WidgetProperties_Transparent;
     public static String WidgetProperties_Type;
     public static String WidgetProperties_UnsignedData;
