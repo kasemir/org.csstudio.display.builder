@@ -595,11 +595,12 @@ or configured on the widget.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_21</name>
-    <text>By default, the LED indicates alarm states via the usual border.</text>
-    <x>168</x>
+    <text>By default, the LED indicates alarm states via the border,
+except that the border follows the outline of the LED.</text>
+    <x>231</x>
     <y>522</y>
-    <width>442</width>
-    <height>24</height>
+    <width>432</width>
+    <height>48</height>
     <font>
       <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
       </font>
@@ -620,6 +621,38 @@ or configured on the widget.</text>
     <y>520</y>
     <width>26</width>
     <height>26</height>
+    <off_color>
+      <color name="Off" red="60" green="100" blue="60">
+      </color>
+    </off_color>
+    <on_color>
+      <color name="On" red="0" green="255" blue="0">
+      </color>
+    </on_color>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>BoolLED_3</name>
+    <pv_name>sim://ramp(0, 4, 1)</pv_name>
+    <x>109</x>
+    <y>522</y>
+    <width>27</width>
+    <height>48</height>
+    <off_color>
+      <color name="Off" red="60" green="100" blue="60">
+      </color>
+    </off_color>
+    <on_color>
+      <color name="On" red="0" green="255" blue="0">
+      </color>
+    </on_color>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>BoolLED_4</name>
+    <pv_name>sim://ramp(0, 4, 1)</pv_name>
+    <x>144</x>
+    <y>522</y>
+    <width>57</width>
+    <height>24</height>
     <off_color>
       <color name="Off" red="60" green="100" blue="60">
       </color>

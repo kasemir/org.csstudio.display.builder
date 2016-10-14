@@ -212,7 +212,13 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
         else
         {   // Create a custom alarm border
             final int horiz = radii[0], vert = radii[1];
-            final CornerRadii corners = new CornerRadii(horiz, vert, vert, horiz, horiz, vert, vert, horiz,
+            // There's a bug in CornerRadii:
+            // Even though horiz != vert, it considers them all 'uniform'
+            // because it _separately_ compares all the horizontal and vertical radii,
+            // never checking if horiz == vert.
+            // Workaround: Make one of the horiz or vert radii a little different (+0.1).
+            // Bug was in at least Java 1.8.0_101.
+            final CornerRadii corners = new CornerRadii(horiz, vert, vert, horiz, horiz, vert, vert, horiz+0.1,
                                                         false, false, false, false, false, false, false, false);
             border = createAlarmBorder(severity, corners);
         }
