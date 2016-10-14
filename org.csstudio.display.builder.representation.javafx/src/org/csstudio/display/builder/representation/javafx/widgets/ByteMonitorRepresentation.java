@@ -26,15 +26,15 @@ import javafx.scene.shape.Shape;
 /** Creates JavaFX item for model widget
  *  @author Amanda Carpenter
  */
-@SuppressWarnings("nls") // TODO
+@SuppressWarnings("nls")
 public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, ByteMonitorWidget>
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
-    protected final DirtyFlag dirty_content = new DirtyFlag();
+    private final DirtyFlag dirty_content = new DirtyFlag();
 
-    protected volatile Color[] colors = new Color[2];
+    private volatile Color[] colors;
 
-    protected volatile Color[] value_colors = null;
+    private volatile Color[] value_colors = null;
 
     private volatile int startBit = 0;
     private volatile int numBits = 8;
@@ -45,7 +45,6 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
     private volatile Shape[] leds = null;
 
     @Override
-    //XXX: consider Pane vs Canvas
     protected Pane createJFXNode() throws Exception
     {
         colors = createColors();
@@ -57,6 +56,25 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
         pane.setMinSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
         pane.setMaxSize(Pane.USE_PREF_SIZE, Pane.USE_PREF_SIZE);
         return pane;
+    }
+
+    @Override
+    public int[] getBorderRadii()
+    {
+        if (square_led)
+            return null;
+        if (horizontal)
+            return new int[]
+            {
+                model_widget.propWidth().getValue()/numBits/2,
+                model_widget.propHeight().getValue()/2,
+            };
+        else
+            return new int[]
+            {
+                model_widget.propWidth().getValue()/2,
+                model_widget.propHeight().getValue()/numBits/2,
+            };
     }
 
     private void addLEDs(final Pane pane)
@@ -86,11 +104,12 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
             else
             {
                 final Ellipse ell = new Ellipse();
-                final int d = Math.min(horizontal ? w/save_bits : w, horizontal ? h : h/save_bits);
-                ell.setCenterX(horizontal ? d/2 + i*w/save_bits : d/2);
-                ell.setCenterY(horizontal ? d/2 : d/2 + i*h/save_bits);
-                ell.setRadiusX(d/2);
-                ell.setRadiusY(d/2);
+                final int dh = horizontal ? w/save_bits : w;
+                final int dv = horizontal ? h : h/save_bits;
+                ell.setCenterX(horizontal ? dh/2 + i*dh : dh/2);
+                ell.setCenterY(horizontal ? dv/2 : dv/2 + i*dv);
+                ell.setRadiusX(dh/2);
+                ell.setRadiusY(dv/2);
                 led = ell;
             }
             led.getStyleClass().add("led");
@@ -220,7 +239,6 @@ public class ByteMonitorRepresentation extends RegionBaseRepresentation<Pane, By
             final int h = model_widget.propHeight().getValue();
             jfx_node.setPrefSize(w, h);
             addLEDs(jfx_node, w, h, horizontal);
-
         }
         if (dirty_content.checkAndClear())
         {
