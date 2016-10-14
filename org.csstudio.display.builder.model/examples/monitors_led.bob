@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Display</name>
+  <width>650</width>
+  <height>650</height>
   <widget type="label" version="2.0.0">
     <name>Label</name>
     <text>LED Widget</text>
@@ -21,14 +23,14 @@
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
     <text>Can be configured to be ugly:</text>
-    <y>540</y>
+    <y>590</y>
     <width>201</width>
   </widget>
   <widget type="led" version="2.0.0">
     <name>LED_2</name>
     <pv_name>sim://ramp(0, 4, 1)</pv_name>
     <x>231</x>
-    <y>520</y>
+    <y>570</y>
     <width>97</width>
     <height>52</height>
     <off_color>
@@ -571,5 +573,60 @@ or configured on the widget.</text>
       <color red="255" green="255" blue="255">
       </color>
     </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_20</name>
+    <text>Alarms:</text>
+    <y>522</y>
+    <width>80</width>
+    <height>26</height>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="255" green="255" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_21</name>
+    <text>By default, the LED indicates alarm states via the usual border.</text>
+    <x>168</x>
+    <y>522</y>
+    <width>442</width>
+    <height>24</height>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
+    <foreground_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="255" green="255" blue="255">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>BoolLED_2</name>
+    <pv_name>sim://ramp(0, 4, 1)</pv_name>
+    <x>67</x>
+    <y>520</y>
+    <width>26</width>
+    <height>26</height>
+    <off_color>
+      <color name="Off" red="60" green="100" blue="60">
+      </color>
+    </off_color>
+    <on_color>
+      <color name="On" red="0" green="255" blue="0">
+      </color>
+    </on_color>
   </widget>
 </display>

@@ -58,6 +58,16 @@ abstract class BaseLEDRepresentation<LED extends BaseLEDWidget> extends RegionBa
         return pane;
     }
 
+    @Override
+    public int[] getBorderRadii()
+    {
+        return new int[]
+        {
+            model_widget.propWidth().getValue()/2,
+            model_widget.propHeight().getValue()/2,
+        };
+    }
+
     /** Create colors for the states of the LED
      *  @return Colors, must contain at least one element
      */
