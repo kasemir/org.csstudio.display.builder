@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Display</name>
-  <x>-1</x>
-  <y>-1</y>
   <widget type="label" version="2.0.0">
     <name>Label</name>
+    <text>Byte Monitor Widget</text>
     <width>339</width>
     <height>31</height>
-    <text>Byte Monitor Widget</text>
     <font>
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
@@ -15,23 +13,27 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
+    <text>The byte monitor displays the bits of a PV.</text>
     <y>31</y>
     <width>321</width>
     <height>30</height>
-    <text>The byte monitor displays the bits of a PV.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
+    <text>Can be configured to be ugly:</text>
     <y>411</y>
     <width>201</width>
-    <text>Can be configured to be ugly:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
+    <text>Default:</text>
     <y>103</y>
     <width>80</width>
     <height>26</height>
-    <text>Default:</text>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -40,17 +42,17 @@
       <color red="255" green="255" blue="255">
       </color>
     </background_color>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
+    <text>Options:</text>
     <y>169</y>
     <width>59</width>
     <height>26</height>
-    <text>Options:</text>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -59,18 +61,18 @@
       <color red="255" green="255" blue="255">
       </color>
     </background_color>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
+    <text>0</text>
     <x>130</x>
     <y>87</y>
     <width>28</width>
     <height>26</height>
-    <text>0</text>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -79,19 +81,19 @@
       <color red="255" green="255" blue="255">
       </color>
     </background_color>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
     <horizontal_alignment>1</horizontal_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
+    <text>1</text>
     <x>108</x>
     <y>87</y>
     <width>28</width>
     <height>26</height>
-    <text>1</text>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -100,19 +102,19 @@
       <color red="255" green="255" blue="255">
       </color>
     </background_color>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
     <horizontal_alignment>1</horizontal_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
+    <text>2</text>
     <x>83</x>
     <y>87</y>
     <width>22</width>
     <height>26</height>
-    <text>2</text>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -121,19 +123,19 @@
       <color red="255" green="255" blue="255">
       </color>
     </background_color>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
     <horizontal_alignment>1</horizontal_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
+    <text>Default</text>
     <x>171</x>
     <y>321</y>
     <width>59</width>
     <height>26</height>
-    <text>Default</text>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -142,112 +144,112 @@
       <color red="255" green="255" blue="255">
       </color>
     </background_color>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
+    <text>Reversed</text>
     <x>251</x>
     <y>321</y>
     <width>70</width>
     <height>26</height>
-    <text>Reversed</text>
-    <background_color>
-      <color red="255" green="255" blue="255">
-      </color>
-    </background_color>
     <font>
       <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
       </font>
     </font>
+    <background_color>
+      <color red="255" green="255" blue="255">
+      </color>
+    </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_10</name>
+    <text>Label6</text>
     <x>451</x>
     <y>396</y>
     <width>48</width>
     <height>26</height>
-    <text>Label6</text>
-    <background_color>
-      <color red="255" green="255" blue="255">
-      </color>
-    </background_color>
     <font>
       <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
       </font>
     </font>
+    <background_color>
+      <color red="255" green="255" blue="255">
+      </color>
+    </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_11</name>
+    <text>Label5</text>
     <x>451</x>
     <y>367</y>
     <width>48</width>
-    <text>Label5</text>
-    <background_color>
-      <color red="255" green="255" blue="255">
-      </color>
-    </background_color>
     <font>
       <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
       </font>
     </font>
+    <background_color>
+      <color red="255" green="255" blue="255">
+      </color>
+    </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_12</name>
+    <text>Label4</text>
     <x>451</x>
     <y>335</y>
     <width>48</width>
-    <text>Label4</text>
-    <background_color>
-      <color red="255" green="255" blue="255">
-      </color>
-    </background_color>
     <font>
       <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
       </font>
     </font>
+    <background_color>
+      <color red="255" green="255" blue="255">
+      </color>
+    </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_13</name>
+    <text>Label7</text>
     <x>451</x>
     <y>428</y>
     <width>48</width>
     <height>26</height>
-    <text>Label7</text>
-    <background_color>
-      <color red="255" green="255" blue="255">
-      </color>
-    </background_color>
     <font>
       <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
       </font>
     </font>
+    <background_color>
+      <color red="255" green="255" blue="255">
+      </color>
+    </background_color>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_1</name>
+    <pv_name>sim://ramp(0, 4, 1)</pv_name>
     <x>60</x>
     <y>61</y>
     <width>80</width>
     <height>26</height>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
     <font>
       <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
       </font>
     </font>
-    <pv_name>sim://ramp(0, 4, 1)</pv_name>
+    <foreground_color>
+      <color red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_14</name>
+    <text>Value:</text>
     <y>61</y>
     <width>80</width>
     <height>26</height>
-    <text>Value:</text>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -256,18 +258,18 @@
       <color red="255" green="255" blue="255">
       </color>
     </background_color>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_15</name>
+    <text>By default, the start (smallest) bit is on the right.</text>
     <x>181</x>
     <y>103</y>
     <width>421</width>
     <height>26</height>
-    <text>By default, the start (smallest) bit is on the right.</text>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -276,18 +278,18 @@
       <color red="255" green="255" blue="255">
       </color>
     </background_color>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_16</name>
+    <text>The bits may be reversed, and the start bit or orientation changed.</text>
     <x>181</x>
     <y>169</y>
     <width>421</width>
     <height>26</height>
-    <text>The bits may be reversed, and the start bit or orientation changed.</text>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -296,17 +298,17 @@
       <color red="255" green="255" blue="255">
       </color>
     </background_color>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_17</name>
+    <text>Rectangular LEDs can also be used.</text>
     <y>361</y>
     <width>339</width>
     <height>26</height>
-    <text>Rectangular LEDs can also be used.</text>
+    <font>
+      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
+      </font>
+    </font>
     <foreground_color>
       <color red="0" green="0" blue="0">
       </color>
@@ -315,136 +317,129 @@
       <color red="255" green="255" blue="255">
       </color>
     </background_color>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
   </widget>
   <widget type="byte_monitor" version="2.0.0">
     <name>Byte Monitor</name>
+    <pv_name>sim://ramp(0,4,1)</pv_name>
     <x>60</x>
     <y>103</y>
-    <height>30</height>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <height>26</height>
     <numBits>4</numBits>
-    <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_18</name>
+    <text>3</text>
     <x>67</x>
     <y>87</y>
     <width>20</width>
     <height>16</height>
-    <text>3</text>
   </widget>
   <widget type="byte_monitor" version="2.0.0">
     <name>Byte Monitor_1</name>
+    <pv_name>sim://ramp(0,4,1)</pv_name>
     <x>59</x>
     <y>169</y>
     <width>101</width>
     <height>26</height>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
     <numBits>4</numBits>
     <bitReverse>true</bitReverse>
-    <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_19</name>
+    <text>0</text>
     <x>67</x>
     <y>154</y>
     <width>18</width>
-    <text>0</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_20</name>
+    <text>1</text>
     <x>91</x>
     <y>154</y>
     <width>17</width>
-    <text>1</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_21</name>
+    <text>2</text>
     <x>117</x>
     <y>154</y>
     <width>21</width>
-    <text>2</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_22</name>
+    <text>3</text>
     <x>140</x>
     <y>154</y>
     <width>17</width>
-    <text>3</text>
   </widget>
   <widget type="byte_monitor" version="2.0.0">
     <name>Byte Monitor_2</name>
+    <pv_name>sim://ramp(0,4,1)</pv_name>
     <x>59</x>
     <y>231</y>
     <width>101</width>
     <height>30</height>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
     <startBit>1</startBit>
     <numBits>4</numBits>
-    <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_23</name>
+    <text>1</text>
     <x>65</x>
     <y>212</y>
     <width>15</width>
-    <text>1</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_24</name>
+    <text>2</text>
     <x>91</x>
     <y>212</y>
     <width>16</width>
-    <text>2</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_25</name>
+    <text>3</text>
     <x>113</x>
     <y>212</y>
     <width>18</width>
-    <text>3</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_26</name>
+    <text>4</text>
     <x>140</x>
     <y>212</y>
     <width>20</width>
-    <text>4</text>
   </widget>
   <widget type="byte_monitor" version="2.0.0">
     <name>Byte Monitor_3</name>
+    <pv_name>sim://ramp(0,4,1)</pv_name>
     <x>181</x>
     <y>195</y>
     <width>35</width>
     <height>116</height>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
     <numBits>4</numBits>
     <horizontal>false</horizontal>
-    <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
   <widget type="byte_monitor" version="2.0.0">
     <name>Byte Monitor_4</name>
+    <pv_name>sim://ramp(0,4,1)</pv_name>
     <x>261</x>
     <y>195</y>
     <width>30</width>
     <height>116</height>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
     <numBits>4</numBits>
     <bitReverse>true</bitReverse>
     <horizontal>false</horizontal>
-    <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
   <widget type="byte_monitor" version="2.0.0">
     <name>Byte Monitor_5</name>
+    <pv_name>sim://ramp(0,4,1)</pv_name>
     <x>41</x>
     <y>441</y>
     <width>270</width>
     <height>23</height>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <numBits>5</numBits>
+    <square_led>true</square_led>
     <off_color>
       <color name="Attention" red="255" green="160" blue="0">
       </color>
@@ -453,49 +448,45 @@
       <color name="INVALID" red="255" green="0" blue="255">
       </color>
     </on_color>
-    <numBits>5</numBits>
-    <square_led>true</square_led>
-    <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
   <widget type="byte_monitor" version="2.0.0">
     <name>Byte Monitor_6</name>
+    <pv_name>sim://ramp(0,4,1)</pv_name>
     <x>401</x>
     <y>232</y>
     <width>38</width>
     <height>226</height>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
     <numBits>7</numBits>
     <horizontal>false</horizontal>
     <square_led>true</square_led>
-    <pv_name>sim://ramp(0,4,1)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_27</name>
+    <text>Label3</text>
     <x>451</x>
     <y>300</y>
     <width>48</width>
     <height>26</height>
-    <text>Label3</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_28</name>
+    <text>Label2</text>
     <x>451</x>
     <y>271</y>
     <width>60</width>
-    <text>Label2</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_29</name>
+    <text>Label1</text>
     <x>451</x>
     <y>240</y>
     <width>52</width>
-    <text>Label1</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_30</name>
+    <text>Rectangular LEDs</text>
     <x>391</x>
     <y>212</y>
     <width>118</width>
-    <text>Rectangular LEDs</text>
   </widget>
 </display>

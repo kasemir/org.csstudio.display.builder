@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="2.0.0">
+<display version="1.0.0">
   <name>Display</name>
-  <x>-1</x>
-  <y>-1</y>
+  <width>650</width>
+  <height>500</height>
   <widget type="label" version="2.0.0">
     <name>Label</name>
+    <text>Label Widget</text>
     <width>181</width>
     <height>31</height>
-    <text>Label Widget</text>
     <font>
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
@@ -15,58 +15,188 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
+    <text>Label widgets display text.
+They can have multiple lines.</text>
     <y>41</y>
-    <width>191</width>
-    <height>30</height>
-    <text>Label widgets display text.</text>
+    <width>265</width>
+    <height>49</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
-    <x>111</x>
-    <y>111</y>
-    <width>410</width>
-    <height>54</height>
-    <text>Test, font and color can be configured.</text>
-    <background_color>
-      <color name="Attention" red="255" green="160" blue="0">
-      </color>
-    </background_color>
+    <text>Text, font and color can be configured.</text>
+    <y>100</y>
+    <width>335</width>
+    <height>39</height>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
     </font>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_5</name>
-    <x>126</x>
-    <y>165</y>
-    <width>365</width>
-    <height>36</height>
-    <text>Test, font and color can be configured.</text>
     <background_color>
       <color name="Attention" red="255" green="160" blue="0">
       </color>
     </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_5</name>
+    <text>Text, font and color can be configured.</text>
+    <y>139</y>
+    <width>365</width>
+    <height>36</height>
     <font>
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
       </font>
     </font>
+    <background_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
-    <x>126</x>
-    <y>223</y>
+    <text>Text, font and color can be configured.</text>
+    <y>175</y>
     <width>265</width>
     <height>38</height>
-    <text>Test, font and color can be configured.</text>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
     <background_color>
       <color name="Write_Background" red="128" green="255" blue="255">
       </color>
     </background_color>
     <transparent>false</transparent>
+  </widget>
+  <widget type="ellipse" version="2.0.0">
+    <name>Ellipse</name>
+    <x>40</x>
+    <y>419</y>
+    <width>50</width>
+    <height>70</height>
+  </widget>
+  <widget type="ellipse" version="2.0.0">
+    <name>Ellipse_1</name>
+    <x>245</x>
+    <y>419</y>
+    <width>50</width>
+    <height>70</height>
+    <rules>
+      <rule name="Color" prop_id="background_color" out_exp="false">
+        <exp bool_exp="pv0&gt;2">
+          <value>
+            <color name="MINOR" red="255" green="128" blue="0">
+            </color>
+          </value>
+        </exp>
+        <pv_name>sim://ramp(0, 4, 1)</pv_name>
+      </rule>
+    </rules>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <text>In special cases,
+the color can change</text>
+    <x>210</x>
+    <y>369</y>
+    <width>155</width>
+    <height>50</height>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+    <background_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </background_color>
+    <rules>
+      <rule name="Color" prop_id="foreground_color" out_exp="false">
+        <exp bool_exp="pv0&gt;2">
+          <value>
+            <color name="MINOR" red="255" green="128" blue="0">
+            </color>
+          </value>
+        </exp>
+        <pv_name>sim://ramp(0, 4, 1)</pv_name>
+      </rule>
+    </rules>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_4</name>
+    <text>Similar to other graphics,
+the main purpose of a label is to just be there.
+It is possible to dynamically change for
+example the color by using a Rule,
+but this should only be done in special cases.</text>
+    <y>249</y>
+    <width>320</width>
+    <height>100</height>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_7</name>
+    <text>To get a circle that
+changes color, consider an LED widget.</text>
+    <x>365</x>
+    <y>429</y>
+    <width>225</width>
+    <height>80</height>
     <font>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_8</name>
+    <text>Labels, circles, ..
+are meant to be static</text>
+    <x>10</x>
+    <y>369</y>
+    <width>161</width>
+    <height>39</height>
+    <font>
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+    <background_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </background_color>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_9</name>
+    <text>.. as well as alignment..</text>
+    <x>280</x>
+    <y>175</y>
+    <width>170</width>
+    <height>38</height>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+    <background_color>
+      <color name="Write_Background" red="128" green="255" blue="255">
+      </color>
+    </background_color>
+    <transparent>false</transparent>
+    <horizontal_alignment>1</horizontal_alignment>
+    <vertical_alignment>1</vertical_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_10</name>
+    <text>.. alignment..</text>
+    <x>470</x>
+    <y>175</y>
+    <width>170</width>
+    <height>38</height>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+    <background_color>
+      <color name="Write_Background" red="128" green="255" blue="255">
+      </color>
+    </background_color>
+    <transparent>false</transparent>
+    <horizontal_alignment>2</horizontal_alignment>
+    <vertical_alignment>2</vertical_alignment>
   </widget>
 </display>
