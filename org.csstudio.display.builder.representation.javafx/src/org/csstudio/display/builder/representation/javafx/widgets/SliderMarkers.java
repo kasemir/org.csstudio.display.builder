@@ -21,6 +21,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
 /** 'Marker' addition to Slider
  *
@@ -89,6 +90,16 @@ public class SliderMarkers extends Pane
         this.low = low;
         this.high = high;
         this.hihi = hihi;
+        update();
+    }
+
+    /** @param font Font to use for markers */
+    public void setFont(final Font font)
+    {
+        hihi_label.setFont(font);
+        high_label.setFont(font);
+        low_label.setFont(font);
+        lolo_label.setFont(font);
         update();
     }
 

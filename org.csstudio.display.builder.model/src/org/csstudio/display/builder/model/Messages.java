@@ -152,9 +152,9 @@ public class Messages extends NLS
     public static String WidgetProperties_LabelsFromPV;
     public static String WidgetProperties_Increment;
     public static String WidgetProperties_Insets;
-    public static String WidgetProperties_LevelHi;
+    public static String WidgetProperties_LevelHigh;
     public static String WidgetProperties_LevelHiHi;
-    public static String WidgetProperties_LevelLo;
+    public static String WidgetProperties_LevelLow;
     public static String WidgetProperties_LevelLoLo;
     public static String WidgetProperties_LimitsFromPV;
     public static String WidgetProperties_LineColor;
@@ -182,13 +182,12 @@ public class Messages extends NLS
     public static String WidgetProperties_Scripts;
     public static String WidgetProperties_Selection;
     public static String WidgetProperties_SelectionPV;
-    public static String WidgetProperties_ShowHi;
+    public static String WidgetProperties_ShowHigh;
     public static String WidgetProperties_ShowHiHi;
-    public static String WidgetProperties_ShowLo;
+    public static String WidgetProperties_ShowLow;
     public static String WidgetProperties_ShowLoLo;
     public static String WidgetProperties_ShowMinorTicks;
     public static String WidgetProperties_ShowScale;
-    public static String WidgetProperties_ShowMarkers;
     public static String WidgetProperties_ShowUnits;
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Text;

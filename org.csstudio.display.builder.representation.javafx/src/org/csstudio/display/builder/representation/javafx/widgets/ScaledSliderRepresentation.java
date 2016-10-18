@@ -32,6 +32,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.text.Font;
 import javafx.util.converter.FormatStringConverter;
 
 /** Creates JavaFX item for model widget
@@ -107,7 +108,9 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.propHorizontal().addUntypedPropertyListener(this::lookChanged);
         model_widget.propIncrement().addPropertyListener(this::limitsChanged);
         model_widget.propEnabled().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
         model_widget.propShowScale().addUntypedPropertyListener(this::styleChanged);
         model_widget.propShowMinorTicks().addUntypedPropertyListener(this::styleChanged);
         model_widget.propScaleFormat().addUntypedPropertyListener(this::styleChanged);
@@ -115,10 +118,9 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.propLevelHiHi().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelLo().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelLoLo().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propShowMarkers().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propShowHi().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.propShowHigh().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propShowHiHi().addUntypedPropertyListener(this::limitsChanged);
-        model_widget.propShowLo().addUntypedPropertyListener(this::limitsChanged);
+        model_widget.propShowLow().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propShowLoLo().addUntypedPropertyListener(this::limitsChanged);
 
         //Since both the widget's PV value and the JFX node's value property might be
@@ -180,9 +182,9 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         }
         if (! model_widget.propShowLoLo().getValue())
             new_lolo = Double.NaN;
-        if (! model_widget.propShowLo().getValue())
+        if (! model_widget.propShowLow().getValue())
             new_low = Double.NaN;
-        if (! model_widget.propShowHi().getValue())
+        if (! model_widget.propShowHigh().getValue())
             new_high = Double.NaN;
         if (! model_widget.propShowHiHi().getValue())
             new_hihi = Double.NaN;
@@ -338,6 +340,15 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
             final Background background = new Background(new BackgroundFill(JFXUtil.convert(model_widget.propBackgroundColor().getValue()), CornerRadii.EMPTY, Insets.EMPTY));
             jfx_node.setBackground(background);
             markers.setBackground(background);
+
+            final Font font = JFXUtil.convert(model_widget.propFont().getValue());
+            markers.setFont(font);
+
+            String style = "-fx-text_fill: " + JFXUtil.webRGB(model_widget.propForegroundColor().getValue()) +
+                           "; -fx-stroke: " + JFXUtil.webRGB(model_widget.propForegroundColor().getValue()) +
+                           "; " + JFXUtil.cssFont(font);
+            jfx_node.setStyle(style);
+
             final String format = model_widget.propScaleFormat().getValue();
             slider.setLabelFormatter(new FormatStringConverter<Double>(new DecimalFormat(format)));
             slider.setShowTickLabels(model_widget.propShowScale().getValue());
@@ -349,7 +360,10 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
             final boolean horizontal = model_widget.propHorizontal().getValue();
             slider.setOrientation(horizontal ? Orientation.HORIZONTAL : Orientation.VERTICAL);
-            if (model_widget.propShowMarkers().getValue())
+
+            final boolean any_markers = ! (Double.isNaN(lolo) && Double.isNaN(low) &&
+                                           Double.isNaN(high) &&Double.isNaN(hihi));
+            if (any_markers)
             {
                 if (! jfx_node.getChildren().contains(markers))
                     jfx_node.add(markers, 0, 0);

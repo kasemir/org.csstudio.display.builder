@@ -70,14 +70,19 @@ public class ScrollBarWidget extends PVWidget
         }
 
         @Override
-        public boolean configureFromXML(ModelReader model_reader, Widget widget,
-                Element xml) throws Exception
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget,
+                                        final Element xml) throws Exception
         {
             if (! super.configureFromXML(model_reader, widget, xml))
                 return false;
+            handleLegacyIncrement(widget, xml);
+            return true;
+        }
+
+        public static void handleLegacyIncrement(final Widget widget, final Element xml) throws Exception
+        {
             XMLUtil.getChildDouble(xml, "step_increment")
                    .ifPresent(value -> widget.getProperty(propIncrement).setValue(value));
-            return true;
         }
     };
 

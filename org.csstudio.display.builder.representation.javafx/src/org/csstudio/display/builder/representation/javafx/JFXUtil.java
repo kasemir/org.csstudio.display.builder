@@ -134,6 +134,33 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
         }
     }
 
+    /** Convert font to Java FX "-fx-font-*"
+     *  @param font {@link Font}
+     *  @return "-fx-font-*: ..."
+     */
+    public static String cssFont(final Font font)
+    {
+        final StringBuilder buf = new StringBuilder();
+        buf.append("-fx-font-family: ").append(font.getFamily()).append(';');
+        switch (font.getStyle())
+        {
+        case "Bold":
+            buf.append("-fx-font-weight: bold;");
+            break;
+        case "Italic":
+            buf.append("-fx-font-style: italic;");
+            break;
+        case "Bold Italic":
+            buf.append("-fx-font-weight: bold;");
+            buf.append("-fx-font-style: italic;");
+            break;
+        default:
+            // Skip the "-fx-font-*: normal"
+        }
+        buf.append("-fx-font-size: ").append(font.getSize()).append(';');
+        return buf.toString();
+    }
+
     /** @param name Name of icon in this plugin
      *  @return {@link ImageView}
      */
