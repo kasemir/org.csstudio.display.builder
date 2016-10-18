@@ -14,11 +14,10 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propIncrement;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPageIncrement;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propStepIncrement;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +25,7 @@ import java.util.List;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
@@ -35,6 +35,7 @@ import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.osgi.framework.Version;
 
 /** Widget that can read/write numeric PV via scaled slider
  *  @author Amanda Carpenter
@@ -126,8 +127,7 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_lolo", Messages.WidgetProperties_ShowLoLo);
 
     private volatile WidgetProperty<Boolean> horizontal;
-    private volatile WidgetProperty<Double> page_increment;
-    private volatile WidgetProperty<Double> step_increment;
+    private volatile WidgetProperty<Double> increment;
     private volatile WidgetProperty<WidgetColor> foreground; //define in defineProperties() when representation implemented
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetColor> fill_color; //define in defineProperties() when representation implemented
@@ -157,15 +157,12 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         super(WIDGET_DESCRIPTOR.getType());
     }
 
-
-
     @Override
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
         properties.add(horizontal = propHorizontal.createProperty(this, true));
-        properties.add(step_increment = propStepIncrement.createProperty(this, 1.0));
-        properties.add(page_increment = propPageIncrement.createProperty(this, 10.0));
+        properties.add(increment = propIncrement.createProperty(this, 1.0));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
         //scaled-widget properties:
         properties.add(minimum = propMinimum.createProperty(this, 0.0));
@@ -187,22 +184,22 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         properties.add(show_lolo = propShowLoLo.createProperty(this, true));
     }
 
+    @Override
+    public WidgetConfigurator getConfigurator(final Version persisted_version) throws Exception
+    {
+        return new ScrollBarWidget.IncrementConfigurator(persisted_version);
+    }
+
     /** @return 'horizontal' property */
     public WidgetProperty<Boolean> propHorizontal()
     {
         return horizontal;
     }
 
-    /** @return 'step_increment' property */
-    public WidgetProperty<Double> propStepIncrement()
+    /** @return 'increment' property */
+    public WidgetProperty<Double> propIncrement()
     {
-        return step_increment;
-    }
-
-    /** @return 'page_increment' property */
-    public WidgetProperty<Double> propPageIncrement()
-    {
-        return page_increment;
+        return increment;
     }
 
     /** @return Display 'foreground' */

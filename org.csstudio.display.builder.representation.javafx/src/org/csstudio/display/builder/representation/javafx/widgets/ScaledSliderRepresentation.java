@@ -58,12 +58,31 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
     private volatile boolean active = false;
 
-    private final Slider slider = createSlider();
+    private final Slider slider = new Slider();
     private final SliderMarkers markers = new SliderMarkers(slider);
 
     @Override
     protected GridPane createJFXNode() throws Exception
     {
+        slider.setFocusTraversable(true);
+        slider.setTooltip(new Tooltip(""));
+        slider.setOnKeyPressed((final KeyEvent event) ->
+        {
+            switch (event.getCode())
+            {
+            case PAGE_UP:
+                slider.adjustValue(value+slider.getBlockIncrement());
+                event.consume();
+                break;
+            case PAGE_DOWN:
+                slider.adjustValue(value-slider.getBlockIncrement());
+                event.consume();
+                break;
+            default: break;
+            }
+        });
+        slider.setValue(value);
+
         final GridPane pane = new GridPane();
         // pane.setGridLinesVisible(true);
         pane.add(markers, 0, 0);
@@ -77,40 +96,6 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         return true;
     }
 
-    private Slider createSlider()
-    {
-        Slider slider = new Slider()
-        {
-            @Override
-            public void increment()
-            {
-                adjustValue(value+stepIncrement);
-            }
-            @Override
-            public void decrement()
-            {
-                adjustValue(value-stepIncrement);
-            }
-        };
-        slider.setFocusTraversable(true);
-        slider.setTooltip(new Tooltip(""));
-        slider.setOnKeyPressed((final KeyEvent event) ->
-        {
-            switch (event.getCode())
-            {
-            case PAGE_UP:
-                slider.adjustValue(value+slider.getBlockIncrement());
-                break;
-            case PAGE_DOWN:
-                slider.adjustValue(value-slider.getBlockIncrement());
-                break;
-            default: break;
-            }
-        });
-        slider.setValue(value);
-        return slider;
-    }
-
     @Override
     protected void registerListeners()
     {
@@ -120,8 +105,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.propMinimum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propMaximum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propHorizontal().addUntypedPropertyListener(this::lookChanged);
-        model_widget.propStepIncrement().addPropertyListener(this::limitsChanged);
-        model_widget.propPageIncrement().addPropertyListener(this::limitsChanged);
+        model_widget.propIncrement().addPropertyListener(this::limitsChanged);
         model_widget.propEnabled().addUntypedPropertyListener(this::lookChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propShowScale().addUntypedPropertyListener(this::styleChanged);
@@ -170,7 +154,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
 
     private void limitsChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        stepIncrement = model_widget.propStepIncrement().getValue();
+        stepIncrement = model_widget.propIncrement().getValue();
 
         // Start with widget config
         double new_min = model_widget.propMinimum().getValue();
@@ -280,11 +264,11 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
     {
             if (active)
                 return;
-            final double save_increment = stepIncrement;
-            final double save_min = min;
-            final double numStepsInValue = Math.round(((double)new_value-save_min) / save_increment);
-            new_value = save_min + numStepsInValue * save_increment;
-            slider.getTooltip().setText(""+new_value);
+            // XXX Round value to step increment?
+            //            final double save_increment = stepIncrement;
+            //            final double save_min = min;
+            //            final double numStepsInValue = Math.round(((double)new_value-save_min) / save_increment);
+            //            new_value = save_min + numStepsInValue * save_increment;
             toolkit.fireWrite(model_widget, new_value);
     }
 
@@ -322,7 +306,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
             markers.setAlarmMarkers(lolo, low, high, hihi);
             slider.setMinorTickCount((int) Math.round(save_unit / stepIncrement) - 1);
             slider.setMajorTickUnit(save_unit);
-            slider.setBlockIncrement(model_widget.propPageIncrement().getValue());
+            slider.setBlockIncrement(model_widget.propIncrement().getValue());
         }
         if (dirty_value.checkAndClear())
         {
