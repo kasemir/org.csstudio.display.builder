@@ -135,29 +135,30 @@ public class JFXUtil extends org.csstudio.javafx.JFXUtil
     }
 
     /** Convert font to Java FX "-fx-font-*"
+     *  @param prefix Typically "-fx-font"
      *  @param font {@link Font}
      *  @return "-fx-font-*: ..."
      */
-    public static String cssFont(final Font font)
+    public static String cssFont(final String prefix, final Font font)
     {
         final StringBuilder buf = new StringBuilder();
-        buf.append("-fx-font-family: ").append(font.getFamily()).append(';');
+        buf.append(prefix).append("-size: ").append((int)font.getSize()).append("px;");
+        buf.append(prefix).append("-family: \"").append(font.getFamily()).append("\";");
         switch (font.getStyle())
         {
         case "Bold":
-            buf.append("-fx-font-weight: bold;");
+            buf.append(prefix).append("-weight: bold;");
             break;
         case "Italic":
-            buf.append("-fx-font-style: italic;");
+            buf.append(prefix).append("-style: italic;");
             break;
         case "Bold Italic":
-            buf.append("-fx-font-weight: bold;");
-            buf.append("-fx-font-style: italic;");
+            buf.append(prefix).append("-weight: bold;");
+            buf.append(prefix).append("-style: italic;");
             break;
         default:
             // Skip the "-fx-font-*: normal"
         }
-        buf.append("-fx-font-size: ").append(font.getSize()).append(';');
         return buf.toString();
     }
 
