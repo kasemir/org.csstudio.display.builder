@@ -119,17 +119,17 @@ public class SliderMarkers extends Pane
         try
         {
             com.sun.javafx.scene.control.skin.SliderSkin skin = (com.sun.javafx.scene.control.skin.SliderSkin) slider.getSkin();
-            for (Node node : skin.getChildren())
-            {
-                if (node.getStyleClass().contains("thumb"))
-                    return node.getBoundsInLocal().getHeight() / 2;
-            }
+            if (skin != null)
+                for (Node node : skin.getChildren())
+                {
+                    if (node.getStyleClass().contains("thumb"))
+                        return node.getBoundsInLocal().getHeight() / 2;
+                }
         }
         catch (Throwable ex)
         {
             logger.log(Level.WARNING, "Cannot obtain Slider layout details", ex);
         }
-        logger.log(Level.WARNING, "Using default Slider gap");
         return 11;
     }
 
