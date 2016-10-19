@@ -15,6 +15,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
+import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -111,6 +112,15 @@ public class SliderMarkers extends Pane
      *  <p>Needs to be called when font or knob size of the slider change.
      */
     public void update()
+    {
+        // An update of the font and thus knob size results
+        // in a new value for the 'gap' on the _next_ UI update.
+        // Defer the actual update, because otherwise they would be
+        // positioned on the _old_ gap.
+        Platform.runLater(() -> doUpdate());
+    }
+
+    protected void doUpdate()
     {
         final double gap = getScaleGap();
         positionMarker(gap, hihi_label, hihi);

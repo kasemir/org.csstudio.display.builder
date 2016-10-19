@@ -1,28 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Spinner Slider Scrollbar</name>
-  <x>-1</x>
-  <y>-1</y>
   <widget type="scrollbar" version="2.0.0">
     <name>Scrollbar</name>
-    <x>41</x>
-    <y>160</y>
-    <show_value_tip>false</show_value_tip>
     <pv_name>loc://number(0.0)</pv_name>
+    <x>1</x>
+    <y>119</y>
+    <show_value_tip>false</show_value_tip>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry</name>
-    <x>40</x>
-    <y>100</y>
     <pv_name>loc://number(0.0)</pv_name>
+    <y>59</y>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
-    <x>41</x>
-    <y>41</y>
+    <text>Incremented Controls</text>
+    <x>1</x>
     <width>250</width>
     <height>30</height>
-    <text>Incremented Controls</text>
     <font>
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
@@ -30,63 +26,71 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
-    <x>41</x>
-    <y>71</y>
-    <width>380</width>
     <text>Some controls adjust PV values by increments.</text>
+    <x>1</x>
+    <y>30</y>
+    <width>380</width>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
-    <x>40</x>
-    <y>130</y>
     <text>Scrollbar</text>
+    <y>89</y>
     <horizontal_alignment>1</horizontal_alignment>
   </widget>
   <widget type="scaledslider" version="2.0.0">
     <name>Scaled Slider</name>
-    <x>61</x>
-    <y>211</y>
-    <width>80</width>
-    <height>210</height>
+    <pv_name>loc://number(0.0)</pv_name>
+    <x>11</x>
+    <y>170</y>
+    <width>110</width>
+    <height>220</height>
     <horizontal>false</horizontal>
     <scale_format>#.##</scale_format>
-    <show_markers>true</show_markers>
-    <pv_name>loc://number(0.0)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
-    <x>51</x>
-    <y>191</y>
-    <width>110</width>
     <text>Scaled Slider</text>
+    <x>11</x>
+    <y>150</y>
+    <width>110</width>
     <horizontal_alignment>1</horizontal_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
-    <x>181</x>
-    <y>130</y>
     <text>Spinner</text>
+    <x>141</x>
+    <y>89</y>
     <horizontal_alignment>1</horizontal_alignment>
   </widget>
   <widget type="spinner" version="2.0.0">
     <name>Spinner</name>
-    <x>181</x>
-    <y>161</y>
     <pv_name>loc://number(0.0)</pv_name>
+    <x>141</x>
+    <y>120</y>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
-    <x>183</x>
-    <y>232</y>
-    <width>238</width>
-    <height>189</height>
     <text>The value can be adjusted both with
 the mouse and, when the widget is in
-focus, using the arrow keys and page
-up/page down keys.
+focus, using the arrow keys and
+page up/down keys.
 
-These increments can be set using
-the "step" and "page increment"
-behavior properties, respectively.</text>
+The "increment" property of the widget
+determines the step size when using
+the keyboard.</text>
+    <x>143</x>
+    <y>191</y>
+    <width>238</width>
+    <height>189</height>
+  </widget>
+  <widget type="scaledslider" version="2.0.0">
+    <name>Scaled Slider_1</name>
+    <pv_name>loc://number(0.0)</pv_name>
+    <x>11</x>
+    <y>429</y>
+    <width>419</width>
+    <height>61</height>
+    <scale_format>#.##</scale_format>
+    <limits_from_pv>false</limits_from_pv>
   </widget>
 </display>

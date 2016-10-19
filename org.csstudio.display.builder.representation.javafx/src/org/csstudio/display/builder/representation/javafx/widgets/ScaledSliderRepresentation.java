@@ -353,18 +353,17 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
             slider.setShowTickLabels(model_widget.propShowScale().getValue());
             slider.setShowTickMarks(model_widget.propShowMinorTicks().getValue());
 
-            System.out.println("Updating Slider range to " + min + " .. " + max +
-                    ", alarms " + lolo + ", " + low + ", " + high + ", " + hihi);
             slider.setMin(min);
             slider.setMax(max);
-            if (any_markers)
-                markers.setAlarmMarkers(lolo, low, high, hihi);
 
             slider.setMajorTickUnit(tick_unit);
             slider.setBlockIncrement(increment);
             // Create minor ticks that mimic the increments,
             // but limit to 9 minor ticks between major ticks
             slider.setMinorTickCount(Math.min((int) Math.round(tick_unit / increment) - 1, 9));
+
+            if (any_markers)
+                markers.setAlarmMarkers(lolo, low, high, hihi);
         }
         if (dirty_value.checkAndClear())
         {
@@ -380,7 +379,14 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
                 if (!slider.isValueChanging())
                 {
                     if (Double.isNaN(newval))
-                        logger.log(Level.WARNING, model_widget + " PV has with invalid value " + vtype);
+                    {
+                        logger.log(Level.FINE, model_widget + " PV has invalid value " + vtype);
+                        // Setting slider to NaN will hide the 'knob', so user can never
+                        // set it back to a normal value.
+                        // In addition, the UI can lock up (see SliderGlitchDemo).
+                        // --> Set to min
+                        slider.setValue(min);
+                    }
                     else
                         slider.setValue(newval);
                 }
