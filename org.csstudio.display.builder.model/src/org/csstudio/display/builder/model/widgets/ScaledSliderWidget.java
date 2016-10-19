@@ -13,12 +13,13 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propIncrement;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPageIncrement;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propStepIncrement;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,15 +27,21 @@ import java.util.List;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.FontWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
 
 /** Widget that can read/write numeric PV via scaled slider
  *  @author Amanda Carpenter
@@ -85,71 +92,102 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     public static final WidgetPropertyDescriptor<String> propScaleFormat =
         newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "scale_format", Messages.WidgetProperties_ScaleFormat);
 
-    /** 'show_markers' property: Show tick markers for HI, HIHI, LO, & LOLO levels. */
-    public static final WidgetPropertyDescriptor<Boolean> propShowMarkers =
-        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_markers", Messages.WidgetProperties_ShowMarkers);
-
     /** 'major_tick_step_hint' property: Minimum space, in pixels, between major tick marks. */
     public static final WidgetPropertyDescriptor<Integer> propMajorTickStepHint =
         newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "major_tick_step_hint", Messages.WidgetProperties_MajorTickStepHint);
 
-    /** 'level_hi' property: Level of HI value for widget*/
-    public static final WidgetPropertyDescriptor<Double> propLevelHi =
-        newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_hi", Messages.WidgetProperties_LevelHi);
+    /** 'level_high' property: Level of HIGH value for widget*/
+    public static final WidgetPropertyDescriptor<Double> propLevelHigh =
+        newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_high", Messages.WidgetProperties_LevelHigh);
 
     /** 'level_hihi' property: Level of HIHI value for widget*/
     public static final WidgetPropertyDescriptor<Double> propLevelHiHi =
         newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_hihi", Messages.WidgetProperties_LevelHiHi);
 
-    /** 'level_lo' property: Level of LO value for widget*/
-    public static final WidgetPropertyDescriptor<Double> propLevelLo =
-        newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_lo", Messages.WidgetProperties_LevelLo);
+    /** 'level_low' property: Level of LOW value for widget*/
+    public static final WidgetPropertyDescriptor<Double> propLevelLow =
+        newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_low", Messages.WidgetProperties_LevelLow);
 
-    /** 'level_lolo' property: Level of LO value for widget*/
+    /** 'level_lolo' property: Level of LOW value for widget*/
     public static final WidgetPropertyDescriptor<Double> propLevelLoLo =
         newDoublePropertyDescriptor(WidgetPropertyCategory.DISPLAY, "level_lolo", Messages.WidgetProperties_LevelLoLo);
 
-    /** 'show_hi' property: Whether to show HI marker*/
-    public static final WidgetPropertyDescriptor<Boolean> propShowHi =
-        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_hi", Messages.WidgetProperties_ShowHi);
+    /** 'show_high' property: Whether to show HIGH marker*/
+    public static final WidgetPropertyDescriptor<Boolean> propShowHigh =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_high", Messages.WidgetProperties_ShowHigh);
 
     /** 'show_hihi' property: Whether to show HIHI marker*/
     public static final WidgetPropertyDescriptor<Boolean> propShowHiHi =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_hihi", Messages.WidgetProperties_ShowHiHi);
 
-    /** 'show_lo' property: Whether to show LO marker*/
-    public static final WidgetPropertyDescriptor<Boolean> propShowLo =
-        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_lo", Messages.WidgetProperties_ShowLo);
+    /** 'show_low' property: Whether to show LOW marker*/
+    public static final WidgetPropertyDescriptor<Boolean> propShowLow =
+        newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_low", Messages.WidgetProperties_ShowLow);
 
     /** 'show_lo' property: Whether to show LOLO marker*/
     public static final WidgetPropertyDescriptor<Boolean> propShowLoLo =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_lolo", Messages.WidgetProperties_ShowLoLo);
 
+    private static class CustomConfigurator extends WidgetConfigurator
+    {
+        public CustomConfigurator(final Version xml_version)
+        {
+            super(xml_version);
+        }
+
+        @Override
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget,
+                                        final Element xml) throws Exception
+        {
+            if (! super.configureFromXML(model_reader, widget, xml))
+                return false;
+
+            ScrollBarWidget.IncrementConfigurator.handleLegacyIncrement(widget, xml);
+
+            final ScaledSliderWidget slider = (ScaledSliderWidget) widget;
+            XMLUtil.getChildDouble(xml, "level_lo").ifPresent(value -> slider.level_low.setValue(value));
+            XMLUtil.getChildDouble(xml, "level_hi").ifPresent(value -> slider.level_high.setValue(value));
+            XMLUtil.getChildBoolean(xml, "show_lo").ifPresent(show -> slider.show_low.setValue(show));
+            XMLUtil.getChildBoolean(xml, "show_hi").ifPresent(show -> slider.show_high.setValue(show));
+            XMLUtil.getChildBoolean(xml, "show_markers").ifPresent(show ->
+            {
+                if (! show)
+                {
+                    slider.propShowLoLo().setValue(false);
+                    slider.propShowLow().setValue(false);
+                    slider.propShowHigh().setValue(false);
+                    slider.propShowHiHi().setValue(false);
+                }
+            });
+
+            final Element element = XMLUtil.getChildElement(xml, "scale_font");
+            if (element != null)
+                slider.font.readFromXML(model_reader, element);
+
+            return true;
+        }
+    };
+
     private volatile WidgetProperty<Boolean> horizontal;
-    private volatile WidgetProperty<Double> page_increment;
-    private volatile WidgetProperty<Double> step_increment;
-    private volatile WidgetProperty<WidgetColor> foreground; //define in defineProperties() when representation implemented
+    private volatile WidgetProperty<Double> increment;
+    private volatile WidgetProperty<WidgetColor> foreground;
     private volatile WidgetProperty<WidgetColor> background;
-    private volatile WidgetProperty<WidgetColor> fill_color; //define in defineProperties() when representation implemented
-    //potential future properties: 'color_fillbackground' 'bar_background', 'thumb_color'
-    //scaled-widget properties:
+    private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<Double> minimum;
     private volatile WidgetProperty<Double> maximum;
     private volatile WidgetProperty<Boolean> limits_from_pv;
     private volatile WidgetProperty<Boolean> enabled;
     private volatile WidgetProperty<Integer> major_tick_step_hint;
-    private volatile WidgetProperty<WidgetFont> scale_font; //define in defineProperties() when representation implemented
     private volatile WidgetProperty<Boolean> show_scale;
     private volatile WidgetProperty<Boolean> show_minor_ticks;
     private volatile WidgetProperty<String> scale_format;
-    private volatile WidgetProperty<Boolean> show_markers;
-    private volatile WidgetProperty<Double> level_hi;
+    private volatile WidgetProperty<Double> level_high;
     private volatile WidgetProperty<Double> level_hihi;
-    private volatile WidgetProperty<Double> level_lo;
+    private volatile WidgetProperty<Double> level_low;
     private volatile WidgetProperty<Double> level_lolo;
-    private volatile WidgetProperty<Boolean> show_hi;
+    private volatile WidgetProperty<Boolean> show_high;
     private volatile WidgetProperty<Boolean> show_hihi;
-    private volatile WidgetProperty<Boolean> show_lo;
+    private volatile WidgetProperty<Boolean> show_low;
     private volatile WidgetProperty<Boolean> show_lolo;
 
     public ScaledSliderWidget()
@@ -157,34 +195,37 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         super(WIDGET_DESCRIPTOR.getType());
     }
 
-
-
     @Override
     protected void defineProperties(final List<WidgetProperty<?>> properties)
     {
         super.defineProperties(properties);
         properties.add(horizontal = propHorizontal.createProperty(this, true));
-        properties.add(step_increment = propStepIncrement.createProperty(this, 1.0));
-        properties.add(page_increment = propPageIncrement.createProperty(this, 10.0));
+        properties.add(increment = propIncrement.createProperty(this, 1.0));
+        properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
         properties.add(background = propBackgroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.BACKGROUND)));
-        //scaled-widget properties:
+        properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(minimum = propMinimum.createProperty(this, 0.0));
         properties.add(maximum = propMaximum.createProperty(this, 100.0));
         properties.add(limits_from_pv = propLimitsFromPV.createProperty(this, true));
         properties.add(enabled = propEnabled.createProperty(this, true));
         properties.add(show_scale = propShowScale.createProperty(this, true));
         properties.add(show_minor_ticks = propShowMinorTicks.createProperty(this, true));
-        properties.add(major_tick_step_hint = propMajorTickStepHint.createProperty(this, 20));
+        properties.add(major_tick_step_hint = propMajorTickStepHint.createProperty(this, 40));
         properties.add(scale_format = propScaleFormat.createProperty(this, ""));
-        properties.add(show_markers = propShowMarkers.createProperty(this, false));
         properties.add(level_hihi = propLevelHiHi.createProperty(this, 90.0));
-        properties.add(level_hi = propLevelHi.createProperty(this, 80.0));
-        properties.add(level_lo = propLevelLo.createProperty(this, 20.0));
+        properties.add(level_high = propLevelHigh.createProperty(this, 80.0));
+        properties.add(level_low = propLevelLow.createProperty(this, 20.0));
         properties.add(level_lolo = propLevelLoLo.createProperty(this, 10.0));
         properties.add(show_hihi = propShowHiHi.createProperty(this, true));
-        properties.add(show_hi = propShowHi.createProperty(this, true));
-        properties.add(show_lo = propShowLo.createProperty(this, true));
+        properties.add(show_high = propShowHigh.createProperty(this, true));
+        properties.add(show_low = propShowLow.createProperty(this, true));
         properties.add(show_lolo = propShowLoLo.createProperty(this, true));
+    }
+
+    @Override
+    public WidgetConfigurator getConfigurator(final Version persisted_version) throws Exception
+    {
+        return new CustomConfigurator(persisted_version);
     }
 
     /** @return 'horizontal' property */
@@ -193,20 +234,14 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         return horizontal;
     }
 
-    /** @return 'step_increment' property */
-    public WidgetProperty<Double> propStepIncrement()
+    /** @return 'increment' property */
+    public WidgetProperty<Double> propIncrement()
     {
-        return step_increment;
+        return increment;
     }
 
-    /** @return 'page_increment' property */
-    public WidgetProperty<Double> propPageIncrement()
-    {
-        return page_increment;
-    }
-
-    /** @return Display 'foreground' */
-    public WidgetProperty<WidgetColor> displayForegroundColor()
+    /** @return 'foreground' property */
+    public WidgetProperty<WidgetColor> propForegroundColor()
     {
         return foreground;
     }
@@ -217,13 +252,12 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         return background;
     }
 
-    /** @return Display 'fill_color' */
-    public WidgetProperty<WidgetColor> displayFillColor()
+    /** @return 'font' property */
+    public WidgetProperty<WidgetFont> propFont()
     {
-        return fill_color;
+        return font;
     }
 
-    //scaled widget properties:
     /** @return 'minimum' property */
     public WidgetProperty<Double> propMinimum()
     {
@@ -246,12 +280,6 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     public WidgetProperty<Boolean> propEnabled()
     {
         return enabled;
-    }
-
-    /** @return Display 'scale_font' */
-    public WidgetProperty<WidgetFont> displayScaleFont()
-    {
-        return scale_font;
     }
 
     /** @return 'show_scale' property */
@@ -278,16 +306,10 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         return scale_format;
     }
 
-    /** @return 'show_markers' property */
-    public WidgetProperty<Boolean> propShowMarkers()
-    {
-        return show_markers;
-    }
-
     /** @return 'level_hi' property */
     public WidgetProperty<Double> propLevelHi()
     {
-        return level_hi;
+        return level_high;
     }
 
     /** @return 'level_hihi' property */
@@ -299,7 +321,7 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
     /** @return 'level_lo' property */
     public WidgetProperty<Double> propLevelLo()
     {
-        return level_lo;
+        return level_low;
     }
 
     /** @return 'level_lolo' property */
@@ -308,10 +330,10 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         return level_lolo;
     }
 
-    /** @return 'show_hi' property */
-    public WidgetProperty<Boolean> propShowHi()
+    /** @return 'show_high' property */
+    public WidgetProperty<Boolean> propShowHigh()
     {
-        return show_hi;
+        return show_high;
     }
 
     /** @return 'show_hihi' property */
@@ -320,10 +342,10 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         return show_hihi;
     }
 
-    /** @return 'show_lo' property */
-    public WidgetProperty<Boolean> propShowLo()
+    /** @return 'show_low' property */
+    public WidgetProperty<Boolean> propShowLow()
     {
-        return show_lo;
+        return show_low;
     }
 
     /** @return 'show_lolo' property */
