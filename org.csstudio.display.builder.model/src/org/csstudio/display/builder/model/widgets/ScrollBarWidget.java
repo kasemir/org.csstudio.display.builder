@@ -11,11 +11,10 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propIncrement;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPageIncrement;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propStepIncrement;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,10 +22,15 @@ import java.util.List;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.XMLUtil;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
 
 /** Widget that can read/write numeric PV via scrollbar
  *  @author Amanda Carpenter
@@ -57,22 +61,44 @@ public class ScrollBarWidget extends PVWidget
     public static final WidgetPropertyDescriptor<Double> propBarLength =
         newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "bar_length", Messages.ScrollBar_BarLength);
 
+    /** Configurator that handles legacy "step_increment" as "increment" */
+    public static class IncrementConfigurator extends WidgetConfigurator
+    {
+        public IncrementConfigurator(final Version xml_version)
+        {
+            super(xml_version);
+        }
+
+        @Override
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget,
+                                        final Element xml) throws Exception
+        {
+            if (! super.configureFromXML(model_reader, widget, xml))
+                return false;
+            handleLegacyIncrement(widget, xml);
+            return true;
+        }
+
+        public static void handleLegacyIncrement(final Widget widget, final Element xml) throws Exception
+        {
+            XMLUtil.getChildDouble(xml, "step_increment")
+                   .ifPresent(value -> widget.getProperty(propIncrement).setValue(value));
+        }
+    };
+
     private volatile WidgetProperty<Double> minimum;
     private volatile WidgetProperty<Double> maximum;
     private volatile WidgetProperty<Boolean> limits_from_pv;
     private volatile WidgetProperty<Boolean> horizontal;
     private volatile WidgetProperty<Boolean> show_value_tip;
     private volatile WidgetProperty<Double> bar_length;
-    private volatile WidgetProperty<Double> step_increment;
-    private volatile WidgetProperty<Double> page_increment;
+    private volatile WidgetProperty<Double> increment;
     private volatile WidgetProperty<Boolean> enabled;
 
     public ScrollBarWidget()
     {
         super(WIDGET_DESCRIPTOR.getType());
     }
-
-
 
     @Override
     protected void defineProperties(final List<WidgetProperty<?>> properties)
@@ -84,9 +110,14 @@ public class ScrollBarWidget extends PVWidget
         properties.add(horizontal = propHorizontal.createProperty(this, true));
         properties.add(show_value_tip = propShowValueTip.createProperty(this, true));
         properties.add(bar_length = propBarLength.createProperty(this, 10.0));
-        properties.add(step_increment = propStepIncrement.createProperty(this, 1.0));
-        properties.add(page_increment = propPageIncrement.createProperty(this, 10.0));
+        properties.add(increment = propIncrement.createProperty(this, 1.0));
         properties.add(enabled = propEnabled.createProperty(this, true));
+    }
+
+    @Override
+    public WidgetConfigurator getConfigurator(final Version persisted_version) throws Exception
+    {
+        return new IncrementConfigurator(persisted_version);
     }
 
     /** @return 'minimum' property */
@@ -125,16 +156,10 @@ public class ScrollBarWidget extends PVWidget
         return bar_length;
     }
 
-    /** @return 'step_increment' property */
-    public WidgetProperty<Double> propStepIncrement()
+    /** @return 'increment' property */
+    public WidgetProperty<Double> propIncrement()
     {
-        return step_increment;
-    }
-
-    /** @return 'page_increment' property */
-    public WidgetProperty<Double> propPageIncrement()
-    {
-        return page_increment;
+        return increment;
     }
 
     /** @return 'enabled' property */

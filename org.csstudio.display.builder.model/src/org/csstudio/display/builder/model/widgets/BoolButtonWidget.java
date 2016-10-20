@@ -21,7 +21,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
@@ -81,12 +80,14 @@ public class BoolButtonWidget extends PVWidget
 
             final BoolButtonWidget button = (BoolButtonWidget) widget;
             // If legacy widgets was configured to not use labels, clear them
-            final Optional<String> show = XMLUtil.getChildString(xml, "show_boolean_label");
-            if (show.isPresent()  &&  !XMLUtil.parseBoolean(show.get(), false))
+            XMLUtil.getChildBoolean(xml, "show_boolean_label").ifPresent(show ->
             {
-                button.propOffLabel().setValue("");
-                button.propOnLabel().setValue("");
-            }
+                if (!show)
+                {
+                    button.propOffLabel().setValue("");
+                    button.propOnLabel().setValue("");
+                }
+            });
             return true;
         }
     };

@@ -79,20 +79,14 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
                 break;
             //incrementing by keyboard
             case UP:
+            case PAGE_UP:
                 if (!active)
                     jfx_node.getValueFactory().increment(1);
                 break;
             case DOWN:
-                if (!active)
-                    jfx_node.getValueFactory().decrement(1);
-                break;
-            case PAGE_UP:
-                if (!active)
-                    ((TextSpinnerValueFactory)jfx_node.getValueFactory()).pageIncrement(1);
-                break;
             case PAGE_DOWN:
                 if (!active)
-                    ((TextSpinnerValueFactory)jfx_node.getValueFactory()).pageDecrement(1);
+                    jfx_node.getValueFactory().decrement(1);
                 break;
             default:
                 // Any other key results in active state
@@ -166,7 +160,7 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         {
             this(model_widget.propMinimum().getDefaultValue(),
                  model_widget.propMaximum().getDefaultValue(),
-                 model_widget.propStepIncrement().getDefaultValue());
+                 model_widget.propIncrement().getDefaultValue());
         }
 
         TextSpinnerValueFactory(double min, double max, double stepIncrement)
@@ -207,24 +201,6 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         {
             return stepIncrement;
         }
-
-        private DoubleProperty pageIncrement = new SimpleDoubleProperty(this, "pageIncrement");
-        public final void setPageIncrement(double value)
-        {
-            pageIncrement.set(value);
-        }
-        public final double getPageIncrement()
-        {
-            return pageIncrement.get();
-        }
-        /**
-         * Sets the amount to increment or decrement by when page up/down buttons pressed.
-         */
-        public final DoubleProperty pageIncrementProperty()
-        {
-            return pageIncrement;
-        }
-
 
         private DoubleProperty min = new SimpleDoubleProperty(this, "min");
         public final void setMin(double value)
@@ -301,16 +277,6 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
             writeResultingValue(steps*getStepIncrement());
         }
 
-        public void pageDecrement(int steps)
-        {
-            writeResultingValue(-steps*getPageIncrement());
-        }
-
-        public void pageIncrement(int steps)
-        {
-            writeResultingValue(steps*getPageIncrement());
-        }
-
         private void writeResultingValue(double change)
         {
             double value;
@@ -326,8 +292,6 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
             else if (value > getMax()) value = getMax();
             toolkit.fireWrite(model_widget, value);
         }
-
-
     };
 
     /** @param value Current value of PV
@@ -354,8 +318,7 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
 
-        model_widget.propStepIncrement().addUntypedPropertyListener(this::behaviorChanged);
-        model_widget.propPageIncrement().addUntypedPropertyListener(this::behaviorChanged);
+        model_widget.propIncrement().addUntypedPropertyListener(this::behaviorChanged);
         model_widget.propMinimum().addUntypedPropertyListener(this::behaviorChanged);
         model_widget.propMaximum().addUntypedPropertyListener(this::behaviorChanged);
 
@@ -375,9 +338,8 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
 
     private void behaviorChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        TextSpinnerValueFactory factory = (TextSpinnerValueFactory)jfx_node.getValueFactory();
-        factory.setStepIncrement(model_widget.propStepIncrement().getValue());
-        factory.setPageIncrement(model_widget.propPageIncrement().getValue());
+        final TextSpinnerValueFactory factory = (TextSpinnerValueFactory)jfx_node.getValueFactory();
+        factory.setStepIncrement(model_widget.propIncrement().getValue());
         factory.setMin(model_widget.propMinimum().getValue());
         factory.setMax(model_widget.propMaximum().getValue());
     }

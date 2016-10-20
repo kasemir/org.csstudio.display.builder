@@ -310,12 +310,8 @@ public class CommonWidgetProperties
     };
 
     /** 'step_increment' property */
-    public static final WidgetPropertyDescriptor<Double> propStepIncrement =
-            CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "step_increment", Messages.WidgetProperties_StepIncrement);
-
-    /** 'page_increment' property */
-    public static final WidgetPropertyDescriptor<Double> propPageIncrement =
-            CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "page_increment", Messages.WidgetProperties_PageIncrement);
+    public static final WidgetPropertyDescriptor<Double> propIncrement =
+            CommonWidgetProperties.newDoublePropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "increment", Messages.WidgetProperties_Increment);
 
     /** 'horizontal' property: Use horizontal orientation */
     public static final WidgetPropertyDescriptor<Boolean> propHorizontal =
