@@ -48,7 +48,7 @@ public class ThermometerWidget extends PVWidget
 
     public ThermometerWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType());
+        super(WIDGET_DESCRIPTOR.getType(), 40, 160);
     }
 
     private volatile WidgetProperty<Boolean> limits_from_pv;

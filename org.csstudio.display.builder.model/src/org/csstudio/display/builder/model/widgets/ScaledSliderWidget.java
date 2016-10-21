@@ -192,7 +192,7 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
 
     public ScaledSliderWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType());
+        super(WIDGET_DESCRIPTOR.getType(), 400, 55);
     }
 
     @Override

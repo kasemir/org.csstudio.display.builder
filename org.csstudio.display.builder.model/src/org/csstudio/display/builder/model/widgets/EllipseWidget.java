@@ -49,7 +49,7 @@ public class EllipseWidget extends VisibleWidget
 
     public EllipseWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType());
+        super(WIDGET_DESCRIPTOR.getType(), 100, 50);
     }
 
     @Override
