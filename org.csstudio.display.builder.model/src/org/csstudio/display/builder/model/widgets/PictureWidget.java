@@ -35,7 +35,7 @@ import org.w3c.dom.Text;
 @SuppressWarnings("nls")
 public class PictureWidget extends VisibleWidget
 {
-    public final static String default_pic = "platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif"; //$NON-NLS-1$
+    public final static String default_pic = "platform:/plugin/org.csstudio.display.builder.model/icons/picture.png"; //$NON-NLS-1$
 
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
