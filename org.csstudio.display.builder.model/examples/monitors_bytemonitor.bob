@@ -13,9 +13,9 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
-    <text>The byte monitor displays the bits of a PV.</text>
+    <text>The byte monitor displays the bits of a PV as a group of LEDs.</text>
     <y>31</y>
-    <width>321</width>
+    <width>509</width>
     <height>30</height>
   </widget>
   <widget type="label" version="2.0.0">
@@ -261,11 +261,12 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_15</name>
-    <text>By default, the start (smallest) bit is on the right.</text>
-    <x>181</x>
+    <text>By default, the start bit (LSB)
+is on the right.</text>
+    <x>240</x>
     <y>103</y>
-    <width>421</width>
-    <height>26</height>
+    <width>240</width>
+    <height>51</height>
     <font>
       <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
       </font>
