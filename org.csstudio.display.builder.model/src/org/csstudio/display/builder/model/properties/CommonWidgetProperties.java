@@ -373,6 +373,19 @@ public class CommonWidgetProperties
         }
     };
 
+    /** 'rotation_step' property */
+    public static final WidgetPropertyDescriptor<RotationStep> propRotationStep =
+        new WidgetPropertyDescriptor<RotationStep>(
+            WidgetPropertyCategory.DISPLAY, "rotation_step", Messages.WidgetProperties_Rotation)
+    {
+        @Override
+        public EnumWidgetProperty<RotationStep> createProperty(final Widget widget,
+                                                               final RotationStep default_value)
+        {
+            return new EnumWidgetProperty<RotationStep>(this, widget, default_value);
+        }
+    };
+
     /** 'wrap_words' property: Wrap words to fit width of widget? */
     public static final WidgetPropertyDescriptor<Boolean> propWrapWords =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "wrap_words", Messages.WidgetProperties_WrapWords);

@@ -88,6 +88,10 @@ public class Messages extends NLS
     public static String Resize_Content;
     public static String Resize_None;
     public static String Right;
+    public static String Rotation_0;
+    public static String Rotation_180;
+    public static String Rotation_270;
+    public static String Rotation_90;
     public static String ScrollBar_ShowValueTip;
     public static String ScrollBar_BarLength;
     public static String Spinner_ButtonsOnLeft;
