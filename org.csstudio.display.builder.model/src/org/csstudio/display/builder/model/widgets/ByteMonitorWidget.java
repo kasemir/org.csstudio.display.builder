@@ -86,7 +86,7 @@ public class ByteMonitorWidget extends PVWidget
 
     public ByteMonitorWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType());
+        super(WIDGET_DESCRIPTOR.getType(), 160, 20);
     }
 
     @Override

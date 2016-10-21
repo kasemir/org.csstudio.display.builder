@@ -72,7 +72,7 @@ public class RadioWidget extends PVWidget
 
     public RadioWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType(), 100, 30);
+        super(WIDGET_DESCRIPTOR.getType(), 100, 43);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class RadioWidget extends PVWidget
         super.defineProperties(properties);
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(foreground = propForegroundColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.TEXT)));
-        properties.add(items = propItems.createProperty(this, Arrays.asList(propItem.createProperty(this, "Item"))));
+        properties.add(items = propItems.createProperty(this, Arrays.asList(propItem.createProperty(this, "Item 1"), propItem.createProperty(this, "Item 2"))));
         properties.add(items_from_pv = propItemsFromPV.createProperty(this, true));
         properties.add(horizontal = propHorizontal.createProperty(this, true));
     }

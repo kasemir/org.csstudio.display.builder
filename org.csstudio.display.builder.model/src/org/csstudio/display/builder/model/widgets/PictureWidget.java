@@ -100,7 +100,7 @@ public class PictureWidget extends VisibleWidget
 
     public PictureWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType());
+        super(WIDGET_DESCRIPTOR.getType(), 150, 100);
     }
 
     @Override

@@ -64,7 +64,7 @@ public class ArcWidget extends VisibleWidget {
 
 
 	public ArcWidget() {
-		super(WIDGET_DESCRIPTOR.getType());
+		super(WIDGET_DESCRIPTOR.getType(), 100, 100);
 	}
 
 	// By default create an arc with dark blue line, light blue interior, no transparency, 90 degree angle from 0-90
