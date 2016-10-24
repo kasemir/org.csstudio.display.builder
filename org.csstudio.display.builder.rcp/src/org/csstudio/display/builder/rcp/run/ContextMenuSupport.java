@@ -215,6 +215,7 @@ public class ContextMenuSupport
             final Node node = JFXBaseRepresentation.getJFXNode(context_menu_widget);
             final Scene scene = node.getScene();
 
+            manager.add(new PrintAction(shell, scene));
             manager.add(new SendEMailAction(shell, scene));
             manager.add(new SendLogbookAction(shell, scene));
         }
