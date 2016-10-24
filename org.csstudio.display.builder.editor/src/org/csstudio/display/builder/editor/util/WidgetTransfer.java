@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
+import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetDescriptor;
@@ -28,6 +29,7 @@ import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
@@ -51,15 +53,17 @@ public class WidgetTransfer
     // Transferring as DataFormat("text/plain"), however, allows exchange
     // with basic text editor, which can be very convenient.
 
-    /** Add support for 'dragging' a widget out of a node
-     *  @param source Source {@link Node}
-     *  @param selection
-     *  @param desc Description of widget type to drag
-     *  @param image Image to represent the widget, or <code>null</code>
+    /**
+     * Add support for 'dragging' a widget out of a node
+     *
+     * @param source Source {@link Node}
+     * @param selection
+     * @param desc Description of widget type to drag
+     * @param image Image to represent the widget, or <code>null</code>
      */
-    public static void addDragSupport(final Node source, final WidgetSelectionHandler selection, final WidgetDescriptor descriptor, final Image image) {
+    public static void addDragSupport ( final Node source, final WidgetSelectionHandler selection, final WidgetDescriptor descriptor, final Image image ) {
 
-        source.setOnDragDetected((MouseEvent event) -> {
+        source.setOnDragDetected( ( MouseEvent event ) -> {
 
             logger.log(Level.FINE, "Starting drag for {0}", descriptor);
 
@@ -68,12 +72,9 @@ public class WidgetTransfer
             Widget widget = descriptor.createWidget();
             final String xml;
 
-            try
-            {
+            try {
                 xml = ModelWriter.getXML(Arrays.asList(widget));
-            }
-            catch (Exception ex)
-            {
+            } catch ( Exception ex ) {
                 logger.log(Level.WARNING, "Cannot drag-serialize", ex);
                 return;
             }
@@ -87,60 +88,78 @@ public class WidgetTransfer
             final int width = widget.propWidth().getValue();
             final int height = widget.propHeight().getValue();
 
-            db.setDragView(createDragImage(widget, image, width, height), width / 2, - height / 2);
+            db.setDragView(createDragImage(widget, image, width, height), width / 2, -height / 2);
 
             event.consume();
 
         });
 
         // TODO Mouse needs to be clicked once after drop completes.
-        // Unclear why. Tried source.setOnDragDone() to consume that event, no change.
+        // Unclear why. Tried source.setOnDragDone() to consume that event, no
+        // change.
         // Somehow the drag is still 'active' until one more mouse click.
 
     }
 
-    /** Add support for dropping widgets
-     *  @param node Node that will receive the widgets
-     *  @param group_handler Group handler
-     *  @param handleDroppedModel Callback for handling the dropped widgets
+    /**
+     * Add support for dropping widgets
+     *
+     * @param node Node that will receive the widgets
+     * @param group_handler Group handler
+     * @param selection_tracker The selection tracker.
+     * @param handleDroppedModel Callback for handling the dropped widgets
      */
-    public static void addDropSupport(final Node node,
-                                      final ParentHandler group_handler,
-                                      final Consumer<List<Widget>> handleDroppedModel)
-    {
-        node.setOnDragOver((DragEvent event) ->
-        {
-            if (event.getDragboard().hasString())
+//    public static void addDropSupport ( final Node node, final ParentHandler group_handler, final Consumer<List<Widget>> handleDroppedModel ) {
+    public static void addDropSupport (
+            final Node node,
+            final ParentHandler group_handler,
+            final SelectedWidgetUITracker selection_tracker,
+            final Consumer<List<Widget>> handleDroppedModel
+    ) {
+
+        node.setOnDragOver( ( DragEvent event ) -> {
+
+            if ( event.getDragboard().hasString() ) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+            }
 
             group_handler.locateParent(event.getX(), event.getY(), 10, 10);
             event.consume();
+
         });
 
-        node.setOnDragDropped((DragEvent event) ->
-        {
+        node.setOnDragDropped( ( DragEvent event ) -> {
+
             final Dragboard db = event.getDragboard();
-            if (db.hasString())
-            {
+
+            if ( db.hasString() ) {
+
                 final String xml = db.getString();
-                try
-                {
+
+                try {
+
                     final DisplayModel model = ModelReader.parseXML(xml);
                     final List<Widget> widgets = model.getChildren();
+                    final Point2D location = selection_tracker.gridConstrain(event.getX(), event.getY());
+
                     logger.log(Level.FINE, "Dropped {0} widgets", widgets.size());
-                    GeometryTools.moveWidgets((int)event.getX(), (int)event.getY(), widgets);
+                    GeometryTools.moveWidgets((int) location.getX(), (int) location.getY(), widgets);
                     handleDroppedModel.accept(widgets);
-                }
-                catch (Exception ex)
-                {
+
+                } catch ( Exception ex ) {
                     logger.log(Level.WARNING, "Cannot parse dropped model", ex);
                 }
+
                 event.setDropCompleted(true);
-            }
-            else
+
+            } else {
                 event.setDropCompleted(false);
+            }
+
             event.consume();
+
         });
+
     }
 
     /**
@@ -178,11 +197,11 @@ public class WidgetTransfer
 
         }
 
-        WritableImage dragImage = new WritableImage(width, height);
+        WritableImage dImage = new WritableImage(width, height);
 
-        SwingFXUtils.toFXImage(bImage, dragImage);
+        SwingFXUtils.toFXImage(bImage, dImage);
 
-        return dragImage;
+        return dImage;
 
     }
 
