@@ -9,6 +9,7 @@ package org.csstudio.display.builder.rcp.run;
 
 import static org.csstudio.logbook.AttachmentBuilder.attachment;
 
+import java.io.File;
 import java.io.FileInputStream;
 
 import org.csstudio.display.builder.rcp.Messages;
@@ -42,11 +43,11 @@ public class SendLogbookAction extends Action
     @Override
     public void run()
     {
-        String image_file = null;
+        File image_file = null;
         try
         {
-            final Screenshot screenshot = new Screenshot(scene, "display");
-            image_file = screenshot.getFilename();
+            final Screenshot screenshot = new Screenshot(scene);
+            image_file = screenshot.writeToTempfile("display");
         }
         catch (Exception ex)
         {
@@ -58,7 +59,7 @@ public class SendLogbookAction extends Action
         {
             final LogEntryBuilder entry = LogEntryBuilder.withText(Messages.DefaultLogbookText);
             if (image_file != null)
-                entry.attach(attachment(image_file).inputStream(new FileInputStream(image_file)));
+                entry.attach(attachment(image_file.getAbsolutePath()).inputStream(new FileInputStream(image_file)));
             final LogEntryBuilderDialog dialog = new LogEntryBuilderDialog(shell, entry);
             dialog.setBlockOnOpen(true);
             dialog.open();

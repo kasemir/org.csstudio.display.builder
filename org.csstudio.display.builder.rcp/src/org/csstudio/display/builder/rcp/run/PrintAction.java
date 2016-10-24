@@ -9,6 +9,8 @@ package org.csstudio.display.builder.rcp.run;
 
 import static org.csstudio.display.builder.rcp.Plugin.logger;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.rcp.Messages;
@@ -79,10 +81,10 @@ public class PrintAction extends Action
         final Image snapshot;
         try
         {
-            final Screenshot screenshot = new Screenshot(scene, "display");
-            final String image_file = screenshot.getFilename();
+            final Screenshot screenshot = new Screenshot(scene);
+            final File image_file = screenshot.writeToTempfile("display");
             final ImageLoader loader = new ImageLoader();
-            final ImageData[] data = loader.load(image_file);
+            final ImageData[] data = loader.load(new FileInputStream(image_file));
             snapshot = new Image(shell.getDisplay(), data[0]);
         }
         catch (Exception ex)
