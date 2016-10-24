@@ -63,6 +63,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
         else
             text = new TextField();
         text.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        text.getStyleClass().add("text_entry");
 
         if (! toolkit.isEditMode())
         {

@@ -37,6 +37,26 @@
    -fx-padding: 0em 0em 0em 0em;
 }
 
+/** Default text-input padding in modena.css:
+ * .text-input
+ *  -fx-padding: 0.333333em 0.583em 0.333333em 0.583em; (top right bottom left)
+ * .text-area .content
+ *  -fx-padding: 0.25em 0.583em 0.25em 0.583em;
+ *  Similar to .button, this reduces the visible text compared to BOY displays.
+ *  It's still a pleasant padding for text fields
+ *  in the property pane etc.,
+ *  to only changing padding in custom .text_entry,
+ *  not the underlying .text-input and .text-area 
+ */
+.text_entry
+{
+   -fx-padding: 0em 0em 0em 0em;
+}
+.text_entry .content
+{
+   -fx-padding: 0em 0em 0em 0em;
+}
+
 /* Default button padding in modena.css is white-on-black */
 .tooltip
 {
