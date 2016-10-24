@@ -11,7 +11,9 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.runtime.pv.PVFactory;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.csstudio.display.builder.runtime.pv.RuntimePVListener;
@@ -38,21 +40,24 @@ public class PVFactoryTest
     {
         final RuntimePV pv = PVFactory.getPV("loc://test(3.14)");
         try
-        {
-            assertThat(pv.getName(), equalTo("loc://test(3.14)"));
+        {   // vtype.pv uses the base name, without initializer
+            assertThat(pv.getName(), equalTo("loc://test"));
 
             final CountDownLatch updates = new CountDownLatch(1);
+            final AtomicReference<Number> number = new AtomicReference<>();
             RuntimePVListener listener = new RuntimePVListener()
             {
                 @Override
                 public void valueChanged(RuntimePV pv, VType value)
                 {
                     System.out.println(pv.getName() + " = " + value);
+                    number.set(VTypeUtil.getValueNumber(value));
                     updates.countDown();
                 }
             };
             pv.addListener(listener);
             updates.await();
+            assertThat(number.get(), equalTo(3.14));
         }
         finally
         {
