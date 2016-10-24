@@ -41,7 +41,7 @@ public class PictureWidget extends VisibleWidget
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
             new WidgetDescriptor("picture", WidgetCategory.GRAPHIC,
                     "Picture",
-                    "platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif",
+                    "platform:/plugin/org.csstudio.display.builder.model/icons/small_picture.png",
                     "Display a picture from a file",
                     Arrays.asList("org.csstudio.opibuilder.widgets.Image"))
     {
