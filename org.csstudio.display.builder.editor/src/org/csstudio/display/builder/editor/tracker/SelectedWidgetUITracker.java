@@ -148,20 +148,53 @@ public class SelectedWidgetUITracker extends Tracker
         grid_constraint.configure(model);
     }
 
-    /** Apply enabled constraints to requested position
-     *  @param x Requested X position
-     *  @param y Requested Y position
-     *  @return Constrained coordinate
+    /**
+     * Apply enabled constraints to requested position
+     *
+     * @param x Requested X position
+     * @param y Requested Y position
+     * @return Constrained coordinate
      */
     @Override
-    protected Point2D constrain(final double x, final double y)
-    {
+    protected Point2D constrain ( final double x, final double y ) {
+
         Point2D result = super.constrain(x, y);
-        if (grid_constraint.isEnabled())
-            result = grid_constraint.constrain(result.getX(), result.getY());
-        if (snap_constraint.isEnabled())
-            result = snap_constraint.constrain(result.getX(), result.getY());
+
+        result = gridConstrain(result.getX(), result.getY());
+        result = snapConstrain(result.getX(), result.getY());
+
         return result;
+
+    }
+
+    /**
+     * Apply enabled constraints to requested position
+     *
+     * @param x Requested X position
+     * @param y Requested Y position
+     * @return Constrained coordinate
+     */
+    public Point2D gridConstrain ( final double x, final double y ) {
+        if ( grid_constraint.isEnabled() ) {
+            return grid_constraint.constrain(x, y);
+        } else {
+            return new Point2D(x, y);
+        }
+    }
+
+    /**
+     * Apply enabled constraints to requested position
+     *
+     * @param x Requested X position
+     * @param y Requested Y position
+     * @return Constrained coordinate
+     */
+    public Point2D snapConstrain ( final double x, final double y ) {
+        if ( snap_constraint.isEnabled() ) {
+            return snap_constraint.constrain(x, y);
+        } else {
+            return new Point2D(x, y);
+        }
     }
 
     /** @param event {@link MouseEvent} */
@@ -428,6 +461,7 @@ public class SelectedWidgetUITracker extends Tracker
 
         // Get focus to allow use of arrow keys
         tracker.requestFocus();
+
     }
 
     @Override
