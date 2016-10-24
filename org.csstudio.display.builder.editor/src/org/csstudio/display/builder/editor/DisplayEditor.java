@@ -178,25 +178,22 @@ public class DisplayEditor
         return undo;
     }
 
-    private void hookListeners()
-    {
-        toolkit.addListener(new ToolkitListener()
-        {
+    private void hookListeners ( ) {
+
+        toolkit.addListener(new ToolkitListener() {
             @Override
-            public void handleClick(final Widget widget, final boolean with_control)
-            {
-                logger.log(Level.FINE, "Selected {0}",  widget);
+            public void handleClick ( final Widget widget, final boolean with_control ) {
+                logger.log(Level.FINE, "Selected {0}", widget);
                 // Toggle selection of widget when Ctrl is held
-                if (with_control)
+                if ( with_control )
                     selection.toggleSelection(widget);
                 else
                     selection.setSelection(Arrays.asList(widget));
             }
         });
 
-        model_root.setOnMousePressed(event ->
-        {
-            if (event.isControlDown())
+        model_root.setOnMousePressed(event -> {
+            if ( event.isControlDown() )
                 return;
             logger.log(Level.FINE, "Mouse pressed in 'editor', de-select all widgets");
             event.consume();
@@ -204,10 +201,10 @@ public class DisplayEditor
         });
 
         new Rubberband(model_root, edit_tools, this::selectWidgetsInRegion);
-
         new PointsBinding(edit_tools, selection, undo);
 
-        WidgetTransfer.addDropSupport(model_root, group_handler, this::addWidgets);
+        WidgetTransfer.addDropSupport(model_root, group_handler, selection_tracker, this::addWidgets);
+
     }
 
     private void selectWidgetsInRegion(final Rectangle2D region)
