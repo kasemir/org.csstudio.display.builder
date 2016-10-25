@@ -35,6 +35,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
+
 /** Real-time plot
  *
  *  @param <XTYPE> Data type used for the {@link PlotDataItem}
@@ -132,11 +133,11 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         plot.removeListener(listener);
     }
 
-    //    /** @return Control for the plot, to attach context menu */
-    //    public Control getPlotControl()
-    //    {
-    //        return plot;
-    //    }
+    ///** @return Control for the plot, to attach context menu */
+    //public Control getPlotControl()
+    //{
+    //    return plot;
+    //}
     //
     //    /** @return {@link Action} that can show/hide the legend */
     //    public Action getLegendAction()

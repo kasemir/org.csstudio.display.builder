@@ -178,6 +178,12 @@ public class ModelBasedPlot
         return plot;
     }
 
+    /** @return FXCanvas */
+    public FXCanvas getCanvas()
+    {
+        return canvas;
+    }
+
     /**
      * Attach to drag-and-drop, notifying the plot listener
      *

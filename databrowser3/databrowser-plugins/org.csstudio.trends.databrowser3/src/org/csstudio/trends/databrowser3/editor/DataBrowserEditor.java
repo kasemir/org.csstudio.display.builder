@@ -353,8 +353,7 @@ public class DataBrowserEditor extends EditorPart
             public void partActivated(final IWorkbenchPartReference part)    { /* NOP */ }
         });
 
-        //TODO: Plot control context menu
-        //createContextMenu(plot.getPlot().getPlotControl());
+        createContextMenu(plot.getCanvas());
     }
 
     /** Create context menu */
