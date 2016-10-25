@@ -9,6 +9,7 @@ Require-Bundle: org.eclipse.osgi,
  org.diirt.util,
  org.diirt.vtype,
  org.csstudio.javafx;bundle-version="1.0.0",
+ org.eclipse.jface;bundle-version="3.10.1",
  org.csstudio.display.builder.util;bundle-version="1.0.0"
 Bundle-Vendor: Kay Kasemir - SNS
 Export-Package: org.csstudio.javafx.rtplot,

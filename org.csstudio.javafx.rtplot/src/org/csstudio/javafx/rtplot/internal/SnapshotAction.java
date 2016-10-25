@@ -7,79 +7,84 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import org.csstudio.javafx.rtplot.Activator;
+import org.csstudio.javafx.rtplot.Messages;
+import org.csstudio.javafx.rtplot.RTPlot;
+import org.eclipse.jface.action.Action;
+
 /** Action that saves a snapshot of the current plot
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class SnapshotAction<XTYPE extends Comparable<XTYPE>> // extends Action
+public class SnapshotAction<XTYPE extends Comparable<XTYPE>> extends Action
 {
     // TODO Implement for TBD context menu
 
-//    final private RTPlot<XTYPE> plot;
-//
-//    public SnapshotAction(final RTPlot<XTYPE> plot)
-//    {
-//        super(Messages.Snapshot, Activator.getIcon("camera"));
-//        this.plot = plot;
-//    }
-//
-//    @Override
-//    public void run()
-//    {
-//        final Shell shell = plot.getShell();
-//        final AtomicReference<String> path = new AtomicReference<String>();
-//
-//        // Use background thread because of potentially lengthy file I/O
-//        final Job job = new Job(Messages.Snapshot)
-//        {
-//            @Override
-//            protected IStatus run(final IProgressMonitor progress)
-//            {
-//                progress.beginTask(Messages.Snapshot, IProgressMonitor.UNKNOWN);
-//                while (true) // Repeat until success or cancel
-//                {
-//                    shell.getDisplay().syncExec(() ->
-//                    {    // Prompt for file name, in display thread
-//                        final FileDialog dialog = new FileDialog(shell, SWT.SAVE);
-//                        if (path.get() != null)
-//                        {    // Re-open with previously entered directory and filename
-//                            final File file = new File(path.get());
-//                            dialog.setFilterPath(file.getParent());
-//                            dialog.setFileName(file.getName());
-//                        }
-//                        dialog.setOverwrite(true);
-//                        dialog.setFilterNames(new String[] { "PNG Files", "All Files (*.*)" });
-//                        dialog.setFilterExtensions(new String[] { "*.png", "*.*" }); // For Windows
-//                        path.set(dialog.open());
-//                    });
-//                    if (path.get() == null) // cancelled?
-//                        break;
-//
-//                    try
-//                    {    // Create snapshot, save to file
-//                        final ImageLoader loader = new ImageLoader();
-//                        final Image image = plot.getImage();
-//                        loader.data = new ImageData[] { image.getImageData() };
-//                        image.dispose();
-//                        loader.save(path.get(), SWT.IMAGE_PNG);
-//                        // Done!
-//                        break;
-//                    }
-//                    catch (Exception ex)
-//                    {    // Error dialog needs to be in display thread
-//                        shell.getDisplay().syncExec(() ->
-//                        {
-//                            MessageDialog.openError(shell, Messages.Snapshot,
-//                                    NLS.bind("Cannot save snapshot as {0}.\n\nDetail:\n{1}",
-//                                             path.get(), ex.getMessage()) );
-//                        });
-//                    }
-//                    // Prompt for different file name
-//                }
-//                progress.done();
-//                return Status.OK_STATUS;
-//            }
-//        };
-//        job.schedule();
-//    }
+    //    final private RTPlot<XTYPE> plot;
+    //
+    public SnapshotAction(final RTPlot<XTYPE> plot)
+    {
+        super(Messages.Snapshot, Activator.getIconID("camera"));
+        //        this.plot = plot;
+    }
+    //
+    @Override
+    public void run()
+    {
+        //        final Shell shell = plot.getShell();
+        //        final AtomicReference<String> path = new AtomicReference<String>();
+        //
+        //        // Use background thread because of potentially lengthy file I/O
+        //        final Job job = new Job(Messages.Snapshot)
+        //        {
+        //            @Override
+        //            protected IStatus run(final IProgressMonitor progress)
+        //            {
+        //                progress.beginTask(Messages.Snapshot, IProgressMonitor.UNKNOWN);
+        //                while (true) // Repeat until success or cancel
+        //                {
+        //                    shell.getDisplay().syncExec(() ->
+        //                    {    // Prompt for file name, in display thread
+        //                        final FileDialog dialog = new FileDialog(shell, SWT.SAVE);
+        //                        if (path.get() != null)
+        //                        {    // Re-open with previously entered directory and filename
+        //                            final File file = new File(path.get());
+        //                            dialog.setFilterPath(file.getParent());
+        //                            dialog.setFileName(file.getName());
+        //                        }
+        //                        dialog.setOverwrite(true);
+        //                        dialog.setFilterNames(new String[] { "PNG Files", "All Files (*.*)" });
+        //                        dialog.setFilterExtensions(new String[] { "*.png", "*.*" }); // For Windows
+        //                        path.set(dialog.open());
+        //                    });
+        //                    if (path.get() == null) // cancelled?
+        //                        break;
+        //
+        //                    try
+        //                    {    // Create snapshot, save to file
+        //                        final ImageLoader loader = new ImageLoader();
+        //                        final Image image = plot.getImage();
+        //                        loader.data = new ImageData[] { image.getImageData() };
+        //                        image.dispose();
+        //                        loader.save(path.get(), SWT.IMAGE_PNG);
+        //                        // Done!
+        //                        break;
+        //                    }
+        //                    catch (Exception ex)
+        //                    {    // Error dialog needs to be in display thread
+        //                        shell.getDisplay().syncExec(() ->
+        //                        {
+        //                            MessageDialog.openError(shell, Messages.Snapshot,
+        //                                    NLS.bind("Cannot save snapshot as {0}.\n\nDetail:\n{1}",
+        //                                             path.get(), ex.getMessage()) );
+        //                        });
+        //                    }
+        //                    // Prompt for different file name
+        //                }
+        //                progress.done();
+        //                return Status.OK_STATUS;
+        //            }
+        //        };
+        //        job.schedule();
+    }
 }
