@@ -23,6 +23,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
@@ -50,7 +51,7 @@ import org.w3c.dom.Element;
 public class ScaledSliderWidget extends PVWidget
 {
     /** Widget descriptor */
-public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         new WidgetDescriptor("scaledslider", WidgetCategory.CONTROL,
             "Scaled Slider",
             "platform:/plugin/org.csstudio.display.builder.model/icons/scaled_slider.gif",
@@ -64,9 +65,6 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
         }
     };
 
-    //XXX: The following are common scaled-widget properties
-
-    //define in defineProperties() when representation implemented
     /** Display 'scale_font': Font for scale */
     public static final WidgetPropertyDescriptor<WidgetFont> displayScaleFont =
         new WidgetPropertyDescriptor<WidgetFont>(
@@ -142,28 +140,36 @@ public static final WidgetDescriptor WIDGET_DESCRIPTOR =
             if (! super.configureFromXML(model_reader, widget, xml))
                 return false;
 
-            ScrollBarWidget.IncrementConfigurator.handleLegacyIncrement(widget, xml);
-
-            final ScaledSliderWidget slider = (ScaledSliderWidget) widget;
-            XMLUtil.getChildDouble(xml, "level_lo").ifPresent(value -> slider.level_low.setValue(value));
-            XMLUtil.getChildDouble(xml, "level_hi").ifPresent(value -> slider.level_high.setValue(value));
-            XMLUtil.getChildBoolean(xml, "show_lo").ifPresent(show -> slider.show_low.setValue(show));
-            XMLUtil.getChildBoolean(xml, "show_hi").ifPresent(show -> slider.show_high.setValue(show));
-            XMLUtil.getChildBoolean(xml, "show_markers").ifPresent(show ->
+            if (xml_version.getMajor() < 2)
             {
-                if (! show)
+                ScrollBarWidget.IncrementConfigurator.handleLegacyIncrement(widget, xml);
+
+                final ScaledSliderWidget slider = (ScaledSliderWidget) widget;
+                XMLUtil.getChildDouble(xml, "level_lo").ifPresent(value -> slider.level_low.setValue(value));
+                XMLUtil.getChildDouble(xml, "level_hi").ifPresent(value -> slider.level_high.setValue(value));
+                XMLUtil.getChildBoolean(xml, "show_lo").ifPresent(show -> slider.show_low.setValue(show));
+                XMLUtil.getChildBoolean(xml, "show_hi").ifPresent(show -> slider.show_high.setValue(show));
+
+                // There used to be another 'show_markers' to override the individual show_low/hi/.. settings
+                final Optional<Boolean> show_markers = XMLUtil.getChildBoolean(xml, "show_markers");
+                boolean hide_markers = show_markers.isPresent()  &&  show_markers.get() == false;
+
+                // 'No scale' also used to imply no markers
+                if (slider.propShowScale().getValue() == false)
+                    hide_markers = true;
+
+                if (hide_markers)
                 {
                     slider.propShowLoLo().setValue(false);
                     slider.propShowLow().setValue(false);
                     slider.propShowHigh().setValue(false);
                     slider.propShowHiHi().setValue(false);
                 }
-            });
 
-            final Element element = XMLUtil.getChildElement(xml, "scale_font");
-            if (element != null)
-                slider.font.readFromXML(model_reader, element);
-
+                final Element element = XMLUtil.getChildElement(xml, "scale_font");
+                if (element != null)
+                    slider.font.readFromXML(model_reader, element);
+            }
             return true;
         }
     };

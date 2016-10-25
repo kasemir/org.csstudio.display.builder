@@ -23,7 +23,9 @@ public class Messages extends NLS
     public static String NavigateBack_TT;
     public static String NavigateForward;
     public static String NavigateForward_TT;
+    public static String Print;
     public static String ReloadDisplay;
+    public static String SaveSnapshot;
     public static String SelectWorkspaceFile;
     public static String SendToLogbook;
     public static String TopDisplays;

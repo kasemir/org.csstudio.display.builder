@@ -348,11 +348,18 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
                                  "; " + JFXUtil.cssFont("-fx-tick-label-font", font);
             jfx_node.setStyle(style);
 
-            final String format = model_widget.propScaleFormat().getValue();
-            slider.setLabelFormatter(new FormatStringConverter<Double>(new DecimalFormat(format)));
-            slider.setShowTickLabels(model_widget.propShowScale().getValue());
-            slider.setShowTickMarks(model_widget.propShowMinorTicks().getValue());
-
+            if (model_widget.propShowScale().getValue())
+            {
+                final String format = model_widget.propScaleFormat().getValue();
+                slider.setLabelFormatter(new FormatStringConverter<Double>(new DecimalFormat(format)));
+                slider.setShowTickLabels(true);
+                slider.setShowTickMarks(model_widget.propShowMinorTicks().getValue());
+            }
+            else
+            {
+                slider.setShowTickLabels(false);
+                slider.setShowTickMarks(false);
+            }
             slider.setMin(min);
             slider.setMax(max);
 
