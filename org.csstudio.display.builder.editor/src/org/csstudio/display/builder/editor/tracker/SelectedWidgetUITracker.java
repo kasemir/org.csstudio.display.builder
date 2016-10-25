@@ -141,6 +141,7 @@ public class SelectedWidgetUITracker extends Tracker
 
         // When tracker moved, update widgets
         setListener(this::updateWidgetsFromTracker);
+
     }
 
     public void setModel(final DisplayModel model)
