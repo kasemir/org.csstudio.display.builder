@@ -202,7 +202,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         if (isLegendVisible() == show)
             return;
         plot.showLegend(show);
-        //        toggle_legend.updateText();
+        toggle_legend.updateText();
     }
 
     /** @return <code>true</code> if toolbar is visible */
@@ -236,7 +236,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
                 Platform.runLater(() -> layoutChildren() );
                 return null;
             });
-
+        toggle_toolbar.updateText();
         plot.fireToolbarChange(show);
     }
 

@@ -25,24 +25,23 @@ public class ToggleLegendAction<XTYPE extends Comparable<XTYPE>> extends Action
 {
     // TODO Implement for TBD context menu
 
-    //    final private RTPlot<XTYPE> plot;
+    final private RTPlot<XTYPE> plot;
     //
     public ToggleLegendAction(final RTPlot<XTYPE> plot, final boolean is_visible)
     {
         super(is_visible ? Messages.Legend_Hide : Messages.Legend_Show,
                 Activator.getIconID("legend"));
-        //        this.plot = plot;
+        this.plot = plot;
     }
     //
     public void updateText()
     {
-        //setText(plot.isLegendVisible() ? Messages.Legend_Hide : Messages.Legend_Show);
-        setText(Messages.Legend_Show);
+        setText(plot.isLegendVisible() ? Messages.Legend_Hide : Messages.Legend_Show);
     }
     //
     @Override
     public void run()
     {
-        //        plot.showLegend(! plot.isLegendVisible());
+        plot.showLegend(! plot.isLegendVisible());
     }
 }
