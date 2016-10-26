@@ -20,6 +20,7 @@ import org.csstudio.display.builder.editor.poly.PointsBinding;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.editor.undo.AddWidgetAction;
 import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
+import org.csstudio.display.builder.editor.util.AutoScrollHandler;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.JFXGeometryTools;
 import org.csstudio.display.builder.editor.util.ParentHandler;
@@ -101,23 +102,18 @@ public class DisplayEditor
     public final static Logger logger = Logger.getLogger(DisplayEditor.class.getName());
 
     private final JFXRepresentation toolkit;
-
-    private DisplayModel model;
-
     private final WidgetNaming widget_naming = new WidgetNaming();
-
     private final UndoableActionManager undo;
-
     private final WidgetSelectionHandler selection = new WidgetSelectionHandler();
-
     private final ParentHandler group_handler;
-
     private final SelectedWidgetUITracker selection_tracker;
+    private final Group edit_tools = new Group();
 
+    private AutoScrollHandler autoScrollHandler;
+    private DisplayModel model;
     private SplitPane root;
     private ScrollPane model_root;
     private Group model_parent;
-    private final Group edit_tools = new Group();
 
     /** @param toolkit JFX Toolkit
      *  @param stack_size Number of undo/redo entries
@@ -134,30 +130,36 @@ public class DisplayEditor
         selection_tracker.enableGrid(true);
     }
 
-    /** Create UI elements
-     *  @return Root Node
+    /**
+     * Create UI elements
+     *
+     * @return Root Node
      */
-    public Parent create()
-    {
+    public Parent create ( ) {
+
         model_root = toolkit.createModelRoot();
+        autoScrollHandler = new AutoScrollHandler(model_root);
+
         final Pane scroll_body = (Pane) model_root.getContent();
+
         model_parent = (Group) scroll_body.getChildren().get(0);
+
         scroll_body.getChildren().add(edit_tools);
 
-        final Palette palette = new Palette(selection);
+        final Palette palette = new Palette(this);
         final Node palette_node = palette.create();
 
         root = new SplitPane();
+
         root.getItems().addAll(model_root, palette_node);
         root.setDividerPositions(1);
 
         SplitPane.setResizableWithParent(palette_node, false);
-
         edit_tools.getChildren().addAll(selection_tracker);
-
         hookListeners();
 
         return root;
+
     }
 
     /** @return Selection tracker */
@@ -170,6 +172,10 @@ public class DisplayEditor
     public WidgetSelectionHandler getWidgetSelectionHandler()
     {
         return selection;
+    }
+
+    public AutoScrollHandler getAutoScrollHandler() {
+        return autoScrollHandler;
     }
 
     /** @return Undo manager */

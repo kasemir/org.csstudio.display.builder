@@ -247,8 +247,8 @@ public class Tracker extends Group
         if ( start_x < 0 )
             return;
 
-        if ( event != null )
-            event.consume();
+        //  Don't consume the event, otherwise the
+        //  AutoScrollHandler will not work properly.
 
         notifyListenerOfChange();
 

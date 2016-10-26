@@ -401,6 +401,7 @@ public class SelectedWidgetUITracker extends Tracker
         finally
         {
             updating = false;
+            updateTrackerFromWidgets();
         }
     }
 
