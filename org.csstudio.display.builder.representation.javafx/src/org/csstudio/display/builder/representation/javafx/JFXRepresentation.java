@@ -190,7 +190,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     private Group model_parent;
     private Pane scroll_body;
     private ScrollPane model_root;
-    private AutoScrollHandler autoScrollHandler;
 
     /** Constructor
      *  @param edit_mode Edit mode?
@@ -294,8 +293,6 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
 
         model_root.widthProperty().addListener(resized);
         model_root.heightProperty().addListener(resized);
-
-        autoScrollHandler = new AutoScrollHandler(model_root);
 
         return model_root;
 

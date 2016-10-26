@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
-import org.csstudio.display.builder.editor.WidgetSelectionHandler;
+import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
@@ -61,13 +61,13 @@ public class WidgetTransfer
      * @param desc Description of widget type to drag
      * @param image Image to represent the widget, or <code>null</code>
      */
-    public static void addDragSupport ( final Node source, final WidgetSelectionHandler selection, final WidgetDescriptor descriptor, final Image image ) {
+    public static void addDragSupport ( final Node source, final DisplayEditor editor, final WidgetDescriptor descriptor, final Image image ) {
 
         source.setOnDragDetected( ( MouseEvent event ) -> {
 
             logger.log(Level.FINE, "Starting drag for {0}", descriptor);
 
-            selection.clear();
+            editor.getWidgetSelectionHandler().clear();
 
             Widget widget = descriptor.createWidget();
             final String xml;
@@ -93,11 +93,7 @@ public class WidgetTransfer
             event.consume();
 
         });
-
-        // TODO Mouse needs to be clicked once after drop completes.
-        // Unclear why. Tried source.setOnDragDone() to consume that event, no
-        // change.
-        // Somehow the drag is still 'active' until one more mouse click.
+        source.setOnDragDone(event -> editor.getAutoScrollHandler().canceTimeline());
 
     }
 
@@ -109,7 +105,6 @@ public class WidgetTransfer
      * @param selection_tracker The selection tracker.
      * @param handleDroppedModel Callback for handling the dropped widgets
      */
-//    public static void addDropSupport ( final Node node, final ParentHandler group_handler, final Consumer<List<Widget>> handleDroppedModel ) {
     public static void addDropSupport (
             final Node node,
             final ParentHandler group_handler,

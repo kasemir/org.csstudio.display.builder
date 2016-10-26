@@ -17,7 +17,7 @@
  * information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  */
-package org.csstudio.display.builder.representation.javafx;
+package org.csstudio.display.builder.editor.util;
 
 
 import java.awt.MouseInfo;
@@ -51,7 +51,7 @@ import javafx.util.Duration;
  * @author Claudio Rosati, European Spallation Source ERIC
  * @version 1.0.0 25 Oct 2016
  */
-class AutoScrollHandler {
+public class AutoScrollHandler {
 
     private enum Edge {
         LEFT, RIGHT, TOP, BOTTOM
@@ -63,14 +63,33 @@ class AutoScrollHandler {
     /**
      * @param scrollPane The {@link ScrollPane} instance for which auto-scroll must be managed.
      */
-    AutoScrollHandler ( ScrollPane scrollPane ) {
+    public AutoScrollHandler ( ScrollPane scrollPane ) {
 
         this.scrollPane = scrollPane;
 
-        scrollPane.setOnDragEntered(this::handleOnDragEntered);
-        scrollPane.setOnDragExited(this::handleOnDragExited);
-        scrollPane.setOnMouseEntered(this::handleOnMouseEntered);
-        scrollPane.setOnMouseExited(this::handleOnMouseExited);
+        scrollPane.setOnDragDone(event -> canceTimeline());
+        scrollPane.setOnDragEntered(event -> canceTimeline());
+        scrollPane.setOnDragExited(event -> autoScrollTimeline.compareAndSet(null, createAndStartTimeline(getEdge(scrollPane.sceneToLocal(event.getSceneX(), event.getSceneY())))));
+        scrollPane.setOnMouseEntered(event -> canceTimeline());
+        scrollPane.setOnMouseExited(event -> {
+            if ( event.isPrimaryButtonDown() ) {
+                autoScrollTimeline.compareAndSet(null, createAndStartTimeline(getEdge(scrollPane.sceneToLocal(event.getSceneX(), event.getSceneY()))));
+            }
+        });
+        scrollPane.setOnMouseReleased(event -> canceTimeline());
+
+    }
+
+    /**
+     * Stop and clear the {@link Timeline} object.
+     */
+    public void canceTimeline() {
+
+        Timeline timeline = autoScrollTimeline.getAndSet(null);
+
+        if ( timeline != null ) {
+            timeline.stop();
+        }
 
     }
 
@@ -79,16 +98,23 @@ class AutoScrollHandler {
      * in the direction specified by the given {@code edge} parameter.
      *
      * @param edge The scrolling side.
-     * @return A newly created (and started) {@link Timeline} object.
+     * @return A newly created (and started) {@link Timeline} object, or {@code null}
+     *         if {@code edge} is {@code null}.
      */
     private Timeline createAndStartTimeline ( final Edge edge ) {
 
-        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(250), event -> scroll(edge)));
+        if ( edge != null ) {
 
-        timeline.setCycleCount(Animation.INDEFINITE);
-        timeline.play();
+            Timeline timeline = new Timeline(new KeyFrame(Duration.millis(123), event -> scroll(edge)));
 
-        return timeline;
+            timeline.setCycleCount(Animation.INDEFINITE);
+            timeline.play();
+
+            return timeline;
+
+        } else {
+            return null;
+        }
 
     }
 
@@ -128,36 +154,6 @@ class AutoScrollHandler {
 
     }
 
-    private void handleOnDragEntered ( DragEvent event ) {
-
-        Timeline timeline = autoScrollTimeline.getAndSet(null);
-
-        if ( timeline != null ) {
-            timeline.stop();
-        }
-
-    }
-
-    private void handleOnDragExited ( DragEvent event ) {
-        autoScrollTimeline.compareAndSet(null, createAndStartTimeline(getEdge(scrollPane.sceneToLocal(event.getSceneX(), event.getSceneY()))));
-    }
-
-    private void handleOnMouseEntered ( MouseEvent event ) {
-
-        Timeline timeline = autoScrollTimeline.getAndSet(null);
-
-        if ( timeline != null ) {
-            timeline.stop();
-        }
-
-    }
-
-    private void handleOnMouseExited ( MouseEvent event ) {
-        if ( event.isPrimaryButtonDown() ) {
-            autoScrollTimeline.compareAndSet(null, createAndStartTimeline(getEdge(scrollPane.sceneToLocal(event.getSceneX(), event.getSceneY()))));
-        }
-    }
-
     /**
      * Scrolls the {@link ScrollPane} along the given {@code edge}.
      *
@@ -174,14 +170,18 @@ class AutoScrollHandler {
 
         switch ( edge ) {
             case LEFT:
-                scrollPane.setHvalue(scrollPane.getHvalue() - 1);
+                scrollPane.setHvalue(scrollPane.getHvalue() + Math.min(1.0, localLocation.getX() / 2.0) / scrollPane.getWidth());
                 break;
             case RIGHT:
-                scrollPane.setHvalue(scrollPane.getHvalue() + 1);
+                scrollPane.setHvalue(scrollPane.getHvalue() + Math.max(1.0, ( localLocation.getX() - scrollPane.getWidth() ) / 2.0) / scrollPane.getWidth());
+                break;
+            case TOP:
+                scrollPane.setVvalue(scrollPane.getVvalue() + Math.min(1.0, localLocation.getY() / 2.0) / scrollPane.getHeight());
+                break;
+            case BOTTOM:
+                scrollPane.setVvalue(scrollPane.getVvalue() + Math.max(1.0, ( localLocation.getY() - scrollPane.getHeight() ) / 2.0) / scrollPane.getHeight());
                 break;
         }
-
-
 
     }
 
