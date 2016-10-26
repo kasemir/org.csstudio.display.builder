@@ -27,6 +27,8 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.widgets.LabelWidget;
+import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
@@ -114,7 +116,9 @@ public class WidgetTransfer
 
         node.setOnDragOver( ( DragEvent event ) -> {
 
-            if ( event.getDragboard().hasString() ) {
+            final Dragboard db = event.getDragboard();
+
+            if ( db.hasString() || db.hasUrl() ) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
 
@@ -126,27 +130,55 @@ public class WidgetTransfer
         node.setOnDragDropped( ( DragEvent event ) -> {
 
             final Dragboard db = event.getDragboard();
+            final Point2D location = selection_tracker.gridConstrain(event.getX(), event.getY());
+            List<Widget> widgets = null;
 
-            if ( db.hasString() ) {
+            if ( db.hasUrl() ) {
 
-                final String xml = db.getString();
+                String url = db.getUrl();
 
-                try {
+                if ( url != null ) {
 
-                    final DisplayModel model = ModelReader.parseXML(xml);
-                    final List<Widget> widgets = model.getChildren();
-                    final Point2D location = selection_tracker.gridConstrain(event.getX(), event.getY());
+                    logger.log(Level.FINE, "Dropped URL: creating WebBrowserWidget [{0}].", url);
 
-                    logger.log(Level.FINE, "Dropped {0} widgets", widgets.size());
-                    GeometryTools.moveWidgets((int) location.getX(), (int) location.getY(), widgets);
-                    handleDroppedModel.accept(widgets);
+                    WebBrowserWidget widget = (WebBrowserWidget) WebBrowserWidget.WIDGET_DESCRIPTOR.createWidget();
 
-                } catch ( Exception ex ) {
-                    logger.log(Level.WARNING, "Cannot parse dropped model", ex);
+                    widget.propWidgetURL().setValue(url);
+
+                    widgets = Arrays.asList(widget);
+
                 }
 
-                event.setDropCompleted(true);
+            } else if ( db.hasString() ) {
 
+                final String xmlOrText = db.getString();
+
+                if ( xmlOrText != null ) {
+                    try {
+
+                        final DisplayModel model = ModelReader.parseXML(xmlOrText);
+
+                        widgets = model.getChildren();
+
+                    } catch ( Exception ex ) {
+
+                        // Not a valid XML. Instantiate a Label object.
+                        logger.log(Level.FINE, "Dropped text: creating LabelWidget [{0}].", xmlOrText);
+
+                        LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
+
+                        widget.propText().setValue(xmlOrText);
+
+                        widgets = Arrays.asList(widget);
+
+                    }
+                }
+
+            }
+
+            if ( widgets != null && !widgets.isEmpty() ) {
+                acceptWidgets(widgets, location, handleDroppedModel);
+                event.setDropCompleted(true);
             } else {
                 event.setDropCompleted(false);
             }
@@ -154,6 +186,22 @@ public class WidgetTransfer
             event.consume();
 
         });
+
+    }
+
+    /**
+     * Accept and install the given {@code widgets} into the model.
+     *
+     * @param widgets            The widgets to be installed.
+     * @param location           The drop location.
+     * @param handleDroppedModel Callback for handling the dropped widgets.
+     */
+    private static void acceptWidgets ( final List<Widget> widgets, final Point2D location, final Consumer<List<Widget>> handleDroppedModel ) {
+
+        logger.log(Level.FINE, "Dropped {0} widgets.", widgets.size());
+
+        GeometryTools.moveWidgets((int) location.getX(), (int) location.getY(), widgets);
+        handleDroppedModel.accept(widgets);
 
     }
 
