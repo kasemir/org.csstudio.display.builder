@@ -7,6 +7,11 @@
 </head>
 <body>
 
+<!-- Aiming for one long file to allow printing of the complete 'manual'.
+
+     Exception: javadoc API
+  -->
+
 <h1>Display Builder</h1>
 
 <h2>Table of Contents</h2>
@@ -14,13 +19,624 @@
 <!-- Topics are duplicated in toc.xml -->
 
 <ol>
-<li><a href="overview.html">Overview</a></li>
-<li><a href="GettingStarted.html">Getting Started</a></li>
-<li><a href="properties.html">Properties</a></li>
-<li><a href="rules.html">Rules</a></li>
-<li><a href="scripts.html">Scripts</a></li>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#get_started">Getting Started</a></li>
+<li><a href="#editor">Display Editor</a></li>
+<li><a href="#conversion">BOY <i>*.opi</i> File Conversion</a></li>
+<li><a href="#runtime">Display Builder Runtime, Display Runtime Perspective</a></li>
+<li><a href="#properties">Properties</a></li>
+<li><a href="#rules">Rules</a></li>
+<li><a href="#scripts">Scripts</a></li>
 <li><a href="widgets/widgets.html">Widgets</a></li>
 </ol>
+
+<!-- ----------------------------------------------------------- -->
+<h1><a name="overview">Overview</a></h1>
+<!-- ----------------------------------------------------------- -->
+
+<p>The Display Builder is a panel editor and runtime for control system displays.
+</p>
+
+
+<h1><a name="get_started">Getting Started</a></h1>
+
+<h2>Display Builder Examples</h2>
+
+<p>The Display Builder example files demonstrate many of its widgets and features.
+</p>
+
+<img src="images/GettingStarted_samples1.png" alt="CS-Studio > Utilities > Install Samples" width="400"  style="float:left"/>
+
+<img src="images/GettingStarted_samples2.png" alt="X/Y Plot Widget example" width="400"/>
+<p>Open the menu <b>CS-Studio</b> > <b>Utilities</b> > <b>Install Samples</b>.
+Select <i>Display Builder</i> and click OK.
+The examples will be in a project folder named "Display Builder".
+</p>
+
+<p>Start the first example display, <b>01_main.bob</b>, by right-clicking on the file in the Navigator and selecting 
+<b>Open With...</b> > <b>Display Runtime</b>.
+</p>
+
+
+<!-- ----------------------------------------------------------- -->
+<h1><a name="#editor">Display Editor</a></h1>
+<!-- ----------------------------------------------------------- -->
+
+<p>You use the Display Editor to create new display files or to modify existing display files.
+</p>
+
+<h2>Display Editor Perspective</h2>
+
+<p>The Display Editor perspective offers the tools and settings needed to edit
+Display Builder (*.bob) files.
+From CS-Studio, the Display Editor perspective
+can be opened from the menu bar: <b>Window</b> > <b>Open Perspective</b> > <b>Other...</b>,
+then select <b>Display Editor</b>.
+</p>
+
+<p>Alternatively, if you are already inside the display editor, 
+right-click in the central Editor part and select <b>Open Editor Perspective</b>.
+This will open the Display Editor perspective,
+or - in case are already in that perspective -
+a dialog will ask if you want to reset the perspective to its default layout.
+</p>
+
+
+<h2>Creating a New Display</h2>
+
+<p>From within the Display Editor perspective, right-click on a project in the Navigator and select
+<b>New</b> > <b>New Display</b>.
+This will open the New Display wizard where you enter the name of your new display file.
+</p>
+
+<p>Alternatively, you can use the menu
+<b>File</b> > <b>New...</b>, and under <i>Display Editor</i>, select <b>New Display</b>.
+Then choose a container and name for the new display file in the New Display wizard.
+</p>
+
+<h2>Editing an Existing Display</h2>
+
+<p>Right-click on a <i>*.bob</i> or <i>*.opi</i> file in the Navigator and select
+<b>Open With...</b> > <b>Display Editor</b> (or <b>Other</b> > <b>Display Editor</b>). 
+</p>
+
+<p>If you are already executing a display, you can open that display file in the editor
+by right-clicking anywhere in the display runtime and selecting <b>Open in Editor</b>.
+</p>
+
+<h2>Executing a display from the Editor</h2>
+
+<p>Right-click anywhere in the editor pane and select <b>Execute Display</b>
+to start a Display Runtime for the file.
+This will automatically save the file, so any pending changes
+will be written to the *.bob file.
+</p>
+
+
+<!-- ----------------------------------------------------------- -->
+<h1><a name="conversion">BOY <i>*.opi</i> File Conversion</a></h1>
+<!-- ----------------------------------------------------------- -->
+
+<p>The Display builder automatically convert BOY <i>*.opi</i> files.
+Whenever you open a <i>*.opi</i> file, the Display Builder maps all legacy widgets
+to the new widgets and their corresponding properties.
+</p>
+
+<p>In many cases, existing <i>*.opi</i> require no changes at all to execute properly
+in the Display Builder runtime.
+This means you can simply select an existing <i>*.opi</i> file
+in the Navigator and use the <b>Open With...</b> > <b>Display Runtime</b> context menu
+to execute the display.
+Likewise, actions that open related displays in legacy <i>*.opi</i> file format
+will automatically load, convert and execute those.
+</p>
+
+<p>Sometimes, you may want to slightly rearrange widgets to look better
+in the Display Runtime.
+In rare cases, you will have to edit the file because widget behavior has changed.
+Also beware that most <a href="#scripts">scripts</a> associated with the display need to be updated.
+Scripts are the most likely cause of failures in converted files.
+Finally, you might simply want to change the display to get new behavior.
+</p>
+
+<p>To edit, simply right-click on any <i>*.opi</i> file in the Navigator and use
+<b>Open With...</b> > <b>Display Editor</b> to load the legacy file into the Display Builder editor.
+If you are already executing the file in the Display Builder runtime,
+use the context menu to <b>Open in Editor</b>.
+You can now edit the file.
+When saving the file, the file name is changed to <i>*.bob</i>.
+</p>
+
+<h2>Transition Hints</h2>
+
+<p>Whenever the Display Builder is asked to open a <i>*.opi</i> file,
+it will check for an alternate <i>*.bob</i> file.
+</p>
+
+<p>To transition from BOY to the Display Builder, it is thus best
+to start with the existing <i>*.opi</i> files.
+For those files that need to be adjusted,
+edit the <i>*.opi</i> file and save it as a new <i>*.bob</i> file,
+but keep the previous <i>*.opi</i> file.
+This way, BOY can still be used with the existing files,
+while the Display Builder will select the converted files,
+and both tools can thus be used in parallel until all
+files that need adjustments have been updated.
+</p>
+
+<p>If the only change required in a <i>*.opi</i> file
+relates to a script, that script can be made bilingual
+by following the Display Builder <a href="#get_started">example</a>
+from <i>Display Builder/script_util/porting.opi</i> and
+<i>Display Builder/script_util/portable.py</i>.
+</p>
+
+
+<!-- ----------------------------------------------------------- -->
+<h1><a name="runtime">Display Builder Runtime, Display Runtime Perspective</a></h1>
+<!-- ----------------------------------------------------------- -->
+
+<h2>Display Builder Runtime</h2>
+
+<p>When you execute a display, the Display Builder runtime
+opens the <i>*.bob</i> (or legacy <i>*.opi</i>) file,
+connects to process variables, displays their value in Text Update widgets etc.
+</p>
+
+<p>When you right-click on a widget,
+the first entry in the context menu which shows the name of the widget
+opens an information panel for the widget.
+Additional entries allow saving a snapshot of the display,
+or to re-load the display.
+</p>
+
+
+<h2>Display Runtime Perspective</h2>
+
+<p>For a production setup,
+use the Display Builder "Top Displays" preference to configure a list of top level displays,
+i.e. starting points for your users.
+</p>
+
+<p>Then open the Display Runtime Perspective, and use either the menu
+<b>File</b> > <b>Top Displays</b>
+or the Top Displays drop-down button in the tool bar to open these
+from within the Display Runtime Perspective.
+</p>
+
+<p>Typically, at least one such Display Runtime Perspective with a pre-arranged
+displays layout is then saved as a named Perspective
+and used as a default layout.
+</p>
+
+
+<!-- ----------------------------------------------------------- -->
+<h1><a name="properties">Properties</a></h1>
+<!-- ----------------------------------------------------------- -->
+
+<h2>Common Properties</h2>
+<p><img src="images/properties_palette.png" alt="Properties Palette" style="float:right;"/>
+Every widget has properties "x", "y", "width", and "height" that define its position within the display.</p>
+
+<p>Every widget also has a "name" that can be used to identify a widget.</p>
+
+<p>Many widgets have a "foreground_color" or "font", which define characteristics of any text or similar elements.</p>
+
+<h2>Specific Properties</h2>
+<p>Many widgets have some properties that are very specific to the functionality of just that widget, properties that
+are not found in other widgets. The Image Widget, for example, has "Data Height" and "Data Width", which describe the
+number of rows and columns, respectively, to show of the input data.
+</p>
+
+<h2>Property Names</h2>
+<p>In the display editor, the "Properties" panel will show each property with a name like "Text" or "Foreground Color",
+and a user interface for setting the value of that property. For "Text", for example, you can enter the text; and for
+"Foreground Color", you can select the color from a dialog.
+</p>
+
+<p>The property names shown in the editor can be localized, i.e. translated into different languages. Each property
+also has an internal name that is not localized because it uniquely identifies the property in the display and also
+when accessed by <a href="#rules">Rules</a> or <a href="#scripts">Scripts</a>.
+</p>
+
+<p>The internal name is typically based on the English property name, but all lowercase with underscores instead of spaces.
+The internal name for "Foreground Color" is "foreground_color".
+</p>
+
+<h2>Array and Structure Properties</h2>
+
+<p>Some widgets contain properties that are arrays and/or structures.
+For example, the Multi-State LED has a "states" property that is an array.
+The elements of the array are in turn structures with a "value" and a "color".
+For access from Rules or Scripts these properties can be accessed via names (for structured
+properties) and indices (for array properties); for example:
+<pre>states[0].value</pre>
+<pre>states[1].color</pre>
+</p>
+
+
+<!-- ----------------------------------------------------------- -->
+<h1><a name="rules">Rules</a></h1>
+<!-- ----------------------------------------------------------- -->
+
+<p>Rules are the suggested way to obtain customized, dynamic behaviors beyond the capability of
+<a href="#properties">widget properties</a> alone. (The other is <a href="#scripts">scripts</a>.
+Rules are recommended over scripts because, while rules are more limited than scripts, the API is stable,
+and it should remain available and virtually unchanged as Display Builder evolves.)
+</p>
+
+<p>Unlike scripts, rules require no code aside from simple expressions. Rules set widget property
+values according to boolean expressions using their input PVs. Since the execution of a rule is
+triggered by its trigger PVs, at least one input PV is needed for a rule.
+</p>
+
+<h2>Attaching a Rule to a Widget</h2>
+<p>In order to edit the Rules for a widget, first select it, then click on the button
+for its Rules property in the Properties palette. This will open the Rules dialog.
+</p>
+
+<img src="images/Rules.png" alt="Rules Dialog" style="height:456px;"/>
+
+<p>Key features include:
+  <ul>
+    <li>Rule Name: Add and remove rules here. Select a rule to edit its properties.</li>
+    <li>PVName: Add and remove input PVs for the rule. If "Trigger" is checked (true),
+        then the rule will execute whenever the PV's value changes.</li>
+    <li>Property ID: The property which is affected by the rule.</li>
+    <li>Boolean expression: The expression which is evaluated when the rule executes. If it is
+        true, the property's value will be set to the expression's "Value" field. The expression may simply be
+        "true" or "True", in which case the value is always used (this is most useful when "Value as Expression"
+        is checked).
+    </li>
+    <li>Value as Expression: If true, all values for the rule are given as expressions.</li>
+  </ul>
+</p>
+
+<h2>Expressions</h2>
+<p>The standard comparison operators (&lt;, &gt;, ==, &lt;=, &gt;=, and !=) may be used. Logical
+operators may also be used. All input PVs of the rule are accessible as follows:
+</p>
+<table>
+    <tr>
+      <th>Value Type</th>
+      <th>Syntax</th>
+      <th>Example</th>
+    </tr>
+    <tr>
+      <td>double value</td>
+      <td><code>pv{index}</code></td>
+      <td><code>pv0 > pv1</code></td>
+    </tr>
+    <tr>
+      <td>long int. value</td>
+      <td><code>pvInt{index}</code></td>
+      <td><code>pvInt0 == 5</code></td>
+    </tr>
+    <tr>
+      <td>string value</td>
+      <td><code>pvStr{index}</code></td>
+      <td><code>pvStr0 == "happy"</code></td>
+    </tr>
+</table>
+
+
+
+<!-- ----------------------------------------------------------- -->
+<h1><a name="scripts">Scripts</a></h1>
+<!-- ----------------------------------------------------------- -->
+
+<h2>Purpose</h2>
+
+<p>Ideally, a control system display can be created by
+simply adding several widgets and configuring their
+properties. In many cases, only the location, size
+and PV name of a widget needs to be configured.
+</p>
+
+<p>There are cases, however, where the built-in
+widget functionality is not sufficient.
+Traditionally, this would be handled by developing a custom,
+site-specific user interface tool.
+The display builder script support often allows you
+to avoid the creation of such a custom tool.
+</p>
+
+
+<h2>Basic Functionality</h2>
+
+<p>Scripts are invoked from
+</p>
+
+<ul>
+<li>PV changes</li>
+<li>Actions</li>
+</ul>
+
+<p>The script always receives the <code>widget</code> which invoked it.
+A script associated with PVs also receives the <code>pvs</code>
+which might have triggered its invocation.
+</p>
+
+
+<h2>PV Scripts</h2>
+
+<p>Example of invoking a script from PV changes:
+</p>
+
+<ol>
+<li>Create a Label widget</li>
+<li>On its Scripts property, add a script by either specifying the path to the script,
+    typically in a form relative to the location of the *.bob file,
+    or enter the "embedded" script text.
+</li>
+<li>Add at least one PV. Enter its name, note that "Trigger" is by default selected.</li>
+<li>You may add more PVs. Assert that at least one has the "Trigger" selected.</li>
+</ol>
+
+<p>At runtime, a connection is established to all PVs.
+Whenever PVs marked as a "Trigger" change their value,
+the script is invoked.
+The script will receive a <code>widget</code> parameter
+that holds the Label, and a <code>pvs</code> parameter
+that holds a list of all PVs assigned to the script.
+</p>
+
+<p>A typical example is a script that reads the values of its PVs,
+computes something, and uses the result to update one or more properties of the
+widget:
+</p>
+
+<pre>
+value = PVUtil.getDouble(pvs[0]);
+if value >= 0:
+    result = "Positive"
+else:
+    result = "Negative"
+widget.setPropertyValue("text", result)
+</pre>
+
+
+<h2>Action Scripts</h2>
+
+<p>Example of invoking a script from an Action:
+</p>
+
+<ol>
+<li>Create an Action Button widget</li>
+<li>On its Actions property, add an "Execute Script" action</li>
+<li>Enter the path to the script, typically in a form relative to the location of the *.bob file,
+    or enter the "embedded" script text.
+</li>
+</ol>
+
+<p>At runtime, pushing the button will invoke the script.
+The script receives a <code>widget</code> parameter
+that holds the Action Button.
+</p>
+
+<p>A typical example is a script that performs some
+action outside of the display tool,
+then maybe displays the result in other widgets
+which it locates based on their name:
+</p>
+
+<pre>
+result = InvokeSomeCodeThatDoesSomething()
+
+children = widget.getDisplayModel().runtimeChildren()
+other = children.getChildByName("name_of_other_widget")
+
+other.setPropertyValue("text", result)
+</pre>
+
+
+<h2>Jython Script</h2>
+
+<p>Jython scripts are written in Python syntax, i.e. a very well designed, robust language.
+They execute within the same Java instance that also executes the display builder
+and have access to the complete API, including undocumented code.
+</p>
+
+<p>Any script file with a name that ends in ".py" which does not contain the word "python"
+in its first line is executed as a Jython script.
+In addition, the code of Jython scripts can be embedded in the *.bob file.
+</p>
+
+<p>As a downside, Jython scripts do not have access to the complete set of
+native Python libraries, for example numpy.
+</p>
+
+
+<h2>Python Scripts</h2>
+
+<p>Python scripts are executed by a native Python interpreter outside of the display builder.
+They access key Display Builder API via networked proxies using Py4J.
+Python scripts have access to all native Python libraries, for example numpy.
+</p>
+
+<p>Any script file with a name that ends in ".py" which contains the word "python"
+in its first line is executed as a Python script.
+This is typically accomplished via the usual Python shebang
+</p>
+
+<pre>
+#!/usr/bin/env python 
+</pre>
+
+<p>Python scripts must be in *.py files, they cannot be embedded in the *.bob file.
+</p>
+
+<p>As a downside, Python scripts incur some overhead at startup and whenever they
+access the Display Builder API, because this is done via networked proxies.
+They also depend on python being installed on the computer.
+</p>
+
+<p>To use native python scripts, python must be installed on the computer.
+In addition, Py4J needs to be added if the invoked python code should
+interact with the display. This is typically done via
+</p>
+
+<pre>
+# For python 2.x
+easy_install py4j
+</pre>
+
+<p>or</p>
+
+<pre>
+# For python 3.x
+pip install py4j
+</pre>
+
+
+<p>For convenience, a Python module, <code>connect2j</code>, is provided with Display Builder; it implements a context
+manager to manage the network connections and ensure that resources are properly released.
+</p>
+
+<p>To install <code>connect2j</code>, do the following:
+<ol>
+<li>Under the CS-Studio installation directory, in "plugins/", locate the *.jar
+    file beginning with "org.csstudio.display.builder.runtime"; that is, something
+    like: <pre>org.csstudio.display.builder.runtime_1.0.0.201605162005.jar.</pre>
+</li>
+
+<li>Extract the "scripts" directory from the jar.
+    <ul>
+    <li>On a Unix system, you can use:
+    <pre>unzip org.csstudio.display.builder.runtime_1.0.0.201605162005.jar scripts/*</pre>
+    </li>
+    <li>On any system with Java installed, you can use:
+    <pre>jar xf org.csstudio.display.builder.runtime_1.0.0.201605162005.jar scripts/connect2j.py scripts/setup.py</pre>
+    </li>
+    </ul>
+</li>
+
+<li>Next, install the module:
+    <pre>
+cd scripts
+python setup.py install
+    </pre>
+</li>
+
+<li>The scripts directory which was created may now be deleted.</li>
+</ol>
+</p>
+
+<p>The main API of <code>connect2j</code> is the scriptContext context manager. Simply place code which accesses
+Display Builder API inside a "with" statement using scriptContext, like so:
+<pre>#!/usr/bin/env python 
+from connect2j import scriptContext
+
+# Code that does not interact with Display Builder
+
+with scriptContext('widget', 'pvs', 'ScriptUtil', 'PVUtil', dict=globals()):
+    # Code that uses DisplayBuilder APIs; for example:
+    value = PVUtil.getDouble(pvs[0])
+
+# Code that does not interact with Display Builder
+</pre>
+</p>
+
+<p>Above, the argument "dict=globals()" tells scriptContext to enter the previous
+arguments in the calling module's global dict, where they may be accessed as global
+variables and used as typical Display Builder API. Without a dict argument supplied,
+the appropriate entries are made in the <code>connect2j</code> module's global dict and must be
+imported from <code>connect2j</code> <em>after the script context is created</em>. Any or all of
+the string arguments may be omitted, and no variables or proxies will be created for the omitted arguments.
+</p>
+
+<p>As an additional convenience, <code>connect2j.scriptContext</code> may also be used in Jython code, which will
+then be identical (except for the first line) to its corresponding Python code. Automatically, scriptContext
+identifies the platform on which it is being run and chooses to either use Py4J to create proxies for its
+arguments, or import the given utility classes and use the 'pvs' and 'widgets' which are already accessible from Jython.
+</p>
+
+<h2>Comparison: Python and Jython</h2>
+<table style="border: 1px solid black;">
+  <tr>
+    <th></th>
+    <th>Native Python</th>
+    <th>Jython</th>
+  </tr>
+  <tr>
+    <td><b>requirements</b></td>
+    <td>*.py file, "python" first line (i.e. shebang)</td>
+    <td>*.py (file or url) or embedded script</td>
+  </tr>
+  <tr>
+    <td><b>API</b></td>
+    <td><p>scriptContext (must be installed)
+      <ul>
+        <li>widget, pvs</li>
+        <li>PVUtil</li>
+        <li>ScriptUtil</li>
+      </ul>
+      </p>
+    </td>
+    <td><p>scriptContext (added to path)
+      <ul>
+        <li>widget, pvs (accessible without context)</li>
+        <li>PVUtil</li>
+        <li>ScriptUtil</li>
+      </ul>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <td><b>imports</b></td>
+    <td>libraries (numPy, sciPy, etc.)</td>
+    <td>Java classes (inc. PVUtil, ScriptUtil)</td>
+  </tr>
+  <tr>
+    <td><b>start display</b></td>
+    <td>no initial start time</td>
+    <td>a few seconds to start Jython interpreter</td>
+  </tr>
+  <tr>
+    <td><b>start script</b></td>
+    <td>about a second per script</td>
+    <td>virtually no start time per script</td>
+  </tr>
+</table>
+
+<h2>JavaScript Scripts</h2>
+
+<p>Similar to Jython, JavaScript can be used as a language
+with execution inside the Java instance that also runs the Display builder.
+</p>
+
+<p>Any script file with a name that ends in ".js" executed as JavaScript.
+In addition, the JavaScript code can be embedded in the *.bob file.
+</p>
+
+
+<h2>Threading</h2>
+
+<p>Each *.bob display has one script execution thread and one instance of the
+Jython, Python and JavaScript support.
+This allows scripts to run in the background without negatively impacting the user interface thread.
+It also allows scripts for different *.bob displays to execute in parallel.
+</p>
+
+<p>
+To limit the use of resources, however, at most <u>one</u> script executes for a given *.bob
+display at a time.
+Furthermore, if a specific script is triggered by either an action or a PV change,
+further invocations of that same script are ignored until the current execution of the script finishes.
+</p>
+
+
+<h2>API</h2>
+
+<p>For details refer to the <a href="#get_started">examples</a>
+and the
+
+<!-- The java/* docs are created by the javadoc.xml ANT script
+     in combination with the javadoc_overview.html file
+  -->
+<a href="java/overview-summary.html">Java documentation</a>
+</p>
+
 
 
 </body>
