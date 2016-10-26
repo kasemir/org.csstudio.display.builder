@@ -16,12 +16,14 @@ import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import javax.swing.text.Document;
+import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.rtf.RTFEditorKit;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
@@ -122,7 +124,7 @@ public class WidgetTransfer
 
             final Dragboard db = event.getDragboard();
 
-            if ( db.hasString() || db.hasUrl() || db.hasRtf() ) {
+            if ( db.hasString() || db.hasUrl() || db.hasRtf() || db.hasHtml() ) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
 
@@ -135,78 +137,16 @@ public class WidgetTransfer
 
             final Dragboard db = event.getDragboard();
             final Point2D location = selection_tracker.gridConstrain(event.getX(), event.getY());
-            List<Widget> widgets = null;
+            List<Widget> widgets = new ArrayList<>();
 
             if ( db.hasUrl() ) {
-
-                String url = db.getUrl();
-
-                if ( url != null ) {
-
-                    logger.log(Level.FINE, "Dropped URL: creating WebBrowserWidget [{0}].", url);
-
-                    WebBrowserWidget widget = (WebBrowserWidget) WebBrowserWidget.WIDGET_DESCRIPTOR.createWidget();
-
-                    widget.propWidgetURL().setValue(url);
-
-                    widgets = Arrays.asList(widget);
-
-                }
-
+                installWidgetsFromURL(db, widgets);
+            } else if ( db.hasHtml() ) {
+                installWidgetsFromHTML(db, widgets);
             } else if ( db.hasRtf() ) {
-
-                String rtf = db.getRtf();
-
-                if ( rtf != null ) {
-
-                    logger.log(Level.FINE, "Dropped URL: creating LabelWidget [{0}].", rtf);
-
-                    RTFEditorKit rtfParser = new RTFEditorKit();
-                    Document document = rtfParser.createDefaultDocument();
-
-                    try {
-
-                        rtfParser.read(new ByteArrayInputStream(rtf.getBytes()), document, 0);
-
-                        String text = document.getText(0, document.getLength());
-
-                        LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
-
-                        widget.propText().setValue(text);
-
-                        widgets = Arrays.asList(widget);
-
-                    } catch ( Exception e ) {
-                        logger.log(Level.WARNING, "Invalid RTF string [{0}].", rtf);
-                    }
-
-                }
-
+                installWidgetsFromRTF(db, widgets);
             } else if ( db.hasString() ) {
-
-                final String xmlOrText = db.getString();
-
-                if ( xmlOrText != null ) {
-                    try {
-
-                        final DisplayModel model = ModelReader.parseXML(xmlOrText);
-
-                        widgets = model.getChildren();
-
-                    } catch ( Exception ex ) {
-
-                        // Not a valid XML. Instantiate a Label object.
-                        logger.log(Level.FINE, "Dropped text: creating LabelWidget [{0}].", xmlOrText);
-
-                        LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
-
-                        widget.propText().setValue(xmlOrText);
-
-                        widgets = Arrays.asList(widget);
-
-                    }
-                }
-
+                installWidgetsFromString(db, widgets);
             }
 
             if ( widgets != null && !widgets.isEmpty() ) {
@@ -278,6 +218,109 @@ public class WidgetTransfer
         SwingFXUtils.toFXImage(bImage, dImage);
 
         return dImage;
+
+    }
+
+    private static void installWidgetsFromHTML ( final Dragboard db, final List<Widget> widgets ) {
+
+        String html = db.getHtml();
+
+        if ( html != null ) {
+
+            logger.log(Level.FINE, "Dropped HTML: creating LabelWidget [{0}].", html);
+
+            HTMLEditorKit htmlParser = new HTMLEditorKit();
+            Document document = htmlParser.createDefaultDocument();
+
+            try {
+
+                htmlParser.read(new ByteArrayInputStream(html.getBytes()), document, 0);
+
+                String text = document.getText(0, document.getLength());
+
+                LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
+
+                widget.propText().setValue(text);
+                widgets.add(widget);
+
+            } catch ( Exception ex ) {
+                logger.log(Level.WARNING, "Invalid HTML string [{0}].", ex.getMessage());
+            }
+
+        }
+
+    }
+
+    private static void installWidgetsFromRTF ( final Dragboard db, final List<Widget> widgets ) {
+
+        String rtf = db.getRtf();
+
+        if ( rtf != null ) {
+
+            logger.log(Level.FINE, "Dropped RTF: creating LabelWidget [{0}].", rtf);
+
+            RTFEditorKit rtfParser = new RTFEditorKit();
+            Document document = rtfParser.createDefaultDocument();
+
+            try {
+
+                rtfParser.read(new ByteArrayInputStream(rtf.getBytes()), document, 0);
+
+                String text = document.getText(0, document.getLength());
+
+                LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
+
+                widget.propText().setValue(text);
+                widgets.add(widget);
+
+            } catch ( Exception ex ) {
+                logger.log(Level.WARNING, "Invalid RTF string [{0}].", ex.getMessage());
+            }
+
+        }
+
+    }
+
+    private static void installWidgetsFromString ( final Dragboard db, final List<Widget> widgets ) {
+
+        final String xmlOrText = db.getString();
+
+        if ( xmlOrText != null ) {
+            try {
+
+                final DisplayModel model = ModelReader.parseXML(xmlOrText);
+
+                widgets.addAll(model.getChildren());
+
+            } catch ( Exception ex ) {
+
+                // Not a valid XML. Instantiate a Label object.
+                logger.log(Level.FINE, "Dropped text: creating LabelWidget [{0}].", xmlOrText);
+
+                LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
+
+                widget.propText().setValue(xmlOrText);
+                widgets.add(widget);
+
+            }
+        }
+
+    }
+
+    private static void installWidgetsFromURL ( final Dragboard db, final List<Widget> widgets ) {
+
+        String url = db.getUrl();
+
+        if ( url != null ) {
+
+            logger.log(Level.FINE, "Dropped URL: creating WebBrowserWidget [{0}].", url);
+
+            WebBrowserWidget widget = (WebBrowserWidget) WebBrowserWidget.WIDGET_DESCRIPTOR.createWidget();
+
+            widget.propWidgetURL().setValue(url);
+            widgets.add(widget);
+
+        }
 
     }
 
