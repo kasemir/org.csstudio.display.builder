@@ -9,15 +9,12 @@
         <topic label="Display Editor" href="doc/display.builder.html#editor"/>
         <topic label="BOY *.opi Conversion" href="doc/display.builder.html#conversion"/>
         <topic label="Display Runtime, Runtime Perspective" href="doc/display.builder.html#runtime"/>
+        <topic label="Widgets" href="doc/display.builder.html#widgets"/>
         <topic label="Properties" href="doc/display.builder.html#properties"/>
+        <topic label="Widget Details" href="doc/display.builder.html#widgets_detail"/>
         <topic label="Rules" href="doc/display.builder.html#rules"/>
         <topic label="Scripts" href="doc/display.builder.html#scripts">
             <topic label="API" href="doc/java/overview-summary.html"/>
-        </topic>
-        <topic label="Widgets" href="doc/widgets/widgets.html">
-            <topic label="Graphics Widgets" href="doc/widgets/graphics_cat.html">
-                <topic label="Label" href="doc/widgets/label.html"/>
-            </topic>
         </topic>
     </topic>
 </toc>
