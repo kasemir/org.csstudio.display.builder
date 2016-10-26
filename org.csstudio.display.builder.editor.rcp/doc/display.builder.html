@@ -24,15 +24,16 @@
 <li><a href="#editor">Display Editor</a></li>
 <li><a href="#conversion">BOY <i>*.opi</i> File Conversion</a></li>
 <li><a href="#runtime">Display Builder Runtime, Display Runtime Perspective</a></li>
+<li><a href="#widgets">Widgets</a></li>
 <li><a href="#properties">Properties</a></li>
 <li><a href="#rules">Rules</a></li>
 <li><a href="#scripts">Scripts</a></li>
 <li><a href="widgets/widgets.html">Widgets</a></li>
 </ol>
 
-<!-- ----------------------------------------------------------- -->
+<!-- ====================================================== -->
 <h1><a name="overview">Overview</a></h1>
-<!-- ----------------------------------------------------------- -->
+<!-- ====================================================== -->
 
 <p>The Display Builder is a panel editor and runtime for control system displays.
 </p>
@@ -58,9 +59,9 @@ The examples will be in a project folder named "Display Builder".
 </p>
 
 
-<!-- ----------------------------------------------------------- -->
-<h1><a name="#editor">Display Editor</a></h1>
-<!-- ----------------------------------------------------------- -->
+<!-- ====================================================== -->
+<h1><a name="editor">Display Editor</a></h1>
+<!-- ====================================================== -->
 
 <p>You use the Display Editor to create new display files or to modify existing display files.
 </p>
@@ -113,9 +114,9 @@ will be written to the *.bob file.
 </p>
 
 
-<!-- ----------------------------------------------------------- -->
+<!-- ====================================================== -->
 <h1><a name="conversion">BOY <i>*.opi</i> File Conversion</a></h1>
-<!-- ----------------------------------------------------------- -->
+<!-- ====================================================== -->
 
 <p>The Display builder automatically convert BOY <i>*.opi</i> files.
 Whenever you open a <i>*.opi</i> file, the Display Builder maps all legacy widgets
@@ -172,9 +173,9 @@ from <i>Display Builder/script_util/porting.opi</i> and
 </p>
 
 
-<!-- ----------------------------------------------------------- -->
+<!-- ====================================================== -->
 <h1><a name="runtime">Display Builder Runtime, Display Runtime Perspective</a></h1>
-<!-- ----------------------------------------------------------- -->
+<!-- ====================================================== -->
 
 <h2>Display Builder Runtime</h2>
 
@@ -210,54 +211,114 @@ and used as a default layout.
 </p>
 
 
-<!-- ----------------------------------------------------------- -->
+
+<!-- ====================================================== -->
+<h1><a name="widgets">Widgets</a></h1>
+<!-- ====================================================== -->
+
+<p>Widgets are the components of Display Builder displays.
+In the editor, you add Widgets to the display by dragging them
+from the Widget Palette into the editor.
+Then you typically adjust the location and size,
+and enter a text or PV name by configuring the corresponding property.
+</p>
+
+<!-- ====================================================== -->
 <h1><a name="properties">Properties</a></h1>
-<!-- ----------------------------------------------------------- -->
+<!-- ====================================================== -->
 
-<h2>Common Properties</h2>
-<p><img src="images/properties_palette.png" alt="Properties Palette" style="float:right;"/>
-Every widget has properties "x", "y", "width", and "height" that define its position within the display.</p>
+<img src="images/tracker.png" alt="Tracker" style="float:right;"/>
 
-<p>Every widget also has a "name" that can be used to identify a widget.</p>
+<p>Every widget has properties <b>x</b>, <b>y</b>, <b>width</b> and <b>height</b>
+that define its position and size within the display.
+While these properties can be entered in the Properties View,
+a widget can also be moved interactively by moving the selected widget
+in the editor with the mouse,
+and the size can be changed by moving the square handles in the corner of the selected widget with the mouse.
+</p>
 
-<p>Many widgets have a "foreground_color" or "font", which define characteristics of any text or similar elements.</p>
+<p><b>Label</b> widgets have a <b>text</b> property for configuring the text
+shown in the label.
+Many widgets have a <b>pv_name</b> property for configuring the name of the
+PV that the widget will display or control at runtime.
+These key properties can be edited by double-clicking the selected widget
+and then entering the text or pv_name.
+</p>
 
-<h2>Specific Properties</h2>
-<p>Many widgets have some properties that are very specific to the functionality of just that widget, properties that
-are not found in other widgets. The Image Widget, for example, has "Data Height" and "Data Width", which describe the
-number of rows and columns, respectively, to show of the input data.
+<h2>Properties View</h2>
+
+<img src="images/properties_palette.png" alt="Properties View" style="float:right;"/>
+
+<p>In general, properties are edited in the <b>Properties View</b>.
+It lists every property of a widget with its current value,
+and except for very few static properties it allows entering or selecting different values.
 </p>
 
 <h2>Property Names</h2>
-<p>In the display editor, the "Properties" panel will show each property with a name like "Text" or "Foreground Color",
-and a user interface for setting the value of that property. For "Text", for example, you can enter the text; and for
-"Foreground Color", you can select the color from a dialog.
+
+<p>The "Properties" panel will show each property with a description like "X Position", "Text" or "PV Name".
+This is the localized description of each property which might be different in for example a German version of the Display Builder.
+Each property also has a unique name that is used in the <i>*.bob</i> file
+or when accessing a property from a <a href="#rules">rule</a> or <a href="#scripts">script</a>.
+The name of a property is typically based on the simplified English description, all lower case:
+<b>x</b>, <b>text</b>, <b>pv_name</b>.
 </p>
 
-<p>The property names shown in the editor can be localized, i.e. translated into different languages. Each property
-also has an internal name that is not localized because it uniquely identifies the property in the display and also
-when accessed by <a href="#rules">Rules</a> or <a href="#scripts">Scripts</a>.
+<p>The Property View shows the underlying name of each property in a tool tip
+that appears when you hover the mouse over the property description.
+In the following description of properties, we always use the property name.
 </p>
 
-<p>The internal name is typically based on the English property name, but all lowercase with underscores instead of spaces.
-The internal name for "Foreground Color" is "foreground_color".
+
+<h2>Common Properties</h2>
+
+<p>Key properties common to most widgets include:</p>
+<ul>
+  <li><b>type</b>: Type of widget (e.g. label, text_update). Each widget has both a localizable (translatable)
+                   type name and an internal type name used to identify the widget type in display files.
+  </li>
+  <li><b>name</b>: Used to identify the widget. Is best made unique within the display.</li>
+  <li><b>x</b>, <b>y</b>, <b>width</b> and <b>height</b>: Location and size of the widget.
+                   Can be configured in the Property view, but are typically adjusted using the
+                   mouse on the selected widget.
+  </li>
+  <li><b>text</b>: Text that a Label widget displays. Can also be configured via double-click on the widget.</li>
+  <li><b>pv_name</b>: The PV that the widget uses to read or write values. Can also be configured via double-click on the widget.</li>
+  <li><b>actions</b>: Attach Actions that do things like open displays or run scripts.
+                      Primarily used with the <b>Action Button</b> widget.
+  </li>
+</ul>
+  
+<p>Each widget has several additional properties that for example allow the configuration
+of colors, the formatting of texts etc.
+Ideally, you can create a functional control system display by configuring the basic
+properties of a widget, relying on the default behavior of a widget.
+For special cases, widgets also support the following properties:
 </p>
+  
+<ul>
+  <li><b>rules</b>: Attach <a href="#rules">Rules</a> that dynamically assign widget property values based on conditional expressions.
+  </li>
+  <li><b>scripts</b>: Attach <a href="#scripts">Scripts</a> that dynamically control widget appearance and behavior.
+  </li>
+</ul>
 
 <h2>Array and Structure Properties</h2>
 
 <p>Some widgets contain properties that are arrays and/or structures.
-For example, the Multi-State LED has a "states" property that is an array.
-The elements of the array are in turn structures with a "value" and a "color".
+For example, the <b>Multi-State LED</b> has a <b>states</b> property that is an array.
+The elements of the array are in turn structures with a <b>value</b> and a <b>color</b>.
 For access from Rules or Scripts these properties can be accessed via names (for structured
-properties) and indices (for array properties); for example:
+properties) and indices (for array properties).
+Example:
 <pre>states[0].value</pre>
 <pre>states[1].color</pre>
 </p>
 
 
-<!-- ----------------------------------------------------------- -->
+<!-- ====================================================== -->
 <h1><a name="rules">Rules</a></h1>
-<!-- ----------------------------------------------------------- -->
+<!-- ====================================================== -->
 
 <p>Rules are the suggested way to obtain customized, dynamic behaviors beyond the capability of
 <a href="#properties">widget properties</a> alone. (The other is <a href="#scripts">scripts</a>.
@@ -321,9 +382,9 @@ operators may also be used. All input PVs of the rule are accessible as follows:
 
 
 
-<!-- ----------------------------------------------------------- -->
+<!-- ====================================================== -->
 <h1><a name="scripts">Scripts</a></h1>
-<!-- ----------------------------------------------------------- -->
+<!-- ====================================================== -->
 
 <h2>Purpose</h2>
 
@@ -636,7 +697,6 @@ and the
   -->
 <a href="java/overview-summary.html">Java documentation</a>
 </p>
-
 
 
 </body>
