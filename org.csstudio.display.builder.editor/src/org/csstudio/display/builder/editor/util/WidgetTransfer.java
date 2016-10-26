@@ -15,10 +15,14 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
+
+import javax.swing.text.Document;
+import javax.swing.text.rtf.RTFEditorKit;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
@@ -118,7 +122,7 @@ public class WidgetTransfer
 
             final Dragboard db = event.getDragboard();
 
-            if ( db.hasString() || db.hasUrl() ) {
+            if ( db.hasString() || db.hasUrl() || db.hasRtf() ) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
 
@@ -146,6 +150,35 @@ public class WidgetTransfer
                     widget.propWidgetURL().setValue(url);
 
                     widgets = Arrays.asList(widget);
+
+                }
+
+            } else if ( db.hasRtf() ) {
+
+                String rtf = db.getRtf();
+
+                if ( rtf != null ) {
+
+                    logger.log(Level.FINE, "Dropped URL: creating LabelWidget [{0}].", rtf);
+
+                    RTFEditorKit rtfParser = new RTFEditorKit();
+                    Document document = rtfParser.createDefaultDocument();
+
+                    try {
+
+                        rtfParser.read(new ByteArrayInputStream(rtf.getBytes()), document, 0);
+
+                        String text = document.getText(0, document.getLength());
+
+                        LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
+
+                        widget.propText().setValue(text);
+
+                        widgets = Arrays.asList(widget);
+
+                    } catch ( Exception e ) {
+                        logger.log(Level.WARNING, "Invalid RTF string [{0}].", rtf);
+                    }
 
                 }
 
