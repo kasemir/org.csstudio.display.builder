@@ -16,12 +16,15 @@ import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
+import javax.imageio.ImageIO;
 import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.rtf.RTFEditorKit;
@@ -34,6 +37,7 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
+import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 
 import javafx.embed.swing.SwingFXUtils;
@@ -124,7 +128,7 @@ public class WidgetTransfer
 
             final Dragboard db = event.getDragboard();
 
-            if ( db.hasString() || db.hasUrl() || db.hasRtf() || db.hasHtml() ) {
+            if ( db.hasString() || db.hasUrl() || db.hasRtf() || db.hasHtml() || db.hasImage() ) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
 
@@ -139,7 +143,9 @@ public class WidgetTransfer
             final Point2D location = selection_tracker.gridConstrain(event.getX(), event.getY());
             List<Widget> widgets = new ArrayList<>();
 
-            if ( db.hasUrl() ) {
+            if ( db.hasImage() ) {
+                installWidgetsFromImage(db, widgets);
+            } else if ( db.hasUrl() ) {
                 installWidgetsFromURL(db, widgets);
             } else if ( db.hasHtml() ) {
                 installWidgetsFromHTML(db, widgets);
@@ -247,6 +253,42 @@ public class WidgetTransfer
                 logger.log(Level.WARNING, "Invalid HTML string [{0}].", ex.getMessage());
             }
 
+        }
+
+    }
+
+    private static void installWidgetsFromImage ( final Dragboard db, final List<Widget> widgets ) {
+
+        try {
+
+            Image image = db.getImage();
+
+            if ( image != null ) {
+
+                logger.log(Level.FINE, "Dropped image: creating PictureWidget");
+
+                File tmpFile = File.createTempFile("picture", ".png");
+                BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+
+                try {
+
+                    ImageIO.write(bImage, "png", tmpFile);
+
+                    PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
+
+                    widget.propFile().setValue(tmpFile.toString());
+                    widget.propWidth().setValue((int) image.getWidth());
+                    widget.propHeight().setValue((int) image.getHeight());
+                    widgets.add(widget);
+
+                } catch ( IOException ioex ) {
+                    logger.log(Level.WARNING, "Unable to save image into a temporary location [{0}].", ioex.getMessage());
+                }
+
+            }
+
+        } catch ( Exception ex ) {
+            logger.log(Level.WARNING, "Invalid image [{0}].", ex.getMessage());
         }
 
     }
