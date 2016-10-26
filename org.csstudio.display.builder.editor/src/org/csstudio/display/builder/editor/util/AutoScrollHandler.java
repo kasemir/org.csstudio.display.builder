@@ -1,21 +1,10 @@
 /**
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * Copyright (C) 2016 European Spallation Source ERIC.
- * All rights reserved
- * The contents of this file are subject to the terms of
- * the GNU General Public License Version 3 only ("GPL"
- * Version 3, or the "License"). You can obtain a copy of
- * the License at https://www.gnu.org/licenses/gpl-3.0.html
- * You may use, distribute and modify this code under the
- * terms of the GPL Version 3 license. See the License for
- * the specific language governing permissions and
- * limitations under the License.
- * When distributing the software, include this License
- * Header Notice in each file. If applicable, add the
- * following below the License Header, with the fields
- * enclosed by brackets [] replaced by your own identifying
- * information:
- * "Portions Copyrighted [year] [name of copyright owner]"
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 package org.csstudio.display.builder.editor.util;
 
