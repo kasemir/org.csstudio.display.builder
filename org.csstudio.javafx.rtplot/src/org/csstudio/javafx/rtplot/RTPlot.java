@@ -38,6 +38,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import org.eclipse.jface.action.Action;
+import org.eclipse.swt.widgets.Shell;
 
 /** Real-time plot
  *
@@ -51,7 +52,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     final protected ToolbarHandler<XTYPE> toolbar;
     final private ToggleToolbarAction<XTYPE> toggle_toolbar;
     final private ToggleLegendAction<XTYPE> toggle_legend;
-    final private Action snapshot;
+    final private SnapshotAction<XTYPE> snapshot;
 
     /** Constructor
      *  @param active Active mode where plot reacts to mouse/keyboard?
@@ -155,8 +156,9 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     }
 
     /** @return {@link Action} that saves a snapshot of the plot */
-    public Action getSnapshotAction()
+    public Action getSnapshotAction(Shell shell)
     {
+        snapshot.setShell(shell);
         return snapshot;
     }
 
@@ -184,10 +186,10 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         plot.setLegendFont(GraphicsUtils.convert(Objects.requireNonNull(font)));
     }
 
-    //    /** @return {@link Image} of current plot. Caller must dispose */
+    /** @return {@link Image} of current plot. Caller must dispose */
     //    public Image getImage()
     //    {
-    //        return plot.getImage();
+    //            return plot.getImage();
     //    }
 
     /** @return <code>true</code> if legend is visible */
