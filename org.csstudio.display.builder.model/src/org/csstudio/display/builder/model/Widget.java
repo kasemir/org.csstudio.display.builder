@@ -150,8 +150,8 @@ public class Widget
     private WidgetProperty<Integer> width;
     private WidgetProperty<Integer> height;
     private WidgetProperty<List<ActionInfo>> actions;
-    private WidgetProperty<List<ScriptInfo>> scripts;
     private WidgetProperty<List<RuleInfo>> rules;
+    private WidgetProperty<List<ScriptInfo>> scripts;
 
     /** Map of user data */
     protected final Map<String, Object> user_data = new ConcurrentHashMap<>(4); // Reserve room for "representation", "runtime"
@@ -182,8 +182,8 @@ public class Widget
         prelim_properties.add(width = propWidth.createProperty(this, default_width));
         prelim_properties.add(height = propHeight.createProperty(this, default_height));
         prelim_properties.add(actions = propActions.createProperty(this, Collections.emptyList()));
-        prelim_properties.add(scripts = propScripts.createProperty(this, Collections.emptyList()));
         prelim_properties.add(rules = propRules.createProperty(this, Collections.emptyList()));
+        prelim_properties.add(scripts = propScripts.createProperty(this, Collections.emptyList()));
 
         // -- Widget-specific properties --
         defineProperties(prelim_properties);
@@ -360,16 +360,16 @@ public class Widget
         return actions;
     }
 
-    /** @return 'scripts' property */
-    public final WidgetProperty<List<ScriptInfo>> propScripts()
-    {
-        return scripts;
-    }
-
     /** @return 'rules' property */
     public final WidgetProperty<List<RuleInfo>> propRules()
     {
         return rules;
+    }
+
+    /** @return 'scripts' property */
+    public final WidgetProperty<List<ScriptInfo>> propScripts()
+    {
+        return scripts;
     }
 
     /** Obtain configurator.
