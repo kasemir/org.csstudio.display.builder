@@ -21,6 +21,9 @@ import org.csstudio.javafx.rtplot.data.PlotDataProvider;
 import org.csstudio.javafx.rtplot.internal.AnnotationImpl;
 import org.csstudio.javafx.rtplot.internal.MouseMode;
 import org.csstudio.javafx.rtplot.internal.Plot;
+import org.csstudio.javafx.rtplot.internal.SnapshotAction;
+import org.csstudio.javafx.rtplot.internal.ToggleLegendAction;
+import org.csstudio.javafx.rtplot.internal.ToggleToolbarAction;
 import org.csstudio.javafx.rtplot.internal.ToolbarHandler;
 import org.csstudio.javafx.rtplot.internal.TraceImpl;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
@@ -34,6 +37,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import org.eclipse.jface.action.Action;
+import org.eclipse.swt.widgets.Shell;
 
 /** Real-time plot
  *
@@ -45,9 +50,9 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 {
     final protected Plot<XTYPE> plot;
     final protected ToolbarHandler<XTYPE> toolbar;
-    //    final private ToggleToolbarAction<XTYPE> toggle_toolbar;
-    //    final private ToggleLegendAction<XTYPE> toggle_legend;
-    //    final private Action snapshot;
+    final private ToggleToolbarAction<XTYPE> toggle_toolbar;
+    final private ToggleLegendAction<XTYPE> toggle_legend;
+    final private SnapshotAction<XTYPE> snapshot;
 
     /** Constructor
      *  @param active Active mode where plot reacts to mouse/keyboard?
@@ -63,17 +68,17 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         {
             plot = (Plot) new Plot<Double>(Double.class, active);
             toolbar = (ToolbarHandler) new ToolbarHandler<Double>((RTPlot)this);
-            //            toggle_toolbar = (ToggleToolbarAction) new ToggleToolbarAction<Double>((RTPlot)this, true);
-            //            toggle_legend = (ToggleLegendAction) new ToggleLegendAction<Double>((RTPlot)this, true);
-            //            snapshot = new SnapshotAction(this);
+            toggle_toolbar = (ToggleToolbarAction) new ToggleToolbarAction<Double>((RTPlot)this, true);
+            toggle_legend = (ToggleLegendAction) new ToggleLegendAction<Double>((RTPlot)this, true);
+            snapshot = new SnapshotAction(this);
         }
         else if (type == Instant.class)
         {
             plot = (Plot) new Plot<Instant>(Instant.class, active);
             toolbar = (ToolbarHandler) new ToolbarHandler<Instant>((RTPlot)this);
-            //            toggle_toolbar = (ToggleToolbarAction) new ToggleToolbarAction<Double>((RTPlot)this, true);
-            //            toggle_legend = (ToggleLegendAction) new ToggleLegendAction<Double>((RTPlot)this, true);
-            //            snapshot = new SnapshotAction(this);
+            toggle_toolbar = (ToggleToolbarAction) new ToggleToolbarAction<Double>((RTPlot)this, true);
+            toggle_legend = (ToggleLegendAction) new ToggleLegendAction<Double>((RTPlot)this, true);
+            snapshot = new SnapshotAction(this);
         }
         else
             throw new IllegalArgumentException("Cannot handle " + type.getName());
@@ -132,29 +137,30 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         plot.removeListener(listener);
     }
 
-    //    /** @return Control for the plot, to attach context menu */
-    //    public Control getPlotControl()
-    //    {
-    //        return plot;
-    //    }
+    ///** @return Control for the plot, to attach context menu */
+    //public Control getPlotControl()
+    //{
+    //    return plot;
+    //}
     //
-    //    /** @return {@link Action} that can show/hide the legend */
-    //    public Action getLegendAction()
-    //    {
-    //        return toggle_legend;
-    //    }
-    //
-    //    /** @return {@link Action} that can show/hide the toolbar */
-    //    public Action getToolbarAction()
-    //    {
-    //        return toggle_toolbar;
-    //    }
-    //
-    //    /** @return {@link Action} that saves a snapshot of the plot */
-    //    public Action getSnapshotAction()
-    //    {
-    //        return snapshot;
-    //    }
+    /** @return {@link Action} that can show/hide the legend */
+    public Action getLegendAction()
+    {
+        return toggle_legend;
+    }
+
+    /** @return {@link Action} that can show/hide the toolbar */
+    public Action getToolbarAction()
+    {
+        return toggle_toolbar;
+    }
+
+    /** @return {@link Action} that saves a snapshot of the plot */
+    public Action getSnapshotAction(Shell shell)
+    {
+        snapshot.setShell(shell);
+        return snapshot;
+    }
 
     /** @param color Background color */
     public void setBackground(final Color color)
@@ -180,10 +186,10 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         plot.setLegendFont(GraphicsUtils.convert(Objects.requireNonNull(font)));
     }
 
-    //    /** @return {@link Image} of current plot. Caller must dispose */
+    /** @return {@link Image} of current plot. Caller must dispose */
     //    public Image getImage()
     //    {
-    //        return plot.getImage();
+    //            return plot.getImage();
     //    }
 
     /** @return <code>true</code> if legend is visible */
@@ -198,7 +204,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         if (isLegendVisible() == show)
             return;
         plot.showLegend(show);
-        //        toggle_legend.updateText();
+        toggle_legend.updateText();
     }
 
     /** @return <code>true</code> if toolbar is visible */
@@ -232,7 +238,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
                 Platform.runLater(() -> layoutChildren() );
                 return null;
             });
-
+        toggle_toolbar.updateText();
         plot.fireToolbarChange(show);
     }
 

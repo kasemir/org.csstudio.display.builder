@@ -7,10 +7,12 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.util.ResourceUtil;
-
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.jface.resource.ImageDescriptor;
 import javafx.scene.image.Image;
 
 /** Not an actual Plugin Activator, but providing plugin-related helpers
@@ -32,5 +34,20 @@ public class Activator
     {
         String path = "platform:/plugin/org.csstudio.javafx.rtplot/icons/" + base_name + ".png";
         return new Image(ResourceUtil.openPlatformResource(path));
+    }
+
+    public static ImageDescriptor getIconID(final String base_name)
+    {
+        String path = "platform:/plugin/org.csstudio.javafx.rtplot/icons/" + base_name + ".png";
+        try
+        {
+            return ImageDescriptor.createFromImageData(new ImageData(ResourceUtil.openPlatformResource(path)));
+        }
+        catch (Exception e)
+        {
+            logger.log(Level.SEVERE, "Cannot load image '" + path + "'", e);
+            e.printStackTrace();
+        }
+        return null;
     }
 }
