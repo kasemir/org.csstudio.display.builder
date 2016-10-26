@@ -68,7 +68,7 @@ public class SnapshotAction<XTYPE extends Comparable<XTYPE>> extends Action
         final Screenshot screenshot;
         try
         {
-            screenshot = new Screenshot(plot.getScene());
+            screenshot = new Screenshot(plot.getPlot());
         }
         catch (Exception ex)
         {

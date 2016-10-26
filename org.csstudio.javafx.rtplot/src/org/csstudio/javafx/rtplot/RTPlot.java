@@ -137,12 +137,12 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         plot.removeListener(listener);
     }
 
-    ///** @return Control for the plot, to attach context menu */
-    //public Control getPlotControl()
-    //{
-    //    return plot;
-    //}
-    //
+    /** @return Control for the plot, to attach context menu */
+    public Plot<XTYPE> getPlot()
+    {
+        return plot;
+    }
+
     /** @return {@link Action} that can show/hide the legend */
     public Action getLegendAction()
     {

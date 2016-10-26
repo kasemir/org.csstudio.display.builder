@@ -13,6 +13,7 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.WritableImage;
 
@@ -32,12 +33,29 @@ public class Screenshot
      */
     public Screenshot(final Scene scene) throws Exception
     {
+        image = fromNode(scene.getRoot());
         // Create snapshot file
-        final WritableImage jfx = scene.snapshot(null);
-        image = new BufferedImage((int)jfx.getWidth(),
-                                                       (int)jfx.getHeight(),
-                                                       BufferedImage.TYPE_INT_ARGB);
-        SwingFXUtils.fromFXImage(jfx, image);
+        //        final WritableImage jfx = scene.snapshot(null);
+        //        image = new BufferedImage((int)jfx.getWidth(),
+        //                (int)jfx.getHeight(),
+        //                BufferedImage.TYPE_INT_ARGB);
+        //        SwingFXUtils.fromFXImage(jfx, image);
+    }
+
+    public Screenshot(final Node node) throws Exception
+    {
+        image = fromNode(node);
+    }
+
+    public static BufferedImage fromNode(Node node)
+    {
+        final WritableImage jfx = node.snapshot(null, null);
+        final BufferedImage img = new BufferedImage((int)jfx.getWidth(),
+                (int)jfx.getHeight(),
+                BufferedImage.TYPE_INT_ARGB);
+        SwingFXUtils.fromFXImage(jfx, img);
+
+        return img;
     }
 
     /** Write to file
