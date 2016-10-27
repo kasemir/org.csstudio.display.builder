@@ -96,6 +96,10 @@ public class DataBrowserEditor extends EditorPart
     /** GUI for the plot */
     private ModelBasedPlot plot;
 
+    private ToggleToolbarAction toggle_toolbar;
+    private ToggleLegendAction toggle_legend;
+    private SnapshotAction snapshot;
+
     /** Controller that links model and plot */
     private Controller controller = null;
 
@@ -352,6 +356,8 @@ public class DataBrowserEditor extends EditorPart
             public void partActivated(final IWorkbenchPartReference part)    { /* NOP */ }
         });
 
+        toggle_legend = new ToggleLegendAction(plot.getPlot(), true);
+        toggle_toolbar = new ToggleToolbarAction(plot.getPlot(), true);
         createContextMenu(plot.getCanvas());
     }
 
@@ -374,8 +380,8 @@ public class DataBrowserEditor extends EditorPart
         final Activator activator = Activator.getDefault();
         final Shell shell = getSite().getShell();
         final UndoableActionManager op_manager = plot.getPlot().getUndoableActionManager();
-        manager.add(plot.getPlot().getToolbarAction());
-        manager.add(plot.getPlot().getLegendAction());
+        manager.add(toggle_toolbar);
+        manager.add(toggle_legend);
         manager.add(new Separator());
         manager.add(new AddPVAction(op_manager, shell, model, false));
         manager.add(new AddPVAction(op_manager, shell, model, true));
@@ -418,7 +424,7 @@ public class DataBrowserEditor extends EditorPart
         if (is_rcp)
         {
             manager.add(new Separator());
-            manager.add(plot.getPlot().getSnapshotAction(shell));
+            manager.add(new SnapshotAction(plot.getPlot()));
             if (EMailSender.isEmailSupported())
                 manager.add(new SendEMailAction(shell, plot.getPlot()));
             manager.add(new PrintAction(shell, plot.getPlot()));
