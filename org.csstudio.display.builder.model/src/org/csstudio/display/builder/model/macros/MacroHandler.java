@@ -40,7 +40,7 @@ public class MacroHandler
     public static boolean containsMacros(final String input)
     {
         // Short cut to full regular expression
-        if (input.indexOf('$') < 0)
+        if (input == null || input.indexOf('$') < 0)
             return false;
 
         // There is at least one '$'

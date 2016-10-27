@@ -128,7 +128,11 @@ public class WidgetTransfer
 
             final Dragboard db = event.getDragboard();
 
-            if ( db.hasString() || db.hasUrl() || db.hasRtf() || db.hasHtml() || db.hasImage() ) {
+            if ( ( db.hasString() && db.getString() != null )
+              || ( db.hasUrl()    && db.getUrl() != null    )
+              || ( db.hasRtf()    && db.getRtf() != null    )
+              || ( db.hasHtml()   && db.getHtml() != null   )
+              || ( db.hasImage()  && db.getImage() != null  ) ) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
 
@@ -143,15 +147,15 @@ public class WidgetTransfer
             final Point2D location = selection_tracker.gridConstrain(event.getX(), event.getY());
             List<Widget> widgets = new ArrayList<>();
 
-            if ( db.hasImage() ) {
+            if ( db.hasImage() && db.getImage() != null ) {
                 installWidgetsFromImage(db, widgets);
-            } else if ( db.hasUrl() ) {
+            } else if ( db.hasUrl() && db.getUrl() != null ) {
                 installWidgetsFromURL(db, widgets);
-            } else if ( db.hasHtml() ) {
+            } else if ( db.hasHtml()  && db.getHtml() != null ) {
                 installWidgetsFromHTML(db, widgets);
-            } else if ( db.hasRtf() ) {
+            } else if ( db.hasRtf() && db.getRtf() != null ) {
                 installWidgetsFromRTF(db, widgets);
-            } else if ( db.hasString() ) {
+            } else if ( db.hasString() && db.getString() != null ) {
                 installWidgetsFromString(db, widgets);
             }
 
@@ -230,29 +234,23 @@ public class WidgetTransfer
     private static void installWidgetsFromHTML ( final Dragboard db, final List<Widget> widgets ) {
 
         String html = db.getHtml();
+        HTMLEditorKit htmlParser = new HTMLEditorKit();
+        Document document = htmlParser.createDefaultDocument();
 
-        if ( html != null ) {
+        try {
+
+            htmlParser.read(new ByteArrayInputStream(html.getBytes()), document, 0);
+
+            String text = document.getText(0, document.getLength());
+            LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
+
+            widget.propText().setValue(text);
+            widgets.add(widget);
 
             logger.log(Level.FINE, "Dropped HTML: creating LabelWidget [{0}].", html);
 
-            HTMLEditorKit htmlParser = new HTMLEditorKit();
-            Document document = htmlParser.createDefaultDocument();
-
-            try {
-
-                htmlParser.read(new ByteArrayInputStream(html.getBytes()), document, 0);
-
-                String text = document.getText(0, document.getLength());
-
-                LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
-
-                widget.propText().setValue(text);
-                widgets.add(widget);
-
-            } catch ( Exception ex ) {
-                logger.log(Level.WARNING, "Invalid HTML string [{0}].", ex.getMessage());
-            }
-
+        } catch ( Exception ex ) {
+            logger.log(Level.WARNING, "Invalid HTML string [{0}].", ex.getMessage());
         }
 
     }
@@ -262,29 +260,23 @@ public class WidgetTransfer
         try {
 
             Image image = db.getImage();
+            File tmpFile = File.createTempFile("picture", ".png");
+            BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
 
-            if ( image != null ) {
+            try {
+
+                ImageIO.write(bImage, "png", tmpFile);
+                PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
+
+                widget.propFile().setValue(tmpFile.toString());
+                widget.propWidth().setValue((int) image.getWidth());
+                widget.propHeight().setValue((int) image.getHeight());
+                widgets.add(widget);
 
                 logger.log(Level.FINE, "Dropped image: creating PictureWidget");
 
-                File tmpFile = File.createTempFile("picture", ".png");
-                BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
-
-                try {
-
-                    ImageIO.write(bImage, "png", tmpFile);
-
-                    PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
-
-                    widget.propFile().setValue(tmpFile.toString());
-                    widget.propWidth().setValue((int) image.getWidth());
-                    widget.propHeight().setValue((int) image.getHeight());
-                    widgets.add(widget);
-
-                } catch ( IOException ioex ) {
-                    logger.log(Level.WARNING, "Unable to save image into a temporary location [{0}].", ioex.getMessage());
-                }
-
+            } catch ( IOException ioex ) {
+                logger.log(Level.WARNING, "Unable to save image into a temporary location [{0}].", ioex.getMessage());
             }
 
         } catch ( Exception ex ) {
@@ -296,29 +288,23 @@ public class WidgetTransfer
     private static void installWidgetsFromRTF ( final Dragboard db, final List<Widget> widgets ) {
 
         String rtf = db.getRtf();
+        RTFEditorKit rtfParser = new RTFEditorKit();
+        Document document = rtfParser.createDefaultDocument();
 
-        if ( rtf != null ) {
+        try {
+
+            rtfParser.read(new ByteArrayInputStream(rtf.getBytes()), document, 0);
+
+            String text = document.getText(0, document.getLength());
+            LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
+
+            widget.propText().setValue(text);
+            widgets.add(widget);
 
             logger.log(Level.FINE, "Dropped RTF: creating LabelWidget [{0}].", rtf);
 
-            RTFEditorKit rtfParser = new RTFEditorKit();
-            Document document = rtfParser.createDefaultDocument();
-
-            try {
-
-                rtfParser.read(new ByteArrayInputStream(rtf.getBytes()), document, 0);
-
-                String text = document.getText(0, document.getLength());
-
-                LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
-
-                widget.propText().setValue(text);
-                widgets.add(widget);
-
-            } catch ( Exception ex ) {
-                logger.log(Level.WARNING, "Invalid RTF string [{0}].", ex.getMessage());
-            }
-
+        } catch ( Exception ex ) {
+            logger.log(Level.WARNING, "Invalid RTF string [{0}].", ex.getMessage());
         }
 
     }
@@ -327,24 +313,22 @@ public class WidgetTransfer
 
         final String xmlOrText = db.getString();
 
-        if ( xmlOrText != null ) {
-            try {
+        try {
 
-                final DisplayModel model = ModelReader.parseXML(xmlOrText);
+            final DisplayModel model = ModelReader.parseXML(xmlOrText);
 
-                widgets.addAll(model.getChildren());
+            widgets.addAll(model.getChildren());
 
-            } catch ( Exception ex ) {
+        } catch ( Exception ex ) {
 
-                // Not a valid XML. Instantiate a Label object.
-                logger.log(Level.FINE, "Dropped text: creating LabelWidget [{0}].", xmlOrText);
+            // Not a valid XML. Instantiate a Label object.
+            LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
 
-                LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
+            widget.propText().setValue(xmlOrText);
+            widgets.add(widget);
 
-                widget.propText().setValue(xmlOrText);
-                widgets.add(widget);
+            logger.log(Level.FINE, "Dropped text: created LabelWidget [{0}].", xmlOrText);
 
-            }
         }
 
     }
@@ -352,17 +336,12 @@ public class WidgetTransfer
     private static void installWidgetsFromURL ( final Dragboard db, final List<Widget> widgets ) {
 
         String url = db.getUrl();
+        WebBrowserWidget widget = (WebBrowserWidget) WebBrowserWidget.WIDGET_DESCRIPTOR.createWidget();
 
-        if ( url != null ) {
+        widget.propWidgetURL().setValue(url);
+        widgets.add(widget);
 
-            logger.log(Level.FINE, "Dropped URL: creating WebBrowserWidget [{0}].", url);
-
-            WebBrowserWidget widget = (WebBrowserWidget) WebBrowserWidget.WIDGET_DESCRIPTOR.createWidget();
-
-            widget.propWidgetURL().setValue(url);
-            widgets.add(widget);
-
-        }
+        logger.log(Level.FINE, "Dropped URL: created WebBrowserWidget [{0}].", url);
 
     }
 
