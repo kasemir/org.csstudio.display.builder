@@ -293,7 +293,6 @@ public class DataBrowserEditor extends EditorPart
         }
         catch (Exception e)
         {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -353,8 +352,7 @@ public class DataBrowserEditor extends EditorPart
             public void partActivated(final IWorkbenchPartReference part)    { /* NOP */ }
         });
 
-        //TODO: Plot control context menu
-        //createContextMenu(plot.getPlot().getPlotControl());
+        createContextMenu(plot.getCanvas());
     }
 
     /** Create context menu */
@@ -376,9 +374,8 @@ public class DataBrowserEditor extends EditorPart
         final Activator activator = Activator.getDefault();
         final Shell shell = getSite().getShell();
         final UndoableActionManager op_manager = plot.getPlot().getUndoableActionManager();
-        //TODO: Toolbar and Legend actions in context menu
-        //manager.add(plot.getPlot().getToolbarAction());
-        //manager.add(plot.getPlot().getLegendAction());
+        manager.add(plot.getPlot().getToolbarAction());
+        manager.add(plot.getPlot().getLegendAction());
         manager.add(new Separator());
         manager.add(new AddPVAction(op_manager, shell, model, false));
         manager.add(new AddPVAction(op_manager, shell, model, true));
@@ -421,8 +418,7 @@ public class DataBrowserEditor extends EditorPart
         if (is_rcp)
         {
             manager.add(new Separator());
-            //TODO: plot snapshot function
-            //manager.add(plot.getPlot().getSnapshotAction());
+            manager.add(plot.getPlot().getSnapshotAction(shell));
             if (EMailSender.isEmailSupported())
                 manager.add(new SendEMailAction(shell, plot.getPlot()));
             manager.add(new PrintAction(shell, plot.getPlot()));

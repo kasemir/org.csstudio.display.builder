@@ -326,7 +326,8 @@ public class PropertyPanelSection extends GridPane
         final Label label = new Label(property.getDescription());
         label.setMaxWidth(Double.MAX_VALUE);
         label.setMinWidth(100);
-        label.setTooltip(new Tooltip(property.getDescription()));
+        final String tooltip = property.getDescription() + " (" + property.getName() + ")";
+        label.setTooltip(new Tooltip(tooltip));
         //this.setGridLinesVisible(true);
 
         Node field = bindSimplePropertyField(undo, bindings, property, other);

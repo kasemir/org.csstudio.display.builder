@@ -6,10 +6,10 @@
        point="org.csstudio.display.builder.model.widgets">
      
      <widget
-            category="MONITOR"
+            category="PLOT"
             class="org.csstudio.trends.databrowser3.bobwidget.DataBrowserWidget"
             description="DataBrowser 3 widget"
-            icon="platform:/plugin/org.csstudio.databrowser3.bobwidget/icons/databrowser.png"
+            icon="platform:/plugin/org.csstudio.trends.databrowser3.bobwidget/icons/databrowser.png"
             name="DataBrowser 3"
             type="databrowser">
       </widget>
