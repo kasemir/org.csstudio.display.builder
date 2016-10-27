@@ -22,7 +22,7 @@
    </vm>
 
    <plugins>
-      <plugin id="com.diffplug.osgi.extension.sun.misc"/>
+      <plugin id="com.diffplug.osgi.extension.sun.misc" fragment="true"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.ibm.icu"/>
       <plugin id="javax.activation"/>
@@ -40,6 +40,7 @@
       <plugin id="org.csstudio.autocomplete"/>
       <plugin id="org.csstudio.autocomplete.ui"/>
       <plugin id="org.csstudio.csdata"/>
+      <plugin id="org.csstudio.display.builder.libraries"/>
       <plugin id="org.csstudio.display.builder.model"/>
       <plugin id="org.csstudio.display.builder.model.rcp" fragment="true"/>
       <plugin id="org.csstudio.display.builder.rcp"/>

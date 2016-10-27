@@ -20,15 +20,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.rtf.RTFEditorKit;
 
+import org.apache.commons.io.FilenameUtils;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -36,6 +40,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
@@ -60,6 +65,11 @@ public class WidgetTransfer
 
     private static Color TRANSPARENT = new Color(0, 0, 0, 24);
     private static Stroke OUTLINE_STROKE = new BasicStroke(2.2F);
+
+    //  The extensions listed here MUST BE ALL UPPERCASE.
+    private static List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("BMP", "GIF", "JPEG", "JPG", "PNG");
+    private static List<String> EMBEDDED_FILE_EXTENSIONS = Arrays.asList("BOB", "OPI");
+    private static List<String> SUPPORTED_EXTENSIONS = Stream.of(IMAGE_FILE_EXTENSIONS, EMBEDDED_FILE_EXTENSIONS).flatMap(Collection::stream).collect(Collectors.toList());
 
     // Could create custom data format, or use "application/xml".
     // Transferring as DataFormat("text/plain"), however, allows exchange
@@ -128,11 +138,7 @@ public class WidgetTransfer
 
             final Dragboard db = event.getDragboard();
 
-            if ( ( db.hasString() && db.getString() != null )
-              || ( db.hasUrl()    && db.getUrl() != null    )
-              || ( db.hasRtf()    && db.getRtf() != null    )
-              || ( db.hasHtml()   && db.getHtml() != null   )
-              || ( db.hasImage()  && db.getImage() != null  ) ) {
+            if ( db.hasString() || db.hasUrl() || db.hasRtf() || db.hasHtml() || db.hasImage() || db.hasFiles() ) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
 
@@ -147,7 +153,9 @@ public class WidgetTransfer
             final Point2D location = selection_tracker.gridConstrain(event.getX(), event.getY());
             List<Widget> widgets = new ArrayList<>();
 
-            if ( db.hasImage() && db.getImage() != null ) {
+            if ( db.hasFiles()  && canAcceptFiles(db.getFiles()) ) {
+                installWidgetsFromFiles(db, widgets);
+            } else if ( db.hasImage() && db.getImage() != null ) {
                 installWidgetsFromImage(db, widgets);
             } else if ( db.hasUrl() && db.getUrl() != null ) {
                 installWidgetsFromURL(db, widgets);
@@ -185,6 +193,28 @@ public class WidgetTransfer
 
         GeometryTools.moveWidgets((int) location.getX(), (int) location.getY(), widgets);
         handleDroppedModel.accept(widgets);
+
+    }
+
+    /**
+     * Return {@code true} if there is a {@link File} in {@code files}
+     * whose extension is one of the {@link #SUPPORTED_EXTENSIONS}.
+     * <P>
+     * <B>Note:<B> only one file will be accepted: the first one
+     * matching the above condition.
+     *
+     * @param files The {@link List} of {@link File}s to be checked.
+     *              Can be {@code null} or empty.
+     * @return {@code true} if a file existing whose extension is
+     *         contained in {@link #SUPPORTED_EXTENSIONS}.
+     */
+    private static boolean canAcceptFiles ( List<File> files ) {
+
+        if ( files != null && !files.isEmpty() ) {
+            return files.stream().anyMatch(f -> SUPPORTED_EXTENSIONS.contains(FilenameUtils.getExtension(f.toString()).toUpperCase()));
+        }
+
+        return false;
 
     }
 
@@ -228,6 +258,55 @@ public class WidgetTransfer
         SwingFXUtils.toFXImage(bImage, dImage);
 
         return dImage;
+
+    }
+
+    /** @return {@code true} if the file was accepted and a new widget created. */
+    private static boolean imageFileAcceptor ( File file, final List<Widget> widgets ) {
+
+        if ( file!= null && file.exists() ) {
+            try {
+
+                BufferedImage image = ImageIO.read(file);
+                PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
+
+                widget.propFile().setValue(file.toString());
+                widget.propWidth().setValue(image.getWidth());
+                widget.propHeight().setValue(image.getHeight());
+                widgets.add(widget);
+
+                logger.log(Level.FINE, "Dropped image file: creating PictureWidget");
+
+                return true;
+
+            } catch ( IOException ex ) {
+                logger.log(Level.WARNING, "Unable to read image [{0}].", ex.getMessage());
+            }
+        }
+
+        return false;
+
+    }
+
+    private static void installWidgetsFromFiles ( final Dragboard db, final List<Widget> widgets ) {
+
+        List<File> files = db.getFiles();
+
+        for ( File file : files ) {
+
+            String extension = FilenameUtils.getExtension(file.toString()).toUpperCase();
+
+            if ( IMAGE_FILE_EXTENSIONS.contains(extension) ) {
+                if ( imageFileAcceptor(file, widgets) ) {
+                    break;
+                }
+            } else if ( EMBEDDED_FILE_EXTENSIONS.contains(extension) ) {
+                if ( opiFileAcceptor(file, widgets) ) {
+                    break;
+                }
+            }
+
+        }
 
     }
 
@@ -342,6 +421,33 @@ public class WidgetTransfer
         widgets.add(widget);
 
         logger.log(Level.FINE, "Dropped URL: created WebBrowserWidget [{0}].", url);
+
+    }
+
+    /** @return {@code true} if the file was accepted and a new widget created. */
+    private static boolean opiFileAcceptor ( File file, final List<Widget> widgets ) {
+
+        if ( file!= null && file.exists() ) {
+            try {
+
+
+                EmbeddedDisplayWidget widget = (EmbeddedDisplayWidget) EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.createWidget();
+
+                widget.propFile().setValue(file.toString());
+//                widget.propWidth().setValue(image.getWidth());
+//                widget.propHeight().setValue(image.getHeight());
+                widgets.add(widget);
+
+                logger.log(Level.FINE, "Dropped image file: creating PictureWidget");
+
+                return true;
+
+            } catch ( Exception ex ) {
+                logger.log(Level.WARNING, "Unable to read OPI/BOB file [{0}].", ex.getMessage());
+            }
+        }
+
+        return false;
 
     }
 
