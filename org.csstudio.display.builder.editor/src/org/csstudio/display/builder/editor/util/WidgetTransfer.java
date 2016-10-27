@@ -15,18 +15,30 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
-import org.csstudio.display.builder.editor.WidgetSelectionHandler;
+import javax.imageio.ImageIO;
+import javax.swing.text.Document;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.rtf.RTFEditorKit;
+
+import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.widgets.LabelWidget;
+import org.csstudio.display.builder.model.widgets.PictureWidget;
+import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
@@ -61,13 +73,13 @@ public class WidgetTransfer
      * @param desc Description of widget type to drag
      * @param image Image to represent the widget, or <code>null</code>
      */
-    public static void addDragSupport ( final Node source, final WidgetSelectionHandler selection, final WidgetDescriptor descriptor, final Image image ) {
+    public static void addDragSupport ( final Node source, final DisplayEditor editor, final WidgetDescriptor descriptor, final Image image ) {
 
         source.setOnDragDetected( ( MouseEvent event ) -> {
 
             logger.log(Level.FINE, "Starting drag for {0}", descriptor);
 
-            selection.clear();
+            editor.getWidgetSelectionHandler().clear();
 
             Widget widget = descriptor.createWidget();
             final String xml;
@@ -93,11 +105,7 @@ public class WidgetTransfer
             event.consume();
 
         });
-
-        // TODO Mouse needs to be clicked once after drop completes.
-        // Unclear why. Tried source.setOnDragDone() to consume that event, no
-        // change.
-        // Somehow the drag is still 'active' until one more mouse click.
+        source.setOnDragDone(event -> editor.getAutoScrollHandler().canceTimeline());
 
     }
 
@@ -109,7 +117,6 @@ public class WidgetTransfer
      * @param selection_tracker The selection tracker.
      * @param handleDroppedModel Callback for handling the dropped widgets
      */
-//    public static void addDropSupport ( final Node node, final ParentHandler group_handler, final Consumer<List<Widget>> handleDroppedModel ) {
     public static void addDropSupport (
             final Node node,
             final ParentHandler group_handler,
@@ -119,7 +126,13 @@ public class WidgetTransfer
 
         node.setOnDragOver( ( DragEvent event ) -> {
 
-            if ( event.getDragboard().hasString() ) {
+            final Dragboard db = event.getDragboard();
+
+            if ( ( db.hasString() && db.getString() != null )
+              || ( db.hasUrl()    && db.getUrl() != null    )
+              || ( db.hasRtf()    && db.getRtf() != null    )
+              || ( db.hasHtml()   && db.getHtml() != null   )
+              || ( db.hasImage()  && db.getImage() != null  ) ) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
 
@@ -131,27 +144,24 @@ public class WidgetTransfer
         node.setOnDragDropped( ( DragEvent event ) -> {
 
             final Dragboard db = event.getDragboard();
+            final Point2D location = selection_tracker.gridConstrain(event.getX(), event.getY());
+            List<Widget> widgets = new ArrayList<>();
 
-            if ( db.hasString() ) {
+            if ( db.hasImage() && db.getImage() != null ) {
+                installWidgetsFromImage(db, widgets);
+            } else if ( db.hasUrl() && db.getUrl() != null ) {
+                installWidgetsFromURL(db, widgets);
+            } else if ( db.hasHtml()  && db.getHtml() != null ) {
+                installWidgetsFromHTML(db, widgets);
+            } else if ( db.hasRtf() && db.getRtf() != null ) {
+                installWidgetsFromRTF(db, widgets);
+            } else if ( db.hasString() && db.getString() != null ) {
+                installWidgetsFromString(db, widgets);
+            }
 
-                final String xml = db.getString();
-
-                try {
-
-                    final DisplayModel model = ModelReader.parseXML(xml);
-                    final List<Widget> widgets = model.getChildren();
-                    final Point2D location = selection_tracker.gridConstrain(event.getX(), event.getY());
-
-                    logger.log(Level.FINE, "Dropped {0} widgets", widgets.size());
-                    GeometryTools.moveWidgets((int) location.getX(), (int) location.getY(), widgets);
-                    handleDroppedModel.accept(widgets);
-
-                } catch ( Exception ex ) {
-                    logger.log(Level.WARNING, "Cannot parse dropped model", ex);
-                }
-
+            if ( widgets != null && !widgets.isEmpty() ) {
+                acceptWidgets(widgets, location, handleDroppedModel);
                 event.setDropCompleted(true);
-
             } else {
                 event.setDropCompleted(false);
             }
@@ -159,6 +169,22 @@ public class WidgetTransfer
             event.consume();
 
         });
+
+    }
+
+    /**
+     * Accept and install the given {@code widgets} into the model.
+     *
+     * @param widgets            The widgets to be installed.
+     * @param location           The drop location.
+     * @param handleDroppedModel Callback for handling the dropped widgets.
+     */
+    private static void acceptWidgets ( final List<Widget> widgets, final Point2D location, final Consumer<List<Widget>> handleDroppedModel ) {
+
+        logger.log(Level.FINE, "Dropped {0} widgets.", widgets.size());
+
+        GeometryTools.moveWidgets((int) location.getX(), (int) location.getY(), widgets);
+        handleDroppedModel.accept(widgets);
 
     }
 
@@ -202,6 +228,120 @@ public class WidgetTransfer
         SwingFXUtils.toFXImage(bImage, dImage);
 
         return dImage;
+
+    }
+
+    private static void installWidgetsFromHTML ( final Dragboard db, final List<Widget> widgets ) {
+
+        String html = db.getHtml();
+        HTMLEditorKit htmlParser = new HTMLEditorKit();
+        Document document = htmlParser.createDefaultDocument();
+
+        try {
+
+            htmlParser.read(new ByteArrayInputStream(html.getBytes()), document, 0);
+
+            String text = document.getText(0, document.getLength());
+            LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
+
+            widget.propText().setValue(text);
+            widgets.add(widget);
+
+            logger.log(Level.FINE, "Dropped HTML: creating LabelWidget [{0}].", html);
+
+        } catch ( Exception ex ) {
+            logger.log(Level.WARNING, "Invalid HTML string [{0}].", ex.getMessage());
+        }
+
+    }
+
+    private static void installWidgetsFromImage ( final Dragboard db, final List<Widget> widgets ) {
+
+        try {
+
+            Image image = db.getImage();
+            File tmpFile = File.createTempFile("picture", ".png");
+            BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+
+            try {
+
+                ImageIO.write(bImage, "png", tmpFile);
+                PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
+
+                widget.propFile().setValue(tmpFile.toString());
+                widget.propWidth().setValue((int) image.getWidth());
+                widget.propHeight().setValue((int) image.getHeight());
+                widgets.add(widget);
+
+                logger.log(Level.FINE, "Dropped image: creating PictureWidget");
+
+            } catch ( IOException ioex ) {
+                logger.log(Level.WARNING, "Unable to save image into a temporary location [{0}].", ioex.getMessage());
+            }
+
+        } catch ( Exception ex ) {
+            logger.log(Level.WARNING, "Invalid image [{0}].", ex.getMessage());
+        }
+
+    }
+
+    private static void installWidgetsFromRTF ( final Dragboard db, final List<Widget> widgets ) {
+
+        String rtf = db.getRtf();
+        RTFEditorKit rtfParser = new RTFEditorKit();
+        Document document = rtfParser.createDefaultDocument();
+
+        try {
+
+            rtfParser.read(new ByteArrayInputStream(rtf.getBytes()), document, 0);
+
+            String text = document.getText(0, document.getLength());
+            LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
+
+            widget.propText().setValue(text);
+            widgets.add(widget);
+
+            logger.log(Level.FINE, "Dropped RTF: creating LabelWidget [{0}].", rtf);
+
+        } catch ( Exception ex ) {
+            logger.log(Level.WARNING, "Invalid RTF string [{0}].", ex.getMessage());
+        }
+
+    }
+
+    private static void installWidgetsFromString ( final Dragboard db, final List<Widget> widgets ) {
+
+        final String xmlOrText = db.getString();
+
+        try {
+
+            final DisplayModel model = ModelReader.parseXML(xmlOrText);
+
+            widgets.addAll(model.getChildren());
+
+        } catch ( Exception ex ) {
+
+            // Not a valid XML. Instantiate a Label object.
+            LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
+
+            widget.propText().setValue(xmlOrText);
+            widgets.add(widget);
+
+            logger.log(Level.FINE, "Dropped text: created LabelWidget [{0}].", xmlOrText);
+
+        }
+
+    }
+
+    private static void installWidgetsFromURL ( final Dragboard db, final List<Widget> widgets ) {
+
+        String url = db.getUrl();
+        WebBrowserWidget widget = (WebBrowserWidget) WebBrowserWidget.WIDGET_DESCRIPTOR.createWidget();
+
+        widget.propWidgetURL().setValue(url);
+        widgets.add(widget);
+
+        logger.log(Level.FINE, "Dropped URL: created WebBrowserWidget [{0}].", url);
 
     }
 

@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Display Builder Libraries
+Bundle-SymbolicName: org.csstudio.display.builder.libraries
+Bundle-Version: 1.0.0.qualifier
+Bundle-ClassPath: Medusa-5.9.0.1.jar
+Bundle-Vendor: Claudio Rosati - ESS
+Export-Package: eu.hansolo.medusa,
+ eu.hansolo.medusa.events,
+ eu.hansolo.medusa.skins,
+ eu.hansolo.medusa.tools
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
