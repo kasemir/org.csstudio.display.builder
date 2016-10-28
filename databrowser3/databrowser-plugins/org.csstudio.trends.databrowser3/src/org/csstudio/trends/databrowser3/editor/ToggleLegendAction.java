@@ -5,11 +5,12 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package org.csstudio.javafx.rtplot.internal;
+package org.csstudio.trends.databrowser3.editor;
 
 import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.Messages;
 import org.csstudio.javafx.rtplot.RTPlot;
+import org.csstudio.javafx.rtplot.RTPlotListener;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.eclipse.jface.action.Action;
 
@@ -21,17 +22,27 @@ import org.eclipse.jface.action.Action;
  *  @uathor Megan Grodowitz
  */
 @SuppressWarnings("nls")
-public class ToggleLegendAction<XTYPE extends Comparable<XTYPE>> extends Action
+public class ToggleLegendAction extends Action
 {
     // TODO Implement for TBD context menu
 
-    final private RTPlot<XTYPE> plot;
+    final private RTPlot<?> plot;
     //
-    public ToggleLegendAction(final RTPlot<XTYPE> plot, final boolean is_visible)
+    public ToggleLegendAction(final RTPlot<?> plot, final boolean is_visible)
     {
         super(is_visible ? Messages.Legend_Hide : Messages.Legend_Show,
                 Activator.getIconID("legend"));
         this.plot = plot;
+
+        plot.addListener(new RTPlotListener()
+        {
+            @Override public void changedLegend(boolean visible)
+            {
+                updateText();
+            }
+        });
+
+        updateText();
     }
     //
     public void updateText()
