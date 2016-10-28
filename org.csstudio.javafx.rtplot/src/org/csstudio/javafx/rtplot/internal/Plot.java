@@ -42,6 +42,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 
 /** Plot with axes and area that displays the traces
@@ -452,10 +453,10 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         final BufferedImage image = new BufferedImage(area_copy.width, area_copy.height, BufferedImage.TYPE_INT_ARGB);
         final Graphics2D gc = image.createGraphics();
 
-        gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-        gc.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
-        gc.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
-        gc.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+        gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        gc.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        gc.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        gc.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
         if (need_layout.getAndSet(false))
             computeLayout(gc, area_copy);
@@ -489,8 +490,21 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
         gc.dispose();
 
+        //        File outputfile = new File("/Users/elc/image.png");
+        //        try
+        //        {
+        //            ImageIO.write(image, "png", outputfile);
+        //        }
+        //        catch (IOException e)
+        //        {
+        //            // TODO Auto-generated catch block
+        //            e.printStackTrace();
+        //        }
+
         // Convert to JFX
-        return SwingFXUtils.toFXImage(image, null);
+        WritableImage wi = new WritableImage(image.getWidth(), image.getHeight());
+        SwingFXUtils.toFXImage(image, wi);
+        return wi;
     }
 
     /** Draw visual feedback (rubber band rectangle etc.)

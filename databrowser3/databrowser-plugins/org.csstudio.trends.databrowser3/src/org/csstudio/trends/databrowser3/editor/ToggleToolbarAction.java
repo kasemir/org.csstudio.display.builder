@@ -7,10 +7,11 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.editor;
 
-import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.Messages;
 import org.csstudio.javafx.rtplot.RTPlot;
 import org.csstudio.javafx.rtplot.RTPlotListener;
+import org.csstudio.trends.databrowser3.Activator;
+
 /** Action that shows/hides the toolbar
  *  @author Kay Kasemir
  */
@@ -19,14 +20,12 @@ import org.eclipse.jface.action.Action;
 @SuppressWarnings("nls")
 public class ToggleToolbarAction extends Action
 {
-    // TODO Implement for TBD context menu
-
     final private RTPlot<?> plot;
 
     public ToggleToolbarAction(final RTPlot<?> plot, final boolean is_visible)
     {
         super(is_visible ? Messages.Toolbar_Hide : Messages.Toolbar_Show,
-                Activator.getIconID("toolbar"));
+                Activator.getRTPlotIconID("toolbar"));
         this.plot = plot;
 
         plot.addListener(new RTPlotListener()

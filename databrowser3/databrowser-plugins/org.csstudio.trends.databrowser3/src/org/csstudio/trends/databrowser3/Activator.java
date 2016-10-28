@@ -10,6 +10,7 @@ package org.csstudio.trends.databrowser3;
 import java.util.Dictionary;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.display.builder.util.ResourceUtil;
@@ -21,6 +22,8 @@ import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.graphics.ImageData;
+
 import javafx.scene.image.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -123,6 +126,31 @@ public class Activator extends AbstractUIPlugin
     {
         String path = "platform:/plugin/org.csstudio.trends.databrowser3/icons/" + base_name + ".png";
         return new Image(ResourceUtil.openPlatformResource(path));
+    }
+
+    /** @param base_name Icon base name (no path, no extension)
+     *  @return Image
+     *  @throws Exception on error
+     */
+    public static Image getRTPlotIcon(final String base_name) throws Exception
+    {
+        String path = org.csstudio.javafx.rtplot.Activator.IconPath + base_name + ".png";
+        return new Image(ResourceUtil.openPlatformResource(path));
+    }
+
+    public static ImageDescriptor getRTPlotIconID(final String base_name)
+    {
+        String path = org.csstudio.javafx.rtplot.Activator.IconPath + base_name + ".png";
+        try
+        {
+            return ImageDescriptor.createFromImageData(new ImageData(ResourceUtil.openPlatformResource(path)));
+        }
+        catch (Exception e)
+        {
+            logger.log(Level.SEVERE, "Cannot load image '" + path + "'", e);
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /** @return Version code */
