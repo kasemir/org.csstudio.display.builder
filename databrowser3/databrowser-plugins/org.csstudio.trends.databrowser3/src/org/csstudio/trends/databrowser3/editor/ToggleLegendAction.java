@@ -7,11 +7,11 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.editor;
 
-import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.Messages;
 import org.csstudio.javafx.rtplot.RTPlot;
 import org.csstudio.javafx.rtplot.RTPlotListener;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
+import org.csstudio.trends.databrowser3.Activator;
 import org.eclipse.jface.action.Action;
 
 /** Action to hide/show legend.
@@ -24,14 +24,12 @@ import org.eclipse.jface.action.Action;
 @SuppressWarnings("nls")
 public class ToggleLegendAction extends Action
 {
-    // TODO Implement for TBD context menu
-
     final private RTPlot<?> plot;
     //
     public ToggleLegendAction(final RTPlot<?> plot, final boolean is_visible)
     {
         super(is_visible ? Messages.Legend_Hide : Messages.Legend_Show,
-                Activator.getIconID("legend"));
+                Activator.getRTPlotIconID("legend"));
         this.plot = plot;
 
         plot.addListener(new RTPlotListener()

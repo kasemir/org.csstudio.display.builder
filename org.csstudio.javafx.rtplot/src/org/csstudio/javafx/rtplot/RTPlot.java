@@ -26,6 +26,7 @@ import org.csstudio.javafx.rtplot.internal.TraceImpl;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -126,6 +127,12 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
 
     /** @return Control for the plot, to attach context menu */
     public Plot<XTYPE> getPlot()
+    {
+        return plot;
+    }
+
+    /** @return Control for the plot, to attach context menu */
+    public Node getPlotNode()
     {
         return plot;
     }

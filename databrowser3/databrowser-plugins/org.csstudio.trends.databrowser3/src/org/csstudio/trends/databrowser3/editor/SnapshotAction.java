@@ -12,9 +12,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.csstudio.javafx.Screenshot;
-import org.csstudio.javafx.rtplot.Activator;
 import org.csstudio.javafx.rtplot.Messages;
 import org.csstudio.javafx.rtplot.RTPlot;
+import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -34,22 +34,11 @@ public class SnapshotAction extends Action
     final private RTPlot<?> plot;
     private Shell shell;
     //
-    public SnapshotAction(final RTPlot<?> plot)
+    public SnapshotAction(final RTPlot<?> plot, Shell shell)
     {
-        super(Messages.Snapshot, Activator.getIconID("camera"));
+        super(Messages.Snapshot, Activator.getRTPlotIconID("camera"));
         this.plot = plot;
-        this.shell = null;
-    }
-
-    public void setShell(Object shell)
-    {
-        if (shell instanceof Shell)
-        {
-            this.shell = (Shell) shell;
-            return;
-        }
-        Logger.getLogger("SnapshotAction").log(
-                Level.SEVERE, "Snapshot cannot set shell from object type: " + shell.getClass().getName());
+        this.shell = shell;
     }
 
     //
@@ -73,7 +62,7 @@ public class SnapshotAction extends Action
         final Screenshot screenshot;
         try
         {
-            screenshot = new Screenshot(plot);//plot.getPlot());
+            screenshot = new Screenshot(plot.getPlotNode());
         }
         catch (Exception ex)
         {
