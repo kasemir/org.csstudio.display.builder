@@ -10,6 +10,7 @@ package org.csstudio.display.builder.editor.util;
 import static org.csstudio.display.builder.editor.DisplayEditor.logger;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 import java.util.logging.Level;
@@ -109,6 +110,16 @@ public class GeometryTools
         }
     }
 
+    /** Get bounds of widgets relative to display model
+     *  @param widgets Model widgets
+     *  @return {@link Rectangle2D}
+     */
+    public static Rectangle2D getDisplayBounds(final Collection<Widget> widgets)
+    {
+        return widgets.stream()
+                      .map(GeometryTools::getDisplayBounds)
+                      .reduce(null, GeometryTools::join);
+    }
 
     /** Compute bounding rectangle
      *  @param one One rect, may be <code>null</code>

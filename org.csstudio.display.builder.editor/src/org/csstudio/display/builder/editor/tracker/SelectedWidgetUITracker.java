@@ -409,9 +409,7 @@ public class SelectedWidgetUITracker extends Tracker
     {
         if (updating)
             return;
-        final Rectangle2D rect = widgets.stream()
-                                        .map(GeometryTools::getDisplayBounds)
-                                        .reduce(null, GeometryTools::join);
+        final Rectangle2D rect = GeometryTools.getDisplayBounds(widgets);
         updating = true;
         setPosition(rect);
         updating = false;

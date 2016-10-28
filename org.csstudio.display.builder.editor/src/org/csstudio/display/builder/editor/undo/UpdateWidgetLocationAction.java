@@ -25,7 +25,8 @@ public class UpdateWidgetLocationAction extends UndoableAction
     private final int x, y, width, height;
 
     /** @param widget      Widget that already has desired parent, location, size
-     *  @param orig_parent Original parent (may be the same as now)
+     *  @param orig_parent_children Original parent's child list (may be the same as now)
+     *  @param parent_children Parent's child list
      *  @param orig_x      Original location
      *  @param orig_y      ..
      *  @param orig_width  .. and size

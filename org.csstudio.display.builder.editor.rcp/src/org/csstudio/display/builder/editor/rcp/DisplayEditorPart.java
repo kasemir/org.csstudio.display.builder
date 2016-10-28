@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.rcp.actions.CopyAction;
+import org.csstudio.display.builder.editor.rcp.actions.CreateGroupAction;
 import org.csstudio.display.builder.editor.rcp.actions.CutDeleteAction;
 import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayAction;
 import org.csstudio.display.builder.editor.rcp.actions.PasteAction;
@@ -201,6 +202,8 @@ public class DisplayEditorPart extends EditorPart
             final List<Widget> selection = editor.getWidgetSelectionHandler().getSelection();
             if (! selection.isEmpty())
             {
+                if (selection.size() > 0)
+                    manager.add(new CreateGroupAction(editor, selection));
                 if (selection.size() == 1  &&  selection.get(0) instanceof EmbeddedDisplayWidget)
                     manager.add(new EditEmbeddedDisplayAction((EmbeddedDisplayWidget)selection.get(0)));
                 manager.add(morph);
