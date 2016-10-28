@@ -7,8 +7,6 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.util;
 
-import java.util.function.Consumer;
-
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
@@ -22,8 +20,19 @@ import javafx.scene.shape.Rectangle;
 @SuppressWarnings("nls")
 public class Rubberband
 {
+    /** Handler for rubberband selection of region */
+    @FunctionalInterface
+    public static interface RubberbandHandler
+    {
+        /** User selected region on screen with rubberband
+         *  @param region Screen region
+         *  @param update_existing Was 'Crtl' held to update existing selection?
+         */
+        public void handleSelectedRegion(Rectangle2D region, boolean update_existing);
+    }
+
     private final Group parent;
-    private final Consumer<Rectangle2D> handler;
+    private final RubberbandHandler handler;
     private final Rectangle rect;
     private boolean active = false;
     private double x0, y0, x1, y1;
@@ -33,8 +42,9 @@ public class Rubberband
      *                            where the user will be able to 'start' a rubber band selection
      *  @param parent             Parent in which rubber band is displayed
      *  @param rubberband_handler Handler that will be invoked with the selected region
+     *
      */
-    public Rubberband(final Node event_source, final Group parent, final Consumer<Rectangle2D> rubberband_handler)
+    public Rubberband(final Node event_source, final Group parent, final RubberbandHandler rubberband_handler)
     {
         this.parent = parent;
         this.handler = rubberband_handler;
@@ -90,8 +100,10 @@ public class Rubberband
         y1 = in_parent.getY();
         parent.getChildren().remove(rect);
         active = false;
-        handler.accept(new Rectangle2D(Math.min(x0, x1), Math.min(y0, y1),
-                                       Math.abs(x1 - x0), Math.abs(y1 - y0)));
+
+        handler.handleSelectedRegion(new Rectangle2D(Math.min(x0, x1), Math.min(y0, y1),
+                                                     Math.abs(x1 - x0), Math.abs(y1 - y0)),
+                                     event.isControlDown());
         event.consume();
     }
 }
