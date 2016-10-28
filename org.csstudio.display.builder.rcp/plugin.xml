@@ -134,4 +134,11 @@
          </property>
       </product>
    </extension>
+   <extension
+         point="org.csstudio.openfile.openDisplay">
+      <openDisplay
+            class="org.csstudio.display.builder.rcp.OpenDisplayFile"
+            file_extension="bob">
+      </openDisplay>
+   </extension>
 </plugin>
