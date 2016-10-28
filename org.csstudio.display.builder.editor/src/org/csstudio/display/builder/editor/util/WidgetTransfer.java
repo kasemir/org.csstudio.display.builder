@@ -20,6 +20,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -53,6 +56,7 @@ import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.ClipboardContent;
@@ -167,7 +171,7 @@ public class WidgetTransfer
             } else if ( db.hasImage() && db.getImage() != null ) {
                 installWidgetsFromImage(db, selection_tracker, widgets);
             } else if ( db.hasUrl() && db.getUrl() != null ) {
-                installWidgetsFromURL(db, widgets);
+                installWidgetsFromURL(event, selection_tracker, widgets);
             } else if ( db.hasHtml()  && db.getHtml() != null ) {
                 installWidgetsFromHTML(db, widgets);
             } else if ( db.hasRtf() && db.getRtf() != null ) {
@@ -442,15 +446,87 @@ public class WidgetTransfer
 
     }
 
-    private static void installWidgetsFromURL ( final Dragboard db, final List<Widget> widgets ) {
+    /**
+     * @param event             The {@link DragEvent} object.
+     * @param selection_tracker Used to get display model.
+     * @param widgets           The container of the created widgets.
+     */
+    private static void installWidgetsFromURL ( final DragEvent event, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
 
-        String url = db.getUrl();
-        WebBrowserWidget widget = (WebBrowserWidget) WebBrowserWidget.WIDGET_DESCRIPTOR.createWidget();
+        final Dragboard db = event.getDragboard();
+        final String url = db.getUrl();
+//  TODO: CR: provare ad usare Labels con icone.
+        List<String> choices = new ArrayList<>(3);
 
-        widget.propWidgetURL().setValue(url);
-        widgets.add(widget);
+        choices.add(WebBrowserWidget.WIDGET_DESCRIPTOR.getName());
+        choices.add(PictureWidget.WIDGET_DESCRIPTOR.getName());
+        choices.add(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getName());
 
-        logger.log(Level.FINE, "Dropped URL: created WebBrowserWidget [{0}].", url);
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+
+        dialog.setTitle("URL Mapper");
+//  TODO: CR: ridurre l'URL a qualcosa tipo http://sdfdsf/sdfsdf/.../sdfsdf.dd
+        dialog.setHeaderText(MessageFormat.format("Select how to map the dropped URL:\n{0}", url));
+        dialog.setContentText("Widget:");
+
+        Optional<String> result = dialog.showAndWait();
+
+        result.ifPresent(choice -> {
+            if ( WebBrowserWidget.WIDGET_DESCRIPTOR.getName().equals(choice) ) {
+
+              WebBrowserWidget widget = (WebBrowserWidget) WebBrowserWidget.WIDGET_DESCRIPTOR.createWidget();
+
+              widget.propWidgetURL().setValue(url);
+              widgets.add(widget);
+
+              logger.log(Level.FINE, "Dropped URL: created WebBrowserWidget [{0}].", url);
+
+            } else if ( PictureWidget.WIDGET_DESCRIPTOR.getName().equals(choice) ) {
+                try {
+
+                    Image image = new Image(url, false);
+                    PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
+
+                    widget.propFile().setValue(url);
+                    widget.propWidth().setValue((int) image.getWidth());
+                    widget.propHeight().setValue((int) image.getHeight());
+                    widgets.add(widget);
+
+                    logger.log(Level.FINE, "Dropped image URL: creating PictureWidget");
+
+                } catch ( Exception ex ) {
+                    logger.log(Level.WARNING, "Invalid image [{0}].", ex.getMessage());
+                }
+            } else if ( EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getName().equals(choice) ) {
+                try {
+
+                    EmbeddedDisplayWidget widget = (EmbeddedDisplayWidget) EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.createWidget();
+
+                    widget.propFile().setValue(url);
+                    widget.propResize().setValue(Resize.SizeToContent);
+
+                    try ( InputStream istream = new URL(url).openStream() ) {
+
+                        ModelReader reader = new ModelReader(istream);
+                        Optional<String> name = reader.getName();
+
+                        if ( name.isPresent() ) {
+                            widget.propName().setValue(name.get());
+                        }
+
+                    } catch ( Exception iex ) {
+                        logger.log(Level.WARNING, "Unable to read OPI/BOB file [{0}].", iex.getMessage());
+                    }
+
+                    widgets.add(widget);
+
+                    logger.log(Level.FINE, "Dropped image file: creating PictureWidget");
+
+                } catch ( Exception ex ) {
+                    logger.log(Level.WARNING, "Unable to read OPI/BOB file [{0}].", ex.getMessage());
+                }
+            }
+        });
 
     }
 
@@ -472,6 +548,7 @@ public class WidgetTransfer
                 widget.propFile().setValue(ModelResourceUtil.getRelativePath(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE), file.toString()));
                 widget.propX().setValue(model.propGridStepX().getValue() * index);
                 widget.propY().setValue(model.propGridStepY().getValue() * index);
+                widget.propResize().setValue(Resize.SizeToContent);
 
                 try ( BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file)) ) {
 
@@ -481,8 +558,6 @@ public class WidgetTransfer
                     if ( name.isPresent() ) {
                         widget.propName().setValue(name.get());
                     }
-
-                    widget.propResize().setValue(Resize.SizeToContent);
 
                 } catch ( Exception iex ) {
                     logger.log(Level.WARNING, "Unable to read OPI/BOB file [{0}].", iex.getMessage());
