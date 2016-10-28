@@ -94,6 +94,7 @@ import javafx.scene.layout.Pane;
  *  it uses the edit_tools for that.
  *
  *  @author Kay Kasemir
+ *  @author Claudio Rosati
  */
 @SuppressWarnings("nls")
 public class DisplayEditor
