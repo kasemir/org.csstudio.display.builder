@@ -358,6 +358,7 @@ public class DataBrowserEditor extends EditorPart
 
         toggle_legend = new ToggleLegendAction(plot.getPlot(), true);
         toggle_toolbar = new ToggleToolbarAction(plot.getPlot(), true);
+        snapshot = new SnapshotAction(plot.getPlot(), parent.getShell());
         createContextMenu(plot.getCanvas());
     }
 
@@ -424,7 +425,7 @@ public class DataBrowserEditor extends EditorPart
         if (is_rcp)
         {
             manager.add(new Separator());
-            manager.add(new SnapshotAction(plot.getPlot()));
+            manager.add(snapshot);
             if (EMailSender.isEmailSupported())
                 manager.add(new SendEMailAction(shell, plot.getPlot()));
             manager.add(new PrintAction(shell, plot.getPlot()));
