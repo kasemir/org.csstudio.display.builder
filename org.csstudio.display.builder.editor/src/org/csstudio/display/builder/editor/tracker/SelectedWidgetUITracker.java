@@ -51,6 +51,7 @@ import javafx.scene.input.TransferMode;
  *  moving and resizing them.
  *
  *  @author Kay Kasemir
+ *  @author Claudio Rosati
  */
 @SuppressWarnings("nls")
 public class SelectedWidgetUITracker extends Tracker
@@ -147,6 +148,10 @@ public class SelectedWidgetUITracker extends Tracker
     public void setModel(final DisplayModel model)
     {
         grid_constraint.configure(model);
+    }
+
+    public DisplayModel getModel() {
+        return grid_constraint.getMode();
     }
 
     /**

@@ -15,13 +15,16 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -40,7 +43,9 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
@@ -56,8 +61,12 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 
-/** Helper for widget drag/drop
- *  @author Kay Kasemir
+
+/**
+ * Helper for widget drag/drop
+ *
+ * @author Kay Kasemir
+ * @author Claudio Rosati
  */
 @SuppressWarnings("nls")
 public class WidgetTransfer
@@ -154,9 +163,9 @@ public class WidgetTransfer
             List<Widget> widgets = new ArrayList<>();
 
             if ( db.hasFiles()  && canAcceptFiles(db.getFiles()) ) {
-                installWidgetsFromFiles(db, widgets);
+                installWidgetsFromFiles(db, selection_tracker, widgets);
             } else if ( db.hasImage() && db.getImage() != null ) {
-                installWidgetsFromImage(db, widgets);
+                installWidgetsFromImage(db, selection_tracker, widgets);
             } else if ( db.hasUrl() && db.getUrl() != null ) {
                 installWidgetsFromURL(db, widgets);
             } else if ( db.hasHtml()  && db.getHtml() != null ) {
@@ -164,7 +173,7 @@ public class WidgetTransfer
             } else if ( db.hasRtf() && db.getRtf() != null ) {
                 installWidgetsFromRTF(db, widgets);
             } else if ( db.hasString() && db.getString() != null ) {
-                installWidgetsFromString(db, widgets);
+                installWidgetsFromString(db, selection_tracker, widgets);
             }
 
             if ( widgets != null && !widgets.isEmpty() ) {
@@ -261,49 +270,57 @@ public class WidgetTransfer
 
     }
 
-    /** @return {@code true} if the file was accepted and a new widget created. */
-    private static boolean imageFileAcceptor ( File file, final List<Widget> widgets ) {
+    /**
+     * @param file              The image file used to create and preset a {@link PictureWidget}.
+     * @param index             The index of the {@code file} inside the dropped set.
+     * @param selection_tracker Used to get the grid steps from its model to be used
+     *                          in offsetting multiple widgets.
+     * @param widgets           The container of the created widgets.
+     */
+    private static void imageFileAcceptor ( File file, int index, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
 
         if ( file!= null && file.exists() ) {
             try {
 
+                DisplayModel model = selection_tracker.getModel();
                 BufferedImage image = ImageIO.read(file);
                 PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
 
-                widget.propFile().setValue(file.toString());
+                widget.propFile().setValue(ModelResourceUtil.getRelativePath(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE), file.toString()));
+                widget.propX().setValue(model.propGridStepX().getValue() * index);
+                widget.propY().setValue(model.propGridStepY().getValue() * index);
                 widget.propWidth().setValue(image.getWidth());
                 widget.propHeight().setValue(image.getHeight());
                 widgets.add(widget);
 
                 logger.log(Level.FINE, "Dropped image file: creating PictureWidget");
 
-                return true;
-
             } catch ( IOException ex ) {
                 logger.log(Level.WARNING, "Unable to read image [{0}].", ex.getMessage());
             }
         }
 
-        return false;
-
     }
 
-    private static void installWidgetsFromFiles ( final Dragboard db, final List<Widget> widgets ) {
+    /**
+     * @param db                The {@link Dragboard} containing the dragged data.
+     * @param selection_tracker Used to get the grid steps from its model to be used
+     *                          in offsetting multiple widgets.
+     * @param widgets           The container of the created widgets.
+     */
+    private static void installWidgetsFromFiles ( final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
 
         List<File> files = db.getFiles();
 
-        for ( File file : files ) {
+        for ( int i = 0; i < files.size(); i++ ) {
 
+            File file = files.get(i);
             String extension = FilenameUtils.getExtension(file.toString()).toUpperCase();
 
             if ( IMAGE_FILE_EXTENSIONS.contains(extension) ) {
-                if ( imageFileAcceptor(file, widgets) ) {
-                    break;
-                }
+                imageFileAcceptor(file, i, selection_tracker, widgets);
             } else if ( EMBEDDED_FILE_EXTENSIONS.contains(extension) ) {
-                if ( opiFileAcceptor(file, widgets) ) {
-                    break;
-                }
+                opiFileAcceptor(file, i, selection_tracker, widgets);
             }
 
         }
@@ -334,20 +351,27 @@ public class WidgetTransfer
 
     }
 
-    private static void installWidgetsFromImage ( final Dragboard db, final List<Widget> widgets ) {
+    /**
+     * @param db                The {@link Dragboard} containing the dragged data.
+     * @param selection_tracker Used to get the display model.
+     * @param widgets           The container of the created widgets.
+     */
+    private static void installWidgetsFromImage ( final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
 
         try {
 
             Image image = db.getImage();
-            File tmpFile = File.createTempFile("picture", ".png");
+            File file = File.createTempFile("picture", ".png");
             BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
 
             try {
 
-                ImageIO.write(bImage, "png", tmpFile);
+                ImageIO.write(bImage, "png", file);
+
+                DisplayModel model = selection_tracker.getModel();
                 PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
 
-                widget.propFile().setValue(tmpFile.toString());
+                widget.propFile().setValue(ModelResourceUtil.getRelativePath(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE), file.toString()));
                 widget.propWidth().setValue((int) image.getWidth());
                 widget.propHeight().setValue((int) image.getHeight());
                 widgets.add(widget);
@@ -388,7 +412,13 @@ public class WidgetTransfer
 
     }
 
-    private static void installWidgetsFromString ( final Dragboard db, final List<Widget> widgets ) {
+    /**
+     * @param db                The {@link Dragboard} containing the dragged data.
+     * @param selection_tracker Used to get the grid steps from its model to be used
+     *                          in offsetting multiple widgets.
+     * @param widgets           The container of the created widgets.
+     */
+    private static void installWidgetsFromString ( final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
 
         final String xmlOrText = db.getString();
 
@@ -424,30 +454,48 @@ public class WidgetTransfer
 
     }
 
-    /** @return {@code true} if the file was accepted and a new widget created. */
-    private static boolean opiFileAcceptor ( File file, final List<Widget> widgets ) {
+    /**
+     * @param file              The image file used to create and preset a {@link EmbeddedDisplayWidget}.
+     * @param index             The index of the {@code file} inside the dropped set.
+     * @param selection_tracker Used to get the grid steps from its model to be used
+     *                          in offsetting multiple widgets.
+     * @param widgets           The container of the created widgets.
+     */
+    private static void opiFileAcceptor ( File file, int index, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
 
         if ( file!= null && file.exists() ) {
             try {
 
-
+                DisplayModel model = selection_tracker.getModel();
                 EmbeddedDisplayWidget widget = (EmbeddedDisplayWidget) EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.createWidget();
 
-                widget.propFile().setValue(file.toString());
-//                widget.propWidth().setValue(image.getWidth());
-//                widget.propHeight().setValue(image.getHeight());
+                widget.propFile().setValue(ModelResourceUtil.getRelativePath(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE), file.toString()));
+                widget.propX().setValue(model.propGridStepX().getValue() * index);
+                widget.propY().setValue(model.propGridStepY().getValue() * index);
+
+                try ( BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file)) ) {
+
+                    ModelReader reader = new ModelReader(bis);
+                    Optional<String> name = reader.getName();
+
+                    if ( name.isPresent() ) {
+                        widget.propName().setValue(name.get());
+                    }
+
+                    widget.propResize().setValue(Resize.SizeToContent);
+
+                } catch ( Exception iex ) {
+                    logger.log(Level.WARNING, "Unable to read OPI/BOB file [{0}].", iex.getMessage());
+                }
+
                 widgets.add(widget);
 
                 logger.log(Level.FINE, "Dropped image file: creating PictureWidget");
-
-                return true;
 
             } catch ( Exception ex ) {
                 logger.log(Level.WARNING, "Unable to read OPI/BOB file [{0}].", ex.getMessage());
             }
         }
-
-        return false;
 
     }
 
