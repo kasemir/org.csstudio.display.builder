@@ -10,8 +10,8 @@ package org.csstudio.display.builder.editor.rcp.actions;
 import java.util.List;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
-import org.csstudio.display.builder.editor.undo.AddWidgetAction;
-import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
+import org.csstudio.display.builder.editor.Messages;
+import org.csstudio.display.builder.editor.undo.GroupWidgetsAction;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.ModelPlugin;
@@ -23,6 +23,10 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import javafx.geometry.Rectangle2D;
 
+/** SWT Action to create group
+ *  @author Kay Kasemir
+ */
+@SuppressWarnings("nls")
 public class CreateGroupAction extends Action
 {
     private final DisplayEditor editor;
@@ -30,7 +34,7 @@ public class CreateGroupAction extends Action
 
     public CreateGroupAction(final DisplayEditor editor, final List<Widget> widgets)
     {
-        super("Create Group",
+        super(Messages.CreateGroup,
               AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/group.png"));
         this.editor = editor;
         this.widgets = widgets;
@@ -46,40 +50,20 @@ public class CreateGroupAction extends Action
         // Create group that surrounds the original widget boundaries
         final Rectangle2D rect = GeometryTools.getDisplayBounds(widgets);
 
-        // XXX Inset depends on representation and changes with group title, font, ...
+        // Inset depends on representation and changes with group title, font, ...
+        // TODO Get default from JFX GroupRepresentation
         final int inset = 16;
 
         group.propX().setValue((int) rect.getMinX() - inset);
         group.propY().setValue((int) rect.getMinY() - inset);
         group.propWidth().setValue((int) rect.getWidth() + 2*inset);
         group.propHeight().setValue((int) rect.getHeight() + 2*inset);
+        group.propName().setValue(org.csstudio.display.builder.model.Messages.GroupWidget_Name);
 
-        final ChildrenProperty orig_parent_children = ChildrenProperty.getParentsChildren(widgets.get(0));
-
-        // TODO Widget tree (outline) doesn't show the widgets inside new group
-
-        // Add group
+        final ChildrenProperty parent_children = ChildrenProperty.getParentsChildren(widgets.get(0));
         final UndoableActionManager undo = editor.getUndoableActionManager();
-        undo.execute(new AddWidgetAction(orig_parent_children, group));
+        undo.execute(new GroupWidgetsAction(parent_children, group, widgets, (int)rect.getMinX(), (int)rect.getMinY()));
 
-        // Move all widgets into the group
-        for (Widget widget : widgets)
-        {
-            final int orig_x = widget.propX().getValue();
-            final int orig_y = widget.propY().getValue();
-            final int orig_width = widget.propWidth().getValue();
-            final int orig_height = widget.propHeight().getValue();
-
-            orig_parent_children.removeChild(widget);
-            group.runtimePropChildren().addChild(widget);
-
-            // Position widget within the group
-            widget.propX().setValue((int) (orig_x - rect.getMinX()));
-            widget.propY().setValue((int) (orig_y - rect.getMinY()));
-
-            undo.add(new UpdateWidgetLocationAction(widget, orig_parent_children,
-                                                    group.runtimePropChildren(),
-                                                    orig_x, orig_y, orig_width, orig_height));
-        }
+        editor.getWidgetSelectionHandler().toggleSelection(group);
     }
 }
