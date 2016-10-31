@@ -455,32 +455,45 @@ public class WidgetTransfer
      */
     private static void installWidgetsFromURL ( final DragEvent event, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
 
+        Optional<String> result;
         final Dragboard db = event.getDragboard();
         final String url = db.getUrl();
+
+        if ( StringUtils.contains(url, '.') && EMBEDDED_FILE_EXTENSIONS.contains(url.substring(1 + url.lastIndexOf('.')).toUpperCase()) ) {
+            result = Optional.of(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getName());
+        } else {
+
 //  TODO: CR: provare ad usare Labels con icone.
-        List<String> choices = new ArrayList<>(3);
+            List<String> choices = new ArrayList<>(3);
 
-        choices.add(WebBrowserWidget.WIDGET_DESCRIPTOR.getName());
-        choices.add(PictureWidget.WIDGET_DESCRIPTOR.getName());
-        choices.add(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getName());
+            choices.add(WebBrowserWidget.WIDGET_DESCRIPTOR.getName());
+            choices.add(PictureWidget.WIDGET_DESCRIPTOR.getName());
+            choices.add(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getName());
 
-        ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(
+                ( StringUtils.contains(url, '.') && IMAGE_FILE_EXTENSIONS.contains(url.substring(1 + url.lastIndexOf('.')).toUpperCase()) )
+                    ? choices.get(1)
+                    : choices.get(0),
+                choices
+            );
 
-        dialog.setTitle(Messages.WT_FromURL_dialog_title);
-        dialog.setHeaderText(NLS.bind(Messages.WT_FromURL_dialog_headerFMT, reduceURL(url)));
-        dialog.setContentText(Messages.WT_FromURL_dialog_content);
+            dialog.setTitle(Messages.WT_FromURL_dialog_title);
+            dialog.setHeaderText(NLS.bind(Messages.WT_FromURL_dialog_headerFMT, reduceURL(url)));
+            dialog.setContentText(Messages.WT_FromURL_dialog_content);
 
-        Optional<String> result = dialog.showAndWait();
+            result = dialog.showAndWait();
+
+        }
 
         result.ifPresent(choice -> {
             if ( WebBrowserWidget.WIDGET_DESCRIPTOR.getName().equals(choice) ) {
 
-              WebBrowserWidget widget = (WebBrowserWidget) WebBrowserWidget.WIDGET_DESCRIPTOR.createWidget();
+                WebBrowserWidget widget = (WebBrowserWidget) WebBrowserWidget.WIDGET_DESCRIPTOR.createWidget();
 
-              widget.propWidgetURL().setValue(url);
-              widgets.add(widget);
+                widget.propWidgetURL().setValue(url);
+                widgets.add(widget);
 
-              logger.log(Level.FINE, "Dropped URL: created WebBrowserWidget [{0}].", url);
+                logger.log(Level.FINE, "Dropped URL: created WebBrowserWidget [{0}].", url);
 
             } else if ( PictureWidget.WIDGET_DESCRIPTOR.getName().equals(choice) ) {
                 try {
