@@ -39,6 +39,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.rtf.RTFEditorKit;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -465,8 +466,7 @@ public class WidgetTransfer
         ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
 
         dialog.setTitle("URL Mapper");
-//  TODO: CR: ridurre l'URL a qualcosa tipo http://sdfdsf/sdfsdf/.../sdfsdf.dd
-        dialog.setHeaderText(MessageFormat.format("Select how to map the dropped URL:\n{0}", url));
+        dialog.setHeaderText(MessageFormat.format("Select how to map the dropped URL:\n{0}", reduceURL(url)));
         dialog.setContentText("Widget:");
 
         Optional<String> result = dialog.showAndWait();
@@ -571,6 +571,70 @@ public class WidgetTransfer
                 logger.log(Level.WARNING, "Unable to read OPI/BOB file [{0}].", ex.getMessage());
             }
         }
+
+    }
+
+    /**
+     * Return a reduced version of the given {@code url}.
+     *
+     * @param url An URL string tha, if long, must be reduced
+     *            to a shorter version to be displayed.
+     * @return A reduced version of the given {@code url}.
+     */
+    private static String reduceURL ( String url ) {
+
+        if ( url.length() > 64 ) {
+
+            String shortURL = url;
+            int leftSlash = 2;
+            int rightSlash = 2;
+
+            if ( url.contains("://") ) {
+                leftSlash += 2;
+            } else if ( url.startsWith("/") ) {
+                leftSlash += 1;
+            }
+
+            if ( StringUtils.countMatches(url, '/') > ( leftSlash + rightSlash ) ) {
+
+                int leftSlashIndex = StringUtils.ordinalIndexOf(url, "/", leftSlash);
+                int rightSlashIndex = StringUtils.ordinalIndexOf(StringUtils.reverse(url), "/", rightSlash);
+
+                shortURL = StringUtils.join(StringUtils.left(url, leftSlashIndex + 1), "...", StringUtils.right(url, rightSlashIndex + 1));
+
+                if ( shortURL.length() <= 80 ) {
+                    return shortURL;
+                }
+
+            }
+
+            if ( shortURL.length() > 64 ) {
+
+                leftSlash--;
+                rightSlash--;
+
+                if ( StringUtils.countMatches(url, '/') > ( leftSlash + rightSlash ) ) {
+
+                    int leftSlashIndex = StringUtils.ordinalIndexOf(url, "/", leftSlash);
+                    int rightSlashIndex = StringUtils.ordinalIndexOf(StringUtils.reverse(url), "/", rightSlash);
+
+                    shortURL = StringUtils.join(StringUtils.left(url, leftSlashIndex + 1), "...", StringUtils.right(url, rightSlashIndex + 1));
+
+                    if ( shortURL.length() <= 80 ) {
+                        return shortURL;
+                    }
+
+                }
+
+            }
+
+            if ( shortURL.length() > 64 ) {
+                return StringUtils.join(StringUtils.left(url, 32), "...", StringUtils.right(url, 32));
+            }
+
+        }
+
+        return url;
 
     }
 
