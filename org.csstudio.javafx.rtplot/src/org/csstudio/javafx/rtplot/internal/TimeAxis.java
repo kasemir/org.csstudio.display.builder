@@ -139,7 +139,7 @@ public class TimeAxis extends AxisPart<Instant>
 
             // Major tick marks
             gc.setStroke(new BasicStroke(TICK_WIDTH));
-            gc.drawLine(x, region.y, x, region.y + TICK_LENGTH);
+            gc.drawLine(x, region.y+2, x, region.y + TICK_LENGTH - 1);
 
             // Grid line
             if (show_grid)

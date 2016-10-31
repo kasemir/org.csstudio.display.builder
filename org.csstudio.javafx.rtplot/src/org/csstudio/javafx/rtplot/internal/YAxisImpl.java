@@ -350,7 +350,7 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
             // Major tick marks
             gc.setStroke(new BasicStroke(TICK_WIDTH));
             int y = getScreenCoord(tick);
-            gc.drawLine(tick_x, y, line_x, y);
+            gc.drawLine(tick_x+1, y, line_x-1, y);
 
             // Grid line
             if (show_grid)

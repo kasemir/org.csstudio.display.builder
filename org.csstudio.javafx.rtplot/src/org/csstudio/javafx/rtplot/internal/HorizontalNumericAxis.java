@@ -93,7 +93,7 @@ public class HorizontalNumericAxis extends NumericAxis
             // Major tick marks
             gc.setStroke(new BasicStroke(TICK_WIDTH));
             int x = getScreenCoord(tick);
-            gc.drawLine(x, region.y, x, region.y + TICK_LENGTH);
+            gc.drawLine(x, region.y+2, x, region.y + TICK_LENGTH - 1);
 
             if (show_grid)
             {

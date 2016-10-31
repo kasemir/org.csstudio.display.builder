@@ -40,7 +40,13 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
 
     protected static final int TICK_LENGTH = 10;
 
-    protected static final int TICK_WIDTH = 2;
+    /** Width of major tick marks
+     *
+     *  2 will look similar to 3,
+     *  but 2 with AA results in fuzz,
+     *  while 3 creates sharp 3 pixel line.
+     */
+    protected static final int TICK_WIDTH = 3;
 
     protected static final int MINOR_TICK_LENGTH = 5;
 

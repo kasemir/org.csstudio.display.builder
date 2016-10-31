@@ -214,11 +214,15 @@ public class DisplayEditor
 
     }
 
-    private void selectWidgetsInRegion(final Rectangle2D region)
+    private void selectWidgetsInRegion(final Rectangle2D region, final boolean update_existing)
     {
         final List<Widget> found = GeometryTools.findWidgets(model, region);
         logger.log(Level.FINE, "Selected widgets in {0}: {1}",  new Object[] { region, found });
-        selection.setSelection(found);
+        if (update_existing)
+            for (Widget widget : found)
+                selection.toggleSelection(widget);
+        else
+            selection.setSelection(found);
     }
 
     /** @param widgets Widgets to be added to existing model */
