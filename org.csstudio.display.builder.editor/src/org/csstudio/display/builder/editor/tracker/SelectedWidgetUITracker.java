@@ -29,6 +29,8 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
+import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
@@ -247,7 +249,17 @@ public class SelectedWidgetUITracker extends Tracker
     private void createInlineEditor(final Widget widget)
     {
         // Check for an inline-editable property
-        Optional<WidgetProperty<String>> check = widget.checkProperty(CommonWidgetProperties.propPVName);
+        Optional<WidgetProperty<String>> check;
+
+        // Defaulting to PV name or text property with some hard-coded exceptions.
+        // Alternative if the list of hard-coded widgets grows:
+        // Add Widget#getInlineEditableProperty()
+        if (widget instanceof ActionButtonWidget)
+            check = Optional.of(((ActionButtonWidget) widget).propText());
+        else if (widget instanceof GroupWidget)
+            check = Optional.of(((GroupWidget) widget).propName());
+        else
+            check = widget.checkProperty(CommonWidgetProperties.propPVName);
         if (! check.isPresent())
             check = widget.checkProperty(CommonWidgetProperties.propText);
         if (! check.isPresent())
