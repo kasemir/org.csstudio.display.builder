@@ -35,6 +35,7 @@ public class Messages extends NLS
     public static String ColorDialog_Info;
     public static String ColorDialog_Predefined;
     public static String ColorDialog_Title;
+    public static String ColorMap_Custom;
     public static String ColorMapDialog_Add;
     public static String ColorMapDialog_Color;
     public static String ColorMapDialog_Info;
