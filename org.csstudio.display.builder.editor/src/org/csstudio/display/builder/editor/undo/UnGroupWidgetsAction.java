@@ -8,63 +8,37 @@
 package org.csstudio.display.builder.editor.undo;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.model.ChildrenProperty;
-import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
-import org.csstudio.display.builder.util.undo.UndoableAction;
 
 /** Action to un-group widgets
  *  @author Kay Kasemir
  */
-public class UnGroupWidgetsAction extends UndoableAction
+public class UnGroupWidgetsAction extends GroupWidgetsAction
 {
-    private final ChildrenProperty parent_children;
-    private final GroupWidget group;
-    private final List<Widget> widgets;
-    private final int x_offset, y_offset;
-
     public UnGroupWidgetsAction(final GroupWidget group)
     {
-        super(Messages.RemoveGroup);
-        this.parent_children = ChildrenProperty.getParentsChildren(group);
-        this.group = group;
-        // Underlying list of group's children changes, so create copy
-        this.widgets = new ArrayList<>(group.runtimePropChildren().getValue());
-        final int[] insets = group.runtimePropInsets().getValue();
-        this.x_offset = group.propX().getValue() + insets[0];
-        this.y_offset = group.propY().getValue() + insets[1];
+        super(Messages.RemoveGroup,
+              ChildrenProperty.getParentsChildren(group),
+              group,
+              // Create copy since underlying list of group's children changes
+              new ArrayList<>(group.runtimePropChildren().getValue()),
+              group.propX().getValue() + group.runtimePropInsets().getValue()[0],
+              group.propY().getValue() + group.runtimePropInsets().getValue()[1]);
     }
 
+    // Implemented as reversal of GroupWidgetsAction
     @Override
     public void run()
     {
-        parent_children.removeChild(group);
-        for (Widget widget : widgets)
-        {
-            group.runtimePropChildren().removeChild(widget);
-            final int orig_x = widget.propX().getValue();
-            final int orig_y = widget.propY().getValue();
-            widget.propX().setValue((int) (orig_x + x_offset));
-            widget.propY().setValue((int) (orig_y + y_offset));
-            parent_children.addChild(widget);
-        }
+        super.undo();
     }
 
     @Override
     public void undo()
     {
-        for (Widget widget : widgets)
-        {
-            parent_children.removeChild(widget);
-            final int orig_x = widget.propX().getValue();
-            final int orig_y = widget.propY().getValue();
-            widget.propX().setValue((int) (orig_x - x_offset));
-            widget.propY().setValue((int) (orig_y - y_offset));
-            group.runtimePropChildren().addChild(widget);
-        }
-        parent_children.addChild(group);
+        super.run();
     }
 }
