@@ -50,10 +50,11 @@ public class CreateGroupAction extends Action
         // Create group that surrounds the original widget boundaries
         final Rectangle2D rect = GeometryTools.getDisplayBounds(widgets);
 
-        // Inset depends on representation and changes with group title, font, ...
-        // TODO Get default from JFX GroupRepresentation
+        // Inset depends on representation and changes with group style and font.
+        // Can be obtained via group.runtimePropInsets() _after_ the group has
+        // been represented, but right now this guess is based on the
+        // JFX GroupRepresentation with group box and default font
         final int inset = 16;
-
         group.propX().setValue((int) rect.getMinX() - inset);
         group.propY().setValue((int) rect.getMinY() - inset);
         group.propWidth().setValue((int) rect.getWidth() + 2*inset);

@@ -42,7 +42,15 @@ public class GroupWidgetsAction extends UndoableAction
                               final List<Widget> widgets,
                               final int x_offset, final int y_offset)
     {
-        super(Messages.CreateGroup);
+        this(Messages.CreateGroup, parent_children, group, widgets,
+             x_offset, y_offset);
+    }
+
+    public GroupWidgetsAction(final String name, final ChildrenProperty parent_children, final GroupWidget group,
+            final List<Widget> widgets,
+            final int x_offset, final int y_offset)
+    {
+        super(name);
         this.parent_children = parent_children;
         this.group = group;
         this.widgets = widgets;

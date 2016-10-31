@@ -26,6 +26,7 @@ import org.csstudio.display.builder.editor.rcp.actions.CutDeleteAction;
 import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayAction;
 import org.csstudio.display.builder.editor.rcp.actions.PasteAction;
 import org.csstudio.display.builder.editor.rcp.actions.RedoAction;
+import org.csstudio.display.builder.editor.rcp.actions.RemoveGroupAction;
 import org.csstudio.display.builder.editor.rcp.actions.SelectAllAction;
 import org.csstudio.display.builder.editor.rcp.actions.UndoAction;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -37,6 +38,7 @@ import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.JFXCursorFix;
 import org.csstudio.display.builder.rcp.Preferences;
@@ -202,8 +204,10 @@ public class DisplayEditorPart extends EditorPart
             final List<Widget> selection = editor.getWidgetSelectionHandler().getSelection();
             if (! selection.isEmpty())
             {
-                if (selection.size() > 0)
+                if (selection.size() > 1)
                     manager.add(new CreateGroupAction(editor, selection));
+                if (selection.size() == 1  &&  selection.get(0) instanceof GroupWidget)
+                    manager.add(new RemoveGroupAction(editor, (GroupWidget)selection.get(0)));
                 if (selection.size() == 1  &&  selection.get(0) instanceof EmbeddedDisplayWidget)
                     manager.add(new EditEmbeddedDisplayAction((EmbeddedDisplayWidget)selection.get(0)));
                 manager.add(morph);
