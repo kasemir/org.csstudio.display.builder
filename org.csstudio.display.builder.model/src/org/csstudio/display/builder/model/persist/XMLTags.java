@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.persist;
 
 /** Common widget model XML tags
  *  @author Kay Kasemir
+ *  @author Claudio Rosati
  */
 @SuppressWarnings({ "javadoc", "nls" })
 public interface XMLTags
@@ -21,6 +22,7 @@ public interface XMLTags
     public static final String FILE = "file";
     public static final String FONT = "font";
     public static final String GREEN = "green";
+    public static final String HEIGHT = "height";
     public static final String MACROS = "macros";
     public static final String NAME = "name";
     public static final String PATH = "path";
@@ -35,4 +37,7 @@ public interface XMLTags
     public static final String VALUE = "value";
     public static final String VERSION = "version";
     public static final String WIDGET = "widget";
+    public static final String WIDTH = "width";
+    public static final String X = "x";
+    public static final String Y = "y";
 }
