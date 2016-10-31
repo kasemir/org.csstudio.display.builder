@@ -22,7 +22,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,6 +40,7 @@ import javax.swing.text.rtf.RTFEditorKit;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.csstudio.display.builder.editor.DisplayEditor;
+import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
@@ -53,6 +53,7 @@ import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
+import org.eclipse.osgi.util.NLS;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
@@ -465,9 +466,9 @@ public class WidgetTransfer
 
         ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(0), choices);
 
-        dialog.setTitle("URL Mapper");
-        dialog.setHeaderText(MessageFormat.format("Select how to map the dropped URL:\n{0}", reduceURL(url)));
-        dialog.setContentText("Widget:");
+        dialog.setTitle(Messages.WT_FromURL_dialog_title);
+        dialog.setHeaderText(NLS.bind(Messages.WT_FromURL_dialog_headerFMT, reduceURL(url)));
+        dialog.setContentText(Messages.WT_FromURL_dialog_content);
 
         Optional<String> result = dialog.showAndWait();
 
