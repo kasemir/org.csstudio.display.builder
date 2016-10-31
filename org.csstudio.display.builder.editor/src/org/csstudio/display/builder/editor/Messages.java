@@ -25,6 +25,7 @@ public class Messages extends NLS
     public static String AlignMiddle;
     public static String AlignRight;
     public static String AlignTop;
+    public static String CreateGroup;
     public static String DistributeHorizontally;
     public static String DistributeVertically;
     public static String Grid;
@@ -37,6 +38,7 @@ public class Messages extends NLS
     public static String PointCount_Fmt;
     public static String Redo_TT;
     public static String RemoveElement;
+    public static String RemoveGroup;
     public static String RemoveWidgets;
     public static String RuleCountFMT;
     public static String SaveDisplay;

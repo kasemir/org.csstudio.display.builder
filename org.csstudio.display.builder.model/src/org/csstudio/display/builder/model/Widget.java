@@ -260,6 +260,8 @@ public class Widget
      */
     protected void setParent(final Widget parent)
     {
+        if (parent == this)
+            throw new IllegalArgumentException();
         this.parent = parent;
     }
 

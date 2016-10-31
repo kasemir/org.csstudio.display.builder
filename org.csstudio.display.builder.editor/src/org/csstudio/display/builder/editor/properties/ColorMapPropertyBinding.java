@@ -16,6 +16,7 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.representation.javafx.ColorMapDialog;
+import org.csstudio.display.builder.representation.javafx.Messages;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.DialogHelper;
 
@@ -35,7 +36,7 @@ public class ColorMapPropertyBinding
         if (map instanceof ColorMap.Predefined)
             jfx_node.setText(((ColorMap.Predefined)map).getDescription());
         else
-            jfx_node.setText("Custom Color Map");
+            jfx_node.setText(Messages.ColorMap_Custom);
     };
 
     private final EventHandler<ActionEvent> edit_colormap = event ->

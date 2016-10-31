@@ -33,7 +33,6 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TreeCell;

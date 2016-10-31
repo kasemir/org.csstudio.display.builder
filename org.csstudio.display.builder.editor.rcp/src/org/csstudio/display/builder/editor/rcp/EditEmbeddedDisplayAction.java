@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.editor.rcp.Plugin.logger;
 
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.eclipse.jface.action.Action;
@@ -27,7 +28,7 @@ public class EditEmbeddedDisplayAction extends Action
     public EditEmbeddedDisplayAction(final EmbeddedDisplayWidget widget)
     {
         super(Messages.EditEmbededDisplay,
-              AbstractUIPlugin.imageDescriptorFromPlugin("org.csstudio.display.builder.model", "icons/embedded.png"));
+              AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/embedded.png"));
         try
         {
             file = ModelResourceUtil.resolveResource(widget.getDisplayModel(), widget.propFile().getValue());
