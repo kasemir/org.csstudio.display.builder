@@ -207,12 +207,12 @@ public class RuleToScript
         }
         script_str += "\n";
 
+        // Check which pv* variables are actually used
         Map<String,String> output_pvm = new HashMap<String,String>();
         for (ExpressionInfo<?> expr : rule.getExpressions())
-        {
+        {   // Check the boolean expressions
             String[] toks = expr.getBoolExp().split("\\s");
             for (String tok : toks)
-            {
                 for (Map.Entry<String, String> entry : pvm.entrySet())
                 {
                     final String varname = entry.getKey();
@@ -220,8 +220,21 @@ public class RuleToScript
                         output_pvm.put(varname, entry.getValue());
                     }
                 }
+            // If properties are also expressions, check those
+            if (rule.getPropAsExprFlag())
+            {
+                toks = expr.getPropVal().toString().split("\\s");
+                for (String tok : toks)
+                    for (Map.Entry<String, String> entry : pvm.entrySet())
+                    {
+                        final String varname = entry.getKey();
+                        if (tok.contains(varname)) {
+                            output_pvm.put(varname, entry.getValue());
+                        }
+                    }
             }
         }
+        // Generate code that reads the required pv* variables from PVs
         for (Map.Entry<String, String> entry : output_pvm.entrySet())
         {
             script_str += entry.getKey() + " = " + entry.getValue() + "\n";
