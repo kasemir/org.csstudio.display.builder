@@ -32,7 +32,7 @@ public class RulesTest
         final WidgetProperty<Integer> width = widget.propDataWidth().clone();
         width.setValue(47);
 
-        final RuleInfo rule = new RuleInfo("WidthBasedOnPV", "data_width", true,
+        final RuleInfo rule = new RuleInfo("WidthBasedOnPV", "data_width", false,
                 Arrays.asList(new RuleInfo.ExprInfoValue<Integer>("pv0>10", width)),
                 Arrays.asList(new ScriptPV("XSize")));
 
