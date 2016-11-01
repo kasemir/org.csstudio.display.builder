@@ -283,4 +283,18 @@ public class RuleToScript
 
         return script_str;
     }
+
+    /** Add line numbers to script
+     *  @param script Script text
+     *  @return Same text with line numbers
+     */
+    public static String addLineNumbers(final String script)
+    {
+        final String[] lines = script.split("\r\n|\r|\n");
+        // Reserve buffer for script, then on each line add "1234: "
+        final StringBuilder ret = new StringBuilder(script.length() + lines.length*6);
+        for (int ldx = 0; ldx < lines.length; ldx++)
+            ret.append(String.format("%4d", ldx+1)).append(": ").append(lines[ldx]).append("\n");
+        return ret.toString();
+    }
 }

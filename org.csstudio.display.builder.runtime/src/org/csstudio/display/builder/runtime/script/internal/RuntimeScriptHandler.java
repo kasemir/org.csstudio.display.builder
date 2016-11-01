@@ -18,6 +18,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.RuleInfo;
+import org.csstudio.display.builder.model.properties.RuleToScript;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
@@ -35,6 +36,7 @@ import org.diirt.vtype.VType;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class RuntimeScriptHandler implements RuntimePVListener
 {
     private final Widget widget;
@@ -98,15 +100,18 @@ public class RuntimeScriptHandler implements RuntimePVListener
         // Compile script
         final ScriptSupport scripting = RuntimeUtil.getScriptSupport(widget);
 
-        final InputStream stream = new ByteArrayInputStream(rule_info.getTextPy(widget).getBytes());
+        final String script = rule_info.getTextPy(widget);
+        final InputStream stream = new ByteArrayInputStream(script.getBytes());
         String dummy_name = widget.getName() + ":" + rule_info.getName() + ".rule.py";
 
-        logger.log(Level.FINER, "Compiling rule script for " + dummy_name + "\n" + rule_info.getNumberedTextPy(widget));
-
-        try {
+        logger.log(Level.FINER, () -> "Compiling rule script for " + dummy_name + "\n" + RuleToScript.addLineNumbers(script));
+        try
+        {
             return scripting.compile(null, dummy_name, stream);
-        } catch (Exception e) {
-            throw new Exception("Cannot compile rule: " + dummy_name + "\n" + rule_info.getNumberedTextPy(widget), e);
+        }
+        catch (Exception e)
+        {
+            throw new Exception("Cannot compile rule: " + dummy_name + "\n" + RuleToScript.addLineNumbers(script), e);
         }
     }
 

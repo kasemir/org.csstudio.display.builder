@@ -228,18 +228,6 @@ public class RuleInfo
         return RuleToScript.generatePy(attached_widget, this);
     }
 
-    public String getNumberedTextPy(final Widget attached_widget)
-    {
-        final String scr = RuleToScript.generatePy(attached_widget, this);
-        String ret = "";
-        String[] lines = scr.split("\r\n|\r|\n");
-        for (int ldx = 0; ldx < lines.length; ldx++)
-        {
-            ret += String.format("%4d", ldx+1) + ": " + lines[ldx] + "\n";
-        }
-        return ret;
-    }
-
     @Override
     public String toString()
     {
