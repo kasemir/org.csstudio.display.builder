@@ -14,6 +14,7 @@ import java.util.Arrays;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.junit.Test;
 
@@ -57,5 +58,25 @@ public class RulesTest
         System.out.println(script);
         // Script must read the PV
         assertThat(script, containsString("PVUtil.get"));
+    }
+
+    /** Rule that uses color */
+    @Test
+    public void testColorRule() throws Exception
+    {
+        final LabelWidget widget = new LabelWidget();
+
+        final WidgetProperty<WidgetColor> color = widget.propForegroundColor().clone();
+        color.setValue(new WidgetColor(1, 2, 3));
+
+        final RuleInfo rule = new RuleInfo("Color", "foreground_color", false,
+                Arrays.asList(new RuleInfo.ExprInfoValue<WidgetColor>("pv0 > 10", color)),
+                Arrays.asList(new ScriptPV("Whatever")));
+
+        System.out.println(rule);
+        final String script = RuleToScript.generatePy(widget, rule);
+        System.out.println(script);
+        // Script must create variables for colors
+        assertThat(script, containsString("colorVal"));
     }
 }

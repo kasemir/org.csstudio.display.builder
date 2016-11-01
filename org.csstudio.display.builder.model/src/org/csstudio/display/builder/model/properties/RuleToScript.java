@@ -28,7 +28,7 @@ import org.csstudio.display.builder.model.properties.RuleInfo.ExpressionInfo;
 @SuppressWarnings("nls")
 public class RuleToScript
 {
-    public static Map<String,String> pvNameOptions(String istr)
+    private static Map<String,String> pvNameOptions(String istr)
     {
         Map<String,String> pvm = new HashMap<String,String>();
 
@@ -42,7 +42,7 @@ public class RuleToScript
         return pvm;
     }
 
-    public static Map<String,String> pvNameOptions(int pvCount)
+    private static Map<String,String> pvNameOptions(int pvCount)
     {
         Map<String,String> pvm = new HashMap<String,String>();
 
@@ -170,8 +170,8 @@ public class RuleToScript
         WidgetProperty<?> prop = attached_widget.getProperty(rule.getPropID());
 
         //TODO: Replace macros from attached_widget.getMacrosOrProperties()?
-        //example of replacing macros:
-        //final String script_name = MacroHandler.replace(macros, script_info.getPath());
+        // Example of replacing macros:
+        // final String script_name = MacroHandler.replace(macros, script_info.getPath());
 
         PropFormat pform = PropFormat.STRING;
 
@@ -188,113 +188,110 @@ public class RuleToScript
             pform = PropFormat.COLOR;
         }
 
-        String script_str = "## Script for Rule: " + rule.getName() + "\n\n";
-
-        script_str += "from org.csstudio.display.builder.runtime.script import PVUtil\n";
+        final StringBuilder script = new StringBuilder();
+        script.append("## Script for Rule: ").append(rule.getName()).append("\n\n");
+        script.append("from org.csstudio.display.builder.runtime.script import PVUtil\n");
         if (pform == PropFormat.COLOR)
-        {
-            script_str += "from org.csstudio.display.builder.model.properties import WidgetColor\n";
-        }
+            script.append("from org.csstudio.display.builder.model.properties import WidgetColor\n");
 
-        script_str += "\n## Process variable extraction\n";
-        script_str += "## Use any of the following valid variable names in an expression:\n";
+        script.append("\n## Process variable extraction\n");
+        script.append("## Use any of the following valid variable names in an expression:\n");
 
         Map<String,String> pvm = pvNameOptions(rule.getPVs().size());
 
         for (Map.Entry<String, String> entry : pvm.entrySet())
-        {
-            script_str += "##     " + entry.getKey() + "\n";
-        }
-        script_str += "\n";
+            script.append("##     " + entry.getKey() + "\n");
+        script.append("\n");
 
         // Check which pv* variables are actually used
         Map<String,String> output_pvm = new HashMap<String,String>();
         for (ExpressionInfo<?> expr : rule.getExpressions())
-        {   // Check the boolean expressions
-            String[] toks = expr.getBoolExp().split("\\s");
-            for (String tok : toks)
-                for (Map.Entry<String, String> entry : pvm.entrySet())
-                {
-                    final String varname = entry.getKey();
-                    if (tok.contains(varname)) {
-                        output_pvm.put(varname, entry.getValue());
-                    }
-                }
-            // If properties are also expressions, check those
+        {
+            // Check the boolean expressions.
+            // In principle, should parse an expression like
+            //   pv0 > 10
+            // to see if it refers to the variable "pv0".
+            // Instead of implementing a full parser, we
+            // just check for "pv0" anywhere in the expression.
+            // This will erroneously detect a variable reference in
+            //   len("Text with pv0")>4
+            // which doesn't actually reference "pv0" as a variable,
+            // but it doesn't matter if the script creates some
+            // extra variable "pv0" which is then left unused.
+            String expr_to_check = expr.getBoolExp();
+            // If properties are also expressions, check those by
+            // simply including them in the string to check
             if (rule.getPropAsExprFlag())
+                expr_to_check += " " + expr.getPropVal().toString();
+            for (Map.Entry<String, String> entry : pvm.entrySet())
             {
-                toks = expr.getPropVal().toString().split("\\s");
-                for (String tok : toks)
-                    for (Map.Entry<String, String> entry : pvm.entrySet())
-                    {
-                        final String varname = entry.getKey();
-                        if (tok.contains(varname)) {
-                            output_pvm.put(varname, entry.getValue());
-                        }
-                    }
+                final String varname = entry.getKey();
+                if (expr_to_check.contains(varname)) {
+                    output_pvm.put(varname, entry.getValue());
+                }
             }
         }
         // Generate code that reads the required pv* variables from PVs
         for (Map.Entry<String, String> entry : output_pvm.entrySet())
-        {
-            script_str += entry.getKey() + " = " + entry.getValue() + "\n";
-        }
+            script.append(entry.getKey()).append(" = ").append(entry.getValue()).append("\n");
 
         if (pform == PropFormat.COLOR)
-        {
-            script_str += "\n## Define Colors\n";
+        {   // If property is a color, create variables for all the used colors
+            script.append("\n## Define Colors\n");
             WidgetColor col = (WidgetColor) prop.getValue();
-            script_str += "colorCurrent = "
-                    + "WidgetColor(" + String.valueOf(col.getRed())
-                    + ", " + String.valueOf(col.getGreen())
-                    + ", " + String.valueOf(col.getBlue()) + ")\n";
+            script.append("colorCurrent = ")
+                  .append("WidgetColor(").append(col.getRed()).append(", ")
+                                         .append(col.getGreen()).append(", ")
+                                         .append(col.getBlue()).append(")\n");
 
             if (!rule.getPropAsExprFlag())
             {
                 int idx = 0;
                 for (ExpressionInfo<?> expr : rule.getExpressions())
                 {
-                    col = ((WidgetProperty<WidgetColor>) expr.getPropVal()).getValue();
-                    script_str += "colorVal" + String.valueOf(idx) + " = "
-                            + "WidgetColor(" + String.valueOf(col.getRed())
-                            + ", " + String.valueOf(col.getGreen())
-                            + ", " + String.valueOf(col.getBlue()) + ")\n";
+                    if (expr.getPropVal() instanceof WidgetProperty<?>)
+                    {
+                        final Object value = (( WidgetProperty<?>)expr.getPropVal()).getValue();
+                        if (value instanceof WidgetColor)
+                        {
+                            col = (WidgetColor) value;
+                            script.append("colorVal").append(idx).append(" = ")
+                                  .append("WidgetColor(").append(col.getRed()).append(", ")
+                                  .append(col.getGreen()).append(", ")
+                                  .append(col.getBlue()).append(")\n");
+                        }
+                    }
                     idx++;
                 }
             }
         }
 
-        script_str += "\n## Script Body\n";
+        script.append("\n## Script Body\n");
         String indent = "    ";
 
-        String setPropStr = "widget.setPropertyValue( \"" + rule.getPropID() + "\", ";
+        String setPropStr = "widget.setPropertyValue('" + rule.getPropID() + "', ";
         int idx = 0;
         for (ExpressionInfo<?> expr : rule.getExpressions())
         {
-            script_str += (idx == 0) ? "if" : "elif";
-            script_str += " (" + replaceLogicalOperators(TrueFortrue(expr.getBoolExp())) + "):\n";
-            script_str += indent + setPropStr;
+            script.append((idx == 0) ? "if" : "elif");
+            script.append(" ").append(replaceLogicalOperators(TrueFortrue(expr.getBoolExp()))).append(":\n");
+            script.append(indent).append(setPropStr);
             if (rule.getPropAsExprFlag())
-            {
-                script_str += replaceLogicalOperators(TrueFortrue(expr.getPropVal() + " )\n"));
-            }
+                script.append(replaceLogicalOperators(TrueFortrue(expr.getPropVal().toString()))).append(")\n");
             else
-            {
-                script_str += formatPropVal((WidgetProperty<?>) expr.getPropVal(), idx, pform) + " )\n";
-            }
+                script.append(formatPropVal((WidgetProperty<?>) expr.getPropVal(), idx, pform)).append(")\n");
             idx++;
         }
 
         if (idx > 0)
         {
-            script_str += "else:\n";
-            script_str += indent + setPropStr + formatPropVal(prop, -1, pform) + " )\n";
+            script.append("else:\n");
+            script.append(indent).append(setPropStr).append(formatPropVal(prop, -1, pform)).append(")\n");
         }
-        else {
-            script_str += setPropStr + formatPropVal(prop, -1, pform) + " )\n";
-        }
+        else
+            script.append(setPropStr).append(formatPropVal(prop, -1, pform)).append(")\n");
 
-        return script_str;
+        return script.toString();
     }
 
     /** Add line numbers to script
