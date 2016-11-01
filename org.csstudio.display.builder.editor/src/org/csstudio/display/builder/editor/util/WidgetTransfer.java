@@ -22,9 +22,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -45,12 +47,14 @@ import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetDescriptor;
+import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
+import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
 import org.eclipse.osgi.util.NLS;
@@ -85,6 +89,8 @@ public class WidgetTransfer
     private static List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("BMP", "GIF", "JPEG", "JPG", "PNG");
     private static List<String> EMBEDDED_FILE_EXTENSIONS = Arrays.asList("BOB", "OPI");
     private static List<String> SUPPORTED_EXTENSIONS = Stream.of(IMAGE_FILE_EXTENSIONS, EMBEDDED_FILE_EXTENSIONS).flatMap(Collection::stream).collect(Collectors.toList());
+
+    private static List<WidgetDescriptor> pvWidgetDescriptors = null;
 
     // Could create custom data format, or use "application/xml".
     // Transferring as DataFormat("text/plain"), however, allows exchange
@@ -173,7 +179,7 @@ public class WidgetTransfer
             } else if ( db.hasImage() && db.getImage() != null ) {
                 installWidgetsFromImage(db, selection_tracker, widgets);
             } else if ( db.hasUrl() && db.getUrl() != null ) {
-                installWidgetsFromURL(event, selection_tracker, widgets);
+                installWidgetsFromURL(event, widgets);
             } else if ( db.hasHtml()  && db.getHtml() != null ) {
                 installWidgetsFromHTML(db, widgets);
             } else if ( db.hasRtf() && db.getRtf() != null ) {
@@ -435,25 +441,133 @@ public class WidgetTransfer
             widgets.addAll(model.getChildren());
 
         } catch ( Exception ex ) {
-
-            // Not a valid XML. Instantiate a Label object.
-            LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
-
-            widget.propText().setValue(xmlOrText);
-            widgets.add(widget);
-
-            logger.log(Level.FINE, "Dropped text: created LabelWidget [{0}].", xmlOrText);
-
+            installWidgetsFromString(xmlOrText, selection_tracker, widgets);
         }
 
     }
 
     /**
-     * @param event             The {@link DragEvent} object.
-     * @param selection_tracker Used to get display model.
+     * @param text              The dragged text.
+     * @param selection_tracker Used to get the grid steps from its model to be used
+     *                          in offsetting multiple widgets.
      * @param widgets           The container of the created widgets.
      */
-    private static void installWidgetsFromURL ( final DragEvent event, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
+    private static void installWidgetsFromString ( final String text, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
+
+        String[] lines = StringUtils.split(text, '\n');
+        boolean multiple = lines.length > 1;
+        List<WidgetDescriptor> descriptors = getPVWidgetDescriptors();
+        List<String> choices = new ArrayList<>(descriptors.size() + ( multiple ? 1 : 0 ));
+        String format = multiple ? Messages.WT_FromString_multipleFMT : Messages.WT_FromString_singleFMT;
+        String defaultChoice = NLS.bind(Messages.WT_FromString_singleFMT, LabelWidget.WIDGET_DESCRIPTOR.getName());
+
+        choices.add(defaultChoice);
+
+        if ( multiple ) {
+            choices.add(NLS.bind(Messages.WT_FromString_multipleFMT, LabelWidget.WIDGET_DESCRIPTOR.getName()));
+        }
+
+        choices.addAll(descriptors.stream().map(d -> NLS.bind(format, d.getName())).collect(Collectors.toList()));
+        Collections.sort(choices);
+
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(defaultChoice, choices);
+
+        dialog.setTitle(Messages.WT_FromString_dialog_title);
+        dialog.setHeaderText(NLS.bind(Messages.WT_FromString_dialog_headerFMT, reduceStrings(lines)));
+        dialog.setContentText(Messages.WT_FromString_dialog_content);
+
+        Optional<String> result = dialog.showAndWait();
+
+        result.ifPresent(choice -> {
+            if ( defaultChoice.equals(choice) ) {
+
+                // Not a valid XML. Instantiate a Label object.
+                LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
+
+                widget.propText().setValue(text);
+                widgets.add(widget);
+
+                logger.log(Level.FINE, "Dropped text: created LabelWidget [{0}].", text);
+
+            } else {
+
+                MessageFormat msgf = new MessageFormat(format);
+                String descriptorName = null;
+
+                try {
+                    descriptorName = msgf.parse(choice)[0].toString();
+                } catch ( Exception ex ) {
+                    logger.log(Level.WARNING, "Unable to retrieve selected descriptor name [{0}].", ex.getMessage());
+                }
+
+                if ( descriptorName != null ) {
+
+                    final String dName = descriptorName;
+                    WidgetDescriptor descriptor = null;
+
+                    if ( LabelWidget.WIDGET_DESCRIPTOR.getName().equals(dName) ) {
+                        descriptor = LabelWidget.WIDGET_DESCRIPTOR;
+                    } else {
+                        descriptor = descriptors.stream().filter(d -> dName.equals(d.getName())).findFirst().orElse(null);
+                    }
+
+                    if ( descriptor != null ) {
+
+                        int index = 0;
+
+                        for ( String line : lines ) {
+
+                            Widget widget = descriptor.createWidget();
+
+                            if ( widget instanceof PVWidget ) {
+                                ((PVWidget) widget).propPVName().setValue(line);
+                            } else if ( widget instanceof LabelWidget ) {
+                                ((LabelWidget) widget).propText().setValue(line);
+                            } else {
+                                logger.log(Level.WARNING, "Unexpected widget type [{0}].", widget.getClass().getSimpleName());
+                                continue;
+                            }
+
+                            if ( multiple ) {
+
+                                DisplayModel model = selection_tracker.getModel();
+
+                                widget.propX().setValue(model.propGridStepX().getValue() * index);
+                                widget.propY().setValue(model.propGridStepY().getValue() * index);
+
+                            }
+
+                            widgets.add(widget);
+                            logger.log(Level.FINE, "Dropped text: created {0} [{1}].", new Object[] { widget.getClass().getSimpleName(), line });
+
+                            index++;
+
+                        }
+
+                    }
+
+                }
+
+            }
+        });
+
+    }
+
+    private static List<WidgetDescriptor> getPVWidgetDescriptors ( ) {
+
+        if ( pvWidgetDescriptors == null ) {
+
+            pvWidgetDescriptors = new ArrayList<>();
+
+            pvWidgetDescriptors.addAll(WidgetFactory.getInstance().getWidgetDescriptions().stream().filter(d -> d.createWidget() instanceof PVWidget).collect(Collectors.toList()));
+
+        }
+
+        return pvWidgetDescriptors;
+
+    }
+
+    private static void installWidgetsFromURL ( final DragEvent event, final List<Widget> widgets ) {
 
         Optional<String> result;
         final Dragboard db = event.getDragboard();
@@ -463,17 +577,16 @@ public class WidgetTransfer
             result = Optional.of(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getName());
         } else {
 
-//  TODO: CR: provare ad usare Labels con icone.
             List<String> choices = new ArrayList<>(3);
 
-            choices.add(WebBrowserWidget.WIDGET_DESCRIPTOR.getName());
-            choices.add(PictureWidget.WIDGET_DESCRIPTOR.getName());
             choices.add(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getName());
+            choices.add(PictureWidget.WIDGET_DESCRIPTOR.getName());
+            choices.add(WebBrowserWidget.WIDGET_DESCRIPTOR.getName());
 
             ChoiceDialog<String> dialog = new ChoiceDialog<>(
                 ( StringUtils.contains(url, '.') && IMAGE_FILE_EXTENSIONS.contains(url.substring(1 + url.lastIndexOf('.')).toUpperCase()) )
                     ? choices.get(1)
-                    : choices.get(0),
+                    : choices.get(2),
                 choices
             );
 
@@ -588,6 +701,44 @@ public class WidgetTransfer
 
     }
 
+    private static String reduceString ( String text ) {
+        if ( text.length() <= 64 ) {
+            return text;
+        } else {
+            return StringUtils.join(StringUtils.left(text, 32), "...", StringUtils.right(text, 32));
+        }
+    }
+
+    private static String reduceStrings ( String[] lines ) {
+
+        final int ALLOWED_LINES = 16;   //  Should be a even number.
+        List<String> validLines = new ArrayList<>(1 + ALLOWED_LINES);
+
+        if ( lines.length <= ALLOWED_LINES ) {
+            Arrays.asList(lines).stream().forEach(l -> validLines.add(reduceString(l)));
+        } else {
+
+            for ( int i = 0; i < ALLOWED_LINES / 2; i++ ) {
+                validLines.add(reduceString(lines[i]));
+            }
+
+            validLines.add("...");
+
+            for ( int i = lines.length - ALLOWED_LINES / 2; i < lines.length; i++ ) {
+                validLines.add(reduceString(lines[i]));
+            }
+
+        }
+
+        StringBuilder builder = new StringBuilder();
+
+        validLines.stream().forEach(l -> builder.append(l).append("\n"));
+        builder.deleteCharAt(builder.length() - 1);
+
+        return builder.toString();
+
+    }
+
     /**
      * Return a reduced version of the given {@code url}.
      *
@@ -611,10 +762,7 @@ public class WidgetTransfer
 
             if ( StringUtils.countMatches(url, '/') > ( leftSlash + rightSlash ) ) {
 
-                int leftSlashIndex = StringUtils.ordinalIndexOf(url, "/", leftSlash);
-                int rightSlashIndex = StringUtils.ordinalIndexOf(StringUtils.reverse(url), "/", rightSlash);
-
-                shortURL = StringUtils.join(StringUtils.left(url, leftSlashIndex + 1), "...", StringUtils.right(url, rightSlashIndex + 1));
+                shortURL = reduceURL(url, leftSlash, rightSlash);
 
                 if ( shortURL.length() <= 80 ) {
                     return shortURL;
@@ -629,10 +777,7 @@ public class WidgetTransfer
 
                 if ( StringUtils.countMatches(url, '/') > ( leftSlash + rightSlash ) ) {
 
-                    int leftSlashIndex = StringUtils.ordinalIndexOf(url, "/", leftSlash);
-                    int rightSlashIndex = StringUtils.ordinalIndexOf(StringUtils.reverse(url), "/", rightSlash);
-
-                    shortURL = StringUtils.join(StringUtils.left(url, leftSlashIndex + 1), "...", StringUtils.right(url, rightSlashIndex + 1));
+                    shortURL = reduceURL(url, leftSlash, rightSlash);
 
                     if ( shortURL.length() <= 80 ) {
                         return shortURL;
@@ -649,6 +794,15 @@ public class WidgetTransfer
         }
 
         return url;
+
+    }
+
+    private static String reduceURL ( String url, int leftSlash, int rightSlash ) {
+
+        int leftSlashIndex = StringUtils.ordinalIndexOf(url, "/", leftSlash);
+        int rightSlashIndex = StringUtils.ordinalIndexOf(StringUtils.reverse(url), "/", rightSlash);
+
+        return StringUtils.join(StringUtils.left(url, leftSlashIndex + 1), "...", StringUtils.right(url, rightSlashIndex + 1));
 
     }
 
