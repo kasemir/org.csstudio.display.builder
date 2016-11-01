@@ -31,6 +31,7 @@ import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.Messages;
 import org.csstudio.display.builder.representation.javafx.ScriptsDialog;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.MultiLineInputDialog;
 
 import javafx.beans.property.BooleanProperty;
@@ -786,7 +787,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
                 String content = rule_items.get(sel).getRuleInfo()
                         .getTextPy(attached_widget);
                 final MultiLineInputDialog dialog = new MultiLineInputDialog(content);
-                dialog.setResizable(true);
+                DialogHelper.positionDialog(dialog, btn_show_script, -200, -100);
                 dialog.show();
             }
         });
