@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.properties;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,63 +29,48 @@ import org.csstudio.display.builder.model.properties.RuleInfo.ExpressionInfo;
 @SuppressWarnings("nls")
 public class RuleToScript
 {
-    private static Map<String,String> pvNameOptions(String istr)
-    {
-        Map<String,String> pvm = new HashMap<String,String>();
-
-        pvm.put("pv" + istr, "PVUtil.getDouble(pvs["+istr+"])"  );
-        pvm.put("pvReal" + istr, "PVUtil.getDouble(pvs["+istr+"])"  );
-        pvm.put("pvInt" + istr, "PVUtil.getLong(pvs["+istr+"])"  );
-        pvm.put("pvLong" + istr, "PVUtil.getLong(pvs["+istr+"])"  );
-        pvm.put("pvStr" + istr, "PVUtil.getString(pvs["+istr+"])"  );
-        //pvm.put("pvLabels" + istr, "PVUtil.getLabels(pvs["+istr+"])"  );
-
-        return pvm;
-    }
-
+    /** @param pvCount Number of script/rule input PVs
+     *  @return Map of script variables that refer to those PVs and PVUtil calls to create them
+     */
     private static Map<String,String> pvNameOptions(int pvCount)
-    {
-        Map<String,String> pvm = new HashMap<String,String>();
-
+    {   // LinkedHashMap to preserve order of PVs
+        // so it looks good in generated script
+        final Map<String,String> pvm = new LinkedHashMap<String,String>();
         for (int idx = 0; idx < pvCount; idx++)
         {
-            String istr = String.valueOf(idx);
-            pvm.putAll(pvNameOptions(istr));
+            final String istr = Integer.toString(idx);
+            pvm.put("pv" + istr, "PVUtil.getDouble(pvs["+istr+"])"  );
+            pvm.put("pvReal" + istr, "PVUtil.getDouble(pvs["+istr+"])"  );
+            pvm.put("pvInt" + istr, "PVUtil.getLong(pvs["+istr+"])"  );
+            pvm.put("pvLong" + istr, "PVUtil.getLong(pvs["+istr+"])"  );
+            pvm.put("pvStr" + istr, "PVUtil.getString(pvs["+istr+"])"  );
+            //pvm.put("pvLabels" + istr, "PVUtil.getLabels(pvs["+istr+"])"  );
         }
-
         return pvm;
     }
 
-    private enum PropFormat {
+    private enum PropFormat
+    {
         NUMERIC, BOOLEAN, STRING, COLOR
     }
 
     private static String formatPropVal(WidgetProperty<?> prop, int exprIDX, PropFormat pform)
     {
-        String ret = null;
-
         switch(pform)
         {
-        case NUMERIC:
-            ret = String.valueOf(prop.getValue());
-            break;
         case BOOLEAN:
-            ret = (Boolean) prop.getValue() ? "True" : "False";
-            break;
+            return (Boolean) prop.getValue() ? "True" : "False";
         case STRING:
-            ret = "\"" + prop.getValue() + "\"";
-            break;
+            return "\"" + prop.getValue() + "\"";
         case COLOR:
-            if (exprIDX >= 0) {
-                ret = "colorVal" + String.valueOf(exprIDX);
-            }
-            else {
-                ret = "colorCurrent";
-            }
-            break;
+            if (exprIDX >= 0)
+                return "colorVal" + String.valueOf(exprIDX);
+            else
+                return "colorCurrent";
+        case NUMERIC:
+        default:
+            return String.valueOf(prop.getValue());
         }
-
-        return ret;
     }
 
 
