@@ -784,7 +784,7 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             if (sel >= 0)
             {
                 String content = rule_items.get(sel).getRuleInfo()
-                        .getTextPy(attached_widget, attached_widget.getEffectiveMacros());
+                        .getTextPy(attached_widget);
                 final MultiLineInputDialog dialog = new MultiLineInputDialog(content);
                 dialog.setResizable(true);
                 dialog.show();

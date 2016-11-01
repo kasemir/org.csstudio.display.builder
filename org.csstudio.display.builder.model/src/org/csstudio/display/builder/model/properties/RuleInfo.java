@@ -15,7 +15,6 @@ import java.util.Objects;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
-import org.csstudio.display.builder.model.macros.MacroValueProvider;
 
 /** Information about a rule
  *
@@ -224,14 +223,14 @@ public class RuleInfo
         return prop_as_expr_flag;
     }
 
-    public String getTextPy(final Widget attached_widget, final MacroValueProvider macros)
+    public String getTextPy(final Widget attached_widget)
     {
-        return RuleToScript.generatePy(attached_widget, macros, this);
+        return RuleToScript.generatePy(attached_widget, this);
     }
 
-    public String getNumberedTextPy(final Widget attached_widget, final MacroValueProvider macros)
+    public String getNumberedTextPy(final Widget attached_widget)
     {
-        final String scr = RuleToScript.generatePy(attached_widget, macros, this);
+        final String scr = RuleToScript.generatePy(attached_widget, this);
         String ret = "";
         String[] lines = scr.split("\r\n|\r|\n");
         for (int ldx = 0; ldx < lines.length; ldx++)

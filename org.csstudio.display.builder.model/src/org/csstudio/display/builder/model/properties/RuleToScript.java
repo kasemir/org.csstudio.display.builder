@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.properties.RuleInfo.ExpressionInfo;
 
 /** Transform rules into scripts
@@ -166,11 +165,11 @@ public class RuleToScript
         return sb.toString();
     }
 
-    public static String generatePy(final Widget attached_widget, final MacroValueProvider macros, final RuleInfo rule)
+    public static String generatePy(final Widget attached_widget, final RuleInfo rule)
     {
         WidgetProperty<?> prop = attached_widget.getProperty(rule.getPropID());
 
-        //TODO: Replace macros
+        //TODO: Replace macros from attached_widget.getMacrosOrProperties()?
         //example of replacing macros:
         //final String script_name = MacroHandler.replace(macros, script_info.getPath());
 

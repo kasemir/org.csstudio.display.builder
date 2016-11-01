@@ -37,7 +37,7 @@ public class RulesTest
                 Arrays.asList(new ScriptPV("XSize")));
 
         System.out.println(rule);
-        final String script = RuleToScript.generatePy(widget, null, rule);
+        final String script = RuleToScript.generatePy(widget, rule);
         System.out.println(script);
         // Script must read the PV
         assertThat(script, containsString("pv0 = PVUtil.getDouble(pvs[0])"));
@@ -53,7 +53,7 @@ public class RulesTest
                 Arrays.asList(new ScriptPV("XSize")));
 
         System.out.println(rule);
-        final String script = RuleToScript.generatePy(widget, null, rule);
+        final String script = RuleToScript.generatePy(widget, rule);
         System.out.println(script);
         // Script must read the PV
         assertThat(script, containsString("PVUtil.get"));

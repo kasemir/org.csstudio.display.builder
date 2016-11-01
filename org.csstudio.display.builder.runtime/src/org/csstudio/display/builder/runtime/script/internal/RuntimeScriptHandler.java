@@ -88,26 +88,25 @@ public class RuntimeScriptHandler implements RuntimePVListener
      *  <p>Gets text of script from rules utility
      *
      *  @param widget Widget on which the rule is invoked
-     *  @param macros
      *  @param rule_info Rule to compile
      *  @return Compiled script
      *  @throws Exception on error
      */
-    public static Script compileScript(final Widget widget, final MacroValueProvider macros,
+    public static Script compileScript(final Widget widget,
             final RuleInfo rule_info) throws Exception
     {
         // Compile script
         final ScriptSupport scripting = RuntimeUtil.getScriptSupport(widget);
 
-        final InputStream stream = new ByteArrayInputStream(rule_info.getTextPy(widget, macros).getBytes());
+        final InputStream stream = new ByteArrayInputStream(rule_info.getTextPy(widget).getBytes());
         String dummy_name = widget.getName() + ":" + rule_info.getName() + ".rule.py";
 
-        logger.log(Level.FINER, "Compiling rule script for " + dummy_name + "\n" + rule_info.getNumberedTextPy(widget, macros));
+        logger.log(Level.FINER, "Compiling rule script for " + dummy_name + "\n" + rule_info.getNumberedTextPy(widget));
 
         try {
             return scripting.compile(null, dummy_name, stream);
         } catch (Exception e) {
-            throw new Exception("Cannot compile rule: " + dummy_name + "\n" + rule_info.getNumberedTextPy(widget, macros), e);
+            throw new Exception("Cannot compile rule: " + dummy_name + "\n" + rule_info.getNumberedTextPy(widget), e);
         }
     }
 
@@ -125,7 +124,7 @@ public class RuntimeScriptHandler implements RuntimePVListener
         script = compileScript(widget, macros, script_info);
 
         pvs = new RuntimePV[infos.size()];
-        createPVs(widget, macros);
+        createPVs(widget);
     }
 
     /** @param widget Widget on which the script is invoked
@@ -137,16 +136,16 @@ public class RuntimeScriptHandler implements RuntimePVListener
         this.widget = widget;
         this.infos = rule_info.getPVs();
 
-        final MacroValueProvider macros = widget.getMacrosOrProperties();
-        script = compileScript(widget, macros, rule_info);
+        script = compileScript(widget, rule_info);
 
         pvs = new RuntimePV[infos.size()];
-        createPVs(widget, macros);
+        createPVs(widget);
     }
 
-    protected void createPVs(final Widget widget, final MacroValueProvider macros) throws Exception {
+    protected void createPVs(final Widget widget) throws Exception {
         // Create PVs
         final WidgetRuntime<Widget> runtime = WidgetRuntime.ofWidget(widget);
+        final MacroValueProvider macros = widget.getMacrosOrProperties();
 
         for (int i=0; i<pvs.length; ++i)
         {
