@@ -20,7 +20,9 @@ import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
+import org.csstudio.display.builder.model.properties.OpenFileActionInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.runtime.script.ScriptUtil;
 
@@ -43,8 +45,10 @@ public class ActionUtil
             RuntimeUtil.getExecutor().execute(() -> writePV(source_widget, (WritePVActionInfo) action));
         else if (action instanceof ExecuteScriptActionInfo)
             RuntimeUtil.getExecutor().execute(() -> executeScript(source_widget, (ExecuteScriptActionInfo) action));
+        else if (action instanceof OpenFileActionInfo)
+            RuntimeUtil.getExecutor().execute(() -> openFile(source_widget, (OpenFileActionInfo) action));
         else
-            logger.log(Level.WARNING, "Cannot handle unknown " + action);
+            logger.log(Level.SEVERE, "Cannot handle unknown " + action);
     }
 
     /** Open a display
@@ -171,4 +175,52 @@ public class ActionUtil
             ScriptUtil.showErrorDialog(source_widget, "Cannot execute " + action.getInfo().getPath() + ".\n\nSee log for details.");
         }
     }
+
+    /** Open a file
+     *  @param source_widget Widget from which the action is invoked.
+     *                       Used to resolve the potentially relative path of the
+     *                       file specified in the action
+     *  @param action        Information on which file to open
+     */
+    private static void openFile(final Widget source_widget, final OpenFileActionInfo action)
+    {
+       if (action.getFile().isEmpty())
+       {
+           logger.log(Level.WARNING, "Action without file: {0}", action);
+           return;
+       }
+       try
+       {
+           // Path to resolve, after expanding macros
+           final Macros macros = source_widget.getEffectiveMacros();
+           final String expanded_path = MacroHandler.replace(macros, action.getFile());
+           logger.log(Level.FINER, "{0}, effective macros {1} ({2})", new Object[] { action, macros, expanded_path });
+
+           // Resolve file relative to the source widget model (not 'top'!)
+           final DisplayModel widget_model = source_widget.getDisplayModel();
+           final String parent_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+           final String resolved_name = ModelResourceUtil.resolveResource(parent_file, expanded_path);
+
+           // On UI thread...
+           final DisplayModel top_model = source_widget.getTopDisplayModel();
+           final ToolkitRepresentation<Object, Object> toolkit = ToolkitRepresentation.getToolkit(top_model);
+           toolkit.execute(() ->
+           {
+               try
+               {
+                   toolkit.openFile(resolved_name);
+               }
+               catch (Exception ex)
+               {
+                   logger.log(Level.WARNING, "Cannot open " + action, ex);
+                   toolkit.showErrorDialog(source_widget, "Cannot open " + resolved_name);
+               }
+           });
+       }
+       catch (final Exception ex)
+       {
+           logger.log(Level.WARNING, "Error handling " + action, ex);
+           ScriptUtil.showErrorDialog(source_widget, "Cannot open " + action.getFile() + ".\n\nSee log for details.");
+       }
+   }
 }
