@@ -42,6 +42,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
     private static final String OPEN_DISPLAY = "open_display";
     private static final String WRITE_PV = "write_pv";
     private static final String EXECUTE_SCRIPT = "execute";
+    private static final String OPEN_FILE = "open_file";
 
     /** Constructor
      *  @param descriptor Property descriptor
@@ -128,6 +129,14 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 }
                 writer.writeEndElement();
             }
+            else if (info instanceof OpenFileActionInfo)
+            {
+                final OpenFileActionInfo action = (OpenFileActionInfo) info;
+                writer.writeAttribute(XMLTags.TYPE, OPEN_FILE);
+                writer.writeStartElement(XMLTags.FILE);
+                writer.writeCharacters(action.getFile());
+                writer.writeEndElement();
+            }
             else
                 throw new Exception("Cannot write action of type " + info.getClass().getName());
             if (! info.getDescription().isEmpty())
@@ -152,8 +161,8 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
             if (OPEN_DISPLAY.equalsIgnoreCase(type)) // legacy used uppercase type name
             {   // Use <file>, falling back to legacy <path>
                 final String file = XMLUtil.getChildString(action_xml, XMLTags.FILE)
-                        .orElse(XMLUtil.getChildString(action_xml, "path")
-                                .orElse(""));
+                                           .orElse(XMLUtil.getChildString(action_xml, XMLTags.PATH)
+                                           .orElse(""));
 
                 OpenDisplayActionInfo.Target target = OpenDisplayActionInfo.Target.REPLACE;
                 // Legacy used <replace> with value 0/1/2 for TAB/REPLACE/WINDOW
@@ -240,6 +249,13 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 else
                     info = new ScriptInfo(path, null, Collections.emptyList());
                 actions.add(new ExecuteScriptActionInfo(description, info));
+            }
+            else if (OPEN_FILE.equalsIgnoreCase(type)) // legacy used uppercase type name
+            {   // Use <file>, falling back to legacy <path>
+                final String file = XMLUtil.getChildString(action_xml, XMLTags.FILE)
+                                           .orElse(XMLUtil.getChildString(action_xml, XMLTags.PATH)
+                                           .orElse(""));
+                actions.add(new OpenFileActionInfo(description, file));
             }
             else
                 logger.log(Level.WARNING, "Ignoring action of unknown type '" + type + "'");
