@@ -74,6 +74,16 @@ import javafx.scene.input.TransferMode;
 
 /**
  * Helper for widget drag/drop
+ * <h3>Handling New File/URL Extensions</h3>
+ * To add the support for a new set of file/URL extensions do the following:
+ * <ul>
+ *   <li>Create a new static list of extensions (see {@link #IMAGE_FILE_EXTENSIONS});</li>
+ *   <li>Update {@link #SUPPORTED_EXTENSIONS} to include the new list;</li>
+ *   <li>Update {@link #installWidgetsFromFiles(List,SelectedWidgetUITracker,List)
+ *       to handle files having the new extensions;</li>
+ *   <li>Update {@link #installWidgetsFromURL(DragEvent,List)
+ *       to handle URLs having the new extensions.</li>
+ * </ul>
  *
  * @author Kay Kasemir
  * @author Claudio Rosati
@@ -181,9 +191,9 @@ public class WidgetTransfer
             } else if ( db.hasUrl() && db.getUrl() != null ) {
                 installWidgetsFromURL(event, widgets);
             } else if ( db.hasHtml()  && db.getHtml() != null ) {
-                installWidgetsFromHTML(db, widgets);
+                installWidgetsFromHTML(db, selection_tracker, widgets);
             } else if ( db.hasRtf() && db.getRtf() != null ) {
-                installWidgetsFromRTF(db, widgets);
+                installWidgetsFromRTF(db, selection_tracker, widgets);
             } else if ( db.hasString() && db.getString() != null ) {
                 installWidgetsFromString(db, selection_tracker, widgets);
             }
@@ -321,8 +331,16 @@ public class WidgetTransfer
      * @param widgets           The container of the created widgets.
      */
     private static void installWidgetsFromFiles ( final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
+        installWidgetsFromFiles(db.getFiles(), selection_tracker, widgets);
+    }
 
-        List<File> files = db.getFiles();
+    /**
+     * @param files             A {@link List} of {@link File}s (the dragged data).
+     * @param selection_tracker Used to get the grid steps from its model to be used
+     *                          in offsetting multiple widgets.
+     * @param widgets           The container of the created widgets.
+     */
+    private static void installWidgetsFromFiles ( final List<File> files, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
 
         for ( int i = 0; i < files.size(); i++ ) {
 
@@ -339,7 +357,13 @@ public class WidgetTransfer
 
     }
 
-    private static void installWidgetsFromHTML ( final Dragboard db, final List<Widget> widgets ) {
+    /**
+     * @param db                The {@link Dragboard} containing the dragged data.
+     * @param selection_tracker Used to get the grid steps from its model to be used
+     *                          in offsetting multiple widgets.
+     * @param widgets           The container of the created widgets.
+     */
+    private static void installWidgetsFromHTML ( final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
 
         String html = db.getHtml();
         HTMLEditorKit htmlParser = new HTMLEditorKit();
@@ -348,15 +372,7 @@ public class WidgetTransfer
         try {
 
             htmlParser.read(new ByteArrayInputStream(html.getBytes()), document, 0);
-
-            String text = document.getText(0, document.getLength());
-            LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
-
-            widget.propText().setValue(text);
-            widgets.add(widget);
-
-            logger.log(Level.FINE, "Dropped HTML: creating LabelWidget [{0}].", html);
-
+            installWidgetsFromString(document.getText(0, document.getLength()), selection_tracker, widgets);
         } catch ( Exception ex ) {
             logger.log(Level.WARNING, "Invalid HTML string [{0}].", ex.getMessage());
         }
@@ -400,24 +416,21 @@ public class WidgetTransfer
 
     }
 
-    private static void installWidgetsFromRTF ( final Dragboard db, final List<Widget> widgets ) {
+    /**
+     * @param db                The {@link Dragboard} containing the dragged data.
+     * @param selection_tracker Used to get the grid steps from its model to be used
+     *                          in offsetting multiple widgets.
+     * @param widgets           The container of the created widgets.
+     */
+    private static void installWidgetsFromRTF ( final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
 
         String rtf = db.getRtf();
         RTFEditorKit rtfParser = new RTFEditorKit();
         Document document = rtfParser.createDefaultDocument();
 
         try {
-
             rtfParser.read(new ByteArrayInputStream(rtf.getBytes()), document, 0);
-
-            String text = document.getText(0, document.getLength());
-            LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
-
-            widget.propText().setValue(text);
-            widgets.add(widget);
-
-            logger.log(Level.FINE, "Dropped RTF: creating LabelWidget [{0}].", rtf);
-
+            installWidgetsFromString(document.getText(0, document.getLength()), selection_tracker, widgets);
         } catch ( Exception ex ) {
             logger.log(Level.WARNING, "Invalid RTF string [{0}].", ex.getMessage());
         }
@@ -575,6 +588,8 @@ public class WidgetTransfer
 
         if ( StringUtils.contains(url, '.') && EMBEDDED_FILE_EXTENSIONS.contains(url.substring(1 + url.lastIndexOf('.')).toUpperCase()) ) {
             result = Optional.of(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getName());
+        } else if ( StringUtils.contains(url, '.') && IMAGE_FILE_EXTENSIONS.contains(url.substring(1 + url.lastIndexOf('.')).toUpperCase()) ) {
+            result = Optional.of(PictureWidget.WIDGET_DESCRIPTOR.getName());
         } else {
 
             List<String> choices = new ArrayList<>(3);
@@ -583,12 +598,7 @@ public class WidgetTransfer
             choices.add(PictureWidget.WIDGET_DESCRIPTOR.getName());
             choices.add(WebBrowserWidget.WIDGET_DESCRIPTOR.getName());
 
-            ChoiceDialog<String> dialog = new ChoiceDialog<>(
-                ( StringUtils.contains(url, '.') && IMAGE_FILE_EXTENSIONS.contains(url.substring(1 + url.lastIndexOf('.')).toUpperCase()) )
-                    ? choices.get(1)
-                    : choices.get(2),
-                choices
-            );
+            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(2), choices);
 
             dialog.setTitle(Messages.WT_FromURL_dialog_title);
             dialog.setHeaderText(NLS.bind(Messages.WT_FromURL_dialog_headerFMT, reduceURL(url)));
