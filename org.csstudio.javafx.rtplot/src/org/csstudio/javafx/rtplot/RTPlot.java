@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
@@ -24,11 +26,11 @@ import org.csstudio.javafx.rtplot.internal.Plot;
 import org.csstudio.javafx.rtplot.internal.ToolbarHandler;
 import org.csstudio.javafx.rtplot.internal.TraceImpl;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
-
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -222,9 +224,18 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
      *  @param tool_tip Tool tip text
      *  @return {@link Button}
      */
-    public Button addToolItem(final Image icon, final String tool_tip)
+    public Button addToolItem(final Object icon, final String tool_tip)
     {
-        return toolbar.addItem(icon, tool_tip);
+        if (icon instanceof Image) {
+            return toolbar.addItem((Image)icon, tool_tip);
+        }
+        else if (icon instanceof ImageView) {
+            return toolbar.addItem((ImageView)icon, tool_tip);
+        }
+        else {
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Try to add tool item with unsupported icon type: ", icon.getClass().getName()); //$NON-NLS-1$
+            return null;
+        }
     }
 
     /** @param show Show the cross-hair cursor? */

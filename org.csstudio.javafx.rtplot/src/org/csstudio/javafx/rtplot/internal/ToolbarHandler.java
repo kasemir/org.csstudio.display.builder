@@ -69,16 +69,16 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
         makeGUI();
     }
 
-//    /** {@link RTPlot} creates {@link ToolbarHandler} in two stages:  TODO
-//     *  Construct, then call init, so that tool bar can refer back to the
-//     *  {@link ToggleToolbarAction}
-//     */
-//    public void addContextMenu(final Action toggle_action)
-//    {
-//        final MenuManager mm = new MenuManager();
-//        mm.add(toggle_action);
-//        toolbar.setMenu(mm.createContextMenu(toolbar));
-//    }
+    //    /** {@link RTPlot} creates {@link ToolbarHandler} in two stages:  TODO
+    //     *  Construct, then call init, so that tool bar can refer back to the
+    //     *  {@link ToggleToolbarAction}
+    //     */
+    //    public void addContextMenu(final Action toggle_action)
+    //    {
+    //        final MenuManager mm = new MenuManager();
+    //        mm.add(toggle_action);
+    //        toolbar.setMenu(mm.createContextMenu(toolbar));
+    //    }
 
     /** @return The actual toolbar for {@link RTPlot} to handle its layout */
     public ToolBar getToolBar()
@@ -91,7 +91,7 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
      *  @param tool_tip Tool tip text
      *  @return {@link ToolItem}
      */
-    public Button addItem(final Image icon, final String tool_tip)
+    public Button addItem(final ImageView icon, final String tool_tip)
     {
         if (!have_custom_items)
         {
@@ -99,10 +99,20 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
             have_custom_items = true;
         }
         final Button item = new Button();
-        item.setGraphic(new ImageView(icon));
+        item.setGraphic(icon);
         item.setTooltip(new Tooltip(tool_tip));
         toolbar.getItems().add(item);
         return item;
+    }
+
+    /** Add a custom tool bar item
+     *  @param icon Icon {@link Image}
+     *  @param tool_tip Tool tip text
+     *  @return {@link ToolItem}
+     */
+    public Button addItem(final Image icon, final String tool_tip)
+    {
+        return this.addItem(new ImageView(icon), tool_tip);
     }
 
     private void makeGUI()
@@ -119,17 +129,17 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
 
     private void addOptions()
     {
-    	final Button add_annotation = newButton(ToolIcons.ADD_ANNOTATION, Messages.AddAnnotation);
-    	add_annotation.setOnAction(event ->
-    	{
-    		new AddAnnotationDialog<>(plot).showAndWait();
-    		edit_annotation.setDisable(plot.getAnnotations().isEmpty());
-    	});
+        final Button add_annotation = newButton(ToolIcons.ADD_ANNOTATION, Messages.AddAnnotation);
+        add_annotation.setOnAction(event ->
+        {
+            new AddAnnotationDialog<>(plot).showAndWait();
+            edit_annotation.setDisable(plot.getAnnotations().isEmpty());
+        });
 
         edit_annotation = newButton(ToolIcons.EDIT_ANNOTATION, Messages.EditAnnotation);
         edit_annotation.setOnAction(event ->
         {
-        	new EditAnnotationDialog<XTYPE>(plot).showAndWait();
+            new EditAnnotationDialog<XTYPE>(plot).showAndWait();
             edit_annotation.setDisable(plot.getAnnotations().isEmpty());
         });
         // Enable if there are annotations to remove
@@ -139,7 +149,7 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
             @Override
             public void changedAnnotations()
             {
-            	Platform.runLater(() -> edit_annotation.setDisable(plot.getAnnotations().isEmpty()));
+                Platform.runLater(() -> edit_annotation.setDisable(plot.getAnnotations().isEmpty()));
             }
         });
 
@@ -195,7 +205,7 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
         redo.setDisable(!undo_mgr.canRedo());
         undo_mgr.addListener((to_undo, to_redo) ->
         {
-        	Platform.runLater(()->
+            Platform.runLater(()->
             {
                 if (to_undo == null)
                 {
@@ -223,26 +233,26 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
 
     private Button newButton(final ToolIcons icon, final String tool_tip)
     {
-    	return (Button) newItem(false, icon, tool_tip);
+        return (Button) newItem(false, icon, tool_tip);
     }
 
     private ToggleButton newToggleButton(final ToolIcons icon, final String tool_tip)
     {
-    	return (ToggleButton) newItem(true, icon, tool_tip);
+        return (ToggleButton) newItem(true, icon, tool_tip);
     }
 
     private ButtonBase newItem(final boolean toggle, final ToolIcons icon, final String tool_tip)
     {
-    	final ButtonBase item = toggle ? new ToggleButton() : new Button();
-		try
-		{
-			item.setGraphic(new ImageView(Activator.getIcon(icon.name().toLowerCase())));
-		}
-		catch (Exception ex)
-		{
-			logger.log(Level.WARNING, "Cannot get icon" + icon, ex);
-			item.setText(icon.toString());
-		}
+        final ButtonBase item = toggle ? new ToggleButton() : new Button();
+        try
+        {
+            item.setGraphic(new ImageView(Activator.getIcon(icon.name().toLowerCase())));
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot get icon" + icon, ex);
+            item.setText(icon.toString());
+        }
         item.setTooltip(new Tooltip(tool_tip));
 
         toolbar.getItems().add(item);
@@ -278,6 +288,6 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
     private void selectMouseMode(final ToggleButton item)
     {
         for (ToggleButton ti : new ToggleButton[] { zoom_in, zoom_out, pan, pointer })
-        	ti.setSelected(ti == item);
+            ti.setSelected(ti == item);
     }
 }

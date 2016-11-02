@@ -43,6 +43,8 @@ import org.eclipse.swt.widgets.Display;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.embed.swt.FXCanvas;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 
 /** Data Browser 'Plot' that displays the samples in a {@link Model}.
  *  <p>
@@ -77,9 +79,7 @@ public class ModelBasedPlot
     public ModelBasedPlot(final Composite parent) throws Exception
     {
         //media = new SWTMediaPool(parent.getDisplay());
-
         this.display = parent.getDisplay();
-        //plot = new RTTimePlot(parent);
 
         canvas = new FXCanvas(parent, 0);
         plot = new RTTimePlot(true);
@@ -91,20 +91,14 @@ public class ModelBasedPlot
 
         plot.setOpacity(Preferences.getOpacity());
 
-        //final ToolItem time_config_button =
-        //      plot.addToolItem(SWT.PUSH, Activator.getDefault().getImage("icons/time_range.png"), Messages.StartEndDialogTT);
         final Button time_config_button =
                 plot.addToolItem(Activator.getIcon("time_range"), Messages.StartEndDialogTT);
 
-        //TODO: add time config button listener
-        //time_config_button.addSelectionListener(new SelectionAdapter()
-        //{
-        //  @Override
-        // public void widgetSelected(SelectionEvent e)
-        //{
-        //    listener.ifPresent((l) -> l.timeConfigRequested());
-        //}
-        //});
+        time_config_button.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                listener.ifPresent((l) -> l.timeConfigRequested());
+            }
+        });
 
         // Configure axes
         final Axis<Instant> time_axis = plot.getXAxis();
@@ -169,7 +163,7 @@ public class ModelBasedPlot
         });
 
         //TODO: attach to drag and drop
-        //hookDragAndDrop(plot);
+        //hookDragAndDrop();
     }
 
     /** @return RTTimePlot */
@@ -189,10 +183,11 @@ public class ModelBasedPlot
      *
      * @param canvas
      */
-    private void hookDragAndDrop(final Composite parent)
+    private void hookDragAndDrop()
     {
+
         // Allow dropped arrays
-        new ControlSystemDropTarget(parent, ChannelInfo[].class,
+        new ControlSystemDropTarget(canvas, ChannelInfo[].class,
                 ProcessVariable[].class, ArchiveDataSource[].class,
                 File.class,
                 String.class)
@@ -256,7 +251,7 @@ public class ModelBasedPlot
                     }
                     catch (Exception ex)
                     {
-                        ExceptionDetailsErrorDialog.openError(parent.getShell(), Messages.Error, ex);
+                        ExceptionDetailsErrorDialog.openError(canvas.getShell(), Messages.Error, ex);
                     }
                 }
             }
