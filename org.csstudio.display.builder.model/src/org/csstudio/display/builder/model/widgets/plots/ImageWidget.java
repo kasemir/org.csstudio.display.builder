@@ -260,12 +260,14 @@ public class ImageWidget extends PVWidget
         public boolean configureFromXML(final ModelReader model_reader, final Widget widget,
                 final Element xml) throws Exception
         {
+            final ImageWidget image = (ImageWidget) widget;
             if (! super.configureFromXML(model_reader, widget, xml))
                 return false;
 
             if (xml_version.getMajor() < 2)
-            {
-                final ImageWidget image = (ImageWidget) widget;
+            {   // Legacy had no autoscale
+                image.data_autoscale.setValue(false);
+
                 XMLUtil.getChildString(xml, "show_ramp")
                        .ifPresent(show -> image.color_bar.visible().setValue(Boolean.parseBoolean(show)));
 
