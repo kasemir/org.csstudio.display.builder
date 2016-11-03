@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.util;
 
 import java.io.InputStream;
 
+import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -56,6 +57,17 @@ public class WorkspaceResourceHelperImpl implements WorkspaceResourceHelper
             // NOP, file does not exist
         }
         return null;
+    }
+
+    @Override
+    public String getWorkspacePath(final String local_name)
+    {
+        final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        final IFile file[] = root.findFilesForLocationURI(URIUtil.toURI(local_name));
+        if (file != null  &&  file.length > 0  &&  file[0].exists())
+            return file[0].getFullPath().toOSString();
+        return null;
+
     }
 
     @Override

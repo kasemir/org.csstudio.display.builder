@@ -201,6 +201,24 @@ public class ModelResourceUtil extends ResourceUtil
         return null;
     }
 
+    /** Obtain a workspace resource for local path
+     *
+    *  <p>When the workspace is supported, this
+    *  translates absolute file system location
+    *  into a workspace path.
+    *
+    *  <p>Note that the resource must exist in the workspace.
+    *
+    *  @param local_name Absolute file system resource
+    *  @return Location in workspace or <code>null</code>
+    */
+   public static String getWorkspacePath(final String local_name)
+   {
+       if (workspace_helper != null)
+           return workspace_helper.getWorkspacePath(local_name);
+       return null;
+   }
+
     /** Combine display paths
      *  @param parent_display Path to a 'parent' file, may be <code>null</code>
      *  @param display_path Display file. If relative, it is resolved relative to the parent display
