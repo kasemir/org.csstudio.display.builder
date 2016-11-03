@@ -4,6 +4,21 @@
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
   <title>Display Builder</title>
   <link rel="stylesheet" href="PLUGINS_ROOT/PRODUCT_PLUGIN/book.css" type="text/css"></link>
+  <style>
+	  table {
+		  border: 1px solid black;
+	  }
+	  th {
+		  padding: 6px;
+		  text-align: center;
+		  border-bottom: 1px solid #777;
+	  }
+	  td {
+		  padding: 6px;
+		  text-align: left;
+		  border-bottom: 1px solid #ddd;
+	  }
+  </style>
 </head>
 <body>
 
@@ -46,9 +61,11 @@
 <p>The Display Builder example files demonstrate many of its widgets and features.
 </p>
 
-<img src="images/GettingStarted_samples1.png" alt="CS-Studio > Utilities > Install Samples" width="400"  style="float:left"/>
+<center>
+	<img src="images/GettingStarted_samples1.png" alt="CS-Studio > Utilities > Install Samples" width="400" style="vertical-align:top;padding-right:16px"/>
+	<img src="images/GettingStarted_samples2.png" alt="X/Y Plot Widget example" width="400" style="vertical-align:top"/>
+</center>
 
-<img src="images/GettingStarted_samples2.png" alt="X/Y Plot Widget example" width="400"/>
 <p>Open the menu <b>CS-Studio</b> > <b>Utilities</b> > <b>Install Samples</b>.
 Select <i>Display Builder</i> and click OK.
 The examples will be in a project folder named "Display Builder".
@@ -114,8 +131,209 @@ will be written to the *.bob file.
 </p>
 
 
+<h2><a name="drag_and_drop">Drag &amp; Drop</a></h2>
+
+<p>Most of the editing is performed dragging things around:</p>
+<ul>
+	<li>adding widgets dragging them from the <em>Widget Palette</em> into the editor,</li>
+	<li>selecting multiple widgets "rubber banding" around them,</li>
+	<li>moving existing widgets,</li>
+	<li>resizing existing widgets,</li>
+	<li>adding text, images or files from outside into the editor.</li>
+</ul>
+
+<h3>Adding Widgets</h3>
+
+<img src="images/DragAndDrop_adding_widget.png" alt="Adding widgets from Widget Palette." style="float:right;margin:0 0 0px 8px;"/>
+
+<p>
+	Widgets can be added dragging them from the <em>Widget Palette</em> into the editor.
+	As soon as the mouse button is released the widget is added to the editor:
+</p>
+
+<ul>
+	<li>at the cursor position, if the <em>Align widgets to Grid</em> button is not selected,</li>
+	<li>aligned to the closest grid position, if the <em>Align widgets to Grid</em>
+		button is selected.</li>
+</ul>
+
+<p>
+	The added widget will be automatically selected, allowing to be quickly moved or
+	resized.
+</p>
+
+<p>
+	<strong>Note:</strong> The dragging outline image is not displayed on all platforms
+	because of a known issue in the FXCanvas class on Java 8. It will be solved in the
+	upcoming Java 9 release.
+</p>
+
+<h3 style="clear:right">Rubber Band Selection</h3>
+
+<p>
+	A single widget can be selected clicking on it. Single and multiple widgets can be selected
+	also rubber banding around it, i.e. Clicking on the editor's white background and, while
+	keeping the mouse button depressed, dragging unting the dashed rubber band encloses all
+	the interested widgets. When the mouse button will be released, selected widgets will be
+	surrounded by the selection outline.
+</p>
+
+<p>
+	Once one or more widgets are selected, they can be moved and resized as a single entity,
+	as explained in the following paragraphs.
+</p>
+
+<center>
+	<img src="images/DragAndDrop_rubber_band_selection.png" alt="Rubber band selection." width="600"/>
+</center>
+
+<h3>Moving Widgets</h3>
+
+<img src="images/DragAndDrop_moving.png" alt="Moving a widget." style="float:right;margin:0 0 0px 8px;"/>
+
+<p>
+	Once widgets are selected, it is possible to move them around by clicking inside the selection
+	outline and dragging. The selection outline will follow the cursor movements until the
+	mouse button will be released, and the widgets will be actually moved.
+</p>
+
+<p>
+	If the <em>Align widgets to Grid</em> button is selected, then the selection outline
+	will align to grids when moving.
+</p>
+
+<p>
+	If the <em>Snap to widgets</em> button is selected, then the selection outline
+	will align to existing widgets' edges when moving, displying a cyan alignment ruler.
+</p>
+
+<h3 style="clear:right">Resizing Widgets</h3>
+
+<img src="images/DragAndDrop_resizing.png" alt="Resizing a widget." style="float:right;margin:0 0 0px 8px;"/>
+
+<p>
+	Once widgets are selected, it is possible to resize them by clicking inside one of the
+	selection outline's handles and dragging. The selection outline will follow the cursor
+	movements until the mouse button will be released, and the widgets will be actually resized.
+</p>
+
+
+<p>
+	If the <em>Align widgets to Grid</em> button is selected, then the selection outline
+	will align to grids when resizing.
+</p>
+
+<p>
+	If the <em>Snap to widgets</em> button is selected, then the selection outline
+	will align to existing widgets' edges when resizing, displying a cyan alignment ruler.
+</p>
+
+<h3 style="clear:right">D&D From Outside</h3>
+
+<p>
+	Different entities dragged from outside the editor can be dropped in. When the nature
+	of these entities is compatible, the editor will accept the drag an drop operation
+	creating a series of widgets.
+</p>
+
+<h4>Dropping Images</h4>
+
+<p>
+	An image (possibly dragged from a web browser) can be dropped into the editor.
+	That image will be saved into a temporary location and Picture widget will be
+	created pointing the the saved image file.
+</p>
+
+<p>
+	<strong>Note:</strong> The created Picture widget will have its top-left
+	corner at the location (possibly snapped to grid) wher the cursor was when
+	the image was dropped.
+</p>
+
+<p>
+	The created widget will be automatically sized the to dropped image size.
+</p>
+
+<center>
+	<img src="images/DragAndDrop_image_drag.png" alt="Image drag." width="400" style="vertical-align:middle;padding-right:8px"/>
+	<font size="32">&#10143;</font>
+	<img src="images/DragAndDrop_image_drop.png" alt="Image drop." width="400" style="vertical-align:middle;padding-left:8px"/>
+</center>
+
+<h4>Dropping Files</h4>
+
+<p>
+	Image files (with extension <code>.bmp</code>, <code>.gif</code>, <code>.jpeg</code>,
+	<code>.jpg</code>, and <code>.png</code>) and OPI files (with extension
+	<code>.bob</code>, and <code>.opi</code>) can be dropped into the editor.
+	Image files will create Picture widgets, while OPI files will create
+	Embedded Display ones. The created widget will reference the dropped file,
+	using (if possible) a relative path location.
+</p>
+
+<p>
+	Multiple files can be dropped at once. Each one will create its own corresponding
+	widget (Picture or Embedded Display), that will be offset by a grid step in
+	both coordinates from the preceeding one.
+</p>
+
+<h4 style="clear:right">Dropping URLs</h4>
+
+<p>
+	When dropping a URL into the editor, one of the following situations occurs:
+</p>
+
+<ul>
+	<li>
+		The URL string ends with one of the supported image extensions (<code>.bmp</code>,
+		<code>.gif</code>, <code>.jpeg</code>, <code>.jpg</code>, and <code>.png</code>),
+		then a Picture widget will be created and positioned under the (possibly aligned
+		to grid) cursor position;
+	</li>
+	<li>
+		The URL string ends with one of the supported OPI extensions (<code>.bob</code>,
+		and <code>.opi</code>), then an Embedded Display widget will be created and
+		positioned under the (possibly aligned to grid) cursor position;
+	</li>
+	<li>
+		Otherwise a dialog will open allowing the user to chose the widget to be
+		created.
+	</li>
+</ul>
+
+<center>
+	<img src="images/DragAndDrop_url.png" alt="Dropping an URL."/>
+</center>
+
+<h4>Dropping Text</h4>
+
+<p>
+	A text can be composeb by a single or multiple lines, an each line can be
+	interpreted as a PV name. For this reason a dialog will open allowing to select
+	a single Label widget (displaying the whole text), multiple Label Widgets
+	(displaying a line each), or multiple widgets (of the same type) using each
+	line as a PV name.
+</p>
+
+<p>
+	Multiple widgets will be offset by a grid step in booth coordinates from the
+	preceeding one.
+</p>
+
+<center>
+	<img src="images/DragAndDrop_text1.png" alt="Text drag." width="200" style="vertical-align:middle;padding-right:8px"/>
+	<font size="32">&#10143;</font>
+	<img src="images/DragAndDrop_text2.png" alt="Text drop." width="300" style="vertical-align:middle;padding-left:8px"/>
+	<font size="32">&#10143;</font>
+	<img src="images/DragAndDrop_text3.png" alt="Widgets created." width="300" style="vertical-align:middle;padding-left:8px"/>
+</center>
+
+
+
+
+
 <!-- ====================================================== -->
-<h1><a name="conversion">BOY <i>*.opi</i> File Conversion</a></h1>
+<h1 style="clear:right"><a name="conversion">BOY <i>*.opi</i> File Conversion</a></h1>
 <!-- ====================================================== -->
 
 <p>The Display builder automatically convert BOY <i>*.opi</i> files.
@@ -227,7 +445,7 @@ and enter a text or PV name by configuring the corresponding property.
 <h1><a name="properties">Properties</a></h1>
 <!-- ====================================================== -->
 
-<img src="images/tracker.png" alt="Tracker" style="float:right;"/>
+<img src="images/tracker.png" alt="Tracker" style="float:right;margin:0 0 0px 8px;"/>
 
 <p>Every widget has properties <b>x</b>, <b>y</b>, <b>width</b> and <b>height</b>
 that define its position and size within the display.
@@ -245,9 +463,9 @@ These key properties can be edited by double-clicking the selected widget
 and then entering the text or pv_name.
 </p>
 
-<h2>Properties View</h2>
+<h2 style="clear:right">Properties View</h2>
 
-<img src="images/properties_palette.png" alt="Properties View" style="float:right;"/>
+<img src="images/properties_palette.png" alt="Properties View" style="float:right;margin:0 0 0px 8px;"/>
 
 <p>In general, properties are edited in the <b>Properties View</b>.
 It lists every property of a widget with its current value,
@@ -311,13 +529,13 @@ The elements of the array are in turn structures with a <b>value</b> and a <b>co
 For access from Rules or Scripts these properties can be accessed via names (for structured
 properties) and indices (for array properties).
 Example:
+</p>
 <pre>states[0].value</pre>
 <pre>states[1].color</pre>
-</p>
 
 
 <!-- ====================================================== -->
-<h1><a name="widgets_detail">Widget Details</a></h1>
+<h1 style="clear:left"><a name="widgets_detail">Widget Details</a></h1>
 <!-- ====================================================== -->
 
 <p>For details on each widget refer to the 
@@ -347,50 +565,52 @@ triggered by its trigger PVs, at least one input PV is needed for a rule.
 for its Rules property in the Properties palette. This will open the Rules dialog.
 </p>
 
-<img src="images/Rules.png" alt="Rules Dialog" style="height:456px;"/>
+<center>
+	<img src="images/Rules.png" alt="Rules Dialog" style="height:456px;"/>
+</center>
 
-<p>Key features include:
-  <ul>
-    <li>Rule Name: Add and remove rules here. Select a rule to edit its properties.</li>
-    <li>PVName: Add and remove input PVs for the rule. If "Trigger" is checked (true),
-        then the rule will execute whenever the PV's value changes.</li>
-    <li>Property ID: The property which is affected by the rule.</li>
-    <li>Boolean expression: The expression which is evaluated when the rule executes. If it is
-        true, the property's value will be set to the expression's "Value" field. The expression may simply be
-        "true" or "True", in which case the value is always used (this is most useful when "Value as Expression"
-        is checked).
-    </li>
-    <li>Value as Expression: If true, all values for the rule are given as expressions.</li>
-  </ul>
-</p>
+<p>Key features include:</p>
+<ul>
+  <li>Rule Name: Add and remove rules here. Select a rule to edit its properties.</li>
+  <li>PVName: Add and remove input PVs for the rule. If "Trigger" is checked (true),
+	  then the rule will execute whenever the PV's value changes.</li>
+  <li>Property ID: The property which is affected by the rule.</li>
+  <li>Boolean expression: The expression which is evaluated when the rule executes. If it is
+	  true, the property's value will be set to the expression's "Value" field. The expression may simply be
+	  "true" or "True", in which case the value is always used (this is most useful when "Value as Expression"
+	  is checked).
+  </li>
+  <li>Value as Expression: If true, all values for the rule are given as expressions.</li>
+</ul>
 
 <h2>Expressions</h2>
 <p>The standard comparison operators (&lt;, &gt;, ==, &lt;=, &gt;=, and !=) may be used. Logical
 operators may also be used. All input PVs of the rule are accessible as follows:
 </p>
-<table>
-    <tr>
-      <th>Value Type</th>
-      <th>Syntax</th>
-      <th>Example</th>
-    </tr>
-    <tr>
-      <td>double value</td>
-      <td><code>pv{index}</code></td>
-      <td><code>pv0 > pv1</code></td>
-    </tr>
-    <tr>
-      <td>long int. value</td>
-      <td><code>pvInt{index}</code></td>
-      <td><code>pvInt0 == 5</code></td>
-    </tr>
-    <tr>
-      <td>string value</td>
-      <td><code>pvStr{index}</code></td>
-      <td><code>pvStr0 == "happy"</code></td>
-    </tr>
-</table>
-
+<center>
+	<table>
+		<tr>
+			<th>Value Type</th>
+			<th>Syntax</th>
+			<th>Example</th>
+		</tr>
+		<tr>
+			<td>double value</td>
+			<td><code>pv{index}</code></td>
+			<td><code>pv0 > pv1</code></td>
+		</tr>
+		<tr>
+			<td>long int. value</td>
+			<td><code>pvInt{index}</code></td>
+			<td><code>pvInt0 == 5</code></td>
+		</tr>
+		<tr>
+			<td style="border-bottom: 0px">string value</td>
+			<td style="border-bottom: 0px"><code>pvStr{index}</code></td>
+			<td style="border-bottom: 0px"><code>pvStr0 == "happy"</code></td>
+		</tr>
+	</table>
+</center>
 
 
 <!-- ====================================================== -->
@@ -565,7 +785,7 @@ pip install py4j
 manager to manage the network connections and ensure that resources are properly released.
 </p>
 
-<p>To install <code>connect2j</code>, do the following:
+<p>To install <code>connect2j</code>, do the following:</p>
 <ol>
 <li>Under the CS-Studio installation directory, in "plugins/", locate the *.jar
     file beginning with "org.csstudio.display.builder.runtime"; that is, something
@@ -592,10 +812,10 @@ python setup.py install
 
 <li>The scripts directory which was created may now be deleted.</li>
 </ol>
-</p>
 
 <p>The main API of <code>connect2j</code> is the scriptContext context manager. Simply place code which accesses
 Display Builder API inside a "with" statement using scriptContext, like so:
+</p>
 <pre>#!/usr/bin/env python 
 from connect2j import scriptContext
 
@@ -607,7 +827,6 @@ with scriptContext('widget', 'pvs', 'ScriptUtil', 'PVUtil', dict=globals()):
 
 # Code that does not interact with Display Builder
 </pre>
-</p>
 
 <p>Above, the argument "dict=globals()" tells scriptContext to enter the previous
 arguments in the calling module's global dict, where they may be accessed as global
@@ -624,52 +843,52 @@ arguments, or import the given utility classes and use the 'pvs' and 'widgets' w
 </p>
 
 <h2>Comparison: Python and Jython</h2>
-<table style="border: 1px solid black;">
-  <tr>
-    <th></th>
-    <th>Native Python</th>
-    <th>Jython</th>
-  </tr>
-  <tr>
-    <td><b>requirements</b></td>
-    <td>*.py file, "python" first line (i.e. shebang)</td>
-    <td>*.py (file or url) or embedded script</td>
-  </tr>
-  <tr>
-    <td><b>API</b></td>
-    <td><p>scriptContext (must be installed)
-      <ul>
-        <li>widget, pvs</li>
-        <li>PVUtil</li>
-        <li>ScriptUtil</li>
-      </ul>
-      </p>
-    </td>
-    <td><p>scriptContext (added to path)
-      <ul>
-        <li>widget, pvs (accessible without context)</li>
-        <li>PVUtil</li>
-        <li>ScriptUtil</li>
-      </ul>
-      </p>
-    </td>
-  </tr>
-  <tr>
-    <td><b>imports</b></td>
-    <td>libraries (numPy, sciPy, etc.)</td>
-    <td>Java classes (inc. PVUtil, ScriptUtil)</td>
-  </tr>
-  <tr>
-    <td><b>start display</b></td>
-    <td>no initial start time</td>
-    <td>a few seconds to start Jython interpreter</td>
-  </tr>
-  <tr>
-    <td><b>start script</b></td>
-    <td>about a second per script</td>
-    <td>virtually no start time per script</td>
-  </tr>
-</table>
+<center>
+	<table>
+		<tr>
+			<th></th>
+			<th>Native Python</th>
+			<th>Jython</th>
+		</tr>
+		<tr>
+			<td><b>requirements</b></td>
+			<td>*.py file, "python" first line (i.e. shebang)</td>
+			<td>*.py (file or url) or embedded script</td>
+		</tr>
+		<tr>
+			<td><b>API</b></td>
+			<td>scriptContext (must be installed)
+				<ul>
+					<li>widget, pvs</li>
+					<li>PVUtil</li>
+					<li>ScriptUtil</li>
+				</ul>
+			</td>
+			<td>scriptContext (added to path)
+				<ul>
+					<li>widget, pvs (accessible without context)</li>
+					<li>PVUtil</li>
+					<li>ScriptUtil</li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td><b>imports</b></td>
+			<td>libraries (numPy, sciPy, etc.)</td>
+			<td>Java classes (inc. PVUtil, ScriptUtil)</td>
+		</tr>
+		<tr>
+			<td><b>start display</b></td>
+			<td>no initial start time</td>
+			<td>a few seconds to start Jython interpreter</td>
+		</tr>
+		<tr>
+			<td style="border-bottom: 0px"><b>start script</b></td>
+			<td style="border-bottom: 0px">about a second per script</td>
+			<td style="border-bottom: 0px">virtually no start time per script</td>
+		</tr>
+	</table>
+</center>
 
 <h2>JavaScript Scripts</h2>
 
