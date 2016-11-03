@@ -26,7 +26,6 @@ one for the "X" and one for the "Y" axis.</text>
     <y>91</y>
     <width>511</width>
     <height>340</height>
-    <show_legend>false</show_legend>
     <traces>
       <trace>
         <name></name>
