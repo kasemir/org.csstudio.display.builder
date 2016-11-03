@@ -73,7 +73,7 @@ public class ContextMenuSupport
         private final ActionInfo info;
         public ActionInfoWrapper(final Widget widget, final ActionInfo info)
         {
-            super(info.getDescription(),
+            super(info.toString(),
                   AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, info.getType().getIconPath()));
             this.widget = widget;
             this.info = info;

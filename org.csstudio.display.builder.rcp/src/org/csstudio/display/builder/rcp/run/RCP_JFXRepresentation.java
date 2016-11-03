@@ -18,11 +18,18 @@ import org.csstudio.display.builder.rcp.RuntimeViewPart;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.ui.util.dialogs.ResourceSelectionDialog;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -102,5 +109,28 @@ public class RCP_JFXRepresentation extends JFXRepresentation
         final IWorkbenchPage page = part.getSite().getPage();
         final Display display = page.getWorkbenchWindow().getShell().getDisplay();
         display.asyncExec(() -> page.hideView(part));
+    }
+
+    @Override
+    public void openFile(final String path) throws Exception
+    {
+        final IPath rcp_path = new Path(path);
+        final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        final IFile file = root.getFile(rcp_path);
+        if (file.exists())
+        {   // Open workspace file.
+            // Clear the last-used-editor info to always get the default editor,
+            // the one configurable via Preferences, General, Editors, File Associations,
+            // and not whatever one user may have used last via Navigator's "Open With..".
+            // Other cases below use a new, local file that won't have last-used-editor info, yet
+            file.setPersistentProperty(IDE.EDITOR_KEY, null);
+            IDE.openEditor(page, file, true);
+        }
+        else
+        {   // Open file that is outside of workspace
+            final IFileStore localFile = EFS.getLocalFileSystem().getStore(rcp_path);
+            IDE.openEditorOnFileStore(page, localFile);
+        }
     }
 }

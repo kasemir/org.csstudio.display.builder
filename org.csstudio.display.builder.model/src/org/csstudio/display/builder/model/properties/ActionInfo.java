@@ -30,7 +30,8 @@ public abstract class ActionInfo
     {
         OPEN_DISPLAY("Open Display", "icons/open_display.png"),
         WRITE_PV("Write PV", "icons/write_pv.png"),
-        EXECUTE_SCRIPT("Execute Script", "icons/execute_script.png");
+        EXECUTE_SCRIPT("Execute Script", "icons/execute_script.png"),
+        OPEN_FILE("Open File", "icons/open_file.png");
 
         private final String name, icon_path;
 
@@ -82,6 +83,8 @@ public abstract class ActionInfo
             return new ExecuteScriptActionInfo(type.toString(),
                                                new ScriptInfo(ScriptInfo.EMBEDDED_PYTHON, "print 'Hello'",
                                                               Collections.emptyList()));
+        case OPEN_FILE:
+            return new OpenFileActionInfo(type.toString(), "");
         default:
             throw new IllegalStateException("Unknown type " + type);
         }
