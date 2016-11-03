@@ -401,6 +401,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
 
     /** Show file "Save As" dialog for selecting/entering a new file name
      *
+     *  @param widget Widget, used to create and position the dialog
      *  @param initial_value Initial path and file name
      *  @return Path and file name or <code>null</code>
      */
