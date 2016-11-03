@@ -12,7 +12,6 @@ import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -109,13 +108,6 @@ public class ModelReader
     }
 
     final private Set<String> unknown_widget_type = new HashSet<>();
-
-    /**
-     * @return The name of the display model.
-     */
-    public Optional<String> getName() {
-        return XMLUtil.getChildString(root, XMLTags.NAME);
-    }
 
     /** Read all <widget>.. child entries
      *  @param children 'children' property where widgets are added

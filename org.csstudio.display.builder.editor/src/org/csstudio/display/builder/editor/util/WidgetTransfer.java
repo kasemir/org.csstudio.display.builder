@@ -15,17 +15,13 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +38,7 @@ import javax.swing.text.rtf.RTFEditorKit;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.csstudio.display.builder.editor.DisplayEditor;
+import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.model.DisplayModel;
@@ -52,7 +49,6 @@ import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
-import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget.Resize;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
@@ -71,63 +67,64 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 
-
-/**
- * Helper for widget drag/drop
- * <h3>Handling New File/URL Extensions</h3>
- * To add the support for a new set of file/URL extensions do the following:
- * <ul>
+/** Helper for widget drag/drop
+ *
+ *  <h3>Handling New File/URL Extensions</h3>
+ *  To add the support for a new set of file/URL extensions do the following:
+ *  <ul>
  *   <li>Create a new static list of extensions (see {@link #IMAGE_FILE_EXTENSIONS});</li>
  *   <li>Update {@link #SUPPORTED_EXTENSIONS} to include the new list;</li>
  *   <li>Update {@link #installWidgetsFromFiles(List,SelectedWidgetUITracker,List)
  *       to handle files having the new extensions;</li>
  *   <li>Update {@link #installWidgetsFromURL(DragEvent,List)
  *       to handle URLs having the new extensions.</li>
- * </ul>
+ *  </ul>
  *
- * @author Kay Kasemir
- * @author Claudio Rosati
+ *  @author Kay Kasemir
+ *  @author Claudio Rosati
  */
 @SuppressWarnings("nls")
 public class WidgetTransfer
 {
-
     private static Color TRANSPARENT = new Color(0, 0, 0, 24);
     private static Stroke OUTLINE_STROKE = new BasicStroke(2.2F);
 
     //  The extensions listed here MUST BE ALL UPPERCASE.
     private static List<String> IMAGE_FILE_EXTENSIONS = Arrays.asList("BMP", "GIF", "JPEG", "JPG", "PNG");
     private static List<String> EMBEDDED_FILE_EXTENSIONS = Arrays.asList("BOB", "OPI");
-    private static List<String> SUPPORTED_EXTENSIONS = Stream.of(IMAGE_FILE_EXTENSIONS, EMBEDDED_FILE_EXTENSIONS).flatMap(Collection::stream).collect(Collectors.toList());
+    private static List<String> SUPPORTED_EXTENSIONS = Stream.concat(IMAGE_FILE_EXTENSIONS.stream(), EMBEDDED_FILE_EXTENSIONS.stream()).collect(Collectors.toList());
 
+    // Lazily initialized list of widgets that have a PV
     private static List<WidgetDescriptor> pvWidgetDescriptors = null;
 
     // Could create custom data format, or use "application/xml".
     // Transferring as DataFormat("text/plain"), however, allows exchange
     // with basic text editor, which can be very convenient.
 
-    /**
-     * Add support for 'dragging' a widget out of a node
+    /** Add support for 'dragging' a widget out of a node
      *
-     * @param source Source {@link Node}
-     * @param selection
-     * @param desc Description of widget type to drag
-     * @param image Image to represent the widget, or <code>null</code>
+     *  @param source Source {@link Node}
+     *  @param selection
+     *  @param desc Description of widget type to drag
+     *  @param image Image to represent the widget, or <code>null</code>
      */
-    public static void addDragSupport ( final Node source, final DisplayEditor editor, final WidgetDescriptor descriptor, final Image image ) {
-
-        source.setOnDragDetected( ( MouseEvent event ) -> {
-
+    public static void addDragSupport(final Node source, final DisplayEditor editor, final WidgetDescriptor descriptor, final Image image)
+    {
+        source.setOnDragDetected( ( MouseEvent event ) ->
+        {
             logger.log(Level.FINE, "Starting drag for {0}", descriptor);
 
             editor.getWidgetSelectionHandler().clear();
 
-            Widget widget = descriptor.createWidget();
+            final Widget widget = descriptor.createWidget();
             final String xml;
 
-            try {
+            try
+            {
                 xml = ModelWriter.getXML(Arrays.asList(widget));
-            } catch ( Exception ex ) {
+            }
+            catch (Exception ex)
+            {
                 logger.log(Level.WARNING, "Cannot drag-serialize", ex);
                 return;
             }
@@ -140,124 +137,100 @@ public class WidgetTransfer
 
             final int width = widget.propWidth().getValue();
             final int height = widget.propHeight().getValue();
-
             db.setDragView(createDragImage(widget, image, width, height), width / 2, -height / 2);
 
             event.consume();
-
         });
         source.setOnDragDone(event -> editor.getAutoScrollHandler().canceTimeline());
-
     }
 
-    /**
-     * Add support for dropping widgets
+    /** Add support for dropping widgets
      *
-     * @param node Node that will receive the widgets
-     * @param group_handler Group handler
-     * @param selection_tracker The selection tracker.
-     * @param handleDroppedModel Callback for handling the dropped widgets
+     *  @param node Node that will receive the widgets
+     *  @param group_handler Group handler
+     *  @param selection_tracker The selection tracker.
+     *  @param handleDroppedModel Callback for handling the dropped widgets
      */
-    public static void addDropSupport (
+    public static void addDropSupport(
             final Node node,
             final ParentHandler group_handler,
             final SelectedWidgetUITracker selection_tracker,
-            final Consumer<List<Widget>> handleDroppedModel
-    ) {
-
-        node.setOnDragOver( ( DragEvent event ) -> {
-
+            final Consumer<List<Widget>> handleDroppedModel)
+    {
+        node.setOnDragOver( ( DragEvent event ) ->
+        {
             final Dragboard db = event.getDragboard();
 
-            if ( db.hasString() || db.hasUrl() || db.hasRtf() || db.hasHtml() || db.hasImage() || db.hasFiles() ) {
+            if (db.hasString() || db.hasUrl() || db.hasRtf() || db.hasHtml() || db.hasImage() || db.hasFiles())
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-            }
 
             group_handler.locateParent(event.getX(), event.getY(), 10, 10);
             event.consume();
-
         });
 
-        node.setOnDragDropped( ( DragEvent event ) -> {
-
+        node.setOnDragDropped( (DragEvent event) ->
+        {
             final Dragboard db = event.getDragboard();
             final Point2D location = selection_tracker.gridConstrain(event.getX(), event.getY());
-            List<Widget> widgets = new ArrayList<>();
+            final List<Widget> widgets = new ArrayList<>();
+            final List<Runnable> updates = new ArrayList<>();
 
-            if ( db.hasFiles()  && canAcceptFiles(db.getFiles()) ) {
-                installWidgetsFromFiles(db, selection_tracker, widgets);
-            } else if ( db.hasImage() && db.getImage() != null ) {
+            if (db.hasFiles()  &&  canAcceptFiles(db.getFiles()))
+                installWidgetsFromFiles(db, selection_tracker, widgets, updates);
+            else if (db.hasImage() && db.getImage() != null)
                 installWidgetsFromImage(db, selection_tracker, widgets);
-            } else if ( db.hasUrl() && db.getUrl() != null ) {
-                installWidgetsFromURL(event, widgets);
-            } else if ( db.hasHtml()  && db.getHtml() != null ) {
-                installWidgetsFromHTML(db, selection_tracker, widgets);
-            } else if ( db.hasRtf() && db.getRtf() != null ) {
-                installWidgetsFromRTF(db, selection_tracker, widgets);
-            } else if ( db.hasString() && db.getString() != null ) {
-                installWidgetsFromString(db, selection_tracker, widgets);
-            }
+            else if (db.hasUrl() && db.getUrl() != null)
+                installWidgetsFromURL(event, widgets, updates);
+            else if (db.hasHtml()  && db.getHtml() != null)
+               installWidgetsFromHTML(event, selection_tracker, widgets);
+            else if (db.hasRtf() && db.getRtf() != null)
+                installWidgetsFromRTF(event, selection_tracker, widgets);
+            else if (db.hasString() && db.getString() != null)
+                installWidgetsFromString(event, selection_tracker, widgets);
 
-            if ( widgets != null && !widgets.isEmpty() ) {
-                acceptWidgets(widgets, location, handleDroppedModel);
-                event.setDropCompleted(true);
-            } else {
+            if (widgets.isEmpty())
                 event.setDropCompleted(false);
+            else
+            {
+                logger.log(Level.FINE, "Dropped {0} widgets.", widgets.size());
+                GeometryTools.moveWidgets((int) location.getX(), (int) location.getY(), widgets);
+                handleDroppedModel.accept(widgets);
+                // Now that model holds the widgets, perform updates that for example check an image size
+                for (Runnable update : updates)
+                    EditorUtil.getExecutor().execute(update);
+                event.setDropCompleted(true);
             }
-
             event.consume();
-
         });
-
     }
 
-    /**
-     * Accept and install the given {@code widgets} into the model.
+    /** Return {@code true} if there is a {@link File} in {@code files}
+     *  whose extension is one of the {@link #SUPPORTED_EXTENSIONS}.
      *
-     * @param widgets            The widgets to be installed.
-     * @param location           The drop location.
-     * @param handleDroppedModel Callback for handling the dropped widgets.
-     */
-    private static void acceptWidgets ( final List<Widget> widgets, final Point2D location, final Consumer<List<Widget>> handleDroppedModel ) {
-
-        logger.log(Level.FINE, "Dropped {0} widgets.", widgets.size());
-
-        GeometryTools.moveWidgets((int) location.getX(), (int) location.getY(), widgets);
-        handleDroppedModel.accept(widgets);
-
-    }
-
-    /**
-     * Return {@code true} if there is a {@link File} in {@code files}
-     * whose extension is one of the {@link #SUPPORTED_EXTENSIONS}.
-     * <P>
-     * <B>Note:<B> only one file will be accepted: the first one
-     * matching the above condition.
+     *  <P>
+     *  <B>Note:<B> only one file will be accepted: the first one
+     *  matching the above condition.
      *
-     * @param files The {@link List} of {@link File}s to be checked.
-     *              Can be {@code null} or empty.
-     * @return {@code true} if a file existing whose extension is
-     *         contained in {@link #SUPPORTED_EXTENSIONS}.
+     *  @param files The {@link List} of {@link File}s to be checked.
+     *               Can be {@code null} or empty.
+     *  @return {@code true} if a file existing whose extension is
+     *          contained in {@link #SUPPORTED_EXTENSIONS}.
      */
-    private static boolean canAcceptFiles ( List<File> files ) {
-
-        if ( files != null && !files.isEmpty() ) {
+    private static boolean canAcceptFiles(final List<File> files)
+    {
+        if (files != null && !files.isEmpty())
             return files.stream().anyMatch(f -> SUPPORTED_EXTENSIONS.contains(FilenameUtils.getExtension(f.toString()).toUpperCase()));
-        }
-
         return false;
-
     }
 
-    /**
-     * Create a image representing the dragged widget.
+    /** Create a image representing the dragged widget.
      *
-     * @param widget The {@link Widget} being dragged.
-     * @param image  The widget's type image. Can be {@code null}.
-     * @return An {@link Image} instance.
+     *  @param widget The {@link Widget} being dragged.
+     *  @param image  The widget's type image. Can be {@code null}.
+     *  @return An {@link Image} instance.
      */
-    private static Image createDragImage ( final Widget widget, final Image image, final int width, final int height ) {
-
+    private static Image createDragImage (final Widget widget, final Image image, final int width, final int height)
+    {
         final BufferedImage bImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         final Graphics2D g2d = bImage.createGraphics();
 
@@ -273,15 +246,14 @@ public class WidgetTransfer
         g2d.setStroke(OUTLINE_STROKE);
         g2d.drawRect(0, 0, width, height);
 
-        if ( image != null ) {
-
+        if ( image != null )
+        {
             int w = (int) image.getWidth();
             int h = (int) image.getHeight();
             BufferedImage bbImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
             SwingFXUtils.fromFXImage(image, bbImage);
             g2d.drawImage(bbImage, (int) ( ( width - w ) / 2.0 ), (int) ( ( height - h ) / 2.0 ), null);
-
         }
 
         WritableImage dImage = new WritableImage(width, height);
@@ -289,111 +261,119 @@ public class WidgetTransfer
         SwingFXUtils.toFXImage(bImage, dImage);
 
         return dImage;
-
     }
 
-    /**
-     * @param file              The image file used to create and preset a {@link PictureWidget}.
-     * @param index             The index of the {@code file} inside the dropped set.
-     * @param selection_tracker Used to get the grid steps from its model to be used
-     *                          in offsetting multiple widgets.
-     * @param widgets           The container of the created widgets.
+    /** @param image_file        The image file used to create and preset a {@link PictureWidget}.
+     *  @param selection_tracker Used to get the grid steps from its model to be used
+     *                           in offsetting multiple widgets.
+     *  @param widgets           The container of the created widgets.
+     *  @param updates           Updates to perform on widgets
      */
-    private static void imageFileAcceptor ( File file, int index, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
+    private static void imageFileAcceptor(final String image_file, final SelectedWidgetUITracker selection_tracker,
+                                          final List<Widget> widgets, final List<Runnable> updates)
+    {
+        logger.log(Level.FINE, "Creating PictureWidget for dropped image {0}", image_file);
+        final DisplayModel model = selection_tracker.getModel();
+        final PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
+        widget.propFile().setValue(image_file);
+        final int index = widgets.size();
+        widget.propX().setValue(model.propGridStepX().getValue() * index);
+        widget.propY().setValue(model.propGridStepY().getValue() * index);
+        widgets.add(widget);
+        updates.add(() -> updatePictureWidget(widget));
+    }
 
-        if ( file!= null && file.exists() ) {
-            try {
-
-                DisplayModel model = selection_tracker.getModel();
-                BufferedImage image = ImageIO.read(file);
-                PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
-
-                widget.propFile().setValue(ModelResourceUtil.getRelativePath(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE), file.toString()));
-                widget.propX().setValue(model.propGridStepX().getValue() * index);
-                widget.propY().setValue(model.propGridStepY().getValue() * index);
-                widget.propWidth().setValue(image.getWidth());
-                widget.propHeight().setValue(image.getHeight());
-                widgets.add(widget);
-
-                logger.log(Level.FINE, "Dropped image file: creating PictureWidget");
-
-            } catch ( IOException ex ) {
-                logger.log(Level.WARNING, "Unable to read image [{0}].", ex.getMessage());
-            }
+    /** Update a picture widget's size from image file
+     *  @param widget {@link PictureWidget}
+     */
+    private static void updatePictureWidget(final PictureWidget widget)
+    {
+        final String image_file = widget.propFile().getValue();
+        try
+        {
+            final String filename = ModelResourceUtil.resolveResource(widget.getTopDisplayModel(), image_file);
+            final BufferedImage image = ImageIO.read(ModelResourceUtil.openResourceStream(filename));
+            widget.propWidth().setValue(image.getWidth());
+            widget.propHeight().setValue(image.getHeight());
         }
-
-    }
-
-    /**
-     * @param db                The {@link Dragboard} containing the dragged data.
-     * @param selection_tracker Used to get the grid steps from its model to be used
-     *                          in offsetting multiple widgets.
-     * @param widgets           The container of the created widgets.
-     */
-    private static void installWidgetsFromFiles ( final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
-        installWidgetsFromFiles(db.getFiles(), selection_tracker, widgets);
-    }
-
-    /**
-     * @param files             A {@link List} of {@link File}s (the dragged data).
-     * @param selection_tracker Used to get the grid steps from its model to be used
-     *                          in offsetting multiple widgets.
-     * @param widgets           The container of the created widgets.
-     */
-    private static void installWidgetsFromFiles ( final List<File> files, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
-
-        for ( int i = 0; i < files.size(); i++ ) {
-
-            File file = files.get(i);
-            String extension = FilenameUtils.getExtension(file.toString()).toUpperCase();
-
-            if ( IMAGE_FILE_EXTENSIONS.contains(extension) ) {
-                imageFileAcceptor(file, i, selection_tracker, widgets);
-            } else if ( EMBEDDED_FILE_EXTENSIONS.contains(extension) ) {
-                opiFileAcceptor(file, i, selection_tracker, widgets);
-            }
-
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot obtain image size for " + image_file, ex);
         }
-
     }
 
-    /**
-     * @param db                The {@link Dragboard} containing the dragged data.
-     * @param selection_tracker Used to get the grid steps from its model to be used
-     *                          in offsetting multiple widgets.
-     * @param widgets           The container of the created widgets.
+    /** @param db                The {@link Dragboard} containing the dragged data.
+     *  @param selection_tracker Used to get the grid steps from its model to be used
+     *                           in offsetting multiple widgets.
+     *  @param widgets           The container of the created widgets.
+     *  @param updates           Updates to perform on widgets
      */
-    private static void installWidgetsFromHTML ( final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
+    private static void installWidgetsFromFiles(final Dragboard db, final SelectedWidgetUITracker selection_tracker,
+                                                final List<Widget> widgets, final List<Runnable> updates)
+    {
+        final List<File> files = db.getFiles();
+        for (int i = 0; i < files.size(); i++)
+        {
+            String filename = files.get(i).toString();
+            // If running under RCP, try to convert dropped files which are always
+            // absolute file system locations into workspace resource
+            final String workspace_file = ModelResourceUtil.getWorkspacePath(filename);
+            if (workspace_file != null)
+                filename = workspace_file;
+            // Attempt to turn into relative path
+            final DisplayModel model = selection_tracker.getModel();
+            filename = ModelResourceUtil.getRelativePath(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE), filename);
 
+            final String extension = FilenameUtils.getExtension(filename).toUpperCase();
+            if (IMAGE_FILE_EXTENSIONS.contains(extension))
+                imageFileAcceptor(filename, selection_tracker, widgets, updates);
+           else if (EMBEDDED_FILE_EXTENSIONS.contains(extension) )
+                displayFileAcceptor(filename, selection_tracker, widgets, updates);
+        }
+    }
+
+    /** @param event             The {@link DragEvent} containing the dragged data.
+     *  @param selection_tracker Used to get the grid steps from its model to be used
+     *                           in offsetting multiple widgets.
+     *  @param widgets           The container of the created widgets.
+     */
+    private static void installWidgetsFromHTML(final DragEvent event, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets)
+    {
+        final Dragboard db = event.getDragboard();
         String html = db.getHtml();
         HTMLEditorKit htmlParser = new HTMLEditorKit();
         Document document = htmlParser.createDefaultDocument();
-
-        try {
-
+        try
+        {
             htmlParser.read(new ByteArrayInputStream(html.getBytes()), document, 0);
-            installWidgetsFromString(document.getText(0, document.getLength()), selection_tracker, widgets);
-        } catch ( Exception ex ) {
-            logger.log(Level.WARNING, "Invalid HTML string [{0}].", ex.getMessage());
+            installWidgetsFromString(event, document.getText(0, document.getLength()), selection_tracker, widgets);
         }
-
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Invalid HTML string", ex);
+        }
     }
 
-    /**
-     * @param db                The {@link Dragboard} containing the dragged data.
-     * @param selection_tracker Used to get the display model.
-     * @param widgets           The container of the created widgets.
+    /** @param db                The {@link Dragboard} containing the dragged data.
+     *  @param selection_tracker Used to get the display model.
+     *  @param widgets           The container of the created widgets.
      */
-    private static void installWidgetsFromImage ( final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
-
-        try {
-
+    private static void installWidgetsFromImage(final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets)
+    {
+        try
+        {
             Image image = db.getImage();
+            // TODO File access should not be on UI thread
+            // TODO Image needs to be created within the RCP workspace
+            //      or in a file system location that's part of the
+            //      display file tree, not in tmp
+            //      --> call ToolkitRepresentation#showSaveAsDialog
+
             File file = File.createTempFile("picture", ".png");
             BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
 
-            try {
-
+            try
+            {
                 ImageIO.write(bImage, "png", file);
 
                 DisplayModel model = selection_tracker.getModel();
@@ -405,339 +385,318 @@ public class WidgetTransfer
                 widgets.add(widget);
 
                 logger.log(Level.FINE, "Dropped image: creating PictureWidget");
-
-            } catch ( IOException ioex ) {
-                logger.log(Level.WARNING, "Unable to save image into a temporary location [{0}].", ioex.getMessage());
             }
-
-        } catch ( Exception ex ) {
-            logger.log(Level.WARNING, "Invalid image [{0}].", ex.getMessage());
+            catch (IOException ioex)
+            {
+                logger.log(Level.WARNING, "Unable to save image into a temporary location", ioex);
+            }
         }
-
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Invalid image", ex);
+        }
     }
 
-    /**
-     * @param db                The {@link Dragboard} containing the dragged data.
-     * @param selection_tracker Used to get the grid steps from its model to be used
-     *                          in offsetting multiple widgets.
-     * @param widgets           The container of the created widgets.
+    /** @param db                The {@link Dragboard} containing the dragged data.
+     *  @param selection_tracker Used to get the grid steps from its model to be used
+     *                           in offsetting multiple widgets.
+     *  @param widgets           The container of the created widgets.
      */
-    private static void installWidgetsFromRTF ( final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
+    private static void installWidgetsFromRTF(final DragEvent event, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets)
+    {
+        final Dragboard db = event.getDragboard();
+        final String rtf = db.getRtf();
+        final RTFEditorKit rtfParser = new RTFEditorKit();
+        final Document document = rtfParser.createDefaultDocument();
 
-        String rtf = db.getRtf();
-        RTFEditorKit rtfParser = new RTFEditorKit();
-        Document document = rtfParser.createDefaultDocument();
-
-        try {
+        try
+        {
             rtfParser.read(new ByteArrayInputStream(rtf.getBytes()), document, 0);
-            installWidgetsFromString(document.getText(0, document.getLength()), selection_tracker, widgets);
-        } catch ( Exception ex ) {
-            logger.log(Level.WARNING, "Invalid RTF string [{0}].", ex.getMessage());
+            installWidgetsFromString(event, document.getText(0, document.getLength()), selection_tracker, widgets);
         }
-
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Invalid RTF string", ex);
+        }
     }
 
-    /**
-     * @param db                The {@link Dragboard} containing the dragged data.
-     * @param selection_tracker Used to get the grid steps from its model to be used
-     *                          in offsetting multiple widgets.
-     * @param widgets           The container of the created widgets.
+    /** @param event             The {@link DragEvent} containing the dragged data.
+     *  @param selection_tracker Used to get the grid steps from its model to be used
+     *                           in offsetting multiple widgets.
+     *  @param widgets           The container of the created widgets.
      */
-    private static void installWidgetsFromString ( final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
-
+    private static void installWidgetsFromString(final DragEvent event, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets)
+    {
+        final Dragboard db = event.getDragboard();
         final String xmlOrText = db.getString();
-
-        try {
-
+        try
+        {
             final DisplayModel model = ModelReader.parseXML(xmlOrText);
-
             widgets.addAll(model.getChildren());
-
-        } catch ( Exception ex ) {
-            installWidgetsFromString(xmlOrText, selection_tracker, widgets);
         }
-
+        catch (Exception ex)
+        {
+            installWidgetsFromString(event, xmlOrText, selection_tracker, widgets);
+        }
     }
 
-    /**
-     * @param text              The dragged text.
-     * @param selection_tracker Used to get the grid steps from its model to be used
-     *                          in offsetting multiple widgets.
-     * @param widgets           The container of the created widgets.
-     */
-    private static void installWidgetsFromString ( final String text, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
+    private static void installWidgetsFromString(final DragEvent event, final String text, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets)
+    {
+        // Consider each word a separate PV
+        final String[] words = text.split("[ \n]+");
+        final boolean multiple = words.length > 1;
+        final List<WidgetDescriptor> descriptors = getPVWidgetDescriptors();
+        final List<String> choices = new ArrayList<>(descriptors.size() + ( multiple ? 1 : 0 ));
+        final String format = multiple ? Messages.WT_FromString_multipleFMT : Messages.WT_FromString_singleFMT;
 
-        String[] lines = StringUtils.split(text, '\n');
-        boolean multiple = lines.length > 1;
-        List<WidgetDescriptor> descriptors = getPVWidgetDescriptors();
-        List<String> choices = new ArrayList<>(descriptors.size() + ( multiple ? 1 : 0 ));
-        String format = multiple ? Messages.WT_FromString_multipleFMT : Messages.WT_FromString_singleFMT;
-        String defaultChoice = NLS.bind(Messages.WT_FromString_singleFMT, LabelWidget.WIDGET_DESCRIPTOR.getName());
-
+        // Always offer a single LabelWidget for the complete text
+        final String defaultChoice = NLS.bind(Messages.WT_FromString_singleFMT, LabelWidget.WIDGET_DESCRIPTOR.getName());
         choices.add(defaultChoice);
 
-        if ( multiple ) {
+        // When multiple words were dropped, offer multiple label widgets
+        if (multiple)
             choices.add(NLS.bind(Messages.WT_FromString_multipleFMT, LabelWidget.WIDGET_DESCRIPTOR.getName()));
-        }
 
         choices.addAll(descriptors.stream().map(d -> NLS.bind(format, d.getName())).collect(Collectors.toList()));
         Collections.sort(choices);
 
-        ChoiceDialog<String> dialog = new ChoiceDialog<>(defaultChoice, choices);
-
+        final ChoiceDialog<String> dialog = new ChoiceDialog<>(defaultChoice, choices);
+        dialog.setX(event.getScreenX()-100);
+        dialog.setY(event.getScreenY()-200);
         dialog.setTitle(Messages.WT_FromString_dialog_title);
-        dialog.setHeaderText(NLS.bind(Messages.WT_FromString_dialog_headerFMT, reduceStrings(lines)));
+        dialog.setHeaderText(NLS.bind(Messages.WT_FromString_dialog_headerFMT, reduceStrings(words)));
         dialog.setContentText(Messages.WT_FromString_dialog_content);
 
-        Optional<String> result = dialog.showAndWait();
-
-        result.ifPresent(choice -> {
-            if ( defaultChoice.equals(choice) ) {
-
-                // Not a valid XML. Instantiate a Label object.
-                LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
-
-                widget.propText().setValue(text);
-                widgets.add(widget);
-
-                logger.log(Level.FINE, "Dropped text: created LabelWidget [{0}].", text);
-
-            } else {
-
-                MessageFormat msgf = new MessageFormat(format);
-                String descriptorName = null;
-
-                try {
-                    descriptorName = msgf.parse(choice)[0].toString();
-                } catch ( Exception ex ) {
-                    logger.log(Level.WARNING, "Unable to retrieve selected descriptor name [{0}].", ex.getMessage());
-                }
-
-                if ( descriptorName != null ) {
-
-                    final String dName = descriptorName;
-                    WidgetDescriptor descriptor = null;
-
-                    if ( LabelWidget.WIDGET_DESCRIPTOR.getName().equals(dName) ) {
-                        descriptor = LabelWidget.WIDGET_DESCRIPTOR;
-                    } else {
-                        descriptor = descriptors.stream().filter(d -> dName.equals(d.getName())).findFirst().orElse(null);
-                    }
-
-                    if ( descriptor != null ) {
-
-                        int index = 0;
-
-                        for ( String line : lines ) {
-
-                            Widget widget = descriptor.createWidget();
-
-                            if ( widget instanceof PVWidget ) {
-                                ((PVWidget) widget).propPVName().setValue(line);
-                            } else if ( widget instanceof LabelWidget ) {
-                                ((LabelWidget) widget).propText().setValue(line);
-                            } else {
-                                logger.log(Level.WARNING, "Unexpected widget type [{0}].", widget.getClass().getSimpleName());
-                                continue;
-                            }
-
-                            if ( multiple ) {
-
-                                DisplayModel model = selection_tracker.getModel();
-
-                                widget.propX().setValue(model.propGridStepX().getValue() * index);
-                                widget.propY().setValue(model.propGridStepY().getValue() * index);
-
-                            }
-
-                            widgets.add(widget);
-                            logger.log(Level.FINE, "Dropped text: created {0} [{1}].", new Object[] { widget.getClass().getSimpleName(), line });
-
-                            index++;
-
-                        }
-
-                    }
-
-                }
-
-            }
-        });
-
-    }
-
-    private static List<WidgetDescriptor> getPVWidgetDescriptors ( ) {
-
-        if ( pvWidgetDescriptors == null ) {
-
-            pvWidgetDescriptors = new ArrayList<>();
-
-            pvWidgetDescriptors.addAll(WidgetFactory.getInstance().getWidgetDescriptions().stream().filter(d -> d.createWidget() instanceof PVWidget).collect(Collectors.toList()));
-
+        final Optional<String> result = dialog.showAndWait();
+        if (! result.isPresent())
+            return;
+        final String choice = result.get();
+        if (defaultChoice.equals(choice))
+        {
+            logger.log(Level.FINE, "Dropped text: created LabelWidget [{0}].", text);
+            // Not a valid XML. Instantiate a Label object.
+            final LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
+            widget.propText().setValue(text);
+            widgets.add(widget);
         }
+        else
+        {   // Parse choice back into widget descriptor
+            final MessageFormat msgf = new MessageFormat(format);
+            final String descriptorName;
+            try
+            {
+                descriptorName = msgf.parse(choice)[0].toString();
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.SEVERE, "Cannot parse selected widget type " + choice, ex);
+                return;
+            }
 
-        return pvWidgetDescriptors;
+            WidgetDescriptor descriptor = null;
+            if (LabelWidget.WIDGET_DESCRIPTOR.getName().equals(descriptorName))
+                descriptor = LabelWidget.WIDGET_DESCRIPTOR;
+            else
+                descriptor = descriptors.stream().filter(d -> descriptorName.equals(d.getName())).findFirst().orElse(null);
 
+            if (descriptor == null)
+            {
+                logger.log(Level.SEVERE, "Cannot obtain widget for " + descriptorName);
+                return;
+            }
+
+            for (String word : words)
+            {
+                final Widget widget = descriptor.createWidget();
+                logger.log(Level.FINE, "Dropped text: created {0} [{1}].", new Object[] { widget.getClass().getSimpleName(), word });
+                if (widget instanceof PVWidget)
+                    ((PVWidget) widget).propPVName().setValue(word);
+                else if (widget instanceof LabelWidget)
+                    ((LabelWidget) widget).propText().setValue(word);
+                else
+                    logger.log(Level.WARNING, "Unexpected widget type [{0}].", widget.getClass().getSimpleName());
+
+                final int index = widgets.size();
+                if (index > 0)
+                {   // Place widgets below each other
+                    final Widget previous = widgets.get(index - 1);
+                    int x = previous.propX().getValue();
+                    int y = previous.propY().getValue() + previous.propHeight().getValue();
+                    // Align (if enabled)
+                    final Point2D pos = selection_tracker.gridConstrain(x, y);
+                    widget.propX().setValue((int)pos.getX());
+                    widget.propY().setValue((int)pos.getY());
+                }
+
+                widgets.add(widget);
+            }
+        }
     }
 
-    private static void installWidgetsFromURL ( final DragEvent event, final List<Widget> widgets ) {
+    /** @return Widgets that have a PV */
+    private static List<WidgetDescriptor> getPVWidgetDescriptors()
+    {
+        if (pvWidgetDescriptors == null)
+            pvWidgetDescriptors = WidgetFactory.getInstance().getWidgetDescriptions()
+                                               .stream()
+                                               .filter(d -> d.createWidget() instanceof PVWidget)
+                                               .collect(Collectors.toList());
+        return pvWidgetDescriptors;
+    }
 
-        Optional<String> result;
+    private static void installWidgetsFromURL(final DragEvent event, final List<Widget> widgets, final List<Runnable> updates)
+    {
+        final String choice;
         final Dragboard db = event.getDragboard();
-        final String url = db.getUrl();
+        String url = db.getUrl();
 
-        if ( StringUtils.contains(url, '.') && EMBEDDED_FILE_EXTENSIONS.contains(url.substring(1 + url.lastIndexOf('.')).toUpperCase()) ) {
-            result = Optional.of(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getName());
-        } else if ( StringUtils.contains(url, '.') && IMAGE_FILE_EXTENSIONS.contains(url.substring(1 + url.lastIndexOf('.')).toUpperCase()) ) {
-            result = Optional.of(PictureWidget.WIDGET_DESCRIPTOR.getName());
-        } else {
+        // Fix URL, which on linux can contain the file name twice:
+        // "http://some/path/to/file.xyz\nfile.xyz"
+        int sep = url.indexOf('\n');
+        if (sep > 0)
+            url = url.substring(0, sep);
 
-            List<String> choices = new ArrayList<>(3);
-
-            choices.add(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getName());
-            choices.add(PictureWidget.WIDGET_DESCRIPTOR.getName());
-            choices.add(WebBrowserWidget.WIDGET_DESCRIPTOR.getName());
-
-            ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(2), choices);
+        // Check URL's extension
+        sep = url.lastIndexOf('.');
+        final String ext = sep > 0  ?  url.substring(1 + sep).toUpperCase() : null;
+        if (EMBEDDED_FILE_EXTENSIONS.contains(ext))
+            choice = EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getName();
+        else if (IMAGE_FILE_EXTENSIONS.contains(ext))
+            choice = PictureWidget.WIDGET_DESCRIPTOR.getName();
+        else
+        {   // Prompt user
+            final List<String> choices = Arrays.asList(LabelWidget.WIDGET_DESCRIPTOR.getName(),
+                                                       EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getName(),
+                                                       PictureWidget.WIDGET_DESCRIPTOR.getName(),
+                                                       WebBrowserWidget.WIDGET_DESCRIPTOR.getName());
+            final ChoiceDialog<String> dialog = new ChoiceDialog<>(choices.get(3), choices);
+            // Position dialog
+            dialog.setX(event.getScreenX());
+            dialog.setY(event.getScreenY());
 
             dialog.setTitle(Messages.WT_FromURL_dialog_title);
             dialog.setHeaderText(NLS.bind(Messages.WT_FromURL_dialog_headerFMT, reduceURL(url)));
             dialog.setContentText(Messages.WT_FromURL_dialog_content);
-
-            result = dialog.showAndWait();
-
+            final Optional<String> result = dialog.showAndWait();
+            if (result.isPresent())
+                choice = result.get();
+            else
+                return;
         }
 
-        result.ifPresent(choice -> {
-            if ( WebBrowserWidget.WIDGET_DESCRIPTOR.getName().equals(choice) ) {
-
-                WebBrowserWidget widget = (WebBrowserWidget) WebBrowserWidget.WIDGET_DESCRIPTOR.createWidget();
-
-                widget.propWidgetURL().setValue(url);
-                widgets.add(widget);
-
-                logger.log(Level.FINE, "Dropped URL: created WebBrowserWidget [{0}].", url);
-
-            } else if ( PictureWidget.WIDGET_DESCRIPTOR.getName().equals(choice) ) {
-                try {
-
-                    Image image = new Image(url, false);
-                    PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
-
-                    widget.propFile().setValue(url);
-                    widget.propWidth().setValue((int) image.getWidth());
-                    widget.propHeight().setValue((int) image.getHeight());
-                    widgets.add(widget);
-
-                    logger.log(Level.FINE, "Dropped image URL: creating PictureWidget");
-
-                } catch ( Exception ex ) {
-                    logger.log(Level.WARNING, "Invalid image [{0}].", ex.getMessage());
-                }
-            } else if ( EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getName().equals(choice) ) {
-                try {
-
-                    EmbeddedDisplayWidget widget = (EmbeddedDisplayWidget) EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.createWidget();
-
-                    widget.propFile().setValue(url);
-                    widget.propResize().setValue(Resize.SizeToContent);
-
-                    try ( InputStream istream = new URL(url).openStream() ) {
-
-                        ModelReader reader = new ModelReader(istream);
-                        Optional<String> name = reader.getName();
-
-                        if ( name.isPresent() ) {
-                            widget.propName().setValue(name.get());
-                        }
-
-                    } catch ( Exception iex ) {
-                        logger.log(Level.WARNING, "Unable to read OPI/BOB file [{0}].", iex.getMessage());
-                    }
-
-                    widgets.add(widget);
-
-                    logger.log(Level.FINE, "Dropped image file: creating PictureWidget");
-
-                } catch ( Exception ex ) {
-                    logger.log(Level.WARNING, "Unable to read OPI/BOB file [{0}].", ex.getMessage());
-                }
-            }
-        });
-
+        if (LabelWidget.WIDGET_DESCRIPTOR.getName().equals(choice))
+        {
+            logger.log(Level.FINE, "Creating LabelWidget for {0}", url);
+            final LabelWidget widget = (LabelWidget) LabelWidget.WIDGET_DESCRIPTOR.createWidget();
+            widget.propText().setValue(url);
+            widgets.add(widget);
+        }
+        else if (WebBrowserWidget.WIDGET_DESCRIPTOR.getName().equals(choice))
+        {
+            logger.log(Level.FINE, "Creating WebBrowserWidget for {0}", url);
+            final WebBrowserWidget widget = (WebBrowserWidget) WebBrowserWidget.WIDGET_DESCRIPTOR.createWidget();
+            widget.propWidgetURL().setValue(url);
+            widgets.add(widget);
+        }
+        else if (PictureWidget.WIDGET_DESCRIPTOR.getName().equals(choice))
+        {
+            logger.log(Level.FINE, "Creating PictureWidget for {0}", url);
+            final PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
+            widget.propFile().setValue(url);
+            widgets.add(widget);
+            updates.add(() -> updatePictureWidget(widget));
+        }
+        else if (EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getName().equals(choice))
+        {
+            logger.log(Level.FINE, "Creating EmbeddedDisplayWidget for {0}", url);
+            EmbeddedDisplayWidget widget = (EmbeddedDisplayWidget) EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.createWidget();
+            widget.propFile().setValue(url);
+            widgets.add(widget);
+            updates.add(() -> updateEmbeddedWidget(widget));
+        }
     }
 
-    /**
-     * @param file              The image file used to create and preset a {@link EmbeddedDisplayWidget}.
-     * @param index             The index of the {@code file} inside the dropped set.
-     * @param selection_tracker Used to get the grid steps from its model to be used
-     *                          in offsetting multiple widgets.
-     * @param widgets           The container of the created widgets.
+    /** @param display_file      Display file for which to create an {@link EmbeddedDisplayWidget}.
+     *  @param selection_tracker Used to get the grid steps from its model to be used
+     *                           in offsetting multiple widgets.
+     *  @param widgets           The container of the created widgets.
+     *  @param updates           Updates to perform on widgets
      */
-    private static void opiFileAcceptor ( File file, int index, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets ) {
-
-        if ( file!= null && file.exists() ) {
-            try {
-
-                DisplayModel model = selection_tracker.getModel();
-                EmbeddedDisplayWidget widget = (EmbeddedDisplayWidget) EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.createWidget();
-
-                widget.propFile().setValue(ModelResourceUtil.getRelativePath(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE), file.toString()));
-                widget.propX().setValue(model.propGridStepX().getValue() * index);
-                widget.propY().setValue(model.propGridStepY().getValue() * index);
-                widget.propResize().setValue(Resize.SizeToContent);
-
-                try ( BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file)) ) {
-
-                    ModelReader reader = new ModelReader(bis);
-                    Optional<String> name = reader.getName();
-
-                    if ( name.isPresent() ) {
-                        widget.propName().setValue(name.get());
-                    }
-
-                } catch ( Exception iex ) {
-                    logger.log(Level.WARNING, "Unable to read OPI/BOB file [{0}].", iex.getMessage());
-                }
-
-                widgets.add(widget);
-
-                logger.log(Level.FINE, "Dropped image file: creating PictureWidget");
-
-            } catch ( Exception ex ) {
-                logger.log(Level.WARNING, "Unable to read OPI/BOB file [{0}].", ex.getMessage());
-            }
-        }
-
+    private static void displayFileAcceptor(final String display_file,
+                                            final SelectedWidgetUITracker selection_tracker,
+                                            final List<Widget> widgets, final List<Runnable> updates)
+    {
+        logger.log(Level.FINE, "Creating EmbeddedDisplayWidget for {0}", display_file);
+        final DisplayModel model = selection_tracker.getModel();
+        final EmbeddedDisplayWidget widget = (EmbeddedDisplayWidget) EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.createWidget();
+        widget.propFile().setValue(display_file);
+        // Offset multiple widgets by grid size
+        final int index = widgets.size();
+        widget.propX().setValue(model.propGridStepX().getValue() * index);
+        widget.propY().setValue(model.propGridStepY().getValue() * index);
+        widgets.add(widget);
+        updates.add(() -> updateEmbeddedWidget(widget));
     }
 
-    private static String reduceString ( String text ) {
-        if ( text.length() <= 64 ) {
+    /** Update an embedded widget's name and size from its input
+     *  @param widget {@link EmbeddedDisplayWidget}
+     */
+    private static void updateEmbeddedWidget(final EmbeddedDisplayWidget widget)
+    {
+        final String display_file = widget.propFile().getValue();
+        final String resolved;
+        try
+        {
+            resolved = ModelResourceUtil.resolveResource(widget.getTopDisplayModel(), display_file);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot resolve resource " + display_file, ex);
+            return;
+        }
+        try
+        (
+            final InputStream bis = ModelResourceUtil.openResourceStream(resolved);
+        )
+        {
+            final ModelReader reader = new ModelReader(bis);
+            final DisplayModel embedded_model = reader.readModel();
+            final String name = embedded_model.getName();
+            if (! name.isEmpty())
+              widget.propName().setValue(name);
+            widget.propWidth().setValue(embedded_model.propWidth().getValue());
+            widget.propHeight().setValue(embedded_model.propHeight().getValue());
+        }
+        catch (Exception ex)
+        {
+          logger.log(Level.WARNING, "Error updating embedded widget", ex);
+        }
+    }
+
+    private static String reduceString(String text)
+    {
+        if (text.length() <= 64)
             return text;
-        } else {
+        else
             return StringUtils.join(StringUtils.left(text, 32), "...", StringUtils.right(text, 32));
-        }
     }
 
-    private static String reduceStrings ( String[] lines ) {
-
+    private static String reduceStrings(String[] lines)
+    {
         final int ALLOWED_LINES = 16;   //  Should be a even number.
         List<String> validLines = new ArrayList<>(1 + ALLOWED_LINES);
 
-        if ( lines.length <= ALLOWED_LINES ) {
+        if ( lines.length <= ALLOWED_LINES )
             Arrays.asList(lines).stream().forEach(l -> validLines.add(reduceString(l)));
-        } else {
-
-            for ( int i = 0; i < ALLOWED_LINES / 2; i++ ) {
+        else
+        {
+            for ( int i = 0; i < ALLOWED_LINES / 2; i++ )
                 validLines.add(reduceString(lines[i]));
-            }
 
             validLines.add("...");
 
-            for ( int i = lines.length - ALLOWED_LINES / 2; i < lines.length; i++ ) {
+            for ( int i = lines.length - ALLOWED_LINES / 2; i < lines.length; i++ )
                 validLines.add(reduceString(lines[i]));
-            }
-
         }
 
         StringBuilder builder = new StringBuilder();
@@ -746,74 +705,61 @@ public class WidgetTransfer
         builder.deleteCharAt(builder.length() - 1);
 
         return builder.toString();
-
     }
 
-    /**
-     * Return a reduced version of the given {@code url}.
+    /** Return a reduced version of the given {@code url}.
      *
-     * @param url An URL string tha, if long, must be reduced
-     *            to a shorter version to be displayed.
-     * @return A reduced version of the given {@code url}.
+     *  @param url An URL string that, if long, must be reduced
+     *             to a shorter version to be displayed.
+     *  @return A reduced version of the given {@code url}.
      */
-    private static String reduceURL ( String url ) {
-
-        if ( url.length() > 64 ) {
-
+    private static String reduceURL(String url)
+    {
+        if (url.length() > 64)
+        {
             String shortURL = url;
             int leftSlash = 2;
             int rightSlash = 2;
 
-            if ( url.contains("://") ) {
+            if (url.contains("://"))
                 leftSlash += 2;
-            } else if ( url.startsWith("/") ) {
+            else if (url.startsWith("/"))
                 leftSlash += 1;
-            }
 
-            if ( StringUtils.countMatches(url, '/') > ( leftSlash + rightSlash ) ) {
-
+            if (StringUtils.countMatches(url, '/')  >  (leftSlash + rightSlash))
+            {
                 shortURL = reduceURL(url, leftSlash, rightSlash);
-
-                if ( shortURL.length() <= 80 ) {
+                if (shortURL.length() <= 80)
                     return shortURL;
-                }
-
             }
 
-            if ( shortURL.length() > 64 ) {
-
+            if (shortURL.length() > 64)
+            {
                 leftSlash--;
                 rightSlash--;
 
-                if ( StringUtils.countMatches(url, '/') > ( leftSlash + rightSlash ) ) {
-
+                if (StringUtils.countMatches(url, '/')  >  (leftSlash + rightSlash))
+                {
                     shortURL = reduceURL(url, leftSlash, rightSlash);
 
-                    if ( shortURL.length() <= 80 ) {
+                    if (shortURL.length() <= 80)
                         return shortURL;
-                    }
-
                 }
-
             }
 
-            if ( shortURL.length() > 64 ) {
+            if (shortURL.length() > 64)
                 return StringUtils.join(StringUtils.left(url, 32), "...", StringUtils.right(url, 32));
-            }
-
         }
 
         return url;
 
     }
 
-    private static String reduceURL ( String url, int leftSlash, int rightSlash ) {
-
+    private static String reduceURL(String url, int leftSlash, int rightSlash)
+    {
         int leftSlashIndex = StringUtils.ordinalIndexOf(url, "/", leftSlash);
         int rightSlashIndex = StringUtils.ordinalIndexOf(StringUtils.reverse(url), "/", rightSlash);
 
         return StringUtils.join(StringUtils.left(url, leftSlashIndex + 1), "...", StringUtils.right(url, rightSlashIndex + 1));
-
     }
-
 }
