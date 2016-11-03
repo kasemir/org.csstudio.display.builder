@@ -17,7 +17,6 @@ import java.awt.Stroke;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -53,6 +52,7 @@ import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.model.widgets.PVWidget;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.WebBrowserWidget;
+import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.eclipse.osgi.util.NLS;
 
 import javafx.embed.swing.SwingFXUtils;
@@ -360,41 +360,40 @@ public class WidgetTransfer
      */
     private static void installWidgetsFromImage(final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets)
     {
-        try
+        logger.log(Level.FINE, "Dropped image: creating PictureWidget");
+        final DisplayModel model = selection_tracker.getModel();
+        final ToolkitRepresentation<?, ?> toolkit = ToolkitRepresentation.getToolkit(selection_tracker.getModel());
+        final String filename = toolkit.showSaveAsDialog(model, null);
+        if (filename == null)
+            return;
+
+        final Image image = db.getImage();
+        if (image == null)
+            return;
+
+        final PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
+        widget.propWidth().setValue((int) image.getWidth());
+        widget.propHeight().setValue((int) image.getHeight());
+        widgets.add(widget);
+
+        // File access should not be on UI thread,
+        // but we need to return the widget right away.
+        // -> Return the widget now,
+        //    create the image file later,
+        //    and then update the widget's file property
+        EditorUtil.getExecutor().execute(() ->
         {
-            Image image = db.getImage();
-            // TODO File access should not be on UI thread
-            // TODO Image needs to be created within the RCP workspace
-            //      or in a file system location that's part of the
-            //      display file tree, not in tmp
-            //      --> call ToolkitRepresentation#showSaveAsDialog
-
-            File file = File.createTempFile("picture", ".png");
-            BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
-
             try
             {
-                ImageIO.write(bImage, "png", file);
-
-                DisplayModel model = selection_tracker.getModel();
-                PictureWidget widget = (PictureWidget) PictureWidget.WIDGET_DESCRIPTOR.createWidget();
-
-                widget.propFile().setValue(ModelResourceUtil.getRelativePath(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE), file.toString()));
-                widget.propWidth().setValue((int) image.getWidth());
-                widget.propHeight().setValue((int) image.getHeight());
-                widgets.add(widget);
-
-                logger.log(Level.FINE, "Dropped image: creating PictureWidget");
+                BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+                ImageIO.write(bImage, "png", new File(filename));
+                widget.propFile().setValue(ModelResourceUtil.getRelativePath(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE), filename));
             }
-            catch (IOException ioex)
+            catch (Exception ex)
             {
-                logger.log(Level.WARNING, "Unable to save image into a temporary location", ioex);
+                logger.log(Level.WARNING, "Cannot save image as " + filename, ex);
             }
-        }
-        catch (Exception ex)
-        {
-            logger.log(Level.WARNING, "Invalid image", ex);
-        }
+        });
     }
 
     /** @param db                The {@link Dragboard} containing the dragged data.
