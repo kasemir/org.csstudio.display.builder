@@ -207,7 +207,7 @@ public class XYPlotWidget extends VisibleWidget
                 // Was legacy widget used with scalar data, concatenated into waveform?
                 final Optional<String> concat = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_concatenate_data");
                 if (concat.isPresent()  &&  concat.get().equals("true"))
-                    return false;
+                    logger.log(Level.WARNING, plot + " does not support 'contenate' for trace " + legacy_trace);
 
                 // Y PV
                 final String pv_name = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_y_pv").orElse("");
