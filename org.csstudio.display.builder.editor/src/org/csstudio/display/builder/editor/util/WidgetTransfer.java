@@ -358,17 +358,22 @@ public class WidgetTransfer
      *  @param selection_tracker Used to get the display model.
      *  @param widgets           The container of the created widgets.
      */
-    private static void installWidgetsFromImage (final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets )
+    private static void installWidgetsFromImage(final Dragboard db, final SelectedWidgetUITracker selection_tracker, final List<Widget> widgets)
     {
-        // TODO File access should not be on UI thread
-        try {
-
+        try
+        {
             Image image = db.getImage();
+            // TODO File access should not be on UI thread
+            // TODO Image needs to be created within the RCP workspace
+            //      or in a file system location that's part of the
+            //      display file tree, not in tmp
+            //      --> call ToolkitRepresentation#showSaveAsDialog
+
             File file = File.createTempFile("picture", ".png");
             BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
 
-            try {
-
+            try
+            {
                 ImageIO.write(bImage, "png", file);
 
                 DisplayModel model = selection_tracker.getModel();
@@ -380,13 +385,15 @@ public class WidgetTransfer
                 widgets.add(widget);
 
                 logger.log(Level.FINE, "Dropped image: creating PictureWidget");
-
-            } catch ( IOException ioex ) {
-                logger.log(Level.WARNING, "Unable to save image into a temporary location [{0}].", ioex.getMessage());
             }
-
-        } catch ( Exception ex ) {
-            logger.log(Level.WARNING, "Invalid image [{0}].", ex.getMessage());
+            catch (IOException ioex)
+            {
+                logger.log(Level.WARNING, "Unable to save image into a temporary location", ioex);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Invalid image", ex);
         }
     }
 
@@ -498,28 +505,27 @@ public class WidgetTransfer
                 return;
             }
 
-            for (String line : words)
+            for (String word : words)
             {
                 final Widget widget = descriptor.createWidget();
-                logger.log(Level.FINE, "Dropped text: created {0} [{1}].", new Object[] { widget.getClass().getSimpleName(), line });
+                logger.log(Level.FINE, "Dropped text: created {0} [{1}].", new Object[] { widget.getClass().getSimpleName(), word });
                 if (widget instanceof PVWidget)
-                    ((PVWidget) widget).propPVName().setValue(line);
+                    ((PVWidget) widget).propPVName().setValue(word);
                 else if (widget instanceof LabelWidget)
-                    ((LabelWidget) widget).propText().setValue(line);
+                    ((LabelWidget) widget).propText().setValue(word);
                 else
                     logger.log(Level.WARNING, "Unexpected widget type [{0}].", widget.getClass().getSimpleName());
 
                 final int index = widgets.size();
                 if (index > 0)
-                {   // Place widgets below each other, aligned to grid
+                {   // Place widgets below each other
                     final Widget previous = widgets.get(index - 1);
                     int x = previous.propX().getValue();
                     int y = previous.propY().getValue() + previous.propHeight().getValue();
-                    DisplayModel model = selection_tracker.getModel();
-                    final int grid_y = model.propGridStepY().getValue();
-                    y = (( y + grid_y / 2 ) / grid_y) * grid_y;
-                    widget.propX().setValue(x);
-                    widget.propY().setValue(y);
+                    // Align (if enabled)
+                    final Point2D pos = selection_tracker.gridConstrain(x, y);
+                    widget.propX().setValue((int)pos.getX());
+                    widget.propY().setValue((int)pos.getY());
                 }
 
                 widgets.add(widget);
