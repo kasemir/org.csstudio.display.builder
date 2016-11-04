@@ -335,7 +335,12 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         plot.setTitle(model_widget.propTitle().getValue());
 
         plot.showToolbar(model_widget.propToolbar().getValue());
-        plot.showLegend(model_widget.propLegend().getValue());
+
+        // Show trace names either in legend or on axis
+        final boolean legend = model_widget.propLegend().getValue();
+        plot.showLegend(legend);
+        for (YAxis<Double> axis : plot.getYAxes())
+            axis.useTraceNames(!legend);
 
         // Update X Axis
         updateAxisConfig(plot.getXAxis(), model_widget.propXAxis());

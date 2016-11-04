@@ -26,7 +26,6 @@ one for the "X" and one for the "Y" axis.</text>
     <y>91</y>
     <width>511</width>
     <height>340</height>
-    <show_legend>false</show_legend>
     <traces>
       <trace>
         <name></name>
@@ -100,7 +99,7 @@ one for the "X" and one for the "Y" axis.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
-    <text>Show/hide cross-cair cursor</text>
+    <text>Show/hide cross-hair cursor</text>
     <x>121</x>
     <y>541</y>
     <width>360</width>
