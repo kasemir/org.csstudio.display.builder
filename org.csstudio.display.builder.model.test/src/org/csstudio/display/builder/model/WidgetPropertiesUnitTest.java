@@ -17,7 +17,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -118,7 +118,10 @@ public class WidgetPropertiesUnitTest
     public void testPropertyListing()
     {
         final Widget led = new MultiStateLEDWidget();
-        final Collection<String> names = led.getCurrentPropertyNames();
+        final List<String> names = new ArrayList<>();
+        for (WidgetProperty<?> property : led.getProperties())
+            names.addAll(Widget.expandPropertyNames(property));
+
         System.out.println("Properties of " + led.getType());
         for (String name : names)
             System.out.println(name);

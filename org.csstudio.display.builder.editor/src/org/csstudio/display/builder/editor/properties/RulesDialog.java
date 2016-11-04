@@ -477,13 +477,13 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     /** Widget name and type for the header bar **/
     private final Widget attached_widget;
     /** Undo actions for choosing property values in expressions **/
-    final UndoableActionManager undo;
+    private final UndoableActionManager undo;
     /** Autocomplete menu for pv names */
     private final AutocompleteMenu menu;
 
     /** Property options for target of expression **/
-    ObservableList<String> prop_id_opts = FXCollections.observableArrayList();
-    final List<PropInfo> propinfo_ls;
+    private final ObservableList<String> prop_id_opts = FXCollections.observableArrayList();
+    private final List<PropInfo> propinfo_ls;
     private ComboBox<String> propComboBox;
 
     /** Is the property value an expressions (i.e. user input string) **/
@@ -746,7 +746,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
             }
         });
 
-        //TODO: Add Messages
         btn_move_rule_up = new Button(Messages.MoveUp, JFXUtil.getIcon("up.png"));
         btn_move_rule_up.setMaxWidth(Double.MAX_VALUE);
         btn_move_rule_up.setDisable(true);
