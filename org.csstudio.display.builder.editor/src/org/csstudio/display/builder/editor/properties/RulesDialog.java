@@ -11,7 +11,6 @@ import static org.csstudio.display.builder.editor.DisplayEditor.logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -403,24 +402,10 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
         public boolean tryUpdatePropID(final UndoableActionManager undo, String new_prop_id)
         {
-            if (new_prop_id == null)
-                return false;
-
             if (new_prop_id.equals(prop_id.get()))
                 return false;
 
-            if (attached_widget == null)
-                return false;
-
-            final Optional<WidgetProperty<Object>> prop = attached_widget.checkProperty(new_prop_id);
-            if (!prop.isPresent())
-            {
-                logger.log(Level.WARNING, "Widget " + attached_widget.getClass().getName()
-                        + " cannot make make rule for unknown property id " + new_prop_id);
-                return false;
-            }
-
-            prop_id.set(new_prop_id);;
+            prop_id.set(new_prop_id);
 
             // If just an output expression string. No need to change objects
             if (prop_as_expr.get())
@@ -444,8 +429,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
 
             return true;
         }
-
-
     };
 
     /** Data that is linked to the rules_table */
@@ -482,7 +465,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
     private final AutocompleteMenu menu;
 
     /** Property options for target of expression **/
-    private final ObservableList<String> prop_id_opts = FXCollections.observableArrayList();
     private final List<PropInfo> propinfo_ls;
     private ComboBox<String> propComboBox;
 
@@ -496,33 +478,6 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         return pi.toString();
     }
 
-    /** get the short property id from the long string from the combo box **/
-    public String getPropID( String longString )
-    {
-        int idx = prop_id_opts.indexOf(longString);
-        if ((idx < 0) || (idx > propinfo_ls.size())) {
-            logger.log(Level.SEVERE, "Could not match combo box item " + longString + " to property." +
-                    " Got index " + String.valueOf(idx) + " out of bounds " + String.valueOf(propinfo_ls.size()));
-            return null;
-        }
-        PropInfo pi = propinfo_ls.get(idx);
-
-        if (pi.toString().equals(longString))
-            return pi.getPropID();
-
-        logger.log(Level.WARNING, "Mismatch in property dropdown and property listing");
-
-        for (PropInfo propi : propinfo_ls )
-        {
-            if (propi.toString().equals(longString))
-                return propi.getPropID();
-
-        }
-
-        logger.log(Level.SEVERE, "Could not find property for combo box item: " + longString);
-        return null;
-    }
-
     /** @param rules Rules to show/edit in the dialog */
     public RulesDialog(final UndoableActionManager undo, final List<RuleInfo> rules, final Widget attached_widget, final AutocompleteMenu menu)
     {
@@ -532,14 +487,9 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         this.menu = menu;
 
         propinfo_ls = RuleInfo.getTargettableProperties(attached_widget);
-        propinfo_ls.forEach(pi ->
-        {
-            prop_id_opts.add( pi.toString() );
-        });
-
         setHeaderText(Messages.RulesDialog_Info + ": " +
-                (String) attached_widget.getProperty("type").getValue() + " " +
-                (String) attached_widget.getProperty("name").getValue());
+                      attached_widget.getType() + " " +
+                      attached_widget.getName());
 
 
         rules.forEach(rule -> rule_items.add(RuleItem.forInfo(attached_widget, rule, undo)));
@@ -627,30 +577,23 @@ public class RulesDialog extends Dialog<List<RuleInfo>>
         };
         expression_items.addListener(ell);
 
-        //What is the property id option we are using?
+        // What is the property id option we are using?
         final Label propLabel = new Label("Property ID:");
+        // Show each property with current value
+        final ObservableList<String> prop_id_opts = FXCollections.observableArrayList();
+        for (PropInfo pi : propinfo_ls)
+            prop_id_opts.add(pi.toString());
         propComboBox = new ComboBox<String>(prop_id_opts);
         propComboBox.setDisable(true);
-
-        propComboBox.valueProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> ov, String t, String t1) {
-                if (t1 != null)
-                {
-                    if (!selected_rule_item.tryUpdatePropID(undo, getPropID(t1)))
-                    {
-                        Logger.getLogger(this.getClass().getName()).
-                        log(Level.FINE, "Did not update rule property ID to " + t1);
-                    }
-                    else
-                    {
-                        expression_items.setAll(selected_rule_item.expressions);
-                    }
-                }
-            }
+        // Select property info based on index within combo
+        propComboBox.getSelectionModel().selectedIndexProperty().addListener( (p, o, index) ->
+        {
+            final PropInfo prop = propinfo_ls.get(index.intValue());
+            if (selected_rule_item.tryUpdatePropID(undo, prop.getPropID()))
+                expression_items.setAll(selected_rule_item.expressions);
         });
 
-        //TODO: change this to actually manipulate expression objects in the rule
+        // TODO: change this to actually manipulate expression objects in the rule
         valExpBox = new CheckBox("Value as Expression");
         valExpBox.setDisable(true);
         valExpBox.selectedProperty().addListener(new ChangeListener<Boolean>() {
