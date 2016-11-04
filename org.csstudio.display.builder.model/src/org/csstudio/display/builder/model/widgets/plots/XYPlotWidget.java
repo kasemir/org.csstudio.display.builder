@@ -108,6 +108,8 @@ public class XYPlotWidget extends VisibleWidget
                 axis.maximum().setValue(Double.parseDouble(txt)) );
             XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_auto_scale").ifPresent(txt ->
                 axis.autoscale().setValue(Boolean.parseBoolean(txt)) );
+            XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_show_grid").ifPresent(txt ->
+                axis.grid().setValue(Boolean.parseBoolean(txt)) );
 
             Element font_el = XMLUtil.getChildElement(xml, "axis_" + legacy_axis + "_title_font");
             if (font_el != null)

@@ -244,9 +244,10 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     private void trackAxisChanges(final AxisWidgetProperty axis)
     {
         axis.title().addUntypedPropertyListener(config_listener);
+        axis.autoscale().addUntypedPropertyListener(config_listener);
         axis.minimum().addUntypedPropertyListener(config_listener);
         axis.maximum().addUntypedPropertyListener(config_listener);
-        axis.autoscale().addUntypedPropertyListener(config_listener);
+        axis.grid().addUntypedPropertyListener(config_listener);
         axis.titleFont().addUntypedPropertyListener(config_listener);
         axis.scaleFont().addUntypedPropertyListener(config_listener);
         if (axis instanceof YAxisWidgetProperty)
@@ -259,9 +260,10 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     private void ignoreAxisChanges(final AxisWidgetProperty axis)
     {
         axis.title().removePropertyListener(config_listener);
+        axis.autoscale().removePropertyListener(config_listener);
         axis.minimum().removePropertyListener(config_listener);
         axis.maximum().removePropertyListener(config_listener);
-        axis.autoscale().removePropertyListener(config_listener);
+        axis.grid().removePropertyListener(config_listener);
         axis.titleFont().removePropertyListener(config_listener);
         axis.scaleFont().removePropertyListener(config_listener);
         if (axis instanceof YAxisWidgetProperty)
@@ -369,6 +371,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         plot_axis.setName(model_axis.title().getValue());
         plot_axis.setValueRange(model_axis.minimum().getValue(), model_axis.maximum().getValue());
         plot_axis.setAutoscale(model_axis.autoscale().getValue());
+        plot_axis.setGridVisible(model_axis.grid().getValue());
         plot_axis.setLabelFont(JFXUtil.convert(model_axis.titleFont().getValue()));
         plot_axis.setScaleFont(JFXUtil.convert(model_axis.scaleFont().getValue()));
     }
