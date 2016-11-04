@@ -30,8 +30,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.diirt.datasource.CompositeDataSource;
 import org.diirt.datasource.PVManager;
-import org.epics.pvmanager.sim.SimulationDataSource;
-import org.junit.Test;
 
 /** [Headless] JUnit Plug-in demo of Controller for Plot and Model.
  *
@@ -54,7 +52,7 @@ public class ControllerDemo
     private void setup()
     {
         final CompositeDataSource sources = new CompositeDataSource();
-        sources.putDataSource("sim", new SimulationDataSource());
+        //sources.putDataSource("sim", new SimulationDataSource());
         PVManager.setDefaultDataSource(sources);
     }
 
@@ -106,8 +104,16 @@ public class ControllerDemo
         parent.setLayout(layout);
 
         // Plot
-        plot = new ModelBasedPlot(parent);
-        plot.getPlot().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
+        try
+        {
+            plot = new ModelBasedPlot(parent);
+        }
+        catch (Exception e1)
+        {
+            e1.printStackTrace();
+        }
+        //TODO: Fix or remove
+        //plot.getPlot().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
 
         // [Debug] button
         final Button debug = new Button(parent, SWT.PUSH);
@@ -172,7 +178,6 @@ public class ControllerDemo
         new XMLPersistence().write(model, System.out);
     }
 
-    @Test
     public void controllerDemo() throws Exception
     {
         final Display display = Display.getDefault();
@@ -190,9 +195,9 @@ public class ControllerDemo
 
         while (run  &&  !shell.isDisposed())
         {
-          if (!display.readAndDispatch()) {
-            display.sleep();
-        }
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
         }
 
         controller.stop();

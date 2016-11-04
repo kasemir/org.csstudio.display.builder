@@ -7,14 +7,14 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.ui;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+//import java.util.Arrays;
+//import java.util.HashSet;
+//import java.util.List;
+//import java.util.Set;
 
-import org.eclipse.jface.window.Window;
-import org.eclipse.swt.widgets.Shell;
-import org.junit.Test;
+//import org.eclipse.jface.window.Window;
+//import org.eclipse.swt.widgets.Shell;
+//import org.junit.Test;
 
 /** [Headless] JUnit Plug-in demo of the AddPVDialog
  *  @author Kay Kasemir
@@ -22,31 +22,31 @@ import org.junit.Test;
 @SuppressWarnings("nls")
 public class AddPVDialogDemo
 {
-    final Set<String> names = new HashSet<>(Arrays.asList("Fred", "Jane" ));
-    final List<String> axes = Arrays.asList( "Value", "Value 2" );
+    //    final Set<String> names = new HashSet<>(Arrays.asList("Fred", "Jane" ));
+    //    final List<String> axes = Arrays.asList( "Value", "Value 2" );
 
-    @Test
-    public void pvTest()
-    {
-        final Shell shell = new Shell();
-        final AddPVDialog dlg = new AddPVDialog(shell, names, axes, false);
-        if (dlg.open() == Window.OK)
-        {
-            System.out.println("Name  : " + dlg.getName());
-            System.out.println("Period: " + dlg.getScanPeriod());
-            System.out.println("Axis  : " + dlg.getAxisIndex());
-        }
-    }
-
-    @Test
-    public void formulaTest()
-    {
-        final Shell shell = new Shell();
-        final AddPVDialog dlg = new AddPVDialog(shell, names, axes, true);
-        if (dlg.open() == Window.OK)
-        {
-            System.out.println("Name  : " + dlg.getName());
-            System.out.println("Axis  : " + dlg.getAxisIndex());
-        }
-    }
+    //    @Test
+    //    public void pvTest()
+    //    {
+    //        final Shell shell = new Shell();
+    //        final AddPVDialog dlg = new AddPVDialog(shell, names, axes, false);
+    //        if (dlg.open() == Window.OK)
+    //        {
+    //            System.out.println("Name  : " + dlg.getName());
+    //            System.out.println("Period: " + dlg.getScanPeriod());
+    //            System.out.println("Axis  : " + dlg.getAxisIndex());
+    //        }
+    //    }
+    //
+    //    @Test
+    //    public void formulaTest()
+    //    {
+    //        final Shell shell = new Shell();
+    //        final AddPVDialog dlg = new AddPVDialog(shell, names, axes, true);
+    //        if (dlg.open() == Window.OK)
+    //        {
+    //            System.out.println("Name  : " + dlg.getName());
+    //            System.out.println("Axis  : " + dlg.getAxisIndex());
+    //        }
+    //    }
 }

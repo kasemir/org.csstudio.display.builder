@@ -15,7 +15,6 @@ import org.csstudio.trends.databrowser3.model.FormulaItem;
 import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.model.PVItem;
 import org.eclipse.swt.widgets.Shell;
-import org.junit.Test;
 
 /** JUnit plug-in demo SWT app for testing the Formula dialog.
  *  @author Kay Kasemir
@@ -23,7 +22,6 @@ import org.junit.Test;
 @SuppressWarnings("nls")
 public class EditFormulaDialogDemo
 {
-    @Test
     public void dialogDemo() throws Exception
     {
         final Shell shell = new Shell();
@@ -36,11 +34,11 @@ public class EditFormulaDialogDemo
         model.addItem(new PVItem("janet", 0.0));
 
         final FormulaItem formula = new FormulaItem("demo", "2*x2",
-        new FormulaInput[]
-        {
-            new FormulaInput(model.getItem("fred"), "x2"),
-            new FormulaInput(model.getItem("janet"), "jj")
-        });
+                new FormulaInput[]
+                        {
+                                new FormulaInput(model.getItem("fred"), "x2"),
+                                new FormulaInput(model.getItem("janet"), "jj")
+                        });
         model.addItem(formula);
 
         final EditFormulaDialog edit = new EditFormulaDialog(null, shell, formula);

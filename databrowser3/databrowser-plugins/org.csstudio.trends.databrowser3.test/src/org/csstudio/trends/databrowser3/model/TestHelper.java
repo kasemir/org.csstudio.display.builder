@@ -14,9 +14,9 @@ import java.util.logging.Logger;
 import org.diirt.datasource.CompositeDataSource;
 import org.diirt.datasource.PVManager;
 import org.diirt.datasource.loc.LocalDataSource;
-import org.epics.pvmanager.sim.SimulationDataSource;
+//import org.epics.pvmanager.sim.SimulationDataSource;
 import org.diirt.util.array.ArrayDouble;
-import org.diirt.util.time.Timestamp;
+import org.csstudio.archive.vtype.TimestampHelper;
 import org.diirt.vtype.AlarmSeverity;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueFactory;
@@ -33,7 +33,8 @@ public class TestHelper
         // PVManager data sources
         final CompositeDataSource sources = new CompositeDataSource();
         sources.putDataSource("loc", new LocalDataSource());
-        sources.putDataSource("sim", new SimulationDataSource());
+        //TODO: Add back Simulation data source?
+        //sources.putDataSource("sim", new SimulationDataSource());
         PVManager.setDefaultDataSource(sources);
 
         // Logging
@@ -49,7 +50,7 @@ public class TestHelper
      */
     public static VType makeValue(final int i)
     {
-        return ValueFactory.newVDouble(Double.valueOf(i), ValueFactory.newTime(Timestamp.of(i, 0)));
+        return ValueFactory.newVDouble(Double.valueOf(i), ValueFactory.newTime(TimestampHelper.fromMillisecs(i)));
     }
 
     /**@param ts timestamp
@@ -71,7 +72,7 @@ public class TestHelper
     {
         return ValueFactory.newVDouble(Double.NaN,
                 ValueFactory.newAlarm(AlarmSeverity.UNDEFINED, error),
-                ValueFactory.newTime(Timestamp.of(i, 0)),
+                ValueFactory.newTime(TimestampHelper.fromMillisecs(i)),
                 ValueFactory.displayNone());
     }
 

@@ -11,11 +11,12 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.csstudio.archive.vtype.ArchiveVNumber;
-import org.diirt.util.time.Timestamp;
 import org.diirt.vtype.AlarmSeverity;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueUtil;
@@ -31,8 +32,9 @@ public class PVSamplesUnitTest
     @Test
     public void testPVSamples()
     {
+        final AtomicInteger waveform_index = new AtomicInteger(0);
         // Start w/ empty PVSamples
-        final PVSamples samples = new PVSamples();
+        final PVSamples samples = new PVSamples(waveform_index);
         assertEquals(0, samples.size());
 
         // Add 'historic' samples
@@ -77,12 +79,13 @@ public class PVSamplesUnitTest
     @Test
     public void testUndefinedLiveData()
     {
+        final AtomicInteger waveform_index = new AtomicInteger(0);
         // Start w/ empty samples
-        final PVSamples samples = new PVSamples();
+        final PVSamples samples = new PVSamples(waveform_index);
         assertEquals(0, samples.size());
 
         // Add sample w/ null time stamp, INVALID/UDF
-        final Timestamp null_time = Timestamp.of(0, 0);
+        final Instant null_time = Instant.ofEpochMilli(0);
         VType value = new ArchiveVNumber(null_time, AlarmSeverity.NONE, "", null, 0.0);
         assertThat(ValueUtil.timeOf(value).isTimeValid(), equalTo(false));
 
@@ -97,79 +100,4 @@ public class PVSamplesUnitTest
         assertThat(ValueUtil.timeOf(value).isTimeValid(), equalTo(true));
     }
 
-    @Test
-    public void testWaveformIndex()
-    {
-        // Start w/ empty PVSamples
-        final PVSamples samples = new PVSamples();
-        assertEquals(0, samples.size());
-
-        // Add 'historic' samples
-        final List<VType> history = new ArrayList<VType>();
-        history.add(TestHelper.makeWaveform(0, new double[] {0.0, 0.1, 0.2}));
-        history.add(TestHelper.makeWaveform(1, new double[] {1.0, 1.1, 1.2, 1.3}));
-        samples.mergeArchivedData("Test", history);
-        System.out.println(samples.toString());
-
-        // PVSamples include continuation until 'now'
-        System.out.println(samples.toString());
-        assertEquals(0.0, samples.get(0).getValue(), 0.000001);
-        assertEquals(1.0, samples.get(1).getValue(), 0.000001);
-
-        // Change the waveform index to 1
-        samples.setWaveformIndex(1);
-        assertEquals(0.1, samples.get(0).getValue(), 0.000001);
-        assertEquals(1.1, samples.get(1).getValue(), 0.000001);
-
-        // Change the waveform index to 2
-        samples.setWaveformIndex(2);
-        assertEquals(0.2, samples.get(0).getValue(), 0.000001);
-        assertEquals(1.2, samples.get(1).getValue(), 0.000001);
-
-        // Add more 'historic' samples with non-zero waveform index
-        final List<VType> history2 = new ArrayList<VType>();
-        history2.add(TestHelper.makeWaveform(2, new double[] {2.0, 2.1, 2.2}));
-        history2.add(TestHelper.makeWaveform(3, new double[] {3.0, 3.1, 3.2, 3.3}));
-        samples.mergeArchivedData("Test2", history2);
-        System.out.println(samples.toString());
-
-        // Check if Y values indicate the third element
-        assertEquals(2.2, samples.get(2).getValue(), 0.000001);
-        assertEquals(3.2, samples.get(3).getValue(), 0.000001);
-
-        // Add 2 'live' samples
-        samples.addLiveSample(TestHelper.makeWaveform(4, new double[] {4.0, 4.1, 4.2}));
-        samples.addLiveSample(TestHelper.makeWaveform(5, new double[] {5.0, 5.1, 5.2, 5.3}));
-        System.out.println(samples.toString());
-
-        // Check if Y values indicate the third element
-        assertEquals(4.2, samples.get(4).getValue(), 0.000001);
-        assertEquals(5.2, samples.get(5).getValue(), 0.000001);
-
-        // Change all waveform index at once
-        samples.setWaveformIndex(1);
-        assertEquals(0.1, samples.get(0).getValue(), 0.000001);
-        assertEquals(1.1, samples.get(1).getValue(), 0.000001);
-        assertEquals(2.1, samples.get(2).getValue(), 0.000001);
-        assertEquals(3.1, samples.get(3).getValue(), 0.000001);
-        assertEquals(4.1, samples.get(4).getValue(), 0.000001);
-        assertEquals(5.1, samples.get(5).getValue(), 0.000001);
-
-        // Check if Y values indicate NaN when waveform index is out of range
-        samples.setWaveformIndex(3);
-        assertEquals(Double.NaN, samples.get(0).getValue(), 0.000001);
-        assertEquals(1.3, samples.get(1).getValue(), 0.000001);
-        assertEquals(Double.NaN, samples.get(2).getValue(), 0.000001);
-        assertEquals(3.3, samples.get(3).getValue(), 0.000001);
-        assertEquals(Double.NaN, samples.get(4).getValue(), 0.000001);
-        assertEquals(5.3, samples.get(5).getValue(), 0.000001);
-
-        samples.setWaveformIndex(4);
-        assertEquals(Double.NaN, samples.get(0).getValue(), 0.000001);
-        assertEquals(Double.NaN, samples.get(1).getValue(), 0.000001);
-        assertEquals(Double.NaN, samples.get(2).getValue(), 0.000001);
-        assertEquals(Double.NaN, samples.get(3).getValue(), 0.000001);
-        assertEquals(Double.NaN, samples.get(4).getValue(), 0.000001);
-        assertEquals(Double.NaN, samples.get(5).getValue(), 0.000001);
-    }
 }

@@ -8,6 +8,7 @@
 package org.csstudio.trends.databrowser3.ui;
 
 import java.io.PrintWriter;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,15 +20,12 @@ import org.csstudio.trends.databrowser3.model.TestHelper;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.diirt.util.time.Timestamp;
-import org.junit.Test;
 
 /** (Headless) JUnit Plug-in demo of Plot
  *
@@ -41,148 +39,158 @@ public class PlotDemo
 {
     private boolean run = true;
     private volatile boolean scroll = true;
-    private Timestamp start_time, end_time;
+    private Instant start_time, end_time;
 
-//    final private PlotListener listener = new PlotListener()
-//    {
-//        @Override
-//        public void scrollRequested(final boolean enable_scrolling)
-//        {
-//            System.out.println("Scroll enabled: " + enable_scrolling);
-//            scroll = enable_scrolling;
-//        }
-//
-//        @Override
-//        public void timeConfigRequested()
-//        {
-//            System.out.println("Time Config requested");
-//        }
-//
-//        @Override
-//        public void timeAxisChanged(final long start_ms, final long end_ms)
-//        {
-//            start_time = TimestampHelper.fromMillisecs(start_ms);
-//            end_time = TimestampHelper.fromMillisecs(end_ms);
-//            System.out.println("Time axis: " + start_time + " ... " + end_time);
-//        }
-//
-//        @Override
-//        public void valueAxisChanged(final int index, final double lower, final double upper)
-//        {
-//            System.out.println("Value axis " + index + ": " + lower + " ... " + upper);
-//        }
-//
-//        @Override
-//        public void droppedName(final String name)
-//        {
-//            System.out.println("Name dropped: " + name);
-//        }
-//
-//        @Override
-//        public void droppedPVName(final ProcessVariable name, final ArchiveDataSource archive)
-//        {
-//            System.out.println("PV Name dropped: " + name);
-//        }
-//
-//        @Override
-//        public void droppedFilename(final String file_name)
-//        {
-//            System.out.println("File Name dropped: " + file_name);
-//        }
-//
-//        @Override
-//        public void xyGraphConfigChanged(XYGraph newValue) {
-//            // TODO Auto-generated method stub
-//
-//        }
-//
-//        @Override
-//        public void removeAnnotationChanged(Annotation oldValue) {
-//            // TODO Auto-generated method stub
-//
-//        }
-//
-//        @Override
-//        public void addAnnotationChanged(Annotation newValue) {
-//            // TODO Auto-generated method stub
-//
-//        }
-//
-//        @Override
-//        public void backgroundColorChanged(Color newValue) {
-//            // TODO Auto-generated method stub
-//
-//        }
-//
-//        @Override
-//        public void timeAxisForegroundColorChanged(Color oldColor,
-//                Color newColor) {
-//            // TODO Auto-generated method stub
-//
-//        }
-//
-//        @Override
-//        public void valueAxisForegroundColorChanged(int index, Color oldColor,
-//                Color newColor) {
-//            // TODO Auto-generated method stub
-//
-//        }
-//
-//        @Override
-//        public void valueAxisTitleChanged(int index, String oldTitle,
-//                String newTitle) {
-//            // TODO Auto-generated method stub
-//
-//        }
-//
-//        @Override
-//        public void valueAxisAutoScaleChanged(int index, boolean oldAutoScale,
-//                boolean newAutoScale) {
-//            // TODO Auto-generated method stub
-//
-//        }
-//
-//        @Override
-//        public void traceNameChanged(int index, String oldName, String newName) {
-//            // TODO Auto-generated method stub
-//
-//        }
-//
-//        @Override
-//        public void traceYAxisChanged(int index, AxisConfig oldConfig,
-//                AxisConfig config) {
-//            // TODO Auto-generated method stub
-//
-//        }
-//
-//        @Override
-//        public void traceTypeChanged(int index, TraceType old,
-//                TraceType newTraceType) {
-//            // TODO Auto-generated method stub
-//
-//        }
-//
-//        @Override
-//        public void traceColorChanged(int index, Color old, Color newColor) {
-//            // TODO Auto-generated method stub
-//
-//        }
-//
-//        @Override
-//        public void valueAxisLogScaleChanged(int index, boolean old,
-//                boolean logScale) {
-//            // TODO Auto-generated method stub
-//
-//        }
-//    };
+    //    final private PlotListener listener = new PlotListener()
+    //    {
+    //        @Override
+    //        public void scrollRequested(final boolean enable_scrolling)
+    //        {
+    //            System.out.println("Scroll enabled: " + enable_scrolling);
+    //            scroll = enable_scrolling;
+    //        }
+    //
+    //        @Override
+    //        public void timeConfigRequested()
+    //        {
+    //            System.out.println("Time Config requested");
+    //        }
+    //
+    //        @Override
+    //        public void timeAxisChanged(final long start_ms, final long end_ms)
+    //        {
+    //            start_time = TimestampHelper.fromMillisecs(start_ms);
+    //            end_time = TimestampHelper.fromMillisecs(end_ms);
+    //            System.out.println("Time axis: " + start_time + " ... " + end_time);
+    //        }
+    //
+    //        @Override
+    //        public void valueAxisChanged(final int index, final double lower, final double upper)
+    //        {
+    //            System.out.println("Value axis " + index + ": " + lower + " ... " + upper);
+    //        }
+    //
+    //        @Override
+    //        public void droppedName(final String name)
+    //        {
+    //            System.out.println("Name dropped: " + name);
+    //        }
+    //
+    //        @Override
+    //        public void droppedPVName(final ProcessVariable name, final ArchiveDataSource archive)
+    //        {
+    //            System.out.println("PV Name dropped: " + name);
+    //        }
+    //
+    //        @Override
+    //        public void droppedFilename(final String file_name)
+    //        {
+    //            System.out.println("File Name dropped: " + file_name);
+    //        }
+    //
+    //        @Override
+    //        public void xyGraphConfigChanged(XYGraph newValue) {
+    //            // TODO Auto-generated method stub
+    //
+    //        }
+    //
+    //        @Override
+    //        public void removeAnnotationChanged(Annotation oldValue) {
+    //            // TODO Auto-generated method stub
+    //
+    //        }
+    //
+    //        @Override
+    //        public void addAnnotationChanged(Annotation newValue) {
+    //            // TODO Auto-generated method stub
+    //
+    //        }
+    //
+    //        @Override
+    //        public void backgroundColorChanged(Color newValue) {
+    //            // TODO Auto-generated method stub
+    //
+    //        }
+    //
+    //        @Override
+    //        public void timeAxisForegroundColorChanged(Color oldColor,
+    //                Color newColor) {
+    //            // TODO Auto-generated method stub
+    //
+    //        }
+    //
+    //        @Override
+    //        public void valueAxisForegroundColorChanged(int index, Color oldColor,
+    //                Color newColor) {
+    //            // TODO Auto-generated method stub
+    //
+    //        }
+    //
+    //        @Override
+    //        public void valueAxisTitleChanged(int index, String oldTitle,
+    //                String newTitle) {
+    //            // TODO Auto-generated method stub
+    //
+    //        }
+    //
+    //        @Override
+    //        public void valueAxisAutoScaleChanged(int index, boolean oldAutoScale,
+    //                boolean newAutoScale) {
+    //            // TODO Auto-generated method stub
+    //
+    //        }
+    //
+    //        @Override
+    //        public void traceNameChanged(int index, String oldName, String newName) {
+    //            // TODO Auto-generated method stub
+    //
+    //        }
+    //
+    //        @Override
+    //        public void traceYAxisChanged(int index, AxisConfig oldConfig,
+    //                AxisConfig config) {
+    //            // TODO Auto-generated method stub
+    //
+    //        }
+    //
+    //        @Override
+    //        public void traceTypeChanged(int index, TraceType old,
+    //                TraceType newTraceType) {
+    //            // TODO Auto-generated method stub
+    //
+    //        }
+    //
+    //        @Override
+    //        public void traceColorChanged(int index, Color old, Color newColor) {
+    //            // TODO Auto-generated method stub
+    //
+    //        }
+    //
+    //        @Override
+    //        public void valueAxisLogScaleChanged(int index, boolean old,
+    //                boolean logScale) {
+    //            // TODO Auto-generated method stub
+    //
+    //        }
+    //    };
 
     private void createGUI(final Composite parent)
     {
         final GridLayout layout = new GridLayout(1, false);
         parent.setLayout(layout);
 
-        final ModelBasedPlot plot = new ModelBasedPlot(parent);
-        plot.getPlot().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
+        ModelBasedPlot plot;
+        try
+        {
+            plot = new ModelBasedPlot(parent);
+        }
+        catch (Exception e1)
+        {
+            e1.printStackTrace();
+            return;
+        }
+        //TODO: Fix or remove
+        //plot.getPlot().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
 
         // [Done] button to end demo
         final Button ok = new Button(parent, SWT.PUSH);
@@ -197,7 +205,7 @@ public class PlotDemo
             }
         });
 
-//        plot.addListener(listener);
+        //        plot.addListener(listener);
 
         // Create demo samples
         final List<PlotSample> values = new ArrayList<PlotSample>();
@@ -229,15 +237,15 @@ public class PlotDemo
                 // NOP
             }
         };
-        item.setColor(new RGB(0, 0, 255));
+        //TODO: Fix or remove
+        //item.setColor(new RGB(0, 0, 255));
         plot.addTrace(item);
 
-//        start_time = VTypeHelper.getTimestamp(samples.getSample(0).getValue());
-//        end_time = VTypeHelper.getTimestamp(samples.getSample(samples.getSize()-1).getValue());
-//        plot.setTimeRange(start_time, end_time);
+        //        start_time = VTypeHelper.getTimestamp(samples.getSample(0).getValue());
+        //        end_time = VTypeHelper.getTimestamp(samples.getSample(samples.getSize()-1).getValue());
+        //        plot.setTimeRange(start_time, end_time);
     }
 
-    @Test
     public void plotDemo()
     {
         final Shell shell = new Shell();

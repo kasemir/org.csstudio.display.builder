@@ -10,15 +10,13 @@ package org.csstudio.trends.databrowser3.search;
 import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
-import org.junit.Test;
 
 /** JUnit Plug-in demo of the AddArchiveDialog
  *  @author Kay Kasemir
  */
 public class AddArchiveDialogDemo
 {
-    @Test
-    public void testArchiveGUI() throws Exception
+    public void demoArchiveGUI() throws Exception
     {
         final Shell shell = new Shell();
 

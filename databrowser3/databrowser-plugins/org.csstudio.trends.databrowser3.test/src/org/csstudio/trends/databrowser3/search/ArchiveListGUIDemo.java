@@ -9,7 +9,6 @@ package org.csstudio.trends.databrowser3.search;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.junit.Test;
 
 /** JUnit Plug-In test of the ArchiveListGUI
  *  @author Kay Kasemir
@@ -17,8 +16,7 @@ import org.junit.Test;
 @SuppressWarnings("nls")
 public class ArchiveListGUIDemo
 {
-    @Test
-    public void testArchiveGUI() throws Exception
+    public void demoArchiveGUI() throws Exception
     {
         final Display display = Display.getDefault();
 

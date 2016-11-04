@@ -12,12 +12,9 @@ import java.util.ArrayList;
 import org.csstudio.archive.vtype.ArchiveVNumber;
 import org.csstudio.archive.vtype.TimestampHelper;
 import org.csstudio.archive.vtype.VTypeHelper;
-import org.diirt.util.time.Timestamp;
 import org.diirt.vtype.AlarmSeverity;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueFactory;
-import org.junit.Test;
-
 import com.jmatio.io.MatFileIncrementalWriter;
 import com.jmatio.types.MLArray;
 import com.jmatio.types.MLCell;
@@ -31,23 +28,22 @@ import com.jmatio.types.MLStructure;
 @SuppressWarnings("nls")
 public class JMatioDemo
 {
-    @Test
     public void writeMatlabFile1() throws Exception
     {
-      //1. First create example arrays
-      double[] src = new double[] { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 };
-      MLDouble mlDouble = new MLDouble( "double_arr", src, 2 );
-      MLChar mlChar = new MLChar( "char_arr", "I am dummy" );
+        //1. First create example arrays
+        double[] src = new double[] { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0 };
+        MLDouble mlDouble = new MLDouble( "double_arr", src, 2 );
+        MLChar mlChar = new MLChar( "char_arr", "I am dummy" );
 
-      //2. write arrays to file
-      ArrayList<MLArray> list = new ArrayList<MLArray>();
-      list.add( mlDouble );
-      list.add( mlChar );
+        //2. write arrays to file
+        ArrayList<MLArray> list = new ArrayList<MLArray>();
+        list.add( mlDouble );
+        list.add( mlChar );
 
-      MatFileIncrementalWriter writer = new MatFileIncrementalWriter("mat_file.mat");
-      writer.write(mlDouble);
-      writer.write(mlChar);
-      writer.close();
+        MatFileIncrementalWriter writer = new MatFileIncrementalWriter("mat_file.mat");
+        writer.write(mlDouble);
+        writer.write(mlChar);
+        writer.close();
     }
 
     private void setCellText(final MLCell cell, final int index, final String text)
@@ -55,13 +51,12 @@ public class JMatioDemo
         cell.set(new MLChar(null, text), index);
     }
 
-    @Test
     public void writeMatlabFile2() throws Exception
     {
         // Example values
         final VType[] values = new VType[10];
         for (int i=0; i<10; ++i)
-            values[i] = new ArchiveVNumber(Timestamp.now(), AlarmSeverity.NONE, "OK",
+            values[i] = new ArchiveVNumber(VTypeHelper.getTimestamp(null), AlarmSeverity.NONE, "OK",
                     ValueFactory.displayNone(),
                     Math.exp(-((5.0-i)*(5.0-i))) );
 

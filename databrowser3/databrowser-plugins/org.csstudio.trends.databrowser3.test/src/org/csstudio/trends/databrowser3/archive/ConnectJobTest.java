@@ -14,7 +14,6 @@ import java.util.concurrent.CountDownLatch;
 
 import org.csstudio.apputil.test.TestProperties;
 import org.csstudio.archive.reader.ArchiveInfo;
-import org.csstudio.archive.reader.ArchiveReader;
 import org.csstudio.trends.databrowser3.Messages;
 import org.eclipse.osgi.util.NLS;
 import org.junit.Test;
@@ -42,10 +41,10 @@ public class ConnectJobTest
         new ConnectJob(url)
         {
             @Override
-            protected void archiveServerConnected(final ArchiveReader reader,
+            protected void archiveServerConnected(final String server_info,
                     final ArchiveInfo infos[])
             {
-                System.out.println("Connected to " + reader.getServerName());
+                System.out.println("Connected to " + server_info);
                 System.out.println(infos.length + " archives:");
                 for (final ArchiveInfo info : infos)
                 {
@@ -74,7 +73,7 @@ public class ConnectJobTest
         new ConnectJob("bad_url")
         {
             @Override
-            protected void archiveServerConnected(final ArchiveReader reader,
+            protected void archiveServerConnected(final String server_info,
                     final ArchiveInfo infos[])
             {
                 info = "Connected to bad URL?";

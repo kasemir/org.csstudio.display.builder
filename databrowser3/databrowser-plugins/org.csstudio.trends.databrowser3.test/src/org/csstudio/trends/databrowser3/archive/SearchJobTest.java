@@ -14,8 +14,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.concurrent.CountDownLatch;
 
 import org.csstudio.apputil.test.TestProperties;
-import org.csstudio.archive.reader.ArchiveReader;
-import org.csstudio.archive.reader.ArchiveRepository;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
 import org.csstudio.trends.databrowser3.model.ChannelInfo;
@@ -41,13 +39,13 @@ public class SearchJobTest
             System.out.println("Skipped");
             return;
         }
-        final ArchiveReader reader =
-            ArchiveRepository.getInstance().getArchiveReader(url);
+        //        final ArchiveReader reader =
+        //                ArchiveRepository.getInstance().getArchiveReader(url);
         final ArchiveDataSource archives[] = new ArchiveDataSource[]
-        {
-            new ArchiveDataSource(url, 1, ""),
-        };
-        new SearchJob(reader, archives, "DTL_LLRF:FCM1:*", true)
+                {
+                        new ArchiveDataSource(url, 1, ""),
+                };
+        new SearchJob(archives, "DTL_LLRF:FCM1:*", true)
         {
             @Override
             protected void receivedChannelInfos(final ChannelInfo[] channels)
