@@ -435,9 +435,30 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                 plot_width -= axis_region.width;
             }
 
-        x_axis.setBounds(total_left_axes_width, title_height+y_axis_height, plot_width, x_axis_height);
+        // So far the areas have been computed to exactly touch, without any overlap:
+        //   |::::::::::::::::::::::::::::::::::
+        //   Y:::::::::::::Plot:::::::::::::::::
+        //   |::::::::::::::::::::::::::::::::::
+        // 0-+*:::::::::::::::::::::::::::::::::
+        //    +------- X -----------------------
+        //    |
+        //    0
+        //
+        // Adjusting such that the origin (x,y) = (0,0) is in the lower left corner,
+        // and both axis markers meet there like this:
+        //   |::::::::::::::::::::::::::::::::::
+        //   Y:::::::::::::Plot:::::::::::::::::
+        //   |::::::::::::::::::::::::::::::::::
+        // 0-*-------- X -----------------------
+        //   |
+        //   0
 
-        plot_area.setBounds(total_left_axes_width, title_height, plot_width, y_axis_height);
+
+        // X axis move up (and higher) by one pixel to overlap the bottom pixel line of the plot_area,
+        // and moving X axis left (and longer) to get the leftmost data in plot onto the Y axis
+        x_axis.setBounds(total_left_axes_width-1, title_height+y_axis_height-1, plot_width+1, x_axis_height+1);
+
+        plot_area.setBounds(total_left_axes_width-1, title_height, plot_width+1, y_axis_height);
     }
 
     /** Draw all components into image buffer */
@@ -507,7 +528,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         //        }
 
         // Convert to JFX
-        WritableImage wi = new WritableImage(image.getWidth(), image.getHeight());
+        final WritableImage wi = new WritableImage(image.getWidth(), image.getHeight());
         SwingFXUtils.toFXImage(image, wi);
         return wi;
     }
