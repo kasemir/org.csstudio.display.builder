@@ -19,7 +19,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propY;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -401,40 +400,29 @@ public class Widget
         return properties;
     }
 
-    /** Get names of all properties of the widget
+    /** Helper for obtaining the complete property name 'paths'
      *
-     *  <p>Provides the complete list of properties,
-     *  including all current array items and structure elements
-     *  via their path name.
+     *  <p>For a scalar property, this method simply returns that property name.
      *
-     *  @return Property names
+     *  <p>For arrays or structures, it returns names for each array resp. structure element.
+     *
+     *  @param property
+     *  @return List of property names
      */
-    public final Collection<String> getCurrentPropertyNames()
+    public static final List<String> expandPropertyNames(final WidgetProperty<?> property)
     {
         final List<String> names = new ArrayList<>();
-        for (WidgetProperty<?> property : properties)
-            addPropertyNames(names, property.getName(), property);
+        doAddPropertyNames(names, property.getName(), property);
         return names;
     }
 
-    /** Helper for adding the complete property name 'paths'
-     *
-     *  <p>For a scalar property, this method simply adds that property
-     *  name to the list of names.
-     *
-     *  <p>For arrays or structures, it adds names for each array resp. structure element.
-     *
-     * @param names
-     * @param path
-     * @param property
-     */
-    public static final void addPropertyNames(final List<String> names, String path, final WidgetProperty<?> property)
+    private static final void doAddPropertyNames(final List<String> names, String path, final WidgetProperty<?> property)
     {
         if (property instanceof ArrayWidgetProperty)
         {
             final ArrayWidgetProperty<?> array = (ArrayWidgetProperty<?>) property;
             for (int i=0; i<array.size(); ++i)
-                addPropertyNames(names, path + "[" + i + "]", array.getElement(i));
+                doAddPropertyNames(names, path + "[" + i + "]", array.getElement(i));
         }
         else if (property instanceof StructuredWidgetProperty)
         {
@@ -442,7 +430,7 @@ public class Widget
             for (int i=0; i<struct.size(); ++i)
             {
                 final WidgetProperty<?> item = struct.getElement(i);
-                addPropertyNames(names, path + "." + item.getName(), item);
+                doAddPropertyNames(names, path + "." + item.getName(), item);
             }
         }
         else
