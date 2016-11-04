@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
+import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
@@ -83,6 +84,11 @@ public class XYPlotWidget extends VisibleWidget
                 // Legacy widget had a "pv_name" property that was basically used as a macro within the widget
                 final String pv_macro = XMLUtil.getChildString(xml, "pv_name").orElse("");
                 final XYPlotWidget plot = (XYPlotWidget) widget;
+
+                // tooltip defaulted to "$(trace_0_y_pv)\n$(trace_0_y_pv_value)"
+                final MacroizedWidgetProperty<String> ttp = (MacroizedWidgetProperty<String>)plot.propTooltip();
+                if (ttp.getSpecification().startsWith("$(trace_0_y_pv)"))
+                    ttp.setSpecification(plot.getInitialTooltip());
 
                 // "axis_0_*" was the X axis config
                 readLegacyAxis(model_reader, 0, xml, plot.x_axis, pv_macro);
@@ -289,6 +295,12 @@ public class XYPlotWidget extends VisibleWidget
         properties.add(x_axis = AxisWidgetProperty.create(this, Messages.PlotWidget_X));
         properties.add(y_axes = PlotWidgetProperties.propYAxes.createProperty(this, Arrays.asList(YAxisWidgetProperty.create(this, Messages.PlotWidget_Y))));
         properties.add(traces = PlotWidgetProperties.propTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this))));
+    }
+
+    @Override
+    protected String getInitialTooltip()
+    {
+        return "$(traces[0].y_pv)";
     }
 
     @Override
