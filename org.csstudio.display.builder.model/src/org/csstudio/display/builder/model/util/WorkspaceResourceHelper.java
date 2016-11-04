@@ -32,6 +32,11 @@ public interface WorkspaceResourceHelper
      */
     public String getLocalPath(String resource_name);
 
+    /** @param local_name Absolute file system resource
+     *  @return Location in workspace or <code>null</code>
+     */
+    public String getWorkspacePath(final String local_name);
+
     /** @param resource_name Name of resource in workspace
      *  @return Stream for the resource, or <code>null</code> if there is no such resource
      *  @throws Exception on error opening a resource that was found in the workspace

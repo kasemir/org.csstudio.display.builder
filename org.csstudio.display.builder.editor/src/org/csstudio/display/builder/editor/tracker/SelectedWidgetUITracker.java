@@ -152,20 +152,20 @@ public class SelectedWidgetUITracker extends Tracker
         grid_constraint.configure(model);
     }
 
-    public DisplayModel getModel() {
-        return grid_constraint.getMode();
+    public DisplayModel getModel()
+    {
+        return grid_constraint.getModel();
     }
 
-    /**
-     * Apply enabled constraints to requested position
+    /** Apply enabled constraints to requested position
      *
-     * @param x Requested X position
-     * @param y Requested Y position
-     * @return Constrained coordinate
+     *  @param x Requested X position
+     *  @param y Requested Y position
+     *  @return Constrained coordinate
      */
     @Override
-    protected Point2D constrain ( final double x, final double y ) {
-
+    protected Point2D constrain(final double x, final double y)
+    {
         Point2D result = super.constrain(x, y);
 
         result = gridConstrain(result.getX(), result.getY());
@@ -175,34 +175,32 @@ public class SelectedWidgetUITracker extends Tracker
 
     }
 
-    /**
-     * Apply enabled constraints to requested position
+    /** Apply enabled constraints to requested position
      *
-     * @param x Requested X position
-     * @param y Requested Y position
-     * @return Constrained coordinate
+     *  @param x Requested X position
+     *  @param y Requested Y position
+     *  @return Constrained coordinate
      */
-    public Point2D gridConstrain ( final double x, final double y ) {
-        if ( grid_constraint.isEnabled() ) {
+    public Point2D gridConstrain(final double x, final double y)
+    {
+        if (grid_constraint.isEnabled())
             return grid_constraint.constrain(x, y);
-        } else {
+        else
             return new Point2D(x, y);
-        }
     }
 
-    /**
-     * Apply enabled constraints to requested position
+    /** Apply enabled constraints to requested position
      *
-     * @param x Requested X position
-     * @param y Requested Y position
-     * @return Constrained coordinate
+     *  @param x Requested X position
+     *  @param y Requested Y position
+     *  @return Constrained coordinate
      */
-    public Point2D snapConstrain ( final double x, final double y ) {
-        if ( snap_constraint.isEnabled() ) {
+    public Point2D snapConstrain(final double x, final double y)
+    {
+        if (snap_constraint.isEnabled())
             return snap_constraint.constrain(x, y);
-        } else {
+        else
             return new Point2D(x, y);
-        }
     }
 
     /** @param event {@link MouseEvent} */

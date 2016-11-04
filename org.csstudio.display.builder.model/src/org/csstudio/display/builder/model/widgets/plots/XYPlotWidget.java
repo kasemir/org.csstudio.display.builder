@@ -108,6 +108,8 @@ public class XYPlotWidget extends VisibleWidget
                 axis.maximum().setValue(Double.parseDouble(txt)) );
             XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_auto_scale").ifPresent(txt ->
                 axis.autoscale().setValue(Boolean.parseBoolean(txt)) );
+            XMLUtil.getChildString(xml, "axis_" + legacy_axis + "_show_grid").ifPresent(txt ->
+                axis.grid().setValue(Boolean.parseBoolean(txt)) );
 
             Element font_el = XMLUtil.getChildElement(xml, "axis_" + legacy_axis + "_title_font");
             if (font_el != null)
@@ -207,7 +209,7 @@ public class XYPlotWidget extends VisibleWidget
                 // Was legacy widget used with scalar data, concatenated into waveform?
                 final Optional<String> concat = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_concatenate_data");
                 if (concat.isPresent()  &&  concat.get().equals("true"))
-                    return false;
+                    logger.log(Level.WARNING, plot + " does not support 'concatenate_data' for trace " + legacy_trace);
 
                 // Y PV
                 final String pv_name = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_y_pv").orElse("");

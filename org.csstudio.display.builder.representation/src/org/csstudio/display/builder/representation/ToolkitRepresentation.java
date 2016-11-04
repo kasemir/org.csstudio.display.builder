@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation;
 
+import java.awt.Desktop;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -399,6 +401,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
 
     /** Show file "Save As" dialog for selecting/entering a new file name
      *
+     *  @param widget Widget, used to create and position the dialog
      *  @param initial_value Initial path and file name
      *  @return Path and file name or <code>null</code>
      */
@@ -410,6 +413,19 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *          Boolean value will indicate successful playback
      */
     abstract public Future<Boolean> playAudio(final String url);
+
+    /** Open a file with the OS-assigned default tool
+     *
+     *  <p>RCP-based representation can override with
+     *  RCP-based default editor for the file
+     *
+     *  @param path Path to file
+     *  @throws Exception on error
+     */
+    public void openFile(final String path) throws Exception
+    {
+        Desktop.getDesktop().open(new File(path));
+    }
 
     /** Execute callable in toolkit's UI thread.
      *  @param <T> Type to return

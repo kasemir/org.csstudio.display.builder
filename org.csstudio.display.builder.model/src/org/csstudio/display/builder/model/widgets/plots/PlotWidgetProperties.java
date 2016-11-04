@@ -73,6 +73,9 @@ public class PlotWidgetProperties
         }
     };
 
+    public static final WidgetPropertyDescriptor<Boolean> propGrid =
+        CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "show_grid", Messages.PlotWidget_ShowGrid);
+
     private final static StructuredWidgetProperty.Descriptor propXAxis =
         new Descriptor(WidgetPropertyCategory.BEHAVIOR, "x_axis", Messages.PlotWidget_XAxis);
 
@@ -86,12 +89,13 @@ public class PlotWidgetProperties
          *  @param title_text
          */
         public static AxisWidgetProperty create(final Widget widget, final String title_text)
-        {
+        {   // Compare to YAxisWidgetProperty, which adds logscale and shifts remaining properties
             return new AxisWidgetProperty(propXAxis, widget,
                   Arrays.asList(propTitle.createProperty(widget, title_text),
                                 propAutoscale.createProperty(widget, false),
                                 CommonWidgetProperties.propMinimum.createProperty(widget, 0.0),
                                 CommonWidgetProperties.propMaximum.createProperty(widget, 100.0),
+                                propGrid.createProperty(widget, false),
                                 propTitleFont.createProperty(widget, NamedWidgetFonts.DEFAULT_BOLD),
                                 propScaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)));
         }
@@ -106,8 +110,9 @@ public class PlotWidgetProperties
         public WidgetProperty<Boolean> autoscale()      { return getElement(1); }
         public WidgetProperty<Double> minimum()         { return getElement(2); }
         public WidgetProperty<Double> maximum()         { return getElement(3); }
-        public WidgetProperty<WidgetFont> titleFont()   { return getElement(4); }
-        public WidgetProperty<WidgetFont> scaleFont()   { return getElement(5); }
+        public WidgetProperty<Boolean> grid()           { return getElement(4); }
+        public WidgetProperty<WidgetFont> titleFont()   { return getElement(5); }
+        public WidgetProperty<WidgetFont> scaleFont()   { return getElement(6); }
     };
 
     /** Structure for Y axis */
@@ -124,6 +129,7 @@ public class PlotWidgetProperties
                                 propLogscale.createProperty(widget, false),
                                 CommonWidgetProperties.propMinimum.createProperty(widget, 0.0),
                                 CommonWidgetProperties.propMaximum.createProperty(widget, 100.0),
+                                propGrid.createProperty(widget, false),
                                 propTitleFont.createProperty(widget, NamedWidgetFonts.DEFAULT_BOLD),
                                 propScaleFont.createProperty(widget, NamedWidgetFonts.DEFAULT)));
         }
@@ -140,9 +146,11 @@ public class PlotWidgetProperties
         @Override
         public WidgetProperty<Double> maximum()         { return getElement(4); }
         @Override
-        public WidgetProperty<WidgetFont> titleFont()   { return getElement(5); }
+        public WidgetProperty<Boolean> grid()           { return getElement(5); }
         @Override
-        public WidgetProperty<WidgetFont> scaleFont()   { return getElement(6); }
+        public WidgetProperty<WidgetFont> titleFont()   { return getElement(6); }
+        @Override
+        public WidgetProperty<WidgetFont> scaleFont()   { return getElement(7); }
     };
 
     /** 'y_axes' array */

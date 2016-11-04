@@ -40,7 +40,6 @@
       <plugin id="org.csstudio.autocomplete"/>
       <plugin id="org.csstudio.autocomplete.ui"/>
       <plugin id="org.csstudio.csdata"/>
-      <plugin id="org.csstudio.display.builder.libraries"/>
       <plugin id="org.csstudio.display.builder.model"/>
       <plugin id="org.csstudio.display.builder.model.rcp" fragment="true"/>
       <plugin id="org.csstudio.display.builder.rcp"/>
