@@ -47,6 +47,7 @@ public class MacrosUnitTest
         macros.add("NAME", "Flint, Eugene");
         macros.add("TAB", "    ");
         macros.add("MACRO", "S");
+        macros.add("traces[0].y_pv", "TheValueWaveform");
 
         assertThat(MacroHandler.replace(macros, "Plain Text"), equalTo("Plain Text"));
         assertThat(MacroHandler.replace(macros, "${S}"), equalTo("BL7"));
@@ -54,6 +55,7 @@ public class MacrosUnitTest
         assertThat(MacroHandler.replace(macros, "$(MACRO)"), equalTo("S"));
         assertThat(MacroHandler.replace(macros, "$(${MACRO})"), equalTo("BL7"));
         assertThat(MacroHandler.replace(macros, "$(TAB)$(NAME)$(TAB)"), equalTo("    Flint, Eugene    "));
+        assertThat(MacroHandler.replace(macros, "$(traces[0].y_pv)"), equalTo("TheValueWaveform"));
 
         assertThat(MacroHandler.replace(macros, "Escaped \\$(S)"), equalTo("Escaped \\$(S)"));
         assertThat(MacroHandler.replace(macros, "Escaped \\$(S) Used $(S)"), equalTo("Escaped \\$(S) Used BL7"));
@@ -76,7 +78,7 @@ public class MacrosUnitTest
 
     /**
      * Test macros with default values
-     * 
+     *
      * @throws Exception on error
      */
     @Test

@@ -649,7 +649,7 @@ public class Widget
     /** @return Macro provider for effective macros, falling back to properties */
     public MacroValueProvider getMacrosOrProperties()
     {
-        return new MacroOrPropertyProvider(getEffectiveMacros(), property_map);
+        return new MacroOrPropertyProvider(this);
     }
 
     /** Set user data
