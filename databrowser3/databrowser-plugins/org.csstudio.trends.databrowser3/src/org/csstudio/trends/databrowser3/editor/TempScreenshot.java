@@ -8,20 +8,18 @@
 package org.csstudio.trends.databrowser3.editor;
 
 import java.io.File;
+import java.util.logging.Level;
 
+import org.csstudio.javafx.Activator;
+import org.csstudio.javafx.Screenshot;
 import org.csstudio.javafx.rtplot.RTTimePlot;
-import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.ImageLoader;
 
 /** Helper for creating Screen-shot of XYGraph
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class Screenshot
+public class TempScreenshot
 {
     private File file;
 
@@ -29,7 +27,7 @@ public class Screenshot
      *  @param graph XYGraph from which to create the screen-shot
      *  @throws Exception on I/O error
      */
-    public Screenshot(final RTTimePlot graph) throws Exception
+    public TempScreenshot(final RTTimePlot graph) throws Exception
     {
         // Get name for snapshot file
         try
@@ -42,14 +40,21 @@ public class Screenshot
             throw new Exception("Cannot create tmp. file:\n" + ex.getMessage());
         }
 
+        final Screenshot screenshot;
+        try
+        {
+            screenshot = new Screenshot(graph.getPlotNode());
+        }
+        catch (Exception ex)
+        {
+            Activator.logger.log(Level.SEVERE, "Could not create temporary screenshot for email", ex);
+            return;
+        }
+
         // Create snapshot file
         try
         {
-            final ImageLoader loader = new ImageLoader();
-            final Image image = SWTMediaPool.get(graph.getImage());
-            loader.data = new ImageData[]{image.getImageData()};
-            image.dispose();
-            loader.save(getFilename(), SWT.IMAGE_PNG);
+            screenshot.writeToFile(new File(getFilename()));
         }
         catch (Exception ex)
         {
