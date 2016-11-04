@@ -15,6 +15,8 @@ import java.time.Instant;
  *  prevents its use with the more generic PlotSamples interface.
  *  @author Kay Kasemir
  */
+// TODO: (Find) and move unit tests
+// Bring over old DB2 tests (under plugins, commented out of pom file)
 public class PlotSampleSearch // TODO Replace with org.csstudio.swt.rtplot.data.TimeDataSearch
 {
     private int cmp;

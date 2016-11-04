@@ -37,6 +37,7 @@ import org.csstudio.trends.databrowser3.preferences.Preferences;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
 import org.csstudio.ui.util.dnd.ControlSystemDropTarget;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
@@ -83,12 +84,10 @@ public class ModelBasedPlot
 
         canvas = new FXCanvas(parent, 0);
         plot = new RTTimePlot(true);
-
         final Scene scene = new Scene(plot);
         canvas.setScene(scene);
 
         JFXCursorFix.apply(scene, canvas);
-
         plot.setOpacity(Preferences.getOpacity());
 
         final Button time_config_button =
@@ -162,8 +161,7 @@ public class ModelBasedPlot
             }
         });
 
-        //TODO: attach to drag and drop
-        //hookDragAndDrop();
+        hookDragAndDrop();
     }
 
     /** @return RTTimePlot */
@@ -185,6 +183,10 @@ public class ModelBasedPlot
      */
     private void hookDragAndDrop()
     {
+        // The droptarget gets set automatically for fxcanvas in setscene
+        // Which will cause the ControlSystemDropTarget constructor to fail
+        // unless we remove the drop target
+        canvas.setData(DND.DROP_TARGET_KEY, null);
 
         // Allow dropped arrays
         new ControlSystemDropTarget(canvas, ChannelInfo[].class,
