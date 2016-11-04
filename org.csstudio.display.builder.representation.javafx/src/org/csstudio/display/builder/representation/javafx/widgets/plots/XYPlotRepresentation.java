@@ -369,8 +369,15 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     private void updateAxisConfig(final Axis<Double> plot_axis, final AxisWidgetProperty model_axis)
     {
         plot_axis.setName(model_axis.title().getValue());
-        plot_axis.setValueRange(model_axis.minimum().getValue(), model_axis.maximum().getValue());
-        plot_axis.setAutoscale(model_axis.autoscale().getValue());
+        // In autoscale mode, don't update the value range because that would
+        // result in flicker when both we and the autoscaling adjust the range
+        if (model_axis.autoscale().getValue())
+            plot_axis.setAutoscale(true);
+        else
+        {
+            plot_axis.setAutoscale(false);
+            plot_axis.setValueRange(model_axis.minimum().getValue(), model_axis.maximum().getValue());
+        }
         plot_axis.setGridVisible(model_axis.grid().getValue());
         plot_axis.setLabelFont(JFXUtil.convert(model_axis.titleFont().getValue()));
         plot_axis.setScaleFont(JFXUtil.convert(model_axis.scaleFont().getValue()));

@@ -254,6 +254,8 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
         {   // Any change at all?
             if (low.equals(range.getLow())  &&  high.equals(range.getHigh()))
                 return false;
+            logger.log(Level.FINE, "Axis {0}: Value range {1} ... {2}",
+                                   new Object[] { getName(), low, high });
             // Can axis handle this range?
             if (! ticks.isSupportedRange(low, high))
             {
