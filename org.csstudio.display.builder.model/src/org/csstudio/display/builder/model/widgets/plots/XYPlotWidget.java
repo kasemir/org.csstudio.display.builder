@@ -247,10 +247,9 @@ public class XYPlotWidget extends VisibleWidget
                 XMLUtil.getChildInteger(xml, "trace_" + legacy_trace + "_point_style")
                        .ifPresent(style -> trace.tracePointType().setValue(mapPointType(style)));
 
-                // Name. Empty name will result in using the Y PV name
+                // Name
                 String name = XMLUtil.getChildString(xml, "trace_" + legacy_trace + "_name").orElse("");
-                name = name.replace("$(trace_" + legacy_trace + "_y_pv)", "");
-
+                name = name.replace("$(trace_" + legacy_trace + "_y_pv)", "$(traces[" + legacy_trace + "].y_pv)");
                 if (! name.isEmpty())
                     ((StringWidgetProperty)trace.traceName()).setSpecification(name.replace("$(pv_name)", pv_macro));
 
@@ -294,7 +293,7 @@ public class XYPlotWidget extends VisibleWidget
         properties.add(show_legend = PlotWidgetProperties.propLegend.createProperty(this, true));
         properties.add(x_axis = AxisWidgetProperty.create(this, Messages.PlotWidget_X));
         properties.add(y_axes = PlotWidgetProperties.propYAxes.createProperty(this, Arrays.asList(YAxisWidgetProperty.create(this, Messages.PlotWidget_Y))));
-        properties.add(traces = PlotWidgetProperties.propTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this))));
+        properties.add(traces = PlotWidgetProperties.propTraces.createProperty(this, Arrays.asList(new TraceWidgetProperty(this, 0))));
     }
 
     @Override

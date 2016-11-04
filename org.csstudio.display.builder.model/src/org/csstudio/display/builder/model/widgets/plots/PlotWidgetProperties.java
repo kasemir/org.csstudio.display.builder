@@ -209,15 +209,16 @@ public class PlotWidgetProperties
     /** 'trace' structure */
     public static class TraceWidgetProperty extends StructuredWidgetProperty
     {
-        public TraceWidgetProperty(final Widget widget)
+        public TraceWidgetProperty(final Widget widget, final int index)
         {
             super(propTrace, widget,
-                  Arrays.asList(CommonWidgetProperties.propName.createProperty(widget, ""),
+                  Arrays.asList(CommonWidgetProperties.propName.createProperty(widget, "$(traces[" + index + "].y_pv)"),
                                 traceX.createProperty(widget, ""),
                                 traceY.createProperty(widget, ""),
                                 traceErr.createProperty(widget, ""),
                                 traceYAxis.createProperty(widget, 0),
                                 traceType.createProperty(widget, PlotWidgetTraceType.LINE),
+                                // TODO Pick a default trace color based on index
                                 traceColor.createProperty(widget, new WidgetColor(0, 0, 255)),
                                 CommonWidgetProperties.propLineWidth.createProperty(widget, 1),
                                 tracePointType.createProperty(widget, PlotWidgetPointType.NONE),
@@ -245,5 +246,5 @@ public class PlotWidgetProperties
     public static final ArrayWidgetProperty.Descriptor<TraceWidgetProperty> propTraces =
         new ArrayWidgetProperty.Descriptor<>(WidgetPropertyCategory.BEHAVIOR, "traces", Messages.PlotWidget_Traces,
                                              (widget, index) ->
-                                             new TraceWidgetProperty(widget));
+                                             new TraceWidgetProperty(widget, index));
 }
