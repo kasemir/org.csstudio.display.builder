@@ -45,7 +45,14 @@ import javafx.scene.layout.Pane;
 public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotWidget>
 {
     private final DirtyFlag dirty_position = new DirtyFlag();
+    private final DirtyFlag dirty_range = new DirtyFlag();
     private final DirtyFlag dirty_config = new DirtyFlag();
+
+    private final UntypedWidgetPropertyListener range_listener = (WidgetProperty<?> property, Object old_value, Object new_value) ->
+    {
+        dirty_range.mark();
+        toolkit.scheduleUpdate(this);
+    };
 
     private final UntypedWidgetPropertyListener config_listener = (WidgetProperty<?> property, Object old_value, Object new_value) ->
     {
@@ -73,7 +80,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         {
             this.model_trace = model_trace;
 
-            trace = plot.addTrace(getDisplayName(), "", data,
+            trace = plot.addTrace(model_trace.traceName().getValue(), "", data,
                                   JFXUtil.convert(model_trace.traceColor().getValue()),
                                   map(model_trace.traceType().getValue()),
                                   model_trace.traceWidth().getValue(),
@@ -117,17 +124,9 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             return PointType.fromOrdinal(value.ordinal());
         }
 
-        private String getDisplayName()
-        {
-            String name = model_trace.traceName().getValue();
-            if (name.isEmpty())
-                return model_trace.traceYPV().getValue();
-            return name;
-        }
-
         private void traceChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
         {
-            trace.setName(getDisplayName());
+            trace.setName(model_trace.traceName().getValue());
             trace.setType(map(model_trace.traceType().getValue()));
             trace.setColor(JFXUtil.convert(model_trace.traceColor().getValue()));
             trace.setWidth(model_trace.traceWidth().getValue());
@@ -244,9 +243,10 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     private void trackAxisChanges(final AxisWidgetProperty axis)
     {
         axis.title().addUntypedPropertyListener(config_listener);
-        axis.minimum().addUntypedPropertyListener(config_listener);
-        axis.maximum().addUntypedPropertyListener(config_listener);
-        axis.autoscale().addUntypedPropertyListener(config_listener);
+        axis.autoscale().addUntypedPropertyListener(range_listener);
+        axis.minimum().addUntypedPropertyListener(range_listener);
+        axis.maximum().addUntypedPropertyListener(range_listener);
+        axis.grid().addUntypedPropertyListener(config_listener);
         axis.titleFont().addUntypedPropertyListener(config_listener);
         axis.scaleFont().addUntypedPropertyListener(config_listener);
         if (axis instanceof YAxisWidgetProperty)
@@ -259,9 +259,10 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     private void ignoreAxisChanges(final AxisWidgetProperty axis)
     {
         axis.title().removePropertyListener(config_listener);
-        axis.minimum().removePropertyListener(config_listener);
-        axis.maximum().removePropertyListener(config_listener);
-        axis.autoscale().removePropertyListener(config_listener);
+        axis.autoscale().removePropertyListener(range_listener);
+        axis.minimum().removePropertyListener(range_listener);
+        axis.maximum().removePropertyListener(range_listener);
+        axis.grid().removePropertyListener(config_listener);
         axis.titleFont().removePropertyListener(config_listener);
         axis.scaleFont().removePropertyListener(config_listener);
         if (axis instanceof YAxisWidgetProperty)
@@ -318,6 +319,8 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
         super.updateChanges();
         if (dirty_config.checkAndClear())
             updateConfig();
+        if (dirty_range.checkAndClear())
+            updateRanges();
         if (dirty_position.checkAndClear())
         {
             final int w = model_widget.propWidth().getValue();
@@ -355,7 +358,7 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
             return;
         }
         for (int i=0;  i<model_y.size();  ++i)
-            updateYAxisConfig( plot.getYAxes().get(i), model_y.get(i));
+            updateYAxisConfig(plot.getYAxes().get(i), model_y.get(i));
     }
 
     private void updateYAxisConfig(final YAxis<Double> plot_axis, final YAxisWidgetProperty model_axis)
@@ -367,10 +370,38 @@ public class XYPlotRepresentation extends RegionBaseRepresentation<Pane, XYPlotW
     private void updateAxisConfig(final Axis<Double> plot_axis, final AxisWidgetProperty model_axis)
     {
         plot_axis.setName(model_axis.title().getValue());
-        plot_axis.setValueRange(model_axis.minimum().getValue(), model_axis.maximum().getValue());
-        plot_axis.setAutoscale(model_axis.autoscale().getValue());
+        plot_axis.setGridVisible(model_axis.grid().getValue());
         plot_axis.setLabelFont(JFXUtil.convert(model_axis.titleFont().getValue()));
         plot_axis.setScaleFont(JFXUtil.convert(model_axis.scaleFont().getValue()));
+    }
+
+    private void updateRanges()
+    {
+        // Update X Axis
+        updateAxisRange(plot.getXAxis(), model_widget.propXAxis());
+
+        // Update Y Axes
+        final List<YAxisWidgetProperty> model_y = model_widget.propYAxes().getValue();
+        if (plot.getYAxes().size() != model_y.size())
+        {
+            logger.log(Level.WARNING, "Plot has " + plot.getYAxes().size() + " while model has " + model_y.size() + " Y axes");
+            return;
+        }
+        for (int i=0;  i<model_y.size();  ++i)
+            updateAxisRange(plot.getYAxes().get(i), model_y.get(i));
+    }
+
+    private void updateAxisRange(final Axis<Double> plot_axis, final AxisWidgetProperty model_axis)
+    {
+        // In autoscale mode, don't update the value range because that would
+        // result in flicker when both we and the autoscaling adjust the range
+        if (model_axis.autoscale().getValue())
+            plot_axis.setAutoscale(true);
+        else
+        {
+            plot_axis.setAutoscale(false);
+            plot_axis.setValueRange(model_axis.minimum().getValue(), model_axis.maximum().getValue());
+        }
     }
 
     @Override
