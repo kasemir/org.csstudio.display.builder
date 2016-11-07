@@ -26,7 +26,7 @@ public class Macros implements MacroValueProvider
 {
     private final Map<String, String> macros = new ConcurrentHashMap<>();
 
-    private final static Pattern MACRO_NAME_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_]*");
+    public final static Pattern MACRO_NAME_PATTERN = Pattern.compile("[A-Za-z][A-Za-z0-9_.\\[\\]]*");
 
     /** Check macro name
      *
@@ -35,6 +35,8 @@ public class Macros implements MacroValueProvider
      *  <li>Must start with character
      *  <li>May then contain characters or numbers
      *  <li>May also contain underscores
+     *  <li>This check also permits brackets and dots
+     *      for path-type properties like "traces[1].name"
      *  </ul>
      * @param name Macro name to check
      * @return Error message or <code>null</code> if name is valid
