@@ -148,7 +148,6 @@ public class RTTimePlot extends RTPlot<Instant>
 
     public Image getImage()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return this.getPlotNode().snapshot(null, null);
     }
 }
