@@ -419,10 +419,14 @@ public class Controller
             {
                 plot.getPlot().setBackground(SWTMediaPool.getJFX(model.getPlotBackground()));
                 plot.getPlot().setTitleFont(SWTMediaPool.getJFX(model.getTitleFont()));
-                //TODO: label and scale font
-                //plot.getPlot().setLabelFont(SWTMediaPool.getJFX(model.getLabelFont()));
-                //plot.getPlot().setScaleFont(SWTMediaPool.getJFX(model.getScaleFont()));
                 plot.getPlot().setLegendFont(SWTMediaPool.getJFX(model.getLegendFont()));
+
+                final int acount = plot.getTotalAxesCount();
+                for (int idx = 0; idx < acount; idx++)
+                {
+                    plot.getPlotAxis(idx).setLabelFont(SWTMediaPool.getJFX(model.getLabelFont()));
+                    plot.getPlotAxis(idx).setScaleFont(SWTMediaPool.getJFX(model.getScaleFont()));
+                }
             }
 
             @Override
@@ -466,6 +470,8 @@ public class Controller
                         }
                         ++i;
                     }
+                    //TODO: separate config for x axis?
+                    //plot.updateXAxis(model.getXAxis());
                 }
                 else  // New or removed axis: Recreate the whole plot
                     createPlotTraces();
@@ -559,9 +565,6 @@ public class Controller
         plot.getPlot().showToolbar(model.isToolbarVisible());
         plot.getPlot().showLegend(model.isLegendVisible());
         plot.getPlot().setTitleFont(SWTMediaPool.getJFX(model.getTitleFont()));
-        //TODO: label and scal font
-        //plot.getPlot().setLabelFont(SWTMediaPool.getJFX(model.getLabelFont()));
-        //plot.getPlot().setScaleFont(SWTMediaPool.getJFX(model.getScaleFont()));
         plot.getPlot().setLegendFont(SWTMediaPool.getJFX(model.getLegendFont()));
         if (model.getTitle().isPresent()) {
             plot.getPlot().setTitle(model.getTitle().get());

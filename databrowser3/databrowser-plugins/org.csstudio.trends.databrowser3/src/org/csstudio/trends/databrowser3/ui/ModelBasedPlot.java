@@ -24,7 +24,6 @@ import org.csstudio.javafx.rtplot.RTPlotListener;
 import org.csstudio.javafx.rtplot.RTTimePlot;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.YAxis;
-import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.model.AnnotationInfo;
@@ -68,7 +67,6 @@ public class ModelBasedPlot
 
     final private Map<Trace<Instant>, ModelItem> items_by_trace = new ConcurrentHashMap<>();
 
-    //private JFXPanel dummyjfx = null;
     private final FXCanvas canvas;
 
     //final private SWTMediaPool media;
@@ -297,6 +295,26 @@ public class ModelBasedPlot
         return plot.getYAxes().get(index);
     }
 
+    /** Get number of axes (includes xaxis)
+     *
+     * @return number of y axes plus 1 for x axis
+     */
+    public int getTotalAxesCount ()
+    {
+        return (plot.getYAxes().size() + 1);
+    }
+
+    public Axis<?> getPlotAxis(final int index)
+    {
+        if (index < plot.getYAxes().size())
+            return plot.getYAxes().get(index);
+
+        if (index == plot.getYAxes().size())
+            return plot.getXAxis();
+
+        return null;
+    }
+
     /** Update value axis from model
      *  @param index Axis index. Y axes will be created as needed.
      *  @param config Desired axis configuration
@@ -308,8 +326,6 @@ public class ModelBasedPlot
         axis.useAxisName(config.isUsingAxisName());
         axis.useTraceNames(config.isUsingTraceNames());
         axis.setColor(config.getPaintColor());
-        axis.setLabelFont(SWTMediaPool.getJFX(config.getLabelFont()));
-        axis.setScaleFont(SWTMediaPool.getJFX(config.getScaleFont()));
         axis.setLogarithmic(config.isLogScale());
         axis.setGridVisible(config.isGridVisible());
         axis.setAutoscale(config.isAutoScale());
@@ -317,6 +333,20 @@ public class ModelBasedPlot
         axis.setVisible(config.isVisible());
         axis.setOnRight(config.isOnRight());
     }
+
+    //    /** Update value axis from model
+    //     *  @param index Axis index. Y axes will be created as needed.
+    //     *  @param config Desired axis configuration
+    //     */
+    //    public void updateXAxis(final AxisConfig config)
+    //    {
+    //        final Axis<Instant> axis = plot.getXAxis();
+    //        axis.setName(config.getResolvedName());
+    //        axis.setColor(config.getPaintColor());
+    //        axis.setGridVisible(config.isGridVisible());
+    //        axis.setAutoscale(config.isAutoScale());
+    //        axis.setVisible(config.isVisible());
+    //    }
 
     /** Add a trace to the plot
      *  @param item ModelItem for which to add a trace

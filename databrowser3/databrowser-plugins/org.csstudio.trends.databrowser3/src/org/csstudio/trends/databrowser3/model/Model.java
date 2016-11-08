@@ -79,6 +79,8 @@ public class Model
 
     /** Axes configurations */
     final private List<AxisConfig> axes = new CopyOnWriteArrayList<AxisConfig>();
+    //TODO: Separate config for x axis?
+    //final private AxisConfig x_axis = null;
 
     /** All the items in this model */
     final private List<ModelItem> items = new CopyOnWriteArrayList<ModelItem>();
@@ -256,6 +258,12 @@ public class Model
             return null;
         }
     }
+
+    //TODO: separate config for x axis?
+    //    public AxisConfig getXAxis()
+    //    {
+    //        return x_axis;
+    //    }
 
     /** Locate index of value axis
      *  @param axis Value axis configuration
@@ -809,6 +817,7 @@ public class Model
         label_font = font;
         for (ModelListener listener : listeners)
             listener.changedColorsOrFonts();
+
     }
 
     /** @return Scale font */
@@ -977,4 +986,6 @@ public class Model
         }
         return Optional.empty();
     }
+
+
 }

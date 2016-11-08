@@ -32,8 +32,6 @@ public class SWTMediaPool
     final private Map<FontData, Font> fonts = new HashMap<>();
     final private Map<ImageData, Image> images = new HashMap<>();
 
-    final private Map<FontData, javafx.scene.text.Font> jfx_fonts = new HashMap<>();
-
     /** Create pool for device
      *
      *  <p>Need to dispose when done
