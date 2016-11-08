@@ -7,6 +7,19 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.bobwidget;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.csstudio.display.builder.model.Messages;
+import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetDescriptor;
+import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
 
 /** Model for persisting data browser widget configuration.
@@ -20,16 +33,56 @@ import org.csstudio.display.builder.model.widgets.VisibleWidget;
 @SuppressWarnings("nls")
 public class DataBrowserWidget extends VisibleWidget
 {
-
-    public DataBrowserWidget(String type)
+    /** Widget descriptor */
+    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+            new WidgetDescriptor("databrowser", WidgetCategory.PLOT,
+                    "Data Browser",
+                    "platform:/plugin/org.csstudio.trends.databrowser3.bobwidget/icons/databrowser.png",
+                    "Embedded Data Brower",
+                    Arrays.asList("org.csstudio.opibuilder.widgets.databrowser"))
     {
-        super(type);
-        // TODO Auto-generated constructor stub
+        @Override
+        public Widget createWidget()
+        {
+            return new DataBrowserWidget();
+        }
+    };
+
+    public static final WidgetPropertyDescriptor<Boolean> propShowToolbar =
+            CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_toolbar", Messages.PlotWidget_ShowToolbar);
+
+    private volatile WidgetProperty<Boolean> show_toolbar;
+    private volatile WidgetProperty<String> filename;
+
+
+    public DataBrowserWidget()
+    {
+        super(WIDGET_DESCRIPTOR.getType(), 200, 200);
+    }
+
+    @Override
+    protected void defineProperties(final List<WidgetProperty<?>> properties)
+    {
+        super.defineProperties(properties);
+        properties.add(filename = propFile.createProperty(this, ""));
+        properties.add(show_toolbar = propShowToolbar.createProperty(this, true));
+    }
+
+    /** @return 'text' property */
+    public WidgetProperty<String> propFile()
+    {
+        return filename;
+    }
+
+    /** @return 'show_toolbar' property */
+    public WidgetProperty<Boolean> propShowToolbar()
+    {
+        return show_toolbar;
     }
 
     @Override
     public String toString()
     {
-        return "DataBrowserWidgetModel";
+        return "DataBrowserWidgetModel: " + filename;
     }
 }

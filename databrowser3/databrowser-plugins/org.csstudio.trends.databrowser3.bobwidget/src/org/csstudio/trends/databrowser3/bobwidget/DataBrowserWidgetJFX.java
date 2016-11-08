@@ -7,25 +7,31 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.bobwidget;
 
-import org.csstudio.javafx.rtplot.RTTimePlot;
+import org.csstudio.display.builder.model.widgets.plots.XYPlotWidget;
+import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
-import org.eclipse.draw2d.Figure;
-import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Shell;
+
+import javafx.scene.layout.Pane;
 
 /** OPI Figure that displays data browser plot on screen,
  *  holds a Data Browser Plot
  *
  *  @author Kay Kasemir
  */
-public class DataBrowserWidgetFigure extends Figure
+public class DataBrowserWidgetJFX extends RegionBaseRepresentation<Pane, XYPlotWidget>
 {
     /** Data Browser plot */
     private ModelBasedPlot plot;
 
-    //@Override
-    protected RTTimePlot createSWTWidget(final Composite parent, final int style) throws Exception
+    @Override
+    public Pane createJFXNode() throws Exception
     {
-        plot = new ModelBasedPlot(parent);
+        // Plot is only active in runtime mode, not edit mode
+        //plot = new RTValuePlot(! toolkit.isEditMode());
+        plot = new ModelBasedPlot(new Shell());
+        //plot.showToolbar(false);
+        //plot.showCrosshair(false);
         return plot.getPlot();
     }
 
