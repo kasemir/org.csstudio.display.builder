@@ -54,6 +54,8 @@ public class DataBrowserWidget extends VisibleWidget
     private volatile WidgetProperty<Boolean> show_toolbar;
     private volatile WidgetProperty<String> filename;
 
+    //TODO: more properties: show/hide legend, show/hide title, title text... others?
+
 
     public DataBrowserWidget()
     {

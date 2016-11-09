@@ -48,6 +48,7 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
 
     private volatile ControllerJFX controller;
 
+    //TODO: Do we need to write out the file when user changes the databrowser options, etc?
     private volatile String file_path;
     private volatile InputStream stream;
 
