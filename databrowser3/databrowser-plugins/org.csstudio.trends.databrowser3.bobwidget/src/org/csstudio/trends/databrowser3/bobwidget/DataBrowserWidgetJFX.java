@@ -15,28 +15,30 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
-import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
-import org.csstudio.trends.databrowser3.ui.JFXController;
+import org.csstudio.trends.databrowser3.ui.ControllerJFX;
 import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
 import org.eclipse.swt.widgets.Shell;
 
-import javafx.scene.layout.Pane;
-import javafx.geometry.Insets;
-import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.Group;
 
 /** OPI Figure that displays data browser plot on screen,
  *  holds a Data Browser Plot
  *
  *  @author Kay Kasemir
  */
-public class DataBrowserWidgetJFX extends RegionBaseRepresentation<Pane, DataBrowserWidget>
+public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrowserWidget>
 {
-    /** Change the position */
-    private final DirtyFlag dirty_pos = new DirtyFlag();
     /** Change the size */
     private final DirtyFlag dirty_size = new DirtyFlag();
+    /** Change the visible of sub elements (toolbar, etc) */
+    private final DirtyFlag dirty_opts = new DirtyFlag();
+    /** Change the file */
+    private final DirtyFlag dirty_file = new DirtyFlag();
 
     /** Data Browser plot */
     private volatile ModelBasedPlot plot;
@@ -44,25 +46,26 @@ public class DataBrowserWidgetJFX extends RegionBaseRepresentation<Pane, DataBro
     /** Model with data to display */
     private volatile Model model = new Model();
 
-    private volatile JFXController controller;
+    private volatile ControllerJFX controller;
 
     private volatile String file_path;
+    private volatile InputStream stream;
+
+    //TODO: Add border?
+    private static final Color border_color = Color.GRAY;
+    private static final int inset = 0;
+    private static final int border_width = 1;
+    private volatile Rectangle border = new Rectangle();
 
     @Override
-    public Pane createJFXNode() throws Exception
+    public Group createJFXNode() throws Exception
     {
-        HBox hbox = new HBox();
-        hbox.setPadding(new Insets(15, 12, 15, 12));
-        hbox.setSpacing(10);
-        hbox.setStyle("-fx-background-color: #336699;");
         // Plot is only active in runtime mode, not edit mode
         //plot = new RTValuePlot(! toolkit.isEditMode());
+        //TODO: Remove need for shell in javafx widget
         plot = new ModelBasedPlot(new Shell());
-        //plot.showToolbar(false);
-        //plot.showCrosshair(false);
-        return plot.getPlot();
-
-        //return hbox;
+        Group gr = new Group(border, plot.getPlot());
+        return gr;
     }
 
     /** @return Data Browser Plot */
@@ -75,12 +78,11 @@ public class DataBrowserWidgetJFX extends RegionBaseRepresentation<Pane, DataBro
     protected void registerListeners()
     {
         super.registerListeners();
-        controller = new JFXController(model, plot);
+        controller = new ControllerJFX(model, plot);
 
         model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.propX().addUntypedPropertyListener(this::posChanged);
-        model_widget.propY().addUntypedPropertyListener(this::posChanged);
+        model_widget.propShowToolbar().addPropertyListener(this::toolbarChanged);
 
         final String img_name = model_widget.propFile().getValue();
         model_widget.propFile().addPropertyListener(this::fileChanged);
@@ -103,10 +105,11 @@ public class DataBrowserWidgetJFX extends RegionBaseRepresentation<Pane, DataBro
         toolkit.scheduleUpdate(this);
     }
 
-    private void posChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    private void toolbarChanged(final WidgetProperty<Boolean> property, final Boolean old_value, final Boolean new_value)
     {
-        dirty_pos.mark();
+        dirty_opts.mark();
         toolkit.scheduleUpdate(this);
+
     }
 
     private void fileChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
@@ -135,31 +138,45 @@ public class DataBrowserWidgetJFX extends RegionBaseRepresentation<Pane, DataBro
         {
             try
             {
-                final InputStream stream = ModelResourceUtil.openResourceStream(file_path);
-                new XMLPersistence().load(model, stream);
+                stream = ModelResourceUtil.openResourceStream(file_path);
+                //new XMLPersistence().load(model, stream);
             }
             catch (Exception e)
             {
-                System.out.println("Failure loading plot file:" + file_path);
+                //System.out.println("Failure loading plot file:" + file_path);
                 e.printStackTrace();
                 load_failed = true;
             }
         }
-        //toolkit.scheduleUpdate(this);
+        dirty_file.mark();
+        toolkit.scheduleUpdate(this);
     }
 
     @Override
     public void updateChanges()
     {
+        super.updateChanges();
+        if (dirty_file.checkAndClear())
+        {
+            //This is being done here because the load function causes effects that need to happen on the FxUserThread
+            try
+            {
+                new XMLPersistence().load(model, stream);
+            }
+            catch (Exception e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        if (dirty_opts.checkAndClear())
+        {
+            plot.getPlot().showToolbar(model_widget.propShowToolbar().getValue());
+        }
         if (dirty_size.checkAndClear())
         {
             plot.getPlot().setPrefWidth(model_widget.propWidth().getValue());
             plot.getPlot().setPrefHeight(model_widget.propHeight().getValue());
-        }
-        if (dirty_pos.checkAndClear())
-        {
-            plot.getPlot().setLayoutX(model_widget.propX().getValue());
-            plot.getPlot().setLayoutY(model_widget.propY().getValue());
         }
     }
 }

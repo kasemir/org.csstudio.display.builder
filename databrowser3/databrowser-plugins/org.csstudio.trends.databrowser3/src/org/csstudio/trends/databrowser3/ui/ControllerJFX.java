@@ -27,8 +27,9 @@ import javafx.application.Platform;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class JFXController extends ControllerBase
+public class ControllerJFX extends ControllerBase
 {
+    //TODO: Remove reliance on shell for databrowser3 widget. Nontrivial
     final protected Shell shell = new Shell();
 
     class JFXArchiveFetchJobListener extends BaseArchiveFetchJobListener
@@ -71,7 +72,7 @@ public class JFXController extends ControllerBase
      *  @param plot Plot for displaying the Model
      *  @throws Error when called from non-UI thread
      */
-    public JFXController(final Model model, final ModelBasedPlot plot)
+    public ControllerJFX(final Model model, final ModelBasedPlot plot)
     {
         super (model, plot);
         archive_fetch_listener = new JFXArchiveFetchJobListener();
