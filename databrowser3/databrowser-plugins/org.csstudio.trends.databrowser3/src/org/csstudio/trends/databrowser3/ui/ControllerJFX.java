@@ -17,7 +17,7 @@ import org.eclipse.swt.widgets.Shell;
 
 import javafx.application.Platform;
 
-/** Controller that interfaces the {@link Model} with the {@link ModelBasedPlot}:
+/** Controller that interfaces the {@link Model} with the {@link ModelBasedPlotSWT}:
  *  <ul>
  *  <li>For each item in the Model, create a trace in the plot.
  *  <li>Perform scrolling of the time axis.

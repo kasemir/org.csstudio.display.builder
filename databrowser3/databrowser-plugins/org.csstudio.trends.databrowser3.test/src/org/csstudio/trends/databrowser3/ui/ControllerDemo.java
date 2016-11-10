@@ -45,7 +45,7 @@ public class ControllerDemo
     private boolean run = true;
 
     private Model model;
-    private ModelBasedPlot plot;
+    private ModelBasedPlotSWT plot;
 
     private Controller controller;
 
@@ -106,7 +106,7 @@ public class ControllerDemo
         // Plot
         try
         {
-            plot = new ModelBasedPlot(parent);
+            plot = new ModelBasedPlotSWT(parent);
         }
         catch (Exception e1)
         {

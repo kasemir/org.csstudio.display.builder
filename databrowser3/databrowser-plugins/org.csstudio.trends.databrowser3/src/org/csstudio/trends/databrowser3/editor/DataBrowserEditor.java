@@ -34,7 +34,7 @@ import org.csstudio.trends.databrowser3.sampleview.SampleView;
 import org.csstudio.trends.databrowser3.search.SearchView;
 import org.csstudio.trends.databrowser3.ui.AddPVAction;
 import org.csstudio.trends.databrowser3.ui.Controller;
-import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
+import org.csstudio.trends.databrowser3.ui.ModelBasedPlotSWT;
 import org.csstudio.trends.databrowser3.ui.RefreshAction;
 import org.csstudio.trends.databrowser3.waveformview.WaveformView;
 import org.csstudio.ui.util.EmptyEditorInput;
@@ -94,7 +94,7 @@ public class DataBrowserEditor extends EditorPart
     private ModelListener model_listener;
 
     /** GUI for the plot */
-    private ModelBasedPlot plot;
+    private ModelBasedPlotSWT plot;
 
     private ToggleToolbarAction toggle_toolbar;
     private ToggleLegendAction toggle_legend;
@@ -293,7 +293,7 @@ public class DataBrowserEditor extends EditorPart
         parent.setLayout(new FillLayout());
         try
         {
-            plot = new ModelBasedPlot(parent);
+            plot = new ModelBasedPlotSWT(parent);
         }
         catch (Exception e)
         {

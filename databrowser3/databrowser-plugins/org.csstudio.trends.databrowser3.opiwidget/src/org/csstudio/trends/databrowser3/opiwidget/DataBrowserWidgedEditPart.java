@@ -23,7 +23,7 @@ import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.trends.databrowser3.model.TimeHelper;
 import org.csstudio.trends.databrowser3.ui.Controller;
-import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
+import org.csstudio.trends.databrowser3.ui.ModelBasedPlotSWT;
 import org.diirt.datasource.ExpressionLanguage;
 import org.diirt.datasource.PVManager;
 import org.diirt.datasource.PVWriter;
@@ -155,7 +155,7 @@ public class DataBrowserWidgedEditPart extends AbstractWidgetEditPart
             try
             {
                 // Connect plot to model (created by OPI/GEF)
-                final ModelBasedPlot plot_widget = gui.getDataBrowserPlot();
+                final ModelBasedPlotSWT plot_widget = gui.getDataBrowserPlot();
                 controller = new Controller(null, getWidgetModel().createDataBrowserModel(),
                         plot_widget);
                 controller.start();

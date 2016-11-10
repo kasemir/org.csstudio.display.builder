@@ -21,8 +21,6 @@ import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
 import org.csstudio.trends.databrowser3.ui.ControllerJFX;
 import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
-import org.eclipse.swt.widgets.Shell;
-
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.Group;
@@ -68,7 +66,7 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
         //plot = new RTValuePlot(! toolkit.isEditMode());
         //TODO: Remove need for shell in javafx widget
         border.setFill(Color.TRANSPARENT);
-        plot = new ModelBasedPlot(new Shell());
+        plot = new ModelBasedPlot(! toolkit.isEditMode());
         Group gr = new Group(border, plot.getPlot());
         return gr;
     }

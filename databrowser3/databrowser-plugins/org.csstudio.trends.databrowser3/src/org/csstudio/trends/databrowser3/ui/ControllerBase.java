@@ -58,7 +58,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
 
-/** Controller that interfaces the {@link Model} with the {@link ModelBasedPlot}:
+/** Controller that interfaces the {@link Model} with the {@link ModelBasedPlotSWT}:
  *  <ul>
  *  <li>For each item in the Model, create a trace in the plot.
  *  <li>Perform scrolling of the time axis.

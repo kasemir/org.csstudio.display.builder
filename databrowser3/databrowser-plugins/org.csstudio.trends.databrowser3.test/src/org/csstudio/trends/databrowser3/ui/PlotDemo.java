@@ -179,10 +179,10 @@ public class PlotDemo
         final GridLayout layout = new GridLayout(1, false);
         parent.setLayout(layout);
 
-        ModelBasedPlot plot;
+        ModelBasedPlotSWT plot;
         try
         {
-            plot = new ModelBasedPlot(parent);
+            plot = new ModelBasedPlotSWT(parent);
         }
         catch (Exception e1)
         {
