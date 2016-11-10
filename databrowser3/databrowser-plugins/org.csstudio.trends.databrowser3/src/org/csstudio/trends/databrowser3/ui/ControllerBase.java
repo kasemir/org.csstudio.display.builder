@@ -28,18 +28,14 @@ import java.util.logging.Logger;
 import org.csstudio.apputil.time.AbsoluteTimeParser;
 import org.csstudio.apputil.time.PeriodFormat;
 import org.csstudio.apputil.time.RelativeTime;
-import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.Trace;
-import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.rtplot.util.NamedThreadFactory;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.trends.databrowser3.archive.ArchiveFetchJob;
 import org.csstudio.trends.databrowser3.archive.ArchiveFetchJobListener;
-import org.csstudio.trends.databrowser3.imports.FileImportDialog;
-import org.csstudio.trends.databrowser3.imports.ImportArchiveReaderFactory;
 import org.csstudio.trends.databrowser3.model.AnnotationInfo;
 import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
 import org.csstudio.trends.databrowser3.model.ArchiveRescale;
@@ -50,13 +46,9 @@ import org.csstudio.trends.databrowser3.model.ModelListener;
 import org.csstudio.trends.databrowser3.model.ModelListenerAdapter;
 import org.csstudio.trends.databrowser3.model.PVItem;
 import org.csstudio.trends.databrowser3.preferences.Preferences;
-import org.csstudio.trends.databrowser3.propsheet.AddArchiveCommand;
-import org.csstudio.trends.databrowser3.propsheet.AddAxisCommand;
-import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
 import org.diirt.util.time.TimeDuration;
-import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.widgets.Shell;
+//import org.eclipse.swt.widgets.Shell;
 
 /** Controller that interfaces the {@link Model} with the {@link ModelBasedPlotSWT}:
  *  <ul>
@@ -71,13 +63,13 @@ import org.eclipse.swt.widgets.Shell;
 public abstract class ControllerBase
 {
     /** Model with data to display */
-    final private Model model;
+    final Model model;
 
     /** Listener to model that informs this controller */
     private ModelListener model_listener;
 
     /** GUI for displaying the data */
-    final private ModelBasedPlot plot;
+    final ModelBasedPlot plot;
 
     /** Timer that triggers scrolling or trace redraws */
     final private static ScheduledExecutorService update_timer =
@@ -111,7 +103,7 @@ public abstract class ControllerBase
     abstract class BaseArchiveFetchJobListener implements ArchiveFetchJobListener
     {
         abstract protected void executeOnUIThread(Consumer<Void> consumer);
-        abstract protected Shell getShell();
+        abstract protected void displayError(final String message, final Exception error);
 
         @Override
         public void fetchCompleted(final ArchiveFetchJob job)
@@ -134,7 +126,7 @@ public abstract class ControllerBase
         private void reportError(final String displayName, final Exception error)
         {
             final String message = NLS.bind(Messages.ArchiveAccessMessageFmt, displayName);
-            executeOnUIThread(e -> ExceptionDetailsErrorDialog.openError(getShell(), Messages.Information, message, error));
+            displayError(message, error);
         }
 
         @Override
@@ -173,14 +165,8 @@ public abstract class ControllerBase
 
     abstract class BasePlotListener implements PlotListener
     {
-        abstract Shell getShell();
+        //abstract Shell getShell();
         abstract protected void executeOnUIThread(Runnable func);
-
-        @Override
-        public void timeConfigRequested()
-        {
-            StartEndTimeAction.run(getShell(), model, plot.getPlot().getUndoableActionManager());
-        }
 
         @Override
         public void timeAxisChanged(final boolean scrolling, final Instant start, final Instant end)
@@ -222,95 +208,6 @@ public abstract class ControllerBase
                 //only update if the model has that axis. If the trend is empty, the model may not have that axis
                 this.executeOnUIThread(() -> axis.setRange(lower, upper));
             }
-        }
-
-
-
-        @Override
-        public void droppedNames(final String[] names)
-        {
-            // Offer potential PV name in dialog so user can edit/cancel
-            final AddPVAction add = new AddPVAction(plot.getPlot().getUndoableActionManager(), getShell(), model, false);
-            for (String one_name : names)
-                if (! add.runWithSuggestedName(one_name, null))
-                    break;
-        }
-
-        @Override
-        public void droppedPVNames(final ProcessVariable[] names, final ArchiveDataSource[] archives)
-        {
-            if (names == null)
-            {
-                if (archives == null)
-                    return;
-                // Received only archives. Add to all PVs
-                for (ArchiveDataSource archive : archives)
-                    for (ModelItem item : model.getItems())
-                    {
-                        if (! (item instanceof PVItem))
-                            continue;
-                        final PVItem pv = (PVItem) item;
-                        if (pv.hasArchiveDataSource(archive))
-                            continue;
-                        new AddArchiveCommand(plot.getPlot().getUndoableActionManager(), pv, archive);
-                    }
-            }
-            else
-            {   // Received PV names, maybe with archive
-                final UndoableActionManager operations_manager = plot.getPlot().getUndoableActionManager();
-
-                // When multiple PVs are dropped, assert that there is at least one axis.
-                // Otherwise dialog cannot offer adding all PVs onto the same axis.
-                if (names.length > 1  &&  model.getAxisCount() <= 0)
-                    new AddAxisCommand(operations_manager, model);
-
-                final AddPVDialog dlg = new AddPVDialog(getShell(), names.length, model, false);
-                for (int i=0; i<names.length; ++i)
-                    dlg.setName(i, names[i].getName());
-                if (dlg.open() != Window.OK)
-                    return;
-
-                for (int i=0; i<names.length; ++i)
-                {
-                    final AxisConfig axis;
-                    if (dlg.getAxisIndex(i) >= 0)
-                        axis = model.getAxis(dlg.getAxisIndex(i));
-                    else // Use first empty axis, or create a new one
-                        axis = model.getEmptyAxis().orElseGet(() -> new AddAxisCommand(operations_manager, model).getAxis());
-
-                    // Add new PV
-                    final ArchiveDataSource archive =
-                            (archives == null || i>=archives.length) ? null : archives[i];
-                    AddModelItemCommand.forPV(getShell(), operations_manager,
-                            model, dlg.getName(i), dlg.getScanPeriod(i),
-                            axis, archive);
-                }
-                return;
-            }
-        }
-
-        @Override
-        public void droppedFilename(String file_name)
-        {
-            final FileImportDialog dlg = new FileImportDialog(getShell(), file_name);
-            if (dlg.open() != Window.OK)
-                return;
-
-            final UndoableActionManager operations_manager = plot.getPlot().getUndoableActionManager();
-
-            // Add to first empty axis, or create new axis
-            final AxisConfig axis = model.getEmptyAxis().orElseGet(
-                    () -> new AddAxisCommand(operations_manager, model).getAxis() );
-
-            // Add archivedatasource for "import:..." and let that load the file
-            final String type = dlg.getType();
-            file_name = dlg.getFileName();
-            final String url = ImportArchiveReaderFactory.createURL(type, file_name);
-            final ArchiveDataSource imported = new ArchiveDataSource(url, 1, type);
-            // Add PV Item with data to model
-            AddModelItemCommand.forPV(getShell(), operations_manager,
-                    model, dlg.getItemName(), Preferences.getScanPeriod(),
-                    axis, imported);
         }
 
         @Override
@@ -589,6 +486,7 @@ public abstract class ControllerBase
 
     private void doUpdate()
     {
+        System.out.println("Doing update, redraw suppress: " + suppress_redraws);
         try
         {
             // Skip updates while nobody is watching

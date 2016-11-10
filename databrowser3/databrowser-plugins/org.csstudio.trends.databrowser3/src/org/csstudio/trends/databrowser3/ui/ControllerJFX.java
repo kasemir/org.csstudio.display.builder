@@ -9,12 +9,14 @@ package org.csstudio.trends.databrowser3.ui;
 
 import java.time.Instant;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
+import org.csstudio.csdata.ProcessVariable;
+import org.csstudio.javafx.Activator;
 import org.csstudio.trends.databrowser3.archive.ArchiveFetchJob;
+import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
 import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.model.PVItem;
-import org.eclipse.swt.widgets.Shell;
-
 import javafx.application.Platform;
 
 /** Controller that interfaces the {@link Model} with the {@link ModelBasedPlotSWT}:
@@ -29,14 +31,9 @@ import javafx.application.Platform;
 @SuppressWarnings("nls")
 public class ControllerJFX extends ControllerBase
 {
-    //TODO: Remove reliance on shell for databrowser3 widget. Nontrivial
-    final protected Shell shell = new Shell();
 
     class JFXArchiveFetchJobListener extends BaseArchiveFetchJobListener
     {
-        @Override
-        protected Shell getShell() { return shell; }
-
         @Override
         protected void executeOnUIThread(Consumer<Void> consumer)
         {
@@ -45,18 +42,51 @@ public class ControllerJFX extends ControllerBase
                 consumer.accept(null);
             });
         }
+
+        @Override
+        protected void displayError(String message, Exception error)
+        {
+            Activator.logger.log(Level.WARNING, message, error);
+        }
     };
     final private JFXArchiveFetchJobListener archive_fetch_listener;
 
     class JFXPlotListener extends BasePlotListener
     {
-        @Override
-        protected Shell getShell() { return shell; }
 
         @Override
         protected void executeOnUIThread(Runnable func)
         {
             Platform.runLater(func);
+        }
+
+        @Override
+        public void timeConfigRequested()
+        {
+            // TODO Javafx time config dialog
+
+        }
+
+        @Override
+        public void droppedNames(String[] name)
+        {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void droppedPVNames(ProcessVariable[] name,
+                ArchiveDataSource[] archive)
+        {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void droppedFilename(String file_name)
+        {
+            // TODO Auto-generated method stub
+
         }
     };
 

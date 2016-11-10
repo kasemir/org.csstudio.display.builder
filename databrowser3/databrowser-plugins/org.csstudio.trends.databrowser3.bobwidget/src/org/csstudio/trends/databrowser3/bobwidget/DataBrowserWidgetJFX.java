@@ -71,6 +71,13 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
         return gr;
     }
 
+    @Override
+    public void dispose()
+    {
+        super.dispose();
+        controller.stop();
+    }
+
     /** @return Data Browser Plot */
     public ModelBasedPlot getDataBrowserPlot()
     {
@@ -82,6 +89,7 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
     {
         super.registerListeners();
         controller = new ControllerJFX(model, plot);
+        controller.suppressRedraws(toolkit.isEditMode());
 
         model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
