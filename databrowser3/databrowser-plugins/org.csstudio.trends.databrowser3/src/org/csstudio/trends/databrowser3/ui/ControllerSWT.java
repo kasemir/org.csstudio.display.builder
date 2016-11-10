@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.Shell;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class Controller extends ControllerBase
+public class ControllerSWT extends ControllerBase
 {
     /** Optional shell used to track shell state */
     final private Shell shell;
@@ -80,7 +80,7 @@ public class Controller extends ControllerBase
      *  @param plot Plot for displaying the Model
      *  @throws Error when called from non-UI thread
      */
-    public Controller(final Shell shell, final Model model, final ModelBasedPlot plot)
+    public ControllerSWT(final Shell shell, final Model model, final ModelBasedPlot plot)
     {
         super (model, plot);
         this.shell = shell;

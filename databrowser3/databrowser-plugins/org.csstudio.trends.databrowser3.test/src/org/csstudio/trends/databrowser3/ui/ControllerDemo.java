@@ -47,7 +47,7 @@ public class ControllerDemo
     private Model model;
     private ModelBasedPlotSWT plot;
 
-    private Controller controller;
+    private ControllerSWT controller;
 
     private void setup()
     {
@@ -188,7 +188,7 @@ public class ControllerDemo
         setup();
         createModel();
         createGUI(shell);
-        controller = new Controller(shell, model, plot);
+        controller = new ControllerSWT(shell, model, plot);
         controller.start();
 
         shell.open();
