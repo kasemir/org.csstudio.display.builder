@@ -486,7 +486,7 @@ public abstract class ControllerBase
 
     private void doUpdate()
     {
-        System.out.println("Doing update, redraw suppress: " + suppress_redraws);
+        //System.out.println("Doing update, redraw suppress: " + suppress_redraws);
         try
         {
             // Skip updates while nobody is watching
