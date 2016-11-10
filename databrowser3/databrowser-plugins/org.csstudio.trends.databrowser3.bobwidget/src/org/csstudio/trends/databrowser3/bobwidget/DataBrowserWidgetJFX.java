@@ -15,6 +15,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
+import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
@@ -39,6 +40,8 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
     private final DirtyFlag dirty_opts = new DirtyFlag();
     /** Change the file */
     private final DirtyFlag dirty_file = new DirtyFlag();
+    /** Change the border */
+    private final DirtyFlag dirty_line = new DirtyFlag();
 
     /** Data Browser plot */
     private volatile ModelBasedPlot plot;
@@ -53,9 +56,9 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
     private volatile InputStream stream;
 
     //TODO: Add border?
-    private static final Color border_color = Color.GRAY;
-    private static final int inset = 0;
-    private static final int border_width = 1;
+    private static Color line_color = Color.GRAY;
+    //private static final int inset = 0;
+    //private static final int border_width = 1;
     private volatile Rectangle border = new Rectangle();
 
     @Override
@@ -64,6 +67,7 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
         // Plot is only active in runtime mode, not edit mode
         //plot = new RTValuePlot(! toolkit.isEditMode());
         //TODO: Remove need for shell in javafx widget
+        border.setFill(Color.TRANSPARENT);
         plot = new ModelBasedPlot(new Shell());
         Group gr = new Group(border, plot.getPlot());
         return gr;
@@ -83,14 +87,21 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
 
         model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
-        model_widget.propShowToolbar().addPropertyListener(this::toolbarChanged);
+        model_widget.propShowToolbar().addUntypedPropertyListener(this::optsChanged);
+
+        model_widget.propLineColor().addUntypedPropertyListener(this::lineChanged);
+        model_widget.propLineColor().addUntypedPropertyListener(this::lineChanged);
+        model_widget.propLineColor().addUntypedPropertyListener(this::lineChanged);
 
         final String img_name = model_widget.propFile().getValue();
         model_widget.propFile().addPropertyListener(this::fileChanged);
         ModelThreadPool.getExecutor().execute(() -> fileChanged(null, null, img_name));
 
+        ModelThreadPool.getExecutor().execute(() -> fileChanged(null, null, null));
+
         try
         {
+            //TODO: stop this when not visible?
             controller.start();
         }
         catch (Exception e)
@@ -106,12 +117,19 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
         toolkit.scheduleUpdate(this);
     }
 
-    private void toolbarChanged(final WidgetProperty<Boolean> property, final Boolean old_value, final Boolean new_value)
+    private void optsChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         dirty_opts.mark();
         toolkit.scheduleUpdate(this);
-
     }
+
+    private void lineChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    {
+        line_color = JFXUtil.convert(model_widget.propLineColor().getValue());
+        dirty_line.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
 
     private void fileChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
     {
@@ -178,6 +196,13 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
         {
             plot.getPlot().setPrefWidth(model_widget.propWidth().getValue());
             plot.getPlot().setPrefHeight(model_widget.propHeight().getValue());
+            border.setWidth(model_widget.propWidth().getValue());
+            border.setHeight(model_widget.propHeight().getValue());
+        }
+        if (dirty_line.checkAndClear())
+        {
+            border.setStroke(line_color);
+            border.setStrokeWidth(model_widget.propLineWidth().getValue());
         }
     }
 }

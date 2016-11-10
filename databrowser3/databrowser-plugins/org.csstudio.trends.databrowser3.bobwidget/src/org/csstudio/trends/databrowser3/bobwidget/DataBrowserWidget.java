@@ -8,6 +8,9 @@
 package org.csstudio.trends.databrowser3.bobwidget;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineStyle;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +23,8 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties.WidgetLineStyle;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
 
 /** Model for persisting data browser widget configuration.
@@ -39,7 +44,7 @@ public class DataBrowserWidget extends VisibleWidget
                     "Data Browser",
                     "platform:/plugin/org.csstudio.trends.databrowser3.bobwidget/icons/databrowser.png",
                     "Embedded Data Brower",
-                    Arrays.asList("org.csstudio.opibuilder.widgets.databrowser"))
+                    Arrays.asList("org.csstudio.trends.databrowser.opiwidget"))
     {
         @Override
         public Widget createWidget()
@@ -56,6 +61,10 @@ public class DataBrowserWidget extends VisibleWidget
 
     //TODO: more properties: show/hide legend, show/hide title, title text... others?
 
+    //TODO: configure these from border_color, border_width
+    private volatile WidgetProperty<WidgetColor> line_color;
+    private volatile WidgetProperty<Integer> line_width;
+    private volatile WidgetProperty<WidgetLineStyle> line_style;
 
     public DataBrowserWidget()
     {
@@ -68,6 +77,9 @@ public class DataBrowserWidget extends VisibleWidget
         super.defineProperties(properties);
         properties.add(filename = propFile.createProperty(this, ""));
         properties.add(show_toolbar = propShowToolbar.createProperty(this, true));
+        properties.add(line_width = propLineWidth.createProperty(this, 2));
+        properties.add(line_color = propLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
+        properties.add(line_style = propLineStyle.createProperty(this, WidgetLineStyle.SOLID));
     }
 
     /** @return 'text' property */
@@ -80,6 +92,24 @@ public class DataBrowserWidget extends VisibleWidget
     public WidgetProperty<Boolean> propShowToolbar()
     {
         return show_toolbar;
+    }
+
+    /** @return 'show_toolbar' property */
+    public WidgetProperty<WidgetColor> propLineColor()
+    {
+        return line_color;
+    }
+
+    /** @return 'show_toolbar' property */
+    public WidgetProperty<Integer> propLineWidth()
+    {
+        return line_width;
+    }
+
+    /** @return 'show_toolbar' property */
+    public WidgetProperty<WidgetLineStyle> propLineStyle()
+    {
+        return line_style;
     }
 
     @Override

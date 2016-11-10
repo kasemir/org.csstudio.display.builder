@@ -38,10 +38,9 @@ import org.csstudio.ui.util.dnd.ControlSystemDropTarget;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.application.Platform;
 import javafx.embed.swt.FXCanvas;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -60,7 +59,7 @@ public class ModelBasedPlot
     private Optional<PlotListener> listener = Optional.empty();
 
     /** {@link Display} used by this plot */
-    final private Display display;
+    //final private Display display;
 
     /** Plot widget/figure */
     final private RTTimePlot plot;
@@ -78,7 +77,7 @@ public class ModelBasedPlot
     public ModelBasedPlot(final Composite parent) throws Exception
     {
         //media = new SWTMediaPool(parent.getDisplay());
-        this.display = parent.getDisplay();
+        //this.display = parent.getDisplay();
 
         canvas = new FXCanvas(parent, 0);
         plot = new RTTimePlot(true);
@@ -448,7 +447,8 @@ public class ModelBasedPlot
      */
     public void setTimeRange(final Instant start, final Instant end)
     {
-        display.asyncExec(() -> plot.getXAxis().setValueRange(start, end));
+        //display.asyncExec(() -> plot.getXAxis().setValueRange(start, end));
+        Platform.runLater(() -> plot.getXAxis().setValueRange(start, end));
     }
 
     /** Refresh the plot because the data has changed */
