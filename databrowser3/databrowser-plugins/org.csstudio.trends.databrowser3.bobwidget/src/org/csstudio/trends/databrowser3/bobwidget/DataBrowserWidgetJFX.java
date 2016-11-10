@@ -97,7 +97,7 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
         model_widget.propFile().addPropertyListener(this::fileChanged);
         ModelThreadPool.getExecutor().execute(() -> fileChanged(null, null, img_name));
 
-        ModelThreadPool.getExecutor().execute(() -> fileChanged(null, null, null));
+        ModelThreadPool.getExecutor().execute(() -> lineChanged(null, null, null));
 
         try
         {

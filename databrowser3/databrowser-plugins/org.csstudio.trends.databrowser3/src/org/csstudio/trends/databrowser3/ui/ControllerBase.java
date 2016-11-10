@@ -14,6 +14,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -70,13 +71,13 @@ import org.eclipse.swt.widgets.Shell;
 public abstract class ControllerBase
 {
     /** Model with data to display */
-    final Model model;
+    final private Model model;
 
     /** Listener to model that informs this controller */
-    ModelListener model_listener;
+    private ModelListener model_listener;
 
     /** GUI for displaying the data */
-    final ModelBasedPlot plot;
+    final private ModelBasedPlot plot;
 
     /** Timer that triggers scrolling or trace redraws */
     final private static ScheduledExecutorService update_timer =
@@ -102,7 +103,7 @@ public abstract class ControllerBase
             new ArrayList<ArchiveFetchJob>();
 
     /** Is the window (shell) iconized? */
-    volatile boolean window_is_iconized = false;
+    protected volatile boolean window_is_iconized = false;
 
     /** Should we perform redraws, or is the window hidden and we should suppress them? */
     private boolean suppress_redraws = false;
@@ -125,7 +126,9 @@ public abstract class ControllerBase
             // All completed. Do something to the plot?
             final ArchiveRescale rescale = model.getArchiveRescale();
             if (rescale == ArchiveRescale.STAGGER)
-                executeOnUIThread(e -> plot.getPlot().stagger());
+                plot.getPlot().stagger();
+            else
+                doUpdate();
         }
 
         private void reportError(final String displayName, final Exception error)
@@ -139,6 +142,7 @@ public abstract class ControllerBase
                 final ArchiveDataSource archive, final Exception error)
         {
 
+            //TODO: fix logger object
             if (Preferences.doPromptForErrors())
                 reportError(job.getPVItem().getResolvedDisplayName(), error);
             else
@@ -332,6 +336,14 @@ public abstract class ControllerBase
         {
             model.setLegendVisible(visible);
         }
+
+        @Override
+        public void autoScaleChanged(int index, boolean autoScale)
+        {
+            final AxisConfig axis = model.getAxis(index);
+            if (axis != null)
+                this.executeOnUIThread(() -> axis.setAutoScale(autoScale));
+        }
     };
 
     /** Initialize
@@ -503,7 +515,7 @@ public abstract class ControllerBase
     public void scheduleArchiveRetrieval()
     {
         if (archive_fetch_delay_task != null)
-            archive_fetch_delay_task.cancel(true);
+            archive_fetch_delay_task.cancel(false);
         archive_fetch_delay_task = update_timer.schedule(this::getArchivedData, archive_fetch_delay, TimeUnit.MILLISECONDS);
     }
 
@@ -654,24 +666,41 @@ public abstract class ControllerBase
         if (pv_item.getArchiveDataSources().length <= 0)
             return;
 
-        ArchiveFetchJob job;
-
-        // Stop ongoing jobs for this item
+        // Determine ongoing jobs for this item
+        final List<ArchiveFetchJob> ongoing = new ArrayList<>();
+        final ArchiveFetchJob new_job = makeArchiveFetchJob(pv_item, start, end);
         synchronized (archive_fetch_jobs)
         {
-            for (int i=0; i<archive_fetch_jobs.size(); ++i)
+            for (Iterator<ArchiveFetchJob> iter = archive_fetch_jobs.iterator();  iter.hasNext();  /**/)
             {
-                job = archive_fetch_jobs.get(i);
-                if (job.getPVItem() != pv_item)
-                    continue;
-                // System.out.println("Request for " + item.getName() + " cancels " + job);
-                job.cancel();
-                archive_fetch_jobs.remove(job);
+                final ArchiveFetchJob job = iter.next();
+                if (job.getPVItem() == pv_item)
+                {
+                    ongoing.add(job);
+                    iter.remove();
+                }
             }
-            // Start new job
-            job = makeArchiveFetchJob(pv_item, start, end);
-            archive_fetch_jobs.add(job);
+            // Track new job
+            archive_fetch_jobs.add(new_job);
         }
-        job.schedule();
+        //job.schedule();
+        Activator.getThreadPool().execute(() ->
+        {
+            // In background, stop ongoing jobs
+            for (ArchiveFetchJob running : ongoing)
+            {
+                try
+                {
+                    running.cancel();
+                    running.join(10000, null);
+                }
+                catch (Exception ex)
+                {
+                    Activator.getLogger().log(Level.WARNING, "Cannot cancel " + running, ex);
+                }
+            }
+            // .. then start new one
+            new_job.schedule();
+        });
     }
 }
