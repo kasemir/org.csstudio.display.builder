@@ -8,11 +8,14 @@
 package org.csstudio.trends.databrowser3.bobwidget;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.MacroHandler;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties.WidgetLineStyle;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -54,17 +57,17 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
     private volatile InputStream stream;
 
     //TODO: Add border?
-    private static Color line_color = Color.GRAY;
+    private volatile Color line_color = Color.GRAY;
     //private static final int inset = 0;
-    //private static final int border_width = 1;
+    private volatile int line_width = 1;
     private volatile Rectangle border = new Rectangle();
+    private volatile List<Double> dash_array = new ArrayList<Double>();
 
     @Override
     public Group createJFXNode() throws Exception
     {
         // Plot is only active in runtime mode, not edit mode
         //plot = new RTValuePlot(! toolkit.isEditMode());
-        //TODO: Remove need for shell in javafx widget
         border.setFill(Color.TRANSPARENT);
         plot = new ModelBasedPlot(! toolkit.isEditMode());
         Group gr = new Group(border, plot.getPlot());
@@ -96,8 +99,8 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
         model_widget.propShowToolbar().addUntypedPropertyListener(this::optsChanged);
 
         model_widget.propLineColor().addUntypedPropertyListener(this::lineChanged);
-        model_widget.propLineColor().addUntypedPropertyListener(this::lineChanged);
-        model_widget.propLineColor().addUntypedPropertyListener(this::lineChanged);
+        model_widget.propLineStyle().addUntypedPropertyListener(this::lineChanged);
+        model_widget.propLineWidth().addUntypedPropertyListener(this::lineChanged);
 
         final String img_name = model_widget.propFile().getValue();
         model_widget.propFile().addPropertyListener(this::fileChanged);
@@ -131,7 +134,18 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
 
     private void lineChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        line_color = JFXUtil.convert(model_widget.propLineColor().getValue());
+        if (model_widget.propLineStyle().getValue() == WidgetLineStyle.NONE)
+        {
+            line_color = Color.TRANSPARENT;
+        }
+        else {
+            line_color = JFXUtil.convert(model_widget.propLineColor().getValue());
+        }
+        line_width = model_widget.propLineWidth().getValue();
+        dash_array.clear();
+        dash_array.add((double)line_width);
+        dash_array.add((double)line_width * 2);
+
         dirty_line.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -208,7 +222,12 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
         if (dirty_line.checkAndClear())
         {
             border.setStroke(line_color);
-            border.setStrokeWidth(model_widget.propLineWidth().getValue());
+            border.setStrokeWidth(line_width);
+            border.getStrokeDashArray().clear();
+            if (model_widget.propLineStyle().getValue() == WidgetLineStyle.DASH)
+            {
+                border.getStrokeDashArray().addAll(dash_array);
+            }
         }
     }
 }
