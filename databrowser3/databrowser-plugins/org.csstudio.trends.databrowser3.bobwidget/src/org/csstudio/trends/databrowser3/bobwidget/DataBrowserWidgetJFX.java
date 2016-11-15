@@ -178,7 +178,7 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
             try
             {
                 stream = ModelResourceUtil.openResourceStream(file_path);
-                //new XMLPersistence().load(model, stream);
+                new XMLPersistence().load(model, stream);
             }
             catch (Exception e)
             {

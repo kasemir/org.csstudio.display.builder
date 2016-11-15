@@ -1,27 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
-<extension-point id="widgets" name="Display Builder Widget Model"/>
-   <extension
-       point="org.csstudio.display.builder.model.widgets">
-     
-     <widget
-            category="PLOT"
-            class="org.csstudio.trends.databrowser3.bobwidget.DataBrowserWidget"
-            description="DataBrowser 3 widget"
-            icon="platform:/plugin/org.csstudio.trends.databrowser3.bobwidget/icons/databrowser.png"
-            name="DataBrowser 3"
-            type="databrowser">
-        <alternates
-              type="org.csstudio.trends.databrowser.opiwidget">
-        </alternates>
-      </widget>
-   </extension>
-   <extension
-         point="org.csstudio.display.builder.representation.widgets">
-      <representation
-            class="org.csstudio.trends.databrowser3.bobwidget.DataBrowserWidgetJFX"
-            type="databrowser">
-      </representation>
-   </extension>
+	<extension-point id="widgets" name="Display Builder Widget Model"/>
+	<extension
+	    point="org.csstudio.display.builder.model.widgets">
+		<widget
+		    category="PLOT"
+		    class="org.csstudio.trends.databrowser3.bobwidget.DataBrowserWidget"
+		    description="DataBrowser 3 widget"
+		    icon="platform:/plugin/org.csstudio.trends.databrowser3.bobwidget/icons/databrowser.png"
+		    name="DataBrowser 3"
+		    type="databrowser">
+			<alternates
+			    type="org.csstudio.trends.databrowser.opiwidget">
+			</alternates>
+		</widget>
+	</extension>
+	<extension
+		point="org.csstudio.display.builder.representation.widgets">
+		<representation
+			class="org.csstudio.trends.databrowser3.bobwidget.DataBrowserWidgetJFX"
+			type="databrowser">
+		</representation>
+	</extension>
+	<extension
+ 		point="org.csstudio.display.builder.runtime.widgets">
+	<runtime
+    	class="org.csstudio.trends.databrowser3.bobwidget.DataBrowserWidgetRuntime"
+    	type="databrowser">
+	</runtime>
+	</extension>
 </plugin>
