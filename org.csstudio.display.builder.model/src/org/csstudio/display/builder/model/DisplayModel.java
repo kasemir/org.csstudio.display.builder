@@ -91,6 +91,26 @@ public class DisplayModel extends Widget
         super(WIDGET_TYPE, 800, 600);
     }
 
+    /** Get display name
+     *
+     *  <p>Provides the configured 'name',
+     *  falling back to the input file
+     *  if name is empty.
+     *
+     *  @return Display name
+     */
+    public String getDisplayName()
+    {
+        String name = super.getName();
+        if (name.isEmpty())
+        {
+            name = getUserData(USER_DATA_INPUT_FILE);
+            if (name == null)
+                name = "<No name>";
+        }
+        return name;
+    }
+
     /** @return <code>true</code> if this display is a top-level display,
      *          <code>false</code> if it's held by an embedded widget
      */

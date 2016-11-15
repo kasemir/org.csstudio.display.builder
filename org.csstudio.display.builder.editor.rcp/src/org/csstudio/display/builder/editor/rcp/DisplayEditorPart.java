@@ -258,7 +258,7 @@ public class DisplayEditorPart extends EditorPart
         // In UI thread..
         toolkit.execute(() ->
         {
-            setPartName(model.getName());
+            setPartName(model.getDisplayName());
             editor.setModel(model);
             if (outline_page != null)
                 outline_page.setModel(model);
@@ -395,7 +395,7 @@ public class DisplayEditorPart extends EditorPart
                 final Future<Object> update_input = toolkit.submit(() ->
                 {   // Update editor input to current file name
                     setInput(input);
-                    setPartName(model.getName());
+                    setPartName(model.getDisplayName());
                     setTitleToolTip(input.getToolTipText());
 
                     // Clear 'undo'
@@ -461,7 +461,7 @@ public class DisplayEditorPart extends EditorPart
     {
         final IFile file = getInputFile();
         // Providing workspace location, which is handled in ModelResourceUtil
-        return new DisplayInfo(file.getFullPath().toOSString(), editor.getModel().getName(), new Macros());
+        return new DisplayInfo(file.getFullPath().toOSString(), editor.getModel().getDisplayName(), new Macros());
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

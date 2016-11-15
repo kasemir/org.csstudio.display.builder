@@ -24,7 +24,7 @@ public class DisplayInfo
     public static DisplayInfo forModel(final DisplayModel model)
     {
         return new DisplayInfo(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE),
-                               model.getName(),
+                               model.getDisplayName(),
                                model.propMacros().getValue());
     }
 
