@@ -53,6 +53,8 @@ public class TableDemo extends Application
         table.setBackgroundColor(Color.PINK);
         table.setTextColor(Color.GREEN);
         table.setFont(Font.font("Liberation Serif", 12.0));
+        table.setCellColor(0, 1, Color.ORANGE);
+        table.setCellColor(1, 2, Color.BLUEVIOLET);
 
         table.setListener(new StringTableListener()
         {
