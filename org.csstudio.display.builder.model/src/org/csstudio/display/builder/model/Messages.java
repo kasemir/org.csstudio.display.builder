@@ -56,6 +56,10 @@ public class Messages extends NLS
     public static String GroupWidget_Name;
     public static String LabelWidget_Text;
     public static String Left;
+    public static String LineStyle;
+    public static String LineStyle_Solid;
+    public static String LineStyle_None;
+    public static String LineStyle_Dash;
     public static String Middle;
     public static String PlotWidget_AutoScale;
     public static String PlotWidget_Color;

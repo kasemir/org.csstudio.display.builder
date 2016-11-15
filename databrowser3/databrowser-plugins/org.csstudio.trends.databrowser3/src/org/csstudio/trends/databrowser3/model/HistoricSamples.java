@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.csstudio.javafx.rtplot.data.TimeDataSearch;
 import org.diirt.vtype.VType;
 
 /** Holder for 'historic' samples.
@@ -49,6 +50,8 @@ public class HistoricSamples extends PlotSamples
     /** Waveform index */
     final private AtomicInteger waveform_index;
 
+    final private TimeDataSearch searcher = new TimeDataSearch();
+
     HistoricSamples(final AtomicInteger waveform_index)
     {
         this.waveform_index = waveform_index;
@@ -72,8 +75,7 @@ public class HistoricSamples extends PlotSamples
     {
         if (border_time.isPresent())
         {
-            final int last_index = PlotSampleSearch.findSampleLessThan(
-                    samples, border_time.get());
+            final int last_index = searcher.findSampleLessThan(this, border_time.get());
             visible_size = (last_index < 0)   ?   0   :   last_index + 1;
         }
         else

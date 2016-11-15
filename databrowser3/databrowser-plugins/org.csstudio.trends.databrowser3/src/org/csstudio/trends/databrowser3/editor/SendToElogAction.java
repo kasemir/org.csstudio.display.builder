@@ -19,14 +19,12 @@ import org.csstudio.logbook.LogEntryBuilder;
 import org.csstudio.logbook.LogbookClientManager;
 import org.csstudio.javafx.rtplot.RTTimePlot;
 import org.csstudio.trends.databrowser3.Messages;
-import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.ui.util.CustomMediaFactory;
 import org.csstudio.ui.util.thread.UIBundlingThread;
 import org.eclipse.core.commands.Command;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.widgets.Event;
@@ -35,6 +33,8 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
+
+import javafx.embed.swt.SWTFXUtils;
 
 /**
  * Action to send image of plot to logbook.
@@ -141,10 +141,7 @@ public class SendToElogAction extends Action {
     private Attachment createImageAttachment() throws Exception {
         // Dump image into buffer
         ImageLoader loader = new ImageLoader();
-        Image image = SWTMediaPool.get(graph.getImage());
-        loader.data = new ImageData[] { image.getImageData() };
-        image.dispose();
-        image = null;
+        loader.data = new ImageData[] { SWTFXUtils.fromFXImage(graph.getImage(), null) };
 
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         loader.save(buf, SWT.IMAGE_PNG);

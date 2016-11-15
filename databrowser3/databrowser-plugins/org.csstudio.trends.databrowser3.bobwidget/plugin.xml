@@ -14,5 +14,11 @@
             type="databrowser">
       </widget>
    </extension>
-
+   <extension
+         point="org.csstudio.display.builder.representation.widgets">
+      <representation
+            class="org.csstudio.trends.databrowser3.bobwidget.DataBrowserWidgetJFX"
+            type="databrowser">
+      </representation>
+   </extension>
 </plugin>

@@ -14,6 +14,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -27,18 +28,14 @@ import java.util.logging.Logger;
 import org.csstudio.apputil.time.AbsoluteTimeParser;
 import org.csstudio.apputil.time.PeriodFormat;
 import org.csstudio.apputil.time.RelativeTime;
-import org.csstudio.csdata.ProcessVariable;
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.Trace;
-import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.rtplot.util.NamedThreadFactory;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.trends.databrowser3.archive.ArchiveFetchJob;
 import org.csstudio.trends.databrowser3.archive.ArchiveFetchJobListener;
-import org.csstudio.trends.databrowser3.imports.FileImportDialog;
-import org.csstudio.trends.databrowser3.imports.ImportArchiveReaderFactory;
 import org.csstudio.trends.databrowser3.model.AnnotationInfo;
 import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
 import org.csstudio.trends.databrowser3.model.ArchiveRescale;
@@ -49,18 +46,11 @@ import org.csstudio.trends.databrowser3.model.ModelListener;
 import org.csstudio.trends.databrowser3.model.ModelListenerAdapter;
 import org.csstudio.trends.databrowser3.model.PVItem;
 import org.csstudio.trends.databrowser3.preferences.Preferences;
-import org.csstudio.trends.databrowser3.propsheet.AddArchiveCommand;
-import org.csstudio.trends.databrowser3.propsheet.AddAxisCommand;
-import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
 import org.diirt.util.time.TimeDuration;
-import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
+//import org.eclipse.swt.widgets.Shell;
 
-/** Controller that interfaces the {@link Model} with the {@link ModelBasedPlot}:
+/** Controller that interfaces the {@link Model} with the {@link ModelBasedPlotSWT}:
  *  <ul>
  *  <li>For each item in the Model, create a trace in the plot.
  *  <li>Perform scrolling of the time axis.
@@ -70,22 +60,16 @@ import org.eclipse.swt.widgets.Shell;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class Controller
+public abstract class ControllerBase
 {
-    /** Optional shell used to track shell state */
-    final private Shell shell;
-
-    /** Display used for dialog boxes etc. */
-    final private Display display;
-
     /** Model with data to display */
-    final private Model model;
+    final Model model;
 
     /** Listener to model that informs this controller */
     private ModelListener model_listener;
 
     /** GUI for displaying the data */
-    final private ModelBasedPlot plot;
+    final ModelBasedPlot plot;
 
     /** Timer that triggers scrolling or trace redraws */
     final private static ScheduledExecutorService update_timer =
@@ -111,23 +95,16 @@ public class Controller
             new ArrayList<ArchiveFetchJob>();
 
     /** Is the window (shell) iconized? */
-    private volatile boolean window_is_iconized = false;
+    protected volatile boolean window_is_iconized = false;
 
     /** Should we perform redraws, or is the window hidden and we should suppress them? */
     private boolean suppress_redraws = false;
 
-    final private ArchiveFetchJobListener archive_fetch_listener = new ArchiveFetchJobListener()
+    abstract class BaseArchiveFetchJobListener implements ArchiveFetchJobListener
     {
+        abstract protected void executeOnUIThread(Consumer<Void> consumer);
+        abstract protected void displayError(final String message, final Exception error);
 
-        private void executeOnUIThread(Consumer<Void> consumer)
-        {
-            if (!display.isDisposed())
-                display.asyncExec(() ->
-                {
-                    if (!display.isDisposed())
-                        consumer.accept(null);
-                });
-        }
         @Override
         public void fetchCompleted(final ArchiveFetchJob job)
         {
@@ -141,13 +118,15 @@ public class Controller
             // All completed. Do something to the plot?
             final ArchiveRescale rescale = model.getArchiveRescale();
             if (rescale == ArchiveRescale.STAGGER)
-                executeOnUIThread(e -> plot.getPlot().stagger());
+                plot.getPlot().stagger();
+            else
+                doUpdate();
         }
 
         private void reportError(final String displayName, final Exception error)
         {
             final String message = NLS.bind(Messages.ArchiveAccessMessageFmt, displayName);
-            executeOnUIThread(e -> ExceptionDetailsErrorDialog.openError(shell, Messages.Information, message, error));
+            displayError(message, error);
         }
 
         @Override
@@ -155,6 +134,7 @@ public class Controller
                 final ArchiveDataSource archive, final Exception error)
         {
 
+            //TODO: fix logger object
             if (Preferences.doPromptForErrors())
                 reportError(job.getPVItem().getResolvedDisplayName(), error);
             else
@@ -183,213 +163,98 @@ public class Controller
         }
     };
 
+    abstract class BasePlotListener implements PlotListener
+    {
+        //abstract Shell getShell();
+        abstract protected void executeOnUIThread(Runnable func);
+
+        @Override
+        public void timeAxisChanged(final boolean scrolling, final Instant start, final Instant end)
+        {
+            model.enableScrolling(scrolling);
+            final String start_spec, end_spec;
+            if (scrolling)
+            {   // Scrolling, adjust relative time, i.e. width of plot
+                final Duration duration = Duration.between(start, end);
+                start_spec = "-" + PeriodFormat.formatSeconds(TimeDuration.toSecondsDouble(duration));
+                end_spec = RelativeTime.NOW;
+            }
+            else
+            {
+                final ZoneId zone = ZoneId.systemDefault();
+                Calendar cal = GregorianCalendar.from(ZonedDateTime.ofInstant(start, zone));
+                start_spec = AbsoluteTimeParser.format(cal);
+                cal = GregorianCalendar.from(ZonedDateTime.ofInstant(end, zone));
+                end_spec = AbsoluteTimeParser.format(cal);
+            }
+            // Update model's time range
+            try
+            {
+                model.setTimerange(start_spec, end_spec);
+            }
+            catch (Exception ex)
+            {
+                Logger.getLogger(ControllerBase.class.getName()).log(Level.WARNING,
+                        "Cannot adjust time range to " + start_spec + " .. " + end_spec, ex);
+            }
+            // Controller's ModelListener will fetch new archived data
+        }
+
+        @Override
+        public void valueAxisChanged(final int index, final double lower, final double upper)
+        {   // Update axis range in model, using UI thread because event may come from 'stagger' background thread
+            final AxisConfig axis = model.getAxis(index);
+            if (axis != null) {
+                //only update if the model has that axis. If the trend is empty, the model may not have that axis
+                this.executeOnUIThread(() -> axis.setRange(lower, upper));
+            }
+        }
+
+        @Override
+        public void changedAnnotations(final List<AnnotationInfo> annotations)
+        {
+            model.setAnnotations(annotations);
+        }
+
+        @Override
+        public void selectedSamplesChanged()
+        {
+            model.fireSelectedSamplesChanged();
+        }
+
+        @Override
+        public void changedToolbar(final boolean visible)
+        {
+            model.setToolbarVisible(visible);
+        }
+
+        @Override
+        public void changedLegend(final boolean visible)
+        {
+            model.setLegendVisible(visible);
+        }
+
+        @Override
+        public void autoScaleChanged(int index, boolean autoScale)
+        {
+            final AxisConfig axis = model.getAxis(index);
+            if (axis != null)
+                this.executeOnUIThread(() -> axis.setAutoScale(autoScale));
+        }
+    };
+
     /** Initialize
      *  @param shell Shell
      *  @param model Model that has the data
      *  @param plot Plot for displaying the Model
      *  @throws Error when called from non-UI thread
      */
-    public Controller(final Shell shell, final Model model, final ModelBasedPlot plot)
+    public ControllerBase(final Model model, final ModelBasedPlot plot)
     {
-        this.shell = shell;
         this.model = model;
         this.plot = plot;
 
-        if (shell == null)
-        {
-            display = Display.getCurrent();
-            if (display == null)
-                throw new Error("Must be called from UI thread"); //$NON-NLS-1$
-        }
-        else
-        {
-            display = shell.getDisplay();
-            // Update 'iconized' state from shell
-            shell.addShellListener(new ShellAdapter()
-            {
-                //Remove Override annotation, because this method does not exist in RAP
-                //@Override
-                @Override
-                public void shellIconified(ShellEvent e)
-                {
-                    window_is_iconized = true;
-                }
-
-                //Remove Override annotation, because this method does not exist in RAP
-                //@Override
-                @Override
-                public void shellDeiconified(ShellEvent e)
-                {
-                    window_is_iconized = false;
-                }
-            });
-            window_is_iconized = shell.getMinimized();
-        }
         createPlotTraces();
-
-        // Listen to user input from Plot UI, update model
-        plot.addListener(new PlotListener()
-        {
-            @Override
-            public void timeConfigRequested()
-            {
-                StartEndTimeAction.run(shell, model, plot.getPlot().getUndoableActionManager());
-            }
-
-            @Override
-            public void timeAxisChanged(final boolean scrolling, final Instant start, final Instant end)
-            {
-                model.enableScrolling(scrolling);
-                final String start_spec, end_spec;
-                if (scrolling)
-                {   // Scrolling, adjust relative time, i.e. width of plot
-                    final Duration duration = Duration.between(start, end);
-                    start_spec = "-" + PeriodFormat.formatSeconds(TimeDuration.toSecondsDouble(duration));
-                    end_spec = RelativeTime.NOW;
-                }
-                else
-                {
-                    final ZoneId zone = ZoneId.systemDefault();
-                    Calendar cal = GregorianCalendar.from(ZonedDateTime.ofInstant(start, zone));
-                    start_spec = AbsoluteTimeParser.format(cal);
-                    cal = GregorianCalendar.from(ZonedDateTime.ofInstant(end, zone));
-                    end_spec = AbsoluteTimeParser.format(cal);
-                }
-                // Update model's time range
-                try
-                {
-                    model.setTimerange(start_spec, end_spec);
-                }
-                catch (Exception ex)
-                {
-                    Logger.getLogger(Controller.class.getName()).log(Level.WARNING,
-                            "Cannot adjust time range to " + start_spec + " .. " + end_spec, ex);
-                }
-                // Controller's ModelListener will fetch new archived data
-            }
-
-            @Override
-            public void valueAxisChanged(final int index, final double lower, final double upper)
-            {   // Update axis range in model, using UI thread because event may come from 'stagger' background thread
-                final AxisConfig axis = model.getAxis(index);
-                if (axis != null) {
-                    //only update if the model has that axis. If the trend is empty, the model may not have that axis
-                    display.asyncExec(() -> axis.setRange(lower, upper));
-                }
-            }
-
-            @Override
-            public void droppedNames(final String[] names)
-            {
-                // Offer potential PV name in dialog so user can edit/cancel
-                final AddPVAction add = new AddPVAction(plot.getPlot().getUndoableActionManager(), shell, model, false);
-                for (String one_name : names)
-                    if (! add.runWithSuggestedName(one_name, null))
-                        break;
-            }
-
-            @Override
-            public void droppedPVNames(final ProcessVariable[] names, final ArchiveDataSource[] archives)
-            {
-                if (names == null)
-                {
-                    if (archives == null)
-                        return;
-                    // Received only archives. Add to all PVs
-                    for (ArchiveDataSource archive : archives)
-                        for (ModelItem item : model.getItems())
-                        {
-                            if (! (item instanceof PVItem))
-                                continue;
-                            final PVItem pv = (PVItem) item;
-                            if (pv.hasArchiveDataSource(archive))
-                                continue;
-                            new AddArchiveCommand(plot.getPlot().getUndoableActionManager(), pv, archive);
-                        }
-                }
-                else
-                {   // Received PV names, maybe with archive
-                    final UndoableActionManager operations_manager = plot.getPlot().getUndoableActionManager();
-
-                    // When multiple PVs are dropped, assert that there is at least one axis.
-                    // Otherwise dialog cannot offer adding all PVs onto the same axis.
-                    if (names.length > 1  &&  model.getAxisCount() <= 0)
-                        new AddAxisCommand(operations_manager, model);
-
-                    final AddPVDialog dlg = new AddPVDialog(shell, names.length, model, false);
-                    for (int i=0; i<names.length; ++i)
-                        dlg.setName(i, names[i].getName());
-                    if (dlg.open() != Window.OK)
-                        return;
-
-                    for (int i=0; i<names.length; ++i)
-                    {
-                        final AxisConfig axis;
-                        if (dlg.getAxisIndex(i) >= 0)
-                            axis = model.getAxis(dlg.getAxisIndex(i));
-                        else // Use first empty axis, or create a new one
-                            axis = model.getEmptyAxis().orElseGet(() -> new AddAxisCommand(operations_manager, model).getAxis());
-
-                        // Add new PV
-                        final ArchiveDataSource archive =
-                                (archives == null || i>=archives.length) ? null : archives[i];
-                        AddModelItemCommand.forPV(shell, operations_manager,
-                                model, dlg.getName(i), dlg.getScanPeriod(i),
-                                axis, archive);
-                    }
-                    return;
-                }
-            }
-
-            @Override
-            public void droppedFilename(String file_name)
-            {
-                final FileImportDialog dlg = new FileImportDialog(shell, file_name);
-                if (dlg.open() != Window.OK)
-                    return;
-
-                final UndoableActionManager operations_manager = plot.getPlot().getUndoableActionManager();
-
-                // Add to first empty axis, or create new axis
-                final AxisConfig axis = model.getEmptyAxis().orElseGet(
-                        () -> new AddAxisCommand(operations_manager, model).getAxis() );
-
-                // Add archivedatasource for "import:..." and let that load the file
-                final String type = dlg.getType();
-                file_name = dlg.getFileName();
-                final String url = ImportArchiveReaderFactory.createURL(type, file_name);
-                final ArchiveDataSource imported = new ArchiveDataSource(url, 1, type);
-                // Add PV Item with data to model
-                AddModelItemCommand.forPV(shell, operations_manager,
-                        model, dlg.getItemName(), Preferences.getScanPeriod(),
-                        axis, imported);
-            }
-
-            @Override
-            public void changedAnnotations(final List<AnnotationInfo> annotations)
-            {
-                model.setAnnotations(annotations);
-            }
-
-            @Override
-            public void selectedSamplesChanged()
-            {
-                model.fireSelectedSamplesChanged();
-            }
-
-            @Override
-            public void changedToolbar(final boolean visible)
-            {
-                model.setToolbarVisible(visible);
-            }
-
-            @Override
-            public void changedLegend(final boolean visible)
-            {
-                model.setLegendVisible(visible);
-            }
-        });
-
 
         model_listener = new ModelListenerAdapter()
         {
@@ -419,10 +284,14 @@ public class Controller
             {
                 plot.getPlot().setBackground(SWTMediaPool.getJFX(model.getPlotBackground()));
                 plot.getPlot().setTitleFont(SWTMediaPool.getJFX(model.getTitleFont()));
-                //TODO: label and scale font
-                //plot.getPlot().setLabelFont(SWTMediaPool.getJFX(model.getLabelFont()));
-                //plot.getPlot().setScaleFont(SWTMediaPool.getJFX(model.getScaleFont()));
                 plot.getPlot().setLegendFont(SWTMediaPool.getJFX(model.getLegendFont()));
+
+                final int acount = plot.getTotalAxesCount();
+                for (int idx = 0; idx < acount; idx++)
+                {
+                    plot.getPlotAxis(idx).setLabelFont(SWTMediaPool.getJFX(model.getLabelFont()));
+                    plot.getPlotAxis(idx).setScaleFont(SWTMediaPool.getJFX(model.getScaleFont()));
+                }
             }
 
             @Override
@@ -466,6 +335,8 @@ public class Controller
                         }
                         ++i;
                     }
+                    //TODO: separate config for x axis?
+                    //plot.updateXAxis(model.getXAxis());
                 }
                 else  // New or removed axis: Recreate the whole plot
                     createPlotTraces();
@@ -541,7 +412,7 @@ public class Controller
     public void scheduleArchiveRetrieval()
     {
         if (archive_fetch_delay_task != null)
-            archive_fetch_delay_task.cancel(true);
+            archive_fetch_delay_task.cancel(false);
         archive_fetch_delay_task = update_timer.schedule(this::getArchivedData, archive_fetch_delay, TimeUnit.MILLISECONDS);
     }
 
@@ -559,9 +430,6 @@ public class Controller
         plot.getPlot().showToolbar(model.isToolbarVisible());
         plot.getPlot().showLegend(model.isLegendVisible());
         plot.getPlot().setTitleFont(SWTMediaPool.getJFX(model.getTitleFont()));
-        //TODO: label and scal font
-        //plot.getPlot().setLabelFont(SWTMediaPool.getJFX(model.getLabelFont()));
-        //plot.getPlot().setScaleFont(SWTMediaPool.getJFX(model.getScaleFont()));
         plot.getPlot().setLegendFont(SWTMediaPool.getJFX(model.getLegendFont()));
         if (model.getTitle().isPresent()) {
             plot.getPlot().setTitle(model.getTitle().get());
@@ -618,6 +486,7 @@ public class Controller
 
     private void doUpdate()
     {
+        //System.out.println("Doing update, redraw suppress: " + suppress_redraws);
         try
         {
             // Skip updates while nobody is watching
@@ -678,6 +547,8 @@ public class Controller
             getArchivedData(item, start, end);
     }
 
+    abstract ArchiveFetchJob makeArchiveFetchJob(PVItem pv_item, Instant start, Instant end);
+
     /** Initiate archive data retrieval for a specific model item
      *  @param item Model item. NOP for non-PVItem
      *  @param start Start time
@@ -693,24 +564,41 @@ public class Controller
         if (pv_item.getArchiveDataSources().length <= 0)
             return;
 
-        ArchiveFetchJob job;
-
-        // Stop ongoing jobs for this item
+        // Determine ongoing jobs for this item
+        final List<ArchiveFetchJob> ongoing = new ArrayList<>();
+        final ArchiveFetchJob new_job = makeArchiveFetchJob(pv_item, start, end);
         synchronized (archive_fetch_jobs)
         {
-            for (int i=0; i<archive_fetch_jobs.size(); ++i)
+            for (Iterator<ArchiveFetchJob> iter = archive_fetch_jobs.iterator();  iter.hasNext();  /**/)
             {
-                job = archive_fetch_jobs.get(i);
-                if (job.getPVItem() != pv_item)
-                    continue;
-                // System.out.println("Request for " + item.getName() + " cancels " + job);
-                job.cancel();
-                archive_fetch_jobs.remove(job);
+                final ArchiveFetchJob job = iter.next();
+                if (job.getPVItem() == pv_item)
+                {
+                    ongoing.add(job);
+                    iter.remove();
+                }
             }
-            // Start new job
-            job = new ArchiveFetchJob(pv_item, start, end, archive_fetch_listener);
-            archive_fetch_jobs.add(job);
+            // Track new job
+            archive_fetch_jobs.add(new_job);
         }
-        job.schedule();
+        //job.schedule();
+        Activator.getThreadPool().execute(() ->
+        {
+            // In background, stop ongoing jobs
+            for (ArchiveFetchJob running : ongoing)
+            {
+                try
+                {
+                    running.cancel();
+                    running.join(10000, null);
+                }
+                catch (Exception ex)
+                {
+                    Activator.getLogger().log(Level.WARNING, "Cannot cancel " + running, ex);
+                }
+            }
+            // .. then start new one
+            new_job.schedule();
+        });
     }
 }

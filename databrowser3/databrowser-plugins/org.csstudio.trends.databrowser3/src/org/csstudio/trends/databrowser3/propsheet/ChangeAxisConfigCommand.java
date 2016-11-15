@@ -80,9 +80,5 @@ public class ChangeAxisConfigCommand extends UndoableAction
             axis.setAutoScale(config.isAutoScale());
         if (axis.isLogScale() != config.isLogScale())
             axis.setLogScale(config.isLogScale());
-        if (axis.getLabelFont().equals(config.getLabelFont()))
-            axis.setLabelFont(config.getLabelFont());
-        if (axis.getScaleFont().equals(config.getScaleFont()))
-            axis.setScaleFont(config.getScaleFont());
     }
 }

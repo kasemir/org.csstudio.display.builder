@@ -62,6 +62,28 @@ public class PlotDataSearch<XTYPE extends Comparable<XTYPE>>
         return -1;
     }
 
+    /** Find the last sample that's smaller than the given value,
+     *  i.e. the 'next' sample would be equal-or-greater than goal.
+     *  @param goal The time to look for.
+     *  @return Returns index of sample smaller than given goal, or -1.
+     */
+    public int findSampleLessThan(final PlotDataProvider<XTYPE> data, final XTYPE x)
+    {
+        search(data, x);
+        int i = mid;
+        // Found 'mid' sample smaller than x right away?
+        if (cmp < 0) // 'mid' sample is smaller than x, so it's OK
+            return i;
+        // Look for sample < x
+        while (i > 0)
+        {
+            --i;
+            if (data.get(i).getPosition().compareTo(x) < 0)
+                return i;
+        }
+        return -1;
+    }
+
     /** Find a sample that's bigger or equal to given value
      *  @param data Data, must already be locked
      *  @param x The value to look for.
@@ -78,6 +100,27 @@ public class PlotDataSearch<XTYPE extends Comparable<XTYPE>>
         // If there is a sample beyond, use that
         if (mid < data.size()-2)
             return mid+1;
+        return -1;
+    }
+
+    /** Find the last sample that's greater than the given value,
+     *  i.e. the 'previous' sample would be equal-or-less than goal.
+     *  @param goal The time to look for.
+     *  @return Returns index of sample greater than given goal, or -1.
+     */
+    final public int findSampleGreaterThan(final PlotDataProvider<XTYPE> data, final XTYPE x)
+    {
+        search(data, x);
+        int i = mid;
+        // Found 'mid' sample bigger than x right away?
+        if (cmp > 0)
+            return mid;
+        // Look for sample > x
+        while (++i < data.size())
+        {
+            if (data.get(i).getPosition().compareTo(x) > 0)
+                return i;
+        }
         return -1;
     }
 }

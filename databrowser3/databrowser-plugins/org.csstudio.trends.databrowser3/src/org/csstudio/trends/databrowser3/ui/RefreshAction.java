@@ -16,13 +16,13 @@ import org.eclipse.jface.action.Action;
  */
 public class RefreshAction extends Action
 {
-    final private Controller controller;
+    final private ControllerSWT controller;
 
     /** Initialize
      *  @param controller Controller that performs the refresh
      */
     @SuppressWarnings("nls")
-    public RefreshAction(final Controller controller)
+    public RefreshAction(final ControllerSWT controller)
     {
         super(Messages.Refresh,
               Activator.getDefault().getImageDescriptor("icons/refresh_remote.gif"));

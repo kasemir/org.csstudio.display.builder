@@ -39,7 +39,7 @@ public class SendEMailAction extends AbstractSendEMailAction
     {
         try
         {
-            return new Screenshot(graph).getFilename();
+            return new TempScreenshot(graph).getFilename();
         }
         catch (Exception ex)
         {

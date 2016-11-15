@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import org.csstudio.apputil.time.BenchmarkTimer;
@@ -39,6 +40,7 @@ import org.diirt.vtype.VType;
  *  thread to cancel.
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class ArchiveFetchJob extends Job
 {
     /** Poll period in millisecs */
@@ -66,13 +68,13 @@ public class ArchiveFetchJob extends Job
      */
     class WorkerThread implements Runnable
     {
-        private String message = ""; //$NON-NLS-1$
+        private String message = "";
         private volatile boolean cancelled = false;
 
         /** Archive reader that's currently queried.
          *  Synchronize 'this' on access.
          */
-        private ArchiveReader reader = null;
+        private volatile ArchiveReader reader = null;
 
         /** @return Message that somehow indicates progress */
         public synchronized String getMessage()
@@ -95,7 +97,7 @@ public class ArchiveFetchJob extends Job
         @Override
         public void run()
         {
-            Activator.getLogger().log(Level.FINE, "Starting {0}", ArchiveFetchJob.this); //$NON-NLS-1$
+            Activator.getLogger().log(Level.FINE, "Starting {0}", ArchiveFetchJob.this);
             final BenchmarkTimer timer = new BenchmarkTimer();
             long samples = 0;
             final int bins = Preferences.getPlotBins();
@@ -110,11 +112,11 @@ public class ArchiveFetchJob extends Job
                 {
                     message = NLS.bind(Messages.ArchiveFetchDetailFmt,
                             new Object[]
-                            {
-                                archive.getName(),
-                                (i+1),
-                                archives.length
-                            });
+                                    {
+                                            archive.getName(),
+                                            (i+1),
+                                            archives.length
+                                    });
                 }
                 try
                 {
@@ -129,10 +131,10 @@ public class ArchiveFetchJob extends Job
                     {
                         if (item.getRequestType() == RequestType.RAW)
                             value_iter = the_reader.getRawValues(archive.getKey(), item.getResolvedName(),
-                                                                 start, end);
+                                    start, end);
                         else
                             value_iter = the_reader.getOptimizedValues(archive.getKey(), item.getResolvedName(),
-                                                                       start, end, bins);
+                                    start, end, bins);
                     }
                     catch (UnknownChannelException e)
                     {
@@ -170,18 +172,17 @@ public class ArchiveFetchJob extends Job
             if (!sourcesWhereChannelDoesntExist.isEmpty() && !cancelled)
             {
                 listener.channelNotFound(ArchiveFetchJob.this, sourcesWhereChannelDoesntExist.size() < archives.length,
-                    sourcesWhereChannelDoesntExist
+                        sourcesWhereChannelDoesntExist
                         .toArray(new ArchiveDataSource[sourcesWhereChannelDoesntExist.size()]));
             }
             timer.stop();
             if (!cancelled)
                 listener.fetchCompleted(ArchiveFetchJob.this);
             Activator.getLogger().log(Level.FINE,
-                    "Ended {0} with {1} samples in {2}",        //$NON-NLS-1$
+                    "Ended {0} with {1} samples in {2}",
                     new Object[] { ArchiveFetchJob.this, samples, timer });
         }
 
-        @SuppressWarnings("nls")
         @Override
         public String toString()
         {
@@ -213,7 +214,7 @@ public class ArchiveFetchJob extends Job
      * @see ArchiveReader#enableConcurrency(boolean)
      */
     protected ArchiveFetchJob(PVItem item, final Instant start,
-        final Instant end, final ArchiveFetchJobListener listener, boolean enableConcurrency)
+            final Instant end, final ArchiveFetchJobListener listener, boolean enableConcurrency)
     {
         super(NLS.bind(Messages.ArchiveFetchJobFmt,
                 new Object[] { item.getName(), TimeHelper.format(start),
@@ -240,21 +241,22 @@ public class ArchiveFetchJob extends Job
 
         monitor.beginTask(Messages.ArchiveFetchStart, IProgressMonitor.UNKNOWN);
         final WorkerThread worker = new WorkerThread();
-        Future<?> done = Activator.getThreadPool().submit(worker);
+        final Future<?> done = Activator.getThreadPool().submit(worker);
         // Poll worker and progress monitor
-        long seconds = 0;
+        long start = System.currentTimeMillis();
         while (!done.isDone())
-        {
+        {   // Wait until worker is done, or time out to update info message
             try
             {
-                Thread.sleep(POLL_PERIOD_MS);
+                done.get(POLL_PERIOD_MS, TimeUnit.MILLISECONDS);
             }
-            catch (InterruptedException ex)
+            catch (Exception ex)
             {
                 // Ignore
             }
+            final long seconds = (System.currentTimeMillis() - start) / 1000;
             final String info = NLS.bind(Messages.ArchiveFetchProgressFmt,
-                    worker.getMessage(), ++seconds);
+                    worker.getMessage(), seconds);
             monitor.subTask(info);
             // Try to cancel the worker in response to user's cancel request.
             // Continues to cancel the worker until isDone()
