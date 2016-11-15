@@ -34,6 +34,21 @@ import org.diirt.vtype.VType;
  */
 public class HistoricSamples extends PlotSamples
 {
+    private class HistoricSampleAccess extends PlotSamples
+    {
+        @Override
+        public int size()
+        {
+            return samples.length;
+        }
+
+        @Override
+        public PlotSample get(int index)
+        {
+            return samples[index];
+        }
+    };
+
     // No locking in here, all access is via PVSamples
 
     /** "All" historic samples */
@@ -75,7 +90,7 @@ public class HistoricSamples extends PlotSamples
     {
         if (border_time.isPresent())
         {
-            final int last_index = searcher.findSampleLessThan(this, border_time.get());
+            final int last_index = searcher.findSampleLessThan(new HistoricSampleAccess(), border_time.get());
             visible_size = (last_index < 0)   ?   0   :   last_index + 1;
         }
         else
