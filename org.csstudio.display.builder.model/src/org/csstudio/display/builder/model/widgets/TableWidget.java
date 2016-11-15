@@ -17,6 +17,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
 
 import java.util.ArrayList;
@@ -128,9 +129,9 @@ public class TableWidget extends VisibleWidget
                                              new ColumnProperty(widget, "Column " + (index + 1)));
 
 
-    /** 'value', but compared to usual value not limited to VType */
+    /** Like runtimePropValue, but not limited to VType */
     private static final WidgetPropertyDescriptor<Object> runtimeValueDescriptor =
-        new WidgetPropertyDescriptor<Object>(WidgetPropertyCategory.RUNTIME, "value", Messages.WidgetProperties_Value)
+        new WidgetPropertyDescriptor<Object>(WidgetPropertyCategory.RUNTIME, runtimePropValue.getName(), Messages.WidgetProperties_Value)
         {
             @Override
             public WidgetProperty<Object> createProperty(final Widget widget, final Object value)
