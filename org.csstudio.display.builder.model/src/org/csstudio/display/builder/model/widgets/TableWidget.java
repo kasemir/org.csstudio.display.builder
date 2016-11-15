@@ -267,6 +267,15 @@ public class TableWidget extends VisibleWidget
         properties.add(selection = runtimePropSelectionInfo.createProperty(this, null));
     }
 
+    /** Allow scripts to access "value" */
+    @Override
+    public WidgetProperty<?> getProperty(String name)
+    {
+        if ("value".equals(name))
+            return value;
+        return super.getProperty(name);
+    }
+
     @Override
     public WidgetConfigurator getConfigurator(final Version persisted_version) throws Exception
     {
