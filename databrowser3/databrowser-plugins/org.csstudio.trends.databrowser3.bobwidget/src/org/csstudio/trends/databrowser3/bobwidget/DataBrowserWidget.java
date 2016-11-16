@@ -12,9 +12,11 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineStyle;
 
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
@@ -22,10 +24,14 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties.WidgetLineStyle;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
+import org.csstudio.trends.databrowser3.model.Model;
+import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
 
 /** Model for persisting data browser widget configuration.
  *
@@ -34,10 +40,14 @@ import org.csstudio.display.builder.model.widgets.VisibleWidget;
  *
  *  @author Jaka Bobnar - Original selection value PV support
  *  @author Kay Kasemir
+ *  @author Megan Grodowitz - Databrowser 3 ported from 2
  */
 @SuppressWarnings("nls")
 public class DataBrowserWidget extends VisibleWidget
 {
+    /** Model with data to display */
+    private volatile Model model = new Model();
+
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
             new WidgetDescriptor("databrowser", WidgetCategory.PLOT,
@@ -82,6 +92,7 @@ public class DataBrowserWidget extends VisibleWidget
         properties.add(line_style = propLineStyle.createProperty(this, WidgetLineStyle.SOLID));
     }
 
+
     /** @return 'text' property */
     public WidgetProperty<String> propFile()
     {
@@ -110,6 +121,77 @@ public class DataBrowserWidget extends VisibleWidget
     public WidgetProperty<WidgetLineStyle> propLineStyle()
     {
         return line_style;
+    }
+
+
+    public Model getModel() {
+        return model;
+    }
+
+    public Model cloneModel() {
+        final Model model = new Model();
+        model.setMacros(this.getMacrosOrProperties());
+        try
+        {
+            final InputStream input = this.getFileInputStream();
+            new XMLPersistence().load(model, input);
+        }
+        catch (Exception e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return model;
+    }
+
+    public InputStream getFileInputStream(final String base_path) {
+        InputStream stream;
+        String file_path;
+
+        try
+        {
+            file_path = this.getExpandedFilename(base_path);
+        }
+        catch (Exception e)
+        {
+            //TODO: change to logging message
+            System.out.println("Failure resolving image path from base path: " + base_path);
+            e.printStackTrace();
+            return null;
+        }
+
+        try
+        {
+            stream = ModelResourceUtil.openResourceStream(file_path);
+        }
+        catch (Exception e)
+        {
+            //System.out.println("Failure loading plot file:" + file_path);
+            e.printStackTrace();
+            return null;
+        }
+
+        return stream;
+    }
+
+    public InputStream getFileInputStream() {
+        return this.getFileInputStream(this.filename.getValue());
+    }
+
+    public String getExpandedFilename(String base_path) throws Exception
+    {
+        // expand macros in the file name
+        final String expanded_path = MacroHandler.replace(this.getMacrosOrProperties(), base_path);
+        // Resolve new image file relative to the source widget model (not 'top'!)
+        // Get the display model from the widget tied to this representation
+        final DisplayModel widget_model = this.getDisplayModel();
+        // Resolve the path using the parent model file path
+        return ModelResourceUtil.resolveResource(widget_model, expanded_path);
+    }
+
+    public String getExpandedFilename() throws Exception
+    {
+        return getExpandedFilename(this.filename.getValue());
     }
 
     @Override

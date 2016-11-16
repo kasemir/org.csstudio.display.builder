@@ -79,6 +79,7 @@ public class DataBrowserWidgetRuntime  extends WidgetRuntime<DataBrowserWidget>
     {
         super.initialize(widget);
         runtime_actions.add(new ToggleToolbarAction(widget));
+        runtime_actions.add(new OpenDataBrowserAction(widget));
     }
 
     @Override
