@@ -36,6 +36,7 @@ public class RTTimePlot extends RTPlot<Instant>
             Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("RTPlotScroll"));
 
     private final Image scroll_on, scroll_off;
+    private final ImageView scroll_img;
 
     /** Steps to use when scrolling */
     private volatile Duration scroll_step = Duration.ofSeconds(10);
@@ -54,8 +55,9 @@ public class RTTimePlot extends RTPlot<Instant>
 
         scroll_on = Activator.getIcon("scroll_on");
         scroll_off = Activator.getIcon("scroll_off");
+        scroll_img = new ImageView(scroll_on);
 
-        scroll = addToolItem(scroll_on, "");
+        scroll = addToolItem(scroll_img, "");
         setScrolling(true);
         scroll.setOnAction(event ->
         {
@@ -95,10 +97,11 @@ public class RTTimePlot extends RTPlot<Instant>
     /** @param enabled <code>true</code> to enable scrolling */
     public void setScrolling(final boolean enabled)
     {
+        //TODO: Fix graphics size to button size
         final ScheduledFuture<?> was_scrolling;
         if (enabled)
         {   // Show that scrolling is 'on', and tool tip explains that it can be turned off
-            scroll.setGraphic(new ImageView(scroll_on));
+            scroll_img.imageProperty().set(scroll_on);
             scroll.setTooltip(new Tooltip(Messages.Scroll_Off_TT));
             // Scroll once so that end of axis == 'now',
             // because otherwise one of the listeners might right away
@@ -109,7 +112,7 @@ public class RTTimePlot extends RTPlot<Instant>
         }
         else
         {   // Other way around
-            scroll.setGraphic(new ImageView(scroll_off));
+            scroll_img.imageProperty().set(scroll_off);
             scroll.setTooltip(new Tooltip(Messages.Scroll_On_TT));
             was_scrolling = scrolling.getAndSet(null);
         }
@@ -145,7 +148,6 @@ public class RTTimePlot extends RTPlot<Instant>
 
     public Image getImage()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return this.getPlotNode().snapshot(null, null);
     }
 }

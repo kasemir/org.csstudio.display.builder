@@ -8,7 +8,7 @@
 package org.csstudio.trends.databrowser3.opiwidget;
 
 import org.csstudio.javafx.rtplot.RTTimePlot;
-import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
+import org.csstudio.trends.databrowser3.ui.ModelBasedPlotSWT;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.swt.widgets.Composite;
 import org.csstudio.opibuilder.editparts.AbstractBaseEditPart;
@@ -22,7 +22,7 @@ import org.csstudio.opibuilder.editparts.AbstractBaseEditPart;
 public class DataBrowserWidgetFigure extends Figure
 {
     /** Data Browser plot */
-    private ModelBasedPlot plot;
+    private ModelBasedPlotSWT plot;
 
     /** Initialize
      *  @param filename Configuration file name
@@ -37,12 +37,12 @@ public class DataBrowserWidgetFigure extends Figure
     //@Override
     protected RTTimePlot createSWTWidget(final Composite parent, final int style) throws Exception
     {
-        plot = new ModelBasedPlot(parent);
+        plot = new ModelBasedPlotSWT(parent);
         return plot.getPlot();
     }
 
     /** @return Data Browser Plot */
-    public ModelBasedPlot getDataBrowserPlot()
+    public ModelBasedPlotSWT getDataBrowserPlot()
     {
         return plot;
     }

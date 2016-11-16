@@ -14,7 +14,7 @@ import java.time.Instant;
 import org.csstudio.apputil.xml.DOMHelper;
 import org.csstudio.apputil.xml.XMLWriter;
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
-import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
+import org.csstudio.trends.databrowser3.ui.ModelBasedPlotSWT;
 //import org.eclipse.swt.graphics.Point;
 import org.w3c.dom.Element;
 
@@ -25,7 +25,7 @@ import org.w3c.dom.Element;
  *
  *  <p>This class is used by the model to read initial annotations
  *  from the {@link Model}'s XML file,
- *  and to later read them back from the {@link ModelBasedPlot} for writing
+ *  and to later read them back from the {@link ModelBasedPlotSWT} for writing
  *  them to the XML file.
  *
  *  @author Kay Kasemir

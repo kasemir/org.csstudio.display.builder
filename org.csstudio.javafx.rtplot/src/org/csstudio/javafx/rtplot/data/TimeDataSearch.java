@@ -28,17 +28,19 @@ public class TimeDataSearch extends PlotDataSearch<Instant>
         if (cmp > 0) // 'mid' sample is bigger than x
         {   // [mid-1]  ... time ... [mid]
             if (mid > 0 &&
-                Duration.between(data.get(mid-1).getPosition(), time)
-                .compareTo(Duration.between(time, data.get(mid).getPosition())) < 0)
+                    Duration.between(data.get(mid-1).getPosition(), time)
+                    .compareTo(Duration.between(time, data.get(mid).getPosition())) < 0)
                 return mid-1;
             return mid;
         }
         // cmp < 0, 'mid' sample is smaller than x.
         // [mid] ... time ... [mid+1]
         if (mid+1 < data.size() &&
-            Duration.between(data.get(mid).getPosition(), time)
-            .compareTo(Duration.between(time, data.get(mid+1).getPosition())) > 0)
+                Duration.between(data.get(mid).getPosition(), time)
+                .compareTo(Duration.between(time, data.get(mid+1).getPosition())) > 0)
             return mid+1;
         return mid;
     }
+
+
 }

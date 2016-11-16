@@ -516,17 +516,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
         gc.dispose();
 
-        //        File outputfile = new File("/Users/elc/image.png");
-        //        try
-        //        {
-        //            ImageIO.write(image, "png", outputfile);
-        //        }
-        //        catch (IOException e)
-        //        {
-        //            // TODO Auto-generated catch block
-        //            e.printStackTrace();
-        //        }
-
         // Convert to JFX
         final WritableImage wi = new WritableImage(image.getWidth(), image.getHeight());
         SwingFXUtils.toFXImage(image, wi);

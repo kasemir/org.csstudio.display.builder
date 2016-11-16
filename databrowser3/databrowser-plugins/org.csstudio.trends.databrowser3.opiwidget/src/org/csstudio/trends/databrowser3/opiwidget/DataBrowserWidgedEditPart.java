@@ -22,8 +22,8 @@ import org.csstudio.javafx.rtplot.RTPlotListener;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.trends.databrowser3.model.TimeHelper;
-import org.csstudio.trends.databrowser3.ui.Controller;
-import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
+import org.csstudio.trends.databrowser3.ui.ControllerSWT;
+import org.csstudio.trends.databrowser3.ui.ModelBasedPlotSWT;
 import org.diirt.datasource.ExpressionLanguage;
 import org.diirt.datasource.PVManager;
 import org.diirt.datasource.PVWriter;
@@ -55,7 +55,7 @@ public class DataBrowserWidgedEditPart extends AbstractWidgetEditPart
     private DataBrowserWidgetFigure gui;
 
     /** Data Browser controller for D.B. Model and Plot, used in run mode */
-    private Controller controller = null;
+    private ControllerSWT controller = null;
 
     /** PV for writing the selected values */
     private AtomicReference<PVWriter<Object>> pv = new AtomicReference<>();
@@ -155,8 +155,8 @@ public class DataBrowserWidgedEditPart extends AbstractWidgetEditPart
             try
             {
                 // Connect plot to model (created by OPI/GEF)
-                final ModelBasedPlot plot_widget = gui.getDataBrowserPlot();
-                controller = new Controller(null, getWidgetModel().createDataBrowserModel(),
+                final ModelBasedPlotSWT plot_widget = gui.getDataBrowserPlot();
+                controller = new ControllerSWT(null, getWidgetModel().createDataBrowserModel(),
                         plot_widget);
                 controller.start();
 
