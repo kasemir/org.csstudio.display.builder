@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
@@ -59,10 +60,6 @@ import org.w3c.dom.Element;
  *  or a <code>List&lt;List&lt;String>></code>.
  *  The latter includes 2-D string arrays written
  *  by Jython scripts.
- *
- *  TODO Some API for script to setCellText(row, column)
- *  TODO Some API for script to setCellBackground(row, column)
- *  TODO Some API for script to setCellColor(row, column)
  *
  *  <B>Note:</B> this class cannot inherit from {@link PVWidget}
  *  because of the peculiar usage of "runtime value".
@@ -154,6 +151,32 @@ public class TableWidget extends VisibleWidget
             }
         };
 
+    /** Optional cell colors */
+    private static final WidgetPropertyDescriptor<List<List<WidgetColor>>> runtimeCellColorsDescriptor =
+        new WidgetPropertyDescriptor<List<List<WidgetColor>>>(WidgetPropertyCategory.RUNTIME, "cell_colors", Messages.WidgetProperties_CellColors)
+        {
+
+            @Override
+            public WidgetProperty<List<List<WidgetColor>>> createProperty(final Widget widget, final List<List<WidgetColor>> default_value)
+            {
+                return new RuntimeWidgetProperty<List<List<WidgetColor>>>(this, widget, default_value)
+                {
+                    @SuppressWarnings({ "rawtypes", "unchecked" })
+                    @Override
+                    public void setValueFromObject(final Object value) throws Exception
+                    {
+                        if (value instanceof List) // Not really checking for List<List<WidgetColor>>..
+                            setValue((List)value);
+                        else if (value == null)
+                            setValue(null);
+                        else
+                            throw new Exception("Need List<List<WidgetColor>, got " + value);
+                    }
+                };
+            }
+        };
+
+
     /** PV for runtime info about selection */
     private static final WidgetPropertyDescriptor<String> propSelectionPV =
         newStringPropertyDescriptor(WidgetPropertyCategory.MISC, "selection_pv", Messages.WidgetProperties_SelectionPV);
@@ -241,6 +264,7 @@ public class TableWidget extends VisibleWidget
     private volatile ArrayWidgetProperty<ColumnProperty> columns;
     private volatile WidgetProperty<String> pv_name;
     private volatile WidgetProperty<Object> value;
+    private volatile WidgetProperty<List<List<WidgetColor>>> cell_colors;
     private volatile WidgetProperty<Boolean> editable;
     private volatile WidgetProperty<String> selection_pv;
     private volatile WidgetProperty<VType> selection;
@@ -262,6 +286,7 @@ public class TableWidget extends VisibleWidget
         properties.add(columns = propColumns.createProperty(this, Arrays.asList(  new ColumnProperty(this, "Column 1") )));
         properties.add(pv_name = propPVName.createProperty(this, ""));
         properties.add(value = runtimeValueDescriptor.createProperty(this, null));
+        properties.add(cell_colors = runtimeCellColorsDescriptor.createProperty(this, null));
         properties.add(editable = propEditable.createProperty(this, true));
         properties.add(selection_pv = propSelectionPV.createProperty(this, ""));
         properties.add(selection = runtimePropSelectionInfo.createProperty(this, null));
@@ -401,7 +426,40 @@ public class TableWidget extends VisibleWidget
      */
     public void setValue(final Object data)
     {
+        cell_colors.setValue(null);
         value.setValue(data);
+    }
+
+    /** Set the text of a specific cell
+     *
+     *  <p>Convenience routine for updating the value property
+     *
+     *  @param row Table row
+     *  @param column Table column
+     *  @param cell_text Text for that cell.
+     */
+    public void setCellValue(final int row, final int column, final String cell_text)
+    {
+        final int cols = columns.getValue().size();
+        if (column >= cols)
+            throw new IndexOutOfBoundsException("Invalid column index " + column + " for table with " + cols + " columns");
+
+        // 'value' is a deep copy of the current value, safe to modify
+        final List<List<String>> value = getValue();
+        while (row >= value.size())
+        {
+            final List<String> cells = new ArrayList<>(cols);
+            for (int i=0; i<cols; ++i)
+                cells.add("");
+            value.add(cells);
+        }
+        // Assert row with enough cells
+        List<String> cells = value.get(row);
+        while (column >= cells.size())
+            cells.add("");
+        cells.set(column, cell_text);
+
+        setValue(value);
     }
 
     /** Fetch value, i.e. content of cells in table
@@ -457,6 +515,45 @@ public class TableWidget extends VisibleWidget
         }
         else
             return Arrays.asList(Arrays.asList(Objects.toString(the_value)));
+    }
+
+    /** @return Runtime 'cell_colors' */
+    public WidgetProperty<List<List<WidgetColor>>> runtimeCellColors()
+    {
+        return cell_colors;
+    }
+
+    /** Set the color of a specific cell
+     *
+     *  <p>Convenience routine for updating the 'cell_colors' property
+     *
+     *  @param row Table row
+     *  @param column Table column
+     *  @param color Color to use for that cell. <code>null</code> for default.
+     */
+    public void setCellColor(final int row, final int column, final WidgetColor color)
+    {
+        List<List<WidgetColor>> colors = cell_colors.getValue();
+        // Assert that there is a _new_ list instance,
+        // because otherwise the property's equality check
+        // would suppress updates.
+        // Thread-safe CopyOnWriteArrayList may be unnecessary
+        if (colors == null)
+            colors = new CopyOnWriteArrayList<>();
+        else
+            colors = new CopyOnWriteArrayList<>(colors);
+        // Assert table with enough (sparse) rows
+        while (row >= colors.size())
+            colors.add(null);
+        // Assert row with enough (sparse) cell colors
+        List<WidgetColor> row_colors = colors.get(row);
+        if (row_colors == null)
+            colors.set(row, row_colors = new CopyOnWriteArrayList<>());
+        while (column >= row_colors.size())
+            row_colors.add(null);
+        // Set cell color
+        row_colors.set(column, color);
+        cell_colors.setValue(colors);
     }
 
     /** @return 'editable' property */
