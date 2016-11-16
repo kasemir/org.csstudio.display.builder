@@ -82,6 +82,12 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
     }
 
     @Override
+    protected boolean isFilteringEditModeClicks()
+    {
+        return true;
+    }
+
+    @Override
     protected void registerListeners()
     {
         super.registerListeners();
