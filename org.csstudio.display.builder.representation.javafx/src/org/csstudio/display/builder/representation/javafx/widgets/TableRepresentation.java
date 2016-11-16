@@ -10,16 +10,20 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.TableWidget;
 import org.csstudio.display.builder.model.widgets.TableWidget.ColumnProperty;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.javafx.StringTable;
 import org.csstudio.javafx.StringTableListener;
 import org.diirt.vtype.VTable;
+
+import javafx.scene.paint.Color;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -33,13 +37,19 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
     private final DirtyFlag dirty_columns = new DirtyFlag();
 
     /** Data changed */
-    private final DirtyFlag dirty_data = new DirtyFlag();
+    private final DirtyFlag dirty_data = new DirtyFlag(false);
+
+    /** Cell colors changed */
+    private final DirtyFlag dirty_cell_colors = new DirtyFlag(false);
 
     /** Most recent column headers */
     private volatile List<String> headers = Collections.emptyList();
 
     /** Most recent table data, row by row */
     private volatile List<List<String>> data = new ArrayList<>();
+
+    /** Most recent cell colors, row by row */
+    private volatile List<List<Color>> cell_colors = null;
 
     /** Is user is changing the table, which in turn updates the widget value
      *  --> Ignore widget value change
@@ -134,6 +144,7 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         model_widget.propColumns().addPropertyListener(this::columnsChanged);
 
         model_widget.runtimeValue().addPropertyListener(this::valueChanged);
+        model_widget.runtimeCellColors().addPropertyListener(this::cellColorsChanged);
     }
 
     private void updateSelection(final int[] rows, final int[] cols)
@@ -217,6 +228,30 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         toolkit.scheduleUpdate(this);
     }
 
+    private void cellColorsChanged(final WidgetProperty<List<List<WidgetColor>>> property, final List<List<WidgetColor>> removed, final List<List<WidgetColor>> added)
+    {
+        final List<List<Color>> jfx_colors;
+        final List<List<WidgetColor>> widget_colors = model_widget.runtimeCellColors().getValue();
+        if (widget_colors == null)
+            jfx_colors = null;
+        else
+        {
+            jfx_colors = new ArrayList<>(widget_colors.size());
+            for (List<WidgetColor> widget_row : widget_colors)
+            {
+                final List<Color> jfx_row = new ArrayList<>(widget_row.size());
+                for (WidgetColor color : widget_row)
+                    jfx_row.add(color == null ? null : JFXUtil.convert(color));
+                jfx_colors.add(jfx_row);
+            }
+        }
+        if (Objects.equals(cell_colors, jfx_colors))
+            return;
+        cell_colors = jfx_colors;
+        dirty_cell_colors.mark();
+        toolkit.scheduleUpdate(this);
+    }
+
     @Override
     public void updateChanges()
     {
@@ -257,5 +292,7 @@ public class TableRepresentation extends RegionBaseRepresentation<StringTable, T
         }
         if (dirty_data.checkAndClear())
             jfx_node.setData(data);
+        if (dirty_cell_colors.checkAndClear())
+            jfx_node.setCellColors(cell_colors);
     }
 }
