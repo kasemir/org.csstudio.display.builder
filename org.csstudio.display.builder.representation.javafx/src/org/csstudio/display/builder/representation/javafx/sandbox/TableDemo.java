@@ -18,6 +18,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
@@ -53,8 +54,6 @@ public class TableDemo extends Application
         table.setBackgroundColor(Color.PINK);
         table.setTextColor(Color.GREEN);
         table.setFont(Font.font("Liberation Serif", 12.0));
-        table.setCellColor(0, 1, Color.ORANGE);
-        table.setCellColor(1, 2, Color.BLUEVIOLET);
 
         table.setListener(new StringTableListener()
         {
@@ -88,10 +87,17 @@ public class TableDemo extends Application
                     Arrays.asList("A 2", "B 2")));
         });
 
+        final Button set_color = new Button("Set Color");
+        set_color.setOnAction(event ->
+        {
+            table.setCellColors(Arrays.asList(Arrays.asList(null, Color.ORANGE),
+                                              Arrays.asList(null, null, Color.BLUEVIOLET)));
+        });
+
         final BorderPane layout = new BorderPane();
         layout.setTop(label);
         layout.setCenter(table);
-        layout.setRight(new_data);
+        layout.setRight(new VBox(10, new_data, set_color));
 
         final Scene scene = new Scene(layout, 800, 700);
         stage.setScene(scene);

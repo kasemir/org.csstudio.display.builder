@@ -94,7 +94,7 @@ public class StringTable extends BorderPane
     private final ObservableList<List<String>> data = FXCollections.observableArrayList();
 
     /** Optional cell coloring, does not include MAGIC_LAST_ROW */
-    private final ObservableList<List<Color>> cell_colors = FXCollections.observableArrayList();
+    private volatile List<List<Color>> cell_colors = null;
 
     /** Cell factory for displaying the text
      *
@@ -383,7 +383,7 @@ public class StringTable extends BorderPane
     public void setHeaders(final List<String> headers)
     {
         table.getColumns().clear();
-        cell_colors.clear();
+        cell_colors = null;
         data.clear();
         if (editable)
             data.add(MAGIC_LAST_ROW);
@@ -534,7 +534,7 @@ public class StringTable extends BorderPane
     public void setData(final List<List<String>> new_data)
     {
         final int columns = getColumnCount();
-        cell_colors.clear();
+        cell_colors = null;
         data.clear();
         for (List<String> new_row : new_data)
         {
@@ -590,19 +590,28 @@ public class StringTable extends BorderPane
         }
     }
 
-    /** Set background color for a specific cell
+    /** Set background color for specific cells
+     *
+     *  <p>Expects a list of rows,
+     *  where each row contains a list of colors for each cell
+     *  in that row.
+     *  The list may be sparse, i.e. the list for a certain row
+     *  may be <code>null</code>, or contain <code>null</code>
+     *  instead of a color for a specific cell.
+     *
+     *  <p><b>Note:</b> The cell colors are used as provided,
+     *  no deep copy is created!
+     *  Caller needs to either provide a static or a thread-safe
+     *  table of colors.
+     *
      *  @param row Table row
      *  @param col Table column
      *  @param color Color of that cell, <code>null</code> for default
      */
-    public void setCellColor(final int row, final int col, final Color color)
+    public void setCellColors(final List<List<Color>> colors)
     {
-        while (row >= cell_colors.size())
-            cell_colors.add(new ArrayList<>());
-        final List<Color> row_colors = cell_colors.get(row);
-        while (col >= row_colors.size())
-            row_colors.add(null);
-        row_colors.set(col, color);
+        cell_colors = colors;
+        table.refresh();
     }
 
     /** Get background color for a specific cell
@@ -610,11 +619,12 @@ public class StringTable extends BorderPane
      *  @param col Table column
      *  @return Color of that cell, <code>null</code> for default
      */
-    public Color getCellColor(final int row, final int col)
+    private Color getCellColor(final int row, final int col)
     {
-        if (row < cell_colors.size())
+        final List<List<Color>> colors = cell_colors;
+        if (colors != null  &&  row < colors.size())
         {
-            final List<Color> row_colors = cell_colors.get(row);
+            final List<Color> row_colors = colors.get(row);
             if (col < row_colors.size())
                 return row_colors.get(col);
         }
@@ -664,6 +674,7 @@ public class StringTable extends BorderPane
      */
     private void addRow()
     {
+        cell_colors = null;
         int row = table.getSelectionModel().getSelectedIndex();
         final List<List<String>> data = table.getItems();
         final int len = data.size();
@@ -699,6 +710,7 @@ public class StringTable extends BorderPane
      */
     private void moveRow(final int row, final int target)
     {
+        cell_colors = null;
         final int column = getSelectedColumn();
         final List<String> line = data.remove(row);
         data.add(target, line);
@@ -709,6 +721,7 @@ public class StringTable extends BorderPane
     /** Delete currently selected row */
     private void deleteRow()
     {
+        cell_colors = null;
         int row = table.getSelectionModel().getSelectedIndex();
         final List<List<String>> data = table.getItems();
         final int len = data.size();
@@ -789,6 +802,7 @@ public class StringTable extends BorderPane
         final String name = getColumnName(Messages.DefaultNewColumnName);
         if (name == null)
             return;
+        cell_colors = null;
         if (column < 0)
             column = table.getColumns().size();
         createTableColumn(column, name);
@@ -824,6 +838,7 @@ public class StringTable extends BorderPane
      */
     private void moveColumn(final int column, final int target)
     {
+        cell_colors = null;
         int row = table.getSelectionModel().getSelectedIndex();
         final TableColumn<List<String>, ?> col = table.getColumns().remove(column);
         table.getColumns().add(target, col);
@@ -840,6 +855,7 @@ public class StringTable extends BorderPane
     /** Delete currently selected column */
     private void deleteColumn()
     {
+        cell_colors = null;
         final int column = getSelectedColumn();
         if (column < 0)
             return;
