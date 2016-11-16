@@ -404,14 +404,14 @@ public class ImagePlot extends PlotCanvasBase
 
             //            System.out.println("Image width : " + (sx2-sx1) + ", screen width : " + image_area.width);
             //            System.out.println("Image height : " + (sy2-sy1) + ", screen height : " + image_area.height);
-            if ((sx2-sx1) < image_area.width  ||   (sy2-sy1) < image_area.height)
+            if ((sx2-sx1) < image_area.width  &&   (sy2-sy1) < image_area.height)
             {   // If image is smaller than screen area, show the actual pixels
                 gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
             }
             else
             {   // If image is larger than screen area, use best possible interpolation
                 // to avoid artifacts from statistically picking some specific nearest neighbor
-                gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
             }
             gc.drawImage(unscaled,
                          image_area.x, image_area.y, image_area.x + image_area.width, image_area.y + image_area.height,
