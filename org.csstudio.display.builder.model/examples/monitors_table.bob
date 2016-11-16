@@ -239,7 +239,6 @@ which are represented by a checkbox.</text>
         <script file="EmbeddedPy">
           <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
 
-
 # 'widget' is the action button that invoked the script
 # Locate the table widget by name
 table = ScriptUtil.findWidgetByName(widget, "user_table")
@@ -279,8 +278,8 @@ table.setValue(data)
         <description>Handle Data</description>
       </action>
     </actions>
-    <x>521</x>
-    <y>821</y>
+    <x>630</x>
+    <y>811</y>
     <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
@@ -316,8 +315,8 @@ List&lt;List&lt;String&gt;&gt;:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
-    <text>Finally, a script invoked by this button
-will 'handle' the data by fetching the current
+    <text>Scripts can 'set' the data to something,
+or 'handle' the data by fetching the current
 table content, modifying the first column,
 and writing the result back to the table.</text>
     <x>521</x>
@@ -356,5 +355,26 @@ table.setCellColor(1, 1, WidgetColor(0, 255, 0))
     <y>860</y>
     <width>491</width>
     <height>30</height>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_2</name>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+# 'widget' is the action button that invoked the script
+# Locate the table widget by name
+table = ScriptUtil.findWidgetByName(widget, "user_table")
+
+table.setCellValue(1, 0, "Thingy")
+]]></text>
+        </script>
+        <description>Set Data</description>
+      </action>
+    </actions>
+    <x>521</x>
+    <y>811</y>
+    <tooltip>$(actions)</tooltip>
   </widget>
 </display>

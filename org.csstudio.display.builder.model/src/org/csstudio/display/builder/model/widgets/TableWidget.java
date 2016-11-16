@@ -430,9 +430,37 @@ public class TableWidget extends VisibleWidget
         value.setValue(data);
     }
 
-    // TODO Some API for script to setCellText(row, column)
-    // If value is not List<List<String>>, convert by calling getValue(), and then update a cell
+    /** Set the text of a specific cell
+     *
+     *  <p>Convenience routine for updating the value property
+     *
+     *  @param row Table row
+     *  @param column Table column
+     *  @param cell_text Text for that cell.
+     */
+    public void setCellValue(final int row, final int column, final String cell_text)
+    {
+        final int cols = columns.getValue().size();
+        if (column >= cols)
+            throw new IndexOutOfBoundsException("Invalid column index " + column + " for table with " + cols + " columns");
 
+        // 'value' is a deep copy of the current value, safe to modify
+        final List<List<String>> value = getValue();
+        while (row >= value.size())
+        {
+            final List<String> cells = new ArrayList<>(cols);
+            for (int i=0; i<cols; ++i)
+                cells.add("");
+            value.add(cells);
+        }
+        // Assert row with enough cells
+        List<String> cells = value.get(row);
+        while (column >= cells.size())
+            cells.add("");
+        cells.set(column, cell_text);
+
+        setValue(value);
+    }
 
     /** Fetch value, i.e. content of cells in table
      *
