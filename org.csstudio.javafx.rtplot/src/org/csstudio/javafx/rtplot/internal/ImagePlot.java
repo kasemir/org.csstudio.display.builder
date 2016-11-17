@@ -685,7 +685,8 @@ public class ImagePlot extends PlotCanvasBase
 
         mouse_start = mouse_current = Optional.of(current);
 
-        if (mouse_mode == MouseMode.ZOOM_IN)
+        final int clicks = e.getClickCount();
+        if (mouse_mode == MouseMode.ZOOM_IN  &&  clicks == 1)
         {   // Determine start of 'rubberband' zoom.
             // Reset cursor from SIZE* to CROSS.
             if (y_axis.getBounds().contains(current.getX(), current.getY()))
@@ -704,7 +705,7 @@ public class ImagePlot extends PlotCanvasBase
                 PlotCursors.setCursor(this, mouse_mode);
             }
         }
-        else if (mouse_mode == MouseMode.ZOOM_OUT)
+        else if ((mouse_mode == MouseMode.ZOOM_IN && clicks == 2)  ||  mouse_mode == MouseMode.ZOOM_OUT)
             zoomInOut(current.getX(), current.getY(), ZOOM_FACTOR);
     }
 

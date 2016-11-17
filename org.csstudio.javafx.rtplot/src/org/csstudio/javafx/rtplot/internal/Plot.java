@@ -600,6 +600,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         final Point2D current = new Point2D(e.getX(), e.getY());
         mouse_start = mouse_current = Optional.of(current);
 
+        final int clicks = e.getClickCount();
         if (selectMouseAnnotation())
             return;
         else if (mouse_mode == MouseMode.PAN)
@@ -622,7 +623,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
                 mouse_mode = MouseMode.PAN_X;
         }
-        else if (mouse_mode == MouseMode.ZOOM_IN)
+        else if (mouse_mode == MouseMode.ZOOM_IN  &&  clicks == 1)
         {   // Determine start of 'rubberband' zoom.
             // Reset cursor from SIZE* to CROSS.
             for (int i=0; i<y_axes.size(); ++i)
@@ -644,7 +645,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                 PlotCursors.setCursor(this, mouse_mode);
             }
         }
-        else if (mouse_mode == MouseMode.ZOOM_OUT)
+        else if ((mouse_mode == MouseMode.ZOOM_IN && clicks == 2)  ||  mouse_mode == MouseMode.ZOOM_OUT)
             zoomInOut(current.getX(), current.getY(), ZOOM_FACTOR);
     }
 
