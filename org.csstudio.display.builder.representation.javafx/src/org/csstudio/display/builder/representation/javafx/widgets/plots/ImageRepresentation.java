@@ -24,6 +24,7 @@ import org.csstudio.display.builder.model.widgets.plots.ImageWidget.ROIWidgetPro
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
+import org.csstudio.javafx.rtplot.Interpolation;
 import org.csstudio.javafx.rtplot.RTImagePlot;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.RegionOfInterest;
@@ -162,6 +163,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.propDataAutoscale().addUntypedPropertyListener(this::configChanged);
         model_widget.propDataMinimum().addUntypedPropertyListener(this::configChanged);
         model_widget.propDataMaximum().addUntypedPropertyListener(this::configChanged);
+        model_widget.propDataInterpolation().addUntypedPropertyListener(this::configChanged);
 
         model_widget.propDataWidth().addUntypedPropertyListener(this::contentChanged);
         model_widget.propDataHeight().addUntypedPropertyListener(this::contentChanged);
@@ -213,6 +215,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         axisChanged(model_widget.propXAxis(), image_plot.getXAxis());
         axisChanged(model_widget.propYAxis(), image_plot.getYAxis());
         image_plot.setAutoscale(model_widget.propDataAutoscale().getValue());
+        image_plot.setInterpolation(Interpolation.values()[model_widget.propDataInterpolation().getValue().ordinal()]);
         image_plot.setValueRange(model_widget.propDataMinimum().getValue(),
                                  model_widget.propDataMaximum().getValue());
     }
