@@ -7,6 +7,7 @@ build/cachedir/
 org.csstudio.display.builder.runtime.test/cachedir/
 build.log
 *.class
+*.pyc
 
 # Ignore generated Javadoc
 org.csstudio.display.builder.editor.rcp/doc/java/
