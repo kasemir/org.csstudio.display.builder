@@ -142,6 +142,7 @@
         <artifactId>tycho-compiler-plugin</artifactId>
         <version>${tycho.version}</version>
         <configuration>
+          <compilerArgument>-warn:+discouraged,forbidden</compilerArgument>
           <encoding>UTF-8</encoding>
           <extraClasspathElements>
             <!-- Add jfxswt.jar to avoid error w/ missing FXCanvas -->
