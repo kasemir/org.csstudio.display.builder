@@ -142,6 +142,7 @@
         <artifactId>tycho-compiler-plugin</artifactId>
         <version>${tycho.version}</version>
         <configuration>
+          <!-- https://github.com/kasemir/org.csstudio.display.builder/pull/163 -->
           <compilerArgument>-warn:+discouraged,forbidden</compilerArgument>
           <encoding>UTF-8</encoding>
           <extraClasspathElements>
