@@ -10,6 +10,7 @@ package org.csstudio.trends.databrowser3.bobwidget;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineStyle;
 
 import java.io.InputStream;
@@ -25,6 +26,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.MacroHandler;
+import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties.WidgetLineStyle;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
@@ -68,6 +70,7 @@ public class DataBrowserWidget extends VisibleWidget
 
     private volatile WidgetProperty<Boolean> show_toolbar;
     private volatile WidgetProperty<String> filename;
+    private volatile WidgetProperty<Macros> macros;
 
     //TODO: more properties: show/hide legend, show/hide title, title text... others?
 
@@ -79,6 +82,7 @@ public class DataBrowserWidget extends VisibleWidget
     public DataBrowserWidget()
     {
         super(WIDGET_DESCRIPTOR.getType(), 200, 200);
+        model.setMacros(this.getMacrosOrProperties());
     }
 
     @Override
@@ -90,8 +94,28 @@ public class DataBrowserWidget extends VisibleWidget
         properties.add(line_width = propLineWidth.createProperty(this, 2));
         properties.add(line_color = propLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
         properties.add(line_style = propLineStyle.createProperty(this, WidgetLineStyle.SOLID));
+        properties.add(macros = propMacros.createProperty(this, new Macros()));
     }
 
+    /**
+     * Databrowser widget extends parent macros
+     *
+     * @return {@link Macros}
+     */
+    @Override
+    public Macros getEffectiveMacros()
+    {
+        final Macros base = super.getEffectiveMacros();
+        final Macros my_macros = propMacros().getValue();
+        return Macros.merge(base, my_macros);
+    }
+
+
+    /** @return 'macros' property */
+    public WidgetProperty<Macros> propMacros()
+    {
+        return macros;
+    }
 
     /** @return 'text' property */
     public WidgetProperty<String> propFile()
@@ -129,6 +153,7 @@ public class DataBrowserWidget extends VisibleWidget
     }
 
     public Model cloneModel() {
+        //TODO: see about copying over live samples from old to new model
         final Model model = new Model();
         model.setMacros(this.getMacrosOrProperties());
         try
@@ -138,7 +163,6 @@ public class DataBrowserWidget extends VisibleWidget
         }
         catch (Exception e)
         {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return model;

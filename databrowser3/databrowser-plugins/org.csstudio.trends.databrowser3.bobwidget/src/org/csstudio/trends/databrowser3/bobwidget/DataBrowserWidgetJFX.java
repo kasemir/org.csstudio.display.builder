@@ -149,6 +149,11 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
         try
         {
             stream = model_widget.getFileInputStream(base_path);
+            if (stream == null)
+            {
+                System.out.println("Null stream for base path: " + base_path);
+                return;
+            }
         }
         catch (Exception e)
         {
