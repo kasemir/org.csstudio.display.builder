@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Table</name>
-  <x>-1</x>
-  <y>-1</y>
+  <width>1200</width>
+  <height>1100</height>
   <widget type="label" version="2.0.0">
     <name>Label</name>
+    <text>Table Widget</text>
     <width>181</width>
     <height>31</height>
-    <text>Table Widget</text>
     <font>
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
@@ -15,15 +15,15 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
-    <y>31</y>
-    <width>461</width>
-    <height>110</height>
     <text>This widget displays a table of values.
 
 It is typically used with scripts that set the "value".
 It may allow the user to edit the table cells,
 and finally another script can fetch the data and use it in some way.
 </text>
+    <y>31</y>
+    <width>461</width>
+    <height>110</height>
   </widget>
   <widget type="table" version="2.0.0">
     <name>Table</name>
@@ -37,14 +37,14 @@ and finally another script can fetch the data and use it in some way.
     <columns>
       <column>
         <name>PV</name>
-        <width>0</width>
+        <width>1</width>
         <editable>true</editable>
         <options>
         </options>
       </column>
       <column>
         <name>Value</name>
-        <width>0</width>
+        <width>1</width>
         <editable>true</editable>
         <options>
         </options>
@@ -72,16 +72,17 @@ widget.setValue(data)]]></text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
+    <text>Alternatively, a PV can provide a VTable.
+One example is the 'cursor info' PV written by the image widget.
+In this example, a script updates that PV:</text>
     <x>511</x>
     <y>201</y>
     <width>491</width>
     <height>70</height>
-    <text>Alternatively, a PV can provide a VTable.
-One example is the 'cursor info' PV written by the image widget.
-In this example, a script updates that PV:</text>
   </widget>
   <widget type="table" version="2.0.0">
     <name>Table_1</name>
+    <pv_name>loc://table_pv&lt;VTable&gt;</pv_name>
     <x>511</x>
     <y>271</y>
     <width>491</width>
@@ -93,7 +94,7 @@ In this example, a script updates that PV:</text>
     <columns>
       <column>
         <name>Columns taken from PV</name>
-        <width>0</width>
+        <width>1</width>
         <editable>true</editable>
         <options>
         </options>
@@ -122,16 +123,15 @@ widget.setPropertyValue("value", table)
         <pv_name>sim://noise</pv_name>
       </script>
     </scripts>
-    <pv_name>loc://table_pv&lt;VTable&gt;</pv_name>
     <editable>false</editable>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
+    <text>This table receives an initial value from a script.
+You can then edit the cells:</text>
     <y>542</y>
     <width>491</width>
     <height>41</height>
-    <text>This table receives an initial value from a script.
-You can then edit the cells:</text>
   </widget>
   <widget type="table" version="2.0.0">
     <name>user_table</name>
@@ -140,14 +140,14 @@ You can then edit the cells:</text>
     <columns>
       <column>
         <name>Item</name>
-        <width>0</width>
+        <width>1</width>
         <editable>true</editable>
         <options>
         </options>
       </column>
       <column>
         <name>Small</name>
-        <width>0</width>
+        <width>1</width>
         <editable>true</editable>
         <options>
           <option>false</option>
@@ -156,7 +156,7 @@ You can then edit the cells:</text>
       </column>
       <column>
         <name>Condition</name>
-        <width>0</width>
+        <width>1</width>
         <editable>true</editable>
         <options>
           <option>Terrific</option>
@@ -192,6 +192,7 @@ widget.setValue(data)]]></text>
   </widget>
   <widget type="table" version="2.0.0">
     <name>Table_3</name>
+    <pv_name>loc://table_selection&lt;VTable&gt;</pv_name>
     <x>521</x>
     <y>600</y>
     <width>570</width>
@@ -199,30 +200,26 @@ widget.setValue(data)]]></text>
     <columns>
       <column>
         <name>Selection</name>
-        <width>0</width>
+        <width>1</width>
         <editable>true</editable>
         <options>
         </options>
       </column>
     </columns>
-    <pv_name>loc://table_selection&lt;VTable&gt;</pv_name>
     <editable>false</editable>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
+    <text>Information about the currently selected cells in the table
+are written to a PV.
+That value can itself be displayed in a table:</text>
     <x>521</x>
     <y>542</y>
     <width>491</width>
     <height>59</height>
-    <text>Information about the currently selected cells in the table
-are written to a PV.
-That value can itself be displayed in a table:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
-    <y>911</y>
-    <width>500</width>
-    <height>160</height>
     <text>The "Condition" column of this table uses a list of options,
 presented in a combo-box when editing a cell.
 
@@ -231,17 +228,16 @@ how a script can configure the table.
 
 The "Small" column uses options "true"/"false",
 which are represented by a checkbox.</text>
+    <y>911</y>
+    <width>500</width>
+    <height>160</height>
   </widget>
-  <widget type="action_button" version="2.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Action Button</name>
-    <x>521</x>
-    <y>821</y>
-    <text>$(actions)</text>
     <actions>
       <action type="execute">
         <script file="EmbeddedPy">
           <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
-
 
 # 'widget' is the action button that invoked the script
 # Locate the table widget by name
@@ -282,22 +278,25 @@ table.setValue(data)
         <description>Handle Data</description>
       </action>
     </actions>
+    <x>630</x>
+    <y>811</y>
+    <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
-    <y>201</y>
-    <width>441</width>
-    <height>60</height>
     <text>In this example, a script sets the value to
 a two-dimensional string array, i.e. a
 List&lt;List&lt;String&gt;&gt;:</text>
+    <y>201</y>
+    <width>441</width>
+    <height>60</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
+    <text>Read-only Tables</text>
     <y>151</y>
     <width>321</width>
     <height>31</height>
-    <text>Read-only Tables</text>
     <font>
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
       </font>
@@ -305,10 +304,10 @@ List&lt;List&lt;String&gt;&gt;:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
+    <text>Editable Table</text>
     <y>511</y>
     <width>191</width>
     <height>31</height>
-    <text>Editable Table</text>
     <font>
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
       </font>
@@ -316,13 +315,66 @@ List&lt;List&lt;String&gt;&gt;:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
+    <text>Scripts can 'set' the data to something,
+or 'handle' the data by fetching the current
+table content, modifying the first column,
+and writing the result back to the table.</text>
     <x>521</x>
     <y>731</y>
     <width>491</width>
     <height>80</height>
-    <text>Finally, a script invoked by this button
-will 'handle' the data by fetching the current
-table content, modifying the first column,
-and writing the result back to the table.</text>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_1</name>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+from org.csstudio.display.builder.model.properties import WidgetColor
+
+# 'widget' is the action button that invoked the script
+# Locate the table widget by name
+table = ScriptUtil.findWidgetByName(widget, "user_table")
+
+table.setCellColor(0, 0, WidgetColor(255, 0, 0))
+table.setCellColor(1, 1, WidgetColor(0, 255, 0))
+]]></text>
+        </script>
+        <description>Color Cells</description>
+      </action>
+    </actions>
+    <x>520</x>
+    <y>880</y>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_10</name>
+    <text>Scripts can also define colors for specific cells.
+</text>
+    <x>520</x>
+    <y>860</y>
+    <width>491</width>
+    <height>30</height>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_2</name>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+# 'widget' is the action button that invoked the script
+# Locate the table widget by name
+table = ScriptUtil.findWidgetByName(widget, "user_table")
+
+table.setCellValue(1, 0, "Thingy")
+]]></text>
+        </script>
+        <description>Set Data</description>
+      </action>
+    </actions>
+    <x>521</x>
+    <y>811</y>
+    <tooltip>$(actions)</tooltip>
   </widget>
 </display>

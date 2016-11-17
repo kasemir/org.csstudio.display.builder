@@ -45,6 +45,7 @@ Development Details
 ### Dependencies
 
  * Java 8 SDK, at least 1.8.0_7x.
+   Needs 1.8.0_60 for TableView.refresh().
    Needs 1.8.0_40 for javafx.scene.control.Dialog.
    1.8.0_51 causes ComboBoxes in editor's property panel to hang on Windows, fixed in later releases.
  * Eclipse IDE for RCP Development with `Tycho Configurator`.
