@@ -62,7 +62,7 @@ one for the "X" and one for the "Y" axis.</text>
   <widget type="picture" version="2.0.0">
     <name>Picture</name>
     <file>platform:/plugin/org.csstudio.javafx.rtplot/icons/pan.png</file>
-    <y>661</y>
+    <y>681</y>
     <width>16</width>
     <height>16</height>
   </widget>
@@ -120,15 +120,17 @@ one for the "X" and one for the "Y" axis.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
-    <text>Zoom 'in' mode: Use mouse to select range in plot, on X or on a Y axis</text>
+    <text>Zoom 'in' mode: Use mouse to select range in plot, on X or on a Y axis.
+Double-click zooms back out.</text>
     <x>121</x>
     <y>601</y>
-    <width>470</width>
+    <width>490</width>
+    <height>50</height>
   </widget>
   <widget type="picture" version="2.0.0">
     <name>Picture_4</name>
     <file>platform:/plugin/org.csstudio.javafx.rtplot/icons/zoom_out.png</file>
-    <y>631</y>
+    <y>651</y>
     <width>16</width>
     <height>16</height>
   </widget>
@@ -136,20 +138,20 @@ one for the "X" and one for the "Y" axis.</text>
     <name>Label_8</name>
     <text>Zoom 'out' mode: Click mouse in plot, X or a Y axis</text>
     <x>121</x>
-    <y>631</y>
+    <y>651</y>
     <width>450</width>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
     <text>Pan mode: Use mouse to drag plot, X or a Y axis</text>
     <x>121</x>
-    <y>661</y>
+    <y>681</y>
     <width>440</width>
   </widget>
   <widget type="picture" version="2.0.0">
     <name>Picture_9</name>
     <file>platform:/plugin/org.csstudio.javafx.rtplot/icons/pointer.png</file>
-    <y>691</y>
+    <y>711</y>
     <width>16</width>
     <height>16</height>
   </widget>
@@ -157,27 +159,27 @@ one for the "X" and one for the "Y" axis.</text>
     <name>Label_10</name>
     <text>Pointer mode: Mouse is just a pointer</text>
     <x>121</x>
-    <y>691</y>
+    <y>711</y>
     <width>450</width>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_11</name>
     <text>Un-do</text>
     <x>121</x>
-    <y>721</y>
+    <y>741</y>
     <width>221</width>
   </widget>
   <widget type="picture" version="2.0.0">
     <name>Picture_10</name>
     <file>platform:/plugin/org.csstudio.javafx.rtplot/icons/undo.png</file>
-    <y>721</y>
+    <y>741</y>
     <width>16</width>
     <height>16</height>
   </widget>
   <widget type="picture" version="2.0.0">
     <name>Picture_11</name>
     <file>platform:/plugin/org.csstudio.javafx.rtplot/icons/redo.png</file>
-    <y>751</y>
+    <y>771</y>
     <width>16</width>
     <height>16</height>
   </widget>
@@ -188,7 +190,7 @@ one for the "X" and one for the "Y" axis.</text>
  Mouse
  Wheel)</text>
     <x>41</x>
-    <y>781</y>
+    <y>801</y>
     <width>70</width>
     <height>80</height>
   </widget>
@@ -196,28 +198,28 @@ one for the "X" and one for the "Y" axis.</text>
     <name>Label_13</name>
     <text>(y)</text>
     <x>41</x>
-    <y>751</y>
+    <y>771</y>
     <width>70</width>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_14</name>
     <text>(z)</text>
     <x>41</x>
-    <y>721</y>
+    <y>741</y>
     <width>70</width>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_16</name>
     <text>(Shift)</text>
     <x>41</x>
-    <y>661</y>
+    <y>681</y>
     <width>70</width>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_17</name>
     <text>(Alt)</text>
     <x>41</x>
-    <y>631</y>
+    <y>651</y>
     <width>70</width>
   </widget>
   <widget type="label" version="2.0.0">
@@ -252,14 +254,14 @@ one for the "X" and one for the "Y" axis.</text>
     <name>Label_24</name>
     <text>Zoom item under mouse, i.e. plot, X or Y axis, in/out</text>
     <x>121</x>
-    <y>781</y>
+    <y>801</y>
     <width>490</width>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_15</name>
     <text>Re-do</text>
     <x>121</x>
-    <y>751</y>
+    <y>771</y>
     <width>221</width>
   </widget>
   <widget type="label" version="2.0.0">
@@ -276,7 +278,7 @@ one for the "X" and one for the "Y" axis.</text>
     <name>Label_21</name>
     <text>(Space)</text>
     <x>41</x>
-    <y>691</y>
+    <y>711</y>
     <width>70</width>
   </widget>
   <widget type="xyplot" version="2.0.0">
@@ -307,6 +309,7 @@ pvs[1].write(err)
       <autoscale>false</autoscale>
       <minimum>0.0</minimum>
       <maximum>10.0</maximum>
+      <show_grid>false</show_grid>
       <title_font>
         <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
         </font>
@@ -323,6 +326,7 @@ pvs[1].write(err)
         <log_scale>false</log_scale>
         <minimum>0.0</minimum>
         <maximum>120.0</maximum>
+        <show_grid>false</show_grid>
         <title_font>
           <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
           </font>
