@@ -5,6 +5,7 @@ Bundle-SymbolicName: org.csstudio.trends.databrowser3.bobwidget;singleton:=true
 Bundle-Version: 1.1.0.qualifier
 Bundle-Vendor: Kay Kasemir, <kasemirk@ornl.gov> - SNS
 Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui;bundle-version="3.6.1";resolution:=optional,
  org.csstudio.utility.singlesource;bundle-version="1.0.0",
  org.csstudio.apputil,
  org.csstudio.trends.databrowser3;bundle-version="4.1.0",

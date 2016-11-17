@@ -14,7 +14,7 @@ import org.eclipse.osgi.util.NLS;
  */
 public class Messages extends NLS
 {
-    private static final String BUNDLE_NAME = "org.csstudio.trends.databrowser3.opiwidget.messages"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = "org.csstudio.trends.databrowser3.bobwidget.messages"; //$NON-NLS-1$
     public static String Error;
     public static String FileName;
     public static String NoFilename;

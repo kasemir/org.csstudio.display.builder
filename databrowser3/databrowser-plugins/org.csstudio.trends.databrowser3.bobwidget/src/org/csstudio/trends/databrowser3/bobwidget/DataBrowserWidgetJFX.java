@@ -12,15 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.csstudio.display.builder.model.DirtyFlag;
-import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties.WidgetLineStyle;
-import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
-import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
 import org.csstudio.trends.databrowser3.ui.ControllerJFX;
 import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
@@ -31,7 +27,7 @@ import javafx.scene.Group;
 /** OPI Figure that displays data browser plot on screen,
  *  holds a Data Browser Plot
  *
- *  @author Kay Kasemir
+ *  @author Megan Grodowitz
  */
 public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrowserWidget>
 {
@@ -47,13 +43,8 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
     /** Data Browser plot */
     private volatile ModelBasedPlot plot;
 
-    /** Model with data to display */
-    private volatile Model model = new Model();
-
     private volatile ControllerJFX controller;
 
-    //TODO: Do we need to write out the file when user changes the databrowser options, etc?
-    private volatile String file_path;
     private volatile InputStream stream;
 
     //TODO: Add border?
@@ -91,7 +82,7 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
     protected void registerListeners()
     {
         super.registerListeners();
-        controller = new ControllerJFX(model, plot);
+        controller = new ControllerJFX(model_widget.getModel(), plot);
         controller.suppressRedraws(toolkit.isEditMode());
 
         model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
@@ -154,38 +145,24 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
     private void fileChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
     {
         String base_path = new_value;
-        boolean load_failed = false;
 
         try
         {
-            // expand macros in the file name
-            final String expanded_path = MacroHandler.replace(model_widget.getMacrosOrProperties(), base_path);
-            // Resolve new image file relative to the source widget model (not 'top'!)
-            // Get the display model from the widget tied to this representation
-            final DisplayModel widget_model = model_widget.getDisplayModel();
-            // Resolve the path using the parent model file path
-            file_path = ModelResourceUtil.resolveResource(widget_model, expanded_path);
+            stream = model_widget.getFileInputStream(base_path);
+            if (stream == null)
+            {
+                System.out.println("Null stream for base path: " + base_path);
+                return;
+            }
         }
         catch (Exception e)
         {
+            //TODO: change to logging message
             System.out.println("Failure resolving image path from base path: " + base_path);
             e.printStackTrace();
-            load_failed = true;
+            return;
         }
 
-        if (!load_failed)
-        {
-            try
-            {
-                stream = ModelResourceUtil.openResourceStream(file_path);
-            }
-            catch (Exception e)
-            {
-                //System.out.println("Failure loading plot file:" + file_path);
-                e.printStackTrace();
-                load_failed = true;
-            }
-        }
         dirty_file.mark();
         toolkit.scheduleUpdate(this);
     }
@@ -199,7 +176,7 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
             //This is being done here because the load function causes effects that need to happen on the FxUserThread
             try
             {
-                new XMLPersistence().load(model, stream);
+                new XMLPersistence().load(model_widget.getModel(), stream);
             }
             catch (Exception e)
             {
