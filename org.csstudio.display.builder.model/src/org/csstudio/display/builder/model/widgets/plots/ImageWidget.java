@@ -35,6 +35,7 @@ import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.IntegerWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
@@ -61,6 +62,17 @@ public class ImageWidget extends PVWidget
         public Widget createWidget()
         {
             return new ImageWidget();
+        }
+    };
+
+    private static final WidgetPropertyDescriptor<InterpolationType> interpolationType =
+            new WidgetPropertyDescriptor<InterpolationType>(WidgetPropertyCategory.BEHAVIOR, "interpolation", Messages.WidgetProperties_Interpolation)
+    {
+        @Override
+        public WidgetProperty<InterpolationType> createProperty(final Widget widget,
+                                                                final InterpolationType default_value)
+        {
+            return new EnumWidgetProperty<InterpolationType>(this, widget, default_value);
         }
     };
 
@@ -302,10 +314,11 @@ public class ImageWidget extends PVWidget
     private volatile AxisWidgetProperty y_axis;
     private volatile WidgetProperty<Integer> data_width;
     private volatile WidgetProperty<Integer> data_height;
+    private volatile WidgetProperty<InterpolationType> data_interpolation;
+    private volatile WidgetProperty<Boolean> data_unsigned;
     private volatile WidgetProperty<Boolean> data_autoscale;
     private volatile WidgetProperty<Double> data_minimum;
     private volatile WidgetProperty<Double> data_maximum;
-    private volatile WidgetProperty<Boolean> data_unsigned;
     private volatile WidgetProperty<String> cursor_info_pv;
     private volatile WidgetProperty<VType> cursor_info;
     private volatile ArrayWidgetProperty<ROIWidgetProperty> rois;
@@ -327,6 +340,7 @@ public class ImageWidget extends PVWidget
         properties.add(y_axis = new YAxisWidgetProperty(this));
         properties.add(data_width = propDataWidth.createProperty(this, 100));
         properties.add(data_height = propDataHeight.createProperty(this, 100));
+        properties.add(data_interpolation = interpolationType.createProperty(this, InterpolationType.AUTOMATIC));
         properties.add(data_unsigned = propDataUnsigned.createProperty(this, false));
         properties.add(data_autoscale = PlotWidgetProperties.propAutoscale.createProperty(this, true));
         properties.add(data_minimum = propMinimum.createProperty(this, 0.0));
@@ -389,6 +403,12 @@ public class ImageWidget extends PVWidget
     public WidgetProperty<Integer> propDataHeight()
     {
         return data_height;
+    }
+
+    /** @return 'interpolation' property */
+    public WidgetProperty<InterpolationType> propDataInterpolation()
+    {
+        return data_interpolation;
     }
 
     /** @return 'unsigned' property */

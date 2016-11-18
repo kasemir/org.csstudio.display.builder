@@ -147,6 +147,12 @@ public class RTImagePlot extends BorderPane
         return plot.getUndoableActionManager();
     }
 
+    /** @param interpolation How to interpolate from image to screen pixels */
+    public void setInterpolation(final Interpolation interpolation)
+    {
+        plot.setInterpolation(interpolation);
+    }
+
     /** @param autoscale  Auto-scale the color mapping? */
     public void setAutoscale(boolean autoscale)
     {

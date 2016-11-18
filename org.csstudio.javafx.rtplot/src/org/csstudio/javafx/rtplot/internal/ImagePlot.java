@@ -25,6 +25,7 @@ import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.Tracker;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
+import org.csstudio.javafx.rtplot.Interpolation;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.RegionOfInterest;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
@@ -81,6 +82,9 @@ public class ImagePlot extends PlotCanvasBase
 
     /** Image data size */
     private volatile int data_width = 0, data_height = 0;
+
+    /** Interpolation from image to screen pixels */
+    private volatile Interpolation interpolation = Interpolation.AUTOMATIC;
 
     /** Auto-scale the data range? */
     private volatile boolean autoscale = true;
@@ -144,6 +148,13 @@ public class ImagePlot extends PlotCanvasBase
     public void setBackground(final Color color)
     {
         background  = color;
+    }
+
+    /** @param interpolation How to interpolate from image to screen pixels */
+    public void setInterpolation(final Interpolation interpolation)
+    {
+        this.interpolation = interpolation;
+        requestUpdate();
     }
 
     /** @param autoscale  Auto-scale the color mapping? */
@@ -402,16 +413,22 @@ public class ImagePlot extends PlotCanvasBase
             final int sy1 = Math.max(0, (int)t.transform(zoomed.getHigh()));
             final int sy2 = Math.min(data_height, (int)t.transform(zoomed.getLow()));
 
-            //            System.out.println("Image width : " + (sx2-sx1) + ", screen width : " + image_area.width);
-            //            System.out.println("Image height : " + (sy2-sy1) + ", screen height : " + image_area.height);
-            if ((sx2-sx1) < image_area.width  &&   (sy2-sy1) < image_area.height)
-            {   // If image is smaller than screen area, show the actual pixels
+            switch (interpolation)
+            {
+            case NONE:
                 gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-            }
-            else
-            {   // If image is larger than screen area, use best possible interpolation
-                // to avoid artifacts from statistically picking some specific nearest neighbor
+                break;
+            case INTERPOLATE:
                 gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                break;
+            default:
+                // If image is smaller than screen area, show the actual pixels
+                if ((sx2-sx1) < image_area.width  &&   (sy2-sy1) < image_area.height)
+                    gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                else
+                    // If image is larger than screen area, use best possible interpolation
+                    // to avoid artifacts from statistically picking some specific nearest neighbor
+                    gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
             }
             gc.drawImage(unscaled,
                          image_area.x, image_area.y, image_area.x + image_area.width, image_area.y + image_area.height,
@@ -668,7 +685,8 @@ public class ImagePlot extends PlotCanvasBase
 
         mouse_start = mouse_current = Optional.of(current);
 
-        if (mouse_mode == MouseMode.ZOOM_IN)
+        final int clicks = e.getClickCount();
+        if (mouse_mode == MouseMode.ZOOM_IN  &&  clicks == 1)
         {   // Determine start of 'rubberband' zoom.
             // Reset cursor from SIZE* to CROSS.
             if (y_axis.getBounds().contains(current.getX(), current.getY()))
@@ -687,7 +705,7 @@ public class ImagePlot extends PlotCanvasBase
                 PlotCursors.setCursor(this, mouse_mode);
             }
         }
-        else if (mouse_mode == MouseMode.ZOOM_OUT)
+        else if ((mouse_mode == MouseMode.ZOOM_IN && clicks == 2)  ||  mouse_mode == MouseMode.ZOOM_OUT)
             zoomInOut(current.getX(), current.getY(), ZOOM_FACTOR);
     }
 

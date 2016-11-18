@@ -52,3 +52,4 @@ Export-Package: org.csstudio.trends.databrowser3,
  org.csstudio.trends.databrowser3.archive,
  org.csstudio.trends.databrowser3.ui
 Bundle-ClassPath: .
+Import-Package: org.csstudio.display.builder.model.macros
