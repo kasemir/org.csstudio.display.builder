@@ -129,7 +129,6 @@ public class ImagePlot extends PlotCanvasBase
 
         if (active)
         {
-            setMouseMode(MouseMode.ZOOM_IN);
             setOnMousePressed(this::mouseDown);
             setOnMouseMoved(this::mouseMove);
             setOnMouseDragged(this::mouseMove);
@@ -714,6 +713,7 @@ public class ImagePlot extends PlotCanvasBase
     {
         final Point2D current = new Point2D(e.getX(), e.getY());
         mouse_current = Optional.of(current);
+        PlotCursors.setCursor(this, mouse_mode);
         updateLocationInfo(e.getX(), e.getY());
         redrawSafely();
     }
@@ -818,6 +818,9 @@ public class ImagePlot extends PlotCanvasBase
     /** setOnMouseExited */
     private void mouseExit(final MouseEvent e)
     {
+        // Reset cursor
+        // Clear mouse position so drawMouseModeFeedback() won't restore cursor
+        mouse_current = Optional.empty();
         PlotCursors.setCursor(this, Cursor.DEFAULT);
         updateLocationInfo(-1, -1);
     }

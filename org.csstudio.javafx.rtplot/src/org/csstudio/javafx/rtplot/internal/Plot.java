@@ -654,6 +654,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     {
         final Point2D current = new Point2D(e.getX(), e.getY());
         mouse_current = Optional.of(current);
+        PlotCursors.setCursor(this, mouse_mode);
 
         final Point2D start = mouse_start.orElse(null);
 
@@ -867,12 +868,12 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     private void mouseExit(final MouseEvent e)
     {
         deselectMouseAnnotation();
-        if (show_crosshair)
-        {
-            mouse_current = Optional.empty();
-            redrawSafely();
-        }
+        // Reset cursor
+        // Clear mouse position so drawMouseModeFeedback() won't restore cursor
+        mouse_current = Optional.empty();
         PlotCursors.setCursor(this, Cursor.DEFAULT);
+        if (show_crosshair)
+            redrawSafely();
     }
 
     /** Stagger the range of axes */
