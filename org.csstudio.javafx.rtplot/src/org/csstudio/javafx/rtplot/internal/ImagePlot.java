@@ -773,8 +773,7 @@ public class ImagePlot extends PlotCanvasBase
                 final int low = (int) Math.min(start.getX(), current.getX());
                 final int high = (int) Math.max(start.getX(), current.getX());
                 final AxisRange<Double> original_x_range = x_axis.getValueRange();
-                final AxisRange<Double> new_x_range = new AxisRange<>(Math.max(min_x, x_axis.getValue(low)),
-                                                                      Math.min(max_x, x_axis.getValue(high)));
+                final AxisRange<Double> new_x_range = getRestrictedRange(x_axis.getValue(low), x_axis.getValue(high), min_x, max_x);
                 undo.execute(new ChangeImageZoom(x_axis, original_x_range, new_x_range, null, null, null));
             }
             mouse_mode = MouseMode.ZOOM_IN;
@@ -786,8 +785,7 @@ public class ImagePlot extends PlotCanvasBase
                 final int high = (int) Math.min(start.getY(), current.getY());
                 final int low = (int) Math.max(start.getY(), current.getY());
                 final AxisRange<Double> original_y_range = y_axis.getValueRange();
-                final AxisRange<Double> new_y_range = new AxisRange<>(Math.max(min_y, y_axis.getValue(low)),
-                                                                      Math.min(max_y, y_axis.getValue(high)));
+                final AxisRange<Double> new_y_range = getRestrictedRange(y_axis.getValue(low), y_axis.getValue(high), min_y, max_y);
                 undo.execute(new ChangeImageZoom(null, null, null, y_axis, original_y_range, new_y_range));
             }
             mouse_mode = MouseMode.ZOOM_IN;
@@ -800,14 +798,12 @@ public class ImagePlot extends PlotCanvasBase
                 int low = (int) Math.min(start.getX(), current.getX());
                 int high = (int) Math.max(start.getX(), current.getX());
                 final AxisRange<Double> original_x_range = x_axis.getValueRange();
-                final AxisRange<Double> new_x_range = new AxisRange<>(Math.max(min_x, x_axis.getValue(low)),
-                                                                      Math.min(max_x, x_axis.getValue(high)));
+                final AxisRange<Double> new_x_range = getRestrictedRange(x_axis.getValue(low), x_axis.getValue(high), min_x, max_x);
                 // Mouse 'y' increases going _down_ the screen
                 high = (int) Math.min(start.getY(), current.getY());
                 low = (int) Math.max(start.getY(), current.getY());
                 final AxisRange<Double> original_y_range = y_axis.getValueRange();
-                final AxisRange<Double> new_y_range = new AxisRange<>(Math.max(min_y, y_axis.getValue(low)),
-                                                                      Math.min(max_y, y_axis.getValue(high)));
+                final AxisRange<Double> new_y_range = getRestrictedRange(y_axis.getValue(low), y_axis.getValue(high), min_y, max_y);
                 undo.execute(new ChangeImageZoom(x_axis, original_x_range, new_x_range,
                                                  y_axis, original_y_range, new_y_range));
             }
@@ -880,7 +876,24 @@ public class ImagePlot extends PlotCanvasBase
         final double fixed = axis.getValue(pos);
         final double new_low  = fixed - (fixed - orig.getLow()) * factor;
         final double new_high = fixed + (orig.getHigh() - fixed) * factor;
-        axis.setValueRange(Math.max(min, new_low), Math.min(max, new_high));
+        final AxisRange<Double> new_range = getRestrictedRange(new_low, new_high, min, max);
+        axis.setValueRange(new_range.getLow(), new_range.getHigh());
         return orig;
+    }
+
+    /** Restrict value range
+     *
+     *  <p>Do not allow zooming 'out' beyond min..max,
+     *  accounting for both normal and inverted axis ranges
+     *
+     *  @param low, high: Desired range
+     *  @param min, max: Limits
+     */
+    private static AxisRange<Double> getRestrictedRange(final double low, final double high, final double min, final double max)
+    {
+        if (min <= max)
+            return new AxisRange<Double>(Math.max(min, low), Math.min(max, high));
+        else
+            return new AxisRange<Double>(Math.min(min, low), Math.max(max, high));
     }
 }
