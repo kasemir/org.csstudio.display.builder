@@ -26,6 +26,7 @@ import org.csstudio.javafx.rtplot.internal.Plot;
 import org.csstudio.javafx.rtplot.internal.ToolbarHandler;
 import org.csstudio.javafx.rtplot.internal.TraceImpl;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
+
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -113,6 +114,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
             toolbar.selectMouseMode(MouseMode.PAN);
         else
             toolbar.selectMouseMode(MouseMode.NONE);
+        event.consume();
     }
 
     /** @param listener Listener to add */

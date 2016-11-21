@@ -80,6 +80,7 @@ public class RTImagePlot extends BorderPane
             toolbar.selectMouseMode(MouseMode.PAN);
         else
             toolbar.selectMouseMode(MouseMode.NONE);
+        event.consume();
     }
 
     // TODO Add/remove listener?
