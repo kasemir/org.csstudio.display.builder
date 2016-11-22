@@ -752,14 +752,16 @@ public class ImagePlot extends PlotCanvasBase
             final double y_val = y_axis.getValue(screen_y);
 
             // Location as coordinate in image
-            int image_x = (int) (data_width * (x_val - min_x) / (max_x - min_x) + 0.5);
+            // No "+0.5" rounding! Truncate to get full pixel offsets,
+            // don't jump to next pixel when mouse moves beyond 'half' of the current pixel.
+            int image_x = (int) (data_width * (x_val - min_x) / (max_x - min_x));
             if (image_x < 0)
                 image_x = 0;
             else if (image_x >= data_width)
                 image_x = data_width - 1;
 
             // Mouse and image coords for Y go 'down'
-            int image_y = (int) (data_height * (max_y - y_val) / (max_y - min_y) + 0.5);
+            int image_y = (int) (data_height * (max_y - y_val) / (max_y - min_y));
             if (image_y < 0)
                 image_y = 0;
             else if (image_y >= data_height)
