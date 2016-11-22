@@ -90,24 +90,22 @@ public class HorizontalNumericAxis extends NumericAxis
                 gc.drawLine(x, region.y, x, region.y + MINOR_TICK_LENGTH);
             }
 
-            // Major tick marks
-            gc.setStroke(new BasicStroke(TICK_WIDTH));
-            int x = getScreenCoord(tick);
-            gc.drawLine(x, region.y+2, x, region.y + TICK_LENGTH - 1);
-
-            if (show_grid)
+            // Major tick marks (skipping those outside visible region)
+            final int x = getScreenCoord(tick);
+            if (x >= region.x  &&  x <= region.x + region.width)
             {
-                x = getScreenCoord(tick);
-                final Stroke stroke = gc.getStroke();
-                // Dashed line
-                gc.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1, new float[] { 5 }, 0));
-                gc.drawLine(x, plot_bounds.y, x, plot_bounds.y + plot_bounds.height-1);
-                gc.setStroke(stroke);
+                gc.setStroke(new BasicStroke(TICK_WIDTH));
+                gc.drawLine(x, region.y+2, x, region.y + TICK_LENGTH - 1);
+
+                if (show_grid)
+                {   // Dashed line
+                    gc.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1, new float[] { 5 }, 0));
+                    gc.drawLine(x, plot_bounds.y, x, plot_bounds.y + plot_bounds.height-1);
+                }
+                gc.setStroke(old_width);
+
+                drawTickLabel(gc, tick);
             }
-            gc.setStroke(old_width);
-
-            drawTickLabel(gc, tick);
-
             prev = tick;
         }
         // Minor ticks after last major tick?
