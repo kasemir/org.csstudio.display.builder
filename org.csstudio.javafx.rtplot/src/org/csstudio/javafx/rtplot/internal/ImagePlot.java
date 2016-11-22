@@ -403,14 +403,23 @@ public class ImagePlot extends PlotCanvasBase
             final LinearScreenTransform t = new LinearScreenTransform();
             AxisRange<Double> zoomed = x_axis.getValueRange();
             t.config(min_x, max_x, 0, data_width);
-            final int sx1 = Math.max(0, (int)t.transform(zoomed.getLow()));
-            final int sx2 = Math.min(data_width, (int)t.transform(zoomed.getHigh()));
+            // Round down .. up to always cover the image_area
+            final int src_x1 = Math.max(0,          (int)t.transform(zoomed.getLow()));
+            final int src_x2 = Math.min(data_width, (int)(t.transform(zoomed.getHigh()) + 1));
+
+            // Pixels of the image need to be aligned to their axis location,
+            // especially when zoomed way in and the pixels are huge.
+            // Turn pixel back into axis value, and then determine its destination on screen.
+            final int dst_x1 = x_axis.getScreenCoord(t.inverse(src_x1));
+            final int dst_x2 = x_axis.getScreenCoord(t.inverse(src_x2));
 
             // For Y axis, min_y == bottom == data_height
             zoomed = y_axis.getValueRange();
             t.config(min_y, max_y, data_height, 0);
-            final int sy1 = Math.max(0, (int)t.transform(zoomed.getHigh()));
-            final int sy2 = Math.min(data_height, (int)t.transform(zoomed.getLow()));
+            final int src_y1 = Math.max(0,           (int) t.transform(zoomed.getHigh()));
+            final int src_y2 = Math.min(data_height, (int) (t.transform(zoomed.getLow() ) + 1));
+            final int dst_y1 = y_axis.getScreenCoord(t.inverse(src_y1));
+            final int dst_y2 = y_axis.getScreenCoord(t.inverse(src_y2));
 
             switch (interpolation)
             {
@@ -422,17 +431,19 @@ public class ImagePlot extends PlotCanvasBase
                 break;
             default:
                 // If image is smaller than screen area, show the actual pixels
-                if ((sx2-sx1) < image_area.width  &&   (sy2-sy1) < image_area.height)
+                if ((src_x2-src_x1) < image_area.width  &&   (src_y2-src_y1) < image_area.height)
                     gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
                 else
                     // If image is larger than screen area, use best possible interpolation
                     // to avoid artifacts from statistically picking some specific nearest neighbor
                     gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
             }
+            gc.setClip(image_area.x, image_area.y, image_area.width, image_area.height);
             gc.drawImage(unscaled,
-                         image_area.x, image_area.y, image_area.x + image_area.width, image_area.y + image_area.height,
-                         sx1,  sy1,  sx2,  sy2,
+                         dst_x1, dst_y1, dst_x2, dst_y2,
+                         src_x1,  src_y1,  src_x2,  src_y2,
                          /* ImageObserver */ null);
+            gc.setClip(0, 0, area_copy.width, area_copy.height);
         }
 
         // Axes
