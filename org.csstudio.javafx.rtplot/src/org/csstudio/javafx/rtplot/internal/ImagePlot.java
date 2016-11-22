@@ -752,21 +752,20 @@ public class ImagePlot extends PlotCanvasBase
             final double y_val = y_axis.getValue(screen_y);
 
             // Location as coordinate in image
-            int image_x = (min_x <= max_x)
-                        ? (int) (data_width * (x_val - min_x) / (max_x - min_x) + 0.5)
-                        : (int) (data_width * (max_x - x_val) / (max_x - min_x) + 0.5);
+            int image_x = (int) (data_width * (x_val - min_x) / (max_x - min_x) + 0.5);
             if (image_x < 0)
                 image_x = 0;
             else if (image_x >= data_width)
                 image_x = data_width - 1;
 
-            int image_y = (min_y <= max_y)
-                        ? (int) (data_height * (y_val - min_y) / (max_y - min_y) + 0.5)
-                        : (int) (data_height * (max_y - y_val) / (max_y - min_y) + 0.5);
+            // Mouse and image coords for Y go 'down'
+            int image_y = (int) (data_height * (max_y - y_val) / (max_y - min_y) + 0.5);
             if (image_y < 0)
                 image_y = 0;
             else if (image_y >= data_height)
                 image_y = data_height - 1;
+
+            System.out.println(x_val + " in " + min_x + " .. " + max_x + " -> " + image_x + ", " + image_y);
 
             final ListNumber data = image_data;
             final double pixel = data == null ? Double.NaN : data.getDouble(image_x + image_y * data_width);
