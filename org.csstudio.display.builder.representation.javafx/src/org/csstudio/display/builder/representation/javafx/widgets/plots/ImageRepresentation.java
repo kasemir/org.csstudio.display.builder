@@ -30,6 +30,7 @@ import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.RegionOfInterest;
 import org.diirt.util.array.ArrayByte;
 import org.diirt.util.array.ArrayDouble;
+import org.diirt.util.array.ArrayInt;
 import org.diirt.vtype.VImage;
 import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
@@ -52,18 +53,20 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 
     private volatile boolean changing_roi = false;
 
-    private final static List<String> cursor_info_names = Arrays.asList("X", "Y", "Value");
-    private final static List<Class<?>> cursor_info_types = Arrays.asList(Double.TYPE, Double.TYPE, Double.TYPE);
+    private final static List<String> cursor_info_names = Arrays.asList("X", "Y", "Value", "xi", "yi");
+    private final static List<Class<?>> cursor_info_types = Arrays.asList(Double.TYPE, Double.TYPE, Double.TYPE, Integer.TYPE, Integer.TYPE);
 
     private final RTImagePlotListener plot_listener = new RTImagePlotListener()
     {
         @Override
-        public void changedCursorLocation(final double x, final double y, final double value)
+        public void changedCursorLocation(final double x, final double y, final int xi, final int yi, final double value)
         {
             model_widget.runtimePropCursorInfo().setValue(
                 ValueFactory.newVTable(cursor_info_types,
                                        cursor_info_names,
-                                       Arrays.asList(new ArrayDouble(x), new ArrayDouble(y), new ArrayDouble(value))));
+                                       Arrays.asList(new ArrayDouble(x), new ArrayDouble(y),
+                                                     new ArrayDouble(value),
+                                                     new ArrayInt(xi), new ArrayInt(yi))));
         }
 
         @Override

@@ -28,8 +28,8 @@
     <y_axis>
       <visible>true</visible>
       <title>Y</title>
-      <minimum>0.0</minimum>
-      <maximum>100.0</maximum>
+      <minimum>100.0</minimum>
+      <maximum>0.0</maximum>
       <title_font>
         <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
         </font>

@@ -767,10 +767,10 @@ public class ImagePlot extends PlotCanvasBase
 
             final ListNumber data = image_data;
             final double pixel = data == null ? Double.NaN : data.getDouble(image_x + image_y * data_width);
-            listener.changedCursorLocation(x_val, y_val, pixel);
+            listener.changedCursorLocation(x_val, y_val, image_x, image_y, pixel);
         }
         else
-            listener.changedCursorLocation(Double.NaN, Double.NaN, Double.NaN);
+            listener.changedCursorLocation(Double.NaN, Double.NaN, -1, -1, Double.NaN);
     }
 
     /** setOnMouseReleased */
