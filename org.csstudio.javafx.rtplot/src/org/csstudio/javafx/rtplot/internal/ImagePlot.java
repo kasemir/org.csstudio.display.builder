@@ -728,25 +728,30 @@ public class ImagePlot extends PlotCanvasBase
         if (listener == null)
             return;
 
-        if (! image_area.contains(mouse_x, mouse_y))
-            listener.changedCursorLocation(Double.NaN, Double.NaN, Double.NaN);
-        else
+        if (image_area.contains(mouse_x, mouse_y))
         {
+            // Pass 'double' mouse_x/y?
+            // In reality, the values seem to be full numbers anyway,
+            // so rounding to nearest integer doesn't loose any information.
             final int screen_x = (int) (mouse_x + 0.5);
             final int screen_y = (int) (mouse_y + 0.5);
+
             // Location on axes, i.e. what user configured as horizontal and vertical values
             final double x_val = x_axis.getValue(screen_x);
             final double y_val = y_axis.getValue(screen_y);
 
-            // Location as coordinate into image
-            AxisRange<Double> range = x_axis.getValueRange();
-            int image_x = (int) ((data_width-1) * (x_val - range.getLow()) / (range.getHigh() - range.getLow()) + 0.5);
+            // Location as coordinate in image
+            int image_x = (min_x <= max_x)
+                        ? (int) (data_width * (x_val - min_x) / (max_x - min_x) + 0.5)
+                        : (int) (data_width * (max_x - x_val) / (max_x - min_x) + 0.5);
             if (image_x < 0)
                 image_x = 0;
             else if (image_x >= data_width)
                 image_x = data_width - 1;
-            range = y_axis.getValueRange();
-            int image_y = (int) ((data_height-1) * (1.0 - (y_val - range.getLow()) / (range.getHigh() - range.getLow())) + 0.5);
+
+            int image_y = (min_y <= max_y)
+                        ? (int) (data_height * (y_val - min_y) / (max_y - min_y) + 0.5)
+                        : (int) (data_height * (max_y - y_val) / (max_y - min_y) + 0.5);
             if (image_y < 0)
                 image_y = 0;
             else if (image_y >= data_height)
@@ -756,6 +761,8 @@ public class ImagePlot extends PlotCanvasBase
             final double pixel = data == null ? Double.NaN : data.getDouble(image_x + image_y * data_width);
             listener.changedCursorLocation(x_val, y_val, pixel);
         }
+        else
+            listener.changedCursorLocation(Double.NaN, Double.NaN, Double.NaN);
     }
 
     /** setOnMouseReleased */
