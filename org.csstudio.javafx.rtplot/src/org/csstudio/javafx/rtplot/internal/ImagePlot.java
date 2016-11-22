@@ -765,8 +765,6 @@ public class ImagePlot extends PlotCanvasBase
             else if (image_y >= data_height)
                 image_y = data_height - 1;
 
-            System.out.println(x_val + " in " + min_x + " .. " + max_x + " -> " + image_x + ", " + image_y);
-
             final ListNumber data = image_data;
             final double pixel = data == null ? Double.NaN : data.getDouble(image_x + image_y * data_width);
             listener.changedCursorLocation(x_val, y_val, pixel);
