@@ -121,8 +121,6 @@ public class RTImagePlot extends BorderPane
                 Platform.runLater(() -> layoutChildren() );
                 return null;
             });
-
-        // TODO plot.fireToolbarChange(show);
     }
 
     /** @param mode New {@link MouseMode}

@@ -23,6 +23,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 /** Base Canvas for plots
  *
@@ -186,21 +188,38 @@ abstract class PlotCanvasBase extends Canvas
         final int right = (int) Math.max(start.getX(), current.getX());
         final int width = right - left;
         final int mid_y = plot_bounds.y + plot_bounds.height / 2;
-        // Range on axis
-        gc.strokeRect(left, start.getY(), width, 1);
-        // Left, right vertical bar
-        gc.strokeLine(left, plot_bounds.y, left, plot_bounds.y + plot_bounds.height);
-        gc.strokeLine(right, plot_bounds.y, right, plot_bounds.y + plot_bounds.height);
-        if (width >= 5*ARROW_SIZE)
-        {
-            gc.strokeLine(left, mid_y, left + 2*ARROW_SIZE, mid_y);
-            gc.strokeLine(left+ARROW_SIZE, mid_y-ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
-            gc.strokeLine(left+ARROW_SIZE, mid_y+ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
 
-            gc.strokeLine(right, mid_y, right - 2*ARROW_SIZE, mid_y);
-            gc.strokeLine(right-ARROW_SIZE, mid_y-ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
-            gc.strokeLine(right-ARROW_SIZE, mid_y+ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
+        // See stroke comments in drawZoomMouseFeedback
+        final Paint orig_stroke = gc.getStroke();
+        for (int i=0; i<2; ++i)
+        {
+            if (i==0)
+            {
+                gc.setStroke(Color.WHITE);
+                gc.setLineWidth(3.5);
+            }
+            else
+            {
+                gc.setStroke(orig_stroke);
+                gc.setLineWidth(1.5);
+            }
+            // Range on axis
+            gc.strokeRect(left, start.getY(), width, 1);
+            // Left, right vertical bar
+            gc.strokeLine(left, plot_bounds.y, left, plot_bounds.y + plot_bounds.height);
+            gc.strokeLine(right, plot_bounds.y, right, plot_bounds.y + plot_bounds.height);
+            if (width >= 5*ARROW_SIZE)
+            {
+                gc.strokeLine(left, mid_y, left + 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(left+ARROW_SIZE, mid_y-ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(left+ARROW_SIZE, mid_y+ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
+
+                gc.strokeLine(right, mid_y, right - 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(right-ARROW_SIZE, mid_y-ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(right-ARROW_SIZE, mid_y+ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
+            }
         }
+        gc.setLineWidth(1.0);
     }
 
     /** Draw the zoom indicator for a vertical zoom, i.e. on a Y axis
@@ -216,21 +235,38 @@ abstract class PlotCanvasBase extends Canvas
         final int bottom = (int) Math.max(start.getY(), current.getY());
         final int height = bottom - top;
         final int mid_x = plot_bounds.x + plot_bounds.width / 2;
-        // Range on axis
-        gc.strokeRect(start.getX(), top, 1, height);
-        // Top, bottom horizontal bar
-        gc.strokeLine(plot_bounds.x, top, plot_bounds.x + plot_bounds.width, top);
-        gc.strokeLine(plot_bounds.x, bottom, plot_bounds.x + plot_bounds.width, bottom);
-        if (height >= 5 * ARROW_SIZE)
-        {
-            gc.strokeLine(mid_x, top, mid_x, top + 2*ARROW_SIZE);
-            gc.strokeLine(mid_x-ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
-            gc.strokeLine(mid_x+ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
 
-            gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x, bottom);
-            gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x-ARROW_SIZE, bottom - ARROW_SIZE);
-            gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x+ARROW_SIZE, bottom - ARROW_SIZE);
+        // See stroke comments in drawZoomMouseFeedback
+        final Paint orig_stroke = gc.getStroke();
+        for (int i=0; i<2; ++i)
+        {
+            if (i==0)
+            {
+                gc.setStroke(Color.WHITE);
+                gc.setLineWidth(3.5);
+            }
+            else
+            {
+                gc.setStroke(orig_stroke);
+                gc.setLineWidth(1.5);
+            }
+            // Range on axis
+            gc.strokeRect(start.getX(), top, 1, height);
+            // Top, bottom horizontal bar
+            gc.strokeLine(plot_bounds.x, top, plot_bounds.x + plot_bounds.width, top);
+            gc.strokeLine(plot_bounds.x, bottom, plot_bounds.x + plot_bounds.width, bottom);
+            if (height >= 5 * ARROW_SIZE)
+            {
+                gc.strokeLine(mid_x, top, mid_x, top + 2*ARROW_SIZE);
+                gc.strokeLine(mid_x-ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
+                gc.strokeLine(mid_x+ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
+
+                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x, bottom);
+                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x-ARROW_SIZE, bottom - ARROW_SIZE);
+                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x+ARROW_SIZE, bottom - ARROW_SIZE);
+            }
         }
+        gc.setLineWidth(1.0);
     }
 
     /** Draw the zoom indicator for zoom, i.e. a 'rubberband'
@@ -250,27 +286,51 @@ abstract class PlotCanvasBase extends Canvas
         final int height = bottom - top;
         final int mid_x = left + width / 2;
         final int mid_y = top + height / 2;
-        gc.strokeRect(left, top, width, height);
-        if (width >= 5*ARROW_SIZE)
-        {
-            gc.strokeLine(left, mid_y, left + 2*ARROW_SIZE, mid_y);
-            gc.strokeLine(left+ARROW_SIZE, mid_y-ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
-            gc.strokeLine(left+ARROW_SIZE, mid_y+ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
 
-            gc.strokeLine(right, mid_y, right - 2*ARROW_SIZE, mid_y);
-            gc.strokeLine(right-ARROW_SIZE, mid_y-ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
-            gc.strokeLine(right-ARROW_SIZE, mid_y+ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
-        }
-        if (height >= 5*ARROW_SIZE)
+        final Paint orig_stroke = gc.getStroke();
+        for (int i=0; i<2; ++i)
         {
-            gc.strokeLine(mid_x, top, mid_x, top + 2*ARROW_SIZE);
-            gc.strokeLine(mid_x-ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
-            gc.strokeLine(mid_x+ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
+            if (i==0)
+            {   // White 'background' to help rectangle show up on top
+                // of dark images
+                gc.setStroke(Color.WHITE);
+                gc.setLineWidth(3.5);
+            }
+            else
+            {   // JFX line coordinates use the 'corner' of a pixel.
+                // A 1-pixel line at 'left + 0.5, top + 0.5, ...' would be sharp,
+                // but offset from the center of the cursor hot point.
+                // A line at 'left, top, ..' is blurry unless its widened
+                // to cover full pixels.
+                // Width of 1.5 happens to result in line that nicely aligns with
+                // the cursor hot spot.
+                gc.setStroke(orig_stroke);
+                gc.setLineWidth(1.5);
+            }
+            // Main 'rubberband' rect
+            gc.strokeRect(left, top, width, height);
+            if (width >= 5*ARROW_SIZE)
+            {
+                gc.strokeLine(left, mid_y, left + 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(left+ARROW_SIZE, mid_y-ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(left+ARROW_SIZE, mid_y+ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
 
-            gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x, bottom);
-            gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x-ARROW_SIZE, bottom - ARROW_SIZE);
-            gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x+ARROW_SIZE, bottom - ARROW_SIZE);
+                gc.strokeLine(right, mid_y, right - 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(right-ARROW_SIZE, mid_y-ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
+                gc.strokeLine(right-ARROW_SIZE, mid_y+ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
+            }
+            if (height >= 5*ARROW_SIZE)
+            {
+                gc.strokeLine(mid_x, top, mid_x, top + 2*ARROW_SIZE);
+                gc.strokeLine(mid_x-ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
+                gc.strokeLine(mid_x+ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
+
+                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x, bottom);
+                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x-ARROW_SIZE, bottom - ARROW_SIZE);
+                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x+ARROW_SIZE, bottom - ARROW_SIZE);
+            }
         }
+        gc.setLineWidth(1.0);
     }
 
     /** @param mode New {@link MouseMode}
@@ -289,20 +349,6 @@ abstract class PlotCanvasBase extends Canvas
     {
         getScene().setCursor(getCursor());
     }
-
-    // TODO Get image for screenshot
-
-//  /** @return {@link Image} of current plot. Caller must dispose */
-//  public Image getImage()
-//  {
-//      Image image = plot_image.orElse(null);
-//      if (image != null)
-//          synchronized (image)
-//          {
-//              return new Image(display, image, SWT.IMAGE_COPY);
-//          }
-//      return new Image(display, 10, 10);
-//  }
 
     /** Zoom in/out triggered by mouse wheel
      *  @param event Scroll event
