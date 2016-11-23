@@ -114,6 +114,9 @@ public class ImagePlot extends PlotCanvasBase
 
     private Tracker roi_tracker;
 
+    /** Initial axis ranges for panning */
+    private AxisRange<Double> mouse_start_x_range, mouse_start_y_range;
+
     /** Constructor
      *  @param active Active mode where plot reacts to mouse/keyboard?
      */
@@ -696,7 +699,14 @@ public class ImagePlot extends PlotCanvasBase
         mouse_start = mouse_current = Optional.of(current);
 
         final int clicks = e.getClickCount();
-        if (mouse_mode == MouseMode.ZOOM_IN  &&  clicks == 1)
+
+        if (mouse_mode == MouseMode.PAN)
+        {   // Determine start of 'pan'
+            mouse_start_x_range = x_axis.getValueRange();
+            mouse_start_y_range = y_axis.getValueRange();
+            mouse_mode = MouseMode.PAN_PLOT;
+        }
+        else if (mouse_mode == MouseMode.ZOOM_IN  &&  clicks == 1)
         {   // Determine start of 'rubberband' zoom.
             // Reset cursor from SIZE* to CROSS.
             if (y_axis.getBounds().contains(current.getX(), current.getY()))
@@ -725,8 +735,26 @@ public class ImagePlot extends PlotCanvasBase
         final Point2D current = new Point2D(e.getX(), e.getY());
         mouse_current = Optional.of(current);
         PlotCursors.setCursor(this, mouse_mode);
+
+        final Point2D start = mouse_start.orElse(null);
+        switch (mouse_mode)
+        {
+        case PAN_PLOT:
+            if (start != null)
+            {
+                x_axis.pan(mouse_start_x_range, x_axis.getValue((int)start.getX()), x_axis.getValue((int)current.getX()));
+                y_axis.pan(mouse_start_y_range, y_axis.getValue((int)start.getY()), y_axis.getValue((int)current.getY()));
+            }
+            break;
+        case ZOOM_IN_X:
+        case ZOOM_IN_Y:
+        case ZOOM_IN_PLOT:
+            // Show mouse feedback for ongoing zoom
+            redrawSafely();
+            break;
+        default:
+        }
         updateLocationInfo(e.getX(), e.getY());
-        redrawSafely();
     }
 
     /** Update information about the image location under the mouse pointer
@@ -783,7 +811,16 @@ public class ImagePlot extends PlotCanvasBase
         if (start == null  ||  current == null)
             return;
 
-        if (mouse_mode == MouseMode.ZOOM_IN_X)
+        if (mouse_mode == MouseMode.PAN_PLOT)
+        {
+            mouseMove(e);
+            undo.add(new ChangeImageZoom(x_axis, mouse_start_x_range, x_axis.getValueRange(),
+                                         y_axis, mouse_start_y_range, y_axis.getValueRange()));
+            mouse_mode = MouseMode.PAN;
+            mouse_start_x_range = null;
+            mouse_start_y_range = null;
+        }
+        else if (mouse_mode == MouseMode.ZOOM_IN_X)
         {   // X axis increases going _right_ just like mouse 'x' coordinate
             if (Math.abs(start.getX() - current.getX()) > ZOOM_PIXEL_THRESHOLD)
             {

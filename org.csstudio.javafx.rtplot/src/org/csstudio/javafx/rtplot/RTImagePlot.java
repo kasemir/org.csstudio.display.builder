@@ -83,7 +83,6 @@ public class RTImagePlot extends BorderPane
         event.consume();
     }
 
-    // TODO Add/remove listener?
     /** @param plot_listener Plot listener */
     public void setListener(final RTImagePlotListener plot_listener)
     {
