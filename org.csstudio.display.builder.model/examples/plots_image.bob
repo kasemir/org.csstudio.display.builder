@@ -261,19 +261,22 @@ the value range.</text>
     <text>For PVAccess, a PV that serves an NTNDArray will provide
 both the image data and the width &amp; height information.
 (This is currently limited to byte[] data.
- For NTNDArray with short, int, etc., you need to read pva://that_pv/value
- to get just the data array, and configure the data width and height).
+ For NTNDArray with short, int, etc., you need to read
+ pva://that_pv/value to get just the data array,
+ and configure the data width and height).
 
-For PVAccess or Channel Access, the data can be a waveform that contains
-the pixels values starting with the top-left pixel,
-followed by the pixels of the top row, then the second row and so on.
+For PVAccess or Channel Access, the data can be a waveform
+that contains the pixels values starting with the top-left pixel,
+followed by the pixels of the top row, then the second row
+and so on.
 
-The image data width and height need to be configured for waveform PVs.
+The image data width and height need to be configured for
+waveform PVs.
 For NTNDArray PVs, the image size is provided by the PV.</text>
     <x>201</x>
     <y>921</y>
-    <width>561</width>
-    <height>260</height>
+    <width>421</width>
+    <height>279</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
@@ -383,18 +386,20 @@ PVs can be assigned to the X/Y position and size.</text>
     <name>Label_17</name>
     <text>A cursor info PV is updated with the current mouse position
 in the image and the pixel value at that location.
+The location is reported both in X/Y axis coordinates
+and as integer offsets within the image.
 
 The value is of type VTable and can be displayed directly,
 or used in a script for customized formatting.</text>
     <x>651</x>
     <y>741</y>
-    <width>390</width>
-    <height>100</height>
+    <width>409</width>
+    <height>130</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_18</name>
     <x>651</x>
-    <y>950</y>
+    <y>1020</y>
     <width>330</width>
     <background_color>
       <color name="Read_Background" red="240" green="240" blue="240">
@@ -411,27 +416,41 @@ or used in a script for customized formatting.</text>
     <name>Table</name>
     <pv_name>loc://cursor_info</pv_name>
     <x>651</x>
-    <y>871</y>
-    <width>390</width>
-    <height>69</height>
+    <y>940</y>
+    <width>429</width>
+    <height>70</height>
     <columns>
       <column>
         <name>X</name>
-        <width>100</width>
+        <width>80</width>
         <editable>true</editable>
         <options>
         </options>
       </column>
       <column>
         <name>Y</name>
-        <width>100</width>
+        <width>80</width>
         <editable>true</editable>
         <options>
         </options>
       </column>
       <column>
         <name>Value</name>
-        <width>180</width>
+        <width>100</width>
+        <editable>true</editable>
+        <options>
+        </options>
+      </column>
+      <column>
+        <name>Xi</name>
+        <width>80</width>
+        <editable>true</editable>
+        <options>
+        </options>
+      </column>
+      <column>
+        <name>Yi</name>
+        <width>80</width>
         <editable>true</editable>
         <options>
         </options>
@@ -443,8 +462,9 @@ or used in a script for customized formatting.</text>
     <name>Text Update</name>
     <pv_name>loc://cursor_info</pv_name>
     <x>651</x>
-    <y>841</y>
-    <width>390</width>
+    <y>871</y>
+    <width>409</width>
+    <height>50</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_19</name>

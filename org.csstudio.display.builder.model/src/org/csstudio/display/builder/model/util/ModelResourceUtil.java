@@ -36,12 +36,12 @@ public class ModelResourceUtil extends ResourceUtil
             final Class<WorkspaceResourceHelper> clazz =
                 (Class<WorkspaceResourceHelper>)Class.forName(WorkspaceResourceHelper.IMPL);
             final WorkspaceResourceHelper helper = clazz.newInstance();
-            logger.config("Found WorkspaceResourceHelper");
+            logger.fine("Found WorkspaceResourceHelper");
             return helper;
         }
         catch (ClassNotFoundException ex)
         {   // OK to not have a WorkspaceResourceHelperImpl
-            logger.config("No WorkspaceResourceHelper");
+            logger.fine("No WorkspaceResourceHelper");
         }
         catch (Exception ex)
         {

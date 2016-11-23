@@ -403,14 +403,23 @@ public class ImagePlot extends PlotCanvasBase
             final LinearScreenTransform t = new LinearScreenTransform();
             AxisRange<Double> zoomed = x_axis.getValueRange();
             t.config(min_x, max_x, 0, data_width);
-            final int sx1 = Math.max(0, (int)t.transform(zoomed.getLow()));
-            final int sx2 = Math.min(data_width, (int)t.transform(zoomed.getHigh()));
+            // Round down .. up to always cover the image_area
+            final int src_x1 = Math.max(0,          (int)t.transform(zoomed.getLow()));
+            final int src_x2 = Math.min(data_width, (int)(t.transform(zoomed.getHigh()) + 1));
+
+            // Pixels of the image need to be aligned to their axis location,
+            // especially when zoomed way in and the pixels are huge.
+            // Turn pixel back into axis value, and then determine its destination on screen.
+            final int dst_x1 = x_axis.getScreenCoord(t.inverse(src_x1));
+            final int dst_x2 = x_axis.getScreenCoord(t.inverse(src_x2));
 
             // For Y axis, min_y == bottom == data_height
             zoomed = y_axis.getValueRange();
             t.config(min_y, max_y, data_height, 0);
-            final int sy1 = Math.max(0, (int)t.transform(zoomed.getHigh()));
-            final int sy2 = Math.min(data_height, (int)t.transform(zoomed.getLow()));
+            final int src_y1 = Math.max(0,           (int) t.transform(zoomed.getHigh()));
+            final int src_y2 = Math.min(data_height, (int) (t.transform(zoomed.getLow() ) + 1));
+            final int dst_y1 = y_axis.getScreenCoord(t.inverse(src_y1));
+            final int dst_y2 = y_axis.getScreenCoord(t.inverse(src_y2));
 
             switch (interpolation)
             {
@@ -422,17 +431,19 @@ public class ImagePlot extends PlotCanvasBase
                 break;
             default:
                 // If image is smaller than screen area, show the actual pixels
-                if ((sx2-sx1) < image_area.width  &&   (sy2-sy1) < image_area.height)
+                if ((src_x2-src_x1) < image_area.width  &&   (src_y2-src_y1) < image_area.height)
                     gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
                 else
                     // If image is larger than screen area, use best possible interpolation
                     // to avoid artifacts from statistically picking some specific nearest neighbor
                     gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
             }
+            gc.setClip(image_area.x, image_area.y, image_area.width, image_area.height);
             gc.drawImage(unscaled,
-                         image_area.x, image_area.y, image_area.x + image_area.width, image_area.y + image_area.height,
-                         sx1,  sy1,  sx2,  sy2,
+                         dst_x1, dst_y1, dst_x2, dst_y2,
+                         src_x1,  src_y1,  src_x2,  src_y2,
                          /* ImageObserver */ null);
+            gc.setClip(0, 0, area_copy.width, area_copy.height);
         }
 
         // Axes
@@ -728,25 +739,29 @@ public class ImagePlot extends PlotCanvasBase
         if (listener == null)
             return;
 
-        if (! image_area.contains(mouse_x, mouse_y))
-            listener.changedCursorLocation(Double.NaN, Double.NaN, Double.NaN);
-        else
+        if (image_area.contains(mouse_x, mouse_y))
         {
+            // Pass 'double' mouse_x/y?
+            // In reality, the values seem to be full numbers anyway,
+            // so rounding to nearest integer doesn't loose any information.
             final int screen_x = (int) (mouse_x + 0.5);
             final int screen_y = (int) (mouse_y + 0.5);
+
             // Location on axes, i.e. what user configured as horizontal and vertical values
             final double x_val = x_axis.getValue(screen_x);
             final double y_val = y_axis.getValue(screen_y);
 
-            // Location as coordinate into image
-            AxisRange<Double> range = x_axis.getValueRange();
-            int image_x = (int) ((data_width-1) * (x_val - range.getLow()) / (range.getHigh() - range.getLow()) + 0.5);
+            // Location as coordinate in image
+            // No "+0.5" rounding! Truncate to get full pixel offsets,
+            // don't jump to next pixel when mouse moves beyond 'half' of the current pixel.
+            int image_x = (int) (data_width * (x_val - min_x) / (max_x - min_x));
             if (image_x < 0)
                 image_x = 0;
             else if (image_x >= data_width)
                 image_x = data_width - 1;
-            range = y_axis.getValueRange();
-            int image_y = (int) ((data_height-1) * (1.0 - (y_val - range.getLow()) / (range.getHigh() - range.getLow())) + 0.5);
+
+            // Mouse and image coords for Y go 'down'
+            int image_y = (int) (data_height * (max_y - y_val) / (max_y - min_y));
             if (image_y < 0)
                 image_y = 0;
             else if (image_y >= data_height)
@@ -754,8 +769,10 @@ public class ImagePlot extends PlotCanvasBase
 
             final ListNumber data = image_data;
             final double pixel = data == null ? Double.NaN : data.getDouble(image_x + image_y * data_width);
-            listener.changedCursorLocation(x_val, y_val, pixel);
+            listener.changedCursorLocation(x_val, y_val, image_x, image_y, pixel);
         }
+        else
+            listener.changedCursorLocation(Double.NaN, Double.NaN, -1, -1, Double.NaN);
     }
 
     /** setOnMouseReleased */

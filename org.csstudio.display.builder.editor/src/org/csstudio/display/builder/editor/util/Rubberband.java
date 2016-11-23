@@ -59,6 +59,8 @@ public class Rubberband
 
     private void handleStart(final MouseEvent event)
     {
+        if (! event.isPrimaryButtonDown())
+            return;
         active = true;
 
         // Event originates from a node that allows 'clicking' beyond the
