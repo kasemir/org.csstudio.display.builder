@@ -37,6 +37,7 @@ public class ImageToolbarHandler
     {
         ZOOM_IN,
         ZOOM_OUT,
+        PAN,
         POINTER,
         UNDO,
         REDO
@@ -45,7 +46,7 @@ public class ImageToolbarHandler
     final private RTImagePlot plot;
 
     final private ToolBar toolbar;
-    private ToggleButton zoom_in, zoom_out, pointer;
+    private ToggleButton zoom_in, zoom_out, pan, pointer;
 
     /** Have any custom items been added? */
     private boolean have_custom_items = false;
@@ -99,6 +100,7 @@ public class ImageToolbarHandler
     {
         zoom_in = newToggleButton(ToolIcons.ZOOM_IN, Messages.Zoom_In_TT);
         zoom_out = newToggleButton(ToolIcons.ZOOM_OUT, Messages.Zoom_Out_TT);
+        pan = newToggleButton(ToolIcons.PAN, Messages.Pan_TT);
         pointer = newToggleButton(ToolIcons.POINTER, Messages.Plain_Pointer);
 
         zoom_in.setOnAction(event ->
@@ -111,6 +113,11 @@ public class ImageToolbarHandler
             selectMouseMode(zoom_out);
             plot.setMouseMode(MouseMode.ZOOM_OUT);
             plot.zoomInOut(false);
+        });
+        pan.setOnAction(event ->
+        {
+            selectMouseMode(pan);
+            plot.setMouseMode(MouseMode.PAN);
         });
         pointer.setOnAction(event ->
         {
@@ -199,6 +206,11 @@ public class ImageToolbarHandler
             selectMouseMode(zoom_out);
             plot.setMouseMode(mode);
         }
+        else if (mode == MouseMode.PAN)
+        {
+            selectMouseMode(pan);
+            plot.setMouseMode(mode);
+        }
         else
         {
             selectMouseMode(pointer);
@@ -209,7 +221,7 @@ public class ImageToolbarHandler
     /** @param item Tool item to select, all others will be de-selected */
     private void selectMouseMode(final ToggleButton item)
     {
-        for (ToggleButton ti : new ToggleButton[] { zoom_in, zoom_out, pointer })
+        for (ToggleButton ti : new ToggleButton[] { zoom_in, zoom_out, pan, pointer })
         	ti.setSelected(ti == item);
     }
 }
