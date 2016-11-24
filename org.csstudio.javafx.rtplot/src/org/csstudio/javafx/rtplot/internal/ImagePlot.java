@@ -14,6 +14,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -550,7 +551,7 @@ public class ImagePlot extends PlotCanvasBase
         return image;
     }
 
-    // private static long avg_nano = 0, runs = 0;
+    // private static long runs = 0, avg_nano = 0;
 
     /** @param data_width
      *  @param data_height
@@ -565,7 +566,6 @@ public class ImagePlot extends PlotCanvasBase
                                           final boolean unsigned,
                                           final double min, final double max, final DoubleFunction<Color> color_mapping)
     {
-        // Create image that'll be written with data
         if (data_width <= 0  ||  data_height <= 0)
         {
             logger.log(Level.FINE, "Cannot draw image sized {0} x {1}", new Object[] { data_width, data_height });
@@ -573,52 +573,65 @@ public class ImagePlot extends PlotCanvasBase
         }
         if (numbers.size() < data_width * data_height)
         {
-            logger.log(Level.SEVERE, "Image sized {0} x {1} received only {2} data samples",
-                                     new Object[] { data_width, data_height, numbers.size() });
+            logger.log(Level.WARNING, "Image sized {0} x {1} received only {2} data samples",
+                                      new Object[] { data_width, data_height, numbers.size() });
             return null;
         }
-        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_ARGB);
-
-        final Graphics2D gc = image.createGraphics();
-        if (min < max) // Implies min and max being finite, not-NaN
+        if (!  (min < max))  // Implies min and max being finite, not-NaN
         {
-            // Draw each pixel
-            final IteratorNumber iter = numbers.iterator();
-            // final long start = System.nanoTime();
+            logger.log(Level.WARNING, "Invalid value range {0} .. {1}", new Object[] { min, max });
+            return null;
+        }
+
+        // final long start = System.nanoTime();
+
+        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_ARGB);
+        // Direct access to 'int' pixels in data buffer is about twice as fast as access
+        // via image.setRGB(x, y, color.getRGB()),
+        // which in turn is about 3x faster than drawLine or fillRect.
+        // Creating a byte[] with one byte per pixel and ColorModel based on color map is fastest,
+        // but only 8 bits per pixel instead of 8 bits each for R, G and B isn't enough resolution.
+        // Rounding of values into 8 bits creates artifacts.
+        final int[] data = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+        final IteratorNumber iter = numbers.iterator();
+        int idx = 0;
+        final double span = max - min;
+        if (unsigned)
+        {   // Avoid 'unsigned' check inside the loop, instead copy the loop code
             for (int y=0; y<data_height; ++y)
-            {
                 for (int x=0; x<data_width; ++x)
                 {
-                    final double sample = unsigned ? Integer.toUnsignedLong(iter.nextInt()) : iter.nextDouble();
-                    double scaled = (sample - min) / (max - min);
+                    final double sample = Integer.toUnsignedLong(iter.nextInt());
+                    double scaled = (sample - min) / span;
                     if (scaled < 0.0)
                         scaled = 0;
-                    if (scaled > 1.0)
+                    else if (scaled > 1.0)
                         scaled = 1.0;
-                    final Color color = color_mapping.apply(scaled);
-                    // What's faster: gc.setColor(color) and gc.drawLine(x, y, x, y) or gc.fillRect(x, y, 1, 1),
-                    // or direct pixel access?
-                    // Test image showed ~52ms for drawLine, ~13ms for setRGB
-                    // No difference for BufferedImage.TYPE_INT_ARGB vs. BufferedImage.TYPE_INT_RGB
-                    image.setRGB(x, y, color.getRGB());
+                    data[idx++] = color_mapping.apply(scaled).getRGB();
                 }
-            }
-            // final long nano = System.nanoTime() - start;
-            // avg_nano = (avg_nano*3 + nano)/4;
-            // if (++runs > 100)
-            // {
-            //     runs = 0;
-            //     System.out.println("ms: " + nano/1e6);
-            // }
         }
         else
         {
-            logger.log(Level.WARNING, "Invalid value range {0} .. {1}", new Object[] { min, max });
-            final Color color = color_mapping.apply(0.0);
-            gc.setColor(color);
-            gc.fillRect(0, 0, data_width, data_height);
+            for (int y=0; y<data_height; ++y)
+                for (int x=0; x<data_width; ++x)
+                {
+                    final double sample = iter.nextDouble();
+                    double scaled = (sample - min) / span;
+                    if (scaled < 0.0)
+                        scaled = 0;
+                    else if (scaled > 1.0)
+                        scaled = 1.0;
+                    data[idx++] = color_mapping.apply(scaled).getRGB();
+                }
         }
-        gc.dispose();
+
+        // final long nano = System.nanoTime() - start;
+        // avg_nano = (avg_nano*3 + nano)/4;
+        // if (++runs > 100)
+        // {
+        //     runs = 0;
+        //    System.out.println(avg_nano/1e6 + " ms");
+        // }
 
         return image;
     }
