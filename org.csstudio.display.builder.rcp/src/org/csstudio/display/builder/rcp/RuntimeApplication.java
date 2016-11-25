@@ -133,7 +133,7 @@ public class RuntimeApplication implements IApplication
         }
         catch (final Exception ex)
         {
-            logger.log(Level.SEVERE, "Cannot start", ex);
+            logger.log(Level.SEVERE, "Cannot load " + display_path, ex);
         }
     }
 
@@ -147,7 +147,7 @@ public class RuntimeApplication implements IApplication
         }
         catch (final Exception ex)
         {
-            ex.printStackTrace();
+            logger.log(Level.SEVERE, "Cannot represent model", ex);
         }
 
         // Start runtimes in background

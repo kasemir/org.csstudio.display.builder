@@ -58,6 +58,9 @@ import javafx.scene.control.TextArea;
 @SuppressWarnings("nls")
 public class RuntimeViewPart extends ViewPart
 {
+    // TODO Monitor the ViewPart state:
+    // If the view is 'hidden', de-activate runtime
+
 	// FXViewPart saves a tiny bit of code, but this allow more control over the FXCanvas.
 	// e4view would allow E4-like POJO, but unclear how representation
 	// would then best find the newly created RuntimeViewPart to set its input etc.
