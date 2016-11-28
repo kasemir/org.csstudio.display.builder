@@ -38,6 +38,8 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
  *  @author Kay Kasemir
  */
 @SuppressWarnings({"nls", "restriction"})
+// Depending on IDE settings, there may be a warning that "restriction" are not necessary.
+// With full warnings enabled, the suppression _is_ necessary because of the internal API access.
 public class FullScreenAction extends Action
 {
     private final IWorkbenchPage page;

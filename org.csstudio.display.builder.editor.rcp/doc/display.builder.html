@@ -38,7 +38,8 @@
 <li><a href="#get_started">Getting Started</a></li>
 <li><a href="#editor">Display Editor</a></li>
 <li><a href="#conversion">BOY <i>*.opi</i> File Conversion</a></li>
-<li><a href="#runtime">Display Builder Runtime, Display Runtime Perspective</a></li>
+<li><a href="#runtime">Display Builder Runtime</a></li>
+<li><a href="#perspective">Display Runtime Perspective, Full-screen, Standalone</a></li>
 <li><a href="#widgets">Widgets</a></li>
 <li><a href="#properties">Properties</a></li>
 <li><a href="#widgets_detail">Widget Details</a></li>
@@ -392,7 +393,7 @@ from <i>Display Builder/script_util/porting.opi</i> and
 
 
 <!-- ====================================================== -->
-<h1><a name="runtime">Display Builder Runtime, Display Runtime Perspective</a></h1>
+<h1><a name="runtime">Display Builder Runtime</a></h1>
 <!-- ====================================================== -->
 
 <h2>Display Builder Runtime</h2>
@@ -410,7 +411,14 @@ or to re-load the display.
 </p>
 
 
+<!-- ====================================================== -->
+<h1><a name="perspective">Display Runtime Perspective, Full-screen, Standalone</a></h1>
+<!-- ====================================================== -->
+
 <h2>Display Runtime Perspective</h2>
+
+<p>The Display Runtime Perspective is initially empty, meant to display runtime panels.
+</p>
 
 <p>For a production setup,
 use the Display Builder "Top Displays" preference to configure a list of top level displays,
@@ -421,6 +429,8 @@ i.e. starting points for your users.
 <b>File</b> > <b>Top Displays</b>
 or the Top Displays drop-down button in the tool bar to open these
 from within the Display Runtime Perspective.
+Display runtime panels can then be arranged by dragging their title tabs
+into the desired location.
 </p>
 
 <p>Typically, at least one such Display Runtime Perspective with a pre-arranged
@@ -428,6 +438,48 @@ displays layout is then saved as a named Perspective
 and used as a default layout.
 </p>
 
+
+<h2>Full-screen Mode</h2>
+
+<p>The <b>Full-screen</b> entry in the runtime panel context menu
+allows toggling the workbench window into and out of full-screen mode.
+In full-screen mode, the menu, toolbar and status bar are hidden to
+maximize the area available for display runtimes.
+Only the title tabs of each display are still shown.
+Exact details depend on the operating system.
+For Mac OS X, the menu bar is hidden but remains accessible when moving the
+mouse to the top of the screen. On Linux, the menu is turned off.
+If supported by the operating system, the full-screen mode selects
+a window mode in which the window becomes the only visible window
+on the monitor, always on top of all other windows on that computer display.
+</p>
+
+<p>To exit full-screen mode and restore the menu, toolbar and status bar,
+invoke the <b>Exit Full-screen</b> entry in the runtime panel context menu.
+</p>
+
+
+<h2>Standalone Window Mode</h2>
+
+<p>Selecting <b>Change to Standalone Window</b> from the runtime panel context menu
+closes the display runtime panel in the workbench window and instead opens
+that runtime as a plain standalone window.
+</p>
+
+<p>Advantage:</p>
+<ul>
+<li>Minimal visual decorations. No toolbar, no perspective switcher, no display title tab.
+    Maximum space for display
+</li>
+<li>Slightly faster display updates because of top-level JavaFX window, not embedded in SWT</li>
+</ul>
+
+<p>Disadvantage:</p>
+<ul>
+<li>No context menu to inspect widgets, email screenshot etc.</li>
+<li>Cannot 'save' layout in context of Perspective</li>
+<li>No way to re-attach standalone window to workbench</li>
+</ul>
 
 
 <!-- ====================================================== -->
