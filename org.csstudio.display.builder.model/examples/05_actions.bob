@@ -53,7 +53,7 @@ it is more obvious to end users.</text>
       </font>
     </font>
   </widget>
-  <widget type="action_button" version="2.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Action Button</name>
     <actions>
       <action type="open_display">
@@ -65,8 +65,9 @@ it is more obvious to end users.</text>
     <x>440</x>
     <y>140</y>
     <width>120</width>
+    <tooltip>$(actions)</tooltip>
   </widget>
-  <widget type="action_button" version="2.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Action Button_1</name>
     <actions>
       <action type="write_pv">
