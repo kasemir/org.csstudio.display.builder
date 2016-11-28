@@ -12,6 +12,7 @@ import static org.csstudio.display.builder.rcp.Plugin.logger;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.Messages;
@@ -80,6 +81,9 @@ public class StandaloneAction extends Action
         try
         {
             final DisplayModel model = ModelLoader.loadModel(null, display_info.getPath());
+            // Macros: Start with display info, add those of loaded model
+            final Macros combined_macros = Macros.merge(display_info.getMacros(), model.propMacros().getValue());
+            model.propMacros().setValue(combined_macros);
             // Representation needs to be created in UI thread
             toolkit.execute(() -> representModel(model));
         }
