@@ -9,6 +9,7 @@ package org.csstudio.display.builder.rcp.run;
 
 import org.csstudio.display.builder.rcp.Messages;
 import org.csstudio.display.builder.rcp.Plugin;
+import org.csstudio.javafx.PlatformInfo;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -68,19 +69,25 @@ public class FullScreenAction extends Action
         window.setCoolBarVisible(! fullscreen);
         window.setPerspectiveBarVisible(! fullscreen);
         setStatusBarVisibile(shell, ! fullscreen);
-        // For Mac OS X, menu bar is automatically hidden.
-        // For Linux and Windows, show/hide.
-        if (fullscreen)
+        // For Mac OS X, menu bar is automatically hidden,
+        // but still available when moving mouse up,
+        // so keep it.
+        if (! PlatformInfo.is_mac_os_x)
         {
-            // menubar.setVisible(false) has no effect.
-            // Need to remember current menu bar, then remove
-            menubar = shell.getMenuBar();
-            //
-            shell.setMenuBar(null);
+            // For Linux and Windows, show/hide
+            // to maximize screen space
+            if (fullscreen)
+            {
+                // menubar.setVisible(false) has no effect.
+                // Need to remember current menu bar, then remove
+                menubar = shell.getMenuBar();
+                //
+                shell.setMenuBar(null);
+            }
+            else if (menubar != null)
+                // Restore saved menu bar
+                shell.setMenuBar(menubar);
         }
-        else if (menubar != null)
-            // Restore saved menu bar
-            shell.setMenuBar(menubar);
     }
 
     private void setStatusBarVisibile(final Shell shell, final boolean visible)
