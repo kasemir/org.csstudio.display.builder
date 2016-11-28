@@ -266,45 +266,39 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         return () -> (WidgetRepresentation<Parent, Node, Widget>) config.createExecutableExtension("class");
     }
 
-    /**
-     * Create scrollpane etc. for hosting the model
+    /** Create scrollpane etc. for hosting the model
      *
-     * @return ScrollPane
-     * @throws IllegalStateException if had already been called
+     *  @return ScrollPane
+     *  @throws IllegalStateException if had already been called
      */
-    final public ScrollPane createModelRoot ( ) {
-
-        if ( model_root != null )
+    final public ScrollPane createModelRoot()
+    {
+        if (model_root != null)
             throw new IllegalStateException("Already created model root");
 
         model_parent = new Group();
         scroll_body = new Pane(model_parent);
 
-        if ( isEditMode() ) {
-
+        if (isEditMode())
+        {
             horiz_bound = new Line();
-
             horiz_bound.getStyleClass().add("display_model_bounds");
             horiz_bound.setStartX(0);
 
             vert_bound = new Line();
-
             vert_bound.getStyleClass().add("display_model_bounds");
             vert_bound.setStartY(0);
 
             scroll_body.getChildren().addAll(vert_bound, horiz_bound);
-
         }
 
         model_root = new ScrollPane(scroll_body);
 
         final InvalidationListener resized = prop -> handleViewportChanges();
-
         model_root.widthProperty().addListener(resized);
         model_root.heightProperty().addListener(resized);
 
         return model_root;
-
     }
 
     /** @see JFXRepresentation#createScene(DisplayModel)

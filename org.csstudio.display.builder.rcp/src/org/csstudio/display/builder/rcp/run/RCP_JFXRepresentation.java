@@ -17,6 +17,7 @@ import org.csstudio.display.builder.rcp.Messages;
 import org.csstudio.display.builder.rcp.RuntimeViewPart;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
+import org.csstudio.display.builder.representation.javafx.JFXStageRepresentation;
 import org.csstudio.ui.util.dialogs.ResourceSelectionDialog;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -33,6 +34,7 @@ import org.eclipse.ui.ide.IDE;
 
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.stage.Stage;
 
 /** Represent display builder in JFX inside RCP Views
  *
@@ -60,6 +62,18 @@ public class RCP_JFXRepresentation extends JFXRepresentation
         final RCP_JFXRepresentation new_representation = part.getRepresentation();
         new_representation.representModel(part.getRoot(), model);
         return new_representation;
+    }
+
+    @Override
+    public ToolkitRepresentation<Parent, Node> openStandaloneWindow(final DisplayModel model,
+                                                                    final Consumer<DisplayModel> close_handler) throws Exception
+    {
+        final Stage stage = new Stage();
+        final JFXStageRepresentation toolkit = new JFXStageRepresentation(stage);
+        final Parent root = toolkit.configureStage(model, close_handler);
+        stage.show();
+        toolkit.representModel(root, model);
+        return toolkit;
     }
 
     @Override

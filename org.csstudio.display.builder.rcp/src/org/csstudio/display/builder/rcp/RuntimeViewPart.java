@@ -88,6 +88,7 @@ public class RuntimeViewPart extends ViewPart
 
     private Parent root;
 
+    // TODO Remove, just use ActionUtil::handleClose?
     private Consumer<DisplayModel> close_handler = ActionUtil::handleClose;
 
 	private DisplayModel active_model;
@@ -326,6 +327,12 @@ public class RuntimeViewPart extends ViewPart
         display_info = Optional.of(info);
         // load model off UI thread
         RuntimeUtil.getExecutor().execute(() -> loadModel(info));
+    }
+
+    /** @return Info about current display model or <code>null</code> */
+    public DisplayModel getDisplayModel()
+    {
+        return active_model;
     }
 
     /** @return Info about current display or <code>null</code> */

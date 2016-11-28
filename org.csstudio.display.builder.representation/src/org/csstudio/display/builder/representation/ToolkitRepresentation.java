@@ -154,6 +154,8 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
 
     /** Open new top-level window
      *
+     *  <p>For RCP-based representation, this is a new workbench window.
+     *
      *  <p>Is invoked with the _initial_ model,
      *  calling <code>representModel</code> to create the
      *  individual widget representations.
@@ -170,6 +172,31 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *  @throws Exception on error
      */
     abstract public ToolkitRepresentation<TWP, TW> openNewWindow(DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception;
+
+    /** Open standalone window
+     *
+     *  <p>For RCP-based representation, this is a plain shell or stage,
+     *  not associated with a workbench.
+     *
+     *  <p>Is invoked with the _initial_ model,
+     *  calling <code>representModel</code> to create the
+     *  individual widget representations.
+     *
+     *  <p>To later replace the model, call <code>disposeRepresentation</code>
+     *  with the current model, and then <code>representModel</code> with the new model.
+     *
+     *  @param model {@link DisplayModel} that provides name and initial size
+     *  @param close_handler Will be invoked when user closes the window
+     *                       with the then active model, i.e. the model
+     *                       provided in last call to <code>representModel</code>.
+     *                       Should stop runtime, dispose representation.
+     *  @return The new ToolkitRepresentation of the new window
+     *  @throws Exception on error
+     */
+    public ToolkitRepresentation<TWP, TW> openStandaloneWindow(DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception
+    {   // Default: Same as openNewWindow
+        return openNewWindow(model, close_handler);
+    }
 
     /** Create toolkit widgets for a display model.
      *
