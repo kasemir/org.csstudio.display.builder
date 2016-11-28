@@ -36,7 +36,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
  *
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
+@SuppressWarnings({"nls", "restriction"})
 public class FullScreenAction extends Action
 {
     private final IWorkbenchPage page;
