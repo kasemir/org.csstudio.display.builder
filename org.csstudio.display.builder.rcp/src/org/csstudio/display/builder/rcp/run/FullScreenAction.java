@@ -12,6 +12,7 @@ import org.csstudio.display.builder.rcp.Plugin;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.internal.WorkbenchWindow;
@@ -35,10 +36,11 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
  *
  *  @author Kay Kasemir
  */
-@SuppressWarnings({"nls","restriction"})
+@SuppressWarnings("nls")
 public class FullScreenAction extends Action
 {
     private final IWorkbenchPage page;
+    private static Menu menubar;
 
     public FullScreenAction(IWorkbenchPage page)
     {
@@ -66,7 +68,19 @@ public class FullScreenAction extends Action
         window.setCoolBarVisible(! fullscreen);
         window.setPerspectiveBarVisible(! fullscreen);
         setStatusBarVisibile(shell, ! fullscreen);
-        // TODO Show/hide Menu bar for Linux and Windows?
+        // For Mac OS X, menu bar is automatically hidden.
+        // For Linux and Windows, show/hide.
+        if (fullscreen)
+        {
+            // menubar.setVisible(false) has no effect.
+            // Need to remember current menu bar, then remove
+            menubar = shell.getMenuBar();
+            //
+            shell.setMenuBar(null);
+        }
+        else if (menubar != null)
+            // Restore saved menu bar
+            shell.setMenuBar(menubar);
     }
 
     private void setStatusBarVisibile(final Shell shell, final boolean visible)
