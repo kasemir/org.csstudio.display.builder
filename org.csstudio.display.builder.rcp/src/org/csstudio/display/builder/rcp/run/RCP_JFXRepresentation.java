@@ -14,6 +14,7 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.Messages;
+import org.csstudio.display.builder.rcp.RuntimePerspective;
 import org.csstudio.display.builder.rcp.RuntimeViewPart;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
@@ -28,7 +29,9 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 
@@ -54,11 +57,32 @@ public class RCP_JFXRepresentation extends JFXRepresentation
     }
 
     @Override
+    public ToolkitRepresentation<Parent, Node> openPanel(final DisplayModel model,
+                                                         final Consumer<DisplayModel> close_handler) throws Exception
+    {
+        return openDisplayOnPage(null, model, close_handler);
+    }
+
+    @Override
     public ToolkitRepresentation<Parent, Node> openNewWindow(final DisplayModel model,
                                                              final Consumer<DisplayModel> close_handler) throws Exception
     {
+        // Create new workbench page
+        final IWorkbenchWindow window = PlatformUI.getWorkbench().openWorkbenchWindow(RuntimePerspective.ID, null);
+        final IWorkbenchPage page = window.getActivePage();
+        final Shell shell = window.getShell();
+        shell.forceActive();
+        shell.forceFocus();
+        shell.moveAbove(null);
+        return openDisplayOnPage(page, model, close_handler);
+    }
+
+    private ToolkitRepresentation<Parent, Node> openDisplayOnPage(final IWorkbenchPage page,
+                                                                  final DisplayModel model,
+                                                                  final Consumer<DisplayModel> close_handler) throws Exception
+    {
         final DisplayInfo info = DisplayInfo.forModel(model);
-        final RuntimeViewPart part = RuntimeViewPart.open(close_handler, info);
+        final RuntimeViewPart part = RuntimeViewPart.open(page, close_handler, info);
         final RCP_JFXRepresentation new_representation = part.getRepresentation();
         new_representation.representModel(part.getRoot(), model);
         return new_representation;

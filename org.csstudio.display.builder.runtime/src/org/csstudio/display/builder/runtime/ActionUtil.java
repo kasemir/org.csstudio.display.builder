@@ -89,53 +89,55 @@ public class ActionUtil
             final Macros combined_macros = Macros.merge(macros, new_model.propMacros().getValue());
             new_model.propMacros().setValue(combined_macros);
 
-            // On UI thread...
+            // Schedule representation on UI thread...
             final DisplayModel top_model = source_widget.getTopDisplayModel();
             final ToolkitRepresentation<Object, Object> toolkit = ToolkitRepresentation.getToolkit(top_model);
-            if (action.getTarget() == OpenDisplayActionInfo.Target.REPLACE)
-            {   // Replace the 'top'. Stop old runtime.
+            final Future<Object> wait_for_ui;
+            if (action.getTarget() == OpenDisplayActionInfo.Target.TAB)
+            {
+                wait_for_ui = toolkit.submit(() ->
+                {   // Create new panel
+                    final ToolkitRepresentation<Object, Object> new_toolkit =
+                        toolkit.openPanel(new_model, ActionUtil::handleClose);
+                    RuntimeUtil.hookRepresentationListener(new_toolkit);
+                    return null;
+                });
+            }
+            else if (action.getTarget() == OpenDisplayActionInfo.Target.WINDOW)
+            {
+                wait_for_ui = toolkit.submit(() ->
+                {   // Create new top-level window
+                    final ToolkitRepresentation<Object, Object> new_toolkit =
+                        toolkit.openNewWindow(new_model, ActionUtil::handleClose);
+                    RuntimeUtil.hookRepresentationListener(new_toolkit);
+                    return null;
+                });
+            }
+            else if (action.getTarget() == OpenDisplayActionInfo.Target.STANDALONE)
+            {
+                wait_for_ui = toolkit.submit(() ->
+                {
+                    final ToolkitRepresentation<Object, Object> new_toolkit =
+                        toolkit.openStandaloneWindow(new_model, ActionUtil::handleClose);
+                    RuntimeUtil.hookRepresentationListener(new_toolkit);
+                    return null;
+                });
+            }
+            else
+            {   // Default to OpenDisplayActionInfo.Target.REPLACE
+                // Stop old runtime.
                 RuntimeUtil.stopRuntime(top_model);
-                final Future<Object> wait_for_ui = toolkit.submit(() ->
+                wait_for_ui = toolkit.submit(() ->
                 {   // Close old representation
                     final Object parent = toolkit.disposeRepresentation(top_model);
                     // Tell toolkit about new model to represent
                     toolkit.representModel(parent, new_model);
                     return null;
                 });
-                // Back in background thread, create new runtime
-                wait_for_ui.get();
-                RuntimeUtil.startRuntime(new_model);
             }
-            else if (action.getTarget() == OpenDisplayActionInfo.Target.TAB  ||
-                     action.getTarget() == OpenDisplayActionInfo.Target.WINDOW)
-            {
-                final Future<Object> wait_for_ui = toolkit.submit(() ->
-                {   // Create new top-level window
-                    // TODO Distinguish 'window'/'tab'
-                    final ToolkitRepresentation<Object, Object> new_toolkit =
-                        toolkit.openNewWindow(new_model, ActionUtil::handleClose);
-                    if (new_toolkit != toolkit)
-                        RuntimeUtil.hookRepresentationListener(new_toolkit);
-                    return null;
-                });
-                // Back in background thread, create new runtime
-                wait_for_ui.get();
-                RuntimeUtil.startRuntime(new_model);
-            }
-            else if (action.getTarget() == OpenDisplayActionInfo.Target.STANDALONE)
-            {
-                final Future<Object> wait_for_ui = toolkit.submit(() ->
-                {
-                    final ToolkitRepresentation<Object, Object> new_toolkit =
-                        toolkit.openStandaloneWindow(new_model, ActionUtil::handleClose);
-                    if (new_toolkit != toolkit)
-                        RuntimeUtil.hookRepresentationListener(new_toolkit);
-                    return null;
-                });
-                // Back in background thread, create new runtime
-                wait_for_ui.get();
-                RuntimeUtil.startRuntime(new_model);
-            }
+            wait_for_ui.get();
+            // Back in background thread, create new runtime
+            RuntimeUtil.startRuntime(new_model);
         }
         catch (final Exception ex)
         {

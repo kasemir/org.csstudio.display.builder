@@ -88,7 +88,6 @@ public class RuntimeViewPart extends ViewPart
 
     private Parent root;
 
-    // TODO Remove, just use ActionUtil::handleClose?
     private Consumer<DisplayModel> close_handler = ActionUtil::handleClose;
 
 	private DisplayModel active_model;
@@ -98,15 +97,17 @@ public class RuntimeViewPart extends ViewPart
      *  <p>Either opens a new display, or if there is already an existing view
      *  for that input, "activate" it, which pops a potentially hidden view to the top.
      *
+     *  @param page Page to use. <code>null</code> for 'active' page
      *  @param close_handler Code to call when part is closed
      *  @param info DisplayInfo (to compare with currently open displays)
      *  @return {@link RuntimeViewPart}
      *  @throws Exception on error
      */
-    public static RuntimeViewPart open(final Consumer<DisplayModel> close_handler, final DisplayInfo info)
+    public static RuntimeViewPart open(IWorkbenchPage page, final Consumer<DisplayModel> close_handler, final DisplayInfo info)
             throws Exception
     {
-        final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        if (page == null)
+            page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
         if (info != null)
             for (IViewReference view_ref : page.getViewReferences())
                 if (view_ref.getId().startsWith(ID))
