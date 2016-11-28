@@ -86,7 +86,12 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
     private void checkModifiers(final MouseEvent event)
     {
         if (event.isControlDown())
-            target_modifier = Optional.of(OpenDisplayActionInfo.Target.TAB);
+        {
+            if (event.isShiftDown())
+                target_modifier = Optional.of(OpenDisplayActionInfo.Target.STANDALONE);
+            else
+                target_modifier = Optional.of(OpenDisplayActionInfo.Target.TAB);
+        }
         else if (event.isShiftDown())
             target_modifier = Optional.of(OpenDisplayActionInfo.Target.WINDOW);
         else

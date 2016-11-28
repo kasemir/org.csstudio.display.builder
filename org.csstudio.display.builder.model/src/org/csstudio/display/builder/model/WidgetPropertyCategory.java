@@ -26,9 +26,6 @@ public enum WidgetPropertyCategory
     DISPLAY(Messages.WidgetPropertyCategory_Display),
     /** How the widget behaves */
     BEHAVIOR(Messages.WidgetPropertyCategory_Behavior),
-
-    // XXX Add more property categories ?
-
     /** Widget properties that do not fit the other categories */
     MISC(Messages.WidgetPropertyCategory_Misc),
     /** Runtime data, not persisted */

@@ -58,6 +58,9 @@ import javafx.scene.control.TextArea;
 @SuppressWarnings("nls")
 public class RuntimeViewPart extends ViewPart
 {
+    // TODO Monitor the ViewPart state:
+    // If the view is 'hidden', de-activate runtime
+
 	// FXViewPart saves a tiny bit of code, but this allow more control over the FXCanvas.
 	// e4view would allow E4-like POJO, but unclear how representation
 	// would then best find the newly created RuntimeViewPart to set its input etc.
@@ -94,15 +97,17 @@ public class RuntimeViewPart extends ViewPart
      *  <p>Either opens a new display, or if there is already an existing view
      *  for that input, "activate" it, which pops a potentially hidden view to the top.
      *
+     *  @param page Page to use. <code>null</code> for 'active' page
      *  @param close_handler Code to call when part is closed
      *  @param info DisplayInfo (to compare with currently open displays)
      *  @return {@link RuntimeViewPart}
      *  @throws Exception on error
      */
-    public static RuntimeViewPart open(final Consumer<DisplayModel> close_handler, final DisplayInfo info)
+    public static RuntimeViewPart open(IWorkbenchPage page, final Consumer<DisplayModel> close_handler, final DisplayInfo info)
             throws Exception
     {
-        final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        if (page == null)
+            page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
         if (info != null)
             for (IViewReference view_ref : page.getViewReferences())
                 if (view_ref.getId().startsWith(ID))
@@ -323,6 +328,12 @@ public class RuntimeViewPart extends ViewPart
         display_info = Optional.of(info);
         // load model off UI thread
         RuntimeUtil.getExecutor().execute(() -> loadModel(info));
+    }
+
+    /** @return Info about current display model or <code>null</code> */
+    public DisplayModel getDisplayModel()
+    {
+        return active_model;
     }
 
     /** @return Info about current display or <code>null</code> */
