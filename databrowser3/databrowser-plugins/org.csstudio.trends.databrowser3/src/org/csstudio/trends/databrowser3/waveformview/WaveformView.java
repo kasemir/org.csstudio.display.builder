@@ -24,6 +24,7 @@ import org.csstudio.trends.databrowser3.model.ModelItem;
 import org.csstudio.trends.databrowser3.model.ModelListener;
 import org.csstudio.trends.databrowser3.model.ModelListenerAdapter;
 import org.csstudio.trends.databrowser3.model.PlotSamples;
+import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
@@ -51,7 +52,7 @@ public class WaveformView extends DataBrowserAwareView
 {
     /** View ID registered in plugin.xml */
     final public static String ID =
-            "org.csstudio.trends.databrowser3.waveformview.WaveformView"; //$NON-NLS-1$
+            "org.csstudio.trends.databrowser.waveformview.WaveformView"; //$NON-NLS-1$
 
     /** PV Name selector */
     private Combo pv_name;
@@ -308,7 +309,8 @@ public class WaveformView extends DataBrowserAwareView
             clearInfo();
         else
         {
-            plot.getXAxis().setValueRange(0.0, (double)waveform.size());
+            int size = value instanceof VNumberArray ? ((VNumberArray)value).getData().size() : 1;
+            plot.getXAxis().setValueRange(0.0, (double)size);
             timestamp.setText(TimestampHelper.format(VTypeHelper.getTimestamp(value)));
             status.setText(NLS.bind(Messages.SeverityStatusFmt, VTypeHelper.getSeverity(value).toString(), VTypeHelper.getMessage(value)));
         }

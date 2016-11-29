@@ -64,7 +64,7 @@ import org.eclipse.ui.part.ViewPart;
 public class SearchView extends ViewPart
 {
     /** View ID (same ID as original Data Browser) registered in plugin.xml */
-    final public static String ID = "org.csstudio.trends.databrowser3.archiveview.ArchiveView"; //$NON-NLS-1$
+    final public static String ID = "org.csstudio.trends.databrowser.archiveview.ArchiveView"; //$NON-NLS-1$
 
     /** Memento tags */
     private static final String TAG_REGEX = "regex", //$NON-NLS-1$
@@ -314,7 +314,7 @@ public class SearchView extends ViewPart
             public void doubleClick(DoubleClickEvent event)
             {
                 //casting is needed for RAP
-                IHandlerService handlerService = (IHandlerService)getSite().getService(IHandlerService.class);
+                IHandlerService handlerService = getSite().getService(IHandlerService.class);
                 try
                 {
                     handlerService.executeCommand("org.csstudio.trends.databrowser3.OpenDataBrowserPopup", null);
@@ -347,8 +347,8 @@ public class SearchView extends ViewPart
                 if (pattern.isDisposed())
                     return;
                 MessageDialog.openError(pattern.getShell(),
-                    Messages.Error,
-                    NLS.bind(Messages.ArchiveServerErrorFmt, url, ex.getMessage()));
+                        Messages.Error,
+                        NLS.bind(Messages.ArchiveServerErrorFmt, url, ex.getMessage()));
             }
         });
     }
@@ -419,7 +419,7 @@ public class SearchView extends ViewPart
                     for (ChannelInfo channel : channels)
                         if (! full.contains(channel))
                             full.add(channel);
-                    channel_table.setInput((ChannelInfo[]) full.toArray(new ChannelInfo[full.size()]));
+                    channel_table.setInput(full.toArray(new ChannelInfo[full.size()]));
                 }
             }
         });
