@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.Text;
 public class ExportView extends DataBrowserAwareView implements ExportErrorHandler
 {
     /** View ID (same ID as original Data Browser) registered in plugin.xml */
-    final public static String ID = "org.csstudio.trends.databrowser3.exportview.ExportView"; //$NON-NLS-1$
+    final public static String ID = "org.csstudio.trends.databrowser.exportview.ExportView"; //$NON-NLS-1$
 
     /** Model of the currently selected Data Browser or <code>null</code> */
     private Model model;
@@ -88,7 +88,7 @@ public class ExportView extends DataBrowserAwareView implements ExportErrorHandl
     protected void doCreatePartControl(final Composite real_parent)
     {
         final Composite parent =
-            ScrolledContainerHelper.create(real_parent, 700, 320);
+                ScrolledContainerHelper.create(real_parent, 700, 320);
         parent.setLayout(new GridLayout());
 
         // * Samples To Export *
@@ -399,7 +399,7 @@ public class ExportView extends DataBrowserAwareView implements ExportErrorHandl
             public void widgetSelected(final SelectionEvent e)
             {
                 final String name = SingleSourcePlugin.getUIHelper()
-                    .openOutsideWorkspaceDialog(parent.getShell(), SWT.SAVE, null, null);
+                        .openOutsideWorkspaceDialog(parent.getShell(), SWT.SAVE, null, null);
                 if (name != null)
                     filename.setText(name.toString());
             }
@@ -503,7 +503,7 @@ public class ExportView extends DataBrowserAwareView implements ExportErrorHandl
             try
             {
                 final StartEndTimeParser times =
-                    new StartEndTimeParser(start.getText(), end.getText());
+                        new StartEndTimeParser(start.getText(), end.getText());
                 start_time = times.getStart().toInstant();
                 end_time = times.getEnd().toInstant();
             }
@@ -529,7 +529,7 @@ public class ExportView extends DataBrowserAwareView implements ExportErrorHandl
             catch (Exception ex)
             {
                 MessageDialog.openError(optimize.getShell(), Messages.Error,
-                      Messages.ExportOptimizeCountError);
+                        Messages.ExportOptimizeCountError);
                 return;
             }
         }
@@ -546,7 +546,7 @@ public class ExportView extends DataBrowserAwareView implements ExportErrorHandl
             {
                 MessageDialog.openError(linear.getShell(), Messages.Error,
                         Messages.ExportLinearIntervalError);
-                  return;
+                return;
             }
         }
         else
@@ -606,7 +606,7 @@ public class ExportView extends DataBrowserAwareView implements ExportErrorHandl
                 catch (Exception ex)
                 {
                     MessageDialog.openError(optimize.getShell(), Messages.Error,
-                    Messages.ExportDigitsError);
+                            Messages.ExportDigitsError);
                     return;
                 }
             }
