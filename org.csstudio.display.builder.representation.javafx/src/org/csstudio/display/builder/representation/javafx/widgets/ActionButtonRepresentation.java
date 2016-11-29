@@ -85,7 +85,8 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
     /** @param event Mouse event to check for target modifier keys */
     private void checkModifiers(final MouseEvent event)
     {
-        if (event.isControlDown())
+        // 'control' ('command' on Mac OS X)
+        if (event.isShortcutDown())
         {
             if (event.isShiftDown())
                 target_modifier = Optional.of(OpenDisplayActionInfo.Target.STANDALONE);
