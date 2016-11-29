@@ -179,7 +179,8 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
         {
             border.relocate(border_width, inset);
             border.setFill(Color.TRANSPARENT);
-//            border.setStroke(border_color);
+            // Hide border (but not really removing it for now)
+            // border.setStroke(border_color);
             border.setStroke(null);
             border.setStrokeWidth(border_width);
             border.setStrokeType(StrokeType.INSIDE);

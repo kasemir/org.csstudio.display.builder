@@ -19,10 +19,14 @@ public class Messages extends NLS
 
     // Keep in alphabetical order!
     public static String DefaultLogbookText;
+    public static String EnterFullscreen;
+    public static String ExitFullscreen;
     public static String NavigateBack;
     public static String NavigateBack_TT;
     public static String NavigateForward;
     public static String NavigateForward_TT;
+
+    public static String OpenStandalone;
     public static String Print;
     public static String ReloadDisplay;
     public static String SaveSnapshot;

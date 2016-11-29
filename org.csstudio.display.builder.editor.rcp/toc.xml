@@ -11,7 +11,8 @@
            </topic>
         </topic>
         <topic label="BOY *.opi Conversion" href="doc/display.builder.html#conversion"/>
-        <topic label="Display Runtime, Runtime Perspective" href="doc/display.builder.html#runtime"/>
+        <topic label="Display Runtime" href="doc/display.builder.html#runtime"/>
+        <topic label="Display Runtime Perspective, Full-screen, Standalone" href="doc/display.builder.html#perspective"/>
         <topic label="Widgets" href="doc/display.builder.html#widgets"/>
         <topic label="Properties" href="doc/display.builder.html#properties"/>
         <topic label="Widget Details" href="doc/display.builder.html#widgets_detail"/>

@@ -45,7 +45,7 @@ public class OpenDisplayAction extends Action
     {
         try
         {
-            final RuntimeViewPart part = RuntimeViewPart.open(ActionUtil::handleClose, info);
+            final RuntimeViewPart part = RuntimeViewPart.open(null, ActionUtil::handleClose, info);
             RuntimeUtil.hookRepresentationListener(part.getRepresentation());
             part.loadDisplayFile(info);
         }

@@ -67,15 +67,27 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
             throw new Exception("Need ActionInfo[], got " + value);
     }
 
+    /** @param mode One of the modes from org.csstudio.opibuilder.runmode.RunModeService.DisplayMode
+     *  @return
+     */
     private Target modeToTargetConvert(int mode)
     {
-        if (mode == 0)
-            return OpenDisplayActionInfo.Target.REPLACE;
-
-        if ((mode >= 1) && (mode <= 6))
-            return OpenDisplayActionInfo.Target.TAB;
-
-        return OpenDisplayActionInfo.Target.WINDOW;
+        switch (mode)
+        {
+        // 0 - REPLACE
+        case 0: return OpenDisplayActionInfo.Target.REPLACE;
+        // 7 - NEW_WINDOW
+        case 7: return OpenDisplayActionInfo.Target.WINDOW;
+        // 8 - NEW_SHELL
+        case 8: return OpenDisplayActionInfo.Target.STANDALONE;
+        // 1 - NEW_TAB
+        // 2 - NEW_TAB_LEFT
+        // 3 - NEW_TAB_RIGHT
+        // 4 - NEW_TAB_TOP
+        // 5 - NEW_TAB_BOTTOM
+        // 6 - NEW_TAB_DETACHED
+        default: return OpenDisplayActionInfo.Target.TAB;
+        }
     }
 
     @Override
@@ -167,6 +179,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 OpenDisplayActionInfo.Target target = OpenDisplayActionInfo.Target.REPLACE;
                 // Legacy used <replace> with value 0/1/2 for TAB/REPLACE/WINDOW
                 final Optional<String> replace = XMLUtil.getChildString(action_xml, "replace");
+                // later it switched to <mode> with many more options
                 final Optional<String> mode = XMLUtil.getChildString(action_xml, "mode");
                 if (replace.isPresent())
                 {
@@ -176,9 +189,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                         target = OpenDisplayActionInfo.Target.WINDOW;
                 }
                 else if (mode.isPresent())
-                {
                     target = modeToTargetConvert(Integer.valueOf(mode.get()));
-                }
                 else
                     target = OpenDisplayActionInfo.Target.valueOf(
                             XMLUtil.getChildString(action_xml, XMLTags.TARGET)

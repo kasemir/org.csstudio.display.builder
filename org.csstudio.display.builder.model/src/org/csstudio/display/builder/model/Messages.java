@@ -114,6 +114,7 @@ public class Messages extends NLS
     public static String TabsWidget_Name;
     public static String TabsWidget_TabNameFmt;
     public static String Target_Replace;
+    public static String Target_Standalone;
     public static String Target_Tab;
     public static String Target_Window;
     public static String Top;

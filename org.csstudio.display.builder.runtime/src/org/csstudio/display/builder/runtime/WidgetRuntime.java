@@ -389,10 +389,17 @@ public class WidgetRuntime<MW extends Widget>
     public void writePV(final String pv_name, final Object value) throws Exception
     {
         final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
+        String name_to_check = expanded;
+        // For local PV, strip initializer
+        if (expanded.startsWith("loc://"))
+        {
+            final int sep = expanded.indexOf('(');
+            name_to_check = expanded.substring(0, sep);
+        }
         final List<RuntimePV> safe_pvs = writable_pvs;
         if (safe_pvs != null)
             for (final RuntimePV pv : safe_pvs)
-                if (pv.getName().equals(expanded))
+                if (pv.getName().equals(name_to_check))
                 {
                     try
                     {
@@ -400,11 +407,11 @@ public class WidgetRuntime<MW extends Widget>
                     }
                     catch (final Exception ex)
                     {
-                        throw new Exception("Failed to write " + value + " to PV " + expanded, ex);
+                        throw new Exception("Failed to write " + value + " to PV " + name_to_check, ex);
                     }
                     return;
                 }
-        throw new Exception("Unknown PV '" + pv_name + "' (expanded: '" + expanded + "')");
+        throw new Exception("Unknown PV '" + pv_name + "' (expanded: '" + name_to_check + "')");
     }
 
     /** Execute script
