@@ -14,6 +14,7 @@ import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetPropert
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,6 +65,9 @@ public class XYPlotWidget extends VisibleWidget
             return new XYPlotWidget();
         }
     };
+
+    /** Legacy properties that have already triggered a warning */
+    private final CopyOnWriteArraySet<String> warnings_once = new CopyOnWriteArraySet<>();
 
     /** Configurator that handles legacy properties */
     private static class Configurator extends WidgetConfigurator
@@ -318,7 +322,8 @@ public class XYPlotWidget extends VisibleWidget
             final String new_name = axis + matcher.group(2)
                                                   .replace("axis_title", "title")
                                                   .replace("auto_scale", "autoscale");
-            logger.log(Level.WARNING, "Deprecated access to " + this + " property '" + name + "'. Use '" + new_name + "'");
+            if (warnings_once.add(name))
+                logger.log(Level.WARNING, "Deprecated access to " + this + " property '" + name + "'. Use '" + new_name + "'");
             return getProperty(new_name);
         }
         return super.getProperty(name);

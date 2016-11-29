@@ -69,17 +69,6 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
         makeGUI();
     }
 
-    //    /** {@link RTPlot} creates {@link ToolbarHandler} in two stages:  TODO
-    //     *  Construct, then call init, so that tool bar can refer back to the
-    //     *  {@link ToggleToolbarAction}
-    //     */
-    //    public void addContextMenu(final Action toggle_action)
-    //    {
-    //        final MenuManager mm = new MenuManager();
-    //        mm.add(toggle_action);
-    //        toolbar.setMenu(mm.createContextMenu(toolbar));
-    //    }
-
     /** @return The actual toolbar for {@link RTPlot} to handle its layout */
     public ToolBar getToolBar()
     {

@@ -54,6 +54,9 @@ public class Messages extends NLS
     public static String Format_String;
     public static String GroupWidget_Description;
     public static String GroupWidget_Name;
+    public static String Interpolation_Automatic;
+    public static String Interpolation_Interpolate;
+    public static String Interpolation_None;
     public static String LabelWidget_Text;
     public static String Left;
     public static String LineStyle;
@@ -111,6 +114,7 @@ public class Messages extends NLS
     public static String TabsWidget_Name;
     public static String TabsWidget_TabNameFmt;
     public static String Target_Replace;
+    public static String Target_Standalone;
     public static String Target_Tab;
     public static String Target_Window;
     public static String Top;
@@ -162,6 +166,7 @@ public class Messages extends NLS
     public static String WidgetProperties_LabelsFromPV;
     public static String WidgetProperties_Increment;
     public static String WidgetProperties_Insets;
+    public static String WidgetProperties_Interpolation;
     public static String WidgetProperties_LevelHigh;
     public static String WidgetProperties_LevelHiHi;
     public static String WidgetProperties_LevelLow;

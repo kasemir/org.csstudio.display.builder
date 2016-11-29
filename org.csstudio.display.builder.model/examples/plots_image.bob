@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Image Widget</name>
-  <x>-1</x>
-  <y>-1</y>
+  <width>1100</width>
+  <height>1200</height>
   <widget type="label" version="2.0.0">
     <name>Label</name>
+    <text>Image Widget</text>
     <width>181</width>
     <height>31</height>
-    <text>Image Widget</text>
     <font>
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
@@ -15,12 +15,13 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
+    <text>Displays an image PV.</text>
     <y>41</y>
     <width>181</width>
-    <text>Displays an image PV.</text>
   </widget>
   <widget type="image" version="2.0.0">
     <name>Image</name>
+    <pv_name>sim://sawtooth(10, 50, 10000, 0.5)</pv_name>
     <y>71</y>
     <width>291</width>
     <height>299</height>
@@ -60,7 +61,7 @@
         </font>
       </scale_font>
     </y_axis>
-    <pv_name>sim://sawtooth(10, 50, 10000, 0.5)</pv_name>
+    <interpolation>0</interpolation>
     <minimum>-1.0</minimum>
     <maximum>1.0</maximum>
     <rois>
@@ -68,15 +69,15 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
-    <y>421</y>
-    <width>271</width>
-    <height>120</height>
     <text>Default; perceptually uniform.
 Represents value range without
 emphasising any subsection.
 Differences in computer monitors or
 color vision deficiency have only minor 
 impacts on overall perception. </text>
+    <y>421</y>
+    <width>271</width>
+    <height>120</height>
     <font>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
@@ -84,9 +85,9 @@ impacts on overall perception. </text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
+    <text>'Viridis' Color Map</text>
     <y>391</y>
     <width>171</width>
-    <text>'Viridis' Color Map</text>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
@@ -94,6 +95,7 @@ impacts on overall perception. </text>
   </widget>
   <widget type="image" version="2.0.0">
     <name>Image_1</name>
+    <pv_name>sim://sawtooth(10, 50, 10000, 0.5)</pv_name>
     <x>331</x>
     <y>71</y>
     <width>291</width>
@@ -137,7 +139,7 @@ impacts on overall perception. </text>
         </font>
       </scale_font>
     </y_axis>
-    <pv_name>sim://sawtooth(10, 50, 10000, 0.5)</pv_name>
+    <interpolation>1</interpolation>
     <minimum>-1.0</minimum>
     <maximum>1.0</maximum>
     <rois>
@@ -145,10 +147,10 @@ impacts on overall perception. </text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
+    <text>'Jet' Color Map</text>
     <x>331</x>
     <y>391</y>
     <width>171</width>
-    <text>'Jet' Color Map</text>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
@@ -156,14 +158,14 @@ impacts on overall perception. </text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
-    <x>331</x>
-    <y>421</y>
-    <width>320</width>
-    <height>120</height>
     <text>Example for alternate color map; colorful.
 May add visual interest, but distorts the data
 because it over-emphasizes subsections of
 the value range.</text>
+    <x>331</x>
+    <y>421</y>
+    <width>320</width>
+    <height>120</height>
     <font>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
@@ -171,6 +173,7 @@ the value range.</text>
   </widget>
   <widget type="image" version="2.0.0">
     <name>Image_2</name>
+    <pv_name>sim://sawtooth(10, 50, 10000, 0.5)</pv_name>
     <y>551</y>
     <width>622</width>
     <height>320</height>
@@ -210,7 +213,6 @@ the value range.</text>
         </font>
       </scale_font>
     </y_axis>
-    <pv_name>sim://sawtooth(10, 50, 10000, 0.5)</pv_name>
     <autoscale>false</autoscale>
     <minimum>-1.0</minimum>
     <maximum>1.0</maximum>
@@ -232,13 +234,13 @@ the value range.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
-    <y>921</y>
-    <width>271</width>
-    <height>140</height>
     <text>- Horizontal, vertical axes
 - Color bar
 - Regions of interest
 - Cursor Info PV</text>
+    <y>921</y>
+    <width>271</width>
+    <height>140</height>
     <font>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
@@ -246,9 +248,9 @@ the value range.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
+    <text>Options</text>
     <y>891</y>
     <width>171</width>
-    <text>Options</text>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
@@ -256,29 +258,32 @@ the value range.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
-    <x>201</x>
-    <y>921</y>
-    <width>561</width>
-    <height>260</height>
     <text>For PVAccess, a PV that serves an NTNDArray will provide
 both the image data and the width &amp; height information.
 (This is currently limited to byte[] data.
- For NTNDArray with short, int, etc., you need to read pva://that_pv/value
- to get just the data array, and configure the data width and height).
+ For NTNDArray with short, int, etc., you need to read
+ pva://that_pv/value to get just the data array,
+ and configure the data width and height).
 
-For PVAccess or Channel Access, the data can be a waveform that contains
-the pixels values starting with the top-left pixel,
-followed by the pixels of the top row, then the second row and so on.
+For PVAccess or Channel Access, the data can be a waveform
+that contains the pixels values starting with the top-left pixel,
+followed by the pixels of the top row, then the second row
+and so on.
 
-The image data width and height need to be configured for waveform PVs.
+The image data width and height need to be configured for
+waveform PVs.
 For NTNDArray PVs, the image size is provided by the PV.</text>
+    <x>201</x>
+    <y>921</y>
+    <width>421</width>
+    <height>279</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
+    <text>PV, Data</text>
     <x>201</x>
     <y>891</y>
     <width>171</width>
-    <text>PV, Data</text>
     <font>
       <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
       </font>
@@ -286,10 +291,10 @@ For NTNDArray PVs, the image size is provided by the PV.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_10</name>
+    <text>Region of Interest</text>
     <x>651</x>
     <y>521</y>
     <width>149</width>
-    <text>Region of Interest</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -297,81 +302,81 @@ For NTNDArray PVs, the image size is provided by the PV.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_11</name>
+    <text>X:</text>
     <x>651</x>
     <y>637</y>
     <width>25</width>
-    <text>X:</text>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry</name>
+    <pv_name>loc://roi_x(10)</pv_name>
     <x>686</x>
     <y>637</y>
     <format>1</format>
     <precision>2</precision>
-    <pv_name>loc://roi_x(10)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_13</name>
+    <text>Y:</text>
     <x>651</x>
     <y>669</y>
     <width>25</width>
-    <text>Y:</text>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_1</name>
+    <pv_name>loc://roi_y(10)</pv_name>
     <x>686</x>
     <y>669</y>
     <format>1</format>
     <precision>2</precision>
-    <pv_name>loc://roi_y(10)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_14</name>
+    <text>W:</text>
     <x>811</x>
     <y>637</y>
     <width>25</width>
-    <text>W:</text>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_2</name>
+    <pv_name>loc://roi_w(10)</pv_name>
     <x>846</x>
     <y>637</y>
     <format>1</format>
     <precision>2</precision>
-    <pv_name>loc://roi_w(10)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_15</name>
+    <text>H:</text>
     <x>811</x>
     <y>669</y>
     <width>25</width>
-    <text>H:</text>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_3</name>
+    <pv_name>loc://roi_h(10)</pv_name>
     <x>846</x>
     <y>669</y>
     <format>1</format>
     <precision>2</precision>
-    <pv_name>loc://roi_h(10)</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_16</name>
-    <x>651</x>
-    <y>546</y>
-    <width>330</width>
-    <height>81</height>
     <text>Image can have one or more regions of interest.
 Each ROI is shown on the plot.
 You can move it interactively.
 PVs can be assigned to the X/Y position and size.</text>
+    <x>651</x>
+    <y>546</y>
+    <width>330</width>
+    <height>81</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_12</name>
+    <text>Cursor Info</text>
     <x>651</x>
     <y>711</y>
     <width>149</width>
-    <text>Cursor Info</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -379,20 +384,22 @@ PVs can be assigned to the X/Y position and size.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_17</name>
-    <x>651</x>
-    <y>741</y>
-    <width>390</width>
-    <height>100</height>
     <text>A cursor info PV is updated with the current mouse position
 in the image and the pixel value at that location.
+The location is reported both in X/Y axis coordinates
+and as integer offsets within the image.
 
 The value is of type VTable and can be displayed directly,
 or used in a script for customized formatting.</text>
+    <x>651</x>
+    <y>741</y>
+    <width>409</width>
+    <height>130</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_18</name>
     <x>651</x>
-    <y>941</y>
+    <y>1020</y>
     <width>330</width>
     <background_color>
       <color name="Read_Background" red="240" green="240" blue="240">
@@ -407,25 +414,88 @@ or used in a script for customized formatting.</text>
   </widget>
   <widget type="table" version="2.0.0">
     <name>Table</name>
+    <pv_name>loc://cursor_info</pv_name>
     <x>651</x>
-    <y>871</y>
-    <width>380</width>
-    <height>60</height>
+    <y>940</y>
+    <width>429</width>
+    <height>70</height>
     <columns>
       <column>
-        <name>Cursor Info</name>
-        <width>0</width>
+        <name>X</name>
+        <width>80</width>
         <editable>true</editable>
+        <options>
+        </options>
+      </column>
+      <column>
+        <name>Y</name>
+        <width>80</width>
+        <editable>true</editable>
+        <options>
+        </options>
+      </column>
+      <column>
+        <name>Value</name>
+        <width>100</width>
+        <editable>true</editable>
+        <options>
+        </options>
+      </column>
+      <column>
+        <name>Xi</name>
+        <width>80</width>
+        <editable>true</editable>
+        <options>
+        </options>
+      </column>
+      <column>
+        <name>Yi</name>
+        <width>80</width>
+        <editable>true</editable>
+        <options>
+        </options>
       </column>
     </columns>
-    <pv_name>loc://cursor_info</pv_name>
     <editable>false</editable>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update</name>
-    <x>651</x>
-    <y>841</y>
-    <width>390</width>
     <pv_name>loc://cursor_info</pv_name>
+    <x>651</x>
+    <y>871</y>
+    <width>409</width>
+    <height>50</height>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_19</name>
+    <text>Interpolation</text>
+    <x>651</x>
+    <y>41</y>
+    <width>149</width>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_20</name>
+    <text>In the left image, interpolation is turned off.
+Each image pixel is drawn 'as is', which is useful for histogram-type
+images where the value of each pixel represents a distinct count.
+
+In the right image, interpolation is on.
+Each pixel on the screen is based on the interpolation between
+data in the image, which is useful for camera images where
+the underlying pixelation is more necessary evil than feature.
+
+The default interpolation mode is 'automatic':
+If the image is smaller than the screen area, interpolation is disabled.
+If the image is larger than the screen area, interpolation is enabled.
+This allows zooming into pixels, while otherwise providing
+an adequate representation of the image when zooming out.</text>
+    <x>651</x>
+    <y>66</y>
+    <width>439</width>
+    <height>304</height>
   </widget>
 </display>

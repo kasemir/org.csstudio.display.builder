@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.diirt.vtype.Alarm;
 import org.diirt.vtype.AlarmSeverity;
+import org.diirt.vtype.VNumberArray;
 import org.diirt.vtype.VType;
 import org.eclipse.osgi.util.NLS;
 
@@ -133,14 +134,19 @@ public class WidgetInfoDialog extends Dialog<Boolean>
         value.setCellValueFactory(param ->
         {
             String text;
-            if (param.getValue().value == null)
+            final VType vtype = param.getValue().value;
+            if (vtype == null)
                 text = Messages.WidgetInfoDialog_Disconnected;
             else
-            {
-                text = VTypeUtil.getValueString(param.getValue().value, true);
-                if (param.getValue().value instanceof Alarm)
+            {   // Formatting arrays can be very slow,
+                // so only show the basic type info
+                if (vtype instanceof VNumberArray)
+                    text = vtype.toString();
+                else
+                    text = VTypeUtil.getValueString(vtype, true);
+                if (vtype instanceof Alarm)
                 {
-                    final Alarm alarm = (Alarm) param.getValue().value;
+                    final Alarm alarm = (Alarm) vtype;
                     if (alarm.getAlarmSeverity() != AlarmSeverity.NONE)
                         text = text + " [" + alarm.getAlarmSeverity().toString() + ", " +
                                              alarm.getAlarmName() + "]";

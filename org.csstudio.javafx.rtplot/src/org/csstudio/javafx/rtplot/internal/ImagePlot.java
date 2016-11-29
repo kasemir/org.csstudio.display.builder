@@ -14,6 +14,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -25,6 +26,7 @@ import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.Tracker;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
+import org.csstudio.javafx.rtplot.Interpolation;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.RegionOfInterest;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
@@ -82,6 +84,9 @@ public class ImagePlot extends PlotCanvasBase
     /** Image data size */
     private volatile int data_width = 0, data_height = 0;
 
+    /** Interpolation from image to screen pixels */
+    private volatile Interpolation interpolation = Interpolation.AUTOMATIC;
+
     /** Auto-scale the data range? */
     private volatile boolean autoscale = true;
 
@@ -110,6 +115,9 @@ public class ImagePlot extends PlotCanvasBase
 
     private Tracker roi_tracker;
 
+    /** Initial axis ranges for panning */
+    private AxisRange<Double> mouse_start_x_range, mouse_start_y_range;
+
     /** Constructor
      *  @param active Active mode where plot reacts to mouse/keyboard?
      */
@@ -125,7 +133,6 @@ public class ImagePlot extends PlotCanvasBase
 
         if (active)
         {
-            setMouseMode(MouseMode.ZOOM_IN);
             setOnMousePressed(this::mouseDown);
             setOnMouseMoved(this::mouseMove);
             setOnMouseDragged(this::mouseMove);
@@ -144,6 +151,13 @@ public class ImagePlot extends PlotCanvasBase
     public void setBackground(final Color color)
     {
         background  = color;
+    }
+
+    /** @param interpolation How to interpolate from image to screen pixels */
+    public void setInterpolation(final Interpolation interpolation)
+    {
+        this.interpolation = interpolation;
+        requestUpdate();
     }
 
     /** @param autoscale  Auto-scale the color mapping? */
@@ -393,30 +407,47 @@ public class ImagePlot extends PlotCanvasBase
             final LinearScreenTransform t = new LinearScreenTransform();
             AxisRange<Double> zoomed = x_axis.getValueRange();
             t.config(min_x, max_x, 0, data_width);
-            final int sx1 = Math.max(0, (int)t.transform(zoomed.getLow()));
-            final int sx2 = Math.min(data_width, (int)t.transform(zoomed.getHigh()));
+            // Round down .. up to always cover the image_area
+            final int src_x1 = Math.max(0,          (int)t.transform(zoomed.getLow()));
+            final int src_x2 = Math.min(data_width, (int)(t.transform(zoomed.getHigh()) + 1));
+
+            // Pixels of the image need to be aligned to their axis location,
+            // especially when zoomed way in and the pixels are huge.
+            // Turn pixel back into axis value, and then determine its destination on screen.
+            final int dst_x1 = x_axis.getScreenCoord(t.inverse(src_x1));
+            final int dst_x2 = x_axis.getScreenCoord(t.inverse(src_x2));
 
             // For Y axis, min_y == bottom == data_height
             zoomed = y_axis.getValueRange();
             t.config(min_y, max_y, data_height, 0);
-            final int sy1 = Math.max(0, (int)t.transform(zoomed.getHigh()));
-            final int sy2 = Math.min(data_height, (int)t.transform(zoomed.getLow()));
+            final int src_y1 = Math.max(0,           (int) t.transform(zoomed.getHigh()));
+            final int src_y2 = Math.min(data_height, (int) (t.transform(zoomed.getLow() ) + 1));
+            final int dst_y1 = y_axis.getScreenCoord(t.inverse(src_y1));
+            final int dst_y2 = y_axis.getScreenCoord(t.inverse(src_y2));
 
-            //            System.out.println("Image width : " + (sx2-sx1) + ", screen width : " + image_area.width);
-            //            System.out.println("Image height : " + (sy2-sy1) + ", screen height : " + image_area.height);
-            if ((sx2-sx1) < image_area.width  &&   (sy2-sy1) < image_area.height)
-            {   // If image is smaller than screen area, show the actual pixels
+            switch (interpolation)
+            {
+            case NONE:
                 gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-            }
-            else
-            {   // If image is larger than screen area, use best possible interpolation
-                // to avoid artifacts from statistically picking some specific nearest neighbor
+                break;
+            case INTERPOLATE:
                 gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                break;
+            default:
+                // If image is smaller than screen area, show the actual pixels
+                if ((src_x2-src_x1) < image_area.width  &&   (src_y2-src_y1) < image_area.height)
+                    gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                else
+                    // If image is larger than screen area, use best possible interpolation
+                    // to avoid artifacts from statistically picking some specific nearest neighbor
+                    gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
             }
+            gc.setClip(image_area.x, image_area.y, image_area.width, image_area.height);
             gc.drawImage(unscaled,
-                         image_area.x, image_area.y, image_area.x + image_area.width, image_area.y + image_area.height,
-                         sx1,  sy1,  sx2,  sy2,
+                         dst_x1, dst_y1, dst_x2, dst_y2,
+                         src_x1,  src_y1,  src_x2,  src_y2,
                          /* ImageObserver */ null);
+            gc.setClip(0, 0, area_copy.width, area_copy.height);
         }
 
         // Axes
@@ -520,7 +551,7 @@ public class ImagePlot extends PlotCanvasBase
         return image;
     }
 
-    // private static long avg_nano = 0, runs = 0;
+    // private static long runs = 0, avg_nano = 0;
 
     /** @param data_width
      *  @param data_height
@@ -535,7 +566,6 @@ public class ImagePlot extends PlotCanvasBase
                                           final boolean unsigned,
                                           final double min, final double max, final DoubleFunction<Color> color_mapping)
     {
-        // Create image that'll be written with data
         if (data_width <= 0  ||  data_height <= 0)
         {
             logger.log(Level.FINE, "Cannot draw image sized {0} x {1}", new Object[] { data_width, data_height });
@@ -543,52 +573,65 @@ public class ImagePlot extends PlotCanvasBase
         }
         if (numbers.size() < data_width * data_height)
         {
-            logger.log(Level.SEVERE, "Image sized {0} x {1} received only {2} data samples",
-                                     new Object[] { data_width, data_height, numbers.size() });
+            logger.log(Level.WARNING, "Image sized {0} x {1} received only {2} data samples",
+                                      new Object[] { data_width, data_height, numbers.size() });
             return null;
         }
-        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_ARGB);
-
-        final Graphics2D gc = image.createGraphics();
-        if (min < max) // Implies min and max being finite, not-NaN
+        if (!  (min < max))  // Implies min and max being finite, not-NaN
         {
-            // Draw each pixel
-            final IteratorNumber iter = numbers.iterator();
-            // final long start = System.nanoTime();
+            logger.log(Level.WARNING, "Invalid value range {0} .. {1}", new Object[] { min, max });
+            return null;
+        }
+
+        // final long start = System.nanoTime();
+
+        final BufferedImage image = new BufferedImage(data_width, data_height, BufferedImage.TYPE_INT_ARGB);
+        // Direct access to 'int' pixels in data buffer is about twice as fast as access
+        // via image.setRGB(x, y, color.getRGB()),
+        // which in turn is about 3x faster than drawLine or fillRect.
+        // Creating a byte[] with one byte per pixel and ColorModel based on color map is fastest,
+        // but only 8 bits per pixel instead of 8 bits each for R, G and B isn't enough resolution.
+        // Rounding of values into 8 bits creates artifacts.
+        final int[] data = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+        final IteratorNumber iter = numbers.iterator();
+        int idx = 0;
+        final double span = max - min;
+        if (unsigned)
+        {   // Avoid 'unsigned' check inside the loop, instead copy the loop code
             for (int y=0; y<data_height; ++y)
-            {
                 for (int x=0; x<data_width; ++x)
                 {
-                    final double sample = unsigned ? Integer.toUnsignedLong(iter.nextInt()) : iter.nextDouble();
-                    double scaled = (sample - min) / (max - min);
+                    final double sample = Integer.toUnsignedLong(iter.nextInt());
+                    double scaled = (sample - min) / span;
                     if (scaled < 0.0)
                         scaled = 0;
-                    if (scaled > 1.0)
+                    else if (scaled > 1.0)
                         scaled = 1.0;
-                    final Color color = color_mapping.apply(scaled);
-                    // What's faster: gc.setColor(color) and gc.drawLine(x, y, x, y) or gc.fillRect(x, y, 1, 1),
-                    // or direct pixel access?
-                    // Test image showed ~52ms for drawLine, ~13ms for setRGB
-                    // No difference for BufferedImage.TYPE_INT_ARGB vs. BufferedImage.TYPE_INT_RGB
-                    image.setRGB(x, y, color.getRGB());
+                    data[idx++] = color_mapping.apply(scaled).getRGB();
                 }
-            }
-            // final long nano = System.nanoTime() - start;
-            // avg_nano = (avg_nano*3 + nano)/4;
-            // if (++runs > 100)
-            // {
-            //     runs = 0;
-            //     System.out.println("ms: " + nano/1e6);
-            // }
         }
         else
         {
-            logger.log(Level.WARNING, "Invalid value range {0} .. {1}", new Object[] { min, max });
-            final Color color = color_mapping.apply(0.0);
-            gc.setColor(color);
-            gc.fillRect(0, 0, data_width, data_height);
+            for (int y=0; y<data_height; ++y)
+                for (int x=0; x<data_width; ++x)
+                {
+                    final double sample = iter.nextDouble();
+                    double scaled = (sample - min) / span;
+                    if (scaled < 0.0)
+                        scaled = 0;
+                    else if (scaled > 1.0)
+                        scaled = 1.0;
+                    data[idx++] = color_mapping.apply(scaled).getRGB();
+                }
         }
-        gc.dispose();
+
+        // final long nano = System.nanoTime() - start;
+        // avg_nano = (avg_nano*3 + nano)/4;
+        // if (++runs > 100)
+        // {
+        //     runs = 0;
+        //    System.out.println(avg_nano/1e6 + " ms");
+        // }
 
         return image;
     }
@@ -668,7 +711,15 @@ public class ImagePlot extends PlotCanvasBase
 
         mouse_start = mouse_current = Optional.of(current);
 
-        if (mouse_mode == MouseMode.ZOOM_IN)
+        final int clicks = e.getClickCount();
+
+        if (mouse_mode == MouseMode.PAN)
+        {   // Determine start of 'pan'
+            mouse_start_x_range = x_axis.getValueRange();
+            mouse_start_y_range = y_axis.getValueRange();
+            mouse_mode = MouseMode.PAN_PLOT;
+        }
+        else if (mouse_mode == MouseMode.ZOOM_IN  &&  clicks == 1)
         {   // Determine start of 'rubberband' zoom.
             // Reset cursor from SIZE* to CROSS.
             if (y_axis.getBounds().contains(current.getX(), current.getY()))
@@ -687,7 +738,7 @@ public class ImagePlot extends PlotCanvasBase
                 PlotCursors.setCursor(this, mouse_mode);
             }
         }
-        else if (mouse_mode == MouseMode.ZOOM_OUT)
+        else if ((mouse_mode == MouseMode.ZOOM_IN && clicks == 2)  ||  mouse_mode == MouseMode.ZOOM_OUT)
             zoomInOut(current.getX(), current.getY(), ZOOM_FACTOR);
     }
 
@@ -696,8 +747,27 @@ public class ImagePlot extends PlotCanvasBase
     {
         final Point2D current = new Point2D(e.getX(), e.getY());
         mouse_current = Optional.of(current);
+        PlotCursors.setCursor(this, mouse_mode);
+
+        final Point2D start = mouse_start.orElse(null);
+        switch (mouse_mode)
+        {
+        case PAN_PLOT:
+            if (start != null)
+            {
+                x_axis.pan(mouse_start_x_range, x_axis.getValue((int)start.getX()), x_axis.getValue((int)current.getX()));
+                y_axis.pan(mouse_start_y_range, y_axis.getValue((int)start.getY()), y_axis.getValue((int)current.getY()));
+            }
+            break;
+        case ZOOM_IN_X:
+        case ZOOM_IN_Y:
+        case ZOOM_IN_PLOT:
+            // Show mouse feedback for ongoing zoom
+            redrawSafely();
+            break;
+        default:
+        }
         updateLocationInfo(e.getX(), e.getY());
-        redrawSafely();
     }
 
     /** Update information about the image location under the mouse pointer
@@ -710,25 +780,29 @@ public class ImagePlot extends PlotCanvasBase
         if (listener == null)
             return;
 
-        if (! image_area.contains(mouse_x, mouse_y))
-            listener.changedCursorLocation(Double.NaN, Double.NaN, Double.NaN);
-        else
+        if (image_area.contains(mouse_x, mouse_y))
         {
+            // Pass 'double' mouse_x/y?
+            // In reality, the values seem to be full numbers anyway,
+            // so rounding to nearest integer doesn't loose any information.
             final int screen_x = (int) (mouse_x + 0.5);
             final int screen_y = (int) (mouse_y + 0.5);
+
             // Location on axes, i.e. what user configured as horizontal and vertical values
             final double x_val = x_axis.getValue(screen_x);
             final double y_val = y_axis.getValue(screen_y);
 
-            // Location as coordinate into image
-            AxisRange<Double> range = x_axis.getValueRange();
-            int image_x = (int) ((data_width-1) * (x_val - range.getLow()) / (range.getHigh() - range.getLow()) + 0.5);
+            // Location as coordinate in image
+            // No "+0.5" rounding! Truncate to get full pixel offsets,
+            // don't jump to next pixel when mouse moves beyond 'half' of the current pixel.
+            int image_x = (int) (data_width * (x_val - min_x) / (max_x - min_x));
             if (image_x < 0)
                 image_x = 0;
             else if (image_x >= data_width)
                 image_x = data_width - 1;
-            range = y_axis.getValueRange();
-            int image_y = (int) ((data_height-1) * (1.0 - (y_val - range.getLow()) / (range.getHigh() - range.getLow())) + 0.5);
+
+            // Mouse and image coords for Y go 'down'
+            int image_y = (int) (data_height * (max_y - y_val) / (max_y - min_y));
             if (image_y < 0)
                 image_y = 0;
             else if (image_y >= data_height)
@@ -736,8 +810,10 @@ public class ImagePlot extends PlotCanvasBase
 
             final ListNumber data = image_data;
             final double pixel = data == null ? Double.NaN : data.getDouble(image_x + image_y * data_width);
-            listener.changedCursorLocation(x_val, y_val, pixel);
+            listener.changedCursorLocation(x_val, y_val, image_x, image_y, pixel);
         }
+        else
+            listener.changedCursorLocation(Double.NaN, Double.NaN, -1, -1, Double.NaN);
     }
 
     /** setOnMouseReleased */
@@ -748,15 +824,23 @@ public class ImagePlot extends PlotCanvasBase
         if (start == null  ||  current == null)
             return;
 
-        if (mouse_mode == MouseMode.ZOOM_IN_X)
+        if (mouse_mode == MouseMode.PAN_PLOT)
+        {
+            mouseMove(e);
+            undo.add(new ChangeImageZoom(x_axis, mouse_start_x_range, x_axis.getValueRange(),
+                                         y_axis, mouse_start_y_range, y_axis.getValueRange()));
+            mouse_mode = MouseMode.PAN;
+            mouse_start_x_range = null;
+            mouse_start_y_range = null;
+        }
+        else if (mouse_mode == MouseMode.ZOOM_IN_X)
         {   // X axis increases going _right_ just like mouse 'x' coordinate
             if (Math.abs(start.getX() - current.getX()) > ZOOM_PIXEL_THRESHOLD)
             {
                 final int low = (int) Math.min(start.getX(), current.getX());
                 final int high = (int) Math.max(start.getX(), current.getX());
                 final AxisRange<Double> original_x_range = x_axis.getValueRange();
-                final AxisRange<Double> new_x_range = new AxisRange<>(Math.max(min_x, x_axis.getValue(low)),
-                                                                      Math.min(max_x, x_axis.getValue(high)));
+                final AxisRange<Double> new_x_range = getRestrictedRange(x_axis.getValue(low), x_axis.getValue(high), min_x, max_x);
                 undo.execute(new ChangeImageZoom(x_axis, original_x_range, new_x_range, null, null, null));
             }
             mouse_mode = MouseMode.ZOOM_IN;
@@ -768,8 +852,7 @@ public class ImagePlot extends PlotCanvasBase
                 final int high = (int) Math.min(start.getY(), current.getY());
                 final int low = (int) Math.max(start.getY(), current.getY());
                 final AxisRange<Double> original_y_range = y_axis.getValueRange();
-                final AxisRange<Double> new_y_range = new AxisRange<>(Math.max(min_y, y_axis.getValue(low)),
-                                                                      Math.min(max_y, y_axis.getValue(high)));
+                final AxisRange<Double> new_y_range = getRestrictedRange(y_axis.getValue(low), y_axis.getValue(high), min_y, max_y);
                 undo.execute(new ChangeImageZoom(null, null, null, y_axis, original_y_range, new_y_range));
             }
             mouse_mode = MouseMode.ZOOM_IN;
@@ -782,14 +865,12 @@ public class ImagePlot extends PlotCanvasBase
                 int low = (int) Math.min(start.getX(), current.getX());
                 int high = (int) Math.max(start.getX(), current.getX());
                 final AxisRange<Double> original_x_range = x_axis.getValueRange();
-                final AxisRange<Double> new_x_range = new AxisRange<>(Math.max(min_x, x_axis.getValue(low)),
-                                                                      Math.min(max_x, x_axis.getValue(high)));
+                final AxisRange<Double> new_x_range = getRestrictedRange(x_axis.getValue(low), x_axis.getValue(high), min_x, max_x);
                 // Mouse 'y' increases going _down_ the screen
                 high = (int) Math.min(start.getY(), current.getY());
                 low = (int) Math.max(start.getY(), current.getY());
                 final AxisRange<Double> original_y_range = y_axis.getValueRange();
-                final AxisRange<Double> new_y_range = new AxisRange<>(Math.max(min_y, y_axis.getValue(low)),
-                                                                      Math.min(max_y, y_axis.getValue(high)));
+                final AxisRange<Double> new_y_range = getRestrictedRange(y_axis.getValue(low), y_axis.getValue(high), min_y, max_y);
                 undo.execute(new ChangeImageZoom(x_axis, original_x_range, new_x_range,
                                                  y_axis, original_y_range, new_y_range));
             }
@@ -800,6 +881,9 @@ public class ImagePlot extends PlotCanvasBase
     /** setOnMouseExited */
     private void mouseExit(final MouseEvent e)
     {
+        // Reset cursor
+        // Clear mouse position so drawMouseModeFeedback() won't restore cursor
+        mouse_current = Optional.empty();
         PlotCursors.setCursor(this, Cursor.DEFAULT);
         updateLocationInfo(-1, -1);
     }
@@ -859,7 +943,24 @@ public class ImagePlot extends PlotCanvasBase
         final double fixed = axis.getValue(pos);
         final double new_low  = fixed - (fixed - orig.getLow()) * factor;
         final double new_high = fixed + (orig.getHigh() - fixed) * factor;
-        axis.setValueRange(Math.max(min, new_low), Math.min(max, new_high));
+        final AxisRange<Double> new_range = getRestrictedRange(new_low, new_high, min, max);
+        axis.setValueRange(new_range.getLow(), new_range.getHigh());
         return orig;
+    }
+
+    /** Restrict value range
+     *
+     *  <p>Do not allow zooming 'out' beyond min..max,
+     *  accounting for both normal and inverted axis ranges
+     *
+     *  @param low, high: Desired range
+     *  @param min, max: Limits
+     */
+    private static AxisRange<Double> getRestrictedRange(final double low, final double high, final double min, final double max)
+    {
+        if (min <= max)
+            return new AxisRange<Double>(Math.max(min, low), Math.min(max, high));
+        else
+            return new AxisRange<Double>(Math.min(min, low), Math.max(max, high));
     }
 }

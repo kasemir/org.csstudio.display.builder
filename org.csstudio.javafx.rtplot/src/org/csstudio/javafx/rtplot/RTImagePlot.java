@@ -80,9 +80,9 @@ public class RTImagePlot extends BorderPane
             toolbar.selectMouseMode(MouseMode.PAN);
         else
             toolbar.selectMouseMode(MouseMode.NONE);
+        event.consume();
     }
 
-    // TODO Add/remove listener?
     /** @param plot_listener Plot listener */
     public void setListener(final RTImagePlotListener plot_listener)
     {
@@ -121,8 +121,6 @@ public class RTImagePlot extends BorderPane
                 Platform.runLater(() -> layoutChildren() );
                 return null;
             });
-
-        // TODO plot.fireToolbarChange(show);
     }
 
     /** @param mode New {@link MouseMode}
@@ -145,6 +143,12 @@ public class RTImagePlot extends BorderPane
     public UndoableActionManager getUndoableActionManager()
     {
         return plot.getUndoableActionManager();
+    }
+
+    /** @param interpolation How to interpolate from image to screen pixels */
+    public void setInterpolation(final Interpolation interpolation)
+    {
+        plot.setInterpolation(interpolation);
     }
 
     /** @param autoscale  Auto-scale the color mapping? */

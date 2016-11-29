@@ -26,6 +26,7 @@ import org.csstudio.display.builder.editor.rcp.actions.CutDeleteAction;
 import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayAction;
 import org.csstudio.display.builder.editor.rcp.actions.PasteAction;
 import org.csstudio.display.builder.editor.rcp.actions.RedoAction;
+import org.csstudio.display.builder.editor.rcp.actions.ReloadDisplayAction;
 import org.csstudio.display.builder.editor.rcp.actions.RemoveGroupAction;
 import org.csstudio.display.builder.editor.rcp.actions.SelectAllAction;
 import org.csstudio.display.builder.editor.rcp.actions.UndoAction;
@@ -173,16 +174,13 @@ public class DisplayEditorPart extends EditorPart
 
         createRetargetableActionHandlers();
 
-        final IEditorInput input = getEditorInput();
-        final IFile file = input.getAdapter(IFile.class);
-        if (file != null)
-            loadModel(file);
-
         editor.getUndoableActionManager().addListener(undo_redo_listener);
 
         fx_canvas.setMenu(createContextMenu(fx_canvas));
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
+
+        loadModel();
     }
 
     private Menu createContextMenu(final Control parent)
@@ -195,6 +193,7 @@ public class DisplayEditorPart extends EditorPart
 
         final ImageDescriptor icon = AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/display.png");
         final Action perspective = new OpenPerspectiveAction(icon, Messages.OpenEditorPerspective, EditorPerspective.ID);
+        final Action reload = new ReloadDisplayAction(this);
 
         mm.setRemoveAllWhenShown(true);
         mm.addMenuListener(manager ->
@@ -213,17 +212,21 @@ public class DisplayEditorPart extends EditorPart
                 manager.add(morph);
             }
 
+            manager.add(reload);
             manager.add(perspective);
         });
 
         return mm.createContextMenu(parent);
     }
 
-    private void loadModel(final IFile file)
+    public void loadModel()
     {
-        // Load model in background thread, then set it
-        CompletableFuture.supplyAsync(() -> doLoadModel(file), EditorUtil.getExecutor())
-                         .thenAccept(this::setModel);
+        final IEditorInput input = getEditorInput();
+        final IFile file = input.getAdapter(IFile.class);
+        if (file != null)
+            // Load model in background thread, then set it
+            CompletableFuture.supplyAsync(() -> doLoadModel(file), EditorUtil.getExecutor())
+                             .thenAccept(this::setModel);
     }
 
     private DisplayModel doLoadModel(final IFile file)

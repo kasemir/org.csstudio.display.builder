@@ -219,6 +219,8 @@ public class ContextMenuSupport
             manager.add(new PrintAction(shell, scene));
             manager.add(new SendEMailAction(shell, scene));
             manager.add(new SendLogbookAction(shell, scene));
+            manager.add(new FullScreenAction(view.getSite().getPage()));
+            manager.add(new StandaloneAction(view));
         }
 
         // Placeholder for the display editor.
