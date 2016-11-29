@@ -82,7 +82,7 @@
       </action>
       <action type="open_display">
         <file>screen_C.bob</file>
-        <target>replace</target>
+        <target>standalone</target>
         <description>Open C (Standalone)</description>
       </action>
     </actions>
