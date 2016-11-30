@@ -51,6 +51,9 @@ public class Messages extends NLS
     public static String Format_Engineering;
     public static String Format_Exponential;
     public static String Format_Hexadecimal;
+    public static String Format_Sexagesimal;
+    public static String Format_SexagesimalDMS;
+    public static String Format_SexagesimalHMS;
     public static String Format_String;
     public static String GroupWidget_Description;
     public static String GroupWidget_Name;
