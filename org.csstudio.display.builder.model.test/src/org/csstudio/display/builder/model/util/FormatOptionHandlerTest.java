@@ -230,6 +230,25 @@ public class FormatOptionHandlerTest
     }
 
     @Test
+    public void testSexagesimal() throws Exception
+    {
+        final VType sexaPositiveValue = ValueFactory.newVDouble(12.5824414),
+                    sexaNegativeValue = ValueFactory.newVDouble(-12.5824414),
+                    sexaRoundedValue = ValueFactory.newVDouble(12.9999999);
+        assertThat(FormatOptionHandler.format(sexaPositiveValue, FormatOption.SEXAGESIMAL, 7, false), equalTo("12:34:56.789"));
+        assertThat(FormatOptionHandler.format(sexaPositiveValue, FormatOption.SEXAGESIMAL, 2, false), equalTo("12:35"));
+        assertThat(FormatOptionHandler.format(sexaPositiveValue, FormatOption.SEXAGESIMAL, 4, false), equalTo("12:34:57"));
+        assertThat(FormatOptionHandler.format(sexaNegativeValue, FormatOption.SEXAGESIMAL, 7, false), equalTo("-12:34:56.789"));
+        assertThat(FormatOptionHandler.format(sexaRoundedValue, FormatOption.SEXAGESIMAL, 7, false), equalTo("13:00:00.000"));
+        assertThat(FormatOptionHandler.format(sexaRoundedValue, FormatOption.SEXAGESIMAL, 8, false), equalTo("12:59:59.9996"));
+        assertThat(FormatOptionHandler.format(sexaPositiveValue, FormatOption.SEXAGESIMAL_HMS, 7, false), equalTo("48:03:40.989"));
+        assertThat(FormatOptionHandler.format(sexaNegativeValue, FormatOption.SEXAGESIMAL_HMS, 7, false), equalTo("-48:03:40.989"));
+        assertThat(FormatOptionHandler.format(sexaPositiveValue, FormatOption.SEXAGESIMAL_DMS, 7, false), equalTo("720:55:14.837"));
+        assertThat(FormatOptionHandler.format(sexaNegativeValue, FormatOption.SEXAGESIMAL_DMS, 7, false), equalTo("-720:55:14.837"));
+        assertThat(FormatOptionHandler.format(sexaRoundedValue, FormatOption.SEXAGESIMAL_DMS, 7, false), equalTo("744:50:42.461"));
+    }
+
+    @Test
     public void testNumberParsing() throws Exception
     {
         VType value = ValueFactory.newVDouble(3.16, display);

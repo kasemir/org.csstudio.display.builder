@@ -23,7 +23,19 @@ public class SexagesimalFormat
 
     private static final int MAXPREC = prec_tab.length + 1;
 
-    public static String doubleToSexagesimal(double value, int precision)
+    /** Format number as sexagesimal hours:minutes:seconds with fractional seconds
+     *
+     *  <p>Precision determines the number of digits used for
+     *  minutes, seconds, fractional seconds.
+     *  For example, "12:34:56.789" has a precision of 7.
+     *  With a precision of 2 it would become "12:35",
+     *  and with a precision of 4 "12:34:57".
+     *
+     *  @param value Number to format
+     *  @param precision Digits used for minutes, seconds, fractional seconds
+     *  @return "HH:MM:SS.SSS" type text
+     */
+    public static String format(double value, int precision)
     {
         double prec_frac, frac;
 
@@ -80,7 +92,13 @@ public class SexagesimalFormat
         return Double.valueOf(text.replace('e', 'E'));
     }
 
-    public static double parseSexagesimal(final String text) throws Exception
+    /** Parse sexagesimal text
+     *
+     *  @param text Text of format "HH:MM:SS.SSS"
+     *  @return Number
+     *  @throws Exception on error
+     */
+    public static double parse(final String text) throws Exception
     {
         final String[] parts = text.trim().split(":");
 

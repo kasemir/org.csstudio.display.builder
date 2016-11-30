@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Text Update</name>
-  <x>-1</x>
-  <y>-1</y>
+  <height>800</height>
   <widget type="label" version="2.0.0">
     <name>Label</name>
+    <text>Text Update Widget</text>
     <width>241</width>
     <height>31</height>
-    <text>Text Update Widget</text>
     <font>
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
@@ -15,31 +14,36 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
+    <text>Displays the value of a PV.</text>
     <y>41</y>
     <width>191</width>
     <height>30</height>
-    <text>Displays the value of a PV.</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update</name>
+    <pv_name>sim://sine</pv_name>
     <x>191</x>
     <y>91</y>
     <width>170</width>
-    <pv_name>sim://sine</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_1</name>
+    <pv_name>sim://intermittent</pv_name>
     <x>191</x>
     <y>121</y>
     <width>170</width>
-    <pv_name>sim://intermittent</pv_name>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_2</name>
+    <pv_name>sim://strings</pv_name>
     <x>201</x>
     <y>191</y>
     <width>310</width>
     <height>80</height>
+    <font>
+      <font name="Oddball" family="PakTypeNaqsh" style="REGULAR" size="40.0">
+      </font>
+    </font>
     <foreground_color>
       <color name="OK" red="0" green="255" blue="0">
       </color>
@@ -48,61 +52,56 @@
       <color red="255" green="255" blue="128">
       </color>
     </background_color>
-    <font>
-      <font name="Oddball" family="PakTypeNaqsh" style="REGULAR" size="40.0">
-      </font>
-    </font>
-    <pv_name>sim://strings</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
+    <text>Basic Number:</text>
     <y>91</y>
     <width>181</width>
-    <text>Basic Number:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
+    <text>Disconnecting channel:</text>
     <y>121</y>
     <width>171</width>
-    <text>Disconnecting channel:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
+    <text>Can be configured to be ugly:</text>
     <y>221</y>
     <width>201</width>
-    <text>Can be configured to be ugly:</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
+    <text>Basic Text:</text>
     <y>151</y>
     <width>171</width>
-    <text>Basic Text:</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_3</name>
+    <pv_name>sim://strings</pv_name>
     <x>191</x>
     <y>151</y>
     <width>170</width>
-    <pv_name>sim://strings</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
+    <text>Default:</text>
     <y>351</y>
     <width>111</width>
-    <text>Default:</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_4</name>
+    <pv_name>sim://sine</pv_name>
     <x>191</x>
     <y>351</y>
     <width>170</width>
-    <pv_name>sim://sine</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
+    <text>Formatting options:</text>
     <y>321</y>
     <width>201</width>
-    <text>Formatting options:</text>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -110,58 +109,183 @@
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_5</name>
+    <pv_name>sim://sine</pv_name>
     <x>191</x>
     <y>381</y>
     <width>170</width>
     <show_units>false</show_units>
-    <pv_name>sim://sine</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
+    <text>Don't show units:</text>
     <y>381</y>
     <width>161</width>
-    <text>Don't show units:</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_6</name>
+    <pv_name>sim://sine</pv_name>
     <x>191</x>
     <y>411</y>
     <width>170</width>
     <format>1</format>
-    <pv_name>sim://sine</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_9</name>
+    <text>Decimal w/ 2 digits:</text>
     <y>411</y>
     <width>191</width>
-    <text>Decimal w/ 2 digits:</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_7</name>
+    <pv_name>sim://sine</pv_name>
     <x>191</x>
     <y>441</y>
     <width>170</width>
     <format>2</format>
-    <pv_name>sim://sine</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_10</name>
+    <text>Exponential Notation:</text>
     <y>441</y>
     <width>191</width>
-    <text>Exponential Notation:</text>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_9</name>
+    <pv_name>sim://sine</pv_name>
     <x>191</x>
     <y>471</y>
     <width>170</width>
     <format>3</format>
-    <pv_name>sim://sine</pv_name>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_11</name>
+    <text>Engineering Notation:</text>
     <y>471</y>
     <width>191</width>
-    <text>Engineering Notation:</text>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_12</name>
+    <text>More Number Options:</text>
+    <y>520</y>
+    <width>201</width>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_13</name>
+    <text>Hex:</text>
+    <y>550</y>
+    <width>111</width>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_10</name>
+    <pv_name>loc://number(3.14)</pv_name>
+    <x>191</x>
+    <y>550</y>
+    <width>109</width>
+    <format>4</format>
+    <precision>0</precision>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry</name>
+    <pv_name>loc://number(3.14)</pv_name>
+    <x>320</x>
+    <y>550</y>
+    <width>109</width>
+    <format>4</format>
+    <precision>0</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_14</name>
+    <text>Sexagesimal:</text>
+    <y>580</y>
+    <width>111</width>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_11</name>
+    <pv_name>loc://number(3.14)</pv_name>
+    <x>191</x>
+    <y>580</y>
+    <width>109</width>
+    <format>7</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_1</name>
+    <pv_name>loc://number(3.14)</pv_name>
+    <x>320</x>
+    <y>580</y>
+    <width>109</width>
+    <format>7</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_15</name>
+    <text>Sexagesimal (HMS):</text>
+    <y>610</y>
+    <width>161</width>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_12</name>
+    <pv_name>loc://number(3.14)</pv_name>
+    <x>191</x>
+    <y>610</y>
+    <width>109</width>
+    <format>8</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_2</name>
+    <pv_name>loc://number(3.14)</pv_name>
+    <x>320</x>
+    <y>610</y>
+    <width>109</width>
+    <format>8</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_16</name>
+    <text>Sexagesimal (DMS):</text>
+    <y>640</y>
+    <width>161</width>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_13</name>
+    <pv_name>loc://number(3.14)</pv_name>
+    <x>191</x>
+    <y>640</y>
+    <width>109</width>
+    <format>9</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_3</name>
+    <pv_name>loc://number(3.14)</pv_name>
+    <x>320</x>
+    <y>640</y>
+    <width>109</width>
+    <format>9</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_17</name>
+    <text>Sexagesimal represents a number 3.5 as
+hours (or degrees), minutes and seconds,
+e.g. 3:30:00.
+
+The HMS specialization treats the number as radians
+and maps 2 pi to 24 hours,
+while the DMS specialization maps 2 pi to 360 degrees.
+(Try a value of 3.14 or 6.28 to see the effect)</text>
+    <x>450</x>
+    <y>580</y>
+    <width>350</width>
+    <height>190</height>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
   </widget>
 </display>

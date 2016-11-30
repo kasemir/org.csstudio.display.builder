@@ -201,6 +201,12 @@ public class FormatOptionHandler
             else
                 return formatNumber(value, display, FormatOption.EXPONENTIAL, precision);
         }
+        if (option == FormatOption.SEXAGESIMAL)
+            return SexagesimalFormat.format(value.doubleValue(), precision);
+        if (option == FormatOption.SEXAGESIMAL_HMS)
+            return SexagesimalFormat.format(value.doubleValue() * 12.0 / Math.PI, precision);
+        if (option == FormatOption.SEXAGESIMAL_DMS)
+            return SexagesimalFormat.format(value.doubleValue() * 180.0 / Math.PI, precision);
 
         // DEFAULT, DECIMAL
         return getDecimalFormat(precision).format(value);

@@ -32,30 +32,40 @@ public class SexagesimalFormatTest
     public void testSexagesimal() throws Exception
     {
         double number = 12.5824414;
-        String text = SexagesimalFormat.doubleToSexagesimal(number, 7);
-        double parsed = SexagesimalFormat.parseSexagesimal(text);
+        String text = SexagesimalFormat.format(number, 7);
+        double parsed = SexagesimalFormat.parse(text);
         System.out.println(number + " -> '" + text + "' -> " + parsed);
         assertThat(text, equalTo("12:34:56.789"));
         assertEquals(parsed, number, 0.0000001);
 
         number = -12.5824414;
-        text = SexagesimalFormat.doubleToSexagesimal(number, 7);
-        parsed = SexagesimalFormat.parseSexagesimal(text);
+        text = SexagesimalFormat.format(number, 7);
+        parsed = SexagesimalFormat.parse(text);
         System.out.println(number + " -> '" + text + "' -> " + parsed);
         assertThat(text, equalTo("-12:34:56.789"));
         assertEquals(parsed, number, 0.0000001);
 
         number = 12.9999999;
-        text = SexagesimalFormat.doubleToSexagesimal(number, 7);
-        parsed = SexagesimalFormat.parseSexagesimal(text);
+        text = SexagesimalFormat.format(number, 7);
+        parsed = SexagesimalFormat.parse(text);
         System.out.println(number + " -> '" + text + "' -> " + parsed);
         assertThat(text, equalTo("13:00:00.000"));
         assertEquals(parsed, number, 0.0000001);
 
-        text = SexagesimalFormat.doubleToSexagesimal(number, 8);
-        parsed = SexagesimalFormat.parseSexagesimal(text);
+        text = SexagesimalFormat.format(number, 8);
+        parsed = SexagesimalFormat.parse(text);
         System.out.println(number + " -> '" + text + "' -> " + parsed);
         assertThat(text, equalTo("12:59:59.9996"));
         assertEquals(parsed, number, 0.0000001);
+
+        text = "12:30";
+        parsed = SexagesimalFormat.parse(text);
+        System.out.println("'" + text + "' -> " + parsed);
+        assertEquals(parsed, 12.5, 0.1);
+
+        text = "12:30:01";
+        parsed = SexagesimalFormat.parse(text);
+        System.out.println("'" + text + "' -> " + parsed);
+        assertEquals(parsed, 12.5 + 1.0/60/60, 0.000001);
     }
 }
