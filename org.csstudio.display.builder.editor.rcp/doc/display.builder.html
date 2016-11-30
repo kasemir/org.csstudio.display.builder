@@ -4,6 +4,7 @@
   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
   <title>Display Builder</title>
   <link rel="stylesheet" href="PLUGINS_ROOT/PRODUCT_PLUGIN/book.css" type="text/css"></link>
+  <link rel="stylesheet" href="section_numbers.css" type="text/css"></link>
   <style>
 	  table {
 		  border: 1px solid black;
@@ -29,7 +30,7 @@
 
 <h1>Display Builder</h1>
 
-<h2>Table of Contents</h2>
+<b>Table of Contents</b>
 
 <!-- Topics are duplicated in toc.xml -->
 
@@ -42,22 +43,21 @@
 <li><a href="#perspective">Display Runtime Perspective, Full-screen, Standalone</a></li>
 <li><a href="#widgets">Widgets</a></li>
 <li><a href="#properties">Properties</a></li>
-<li><a href="#widgets_detail">Widget Details</a></li>
 <li><a href="#rules">Rules</a></li>
 <li><a href="#scripts">Scripts</a></li>
 </ol>
 
 <!-- ====================================================== -->
-<h1><a name="overview">Overview</a></h1>
+<h2><a name="overview">Overview</a></h2>
 <!-- ====================================================== -->
 
 <p>The Display Builder is a panel editor and runtime for control system displays.
 </p>
 
 
-<h1><a name="get_started">Getting Started</a></h1>
+<h2><a name="get_started">Getting Started</a></h2>
 
-<h2>Display Builder Examples</h2>
+<h3>Display Builder Examples</h3>
 
 <p>The Display Builder example files demonstrate many of its widgets and features.
 </p>
@@ -78,13 +78,13 @@ The examples will be in a project folder named "Display Builder".
 
 
 <!-- ====================================================== -->
-<h1><a name="editor">Display Editor</a></h1>
+<h2><a name="editor">Display Editor</a></h2>
 <!-- ====================================================== -->
 
 <p>You use the Display Editor to create new display files or to modify existing display files.
 </p>
 
-<h2>Display Editor Perspective</h2>
+<h3>Display Editor Perspective</h3>
 
 <p>The Display Editor perspective offers the tools and settings needed to edit
 Display Builder (*.bob) files.
@@ -101,7 +101,7 @@ a dialog will ask if you want to reset the perspective to its default layout.
 </p>
 
 
-<h2>Creating a New Display</h2>
+<h3>Creating a New Display</h3>
 
 <p>From within the Display Editor perspective, right-click on a project in the Navigator and select
 <b>New</b> > <b>New Display</b>.
@@ -113,7 +113,7 @@ This will open the New Display wizard where you enter the name of your new displ
 Then choose a container and name for the new display file in the New Display wizard.
 </p>
 
-<h2>Editing an Existing Display</h2>
+<h3>Editing an Existing Display</h3>
 
 <p>Right-click on a <i>*.bob</i> or <i>*.opi</i> file in the Navigator and select
 <b>Open With...</b> > <b>Display Editor</b> (or <b>Other</b> > <b>Display Editor</b>). 
@@ -123,7 +123,7 @@ Then choose a container and name for the new display file in the New Display wiz
 by right-clicking anywhere in the display runtime and selecting <b>Open in Editor</b>.
 </p>
 
-<h2>Executing a display from the Editor</h2>
+<h3>Executing a display from the Editor</h3>
 
 <p>Right-click anywhere in the editor pane and select <b>Execute Display</b>
 to start a Display Runtime for the file.
@@ -132,7 +132,7 @@ will be written to the *.bob file.
 </p>
 
 
-<h2><a name="drag_and_drop">Drag &amp; Drop</a></h2>
+<h3><a name="drag_and_drop">Drag &amp; Drop</a></h3>
 
 <p>Most of the editing is performed dragging things around:</p>
 <ul>
@@ -143,7 +143,7 @@ will be written to the *.bob file.
 	<li>adding text, images or files from outside into the editor.</li>
 </ul>
 
-<h3>Adding Widgets</h3>
+<h4>Adding Widgets</h4>
 
 <img src="images/DragAndDrop_adding_widget.png" alt="Adding widgets from Widget Palette." style="float:right;margin:0 0 0px 8px;"/>
 
@@ -169,7 +169,7 @@ will be written to the *.bob file.
 	upcoming Java 9 release.
 </p>
 
-<h3 style="clear:right">Rubber Band Selection</h3>
+<h4 style="clear:right">Rubber Band Selection</h4>
 
 <p>
 	A single widget can be selected clicking on it. Single and multiple widgets can be selected
@@ -188,7 +188,7 @@ will be written to the *.bob file.
 	<img src="images/DragAndDrop_rubber_band_selection.png" alt="Rubber band selection." width="600"/>
 </center>
 
-<h3>Moving Widgets</h3>
+<h4>Moving Widgets</h4>
 
 <img src="images/DragAndDrop_moving.png" alt="Moving a widget." style="float:right;margin:0 0 0px 8px;"/>
 
@@ -208,7 +208,7 @@ will be written to the *.bob file.
 	will align to existing widgets' edges when moving, displying a cyan alignment ruler.
 </p>
 
-<h3 style="clear:right">Resizing Widgets</h3>
+<h4 style="clear:right">Resizing Widgets</h4>
 
 <img src="images/DragAndDrop_resizing.png" alt="Resizing a widget." style="float:right;margin:0 0 0px 8px;"/>
 
@@ -229,7 +229,7 @@ will be written to the *.bob file.
 	will align to existing widgets' edges when resizing, displying a cyan alignment ruler.
 </p>
 
-<h3 style="clear:right">D&D From Outside</h3>
+<h4 style="clear:right">D&D From Outside</h4>
 
 <p>
 	Different entities dragged from outside the editor can be dropped in. When the nature
@@ -334,7 +334,7 @@ will be written to the *.bob file.
 
 
 <!-- ====================================================== -->
-<h1 style="clear:right"><a name="conversion">BOY <i>*.opi</i> File Conversion</a></h1>
+<h2 style="clear:right"><a name="conversion">BOY <i>*.opi</i> File Conversion</a></h2>
 <!-- ====================================================== -->
 
 <p>The Display builder automatically convert BOY <i>*.opi</i> files.
@@ -367,7 +367,7 @@ You can now edit the file.
 When saving the file, the file name is changed to <i>*.bob</i>.
 </p>
 
-<h2>Transition Hints</h2>
+<h3>Transition Hints</h3>
 
 <p>Whenever the Display Builder is asked to open a <i>*.opi</i> file,
 it will check for an alternate <i>*.bob</i> file.
@@ -393,10 +393,10 @@ from <i>Display Builder/script_util/porting.opi</i> and
 
 
 <!-- ====================================================== -->
-<h1><a name="runtime">Display Builder Runtime</a></h1>
+<h2><a name="runtime">Display Builder Runtime</a></h2>
 <!-- ====================================================== -->
 
-<h2>Display Builder Runtime</h2>
+<h3>Display Builder Runtime</h3>
 
 <p>When you execute a display, the Display Builder runtime
 opens the <i>*.bob</i> (or legacy <i>*.opi</i>) file,
@@ -412,10 +412,10 @@ or to re-load the display.
 
 
 <!-- ====================================================== -->
-<h1><a name="perspective">Display Runtime Perspective, Full-screen, Standalone</a></h1>
+<h2><a name="perspective">Display Runtime Perspective, Full-screen, Standalone</a></h2>
 <!-- ====================================================== -->
 
-<h2>Display Runtime Perspective</h2>
+<h3>Display Runtime Perspective</h3>
 
 <p>The Display Runtime Perspective is initially empty, meant to display runtime panels.
 </p>
@@ -439,7 +439,7 @@ and used as a default layout.
 </p>
 
 
-<h2>Full-screen Mode</h2>
+<h3>Full-screen Mode</h3>
 
 <p>The <b>Full-screen</b> entry in the runtime panel context menu
 allows toggling the workbench window into and out of full-screen mode.
@@ -459,7 +459,7 @@ invoke the <b>Exit Full-screen</b> entry in the runtime panel context menu.
 </p>
 
 
-<h2>Standalone Window Mode</h2>
+<h3>Standalone Window Mode</h3>
 
 <p>Selecting <b>Change to Standalone Window</b> from the runtime panel context menu
 closes the display runtime panel in the workbench window and instead opens
@@ -484,7 +484,7 @@ that runtime as a plain standalone window.
 
 
 <!-- ====================================================== -->
-<h1><a name="widgets">Widgets</a></h1>
+<h2><a name="widgets">Widgets</a></h2>
 <!-- ====================================================== -->
 
 <p>Widgets are the components of Display Builder displays.
@@ -494,8 +494,98 @@ Then you typically adjust the location and size,
 and enter a text or PV name by configuring the corresponding property.
 </p>
 
+<p>The following is a brief description of core widgets.
+For details on each widget refer to the 
+<a href="#get_started">example displays.</a>
+They showcase each widget and explain their key properties.
+</p>
+
+<!-- ---------------- -->
+<h3>Graphic Widgets</h3>
+<!-- ---------------- -->
+
+<p>These widgets represent static content.</p>
+
+<h4>Label Widget</h4>
+<!-- ---------------- -->
+
+<p>One or more lines of text.
+Use to create labels or descriptions.
+</p>
+
+
+<h4>Arc, Ellipse, Rectangle, Polygon, Polyline Widget</h4>
+<!-- ------------------------------------------------- -->
+
+<p>Graphic elements for creating basic diagrams.</p>
+
+<p>For Polygon and Polyline refer to example display
+to learn about editor support for creating and modifying
+the points of a polygon/line.
+</p>
+
+
+<h4>Picture Widget</h4>
+<!-- --------------- -->
+
+<p>Widget for adding images (PNG, GIF, ..) to the display.</p>
+
+
+<!-- ---------------- -->
+<h3>Monitor Widgets</h3>
+<!-- ---------------- -->
+
+<p>These widgets show the current value of a PV.</p>
+
+<h4>Text Update Widget</h4>
+<!-- ---------------- -->
+
+<p>Main widget for displaying the current value of a PV.</p>
+
+<h4>Byte Monitor, LED, Progress bar, Tank, Thermometer Widget</h4>
+<!-- --------------------------------------------------------- -->
+
+<p>Widgets that display the current value of a PV in a graphical way.</p>
+
+
+<!-- ---------------- -->
+<h3>Control Widgets</h3>
+<!-- ---------------- -->
+
+<p>These widgets allow you to change the value of a PV.</p>
+
+<!-- ---------------- -->
+<h3>Plot Widgets</h3>
+<!-- ---------------- -->
+
+<p>These widgets create plot, typically requiring waveforms or multiple PVs.</p>
+
+
+<!-- ---------------- -->
+<h3>Structure Widgets</h3>
+<!-- ---------------- -->
+
+<p>These widgets structure several basic widgets or complete displays witnin a display.</p>
+
+<h4>Group Widget</h4>
+<!-- --------------------------------------------------------- -->
+
+<p>Groups several basic widgets, by default adding a labelled border around them.</p>
+
+
+<h4>Embedded Display Widget</h4>
+<!-- --------------------------------------------------------- -->
+
+<p>Includes another display within the current display.
+The embedded display is usually a smaller, re-usable display
+that utilized macros instead of complete PV names.
+The embedded display widget can then include that sub-display
+with suitable macros.
+</p>
+
+
 <!-- ====================================================== -->
-<h1><a name="properties">Properties</a></h1>
+<h2><a name="properties">Properties</a></h2>
 <!-- ====================================================== -->
 
 <img src="images/tracker.png" alt="Tracker" style="float:right;margin:0 0 0px 8px;"/>
@@ -516,7 +606,7 @@ These key properties can be edited by double-clicking the selected widget
 and then entering the text or pv_name.
 </p>
 
-<h2 style="clear:right">Properties View</h2>
+<h3 style="clear:right">Properties View</h3>
 
 <img src="images/properties_palette.png" alt="Properties View" style="float:right;margin:0 0 0px 8px;"/>
 
@@ -525,7 +615,7 @@ It lists every property of a widget with its current value,
 and except for very few static properties it allows entering or selecting different values.
 </p>
 
-<h2>Property Names</h2>
+<h3>Property Names</h3>
 
 <p>The "Properties" panel will show each property with a description like "X Position", "Text" or "PV Name".
 This is the localized description of each property which might be different in for example a German version of the Display Builder.
@@ -541,40 +631,135 @@ In the following description of properties, we always use the property name.
 </p>
 
 
-<h2>Common Properties</h2>
+<h3>Common Properties</h3>
 
-<p>Key properties common to most widgets include:</p>
+<h4>type</h3>
+
+<p>Type of widget (e.g. label, text_update). Each widget has both a localizable (translatable)
+type name and an internal type name used to identify the widget type in display files.
+</p>
+
+<h4>name</h3>
+
+<p>Used to identify the widget. Is best made unique within the display.
+</p>
+
+<h4>x, y, width, height</h4>
+
+<p>Location and size of the widget.
+Can be configured in the Property view, but are typically adjusted using the
+mouse on the selected widget.
+</p>
+
+<h4>text</h4>
+
+<p>Text that a Label widget displays. Can also be configured via double-click on the widget.
+</p>
+
+<h4>pv_name</h4>
+
+<p>The PV that the widget uses to read or write values. Can also be configured via double-click on the widget.
+</p>
+
+<h4>actions</h4>
+
+<p>Attach Actions that do things like open displays or run scripts.
+Primarily used with the <b>Action Button</b> widget.
+</p>
+
+<h4>text</h4>
+
+<p>Text that is displayed in a <b>Label</b> widget or used
+as the title of a <b>Group</b> widget.
+</p>
+
+<h4>pv_name</h4>
+
+<p>All but the plain Graphics widget have at least one PV name.
+At runtime, the widget connects to this PV, displays its current value,
+and in the case of Control widgets also writes to it when you interact with the widget.
+</p>
+
+<h4>format, precision</h4>
+
+<p>Text-based widgets have several formatting options for displaying the current value of a PV.
+For formats that use the <b>precision</b>, a precision of -1 uses the precision
+provided by the PV.
+</p>
+
 <ul>
-  <li><b>type</b>: Type of widget (e.g. label, text_update). Each widget has both a localizable (translatable)
-                   type name and an internal type name used to identify the widget type in display files.
-  </li>
-  <li><b>name</b>: Used to identify the widget. Is best made unique within the display.</li>
-  <li><b>x</b>, <b>y</b>, <b>width</b> and <b>height</b>: Location and size of the widget.
-                   Can be configured in the Property view, but are typically adjusted using the
-                   mouse on the selected widget.
-  </li>
-  <li><b>text</b>: Text that a Label widget displays. Can also be configured via double-click on the widget.</li>
-  <li><b>pv_name</b>: The PV that the widget uses to read or write values. Can also be configured via double-click on the widget.</li>
-  <li><b>actions</b>: Attach Actions that do things like open displays or run scripts.
-                      Primarily used with the <b>Action Button</b> widget.
-  </li>
+<li><b>Default:</b>
+    Show a number as a decimal, an enumerated value via its label, and text as text.
+</li>
+<li><b>Decimal</b>
+    Show numeric and enumerated values as a decimal like "3.14"
+    <b>Precision</b> determines the number of digits after the decimal points, 2 in this example.
+</li>
+<li><b>Exponential:</b>
+    Show numeric values in exponential notation like 3.14E0.
+    <b>Precision</b> determines the number of digits after the decimal points, 2 in this example.
+</li>
+<li><b>Engineering:</b>
+    Similar to exponential notation but always using an exponent
+    that is a multiple of 3 to correspond to the common orders-of-magnitude
+    'micro', 'milli', 'kilo', 'mega' etc.
+    The number 31400 would be displayed as "31.4000E3" when using a precision of 4.
+</li>
+<li><b>Hexadecimal:</b>
+    Shows 255 as "0xFF". Truncates all numbers to integers.
+</li>
+<li><b>Compact:</b>
+    Formats numbers within the range of 0.0001 to 10000 as decimal,
+    otherwise uses exponential notation.
+    Typically results in the shortest representation.
+</li>
+<li><b>String:</b>
+    Text is displayed as provided.
+    Byte arrays are converted to text using UTF-8 encoding.
+</li>
+<li><b>Sexagesimal:</b>
+    Shows number as degrees or hours, minutes, and seconds with colons between the three fields.
+    The integer part of the number determines the hours respectively degrees.
+    The fractional part is expressed as minutes and seconds plus fractions of a second.
+    For example, "12:45:10.2", is the number 12.752833 expressed as 12 degrees or hours, 45 minutes, and 10.2 seconds.
+    The <b>precision</b> determines the number of digits after the first colon.
+    For precisions of 0, 1, 2, 3, 4, 5, and 6 the number above would be expressed as
+    13, 12:5, 12:45, 12:45:1, 12:45:10, 12:45:10.2, and 12:45:10.20, respectively.
+</li>
+<li><b>Sexagesimal DMS:</b>
+    Similar to sexagesimal, but assuming that the number is in radians
+    and 2&pi; represent 360 degrees.
+    When displaying a number, it is converted to degrees by multiplying it by 180/&pi; before formatting it.
+    When parsing DMS, the result is divided by 180/&pi; to convert degrees into radians.
+    <i>(If you ever actually use this option, please let me know!)</i>
+</li>
+<li><b>Sexagesimal HMS:</b>
+    Similar to sexagesimal, but assuming that the number is in radians
+    and 2&pi; represent 24 hours.
+    When displaying a number, it is converted to degrees by multiplying it by 12/&pi; before formatting it.
+    When parsing HMS, the result is divided by 12/&pi; to convert hours into radians.
+    <i>(Same here, let me know!)</i>
+</li>
 </ul>
-  
+
+<h4>rules</h4>
+
 <p>Each widget has several additional properties that for example allow the configuration
 of colors, the formatting of texts etc.
 Ideally, you can create a functional control system display by configuring the basic
 properties of a widget, relying on the default behavior of a widget.
-For special cases, widgets also support the following properties:
+For special cases, widgets can use <a href="#rules">Rules</a> that dynamically
+assign widget property values based on conditional expressions.
 </p>
   
-<ul>
-  <li><b>rules</b>: Attach <a href="#rules">Rules</a> that dynamically assign widget property values based on conditional expressions.
-  </li>
-  <li><b>scripts</b>: Attach <a href="#scripts">Scripts</a> that dynamically control widget appearance and behavior.
-  </li>
-</ul>
+<h4>scripts</h4>
 
-<h2>Array and Structure Properties</h2>
+<p>Similar to Rules but even more flexible are <a href="#scripts">Scripts</a>
+that dynamically control widget appearance and behavior.
+</p>
+
+
+<h3>Array and Structure Properties</h3>
 
 <p>Some widgets contain properties that are arrays and/or structures.
 For example, the <b>Multi-State LED</b> has a <b>states</b> property that is an array.
@@ -586,20 +771,8 @@ Example:
 <pre>states[0].value</pre>
 <pre>states[1].color</pre>
 
-
 <!-- ====================================================== -->
-<h1 style="clear:left"><a name="widgets_detail">Widget Details</a></h1>
-<!-- ====================================================== -->
-
-<p>For details on each widget refer to the 
-<a href="#get_started">example displays.</a>
-They showcase each widget, explain their key properties,
-and in some cases (polygon, polyline) also provide
-hints for editing them.
-</p>
-
-<!-- ====================================================== -->
-<h1><a name="rules">Rules</a></h1>
+<h2><a name="rules">Rules</a></h2>
 <!-- ====================================================== -->
 
 <p>Rules are the suggested way to obtain customized, dynamic behaviors beyond the capability of
@@ -613,7 +786,7 @@ values according to boolean expressions using their input PVs. Since the executi
 triggered by its trigger PVs, at least one input PV is needed for a rule.
 </p>
 
-<h2>Attaching a Rule to a Widget</h2>
+<h3>Attaching a Rule to a Widget</h3>
 <p>In order to edit the Rules for a widget, first select it, then click on the button
 for its Rules property in the Properties palette. This will open the Rules dialog.
 </p>
@@ -636,7 +809,7 @@ for its Rules property in the Properties palette. This will open the Rules dialo
   <li>Value as Expression: If true, all values for the rule are given as expressions.</li>
 </ul>
 
-<h2>Expressions</h2>
+<h3>Expressions</h3>
 <p>The standard comparison operators (&lt;, &gt;, ==, &lt;=, &gt;=, and !=) may be used. Logical
 operators may also be used. All input PVs of the rule are accessible as follows:
 </p>
@@ -667,10 +840,10 @@ operators may also be used. All input PVs of the rule are accessible as follows:
 
 
 <!-- ====================================================== -->
-<h1><a name="scripts">Scripts</a></h1>
+<h2><a name="scripts">Scripts</a></h2>
 <!-- ====================================================== -->
 
-<h2>Purpose</h2>
+<h3>Purpose</h3>
 
 <p>Ideally, a control system display can be created by
 simply adding several widgets and configuring their
@@ -687,7 +860,7 @@ to avoid the creation of such a custom tool.
 </p>
 
 
-<h2>Basic Functionality</h2>
+<h3>Basic Functionality</h3>
 
 <p>Scripts are invoked from
 </p>
@@ -703,7 +876,7 @@ which might have triggered its invocation.
 </p>
 
 
-<h2>PV Scripts</h2>
+<h3>PV Scripts</h3>
 
 <p>Example of invoking a script from PV changes:
 </p>
@@ -741,7 +914,7 @@ widget.setPropertyValue("text", result)
 </pre>
 
 
-<h2>Action Scripts</h2>
+<h3>Action Scripts</h3>
 
 <p>Example of invoking a script from an Action:
 </p>
@@ -775,7 +948,7 @@ other.setPropertyValue("text", result)
 </pre>
 
 
-<h2>Jython Script</h2>
+<h3>Jython Script</h3>
 
 <p>Jython scripts are written in Python syntax, i.e. a very well designed, robust language.
 They execute within the same Java instance that also executes the display builder
@@ -792,7 +965,7 @@ native Python libraries, for example numpy.
 </p>
 
 
-<h2>Python Scripts</h2>
+<h3>Python Scripts</h3>
 
 <p>Python scripts are executed by a native Python interpreter outside of the display builder.
 They access key Display Builder API via networked proxies using Py4J.
@@ -895,7 +1068,7 @@ identifies the platform on which it is being run and chooses to either use Py4J 
 arguments, or import the given utility classes and use the 'pvs' and 'widgets' which are already accessible from Jython.
 </p>
 
-<h2>Comparison: Python and Jython</h2>
+<h3>Comparison: Python and Jython</h3>
 <center>
 	<table>
 		<tr>
@@ -943,7 +1116,7 @@ arguments, or import the given utility classes and use the 'pvs' and 'widgets' w
 	</table>
 </center>
 
-<h2>JavaScript Scripts</h2>
+<h3>JavaScript Scripts</h3>
 
 <p>Similar to Jython, JavaScript can be used as a language
 with execution inside the Java instance that also runs the Display builder.
@@ -954,7 +1127,7 @@ In addition, the JavaScript code can be embedded in the *.bob file.
 </p>
 
 
-<h2>Threading</h2>
+<h3>Threading</h3>
 
 <p>Each *.bob display has one script execution thread and one instance of the
 Jython, Python and JavaScript support.
@@ -970,7 +1143,7 @@ further invocations of that same script are ignored until the current execution 
 </p>
 
 
-<h2>API</h2>
+<h3>API</h3>
 
 <p>For details refer to the <a href="#get_started">examples</a>
 and the

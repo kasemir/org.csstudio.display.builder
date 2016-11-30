@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.util;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
+import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
@@ -41,6 +42,9 @@ public class FormatOptionHandler
 
     /** Cached formats for EXPONENTIAL by precision */
     private final static ConcurrentHashMap<Integer, NumberFormat> exponential_formats = new ConcurrentHashMap<>();
+
+    /** [85, 84, 70, 45, 56] */
+    private static final Charset UTF8 = Charset.forName("UTF-8");
 
     /** Format value as string
      *
@@ -344,57 +348,93 @@ public class FormatOptionHandler
             else
                 bytes[len++] = b;
         }
-        return new String(bytes, 0, len);
+        return new String(bytes, UTF8);
     }
 
     /** Parse a string, presumably as formatted by this class,
-     *  into a value suitable for writing back to the PV
+     *  into a value suitable for writing back to the PV.
+     *
+     *  <p>Previous value is used to determine the type of data
+     *  that the PV expects.
+     *
+     *  <p>Format is used in some cases to parse the number,
+     *  for example in case of HEX or SEXAGESIMAL.
      *
      *  @param value Last known value of the PV
      *  @param text Formatted text
+     *  @param format Format used by widget to represent values
      *  @return Object to write to PV for the 'text'
      */
-    public static Object parse(final VType value, String text)
+    public static Object parse(final VType value, String text, final FormatOption format)
     {
         try
         {
-            if (value instanceof VNumber)
+            switch (format)
+            {
+            case STRING:
+                return text;
+            case HEX:
             {   // Remove trailing text (units or part of units)
                 text = text.trim();
                 final int sep = text.lastIndexOf(' ');
                 if (sep > 0)
                     text = text.substring(0, sep).trim();
-                if (value instanceof VDouble)
-                    return Double.parseDouble(text);
-                return Long.parseLong(text);
+                text = text.toUpperCase();
+                if (text.startsWith("0X"))
+                    text = text.substring(2);
+                return Long.parseLong(text, 16);
             }
-            if (value instanceof VEnum)
-            {   // Send index for valid enumeration string
-                final List<String> labels = ((VEnum)value).getLabels();
-                text = text.trim();
-                for (int i=0; i<labels.size(); ++i)
-                    if (labels.get(i).equals(text))
-                        return i;
-                // Otherwise write the string
-                return text;
-            }
-            if (value instanceof VNumberArray)
-            {
-                text = text.trim();
-                if (text.startsWith("["))
-                    text = text.substring(1);
-                if (text.endsWith("]"))
-                    text = text.substring(0, text.length()-1);
-                final String[] items = text.split(" *, *");
-                final double[] array = new double[items.length];
-                for (int i=0; i<array.length; ++i)
-                    array[i] = Double.parseDouble(items[i].trim());
-                return array;
-            }
-            if (value instanceof VStringArray)
-            {
-                final List<String> items = StringList.split(text);
-                return items.toArray(new String[items.size()]);
+            case SEXAGESIMAL:
+                return SexagesimalFormat.parse(text);
+            case SEXAGESIMAL_HMS:
+                return SexagesimalFormat.parse(text) * Math.PI / 12.0;
+            case SEXAGESIMAL_DMS:
+                return SexagesimalFormat.parse(text) * Math.PI / 180.0;
+            default:
+                if (value instanceof VNumber)
+                {   // Remove trailing text (units or part of units)
+                    text = text.trim();
+                    final int sep = text.lastIndexOf(' ');
+                    if (sep > 0)
+                        text = text.substring(0, sep).trim();
+                    // Detect hex
+                    if (text.startsWith("0x")  ||  text.startsWith("0X"))
+                    {
+                        text = text.substring(2).toUpperCase();
+                        return Long.parseLong(text, 16);
+                    }
+                    if (value instanceof VDouble)
+                        return Double.parseDouble(text);
+                    return Long.parseLong(text);
+                }
+                if (value instanceof VEnum)
+                {   // Send index for valid enumeration string
+                    final List<String> labels = ((VEnum)value).getLabels();
+                    text = text.trim();
+                    for (int i=0; i<labels.size(); ++i)
+                        if (labels.get(i).equals(text))
+                            return i;
+                    // Otherwise write the string
+                    return text;
+                }
+                if (value instanceof VNumberArray)
+                {
+                    text = text.trim();
+                    if (text.startsWith("["))
+                        text = text.substring(1);
+                    if (text.endsWith("]"))
+                        text = text.substring(0, text.length()-1);
+                    final String[] items = text.split(" *, *");
+                    final double[] array = new double[items.length];
+                    for (int i=0; i<array.length; ++i)
+                        array[i] = Double.parseDouble(items[i].trim());
+                    return array;
+                }
+                if (value instanceof VStringArray)
+                {
+                    final List<String> items = StringList.split(text);
+                    return items.toArray(new String[items.size()]);
+                }
             }
         }
         catch (Throwable ex)

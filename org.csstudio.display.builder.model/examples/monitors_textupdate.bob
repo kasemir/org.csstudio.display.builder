@@ -165,9 +165,9 @@
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_12</name>
-    <text>More Number Options:</text>
+    <text>Compare Number Options:</text>
     <y>520</y>
-    <width>201</width>
+    <width>330</width>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
       </font>
@@ -176,14 +176,14 @@
   <widget type="label" version="2.0.0">
     <name>Label_13</name>
     <text>Hex:</text>
-    <y>550</y>
+    <y>610</y>
     <width>111</width>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_10</name>
     <pv_name>loc://number(3.14)</pv_name>
     <x>191</x>
-    <y>550</y>
+    <y>610</y>
     <width>109</width>
     <format>4</format>
     <precision>0</precision>
@@ -192,7 +192,7 @@
     <name>Text Entry</name>
     <pv_name>loc://number(3.14)</pv_name>
     <x>320</x>
-    <y>550</y>
+    <y>610</y>
     <width>109</width>
     <format>4</format>
     <precision>0</precision>
@@ -200,14 +200,14 @@
   <widget type="label" version="2.0.0">
     <name>Label_14</name>
     <text>Sexagesimal:</text>
-    <y>580</y>
+    <y>640</y>
     <width>111</width>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_11</name>
     <pv_name>loc://number(3.14)</pv_name>
     <x>191</x>
-    <y>580</y>
+    <y>640</y>
     <width>109</width>
     <format>7</format>
     <precision>4</precision>
@@ -216,7 +216,7 @@
     <name>Text Entry_1</name>
     <pv_name>loc://number(3.14)</pv_name>
     <x>320</x>
-    <y>580</y>
+    <y>640</y>
     <width>109</width>
     <format>7</format>
     <precision>4</precision>
@@ -224,14 +224,14 @@
   <widget type="label" version="2.0.0">
     <name>Label_15</name>
     <text>Sexagesimal (HMS):</text>
-    <y>610</y>
+    <y>670</y>
     <width>161</width>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_12</name>
     <pv_name>loc://number(3.14)</pv_name>
     <x>191</x>
-    <y>610</y>
+    <y>670</y>
     <width>109</width>
     <format>8</format>
     <precision>4</precision>
@@ -240,7 +240,7 @@
     <name>Text Entry_2</name>
     <pv_name>loc://number(3.14)</pv_name>
     <x>320</x>
-    <y>610</y>
+    <y>670</y>
     <width>109</width>
     <format>8</format>
     <precision>4</precision>
@@ -248,14 +248,14 @@
   <widget type="label" version="2.0.0">
     <name>Label_16</name>
     <text>Sexagesimal (DMS):</text>
-    <y>640</y>
+    <y>700</y>
     <width>161</width>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update_13</name>
     <pv_name>loc://number(3.14)</pv_name>
     <x>191</x>
-    <y>640</y>
+    <y>700</y>
     <width>109</width>
     <format>9</format>
     <precision>4</precision>
@@ -264,7 +264,7 @@
     <name>Text Entry_3</name>
     <pv_name>loc://number(3.14)</pv_name>
     <x>320</x>
-    <y>640</y>
+    <y>700</y>
     <width>109</width>
     <format>9</format>
     <precision>4</precision>
@@ -287,5 +287,66 @@ while the DMS specialization maps 2 pi to 360 degrees.
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_18</name>
+    <text>Decimal:</text>
+    <y>550</y>
+    <width>111</width>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_14</name>
+    <pv_name>loc://number(3.14)</pv_name>
+    <x>191</x>
+    <y>550</y>
+    <width>109</width>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_4</name>
+    <pv_name>loc://number(3.14)</pv_name>
+    <x>320</x>
+    <y>550</y>
+    <width>109</width>
+    <format>1</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_15</name>
+    <pv_name>BL11B:CS:IOC:All:Stat</pv_name>
+    <x>450</x>
+    <y>320</y>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_16</name>
+    <pv_name>BL11B:CS:IOC:All:Stat</pv_name>
+    <x>450</x>
+    <y>351</y>
+    <format>1</format>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_19</name>
+    <text>Engineering:</text>
+    <y>580</y>
+    <width>111</width>
+  </widget>
+  <widget type="textupdate" version="2.0.0">
+    <name>Text Update_17</name>
+    <pv_name>loc://number(3.14)</pv_name>
+    <x>191</x>
+    <y>580</y>
+    <width>109</width>
+    <format>3</format>
+    <precision>4</precision>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_5</name>
+    <pv_name>loc://number(3.14)</pv_name>
+    <x>320</x>
+    <y>580</y>
+    <width>109</width>
+    <format>3</format>
+    <precision>4</precision>
   </widget>
 </display>
