@@ -87,7 +87,10 @@ public class WaveformView extends DataBrowserAwareView
         public void itemRemoved(final ModelItem item)
         {
             if (item == model_item)
-                selectPV(null);
+                model_item = null;
+            // Will update the combo to reflect missing item,
+            // then detect model_item change and selectPV(null)
+            update(false);
         }
 
         @Override
