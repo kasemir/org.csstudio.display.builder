@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.csstudio.apputil.time.RelativeTime;
-import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.trends.databrowser3.Messages;
+import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
 import org.csstudio.trends.databrowser3.model.ArchiveRescale;
 import org.csstudio.trends.databrowser3.model.FormulaItem;
@@ -28,6 +28,8 @@ import org.csstudio.trends.databrowser3.ui.AddPVAction;
 import org.csstudio.trends.databrowser3.ui.StartEndTimeAction;
 import org.csstudio.ui.util.MinSizeTableColumnLayout;
 import org.csstudio.ui.util.dnd.ControlSystemDragSource;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -68,6 +70,7 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.ISaveablePart;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.Page;
@@ -97,8 +100,50 @@ import org.eclipse.ui.views.properties.IPropertySheetPage;
  *  @author Kay Kasemir
  */
 public class DataBrowserPropertySheetPage extends Page
-implements IPropertySheetPage
+    implements IPropertySheetPage, IAdaptable
 {
+    /** ISaveablePart that's clean, no need to save.
+     *
+     *  See
+     *  https://bugs.eclipse.org/bugs/show_bug.cgi?id=372799,
+     *  https://github.com/ControlSystemStudio/cs-studio/issues/1619
+     *
+     *  Workaround:
+     *  Force adaptation of property page to clean_saveable.
+     */
+    private final static ISaveablePart clean_saveable = new ISaveablePart()
+    {
+        @Override
+        public boolean isSaveOnCloseNeeded()
+        {
+            return false;
+        }
+
+        @Override
+        public boolean isSaveAsAllowed()
+        {
+            return false;
+        }
+
+        @Override
+        public boolean isDirty()
+        {
+            return false;
+        }
+
+        @Override
+        public void doSaveAs()
+        {
+            // NOP
+        }
+
+        @Override
+        public void doSave(IProgressMonitor monitor)
+        {
+            // NOP
+        }
+    };
+
     /** Model to display/edit in property sheet */
     final private Model model;
 
@@ -941,5 +986,14 @@ implements IPropertySheetPage
     public void setFocus()
     {
         trace_table.getTable().setFocus();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getAdapter(final Class<T> adapter)
+    {
+        if (adapter == ISaveablePart.class)
+            return (T)clean_saveable;
+        return null;
     }
 }
