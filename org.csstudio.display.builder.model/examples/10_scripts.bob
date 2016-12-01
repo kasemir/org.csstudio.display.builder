@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="1.0.0">
   <name>Display</name>
+  <width>1150</width>
+  <height>1250</height>
   <widget type="label" version="2.0.0">
     <name>Label</name>
     <text>Scripts</text>
@@ -319,10 +321,8 @@ and the "Active" label moves next to the selected mode.</text>
     <width>361</width>
     <height>40</height>
   </widget>
-  <widget type="action_button" version="2.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Action Button</name>
-    <x>411</x>
-    <y>791</y>
     <actions>
       <action type="open_display">
         <file>solitaire/solitaire.bob</file>
@@ -330,11 +330,12 @@ and the "Active" label moves next to the selected mode.</text>
         <description>Solitaire</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_1</name>
-    <x>521</x>
+    <x>411</x>
     <y>791</y>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_1</name>
     <actions>
       <action type="open_display">
         <file>t3/t3.bob</file>
@@ -342,6 +343,9 @@ and the "Active" label moves next to the selected mode.</text>
         <description>Tic-Tac-Toe</description>
       </action>
     </actions>
+    <x>521</x>
+    <y>791</y>
+    <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_25</name>
@@ -436,10 +440,8 @@ from new locations.</text>
       </font>
     </font>
   </widget>
-  <widget type="action_button" version="2.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Action Button_2</name>
-    <x>631</x>
-    <y>791</y>
     <actions>
       <action type="open_display">
         <file>webservice/webservice.bob</file>
@@ -447,11 +449,12 @@ from new locations.</text>
         <description>Web Service</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_3</name>
-    <x>741</x>
+    <x>631</x>
     <y>791</y>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_3</name>
     <actions>
       <action type="open_display">
         <file>sudoku/sudoku.bob</file>
@@ -459,11 +462,12 @@ from new locations.</text>
         <description>Sudoku</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_4</name>
-    <x>851</x>
+    <x>741</x>
     <y>791</y>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_4</name>
     <actions>
       <action type="open_display">
         <file>script_util/script_util.bob</file>
@@ -471,6 +475,9 @@ from new locations.</text>
         <description>Script Utils</description>
       </action>
     </actions>
+    <x>851</x>
+    <y>791</y>
+    <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_32</name>
@@ -491,10 +498,8 @@ using "native" Python, click the button below. For an explanation of Python
       </font>
     </font>
   </widget>
-  <widget type="action_button" version="2.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Action Button_5</name>
-    <y>411</y>
-    <width>141</width>
     <actions>
       <action type="open_display">
         <file>scripts_python-vs-jython.bob</file>
@@ -502,6 +507,9 @@ using "native" Python, click the button below. For an explanation of Python
         <description>Python vs Jython</description>
       </action>
     </actions>
+    <y>411</y>
+    <width>141</width>
+    <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_31</name>
@@ -516,37 +524,23 @@ using "native" Python, click the button below. For an explanation of Python
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_34</name>
-    <text>Each script needs at least one PV marked as a "Trigger".
-The script is invoked (triggered) when receiving
-the first value of that PV,
-and later whenever the PV changes.
+    <text>Each script is first invoked when all PVs are connected.
+From then it is invoked (triggered) when receiving
+updates for those PVs that are marked as a "Trigger".
 
-Beware that a PV can change or disconnect
-at any time.
+Beware that a PV can change or disconnect at any time.
 The script receives a handle to all its PVs, and then reads
 the current value of each PV as desired.
 Assuming a rapidly changing PV that invokes the script
 with value "A", by the time the script executes and
-reads the PV, it might get a new value "B".
-
-When a script is attached to multiple PVs,
-one or more PVs can be marked as a "trigger".
-When the script is invoked, we know that the
-PV which triggered the script was at that time
-connected.
-By the time the script executes, it sees the current
-state of all PVs: Some may not be connected,
-some may already have changed their values
-once more.</text>
+reads the PV, it might get a new value "B",
+or the PV might have disconnected.</text>
     <y>1021</y>
     <width>391</width>
-    <height>400</height>
+    <height>209</height>
   </widget>
-  <widget type="action_button" version="2.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Action Button_6</name>
-    <x>162</x>
-    <y>413</y>
-    <width>141</width>
     <actions>
       <action type="open_display">
         <file>python/scripts_python_detail.bob</file>
@@ -554,11 +548,13 @@ once more.</text>
         <description>Detail</description>
       </action>
     </actions>
+    <x>162</x>
+    <y>413</y>
+    <width>141</width>
+    <tooltip>$(actions)</tooltip>
   </widget>
-  <widget type="action_button" version="2.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Action Button_7</name>
-    <x>960</x>
-    <y>790</y>
     <actions>
       <action type="open_display">
         <file>script_util/porting.opi</file>
@@ -566,5 +562,8 @@ once more.</text>
         <description>Porting</description>
       </action>
     </actions>
+    <x>960</x>
+    <y>790</y>
+    <tooltip>$(actions)</tooltip>
   </widget>
 </display>
