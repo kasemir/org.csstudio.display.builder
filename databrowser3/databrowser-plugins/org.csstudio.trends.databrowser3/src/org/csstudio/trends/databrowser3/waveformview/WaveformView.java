@@ -41,6 +41,9 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
 
+import javafx.embed.swt.FXCanvas;
+import javafx.scene.Scene;
+
 /** View for inspecting Waveform (Array) Samples of the current Model
  *  @author Kay Kasemir
  *  @author Takashi Nakamoto changed WaveformView to handle multiple items with
@@ -161,11 +164,13 @@ public class WaveformView extends DataBrowserAwareView
         // =====================
         // ======= Plot ========
         // =====================
-        //plot = new RTValuePlot(parent);
+        final FXCanvas plot_canvas = new FXCanvas(parent, SWT.NONE);
         plot = new RTValuePlot(true);
         plot.getXAxis().setName(Messages.WaveformIndex);
         plot.getYAxes().get(0).setName(Messages.WaveformAmplitude);
-        //plot.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
+        plot.getYAxes().get(0).setAutoscale(true);
+        plot_canvas.setScene(new Scene(plot));
+        plot_canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
 
         // <<<<<< Slider >>>>>>
         sample_index = new Slider(parent, SWT.HORIZONTAL);
