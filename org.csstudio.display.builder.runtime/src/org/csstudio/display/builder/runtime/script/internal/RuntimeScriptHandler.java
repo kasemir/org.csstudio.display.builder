@@ -115,39 +115,39 @@ public class RuntimeScriptHandler implements RuntimePVListener
         }
     }
 
-
     /** @param widget Widget on which the script is invoked
      *  @param script_info Script to handle
      *  @throws Exception on error
      */
     public RuntimeScriptHandler(final Widget widget, final ScriptInfo script_info) throws Exception
     {
-        this.widget = widget;
-        this.infos = script_info.getPVs();
-
-        final MacroValueProvider macros = widget.getMacrosOrProperties();
-        script = compileScript(widget, macros, script_info);
-
-        pvs = new RuntimePV[infos.size()];
-        createPVs(widget);
+        this(widget, compileScript(widget, widget.getMacrosOrProperties(), script_info), script_info.getPVs());
     }
 
-    /** @param widget Widget on which the script is invoked
+    /** @param widget Widget on which the rule is invoked
      *  @param rule_info Rule to handle
      *  @throws Exception on error
      */
     public RuntimeScriptHandler(final Widget widget, final RuleInfo rule_info) throws Exception
     {
-        this.widget = widget;
-        this.infos = rule_info.getPVs();
-
-        script = compileScript(widget, rule_info);
-
-        pvs = new RuntimePV[infos.size()];
-        createPVs(widget);
+        this(widget, compileScript(widget, rule_info), rule_info.getPVs());
     }
 
-    protected void createPVs(final Widget widget) throws Exception {
+    /** @param widget Widget on which the script is invoked
+     *  @param script Script to execute
+     *  @throws Exception on error
+     */
+    private RuntimeScriptHandler(final Widget widget, final Script script, final List<ScriptPV> infos) throws Exception
+    {
+        this.widget = widget;
+        this.infos = infos;
+        this.script = script;
+        pvs = new RuntimePV[infos.size()];
+        createPVs();
+    }
+
+    private void createPVs() throws Exception
+    {
         // Create PVs
         final WidgetRuntime<Widget> runtime = WidgetRuntime.ofWidget(widget);
         final MacroValueProvider macros = widget.getMacrosOrProperties();
@@ -163,7 +163,6 @@ public class RuntimeScriptHandler implements RuntimePVListener
             if (infos.get(i).isTrigger())
                 pvs[i].addListener(this);
     }
-
 
     /** Must be invoked to dispose PVs */
     public void shutdown()
@@ -181,6 +180,13 @@ public class RuntimeScriptHandler implements RuntimePVListener
     @Override
     public void valueChanged(final RuntimePV pv, final VType value)
     {
+        /*
+        System.out.println(script + " triggered by " + pv + ":");
+        for (int i=0; i<pvs.length; ++i)
+            System.out.println(pvs[i] +
+                               (pvs[i].read() == null ? " (disconnected)" : " (connected)") +
+                               (infos.get(i).isTrigger() ? " - trigger!" : ""));
+        */
         // Request execution of script
         script.submit(widget, pvs);
     }
