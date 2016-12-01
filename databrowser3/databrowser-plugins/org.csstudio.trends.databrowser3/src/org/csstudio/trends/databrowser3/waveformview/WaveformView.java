@@ -86,7 +86,8 @@ public class WaveformView extends DataBrowserAwareView
         @Override
         public void itemRemoved(final ModelItem item)
         {
-            update(false);
+            if (item == model_item)
+                selectPV(null);
         }
 
         @Override
@@ -230,6 +231,8 @@ public class WaveformView extends DataBrowserAwareView
     {
         pv_name.getDisplay().asyncExec( () ->
         {
+            if (pv_name.isDisposed())
+                return;
             if (model == null)
             {   // Clear/disable GUI
                 pv_name.setItems(new String[] { Messages.SampleView_NoPlot});
