@@ -24,6 +24,7 @@ import org.csstudio.display.builder.model.widgets.plots.ImageWidget.ROIWidgetPro
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.widgets.RegionBaseRepresentation;
 import org.csstudio.javafx.rtplot.Axis;
+import org.csstudio.javafx.rtplot.ColorMappingFunction;
 import org.csstudio.javafx.rtplot.Interpolation;
 import org.csstudio.javafx.rtplot.RTImagePlot;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
@@ -200,7 +201,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         image_plot.setColorMapping(value ->
         {
             final WidgetColor color = colormap.getColor(value);
-            return new java.awt.Color(color.getRed(), color.getGreen(), color.getBlue());
+            return ColorMappingFunction.getRGB(color.getRed(), color.getGreen(), color.getBlue());
         });
     }
 

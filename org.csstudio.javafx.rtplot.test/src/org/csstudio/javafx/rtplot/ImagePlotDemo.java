@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.javafx.rtplot;
 
+import java.awt.Color;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +36,11 @@ public class ImagePlotDemo extends Application
     private static final ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
 
     private static final long start = System.currentTimeMillis();
+
+    // Violates the idea of ColorMappingFunction because it creates a Color() per invocation.
+    // OK for test because it's the easiest way to create a 'rainbow'
+    /** Rainbow color mapping */
+    public final static ColorMappingFunction RAINBOW = value -> new Color(Color.HSBtoRGB((float)value, 1.0f, 1.0f)).getRGB();
 
     private ListDouble computeData()
     {
@@ -70,7 +76,7 @@ public class ImagePlotDemo extends Application
 
         final ImagePlot plot = new ImagePlot(true);
 
-        plot.setColorMapping(ImagePlot.RAINBOW);
+        plot.setColorMapping(RAINBOW);
 
         plot.setAutoscale(true);
         plot.setValueRange(0.0, 2.0);

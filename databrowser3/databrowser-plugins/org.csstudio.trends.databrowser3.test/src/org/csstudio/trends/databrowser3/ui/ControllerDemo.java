@@ -9,7 +9,7 @@ package org.csstudio.trends.databrowser3.ui;
 
 import java.time.Instant;
 
-import org.csstudio.apputil.macros.MacroTable;
+import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
 import org.csstudio.trends.databrowser3.model.FormulaInput;
 import org.csstudio.trends.databrowser3.model.FormulaItem;
@@ -56,12 +56,24 @@ public class ControllerDemo
         PVManager.setDefaultDataSource(sources);
     }
 
+    private class TestMacros implements MacroValueProvider
+    {
+        @Override
+        public String getValue(String name)
+        {
+            if (name == "simu")
+                return "\"sim://sine(-1, 1, 20, 0.25)\"";
+            if (name == "name")
+                return "Sine (scanned)";
+            return null;
+        }
+
+    }
+
     private void createModel() throws Exception
     {
         model = new Model();
-        final MacroTable macros = new MacroTable("simu=\"sim://sine(-1, 1, 20, 0.25)\",name=Sine (scanned)");
-        model.setMacros(macros);
-
+        model.setMacros(new TestMacros());
         ModelItem item;
 
         item = new PVItem("$(simu)", 1);

@@ -111,7 +111,7 @@ public class SpinnerRepresentation extends RegionBaseRepresentation<Spinner<Stri
         //The value factory retains the old values, and will be updated as scheduled below.
         final String text = jfx_node.getEditor().getText();
         Object value =
-                FormatOptionHandler.parse(model_widget.runtimePropValue().getValue(), text);
+                FormatOptionHandler.parse(model_widget.runtimePropValue().getValue(), text, model_widget.propFormat().getValue());
         double min = model_widget.propMinimum().getValue();
         double max = model_widget.propMaximum().getValue();
         if (value instanceof Number)

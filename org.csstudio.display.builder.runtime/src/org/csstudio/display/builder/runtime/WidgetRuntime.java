@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
@@ -308,8 +309,19 @@ public class WidgetRuntime<MW extends Widget>
                 }
                 catch (final Exception ex)
                 {
-                    logger.log(Level.WARNING,
-                        "Widget " + widget.getName() + " script " + script_info.getPath() + " failed to initialize", ex);
+                    final StringBuilder buf = new StringBuilder();
+                    buf.append("Script failed to compile\n");
+                    try
+                    {
+                        final DisplayModel model = widget.getDisplayModel();
+                        buf.append("Display '").append(model.getDisplayName()).append("', ");
+                    }
+                    catch (Exception ignore)
+                    {
+                        // Skip display model
+                    }
+                    buf.append(widget).append(", ").append(script_info.getPath());
+                    logger.log(Level.WARNING, buf.toString(), ex);
                 }
             }
 
@@ -321,8 +333,19 @@ public class WidgetRuntime<MW extends Widget>
                 }
                 catch (final Exception ex)
                 {
-                    logger.log(Level.WARNING,
-                        "Widget " + widget.getName() + " rule " + rule_info.getName() + " failed to initialize", ex);
+                    final StringBuilder buf = new StringBuilder();
+                    buf.append("Rule failed to compile\n");
+                    try
+                    {
+                        final DisplayModel model = widget.getDisplayModel();
+                        buf.append("Display '").append(model.getDisplayName()).append("', ");
+                    }
+                    catch (Exception ignore)
+                    {
+                        // Skip display model
+                    }
+                    buf.append(widget).append(", ").append(rule_info.getName());
+                    logger.log(Level.WARNING, buf.toString(), ex);
                 }
             }
 
@@ -349,8 +372,19 @@ public class WidgetRuntime<MW extends Widget>
                 }
                 catch (final Exception ex)
                 {
-                    logger.log(Level.WARNING,
-                        "Widget " + widget.getName() + " script action " + script_action + " failed to initialize", ex);
+                    final StringBuilder buf = new StringBuilder();
+                    buf.append("Script for action failed to compile\n");
+                    try
+                    {
+                        final DisplayModel model = widget.getDisplayModel();
+                        buf.append("Display '").append(model.getDisplayName()).append("', ");
+                    }
+                    catch (Exception ignore)
+                    {
+                        // Skip display model
+                    }
+                    buf.append(widget).append(", ").append(script_action);
+                    logger.log(Level.WARNING, buf.toString(), ex);
                 }
             }
             if (scripts.size() > 0)

@@ -85,7 +85,7 @@ import org.eclipse.ui.views.properties.IPropertySheetPage;
 public class DataBrowserEditor extends EditorPart
 {
     /** Editor ID (same ID as original Data Browser) registered in plugin.xml */
-    final public static String ID = "org.csstudio.trends.databrowser3.ploteditor.PlotEditor"; //$NON-NLS-1$
+    final public static String ID = "org.csstudio.trends.databrowser.ploteditor.PlotEditor"; //$NON-NLS-1$
 
     /** Data model */
     private Model model;

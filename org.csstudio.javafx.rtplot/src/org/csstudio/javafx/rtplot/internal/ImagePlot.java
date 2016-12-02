@@ -18,7 +18,6 @@ import java.awt.image.DataBufferInt;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.DoubleFunction;
 import java.util.logging.Level;
 
 import org.csstudio.javafx.ChildCare;
@@ -26,6 +25,7 @@ import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.Tracker;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
+import org.csstudio.javafx.rtplot.ColorMappingFunction;
 import org.csstudio.javafx.rtplot.Interpolation;
 import org.csstudio.javafx.rtplot.RTImagePlotListener;
 import org.csstudio.javafx.rtplot.RegionOfInterest;
@@ -54,12 +54,6 @@ import javafx.scene.text.Font;
 @SuppressWarnings("nls")
 public class ImagePlot extends PlotCanvasBase
 {
-    /** Gray scale color mapping */
-    public final static DoubleFunction<Color> GRAYSCALE = value -> new Color((float)value, (float)value, (float)value);
-
-    /** Rainbow color mapping */
-    public final static DoubleFunction<Color> RAINBOW = value -> new Color(Color.HSBtoRGB((float)value, 1.0f, 1.0f));
-
     /** Background color */
     private volatile Color background = Color.WHITE;
 
@@ -100,7 +94,7 @@ public class ImagePlot extends PlotCanvasBase
     private volatile int colorbar_size = 40;
 
     /** Mapping of value 0..1 to color */
-    private volatile DoubleFunction<Color> color_mapping = GRAYSCALE;
+    private volatile ColorMappingFunction color_mapping = ColorMappingFunction.GRAYSCALE;
 
     /** Image data */
     private volatile ListNumber image_data = null;
@@ -178,8 +172,8 @@ public class ImagePlot extends PlotCanvasBase
         requestUpdate();
     }
 
-    /** @param color_mapping Function that returns {@link Color} for value 0.0 .. 1.0 */
-    public void setColorMapping(final DoubleFunction<Color> color_mapping)
+    /** @param color_mapping {@link ColorMappingFunction} */
+    public void setColorMapping(final ColorMappingFunction color_mapping)
     {
         this.color_mapping = color_mapping;
         requestUpdate();
@@ -365,7 +359,7 @@ public class ImagePlot extends PlotCanvasBase
         final ListNumber numbers = this.image_data;
         final boolean unsigned = this.unsigned_data;
         double min = this.min, max = this.max;
-        final DoubleFunction<Color> color_mapping = this.color_mapping;
+        final ColorMappingFunction color_mapping = this.color_mapping;
 
         if (autoscale  &&  numbers != null)
         {   // Compute min..max before layout of color bar
@@ -540,14 +534,12 @@ public class ImagePlot extends PlotCanvasBase
      *  @param color_mapping Color mapping info
      *  @return Off-screen image
      */
-    private BufferedImage drawColorBar(final double min, final double max, final DoubleFunction<Color> color_mapping)
+    private BufferedImage drawColorBar(final double min, final double max, final ColorMappingFunction color_mapping)
     {
         final BufferedImage image = new BufferedImage(1, 256, BufferedImage.TYPE_INT_ARGB);
+        final int[] data = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
         for (int value=0; value<256; ++value)
-        {
-            final Color color = color_mapping.apply((255-value)/255.0);
-            image.setRGB(0, value, color.getRGB());
-        }
+            data[value] = color_mapping.getRGB((255-value)/255.0);
         return image;
     }
 
@@ -564,7 +556,7 @@ public class ImagePlot extends PlotCanvasBase
      */
     private static BufferedImage drawData(final int data_width, final int data_height, final ListNumber numbers,
                                           final boolean unsigned,
-                                          final double min, final double max, final DoubleFunction<Color> color_mapping)
+                                          final double min, final double max, final ColorMappingFunction color_mapping)
     {
         if (data_width <= 0  ||  data_height <= 0)
         {
@@ -607,7 +599,7 @@ public class ImagePlot extends PlotCanvasBase
                         scaled = 0;
                     else if (scaled > 1.0)
                         scaled = 1.0;
-                    data[idx++] = color_mapping.apply(scaled).getRGB();
+                    data[idx++] = color_mapping.getRGB(scaled);
                 }
         }
         else
@@ -621,7 +613,7 @@ public class ImagePlot extends PlotCanvasBase
                         scaled = 0;
                     else if (scaled > 1.0)
                         scaled = 1.0;
-                    data[idx++] = color_mapping.apply(scaled).getRGB();
+                    data[idx++] = color_mapping.getRGB(scaled);
                 }
         }
 

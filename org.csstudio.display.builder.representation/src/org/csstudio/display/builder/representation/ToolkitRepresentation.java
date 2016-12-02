@@ -371,6 +371,12 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         throttle.scheduleUpdate(representation);
     }
 
+    /** @param enable Enable updates, or pause? */
+    public void enable(final boolean enable)
+    {
+        throttle.enable(enable);
+    }
+
     /** Execute command in toolkit's UI thread.
      *
      *  <p>If already on the UI thread, command

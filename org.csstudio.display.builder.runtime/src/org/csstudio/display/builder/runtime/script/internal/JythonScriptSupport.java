@@ -20,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.runtime.Preferences;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
@@ -252,7 +253,19 @@ class JythonScriptSupport implements AutoCloseable
             }
             catch (final Throwable ex)
             {
-                logger.log(Level.WARNING, "Execution of '" + script + "' failed for " + widget, ex);
+                final StringBuilder buf = new StringBuilder();
+                buf.append("Script execution failed\n");
+                try
+                {
+                    final DisplayModel model = widget.getDisplayModel();
+                    buf.append("Display '").append(model.getDisplayName()).append("', ");
+                }
+                catch (Exception ignore)
+                {
+                    // Skip display model
+                }
+                buf.append(widget).append(", ").append(script);
+                logger.log(Level.WARNING, buf.toString(), ex);
             }
             // System.out.println("Finished " + script);
             return null;

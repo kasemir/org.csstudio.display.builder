@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model.util;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.text.DecimalFormat;
@@ -16,8 +17,8 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 
 import org.csstudio.display.builder.model.properties.FormatOption;
-import org.diirt.util.array.ArrayByte;
 import org.diirt.util.array.ArrayDouble;
+import org.diirt.util.array.ArrayInt;
 import org.diirt.util.array.ListNumber;
 import org.diirt.vtype.Display;
 import org.diirt.vtype.VEnum;
@@ -150,7 +151,7 @@ public class FormatOptionHandlerTest
     }
 
     @Test
-    public void testHex() throws Exception
+    public void testHexFormat() throws Exception
     {
         VType number = ValueFactory.newVDouble(65535.0, display);
 
@@ -165,6 +166,30 @@ public class FormatOptionHandlerTest
         text = FormatOptionHandler.format(number, FormatOption.HEX, 16, true);
         System.out.println(text);
         assertThat(text, equalTo("0x000000000000FFFF V"));
+    }
+
+    @Test
+    public void testHexParse() throws Exception
+    {
+        final VType number = ValueFactory.newVDouble(65535.0, display);
+
+        // Parse hex as hex
+        Object parsed = FormatOptionHandler.parse(number, "0xFF", FormatOption.HEX);
+        System.out.println(parsed);
+        assertThat(parsed, instanceOf(Number.class));
+        assertThat(((Number)parsed).intValue(), equalTo(255));
+
+        // Parse hex when using default format
+        parsed = FormatOptionHandler.parse(number, "0x7777", FormatOption.DEFAULT);
+        System.out.println(parsed);
+        assertThat(parsed, instanceOf(Number.class));
+        assertThat(((Number)parsed).intValue(), equalTo(30583));
+
+        // Parse hex without '0x' identifier when using hex format
+        parsed = FormatOptionHandler.parse(number, "0xFFFF", FormatOption.HEX);
+        System.out.println(parsed);
+        assertThat(parsed, instanceOf(Number.class));
+        assertThat(((Number)parsed).intValue(), equalTo(65535));
     }
 
     @Test
@@ -190,12 +215,21 @@ public class FormatOptionHandlerTest
         assertThat(text, equalTo("A V"));
 
         // Number array interpreted as long string
-        final ListNumber data = new ArrayByte("Test2".getBytes());
+        ListNumber data = new ArrayInt(72, 101, 108, 108, 111); // UTF-8 for 'Hello'
         value = ValueFactory.newVNumberArray(data, ValueFactory.alarmNone(), ValueFactory.timeNow(), display);
         System.out.println(value);
         text = FormatOptionHandler.format(value, FormatOption.STRING, -1, true);
         System.out.println(text);
-        assertThat(text, equalTo("Test2"));
+        assertThat(text, equalTo("Hello"));
+
+        data = new ArrayInt(/* Dollar */ 0x24,  /* Euro */ 0xE2, 0x82, 0xAC);
+        value = ValueFactory.newVNumberArray(data, ValueFactory.alarmNone(), ValueFactory.timeNow(), display);
+        System.out.println(value);
+        text = FormatOptionHandler.format(value, FormatOption.STRING, -1, true);
+        System.out.println(text);
+        // For this to work, Eclipse IDE Preferences -> General -> Workspace -> Text file encoding
+        // must be set to UTF-8, which is the default on Linux but not necessarily Windows
+        assertThat(text, equalTo("$€"));
     }
 
     @Test
@@ -230,11 +264,45 @@ public class FormatOptionHandlerTest
     }
 
     @Test
+    public void testSexagesimalFormat() throws Exception
+    {
+        final VType sexaPositiveValue = ValueFactory.newVDouble(12.5824414),
+                    sexaNegativeValue = ValueFactory.newVDouble(-12.5824414),
+                    sexaRoundedValue = ValueFactory.newVDouble(12.9999999);
+        assertThat(FormatOptionHandler.format(sexaPositiveValue, FormatOption.SEXAGESIMAL, 7, false), equalTo("12:34:56.789"));
+        assertThat(FormatOptionHandler.format(sexaPositiveValue, FormatOption.SEXAGESIMAL, 2, false), equalTo("12:35"));
+        assertThat(FormatOptionHandler.format(sexaPositiveValue, FormatOption.SEXAGESIMAL, 4, false), equalTo("12:34:57"));
+        assertThat(FormatOptionHandler.format(sexaNegativeValue, FormatOption.SEXAGESIMAL, 7, false), equalTo("-12:34:56.789"));
+        assertThat(FormatOptionHandler.format(sexaRoundedValue, FormatOption.SEXAGESIMAL, 7, false), equalTo("13:00:00.000"));
+        assertThat(FormatOptionHandler.format(sexaRoundedValue, FormatOption.SEXAGESIMAL, 8, false), equalTo("12:59:59.9996"));
+
+        assertThat(FormatOptionHandler.format(ValueFactory.newVDouble(2*Math.PI), FormatOption.SEXAGESIMAL_HMS, 7, false), equalTo("24:00:00.000"));
+        assertThat(FormatOptionHandler.format(sexaPositiveValue, FormatOption.SEXAGESIMAL_HMS, 7, false), equalTo("48:03:40.989"));
+        assertThat(FormatOptionHandler.format(sexaNegativeValue, FormatOption.SEXAGESIMAL_HMS, 7, false), equalTo("-48:03:40.989"));
+
+        assertThat(FormatOptionHandler.format(ValueFactory.newVDouble(2*Math.PI), FormatOption.SEXAGESIMAL_DMS, 7, false), equalTo("360:00:00.000"));
+        assertThat(FormatOptionHandler.format(sexaPositiveValue, FormatOption.SEXAGESIMAL_DMS, 7, false), equalTo("720:55:14.837"));
+        assertThat(FormatOptionHandler.format(sexaNegativeValue, FormatOption.SEXAGESIMAL_DMS, 7, false), equalTo("-720:55:14.837"));
+        assertThat(FormatOptionHandler.format(sexaRoundedValue, FormatOption.SEXAGESIMAL_DMS, 7, false), equalTo("744:50:42.461"));
+    }
+
+    @Test
+    public void testSexagesimalParser() throws Exception
+    {
+        final VType number = ValueFactory.newVDouble(0.0);
+        assertEquals(12.5824414, (Double)FormatOptionHandler.parse(number, "12:34:56.789", FormatOption.SEXAGESIMAL), 0.0000001);
+        assertEquals(Math.PI, (Double)FormatOptionHandler.parse(number, "12:00:00.000", FormatOption.SEXAGESIMAL_HMS), 0.0000001);
+        assertEquals(12.5824414, (Double)FormatOptionHandler.parse(number, "48:03:40.989", FormatOption.SEXAGESIMAL_HMS), 0.0000001);
+        assertEquals(Math.PI, (Double)FormatOptionHandler.parse(number, "180:00:00.000", FormatOption.SEXAGESIMAL_DMS), 0.0000001);
+        assertEquals(12.5824414, (Double)FormatOptionHandler.parse(number, "720:55:14.837", FormatOption.SEXAGESIMAL_DMS), 0.0000001);
+    }
+
+    @Test
     public void testNumberParsing() throws Exception
     {
         VType value = ValueFactory.newVDouble(3.16, display);
 
-        Object parsed = FormatOptionHandler.parse(value, "42.5 Socks");
+        Object parsed = FormatOptionHandler.parse(value, "42.5 Socks", FormatOption.DEFAULT);
         assertThat(parsed, instanceOf(Number.class));
         assertThat(((Number)parsed).doubleValue(), equalTo(42.5));
     }
@@ -245,12 +313,11 @@ public class FormatOptionHandlerTest
         final ListNumber data = new ArrayDouble(1.0, 2.0, 3.0, 4.0);
         final VType value = ValueFactory.newVNumberArray(data, ValueFactory.alarmNone(), ValueFactory.timeNow(), display);
 
-        Object parsed = FormatOptionHandler.parse(value, " [  1, 2.5  ,  3 ] ");
+        Object parsed = FormatOptionHandler.parse(value, " [  1, 2.5  ,  3 ] ", FormatOption.DEFAULT);
         assertThat(parsed, instanceOf(double[].class));
         final double[] numbers = (double[]) parsed;
         assertThat(numbers, equalTo(new double[] { 1.0, 2.5, 3.0 }));
     }
-
 
     @Test
     public void testStringArrayParsing() throws Exception
@@ -260,24 +327,24 @@ public class FormatOptionHandlerTest
         final String text = FormatOptionHandler.format(value, FormatOption.DEFAULT, 0, true);
         System.out.println(text);
 
-        Object parsed = FormatOptionHandler.parse(value, text);
+        Object parsed = FormatOptionHandler.parse(value, text, FormatOption.DEFAULT);
         System.out.println(Arrays.toString((String[])parsed));
         assertThat(parsed, equalTo(new String[] { "Flintstone, \"Al\" Fred", "Jane" }));
 
-        parsed = FormatOptionHandler.parse(value, "[ \"Freddy\", \"Janet\" ] ");
+        parsed = FormatOptionHandler.parse(value, "[ \"Freddy\", \"Janet\" ] ", FormatOption.DEFAULT);
         assertThat(parsed, instanceOf(String[].class));
         assertThat(parsed, equalTo(new String[] { "Freddy", "Janet" }));
 
-        parsed = FormatOptionHandler.parse(value, "[ Freddy, Janet ] ");
+        parsed = FormatOptionHandler.parse(value, "[ Freddy, Janet ] ", FormatOption.DEFAULT);
         assertThat(parsed, equalTo(new String[] { "Freddy", "Janet" }));
 
-        parsed = FormatOptionHandler.parse(value, "Freddy, Janet");
+        parsed = FormatOptionHandler.parse(value, "Freddy, Janet", FormatOption.DEFAULT);
         assertThat(parsed, equalTo(new String[] { "Freddy", "Janet" }));
 
-        parsed = FormatOptionHandler.parse(value, " [ \"Flintstone, Fred\", Janet");
+        parsed = FormatOptionHandler.parse(value, " [ \"Flintstone, Fred\", Janet", FormatOption.DEFAULT);
         assertThat(parsed, equalTo(new String[] { "Flintstone, Fred", "Janet" }));
 
-        parsed = FormatOptionHandler.parse(value, " \"Al \\\"Ed\\\" Stone\", Jane");
+        parsed = FormatOptionHandler.parse(value, " \"Al \\\"Ed\\\" Stone\", Jane", FormatOption.DEFAULT);
         System.out.println(Arrays.toString((String[])parsed));
         assertThat(parsed, equalTo(new String[] { "Al \"Ed\" Stone", "Jane" }));
     }

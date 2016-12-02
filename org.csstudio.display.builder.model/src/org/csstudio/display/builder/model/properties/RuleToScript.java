@@ -10,8 +10,6 @@ package org.csstudio.display.builder.model.properties;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -73,106 +71,79 @@ public class RuleToScript
         }
     }
 
-
-    private static int countMatches(String s, char c)
-    {
-        int counter = 0;
-        for( int i=0; i<s.length(); i++ ) {
-            if( s.charAt(i) == c ) {
-                counter++;
-            }
-        }
-        return counter;
-    }
-
-    /**
-     * Substitute the string "True" for all instances of string "true" to update old javascript rules into Python
+    /** Patch logic
+     *
+     *  <p>Replaces 'true' with 'True', '&&' with 'and' and so on.
+     *
+     *  @param text Text with logical expression
+     *  @return Javascript type logic somewhat updated to Python
      */
-    protected static String TrueFortrue(final String instr)
+    protected static String javascriptToPythonLogic(final String text)
     {
-        //return instr.replaceAll("(\\W|^)(true)", "$1True");
-        Matcher m = Pattern.compile("(.*?)((true)+)").matcher(instr);
-        StringBuffer sb = new StringBuffer();
-
-        boolean inquotes=false;
-        while(m.find()) {
-            if ((countMatches(m.group(1), '\"') % 2) == 1)
-                inquotes = !inquotes;
-            if (inquotes)
-                m.appendReplacement(sb, m.group(1) + m.group(2));
-            else if (m.group(1).matches(".*\\w"))
-                m.appendReplacement(sb, m.group(1) + m.group(2));
-            else if (m.group(2).matches("true(true)+"))
-                m.appendReplacement(sb, m.group(1) + m.group(2));
-            else
-                m.appendReplacement(sb, m.group(1) + "True");
-        }
-        m.appendTail(sb);
-
-        return sb.toString();
-    }
-
-    /**
-     * Substitute Python logical operators 'and', 'or', and 'not' for old
-     * javascript operators '&&', '||', '!'
-     */
-    protected static String replaceLogicalOperators(final String instr)
-    {
-        //matches '&&', '||', and '!', but not '!='
-        Matcher m = Pattern.compile("((.*?) ?)(\\&\\&|\\|\\||!(?!=)) ?").matcher(instr);
-        Pattern qp = Pattern.compile("(?<!\\\\)\\\""); //matches `"` but not `\"`
-        StringBuffer sb = new StringBuffer();
-
-        boolean inquotes = false;
-        while (m.find())
+        final int len = text.length();
+        final StringBuilder result = new StringBuilder(len);
+        for (int i=0; i<len; ++i)
         {
-            final Matcher qm = qp.matcher(m.group(2));
-            int quotes = 0;
-            while (qm.find())
-                quotes++;
-            if ((quotes & 1) != 0)
-                inquotes = !inquotes;
-            if (!inquotes)
+            // Skip quoted text, ignoring escaped quotes
+            if (text.charAt(i) == '"'  &&  (len == 0  ||  text.charAt(i-1) != '\\'))
             {
-                String operator = m.group(3);
-                if (operator.equals("&&"))
-                    operator = "and";
-                else if (operator.equals("||"))
-                    operator = "or";
-                else if (operator.equals("!"))
-                    operator = "not";
-                //quoteReplacement for group(2) to preserve escaping '\'
-                m.appendReplacement(sb, Matcher.quoteReplacement(m.group(2)) + ' ' + operator + ' ');
+                result.append(text.charAt(i));
+                ++i;
+                while (text.charAt(i) != '"' || text.charAt(i-1) == '\\')
+                {
+                    result.append(text.charAt(i));
+                    ++i;
+                    // Unmatched quotes
+                    if (i >= len)
+                        return text;
+                }
+                result.append(text.charAt(i));
             }
+            else if (matches(text, i, "true"))
+            {
+                result.append("True");
+                i += 3;
+            }
+            else if (matches(text, i, "false"))
+            {
+                result.append("False");
+                i += 4;
+            }
+            else if (matches(text, i, "&&"))
+            {
+                result.append("and");
+                i += 1;
+            }
+            else if (matches(text, i, "||"))
+            {
+                result.append("or");
+                i += 1;
+            }
+            else if (text.charAt(i) == '!'  &&  ! matches(text, i, "!="))
+                result.append("not");
             else
-                m.appendReplacement(sb, m.group(1) + m.group(3));
+                result.append(text.charAt(i));
         }
-        m.appendTail(sb);
-        return sb.toString();
+        return result.toString();
+    }
+
+    private static boolean matches(final String text, final int pos, final String literal)
+    {
+        final int ll = literal.length();
+        return text.length() >= pos + ll  &&  text.substring(pos, pos+ll).equals(literal);
     }
 
     public static String generatePy(final Widget attached_widget, final RuleInfo rule)
     {
-        WidgetProperty<?> prop = attached_widget.getProperty(rule.getPropID());
-
-        //TODO: Replace macros from attached_widget.getMacrosOrProperties()?
-        // Example of replacing macros:
-        // final String script_name = MacroHandler.replace(macros, script_info.getPath());
+        final WidgetProperty<?> prop = attached_widget.getProperty(rule.getPropID());
 
         PropFormat pform = PropFormat.STRING;
-
         if (prop.getDefaultValue() instanceof Number)
-        {
             pform = PropFormat.NUMERIC;
-        }
         else if (prop.getDefaultValue() instanceof Boolean)
-        {
             pform = PropFormat.BOOLEAN;
-        }
         else if (prop.getDefaultValue() instanceof WidgetColor)
-        {
             pform = PropFormat.COLOR;
-        }
 
         final StringBuilder script = new StringBuilder();
         script.append("## Script for Rule: ").append(rule.getName()).append("\n\n");
@@ -183,14 +154,14 @@ public class RuleToScript
         script.append("\n## Process variable extraction\n");
         script.append("## Use any of the following valid variable names in an expression:\n");
 
-        Map<String,String> pvm = pvNameOptions(rule.getPVs().size());
+        final Map<String,String> pvm = pvNameOptions(rule.getPVs().size());
 
         for (Map.Entry<String, String> entry : pvm.entrySet())
             script.append("##     " + entry.getKey() + "\n");
         script.append("\n");
 
         // Check which pv* variables are actually used
-        Map<String,String> output_pvm = new HashMap<String,String>();
+        final Map<String,String> output_pvm = new HashMap<String,String>();
         for (ExpressionInfo<?> expr : rule.getExpressions())
         {
             // Check the boolean expressions.
@@ -212,9 +183,8 @@ public class RuleToScript
             for (Map.Entry<String, String> entry : pvm.entrySet())
             {
                 final String varname = entry.getKey();
-                if (expr_to_check.contains(varname)) {
+                if (expr_to_check.contains(varname))
                     output_pvm.put(varname, entry.getValue());
-                }
             }
         }
         // Generate code that reads the required pv* variables from PVs
@@ -255,15 +225,15 @@ public class RuleToScript
         script.append("\n## Script Body\n");
         String indent = "    ";
 
-        String setPropStr = "widget.setPropertyValue('" + rule.getPropID() + "', ";
+        final String setPropStr = "widget.setPropertyValue('" + rule.getPropID() + "', ";
         int idx = 0;
         for (ExpressionInfo<?> expr : rule.getExpressions())
         {
             script.append((idx == 0) ? "if" : "elif");
-            script.append(" ").append(replaceLogicalOperators(TrueFortrue(expr.getBoolExp()))).append(":\n");
+            script.append(" ").append(javascriptToPythonLogic(expr.getBoolExp())).append(":\n");
             script.append(indent).append(setPropStr);
             if (rule.getPropAsExprFlag())
-                script.append(replaceLogicalOperators(TrueFortrue(expr.getPropVal().toString()))).append(")\n");
+                script.append(javascriptToPythonLogic(expr.getPropVal().toString())).append(")\n");
             else
                 script.append(formatPropVal((WidgetProperty<?>) expr.getPropVal(), idx, pform)).append(")\n");
             idx++;

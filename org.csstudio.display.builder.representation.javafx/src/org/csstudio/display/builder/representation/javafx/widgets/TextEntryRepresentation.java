@@ -13,7 +13,6 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.properties.FormatOption;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
@@ -135,11 +134,8 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
         // Strip 'units' etc. from text
         final String text = jfx_node.getText();
 
-        final Object value;
-        if (model_widget.propFormat().getValue() == FormatOption.STRING)
-            value = text;
-        else
-            value = FormatOptionHandler.parse(model_widget.runtimePropValue().getValue(), text);
+        final Object value = FormatOptionHandler.parse(model_widget.runtimePropValue().getValue(), text,
+                                                       model_widget.propFormat().getValue());
         logger.log(Level.FINE, "Writing '" + text + "' as " + value + " (" + value.getClass().getName() + ")");
         toolkit.fireWrite(model_widget, value);
 

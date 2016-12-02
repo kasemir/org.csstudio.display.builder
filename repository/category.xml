@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
+   <category-def name="org.csstudio.category.applications" label="CS-Studio Applications"/>
    <feature id="org.csstudio.display.builder.feature">
       <category name="org.csstudio.category.applications"/>
    </feature>
-   <category-def name="org.csstudio.category.applications" label="CS-Studio Applications"/>
+   <feature id="org.csstudio.trends.databrowser3.feature">
+      <category name="org.csstudio.category.applications"/>
+   </feature>
+   <feature id="org.csstudio.trends.databrowser3.bobwidget.feature">
+      <category name="org.csstudio.category.applications"/>
+   </feature>
+   <feature id="org.csstudio.trends.databrowser3.opiwidget.feature">
+      <category name="org.csstudio.category.applications"/>
+   </feature>
 </site>

@@ -7,10 +7,8 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
-import java.util.function.DoubleFunction;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
@@ -219,8 +217,8 @@ public class RTImagePlot extends BorderPane
         plot.setBackground(GraphicsUtils.convert(color));
     }
 
-    /** @param color_mapping Function that returns {@link Color} for value 0.0 .. 1.0 */
-    public void setColorMapping(final DoubleFunction<Color> color_mapping)
+    /** @param color_mapping Function that returns color for value 0.0 .. 1.0 */
+    public void setColorMapping(final ColorMappingFunction color_mapping)
     {
         plot.setColorMapping(color_mapping);
     }
