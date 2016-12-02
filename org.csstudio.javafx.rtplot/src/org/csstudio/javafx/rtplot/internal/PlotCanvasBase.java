@@ -121,7 +121,9 @@ abstract class PlotCanvasBase extends Canvas
         final Image image = plot_image;
         if (image != null)
             synchronized (image)
-            {
+            {   // ClearRect clears the render operations buffer
+                // http://stackoverflow.com/questions/18097404/how-can-i-free-canvas-memory
+                gc.clearRect(0,  0, getWidth(), getHeight());
                 gc.drawImage(image, 0, 0);
             }
         drawMouseModeFeedback(gc);
