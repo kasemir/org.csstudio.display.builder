@@ -44,6 +44,7 @@ public class RuntimeScriptHandler implements RuntimePVListener
     private final Widget widget;
     private final List<ScriptPV> infos;
     private final Script script;
+    private final boolean check_connections;
 
     /** 'pvs' is aligned with 'infos', i.e. pvs[i] goes with infos.get(i) */
     private final RuntimePV[] pvs;
@@ -127,7 +128,7 @@ public class RuntimeScriptHandler implements RuntimePVListener
      */
     public RuntimeScriptHandler(final Widget widget, final ScriptInfo script_info) throws Exception
     {
-        this(widget, compileScript(widget, widget.getMacrosOrProperties(), script_info), script_info.getPVs());
+        this(widget, compileScript(widget, widget.getMacrosOrProperties(), script_info), script_info.getCheckConnections(), script_info.getPVs());
     }
 
     /** @param widget Widget on which the rule is invoked
@@ -136,18 +137,21 @@ public class RuntimeScriptHandler implements RuntimePVListener
      */
     public RuntimeScriptHandler(final Widget widget, final RuleInfo rule_info) throws Exception
     {
-        this(widget, compileScript(widget, rule_info), rule_info.getPVs());
+        this(widget, compileScript(widget, rule_info), true, rule_info.getPVs());
     }
 
     /** @param widget Widget on which the script is invoked
      *  @param script Script to execute
+     *  @param check_connections Check connections before executing script?
+     *  @param infos PV infos
      *  @throws Exception on error
      */
-    private RuntimeScriptHandler(final Widget widget, final Script script, final List<ScriptPV> infos) throws Exception
+    private RuntimeScriptHandler(final Widget widget, final Script script, final boolean check_connections, final List<ScriptPV> infos) throws Exception
     {
         this.widget = widget;
         this.infos = infos;
         this.script = script;
+        this.check_connections = check_connections;
         pvs = new RuntimePV[infos.size()];
         subscribed = new AtomicBoolean[infos.size()];
         createPVs();
@@ -170,6 +174,12 @@ public class RuntimeScriptHandler implements RuntimePVListener
         // Will later unsubscribe from non-trigger PVs
         for (int i=0; i<pvs.length; ++i)
             pvs[i].addListener(this);
+
+        // If not awaiting connections,
+        // invoke script right away while all PVs are still
+        // disconnected
+        if (! check_connections)
+            script.submit(widget, pvs);
     }
 
     /** Must be invoked to dispose PVs */
@@ -201,19 +211,12 @@ public class RuntimeScriptHandler implements RuntimePVListener
             }
             logger.fine(buf.toString());
         }
-        // Skip script execution unless all PVs are connected
-        for (RuntimePV p : pvs)
-            if (p.read() == null)
-                return;
 
-        // Check if this PV is a 'trigger'
-        // (linear search, expecting only a few PVs per script)
-        int i;
-        for (i=0; i<pvs.length; ++i)
-            if (pv == pvs[i])
-                break;
-        if (i >= pvs.length)
-            throw new IllegalStateException(script + " triggered by unknown PV " + pv);
+        // Skip script execution unless all PVs are connected?
+        if (check_connections)
+            for (RuntimePV p : pvs)
+                if (p.read() == null)
+                    return;
 
         // If this is a trigger PV, execute the script.
         // If not trigger PV,
@@ -224,6 +227,7 @@ public class RuntimeScriptHandler implements RuntimePVListener
         // were missing the script didn't execute.
         // Finally all connect, and in this case the last connecting
         // non-trigger PV actually triggers the (first) run.
+        final int i = getPVIndex(pv);
         if (! infos.get(i).isTrigger())
         {
             if (subscribed[i].getAndSet(false))
@@ -234,5 +238,29 @@ public class RuntimeScriptHandler implements RuntimePVListener
 
         // Request execution of script
         script.submit(widget, pvs);
+    }
+
+    /** @param pv PV
+     *  @return Index of that PV in pvs[], infos[], subscribed[]
+     *  @throws IllegalStateException for invalid PV
+     */
+    private int getPVIndex(final RuntimePV pv)
+    {
+        // Linear search, expecting only a few PVs per script
+        for (int i=0; i<pvs.length; ++i)
+            if (pv == pvs[i])
+                return i;
+        throw new IllegalStateException(script + " triggered by unknown PV " + pv);
+    }
+
+    @Override
+    public void disconnected(final RuntimePV pv)
+    {
+        if (check_connections)
+            return;
+        // Invoke script even if (trigger) PV is disconnected
+        final int i = getPVIndex(pv);
+        if (infos.get(i).isTrigger())
+            script.submit(widget, pvs);
     }
 }

@@ -31,6 +31,7 @@ import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
@@ -99,17 +100,19 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     {
         public StringProperty file = new SimpleStringProperty();
         public String text;
+        public boolean check_connections;
         public List<PVItem> pvs;
 
         public ScriptItem()
         {
-            this(Messages.ScriptsDialog_DefaultScriptFile, null, new ArrayList<>());
+            this(Messages.ScriptsDialog_DefaultScriptFile, null, true, new ArrayList<>());
         }
 
-        public ScriptItem(final String file, final String text, final List<PVItem> pvs)
+        public ScriptItem(final String file, final String text, final boolean check_connections, final List<PVItem> pvs)
         {
             this.file.set(file);
             this.text = text;
+            this.check_connections = check_connections;
             this.pvs = pvs;
         }
 
@@ -117,14 +120,14 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         {
             final List<PVItem> pvs = new ArrayList<>();
             info.getPVs().forEach(pv -> pvs.add(PVItem.forPV(pv)));
-            return new ScriptItem(info.getPath(), info.getText(), pvs);
+            return new ScriptItem(info.getPath(), info.getText(), info.getCheckConnections(), pvs);
         }
 
         public ScriptInfo getScriptInfo()
         {
             final List<ScriptPV> spvs = new ArrayList<>();
             pvs.forEach(pv -> spvs.add(pv.toScriptPV()));
-            return new ScriptInfo(file.get(), text, spvs);
+            return new ScriptInfo(file.get(), text, check_connections, spvs);
         }
 
         public StringProperty fileProperty()
@@ -146,6 +149,8 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
     private TableView<PVItem> pvs_table;
 
     private Button btn_file, btn_embed_py, btn_embed_js;
+
+    private CheckBox btn_check_connections;
 
     private ScriptItem selected_script_item = null;
 
@@ -199,6 +204,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
                 btn_file.setDisable(true);
                 btn_embed_py.setDisable(true);
                 btn_embed_js.setDisable(true);
+                pvs.setDisable(true);
                 pv_items.clear();
             }
             else
@@ -206,6 +212,8 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
                 btn_file.setDisable(false);
                 btn_embed_py.setDisable(false);
                 btn_embed_js.setDisable(false);
+                pvs.setDisable(false);
+                btn_check_connections.setSelected(selected.check_connections);
                 pv_items.setAll(selected.pvs);
                 fixupPVs(0);
             }
@@ -490,9 +498,20 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
             pvs_table.getSelectionModel().select(pv);
         });
 
+        btn_check_connections = new CheckBox(Messages.ScriptsDialog_CheckConnections);
+        btn_check_connections.setSelected(true);
+        btn_check_connections.setOnAction(event ->
+        {
+            selected_script_item.check_connections = btn_check_connections.isSelected();
+        });
+
         final VBox buttons = new VBox(10, add, remove, up, down);
-        final HBox content = new HBox(10, pvs_table, buttons);
+        final HBox pvs_buttons = new HBox(10, pvs_table, buttons);
         HBox.setHgrow(pvs_table, Priority.ALWAYS);
+
+        final VBox content = new VBox(10, pvs_buttons, btn_check_connections);
+        VBox.setVgrow(pvs_buttons, Priority.ALWAYS);
+
         return content;
     }
 

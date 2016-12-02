@@ -82,6 +82,7 @@ public abstract class ActionInfo
         case EXECUTE_SCRIPT:
             return new ExecuteScriptActionInfo(type.toString(),
                                                new ScriptInfo(ScriptInfo.EMBEDDED_PYTHON, "print 'Hello'",
+                                                              false,
                                                               Collections.emptyList()));
         case OPEN_FILE:
             return new OpenFileActionInfo(type.toString(), "");

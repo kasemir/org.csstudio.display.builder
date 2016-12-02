@@ -92,6 +92,7 @@ public class Messages extends NLS
     public static String ScriptsDialog_BtnEmbedJS;
     public static String ScriptsDialog_BtnEmbedPy;
     public static String ScriptsDialog_BtnFile;
+    public static String ScriptsDialog_CheckConnections;
     public static String ScriptsDialog_ColPV;
     public static String ScriptsDialog_ColScript;
     public static String ScriptsDialog_ColTrigger;

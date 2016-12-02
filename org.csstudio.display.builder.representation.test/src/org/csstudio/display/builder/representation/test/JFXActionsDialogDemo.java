@@ -47,7 +47,7 @@ public class JFXActionsDialogDemo  extends Application
         final List<ActionInfo> actions = Arrays.asList(
                 new OpenDisplayActionInfo("Related Display", "../opi/some_file.opi", macros, Target.TAB),
                 new WritePVActionInfo("Reset", "Test:CS:Reset", "1"),
-                new ExecuteScriptActionInfo("Script", new ScriptInfo(ScriptInfo.EMBEDDED_PYTHON, "print 'hi'", Collections.emptyList())));
+                new ExecuteScriptActionInfo("Script", new ScriptInfo(ScriptInfo.EMBEDDED_PYTHON, "print 'hi'", false, Collections.emptyList())));
         final ActionsDialog dialog = new ActionsDialog(widget, actions);
         final Optional<List<ActionInfo>> result = dialog.showAndWait();
         if (result.isPresent())
