@@ -900,7 +900,7 @@ widget:
 </p>
 
 <pre>
-value = PVUtil.getDouble(pvs[0]);
+value = PVUtil.getDouble(pvs[0])
 if value >= 0:
     result = "Positive"
 else:
@@ -908,6 +908,42 @@ else:
 widget.setPropertyValue("text", result)
 </pre>
 
+<h4>Disconnected PVs</h4>
+
+<p>By default, a script is only executed whenever a "Trigger" PV has a new value
+and all PVs are connected.
+A script can therefore assume that all PVs have a value, but since PVs can disconnect
+at any time, especially for a longer running script, it is possible that the value
+of a PV is not defined.
+This will typically result in a script that fails to execute because it tries to access
+a Python <code>None</code> value.
+The widget indicates to the user via its border that there is one or more disconnected PV,
+which includes disconnected script PVs.
+Once the PV reconnects, the script will again execute successfully. 
+</p>
+<p>A careful Python script that needs to avoid <code>None</code> errors can check like this:
+</p>
+
+<pre>
+value = pvs[0].read()
+if value is None:
+    widget.setPropertyValue("text", "Not connected")
+else:
+    widget.setPropertyValue("text", ValueUtil.getString(value))
+</pre>
+
+<p>By default, a script will thus rarely see any PVs in a disconnected state.
+If a script actually needs to react to disconnect events,
+the script option to "Only trigger when all PVs are connected"
+can be de-selected in the script configuration dialog.
+The script will now be invoked
+</p>
+
+<ul>
+<li>Once when the display starts while most PVs are still likely disconnected.</li>
+<li>Whenever a "Trigger" PV has a new value, which includes when the PV connects and receives its initial value.</li>
+<li>Whenever a "Trigger" PV becomes disconnected.</li>
+</ul>
 
 <h3>Action Scripts</h3>
 
