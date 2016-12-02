@@ -7,10 +7,14 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import static org.csstudio.javafx.rtplot.Activator.logger;
+
 import java.awt.Rectangle;
+import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
@@ -87,9 +91,32 @@ abstract class PlotCanvasBase extends Canvas
         }
     };
 
+    /** Hack: Access to Canvas#isRendererFallingBehind()
+     *  to check for buffered updates that eventually
+     *  exhaust memory.
+     */
+    private Method isRendererFallingBehind;
+
     /** Redraw the canvas on UI thread by painting the 'plot_image' */
-    final private Runnable redraw_runnable = () ->
+    private final Runnable redraw_runnable = () ->
     {
+        // TODO Is canvas render buffer overflowing?
+        //      If yes, use ImageView instead of Canvas?
+        if (isRendererFallingBehind != null)
+            try
+            {
+                Object behind = isRendererFallingBehind.invoke(this);
+                if (behind instanceof Boolean  &&   ((Boolean) behind))
+                {
+                    logger.log(Level.WARNING, "Plot renderer is falling behind");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot check Canvas rendering buffer", ex);
+            }
+
         final GraphicsContext gc = getGraphicsContext2D();
         final Image image = plot_image;
         if (image != null)
@@ -117,6 +144,17 @@ abstract class PlotCanvasBase extends Canvas
         };
         widthProperty().addListener(resize_listener);
         heightProperty().addListener(resize_listener);
+
+
+        try
+        {
+            isRendererFallingBehind = Canvas.class.getDeclaredMethod("isRendererFallingBehind");
+            isRendererFallingBehind.setAccessible(true);
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot access Canvas#isRendererFallingBehind", ex);
+        }
 
         // 50Hz default throttle
         update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
