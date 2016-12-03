@@ -10,6 +10,7 @@ package org.csstudio.javafx.rtplot.internal;
 import static org.csstudio.javafx.rtplot.Activator.logger;
 
 import java.awt.Rectangle;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +19,8 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
+
+import com.sun.javafx.sg.prism.GrowableDataBuffer;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -123,11 +126,33 @@ abstract class PlotCanvasBase extends Canvas
             synchronized (image)
             {   // ClearRect clears the render operations buffer
                 // http://stackoverflow.com/questions/18097404/how-can-i-free-canvas-memory
-                gc.clearRect(0,  0, getWidth(), getHeight());
+                // gc.clearRect(0,  0, getWidth(), getHeight());
                 gc.drawImage(image, 0, 0);
             }
         drawMouseModeFeedback(gc);
+        showCanvasInfo(this);
     };
+
+    // Show size of canvas render operations buffers
+    private void showCanvasInfo(final Canvas canvas)
+    {
+        try
+        {
+            // Canvas:
+            // GrowableDataBuffer current;
+            final Field field = Canvas.class.getDeclaredField("current");
+            field.setAccessible(true);
+            final GrowableDataBuffer current = (GrowableDataBuffer) field.get(canvas);
+            if (current.writeObjectPosition() > 1)
+                System.out.println("Vals: " + current.writeValuePosition() + ", Obj: " + current.writeObjectPosition());
+        }
+        catch (Exception ex)
+        {
+            // TODO Auto-generated catch block
+            ex.printStackTrace();
+        }
+
+    }
 
     protected MouseMode mouse_mode = MouseMode.NONE;
     protected Optional<Point2D> mouse_start = Optional.empty();
