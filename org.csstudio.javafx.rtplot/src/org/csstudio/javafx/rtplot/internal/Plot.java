@@ -582,7 +582,11 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     /** @param show Show the cross-hair cursor? */
     public void showCrosshair(final boolean show)
     {
+        if (show_crosshair == show)
+            return;
         show_crosshair = show;
+        // Redraw once to show or hide crosshair
+        redrawSafely();
     }
 
     /** return Show the cross-hair cursor? */
@@ -716,7 +720,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     private void updateCursors(final List<CursorMarker> markers)
     {
         cursor_markers = Optional.ofNullable(markers);
-        redrawSafely();
+        // Need to redraw for crosshair?
+        if (show_crosshair)
+            redrawSafely();
         fireCursorsChanged();
     }
 
