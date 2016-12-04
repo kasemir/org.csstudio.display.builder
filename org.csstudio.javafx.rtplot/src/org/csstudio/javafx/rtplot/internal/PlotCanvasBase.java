@@ -7,20 +7,13 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
-import static org.csstudio.javafx.rtplot.Activator.logger;
-
 import java.awt.Rectangle;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
-
-import com.sun.javafx.sg.prism.GrowableDataBuffer;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -94,32 +87,9 @@ abstract class PlotCanvasBase extends Canvas
         }
     };
 
-    /** Hack: Access to Canvas#isRendererFallingBehind()
-     *  to check for buffered updates that eventually
-     *  exhaust memory.
-     */
-    private Method isRendererFallingBehind;
-
     /** Redraw the canvas on UI thread by painting the 'plot_image' */
     private final Runnable redraw_runnable = () ->
     {
-        // TODO Is canvas render buffer overflowing?
-        //      If yes, use ImageView instead of Canvas?
-        if (isRendererFallingBehind != null)
-            try
-            {
-                Object behind = isRendererFallingBehind.invoke(this);
-                if (behind instanceof Boolean  &&   ((Boolean) behind))
-                {
-                    logger.log(Level.WARNING, "Plot renderer is falling behind");
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.log(Level.WARNING, "Cannot check Canvas rendering buffer", ex);
-            }
-
         final GraphicsContext gc = getGraphicsContext2D();
         final Image image = plot_image;
         if (image != null)
@@ -129,30 +99,13 @@ abstract class PlotCanvasBase extends Canvas
                 // gc.clearRect(0,  0, getWidth(), getHeight());
                 gc.drawImage(image, 0, 0);
             }
+
+        // Skip mouse feedback while in overflow
+        if (CanvasCheck.inOverflow(this))
+            return;
+
         drawMouseModeFeedback(gc);
-        showCanvasInfo(this);
     };
-
-    // Show size of canvas render operations buffers
-    private void showCanvasInfo(final Canvas canvas)
-    {
-        try
-        {
-            // Canvas:
-            // GrowableDataBuffer current;
-            final Field field = Canvas.class.getDeclaredField("current");
-            field.setAccessible(true);
-            final GrowableDataBuffer current = (GrowableDataBuffer) field.get(canvas);
-            if (current.writeObjectPosition() > 1)
-                System.out.println("Vals: " + current.writeValuePosition() + ", Obj: " + current.writeObjectPosition());
-        }
-        catch (Exception ex)
-        {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
-        }
-
-    }
 
     protected MouseMode mouse_mode = MouseMode.NONE;
     protected Optional<Point2D> mouse_start = Optional.empty();
@@ -171,17 +124,6 @@ abstract class PlotCanvasBase extends Canvas
         };
         widthProperty().addListener(resize_listener);
         heightProperty().addListener(resize_listener);
-
-
-        try
-        {
-            isRendererFallingBehind = Canvas.class.getDeclaredMethod("isRendererFallingBehind");
-            isRendererFallingBehind.setAccessible(true);
-        }
-        catch (Exception ex)
-        {
-            logger.log(Level.WARNING, "Cannot access Canvas#isRendererFallingBehind", ex);
-        }
 
         // 50Hz default throttle
         update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
