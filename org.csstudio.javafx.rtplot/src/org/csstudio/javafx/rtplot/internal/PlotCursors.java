@@ -43,7 +43,7 @@ public class PlotCursors
     {
         try
         {
-            cursor_cross = new ImageCursor(Activator.getIcon("cursor_cross"), 16, 16);
+            cursor_cross = new ImageCursor(Activator.getIcon("cursor_cross"), 17, 17);
             cursor_pan = new ImageCursor(Activator.getIcon("cursor_pan"), 8, 8);
             cursor_zoom_in = new ImageCursor(Activator.getIcon("cursor_zoom_in"), 5, 5);
             cursor_zoom_out = new ImageCursor(Activator.getIcon("cursor_zoom_out"), 5, 5);
