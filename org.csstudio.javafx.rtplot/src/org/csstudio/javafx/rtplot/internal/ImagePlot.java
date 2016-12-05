@@ -35,12 +35,9 @@ import org.csstudio.javafx.rtplot.internal.util.LinearScreenTransform;
 import org.diirt.util.array.IteratorNumber;
 import org.diirt.util.array.ListNumber;
 
-import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 
@@ -329,7 +326,7 @@ public class ImagePlot extends PlotCanvasBase
 
     /** Draw all components into image buffer */
     @Override
-    protected Image updateImageBuffer()
+    protected BufferedImage updateImageBuffer()
     {
         // Would like to use JFX WritableImage,
         // but rendering problem on Linux (sandbox.ImageScaling),
@@ -465,8 +462,7 @@ public class ImagePlot extends PlotCanvasBase
 
         in_update = false;
 
-        // Convert to JFX
-        return SwingFXUtils.toFXImage(image, null);
+        return image;
     }
 
     /** @param roi RegionOfInterest
@@ -633,7 +629,7 @@ public class ImagePlot extends PlotCanvasBase
      *  @param gc GC
      */
     @Override
-    protected void drawMouseModeFeedback(final GraphicsContext gc)
+    protected void drawMouseModeFeedback(final Graphics2D gc)
     {   // Safe copy, then check null (== isPresent())
         final Point2D current = mouse_current.orElse(null);
         if (current == null)

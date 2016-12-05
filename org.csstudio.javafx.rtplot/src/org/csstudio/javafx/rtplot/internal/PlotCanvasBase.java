@@ -7,7 +7,14 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.geom.IllegalPathStateException;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -16,23 +23,31 @@ import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
-/** Base Canvas for plots
+/** Base for plots
+ *
+ *  <p>Based on an {@link ImageView}.
+ *  Container needs to call <code>setSize</code>.
  *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-abstract class PlotCanvasBase extends Canvas
+abstract class PlotCanvasBase extends ImageView
 {
+    // Implementation used to be based on JFX Canvas,
+    // drawing the plot's image and then adding cursor mode feedback.
+    // JFX canvas, however, can queue up rendering requests,
+    // including multiple copies of to-be-rendered images,
+    // which quickly exhausts memory for large plots.
+    //
+    // ImageView only holds reference to the current image.
+
     protected static final int ARROW_SIZE = 8;
 
     protected static final double ZOOM_FACTOR = 1.5;
@@ -47,7 +62,7 @@ abstract class PlotCanvasBase extends Canvas
     /** Support for un-do and re-do */
     protected final UndoableActionManager undo = new UndoableActionManager(50);
 
-    /** Area of this canvas */
+    /** Area of this plot */
     protected volatile Rectangle area = new Rectangle(0, 0, 0, 0);
 
     /** Suppress updates triggered by axis changes from layout or autoscale */
@@ -64,13 +79,14 @@ abstract class PlotCanvasBase extends Canvas
      *  <p>UpdateThrottle calls updateImageBuffer() to set the image
      *  in its thread, PaintListener draws it in UI thread.
      *
+     *  TODO Any sync? needed
      *  <p>Synchronizing to access one and the same image
      *  deadlocks on Linux, so a new image is created for updates.
      *  To avoid access to disposed image, SYNC on the actual image during access.
      */
-    private volatile Image plot_image = null;
+    private volatile BufferedImage plot_image = null;
 
-    /** Listener to {@link PlotPart}s, triggering refresh of canvas */
+    /** Listener to {@link PlotPart}s, triggering refresh of plot */
     protected final PlotPartListener plot_part_listener = new PlotPartListener()
     {
         @Override
@@ -87,24 +103,29 @@ abstract class PlotCanvasBase extends Canvas
         }
     };
 
-    /** Redraw the canvas on UI thread by painting the 'plot_image' */
+    /** Redraw the plot on UI thread by painting the 'plot_image' */
     private final Runnable redraw_runnable = () ->
     {
-        final GraphicsContext gc = getGraphicsContext2D();
-        final Image image = plot_image;
-        if (image != null)
-            synchronized (image)
-            {   // ClearRect clears the render operations buffer
-                // http://stackoverflow.com/questions/18097404/how-can-i-free-canvas-memory
-                // gc.clearRect(0,  0, getWidth(), getHeight());
-                gc.drawImage(image, 0, 0);
-            }
+        final BufferedImage copy = plot_image;
+        if (copy != null)
+        {
+            // Create copy of basic plot
+            final int width = copy.getWidth(), height = copy.getHeight();
+            final BufferedImage combined = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            final int[] src = ((DataBufferInt) copy.getRaster().getDataBuffer()).getData();
+            final int[] dest = ((DataBufferInt) combined.getRaster().getDataBuffer()).getData();
+            System.arraycopy(src, 0, dest, 0, width * height);
 
-        // Skip mouse feedback while in overflow
-        if (CanvasCheck.inOverflow(this))
-            return;
+            // Add mouse mode feedback
+            final Graphics2D gc = combined.createGraphics();
+            gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            gc.setColor(Color.BLACK);
+            drawMouseModeFeedback(gc);
 
-        drawMouseModeFeedback(gc);
+            // Convert to JFX image and show
+            final WritableImage image = SwingFXUtils.toFXImage(combined, null);
+            setImage(image);
+        }
     };
 
     protected MouseMode mouse_mode = MouseMode.NONE;
@@ -116,19 +137,14 @@ abstract class PlotCanvasBase extends Canvas
      */
     protected PlotCanvasBase(final boolean active)
     {
-        final ChangeListener<? super Number> resize_listener = (prop, old, value) ->
-        {
-            area = new Rectangle((int)getWidth(), (int)getHeight());
-            need_layout.set(true);
-            requestUpdate();
-        };
-        widthProperty().addListener(resize_listener);
-        heightProperty().addListener(resize_listener);
-
         // 50Hz default throttle
         update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
         {
             plot_image = updateImageBuffer();
+
+            if (plot_image.getType() != BufferedImage.TYPE_INT_ARGB)
+                throw new IllegalPathStateException("Need TYPE_INT_ARGB, not " + plot_image.getType());
+
             redrawSafely();
         });
 
@@ -137,6 +153,18 @@ abstract class PlotCanvasBase extends Canvas
             setOnMouseEntered(this::mouseEntered);
             setOnScroll(this::wheelZoom);
         }
+    }
+
+    /** Call to update size of plot
+     *
+     *  @param width
+     *  @param height
+     */
+    public void setSize(final double width, final double height)
+    {
+      area = new Rectangle((int)width, (int)height);
+      need_layout.set(true);
+      requestUpdate();
     }
 
     /** @return {@link UndoableActionManager} for this plot */
@@ -176,11 +204,11 @@ abstract class PlotCanvasBase extends Canvas
     }
 
     /** Draw all components into image buffer
-     *  @return Latest image
+     *  @return Latest image, must be of type BufferedImage.TYPE_INT_ARGB
      */
-    protected abstract Image updateImageBuffer();
+    protected abstract BufferedImage updateImageBuffer();
 
-    protected abstract void drawMouseModeFeedback(GraphicsContext gc);
+    protected abstract void drawMouseModeFeedback(Graphics2D gc);
 
     /** Draw the zoom indicator for a horizontal zoom, i.e. on an X axis
      *
@@ -189,44 +217,41 @@ abstract class PlotCanvasBase extends Canvas
      *  @param start Initial mouse position
      *  @param current Current mouse position
      */
-    protected void drawZoomXMouseFeedback(final GraphicsContext gc, final Rectangle plot_bounds, final Point2D start, final Point2D current)
+    protected void drawZoomXMouseFeedback(final Graphics2D gc, final Rectangle plot_bounds, final Point2D start, final Point2D current)
     {
         final int left = (int) Math.min(start.getX(), current.getX());
         final int right = (int) Math.max(start.getX(), current.getX());
         final int width = right - left;
         final int mid_y = plot_bounds.y + plot_bounds.height / 2;
 
-        // See stroke comments in drawZoomMouseFeedback
-        final Paint orig_stroke = gc.getStroke();
         for (int i=0; i<2; ++i)
         {
             if (i==0)
             {
-                gc.setStroke(Color.WHITE);
-                gc.setLineWidth(3.5);
+                gc.setColor(java.awt.Color.WHITE);
+                gc.setStroke(new BasicStroke(3));
             }
             else
             {
-                gc.setStroke(orig_stroke);
-                gc.setLineWidth(1.5);
+                gc.setColor(java.awt.Color.BLACK);
+                gc.setStroke(new BasicStroke(1));
             }
             // Range on axis
-            gc.strokeRect(left, start.getY(), width, 1);
+            gc.drawRect(left, (int)start.getY(), width, 1);
             // Left, right vertical bar
-            gc.strokeLine(left, plot_bounds.y, left, plot_bounds.y + plot_bounds.height);
-            gc.strokeLine(right, plot_bounds.y, right, plot_bounds.y + plot_bounds.height);
+            gc.drawLine(left, plot_bounds.y, left, plot_bounds.y + plot_bounds.height);
+            gc.drawLine(right, plot_bounds.y, right, plot_bounds.y + plot_bounds.height);
             if (width >= 5*ARROW_SIZE)
             {
-                gc.strokeLine(left, mid_y, left + 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(left+ARROW_SIZE, mid_y-ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(left+ARROW_SIZE, mid_y+ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
+                gc.drawLine(left, mid_y, left + 2*ARROW_SIZE, mid_y);
+                gc.drawLine(left+ARROW_SIZE, mid_y-ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
+                gc.drawLine(left+ARROW_SIZE, mid_y+ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
 
-                gc.strokeLine(right, mid_y, right - 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(right-ARROW_SIZE, mid_y-ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(right-ARROW_SIZE, mid_y+ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
+                gc.drawLine(right, mid_y, right - 2*ARROW_SIZE, mid_y);
+                gc.drawLine(right-ARROW_SIZE, mid_y-ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
+                gc.drawLine(right-ARROW_SIZE, mid_y+ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
             }
         }
-        gc.setLineWidth(1.0);
     }
 
     /** Draw the zoom indicator for a vertical zoom, i.e. on a Y axis
@@ -236,44 +261,41 @@ abstract class PlotCanvasBase extends Canvas
      *  @param start Initial mouse position
      *  @param current Current mouse position
      */
-    protected void drawZoomYMouseFeedback(final GraphicsContext gc, final Rectangle plot_bounds, final Point2D start, final Point2D current)
+    protected void drawZoomYMouseFeedback(final Graphics2D gc, final Rectangle plot_bounds, final Point2D start, final Point2D current)
     {
         final int top = (int) Math.min(start.getY(), current.getY());
         final int bottom = (int) Math.max(start.getY(), current.getY());
         final int height = bottom - top;
         final int mid_x = plot_bounds.x + plot_bounds.width / 2;
 
-        // See stroke comments in drawZoomMouseFeedback
-        final Paint orig_stroke = gc.getStroke();
         for (int i=0; i<2; ++i)
         {
             if (i==0)
             {
-                gc.setStroke(Color.WHITE);
-                gc.setLineWidth(3.5);
+                gc.setColor(java.awt.Color.WHITE);
+                gc.setStroke(new BasicStroke(3));
             }
             else
             {
-                gc.setStroke(orig_stroke);
-                gc.setLineWidth(1.5);
+                gc.setColor(java.awt.Color.BLACK);
+                gc.setStroke(new BasicStroke(1));
             }
             // Range on axis
-            gc.strokeRect(start.getX(), top, 1, height);
+            gc.drawRect((int)start.getX(), top, 1, height);
             // Top, bottom horizontal bar
-            gc.strokeLine(plot_bounds.x, top, plot_bounds.x + plot_bounds.width, top);
-            gc.strokeLine(plot_bounds.x, bottom, plot_bounds.x + plot_bounds.width, bottom);
+            gc.drawLine(plot_bounds.x, top, plot_bounds.x + plot_bounds.width, top);
+            gc.drawLine(plot_bounds.x, bottom, plot_bounds.x + plot_bounds.width, bottom);
             if (height >= 5 * ARROW_SIZE)
             {
-                gc.strokeLine(mid_x, top, mid_x, top + 2*ARROW_SIZE);
-                gc.strokeLine(mid_x-ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
-                gc.strokeLine(mid_x+ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
+                gc.drawLine(mid_x, top, mid_x, top + 2*ARROW_SIZE);
+                gc.drawLine(mid_x-ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
+                gc.drawLine(mid_x+ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
 
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x, bottom);
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x-ARROW_SIZE, bottom - ARROW_SIZE);
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x+ARROW_SIZE, bottom - ARROW_SIZE);
+                gc.drawLine(mid_x, bottom - 2*ARROW_SIZE, mid_x, bottom);
+                gc.drawLine(mid_x, bottom - 2*ARROW_SIZE, mid_x-ARROW_SIZE, bottom - ARROW_SIZE);
+                gc.drawLine(mid_x, bottom - 2*ARROW_SIZE, mid_x+ARROW_SIZE, bottom - ARROW_SIZE);
             }
         }
-        gc.setLineWidth(1.0);
     }
 
     /** Draw the zoom indicator for zoom, i.e. a 'rubberband'
@@ -283,7 +305,7 @@ abstract class PlotCanvasBase extends Canvas
      *  @param start Initial mouse position
      *  @param current Current mouse position
      */
-    protected void drawZoomMouseFeedback(final GraphicsContext gc, final Rectangle plot_bounds, final Point2D start, final Point2D current)
+    protected void drawZoomMouseFeedback(final Graphics2D gc, final Rectangle plot_bounds, final Point2D start, final Point2D current)
     {
         final int left = (int) Math.min(start.getX(), current.getX());
         final int right = (int) Math.max(start.getX(), current.getX());
@@ -294,50 +316,42 @@ abstract class PlotCanvasBase extends Canvas
         final int mid_x = left + width / 2;
         final int mid_y = top + height / 2;
 
-        final Paint orig_stroke = gc.getStroke();
         for (int i=0; i<2; ++i)
         {
             if (i==0)
             {   // White 'background' to help rectangle show up on top
                 // of dark images
-                gc.setStroke(Color.WHITE);
-                gc.setLineWidth(3.5);
+                gc.setColor(java.awt.Color.WHITE);
+                gc.setStroke(new BasicStroke(3));
             }
             else
-            {   // JFX line coordinates use the 'corner' of a pixel.
-                // A 1-pixel line at 'left + 0.5, top + 0.5, ...' would be sharp,
-                // but offset from the center of the cursor hot point.
-                // A line at 'left, top, ..' is blurry unless its widened
-                // to cover full pixels.
-                // Width of 1.5 happens to result in line that nicely aligns with
-                // the cursor hot spot.
-                gc.setStroke(orig_stroke);
-                gc.setLineWidth(1.5);
+            {
+                gc.setColor(java.awt.Color.BLACK);
+                gc.setStroke(new BasicStroke(1));
             }
             // Main 'rubberband' rect
-            gc.strokeRect(left, top, width, height);
+            gc.drawRect(left, top, width, height);
             if (width >= 5*ARROW_SIZE)
             {
-                gc.strokeLine(left, mid_y, left + 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(left+ARROW_SIZE, mid_y-ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(left+ARROW_SIZE, mid_y+ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
+                gc.drawLine(left, mid_y, left + 2*ARROW_SIZE, mid_y);
+                gc.drawLine(left+ARROW_SIZE, mid_y-ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
+                gc.drawLine(left+ARROW_SIZE, mid_y+ARROW_SIZE, left + 2*ARROW_SIZE, mid_y);
 
-                gc.strokeLine(right, mid_y, right - 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(right-ARROW_SIZE, mid_y-ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
-                gc.strokeLine(right-ARROW_SIZE, mid_y+ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
+                gc.drawLine(right, mid_y, right - 2*ARROW_SIZE, mid_y);
+                gc.drawLine(right-ARROW_SIZE, mid_y-ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
+                gc.drawLine(right-ARROW_SIZE, mid_y+ARROW_SIZE, right - 2*ARROW_SIZE, mid_y);
             }
             if (height >= 5*ARROW_SIZE)
             {
-                gc.strokeLine(mid_x, top, mid_x, top + 2*ARROW_SIZE);
-                gc.strokeLine(mid_x-ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
-                gc.strokeLine(mid_x+ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
+                gc.drawLine(mid_x, top, mid_x, top + 2*ARROW_SIZE);
+                gc.drawLine(mid_x-ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
+                gc.drawLine(mid_x+ARROW_SIZE, top+ARROW_SIZE, mid_x, top + 2*ARROW_SIZE);
 
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x, bottom);
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x-ARROW_SIZE, bottom - ARROW_SIZE);
-                gc.strokeLine(mid_x, bottom - 2*ARROW_SIZE, mid_x+ARROW_SIZE, bottom - ARROW_SIZE);
+                gc.drawLine(mid_x, bottom - 2*ARROW_SIZE, mid_x, bottom);
+                gc.drawLine(mid_x, bottom - 2*ARROW_SIZE, mid_x-ARROW_SIZE, bottom - ARROW_SIZE);
+                gc.drawLine(mid_x, bottom - 2*ARROW_SIZE, mid_x+ARROW_SIZE, bottom - ARROW_SIZE);
             }
         }
-        gc.setLineWidth(1.0);
     }
 
     /** @param mode New {@link MouseMode}

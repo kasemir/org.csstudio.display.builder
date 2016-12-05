@@ -26,9 +26,6 @@ import org.csstudio.javafx.rtplot.data.PlotDataItem;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.IntList;
 
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Paint;
-
 /** A 'Y' or 'vertical' axis.
  *  <p>
  *  The plot maintains one or more Y axes.
@@ -363,7 +360,7 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
                 gc.setStroke(old_width);
 
                 // Tick Label
-                drawTickLabel(gc, tick);
+                drawTickLabel(gc, tick, false);
             }
             prev = tick;
         }
@@ -407,68 +404,34 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
 
     /** {@inheritDoc} */
     @Override
-    public void drawTickLabel(final Graphics2D gc, final Double tick)
+    public void drawTickLabel(final Graphics2D gc, final Double tick, final boolean floating)
     {
         final Rectangle region = getBounds();
-        final String mark = ticks.format(tick);
+        final String mark = floating ? ticks.formatDetailed(tick) : ticks.format(tick);
+        gc.setFont(scale_font);
         final FontMetrics metrics = gc.getFontMetrics();
         final int mark_height = metrics.stringWidth(mark);
         final int mark_width = metrics.getHeight();
         final int x = is_right ? region.x + TICK_LENGTH : region.x + region.width - TICK_LENGTH - mark_width;
-        final int y = getScreenCoord(tick)  - mark_height/2;
+        final int y0 = getScreenCoord(tick);
+        final int y = y0  - mark_height/2;
+
+        if (floating)
+        {
+            if (is_right)
+                gc.drawLine(x - TICK_LENGTH, y0, x, y0);
+            else
+                gc.drawLine(x + mark_width, y0, x + mark_width + TICK_LENGTH, y0);
+
+            // Box around label
+            final Color orig_fill = gc.getColor();
+            gc.setColor(java.awt.Color.WHITE);
+            gc.fillRect(x-BORDER,  y-BORDER, mark_width+2*BORDER, mark_height+2*BORDER);
+            gc.setColor(orig_fill);
+            gc.drawRect(x-BORDER,  y-BORDER, mark_width+2*BORDER, mark_height+2*BORDER);
+        }
+
         // gc.drawRect(x,  y, mark_width, mark_height); // Debug outline of tick label
         GraphicsUtils.drawVerticalText(gc, x, y, mark, !is_right);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void drawFloatingTickLabel(final GraphicsContext gc, final Double tick)
-    {
-        final Rectangle region = getBounds();
-        final String mark = ticks.formatDetailed(tick);
-        gc.setFont(GraphicsUtils.convert(scale_font));
-        final Rectangle metrics = GraphicsUtils.measureText(gc, mark);
-        final int mark_height = metrics.width;
-        final int mark_width = metrics.height;
-        final int y = getScreenCoord(tick);
-
-        // 'Tick mark' for floating label
-        final int tx;
-        if (is_right)
-        {
-            gc.strokeLine(region.x, y, region.x + TICK_LENGTH, y);
-            tx = region.x + TICK_LENGTH;
-        }
-        else
-        {
-            gc.strokeLine(region.x + region.width - TICK_LENGTH, y, region.x + region.width, y);
-            tx = region.x + region.width - TICK_LENGTH - mark_width;
-        }
-
-        // Box around label
-        final int ty = y - mark_height/2;
-        final Paint orig_fill = gc.getFill();
-        gc.setFill(javafx.scene.paint.Color.WHITE);
-        gc.fillRect(tx-BORDER, ty-BORDER, mark_width+2*BORDER, mark_height+2*BORDER);
-        gc.setFill(orig_fill);
-        gc.strokeRect(tx-BORDER, ty-BORDER, mark_width+2*BORDER, mark_height+2*BORDER);
-
-        // Label
-        if (is_right)
-        {
-            gc.translate(tx, ty);
-            gc.rotate(90.0);
-            gc.fillText(mark, 0, 0);
-            gc.rotate(-90.0);
-            gc.translate(-tx, -ty);
-        }
-        else
-        {
-            gc.translate(tx, ty);
-            gc.rotate(-90);
-            gc.fillText(mark, -mark_height, mark_width);
-            gc.rotate(90);
-            gc.translate(-tx, -ty);
-        }
     }
 }

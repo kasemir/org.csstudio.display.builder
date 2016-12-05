@@ -37,12 +37,8 @@ import org.csstudio.javafx.rtplot.internal.undo.ChangeAxisRanges;
 import org.csstudio.javafx.rtplot.internal.undo.UpdateAnnotationAction;
 import org.csstudio.javafx.rtplot.internal.util.ScreenTransform;
 
-import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 
 /** Plot with axes and area that displays the traces
@@ -463,7 +459,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
     /** Draw all components into image buffer */
     @Override
-    protected Image updateImageBuffer()
+    protected BufferedImage updateImageBuffer()
     {
         final Rectangle area_copy = area;
         if (area_copy.width <= 0  ||  area_copy.height <= 0)
@@ -516,10 +512,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
         gc.dispose();
 
-        // Convert to JFX
-        final WritableImage wi = new WritableImage(image.getWidth(), image.getHeight());
-        SwingFXUtils.toFXImage(image, wi);
-        return wi;
+        return image;
     }
 
     /** Draw visual feedback (rubber band rectangle etc.)
@@ -527,7 +520,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
      *  @param gc GC
      */
     @Override
-    protected void drawMouseModeFeedback(final GraphicsContext gc)
+    protected void drawMouseModeFeedback(final Graphics2D gc)
     {   // Safe copy, then check null (== isPresent())
         final Point2D current = mouse_current.orElse(null);
         if (current == null)
@@ -542,12 +535,13 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         }
         else if (show_crosshair  &&  plot_bounds.contains(current.getX(), current.getY()))
         {   // Cross-hair Cursor
-            gc.strokeLine(plot_bounds.x, current.getY(), plot_bounds.x + plot_bounds.width, current.getY());
-            gc.strokeLine(current.getX(), plot_bounds.y, current.getX(), plot_bounds.y + plot_bounds.height);
+            gc.setColor(Color.BLACK);
+            gc.drawLine(plot_bounds.x, (int)current.getY(), plot_bounds.x + plot_bounds.width, (int)current.getY());
+            gc.drawLine((int)current.getX(), plot_bounds.y, (int)current.getX(), plot_bounds.y + plot_bounds.height);
             // Corresponding axis ticks
-            x_axis.drawFloatingTickLabel(gc, x_axis.getValue((int)current.getX()));
+            x_axis.drawTickLabel(gc, x_axis.getValue((int)current.getX()), true);
             for (YAxisImpl<XTYPE> axis : y_axes)
-                axis.drawFloatingTickLabel(gc, axis.getValue((int)current.getY()));
+                axis.drawTickLabel(gc, axis.getValue((int)current.getY()), true);
             // Trace markers
             final List<CursorMarker> safe_markers = cursor_markers.orElse(null);
             if (safe_markers != null)

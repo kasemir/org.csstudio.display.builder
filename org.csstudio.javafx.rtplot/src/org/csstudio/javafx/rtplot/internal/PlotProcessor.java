@@ -29,6 +29,7 @@ import org.csstudio.javafx.rtplot.data.PlotDataSearch;
 import org.csstudio.javafx.rtplot.data.ValueRange;
 import org.csstudio.javafx.rtplot.internal.undo.AddAnnotationAction;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeAxisRanges;
+import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.Log10;
 
 import javafx.geometry.Point2D;
@@ -334,7 +335,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                         final String units = trace.getUnits();
                         if (! units.isEmpty())
                             label += " " + units;
-                        markers.add(new CursorMarker(cursor_x, axis.getScreenCoord(value), trace.getColor(), label));
+                        markers.add(new CursorMarker(cursor_x, axis.getScreenCoord(value), GraphicsUtils.convert(trace.getColor()), label));
                     }
                 }
             Collections.sort(markers);

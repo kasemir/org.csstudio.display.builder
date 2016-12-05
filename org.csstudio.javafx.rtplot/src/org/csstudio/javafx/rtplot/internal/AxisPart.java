@@ -22,8 +22,6 @@ import org.csstudio.javafx.rtplot.RTPlot;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.ScreenTransform;
 
-import javafx.scene.canvas.GraphicsContext;
-
 /** Base class for X and Y axes.
  *  <p>
  *  Handles the basic screen-to-value transformation.
@@ -370,16 +368,9 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
      *
      *  @param gc GC to use
      *  @param tick Location of the tick
+     *  @param floating Draw in 'floating' mode above ordinary tick labels?
      */
-    abstract public void drawTickLabel(final Graphics2D gc, final T tick);
-
-    /** Draw a tick label, used both to paint the normal axis labels
-     *  and for special, cursor-related tick locations.
-     *
-     *  @param gc GC to use
-     *  @param tick Location of the tick
-     */
-    abstract public void drawFloatingTickLabel(final GraphicsContext gc, final T tick);
+    abstract public void drawTickLabel(final Graphics2D gc, final T tick, final boolean floating);
 
 	@Override
     public String toString()
