@@ -65,6 +65,8 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
         {
             writer.writeStartElement(XMLTags.SCRIPT);
             writer.writeAttribute(XMLTags.FILE, info.getPath());
+            if (! info.getCheckConnections())
+                writer.writeAttribute(XMLTags.CHECK_CONNECTIONS, Boolean.FALSE.toString());
             final String text = info.getText();
             if (text != null)
             {
@@ -107,6 +109,13 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
             if (file.isEmpty())
                 logger.log(Level.WARNING, "Missing script 'file'");
 
+            String tag = xml.getAttribute(XMLTags.CHECK_CONNECTIONS);
+            if (tag.isEmpty())
+                tag = xml.getAttribute("checkConnect");
+            final boolean check_connections = tag.isEmpty()
+                    ? true
+                    : Boolean.valueOf(tag);
+
             // Script content embedded in XML?
             Element text_xml = XMLUtil.getChildElement(xml, XMLTags.TEXT);
             if (text_xml == null)  // Fall back to legacy tag
@@ -116,7 +125,7 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
                 : null;
 
             final List<ScriptPV> pvs = readPVs(xml);
-            scripts.add(new ScriptInfo(file, text, pvs));
+            scripts.add(new ScriptInfo(file, text, check_connections, pvs));
         }
         setValue(scripts);
     }

@@ -288,7 +288,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
                 showOpenFileAction((OpenFileActionInfo)action);
             }
             else
-                logger.log(Level.WARNING, "Unknown action type " + action);
+                selectStackPane(details, null);
         });
 
         setResultConverter(button ->
@@ -567,7 +567,7 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
                             ? execute_script_text.getText()
                             : null;
         return new ExecuteScriptActionInfo(execute_script_description.getText(),
-                                           new ScriptInfo(file, text, Collections.emptyList()));
+                                           new ScriptInfo(file, text, false, Collections.emptyList()));
     }
 
     /** @return Sub-pane for PpenFile action */

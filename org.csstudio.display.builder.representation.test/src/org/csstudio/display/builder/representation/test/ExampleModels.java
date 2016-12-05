@@ -64,6 +64,7 @@ public class ExampleModels
             rect.setPropertyValue(CommonWidgetProperties.propHeight, 19);
             rect.setPropertyValue(CommonWidgetProperties.propScripts,
                     Arrays.asList(new ScriptInfo("../org.csstudio.display.builder.runtime.test/examples/fudge_width.py",
+                                                 true,
                                                  new ScriptPV("noise"))));
             group.runtimePropChildren().addChild(rect);
 

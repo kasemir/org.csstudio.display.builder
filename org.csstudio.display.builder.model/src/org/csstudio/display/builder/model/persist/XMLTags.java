@@ -16,6 +16,7 @@ public interface XMLTags
 {
     public static final String ACTION = "action";
     public static final String BLUE = "blue";
+    public static final String CHECK_CONNECTIONS = "check_connections";
     public static final String COLOR = "color";
     public static final String DESCRIPTION = "description";
     public static final String DISPLAY = "display";

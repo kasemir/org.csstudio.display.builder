@@ -40,6 +40,7 @@ public class ScriptInfo
     public final static String EMBEDDED_JAVASCRIPT = "EmbeddedJs";
 
     private final String path, text;
+    private final boolean check_connections;
     private final List<ScriptPV> pvs;
 
     /**
@@ -85,18 +86,20 @@ public class ScriptInfo
 
     /** @param path Script path. May be URL, contain macros, or use magic EMBEDDED_* name.
      *  @param text Text or <code>null</code>
+     *  @param check_connections Check connections before executing the script, or always execute?
      *  @param pvs PVs
      */
-    public ScriptInfo(final String path, final String text, final List<ScriptPV> pvs)
+    public ScriptInfo(final String path, final String text, final boolean check_connections, final List<ScriptPV> pvs)
     {
         this.path = Objects.requireNonNull(path);
         this.text = text;
+        this.check_connections = check_connections;
         this.pvs = Collections.unmodifiableList(Objects.requireNonNull(pvs));
     }
 
-    public ScriptInfo(final String path, final ScriptPV... pvs)
+    public ScriptInfo(final String path, final boolean check_connections, final ScriptPV... pvs)
     {
-        this(path, null, Arrays.asList(pvs));
+        this(path, null, check_connections, Arrays.asList(pvs));
     }
 
     /** @return Path to the script. May be URL, or contain macros.
@@ -113,6 +116,12 @@ public class ScriptInfo
         return text;
     }
 
+    /** @return <code>true</code> if connections should be checked before executing script */
+    public boolean getCheckConnections()
+    {
+        return check_connections;
+    }
+
     /** @return Input/Output PVs used by the script */
     public List<ScriptPV> getPVs()
     {
@@ -122,6 +131,6 @@ public class ScriptInfo
     @Override
     public String toString()
     {
-        return "ScriptInfo('" + path + "', " + pvs + ")";
+        return "ScriptInfo('" + path + "', " + (check_connections ? "" : "not checking connections, ") + pvs + ")";
     }
 }

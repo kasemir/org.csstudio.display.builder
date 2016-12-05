@@ -234,7 +234,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 {
                     final String path = el.getAttribute(XMLTags.FILE);
                     final String text = XMLUtil.getChildString(el, XMLTags.TEXT).orElse(null);
-                    final ScriptInfo info = new ScriptInfo(path, text, Collections.emptyList());
+                    final ScriptInfo info = new ScriptInfo(path, text, false, Collections.emptyList());
                     actions.add(new ExecuteScriptActionInfo(description, info));
                 }
             }
@@ -255,10 +255,10 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 {
                     final String dialect = type.contains("PYTHON")
                             ? ScriptInfo.EMBEDDED_PYTHON : ScriptInfo.EMBEDDED_JAVASCRIPT;
-                    info = new ScriptInfo(dialect, text, Collections.emptyList());
+                    info = new ScriptInfo(dialect, text, false, Collections.emptyList());
                 }
                 else
-                    info = new ScriptInfo(path, null, Collections.emptyList());
+                    info = new ScriptInfo(path, null, false, Collections.emptyList());
                 actions.add(new ExecuteScriptActionInfo(description, info));
             }
             else if (OPEN_FILE.equalsIgnoreCase(type)) // legacy used uppercase type name
