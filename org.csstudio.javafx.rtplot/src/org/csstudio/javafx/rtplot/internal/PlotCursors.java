@@ -90,14 +90,17 @@ public class PlotCursors
         switch (mode)
         {
         case PAN:
+        case PAN_X:
+        case PAN_Y:
+        case PAN_PLOT:
             return cursor_pan;
         case ZOOM_IN:
-            return cursor_zoom_in;
-        case ZOOM_OUT:
-            return cursor_zoom_out;
         case ZOOM_IN_PLOT:
         case ZOOM_IN_X:
         case ZOOM_IN_Y:
+            return cursor_zoom_in;
+        case ZOOM_OUT:
+            return cursor_zoom_out;
         default:
              return cursor_cross;
         }

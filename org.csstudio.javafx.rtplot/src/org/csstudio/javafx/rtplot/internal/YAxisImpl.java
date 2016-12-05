@@ -348,8 +348,8 @@ public class YAxisImpl<XTYPE extends Comparable<XTYPE>> extends NumericAxis impl
             final int y = getScreenCoord(tick);
             if (y >= region.y  &&  y <= region.y + region.height)
             {
-                gc.setStroke(new BasicStroke(TICK_WIDTH));
-                gc.drawLine(tick_x+1, y, line_x-1, y);
+                gc.setStroke(TICK_STROKE);
+                gc.drawLine(line_x, y, tick_x, y);
 
                 // Grid line
                 if (show_grid)

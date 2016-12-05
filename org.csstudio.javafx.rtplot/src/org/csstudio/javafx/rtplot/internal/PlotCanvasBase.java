@@ -129,6 +129,7 @@ abstract class PlotCanvasBase extends ImageView
             gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             gc.setColor(Color.BLACK);
             drawMouseModeFeedback(gc);
+            gc.dispose();
 
             // Convert to JFX image and show
             final WritableImage image = new WritableImage(width, height);

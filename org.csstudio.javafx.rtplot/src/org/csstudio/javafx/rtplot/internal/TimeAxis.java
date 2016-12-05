@@ -135,14 +135,14 @@ public class TimeAxis extends AxisPart<Instant>
             }
 
             // Major tick marks
-            gc.setStroke(new BasicStroke(TICK_WIDTH));
-            gc.drawLine(x, region.y+2, x, region.y + TICK_LENGTH - 1);
+            gc.setStroke(TICK_STROKE);
+            gc.drawLine(x, region.y, x, region.y + TICK_LENGTH);
 
             // Grid line
             if (show_grid)
             {
                 // Dashed line
-                gc.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10, new float[] { 2 }, 0));
+                gc.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10, new float[] { 2 }, 0));
                 gc.drawLine(x, plot_bounds.y, x, region.y-1);
             }
             gc.setStroke(old_width);

@@ -638,18 +638,7 @@ public class ImagePlot extends PlotCanvasBase
         final Point2D start = mouse_start.orElse(null);
         final Rectangle plot_bounds = image_area;
 
-        if (mouse_mode == MouseMode.ZOOM_IN)
-        {   // Update mouse pointer in ready-to-zoom mode
-            if (plot_bounds.contains(current.getX(), current.getY()))
-                PlotCursors.setCursor(this, MouseMode.ZOOM_IN);
-            else if (x_axis.getBounds().contains(current.getX(), current.getY()))
-                PlotCursors.setCursor(this, Cursor.H_RESIZE);
-            else if (y_axis.getBounds().contains(current.getX(), current.getY()))
-                PlotCursors.setCursor(this, Cursor.V_RESIZE);
-            else
-                PlotCursors.setCursor(this, Cursor.DEFAULT);
-        }
-        else if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
+        if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
             drawZoomXMouseFeedback(gc, plot_bounds, start, current);
         else if (mouse_mode == MouseMode.ZOOM_IN_Y  &&  start != null)
             drawZoomYMouseFeedback(gc, plot_bounds, start, current);

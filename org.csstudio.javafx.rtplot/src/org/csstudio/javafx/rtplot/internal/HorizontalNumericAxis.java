@@ -91,7 +91,7 @@ public class HorizontalNumericAxis extends NumericAxis
             final int x = getScreenCoord(tick);
             if (x >= region.x  &&  x <= region.x + region.width)
             {
-                gc.setStroke(new BasicStroke(TICK_WIDTH));
+                gc.setStroke(TICK_STROKE);
                 gc.drawLine(x, region.y+2, x, region.y + TICK_LENGTH - 1);
 
                 if (show_grid)

@@ -553,24 +553,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                 CursorMarker.drawMarkers(gc, safe_markers, area);
         }
 
-        if (mouse_mode == MouseMode.ZOOM_IN  ||  mouse_mode == MouseMode.ZOOM_OUT)
-        {   // Update mouse pointer in ready-to-zoom mode
-            if (plot_bounds.contains(current.getX(), current.getY()))
-                PlotCursors.setCursor(this, mouse_mode);
-            else if (x_axis.getBounds().contains(current.getX(), current.getY()))
-                PlotCursors.setCursor(this, Cursor.H_RESIZE);
-            else
-            {
-                for (YAxisImpl<XTYPE> axis : y_axes)
-                    if (axis.getBounds().contains(current.getX(), current.getY()))
-                    {
-                        PlotCursors.setCursor(this, Cursor.V_RESIZE);
-                        return;
-                    }
-                PlotCursors.setCursor(this, Cursor.DEFAULT);
-            }
-        }
-        else if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
+        if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
             drawZoomXMouseFeedback(gc, plot_bounds, start, current);
         else if (mouse_mode == MouseMode.ZOOM_IN_Y  &&  start != null)
             drawZoomYMouseFeedback(gc, plot_bounds, start, current);
@@ -634,7 +617,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                 {
                     mouse_y_axis = i;
                     mouse_mode = MouseMode.ZOOM_IN_Y;
-                    PlotCursors.setCursor(this, mouse_mode);
                     return;
                 }
             if (plot_area.getBounds().contains(current.getX(), current.getY()))
@@ -645,7 +627,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
             {
                 mouse_mode = MouseMode.ZOOM_IN_X;
-                PlotCursors.setCursor(this, mouse_mode);
             }
         }
         else if ((mouse_mode == MouseMode.ZOOM_IN && clicks == 2)  ||  mouse_mode == MouseMode.ZOOM_OUT)
