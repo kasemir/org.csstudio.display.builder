@@ -23,9 +23,9 @@ import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.rtplot.util.RTPlotUpdateThrottle;
 
 import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -46,7 +46,14 @@ abstract class PlotCanvasBase extends ImageView
     // including multiple copies of to-be-rendered images,
     // which quickly exhausts memory for large plots.
     //
-    // ImageView only holds reference to the current image.
+    // Using reflection to check the Canvas.current and its internal
+    // buffer one can warn about this.
+    // Calling canvas.getGraphicsContext2D().clearRect(0, 0, width, height)
+    // will help to shrink the rendering queue IF it's being processed
+    // ( http://stackoverflow.com/questions/18097404/how-can-i-free-canvas-memory ).
+    //
+    // Overall, however, ImageView avoids memory issues because it
+    // only holds a reference to the current image.
 
     protected static final int ARROW_SIZE = 8;
 
@@ -58,6 +65,10 @@ abstract class PlotCanvasBase extends ImageView
      *  click-with-jerk, which would result into a huge zoom step.
      */
     protected static final int ZOOM_PIXEL_THRESHOLD = 20;
+
+    /** Strokes used for mouse feedback */
+    protected static final BasicStroke MOUSE_FEEDBACK_BACK = new BasicStroke(3),
+                                       MOUSE_FEEDBACK_FRONT = new BasicStroke(1);
 
     /** Support for un-do and re-do */
     protected final UndoableActionManager undo = new UndoableActionManager(50);
@@ -77,12 +88,7 @@ abstract class PlotCanvasBase extends ImageView
     /** Buffer for image and color bar
      *
      *  <p>UpdateThrottle calls updateImageBuffer() to set the image
-     *  in its thread, PaintListener draws it in UI thread.
-     *
-     *  TODO Any sync? needed
-     *  <p>Synchronizing to access one and the same image
-     *  deadlocks on Linux, so a new image is created for updates.
-     *  To avoid access to disposed image, SYNC on the actual image during access.
+     *  in its thread, then redrawn in UI thread.
      */
     private volatile BufferedImage plot_image = null;
 
@@ -110,6 +116,8 @@ abstract class PlotCanvasBase extends ImageView
         if (copy != null)
         {
             // Create copy of basic plot
+            if (copy.getType() != BufferedImage.TYPE_INT_ARGB)
+                throw new IllegalPathStateException("Need TYPE_INT_ARGB for direct buffer access, not " + copy.getType());
             final int width = copy.getWidth(), height = copy.getHeight();
             final BufferedImage combined = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
             final int[] src = ((DataBufferInt) copy.getRaster().getDataBuffer()).getData();
@@ -123,7 +131,10 @@ abstract class PlotCanvasBase extends ImageView
             drawMouseModeFeedback(gc);
 
             // Convert to JFX image and show
-            final WritableImage image = SwingFXUtils.toFXImage(combined, null);
+            final WritableImage image = new WritableImage(width, height);
+            // SwingFXUtils.toFXImage(combined, image);
+            image.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(), dest, 0, width);
+
             setImage(image);
         }
     };
@@ -141,10 +152,6 @@ abstract class PlotCanvasBase extends ImageView
         update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
         {
             plot_image = updateImageBuffer();
-
-            if (plot_image.getType() != BufferedImage.TYPE_INT_ARGB)
-                throw new IllegalPathStateException("Need TYPE_INT_ARGB, not " + plot_image.getType());
-
             redrawSafely();
         });
 
@@ -229,12 +236,12 @@ abstract class PlotCanvasBase extends ImageView
             if (i==0)
             {
                 gc.setColor(java.awt.Color.WHITE);
-                gc.setStroke(new BasicStroke(3));
+                gc.setStroke(MOUSE_FEEDBACK_BACK);
             }
             else
             {
                 gc.setColor(java.awt.Color.BLACK);
-                gc.setStroke(new BasicStroke(1));
+                gc.setStroke(MOUSE_FEEDBACK_FRONT);
             }
             // Range on axis
             gc.drawRect(left, (int)start.getY(), width, 1);
@@ -273,12 +280,12 @@ abstract class PlotCanvasBase extends ImageView
             if (i==0)
             {
                 gc.setColor(java.awt.Color.WHITE);
-                gc.setStroke(new BasicStroke(3));
+                gc.setStroke(MOUSE_FEEDBACK_BACK);
             }
             else
             {
                 gc.setColor(java.awt.Color.BLACK);
-                gc.setStroke(new BasicStroke(1));
+                gc.setStroke(MOUSE_FEEDBACK_FRONT);
             }
             // Range on axis
             gc.drawRect((int)start.getX(), top, 1, height);
@@ -322,12 +329,12 @@ abstract class PlotCanvasBase extends ImageView
             {   // White 'background' to help rectangle show up on top
                 // of dark images
                 gc.setColor(java.awt.Color.WHITE);
-                gc.setStroke(new BasicStroke(3));
+                gc.setStroke(MOUSE_FEEDBACK_BACK);
             }
             else
             {
                 gc.setColor(java.awt.Color.BLACK);
-                gc.setStroke(new BasicStroke(1));
+                gc.setStroke(MOUSE_FEEDBACK_FRONT);
             }
             // Main 'rubberband' rect
             gc.drawRect(left, top, width, height);

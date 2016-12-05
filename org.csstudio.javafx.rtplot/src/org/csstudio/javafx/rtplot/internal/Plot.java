@@ -535,6 +535,11 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         }
         else if (show_crosshair  &&  plot_bounds.contains(current.getX(), current.getY()))
         {   // Cross-hair Cursor
+            gc.setStroke(MOUSE_FEEDBACK_BACK);
+            gc.setColor(Color.WHITE);
+            gc.drawLine(plot_bounds.x, (int)current.getY(), plot_bounds.x + plot_bounds.width, (int)current.getY());
+            gc.drawLine((int)current.getX(), plot_bounds.y, (int)current.getX(), plot_bounds.y + plot_bounds.height);
+            gc.setStroke(MOUSE_FEEDBACK_FRONT);
             gc.setColor(Color.BLACK);
             gc.drawLine(plot_bounds.x, (int)current.getY(), plot_bounds.x + plot_bounds.width, (int)current.getY());
             gc.drawLine((int)current.getX(), plot_bounds.y, (int)current.getX(), plot_bounds.y + plot_bounds.height);
