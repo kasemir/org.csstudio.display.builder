@@ -9,8 +9,11 @@ package org.csstudio.display.builder.rcp;
 
 import java.util.logging.Logger;
 
+import org.csstudio.display.builder.model.Preferences;
+import org.csstudio.display.builder.model.persist.WidgetClassesService;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.WidgetFontService;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -28,8 +31,14 @@ public class Plugin implements BundleActivator
     @Override
     public void start(final BundleContext context) throws Exception
     {
-        WidgetColorService.loadColors(Preferences.getColorFile());
-        WidgetFontService.loadFonts(Preferences.getFontFile());
+        final String classes = Preferences.getClassesFile();
+        WidgetClassesService.loadWidgetClasses(classes, () -> ModelResourceUtil.openResourceStream(classes));
+
+        final String colors = Preferences.getColorFile();
+        WidgetColorService.loadColors(colors, () -> ModelResourceUtil.openResourceStream(colors));
+
+        final String fonts = Preferences.getFontFile();
+        WidgetFontService.loadFonts(fonts, () -> ModelResourceUtil.openResourceStream(fonts));
     }
 
     @Override

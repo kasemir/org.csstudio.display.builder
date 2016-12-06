@@ -45,7 +45,7 @@ public class WidgetColorService
      *
      *  @param color_resource Name of resource for named color
      */
-    public static void loadColors(final String color_resource)
+    public static void loadColorsXXX(final String color_resource)
     {
         colors = ModelThreadPool.getExecutor().submit(() ->
         {
