@@ -62,7 +62,7 @@ public class FontWidgetProperty extends WidgetProperty<WidgetFont>
             final Widget widget,
             final WidgetFont default_value)
     {
-        super(descriptor, widget, default_value);
+        super(descriptor, widget, default_value, true);
     }
 
     @Override

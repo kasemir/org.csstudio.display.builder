@@ -34,6 +34,7 @@ public class DisplayModel extends Widget
     /** File extension used for display files */
     public static final String FILE_EXTENSION = "bob";
 
+    /** Widget type used by the display model */
     public static final String WIDGET_TYPE = "display";
 
     /** Reserved DisplayModel user data key for name of input file */

@@ -9,6 +9,7 @@ package org.csstudio.display.builder.model;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propActions;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidgetClass;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHeight;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propRules;
@@ -30,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.csstudio.display.builder.model.classes.WidgetClassSupport;
 import org.csstudio.display.builder.model.macros.MacroOrPropertyProvider;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.macros.Macros;
@@ -144,6 +146,7 @@ public class Widget
     // Actual properties
     private WidgetProperty<String> type;
     private WidgetProperty<String> name;
+    private WidgetProperty<String> widget_class;
     private WidgetProperty<Integer> x;
     private WidgetProperty<Integer> y;
     private WidgetProperty<Integer> width;
@@ -176,6 +179,7 @@ public class Widget
         // -- Mandatory properties --
         prelim_properties.add(this.type = propType.createProperty(this, type));
         prelim_properties.add(name = propName.createProperty(this, ""));
+        prelim_properties.add(widget_class = propWidgetClass.createProperty(this, WidgetClassSupport.DEFAULT));
         prelim_properties.add(x = propX.createProperty(this, 0));
         prelim_properties.add(y = propY.createProperty(this, 0));
         prelim_properties.add(width = propWidth.createProperty(this, default_width));
@@ -229,6 +233,11 @@ public class Widget
     public final String getName()
     {
         return name.getValue();
+    }
+
+    public final String getWidgetClass()
+    {
+        return widget_class.getValue();
     }
 
     /** Unique runtime identifier of a widget

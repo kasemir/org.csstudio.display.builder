@@ -202,6 +202,13 @@ public class CommonWidgetProperties
     public static final WidgetPropertyDescriptor<String> propName =
             newStringPropertyDescriptor(WidgetPropertyCategory.WIDGET, "name", Messages.WidgetProperties_Name);
 
+    /** 'class' property
+     *
+     *  <p>Widget class, used to set properties that follow the suggestions from class
+     */
+    public static final WidgetPropertyDescriptor<String> propWidgetClass =
+            newStringPropertyDescriptor(WidgetPropertyCategory.WIDGET, "class", Messages.WidgetProperties_Class);
+
     /** 'macros' property */
     public static final WidgetPropertyDescriptor<Macros> propMacros =
             new WidgetPropertyDescriptor<Macros>(

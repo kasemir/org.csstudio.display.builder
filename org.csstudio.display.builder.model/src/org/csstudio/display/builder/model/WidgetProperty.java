@@ -27,7 +27,7 @@ import org.w3c.dom.Element;
  * The property name identifies a property inside the model. A separate
  * description, which can be localized, is meant for user interfaces that
  * present the property to humans.
- * 
+ *
  * <p>
  * Note: names including the string 'pv' are reserved for properties to which PV
  * name auto-completion is applied.
@@ -52,6 +52,9 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
      */
     protected final T default_value;
 
+    /** Does property follow the value suggested by class? */
+    protected volatile boolean use_class;
+
     /** Current value of the property */
     protected volatile T value;
 
@@ -59,15 +62,33 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
      *  @param descriptor Property descriptor
      *  @param widget Widget that holds the property and handles listeners
      *  @param default_value Default and initial value
+     *  @deprecated Use constructor that defines follow_class
      */
+    @Deprecated
     protected WidgetProperty(
             final WidgetPropertyDescriptor<T> descriptor,
             final Widget widget,
             final T default_value)
     {
+        this(descriptor, widget, default_value, false);
+    }
+
+    /** Constructor
+     *  @param descriptor Property descriptor
+     *  @param widget Widget that holds the property and handles listeners
+     *  @param default_value Default and initial value
+     *  @param use_class Follow value suggested by class?
+     */
+    protected WidgetProperty(
+            final WidgetPropertyDescriptor<T> descriptor,
+            final Widget widget,
+            final T default_value,
+            final boolean use_class)
+    {
         this.widget = widget;
         this.descriptor = Objects.requireNonNull(descriptor);
         this.default_value = default_value;
+        this.use_class = use_class;
         this.value = this.default_value;
     }
 
@@ -147,6 +168,22 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
     public boolean isDefaultValue()
     {
         return Objects.equals(value, default_value);
+    }
+
+    /** @param use_class Should value of this property follow
+     *                   the suggestion from the class support?
+     */
+    public void useWidgetClass(final boolean use_class)
+    {
+        this.use_class = use_class;
+    }
+
+    /** @return Is value of this property following
+     *          the suggestion from the class support?
+     */
+    public boolean isUsingWidgetClass()
+    {
+        return use_class;
     }
 
     /** Restrict value.
