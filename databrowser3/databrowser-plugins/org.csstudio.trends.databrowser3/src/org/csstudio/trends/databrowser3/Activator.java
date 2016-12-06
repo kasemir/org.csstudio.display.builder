@@ -37,6 +37,9 @@ public class Activator extends AbstractUIPlugin
     /** Plug-in ID defined in MANIFEST.MF */
     final public static String PLUGIN_ID = "org.csstudio.trends.databrowser3";
 
+    /** Which string to use in preferences (for backward compatibility) **/
+    final public static String PREFERENCES_ID = "org.csstudio.trends.databrowser2";
+
     /** Checkbox images */
     final public static String ICON_UNCHECKED = "icons/unchecked.gif",
             ICON_CHECKED = "icons/checked.gif";
