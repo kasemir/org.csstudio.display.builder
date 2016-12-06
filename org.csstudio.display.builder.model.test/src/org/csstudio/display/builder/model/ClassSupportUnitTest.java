@@ -5,19 +5,27 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.model.classes;
+package org.csstudio.display.builder.model;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
-import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.persist.DelayedStream;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
+import org.csstudio.display.builder.model.persist.WidgetClassesService;
 import org.csstudio.display.builder.model.properties.NamedWidgetFont;
 import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
@@ -42,11 +50,16 @@ public class ClassSupportUnitTest
         assertThat(widget.getProperty("text").isUsingWidgetClass(), equalTo(true));
     }
 
+    protected WidgetClassSupport getExampleClasses() throws Exception
+    {
+        final InputStream stream = new FileInputStream("../org.csstudio.display.builder.model/examples/classes.btf");
+        return new WidgetClassSupport(stream);
+    }
+
     @Test
     public void testClassfile() throws Exception
     {
-        final InputStream stream = new FileInputStream("../org.csstudio.display.builder.model/examples/classes.btf");
-        final WidgetClassSupport widget_classes = new WidgetClassSupport(stream);
+        final WidgetClassSupport widget_classes = getExampleClasses();
         System.out.println(widget_classes);
 
         // Every widget has a DEFAULT class
@@ -61,8 +74,7 @@ public class ClassSupportUnitTest
     @Test
     public void testPropertyUpdates() throws Exception
     {
-        final InputStream stream = new FileInputStream("../org.csstudio.display.builder.model/examples/classes.btf");
-        final WidgetClassSupport widget_classes = new WidgetClassSupport(stream);
+        final WidgetClassSupport widget_classes = getExampleClasses();
 
         final LabelWidget widget = new LabelWidget();
         assertThat(widget.getWidgetClass(), equalTo(WidgetClassSupport.DEFAULT));
@@ -114,5 +126,56 @@ public class ClassSupportUnitTest
         assertThat(value, equalTo(NamedWidgetFonts.DEFAULT_BOLD));
     }
 
-    // TODO: WidgetClassService similar to WidgetColorService that loads the class info once, in background
+    @Test
+    public void testErrors() throws Exception
+    {
+        final AtomicReference<String> last_log_message = new AtomicReference<>();
+        final Handler log_handler = new Handler()
+        {
+            @Override
+            public void publish(final LogRecord record)
+            {
+                last_log_message.set(record.getMessage());
+            }
+
+            @Override
+            public void flush()
+            {
+                // Ignore
+            }
+
+            @Override
+            public void close() throws SecurityException
+            {
+                // Ignore
+            }
+        };
+        logger.addHandler(log_handler);
+
+        final WidgetClassSupport widget_classes = getExampleClasses();
+
+        // Using an unknown widget class results in a warning
+        Widget widget = new LabelWidget();
+        widget.setPropertyValue("class", "NonexistingClass");
+        widget_classes.apply(widget);
+        assertThat(last_log_message.get(), containsString("NonexistingClass"));
+
+        // Unknown widget type also generates warning
+        widget = new Widget("Bogus");
+        widget_classes.apply(widget);
+        assertThat(last_log_message.get().toLowerCase(), containsString("unknown widget type"));
+    }
+
+    @Test
+    public void testService() throws Exception
+    {
+        final Callable<InputStream> delayed_stream = new DelayedStream("../org.csstudio.display.builder.model/examples/classes.btf", 4);
+        WidgetClassesService.loadWidgetClasses("test", delayed_stream);
+
+        long start = System.currentTimeMillis();
+        final WidgetClassSupport widget_classes = WidgetClassesService.getWidgetClasses();
+        long end = System.currentTimeMillis();
+        assertThat(widget_classes, not(nullValue()));
+        System.out.println(String.format("Load time with similated delay: %.1f seconds", (end - start)/1000.0));
+    }
 }

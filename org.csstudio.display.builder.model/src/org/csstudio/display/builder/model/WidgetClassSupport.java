@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.csstudio.display.builder.model.classes;
+package org.csstudio.display.builder.model;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
@@ -15,16 +15,18 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 
-import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.model.MacroizedWidgetProperty;
-import org.csstudio.display.builder.model.RuntimeWidgetProperty;
-import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.WidgetDescriptor;
-import org.csstudio.display.builder.model.WidgetFactory;
-import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.ModelReader;
 
 /** Widget 'class' support
+ *
+ *  <p>Maintains 'classes' for each widget type,
+ *  for example a 'TITLE' class for 'label' widgets.
+ *  A class consists of properties and values
+ *  which can then be applied to a widget.
+ *
+ *  <p>Each property of a widget can be configured
+ *  to _not_ use the class settings.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -99,33 +101,34 @@ public class WidgetClassSupport
     /** Get class-based properties
      *
      *  @param widget Widget for which to get the class info
-     *  @return Properties and values for that widget type and class
-     *  @throws Exception
+     *  @return Properties and values for that widget type and class, or <code>null</code>
      */
-    private Map<String, WidgetProperty<?>> getClassSettings(final Widget widget) throws Exception
+    private Map<String, WidgetProperty<?>> getClassSettings(final Widget widget)
     {
         final Map<String, Map<String, WidgetProperty<?>>> widget_classes = widget_types.get(widget.getType());
         if (widget_classes == null)
-            throw new Exception("Unknown widget type " + widget);
-
-        Map<String, WidgetProperty<?>> result = widget_classes.get(widget.getWidgetClass());
-        if (result == null)
         {
-            logger.log(Level.WARNING, "Undefined widget class " + widget.getType() + " / " +
-                                      widget.getWidgetClass() + ", using " + DEFAULT);
-            result = widget_classes.get(DEFAULT);
+            logger.log(Level.WARNING, "No class support for unknown widget type " + widget);
+            return null;
         }
+
+        final Map<String, WidgetProperty<?>> result = widget_classes.get(widget.getWidgetClass());
+        if (result == null)
+            logger.log(Level.WARNING, "Undefined widget type " + widget.getType() +
+                                      " and class " + widget.getWidgetClass());
         return result;
     }
 
     /** Apply class-based property values to widget
      *
      *  @param widget Widget to update based on its current 'class'
-     *  @throws Exception on error
+     *  @throws Exception if property cannot be updated because of error in class-based value
      */
     public void apply(final Widget widget) throws Exception
     {
         final Map<String, WidgetProperty<?>> class_settings = getClassSettings(widget);
+        if (class_settings == null)
+            return;
         for (WidgetProperty<?> prop : widget.getProperties())
         {
             if (prop instanceof RuntimeWidgetProperty  ||  !prop.isUsingWidgetClass())
@@ -137,11 +140,12 @@ public class WidgetClassSupport
 
             if (prop instanceof MacroizedWidgetProperty)
                 ((MacroizedWidgetProperty<?>)prop).setSpecification(((MacroizedWidgetProperty<?>)class_setting).getSpecification());
-            else
+            else // This could throw an exception
                 prop.setValueFromObject(class_setting.getValue());
         }
     }
 
+    /** @return Debug representation */
     @Override
     public String toString()
     {

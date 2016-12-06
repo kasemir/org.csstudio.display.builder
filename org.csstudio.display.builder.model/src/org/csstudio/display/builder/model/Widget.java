@@ -31,7 +31,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.csstudio.display.builder.model.classes.WidgetClassSupport;
 import org.csstudio.display.builder.model.macros.MacroOrPropertyProvider;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.display.builder.model.macros.Macros;

@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.Preferences;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 
@@ -30,11 +31,6 @@ import org.csstudio.display.builder.model.util.ModelThreadPool;
 @SuppressWarnings("nls")
 public class WidgetFontService
 {
-    /** Time in seconds used to wait for a 'load' that's in progress
-     *  before falling back to a default set of fonts
-     */
-    protected static final int LOAD_DELAY = 5;
-
     /** Current set of named fonts.
      *  When still in the process of loading,
      *  this future will be active, i.e. <code>! isDone()</code>.
@@ -116,7 +112,7 @@ public class WidgetFontService
         // When in the process of loading, wait a little bit..
         try
         {
-            return fonts.get(LOAD_DELAY, TimeUnit.SECONDS);
+            return fonts.get(Preferences.getReadTimeout(), TimeUnit.MILLISECONDS);
         }
         catch (TimeoutException timeout)
         {
