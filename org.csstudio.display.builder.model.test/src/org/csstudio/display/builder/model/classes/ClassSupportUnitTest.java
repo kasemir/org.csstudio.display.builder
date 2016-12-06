@@ -9,12 +9,17 @@ package org.csstudio.display.builder.model.classes;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
 
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
+import org.csstudio.display.builder.model.properties.NamedWidgetFont;
+import org.csstudio.display.builder.model.properties.WidgetFont;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.junit.Test;
 
@@ -53,22 +58,61 @@ public class ClassSupportUnitTest
         assertThat(widget_classes.getWidgetClasses("label"), hasItem("COMMENT"));
     }
 
-    // TODO:
-    // final Widget widget = new LabelWidget();
-    // widget.setPropertyValue("class", "TITLE")
-    // widget_classes.update(widget);
-    // -> widget now using a different font
-    //
-    // widget.setPropertyValue("class", "COMMENT")
-    // widget_classes.update(widget);
-    // -> widget now using a different font
-    //
-    // widget.setPropertyValue("class", "DEFAULT")
-    // widget_classes.update(widget);
-    // -> widget now using a different font
-    //
-    // widget.getProperty("font").useWidgetClass(false);
-    // widget.setPropertyValue("class", "TITLE")
-    // widget_classes.update(widget);
-    // -> widget NOT using a different font
+    @Test
+    public void testPropertyUpdates() throws Exception
+    {
+        final InputStream stream = new FileInputStream("../org.csstudio.display.builder.model/examples/classes.btf");
+        final WidgetClassSupport widget_classes = new WidgetClassSupport(stream);
+
+        final LabelWidget widget = new LabelWidget();
+        assertThat(widget.getWidgetClass(), equalTo(WidgetClassSupport.DEFAULT));
+        assertThat(widget.propFont().isUsingWidgetClass(), equalTo(true));
+
+        // Original, default font of Label
+        WidgetFont value = widget.propFont().getValue();
+        assertThat(value, instanceOf(NamedWidgetFont.class));
+        final NamedWidgetFont orig_font = (NamedWidgetFont) value;
+        System.out.println("Original font: " + orig_font);
+
+        // TITLE class -> widget now using a different font
+        widget.setPropertyValue("class", "TITLE");
+        widget_classes.apply(widget);
+        value = widget.propFont().getValue();
+        System.out.println("TITLE class font: " + value);
+        assertThat(value, instanceOf(NamedWidgetFont.class));
+        final NamedWidgetFont title_font = (NamedWidgetFont) value;
+        assertThat(title_font.getName(), not(equalTo(orig_font.getName())));
+
+        // COMMENT class -> widget now using a different font
+        widget.setPropertyValue("class", "COMMENT");
+        widget_classes.apply(widget);
+        value = widget.propFont().getValue();
+        System.out.println("COMMENT class font: " + value);
+        assertThat(value, instanceOf(NamedWidgetFont.class));
+        final NamedWidgetFont comment_font = (NamedWidgetFont) value;
+        assertThat(comment_font.getName(), not(equalTo(orig_font.getName())));
+        assertThat(comment_font.getName(), not(equalTo(title_font.getName())));
+
+        // DEFAULT class -> widget back to original
+        widget.setPropertyValue("class", "DEFAULT");
+        widget_classes.apply(widget);
+        value = widget.propFont().getValue();
+        System.out.println("DEFAULT class font: " + value);
+        assertThat(value, instanceOf(NamedWidgetFont.class));
+        final NamedWidgetFont default_font = (NamedWidgetFont) value;
+        assertThat(default_font, equalTo(orig_font));
+
+        // Configure font to ignore the widget class,
+        // instead set some specific font
+        // -> class now ignored, font stays as set
+        widget.propFont().useWidgetClass(false);
+        widget.propFont().setValue(NamedWidgetFonts.DEFAULT_BOLD);
+        widget.setPropertyValue("class", "TITLE");
+        widget_classes.apply(widget);
+        value = widget.propFont().getValue();
+        System.out.println("TITLE class font when not using class: " + value);
+        assertThat(value, equalTo(NamedWidgetFonts.DEFAULT_BOLD));
+    }
+
+    // TODO: WidgetClassService similar to WidgetColorService that loads the class info once, in background
 }

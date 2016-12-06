@@ -7,12 +7,17 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.classes;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.MacroizedWidgetProperty;
+import org.csstudio.display.builder.model.RuntimeWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
@@ -37,11 +42,15 @@ public class WidgetClassSupport
      */
     public static final String DEFAULT = "DEFAULT";
 
-    /** Map of widget type to classes-for-type to properties */
+    /** Map:
+     *  widget type to classes-for-type,
+     *  class name to properties,
+     *  property name to property
+     */
     // TreeMap  -> sorted; may help when dumping, debugging
     private final Map<String,
                       Map<String,
-                          Set<WidgetProperty<?>>>> widget_types = new TreeMap<>();
+                          Map<String, WidgetProperty<?>>>> widget_types = new TreeMap<>();
 
     /** Load widget classes
      *
@@ -59,6 +68,12 @@ public class WidgetClassSupport
         // Register widgets from class definition file
         for (Widget widget : model.getChildren())
             registerClass(widget);
+
+        // Note:
+        // Properties held by this class still point to their widgets,
+        // which point to the display model,
+        // so it's kept in memory.
+        // Alternative: Just keep the property's values resp. specifications
     }
 
     /** @param widget Widget to register, using its class and properties */
@@ -66,8 +81,10 @@ public class WidgetClassSupport
     {
         final String type = widget.getType();
         final String widget_class = widget.getWidgetClass();
-        final Map<String, Set<WidgetProperty<?>>> widget_classes = widget_types.computeIfAbsent(type, t -> new TreeMap<>());
-        widget_classes.put(widget_class, widget.getProperties());
+        final Map<String, Map<String, WidgetProperty<?>>> widget_classes = widget_types.computeIfAbsent(type, t -> new TreeMap<>());
+        final Map<String, WidgetProperty<?>> class_properties = widget_classes.computeIfAbsent(widget_class, c -> new TreeMap<>());
+        for (WidgetProperty<?> property : widget.getProperties())
+            class_properties.put(property.getName(), property);
     }
 
     /** Get known widget classes
@@ -79,6 +96,52 @@ public class WidgetClassSupport
         return widget_types.get(widget_type).keySet();
     }
 
+    /** Get class-based properties
+     *
+     *  @param widget Widget for which to get the class info
+     *  @return Properties and values for that widget type and class
+     *  @throws Exception
+     */
+    private Map<String, WidgetProperty<?>> getClassSettings(final Widget widget) throws Exception
+    {
+        final Map<String, Map<String, WidgetProperty<?>>> widget_classes = widget_types.get(widget.getType());
+        if (widget_classes == null)
+            throw new Exception("Unknown widget type " + widget);
+
+        Map<String, WidgetProperty<?>> result = widget_classes.get(widget.getWidgetClass());
+        if (result == null)
+        {
+            logger.log(Level.WARNING, "Undefined widget class " + widget.getType() + " / " +
+                                      widget.getWidgetClass() + ", using " + DEFAULT);
+            result = widget_classes.get(DEFAULT);
+        }
+        return result;
+    }
+
+    /** Apply class-based property values to widget
+     *
+     *  @param widget Widget to update based on its current 'class'
+     *  @throws Exception on error
+     */
+    public void apply(final Widget widget) throws Exception
+    {
+        final Map<String, WidgetProperty<?>> class_settings = getClassSettings(widget);
+        for (WidgetProperty<?> prop : widget.getProperties())
+        {
+            if (prop instanceof RuntimeWidgetProperty  ||  !prop.isUsingWidgetClass())
+                continue;
+
+            final WidgetProperty<?> class_setting = class_settings.get(prop.getName());
+            if (class_setting == null)
+                continue;
+
+            if (prop instanceof MacroizedWidgetProperty)
+                ((MacroizedWidgetProperty<?>)prop).setSpecification(((MacroizedWidgetProperty<?>)class_setting).getSpecification());
+            else
+                prop.setValueFromObject(class_setting.getValue());
+        }
+    }
+
     @Override
     public String toString()
     {
@@ -88,7 +151,7 @@ public class WidgetClassSupport
         {
             buf.append(type).append(":\n");
 
-            final Map<String, Set<WidgetProperty<?>>> widget_classes = widget_types.get(type);
+            final Map<String, Map<String, WidgetProperty<?>>> widget_classes = widget_types.get(type);
             for (String clazz : widget_classes.keySet())
                 buf.append("   ").append(clazz).append("\n");
         }
