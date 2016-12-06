@@ -568,7 +568,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             return;
         show_crosshair = show;
         // Redraw once to show or hide crosshair
-        redrawSafely();
+        requestRedraw();
     }
 
     /** return Show the cross-hair cursor? */
@@ -702,7 +702,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         cursor_markers = Optional.ofNullable(markers);
         // Need to redraw for crosshair?
         if (show_crosshair)
-            redrawSafely();
+            requestRedraw();
         fireCursorsChanged();
     }
 
@@ -859,7 +859,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         mouse_current = Optional.empty();
         PlotCursors.setCursor(this, Cursor.DEFAULT);
         if (show_crosshair)
-            redrawSafely();
+            requestRedraw();
     }
 
     /** Stagger the range of axes */

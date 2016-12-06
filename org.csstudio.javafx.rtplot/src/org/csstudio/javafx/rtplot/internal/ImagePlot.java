@@ -740,7 +740,7 @@ public class ImagePlot extends PlotCanvasBase
         case ZOOM_IN_Y:
         case ZOOM_IN_PLOT:
             // Show mouse feedback for ongoing zoom
-            redrawSafely();
+            requestRedraw();
             break;
         default:
         }

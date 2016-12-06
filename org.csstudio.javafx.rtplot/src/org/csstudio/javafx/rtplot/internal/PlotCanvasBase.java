@@ -82,6 +82,9 @@ abstract class PlotCanvasBase extends ImageView
     /** Does layout need to be re-computed? */
     protected final AtomicBoolean need_layout = new AtomicBoolean(true);
 
+    /** Does plot image to be re-created? */
+    protected final AtomicBoolean need_update = new AtomicBoolean(true);
+
     /** Throttle updates, enforcing a 'dormant' period */
     private final RTPlotUpdateThrottle update_throttle;
 
@@ -152,8 +155,9 @@ abstract class PlotCanvasBase extends ImageView
         // 50Hz default throttle
         update_throttle = new RTPlotUpdateThrottle(50, TimeUnit.MILLISECONDS, () ->
         {
-            plot_image = updateImageBuffer();
-            redrawSafely();
+            if (need_update.getAndSet(false))
+                plot_image = updateImageBuffer();
+            Platform.runLater(redraw_runnable);
         });
 
         if (active)
@@ -194,21 +198,21 @@ abstract class PlotCanvasBase extends ImageView
     final public void requestLayout()
     {
         need_layout.set(true);
+        need_update.set(true);
         update_throttle.trigger();
     }
 
-    /** Request a complete redraw of the plot */
+    /** Request a complete update of plot image */
     final public void requestUpdate()
     {
+        need_update.set(true);
         update_throttle.trigger();
     }
 
-    /** Redraw the current image and cursors
-     *  <p>May be called from any thread.
-     */
-    final void redrawSafely()
+    /** Request redraw of current image and cursors */
+    final void requestRedraw()
     {
-        Platform.runLater(redraw_runnable);
+        update_throttle.trigger();
     }
 
     /** Draw all components into image buffer
