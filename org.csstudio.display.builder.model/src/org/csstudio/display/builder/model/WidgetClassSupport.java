@@ -119,7 +119,7 @@ public class WidgetClassSupport
         return result;
     }
 
-    /** Apply class-based property values to widget
+    /** Apply class-based property values to widget (and child widgets)
      *
      *  @param widget Widget to update based on its current 'class'
      *  @throws Exception if property cannot be updated because of error in class-based value
@@ -127,22 +127,28 @@ public class WidgetClassSupport
     public void apply(final Widget widget) throws Exception
     {
         final Map<String, WidgetProperty<?>> class_settings = getClassSettings(widget);
-        if (class_settings == null)
-            return;
-        for (WidgetProperty<?> prop : widget.getProperties())
+        if (class_settings != null)
         {
-            if (prop instanceof RuntimeWidgetProperty  ||  !prop.isUsingWidgetClass())
-                continue;
+            for (WidgetProperty<?> prop : widget.getProperties())
+            {
+                if (prop instanceof RuntimeWidgetProperty  ||  !prop.isUsingWidgetClass())
+                    continue;
 
-            final WidgetProperty<?> class_setting = class_settings.get(prop.getName());
-            if (class_setting == null)
-                continue;
+                final WidgetProperty<?> class_setting = class_settings.get(prop.getName());
+                if (class_setting == null)
+                    continue;
 
-            if (prop instanceof MacroizedWidgetProperty)
-                ((MacroizedWidgetProperty<?>)prop).setSpecification(((MacroizedWidgetProperty<?>)class_setting).getSpecification());
-            else // This could throw an exception
-                prop.setValueFromObject(class_setting.getValue());
+                if (prop instanceof MacroizedWidgetProperty)
+                    ((MacroizedWidgetProperty<?>)prop).setSpecification(((MacroizedWidgetProperty<?>)class_setting).getSpecification());
+                else // This could throw an exception TODO Should not prevent applying classes to child widgets...
+                    prop.setValueFromObject(class_setting.getValue());
+            }
         }
+        // Apply to child widgets
+        final ChildrenProperty children = ChildrenProperty.getChildren(widget);
+        if (children != null)
+            for (Widget child : children.getValue())
+                apply(child);
     }
 
     /** @return Debug representation */
