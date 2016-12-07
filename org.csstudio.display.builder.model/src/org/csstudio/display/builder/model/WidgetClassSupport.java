@@ -33,8 +33,8 @@ import org.csstudio.display.builder.model.persist.ModelReader;
 public class WidgetClassSupport
 {
     /** File extension used for widget class definition files */
-    // 'bob template file'
-    public static final String FILE_EXTENSION = "btf";
+    // 'bob class file'
+    public static final String FILE_EXTENSION = "bcf";
 
     /** Name of the default class
      *

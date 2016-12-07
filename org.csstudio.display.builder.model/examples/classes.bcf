@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="2.0.0">
+  <name>Widget Classes</name>
+  <widget type="label" version="2.0.0">
+    <name>TITLE</name>
+    <class>TITLE</class>
+    <text>Example Title</text>
+    <x>40</x>
+    <y>20</y>
+    <width>281</width>
+    <height>31</height>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>COMMENT</name>
+    <class>COMMENT</class>
+    <text>Comment</text>
+    <x>40</x>
+    <y>100</y>
+    <width>320</width>
+    <height>100</height>
+    <font>
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>RED_LED</name>
+    <class>RED_LED</class>
+    <x>400</x>
+    <y>51</y>
+    <off_color use_class="true">
+      <color red="63" green="0" blue="0">
+      </color>
+    </off_color>
+    <on_color use_class="true">
+      <color red="255" green="0" blue="0">
+      </color>
+    </on_color>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>GREEN_LED</name>
+    <class>GREEN_LED</class>
+    <x>400</x>
+    <y>90</y>
+    <off_color use_class="true">
+      <color red="0" green="57" blue="0">
+      </color>
+    </off_color>
+    <on_color use_class="true">
+      <color red="0" green="255" blue="0">
+      </color>
+    </on_color>
+  </widget>
+</display>

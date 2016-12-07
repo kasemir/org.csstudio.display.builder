@@ -52,7 +52,7 @@ public class ClassSupportUnitTest
 
     protected WidgetClassSupport getExampleClasses() throws Exception
     {
-        final InputStream stream = new FileInputStream("../org.csstudio.display.builder.model/examples/classes.btf");
+        final InputStream stream = new FileInputStream("../org.csstudio.display.builder.model/examples/classes.bcf");
         return new WidgetClassSupport(stream);
     }
 
@@ -65,7 +65,7 @@ public class ClassSupportUnitTest
         // Every widget has a DEFAULT class
         assertThat(widget_classes.getWidgetClasses("textupdate"), hasItem("DEFAULT"));
 
-        // Label has more classes defined in classes.btf
+        // Label has more classes defined in classes.bcf
         assertThat(widget_classes.getWidgetClasses("label"), hasItem("DEFAULT"));
         assertThat(widget_classes.getWidgetClasses("label"), hasItem("TITLE"));
         assertThat(widget_classes.getWidgetClasses("label"), hasItem("COMMENT"));
@@ -169,7 +169,7 @@ public class ClassSupportUnitTest
     @Test
     public void testService() throws Exception
     {
-        final Callable<InputStream> delayed_stream = new DelayedStream("../org.csstudio.display.builder.model/examples/classes.btf", 4);
+        final Callable<InputStream> delayed_stream = new DelayedStream("../org.csstudio.display.builder.model/examples/classes.bcf", 4);
         WidgetClassesService.loadWidgetClasses("test", delayed_stream);
 
         long start = System.currentTimeMillis();

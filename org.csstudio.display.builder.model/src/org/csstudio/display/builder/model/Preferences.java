@@ -29,7 +29,7 @@ public class Preferences
     public static String getClassesFile()
     {
         return getPreference(CLASSES_FILE,
-                             "platform:/plugin/org.csstudio.display.builder.model/examples/classes.btf");
+                             "platform:/plugin/org.csstudio.display.builder.model/examples/classes.bcf");
     }
 
     public static String getColorFile()

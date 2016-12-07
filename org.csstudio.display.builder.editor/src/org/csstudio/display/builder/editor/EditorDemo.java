@@ -43,7 +43,7 @@ public class EditorDemo extends Application
     @Override
     public void start(final Stage stage)
     {
-        final File classes_file = new File("../org.csstudio.display.builder.model/examples/classes.btf");
+        final File classes_file = new File("../org.csstudio.display.builder.model/examples/classes.bcf");
         WidgetClassesService.loadWidgetClasses(classes_file.getPath(), () -> new FileInputStream(classes_file));
 
         final File color_file = new File("../org.csstudio.display.builder.model/examples/color.def");
