@@ -122,9 +122,8 @@ public class WidgetClassSupport
     /** Apply class-based property values to widget (and child widgets)
      *
      *  @param widget Widget to update based on its current 'class'
-     *  @throws Exception if property cannot be updated because of error in class-based value
      */
-    public void apply(final Widget widget) throws Exception
+    public void apply(final Widget widget)
     {
         final Map<String, WidgetProperty<?>> class_settings = getClassSettings(widget);
         if (class_settings != null)
@@ -140,8 +139,16 @@ public class WidgetClassSupport
 
                 if (prop instanceof MacroizedWidgetProperty)
                     ((MacroizedWidgetProperty<?>)prop).setSpecification(((MacroizedWidgetProperty<?>)class_setting).getSpecification());
-                else // This could throw an exception TODO Should not prevent applying classes to child widgets...
-                    prop.setValueFromObject(class_setting.getValue());
+                else
+                    try
+                    {
+                        prop.setValueFromObject(class_setting.getValue());
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.log(Level.WARNING, "Cannot apply class value for " + widget.getWidgetClass() +
+                                                  " to property " + prop.getName() + " of " + widget, ex);
+                    }
             }
         }
         // Apply to child widgets
