@@ -62,9 +62,23 @@ public class EnumWidgetProperty<E extends Enum<E>> extends MacroizedWidgetProper
                               final Widget widget,
                               final E default_value)
     {
+        this(descriptor, widget, default_value, true);
+    }
+
+    /** Constructor
+     *  @param descriptor Property descriptor
+     *  @param widget Widget that holds the property and handles listeners
+     *  @param default_value Default and initial value
+     *  @param use_class Follow value suggested by class?
+     */
+    public EnumWidgetProperty(final WidgetPropertyDescriptor<E> descriptor,
+                              final Widget widget,
+                              final E default_value,
+                              final boolean use_class)
+    {
         // Default value must be non-null because it's used to determine
         // labels, names, ordinals
-        super(descriptor, widget, Objects.requireNonNull(default_value));
+        super(descriptor, widget, Objects.requireNonNull(default_value), use_class);
     }
 
     /** Get labels, i.e. localized representations of all enum values

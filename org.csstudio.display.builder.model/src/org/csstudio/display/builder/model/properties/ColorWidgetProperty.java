@@ -49,7 +49,7 @@ public class ColorWidgetProperty extends WidgetProperty<WidgetColor>
             final Widget widget,
             final WidgetColor default_value)
     {
-        super(descriptor, widget, default_value);
+        super(descriptor, widget, default_value, true);
     }
 
     @Override

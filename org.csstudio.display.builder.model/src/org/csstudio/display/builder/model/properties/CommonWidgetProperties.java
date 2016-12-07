@@ -244,7 +244,14 @@ public class CommonWidgetProperties
 
     /** 'visible' property */
     public static final WidgetPropertyDescriptor<Boolean> propVisible =
-            newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "visible", Messages.WidgetProperties_Visible);
+        new WidgetPropertyDescriptor<Boolean>(WidgetPropertyCategory.DISPLAY, "visible", Messages.WidgetProperties_Visible)
+    {
+        @Override
+        public WidgetProperty<Boolean> createProperty(final Widget widget, final Boolean value)
+        {
+            return new BooleanWidgetProperty(this, widget, value, false);
+        }
+    };
 
     /** 'border_alarm_sensitive' property */
     public static final WidgetPropertyDescriptor<Boolean> propBorderAlarmSensitive =
@@ -316,7 +323,14 @@ public class CommonWidgetProperties
 
     /** 'tooltip' property: Text to display in tooltip */
     public static final WidgetPropertyDescriptor<String> propTooltip =
-            newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "tooltip", Messages.WidgetProperties_Tooltip);
+            new WidgetPropertyDescriptor<String>(WidgetPropertyCategory.BEHAVIOR, "tooltip", Messages.WidgetProperties_Tooltip)
+    {
+        @Override
+        public WidgetProperty<String> createProperty(final Widget widget, final String value)
+        {
+            return new StringWidgetProperty(this, widget, value, true);
+        }
+    };
 
     /** 'format' property */
     public static final WidgetPropertyDescriptor<FormatOption> propFormat =
@@ -425,7 +439,7 @@ public class CommonWidgetProperties
         public EnumWidgetProperty<RotationStep> createProperty(final Widget widget,
                 final RotationStep default_value)
         {
-            return new EnumWidgetProperty<RotationStep>(this, widget, default_value);
+            return new EnumWidgetProperty<RotationStep>(this, widget, default_value, false);
         }
     };
 
