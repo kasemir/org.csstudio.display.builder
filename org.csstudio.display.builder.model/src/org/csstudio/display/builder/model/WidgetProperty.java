@@ -176,6 +176,7 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
     public void useWidgetClass(final boolean use_class)
     {
         this.use_class = use_class;
+        firePropertyChange(null, null);
     }
 
     /** @return Is value of this property following

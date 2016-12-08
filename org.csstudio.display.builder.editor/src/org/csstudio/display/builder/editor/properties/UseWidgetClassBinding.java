@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.editor.properties;
 
 import org.csstudio.display.builder.editor.undo.UseClassAction;
+import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
@@ -20,9 +21,14 @@ import javafx.scene.control.CheckBox;
 public class UseWidgetClassBinding extends WidgetPropertyBinding<CheckBox, WidgetProperty<?>>
 {
     private final Node field;
+    private final UntypedWidgetPropertyListener model_listener = (p, o, n) ->
+    {
+        if (! updating)
+            updateFromModel();
+    };
 
-    public UseWidgetClassBinding(UndoableActionManager undo, CheckBox node,
-            WidgetProperty<?> widget_property, Node field)
+    public UseWidgetClassBinding(final UndoableActionManager undo, final CheckBox node,
+                                 final WidgetProperty<?> widget_property, final Node field)
     {
         super(undo, node, widget_property, null);
         this.field = field;
@@ -31,22 +37,27 @@ public class UseWidgetClassBinding extends WidgetPropertyBinding<CheckBox, Widge
     @Override
     public void bind()
     {
-        jfx_node.setSelected(widget_property.isUsingWidgetClass());
-        field.setDisable(jfx_node.isSelected());
+        updateFromModel();
         jfx_node.setOnAction(event ->
         {
+            updating = true;
             field.setDisable(jfx_node.isSelected());
             undo.execute(new UseClassAction(widget_property, jfx_node.isSelected()));
+            updating = false;
         });
-        // TODO Monitor widget_property for changes of isUsingWidgetClass
-        //      .. but don't want to add another listener list to each property just for that..
-        //         use existing property _value_ listener?
+        widget_property.addUntypedPropertyListener(model_listener);
     }
 
     @Override
     public void unbind()
     {
+        widget_property.removePropertyListener(model_listener);
         jfx_node.setOnAction(null);
-        // TODO Unbind other listeners..
+    }
+
+    private void updateFromModel()
+    {
+        jfx_node.setSelected(widget_property.isUsingWidgetClass());
+        field.setDisable(jfx_node.isSelected());
     }
 }
