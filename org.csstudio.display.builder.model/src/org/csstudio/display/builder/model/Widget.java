@@ -9,12 +9,12 @@ package org.csstudio.display.builder.model;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propActions;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidgetClass;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHeight;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propRules;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propScripts;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propType;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidgetClass;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propY;
@@ -212,6 +212,23 @@ public class Widget
                 Collectors.toMap(WidgetProperty::getName, Function.identity()));
     }
 
+    /** Unique runtime identifier of a widget
+     *
+     *  <p>At runtime, this ID can be used to construct
+     *  PVs that are unique and specific to this instance
+     *  of a widget.
+     *  Even if the same display is opened multiple times
+     *  within the same JVM, the widget is very likely
+     *  to receive a new, unique identifier.
+     *
+     *  @return Unique Runtime Identifier for widget
+     */
+    public final String getID()
+    {   // Base on ID hash code
+        final int id = System.identityHashCode(this);
+        return "WD" + Integer.toHexString(id);
+    }
+
     /** @return Widget version number */
     public Version getVersion()
     {
@@ -234,26 +251,10 @@ public class Widget
         return name.getValue();
     }
 
+    /** @return Widget class to use for updating properties that use the class */
     public final String getWidgetClass()
     {
         return widget_class.getValue();
-    }
-
-    /** Unique runtime identifier of a widget
-     *
-     *  <p>At runtime, this ID can be used to construct
-     *  PVs that are unique and specific to this instance
-     *  of a widget.
-     *  Even if the same display is opened multiple times
-     *  within the same JVM, the widget is very likely
-     *  to receive a new, unique identifier.
-     *
-     *  @return Unique Runtime Identifier for widget
-     */
-    public final String getID()
-    {   // Base on ID hash code
-        final int id = System.identityHashCode(this);
-        return "WD" + Integer.toHexString(id);
     }
 
     /** @return Parent widget in Widget tree */

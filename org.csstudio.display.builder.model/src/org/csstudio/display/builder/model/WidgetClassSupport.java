@@ -65,8 +65,11 @@ public class WidgetClassSupport
 
         // Register all DEFAULT widgets
         for (WidgetDescriptor descr : WidgetFactory.getInstance().getWidgetDescriptions())
-            registerClass(descr.createWidget());
-
+        {
+            final Widget widget = descr.createWidget();
+            widget.propName().setValue(DEFAULT);
+            registerClass(widget);
+        }
         // Register widgets from class definition file
         for (Widget widget : model.getChildren())
             registerClass(widget);
@@ -82,7 +85,8 @@ public class WidgetClassSupport
     private void registerClass(final Widget widget)
     {
         final String type = widget.getType();
-        final String widget_class = widget.getWidgetClass();
+        // For the class definition file, the widget _name_ sets the class to define
+        final String widget_class = widget.getName();
         final Map<String, Map<String, WidgetProperty<?>>> widget_classes = widget_types.computeIfAbsent(type, t -> new TreeMap<>());
         final Map<String, WidgetProperty<?>> class_properties = widget_classes.computeIfAbsent(widget_class, c -> new TreeMap<>());
         for (WidgetProperty<?> property : widget.getProperties())

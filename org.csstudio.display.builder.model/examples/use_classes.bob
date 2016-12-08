@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display version="2.0.0">
+  <name>Display</name>
+  <widget type="label" version="2.0.0">
+    <name>Label</name>
+    <text>Using Classes</text>
+    <width>281</width>
+    <height>31</height>
+    <font>
+      <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>LED</name>
+    <class>RED_LED</class>
+    <pv_name>sim://ramp(0, 1, 1)</pv_name>
+    <x>80</x>
+    <y>110</y>
+    <border_alarm_sensitive use_class="false">false</border_alarm_sensitive>
+  </widget>
+  <widget type="led" version="2.0.0">
+    <name>LED_1</name>
+    <class>GREEN_LED</class>
+    <pv_name>sim://ramp(0, 1, 1)</pv_name>
+    <x>80</x>
+    <y>150</y>
+    <border_alarm_sensitive use_class="false">false</border_alarm_sensitive>
+  </widget>
+</display>
