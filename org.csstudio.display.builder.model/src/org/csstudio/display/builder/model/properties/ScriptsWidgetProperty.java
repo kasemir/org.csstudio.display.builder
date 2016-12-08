@@ -11,6 +11,8 @@ import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -45,12 +47,15 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
         super(descriptor, widget, default_value);
     }
 
-    /** @param value Must be ScriptInfo array(!), not List */
+    /** @param value Must be ScriptInfo array(!), or empty List */
     @Override
     public void setValueFromObject(final Object value) throws Exception
     {
         if (value instanceof ScriptInfo[])
             setValue(Arrays.asList((ScriptInfo[]) value));
+        else if ((value instanceof Collection) &&
+                 ((Collection<?>)value).isEmpty())
+            setValue(Collections.emptyList());
         else
             throw new Exception("Need ScriptInfo[], got " + value);
     }
