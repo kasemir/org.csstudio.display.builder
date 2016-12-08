@@ -12,6 +12,7 @@ import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -44,6 +45,19 @@ public class WidgetClassSupport
      *  Can be overwritten in widget class file.
      */
     public static final String DEFAULT = "DEFAULT";
+
+    /** Alphabetical sort with exception that 'DEFAULT' is on top */
+    private static final Comparator<String> classname_sort = (a, b) ->
+    {
+        final int cmp = a.compareTo(b);
+        if (cmp == 0)
+            return 0;
+        if (DEFAULT.equals(a))
+            return -1;
+        if (DEFAULT.equals(b))
+            return 1;
+        return cmp;
+    };
 
     /** Class-based value for a property
      *
@@ -139,7 +153,7 @@ public class WidgetClassSupport
         final String type = widget.getType();
         // For the class definition file, the widget _name_ sets the class to define
         final String widget_class = widget.getName();
-        final Map<String, Map<String, ClassValue>> widget_classes = widget_types.computeIfAbsent(type, t -> new TreeMap<>());
+        final Map<String, Map<String, ClassValue>> widget_classes = widget_types.computeIfAbsent(type, t -> new TreeMap<>(classname_sort));
         final Map<String, ClassValue> class_properties = widget_classes.computeIfAbsent(widget_class, c -> new TreeMap<>());
         for (WidgetProperty<?> property : widget.getProperties())
             class_properties.put(property.getName(), new ClassValue(property));
