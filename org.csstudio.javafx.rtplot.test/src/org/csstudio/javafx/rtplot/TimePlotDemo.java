@@ -87,14 +87,7 @@ public class TimePlotDemo extends Application
         }, "DemoDataUpdate");
         update_data.start();
 
-//        final Control menu_holder = plot.getPlotControl();
-//        final MenuManager mm = new MenuManager();
-//        mm.add(plot.getToolbarAction());
-//        mm.add(plot.getLegendAction());
-//        final Menu menu = mm.createContextMenu(menu_holder);
-//        menu_holder.setMenu(menu);
-
-        plot.showToolbar(true);
+        plot.showToolbar(false);
 
         plot.addListener(new RTPlotListener<Instant>()
         {

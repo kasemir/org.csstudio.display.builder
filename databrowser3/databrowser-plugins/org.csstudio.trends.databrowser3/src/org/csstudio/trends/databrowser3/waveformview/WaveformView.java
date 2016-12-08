@@ -160,8 +160,11 @@ public class WaveformView extends DataBrowserAwareView
         {
             @Override
             public void widgetSelected(final SelectionEvent e)
-            {   // Trigger GUI update by switching to current model
-                updateModel(model, model);
+            {    // First item is "--select PV name--"
+                if (pv_name.getSelectionIndex() == 0)
+                    selectPV(null);
+                else
+                    selectPV(model.getItem(pv_name.getText()));
             }
         });
 
@@ -274,10 +277,7 @@ public class WaveformView extends DataBrowserAwareView
     /** Select given PV item (or <code>null</code>). */
     private void selectPV(final ModelItem new_item)
     {
-        if (new_item == null)
-            model_item = null;
-        else
-            model_item = new_item;
+        model_item = new_item;
 
         // Delete all existing traces
         for (Trace<Double> trace : plot.getTraces())
@@ -299,6 +299,8 @@ public class WaveformView extends DataBrowserAwareView
         // Enable waveform selection and update slider's range
         sample_index.setEnabled(true);
         showSelectedSample();
+        // Autoscale Y axis by default.
+        plot.getYAxes().get(0).setAutoscale(true);
     }
 
     /** Show the current sample of the current model item. */

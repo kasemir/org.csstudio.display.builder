@@ -35,12 +35,9 @@ import org.csstudio.javafx.rtplot.internal.util.LinearScreenTransform;
 import org.diirt.util.array.IteratorNumber;
 import org.diirt.util.array.ListNumber;
 
-import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 
@@ -329,7 +326,7 @@ public class ImagePlot extends PlotCanvasBase
 
     /** Draw all components into image buffer */
     @Override
-    protected Image updateImageBuffer()
+    protected BufferedImage updateImageBuffer()
     {
         // Would like to use JFX WritableImage,
         // but rendering problem on Linux (sandbox.ImageScaling),
@@ -465,8 +462,7 @@ public class ImagePlot extends PlotCanvasBase
 
         in_update = false;
 
-        // Convert to JFX
-        return SwingFXUtils.toFXImage(image, null);
+        return image;
     }
 
     /** @param roi RegionOfInterest
@@ -633,7 +629,7 @@ public class ImagePlot extends PlotCanvasBase
      *  @param gc GC
      */
     @Override
-    protected void drawMouseModeFeedback(final GraphicsContext gc)
+    protected void drawMouseModeFeedback(final Graphics2D gc)
     {   // Safe copy, then check null (== isPresent())
         final Point2D current = mouse_current.orElse(null);
         if (current == null)
@@ -642,18 +638,7 @@ public class ImagePlot extends PlotCanvasBase
         final Point2D start = mouse_start.orElse(null);
         final Rectangle plot_bounds = image_area;
 
-        if (mouse_mode == MouseMode.ZOOM_IN)
-        {   // Update mouse pointer in ready-to-zoom mode
-            if (plot_bounds.contains(current.getX(), current.getY()))
-                PlotCursors.setCursor(this, MouseMode.ZOOM_IN);
-            else if (x_axis.getBounds().contains(current.getX(), current.getY()))
-                PlotCursors.setCursor(this, Cursor.H_RESIZE);
-            else if (y_axis.getBounds().contains(current.getX(), current.getY()))
-                PlotCursors.setCursor(this, Cursor.V_RESIZE);
-            else
-                PlotCursors.setCursor(this, Cursor.DEFAULT);
-        }
-        else if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
+        if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
             drawZoomXMouseFeedback(gc, plot_bounds, start, current);
         else if (mouse_mode == MouseMode.ZOOM_IN_Y  &&  start != null)
             drawZoomYMouseFeedback(gc, plot_bounds, start, current);
@@ -755,7 +740,7 @@ public class ImagePlot extends PlotCanvasBase
         case ZOOM_IN_Y:
         case ZOOM_IN_PLOT:
             // Show mouse feedback for ongoing zoom
-            redrawSafely();
+            requestRedraw();
             break;
         default:
         }

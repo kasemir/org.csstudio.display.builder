@@ -28,6 +28,7 @@ import org.csstudio.javafx.rtplot.internal.TraceImpl;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -74,11 +75,12 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         else
             throw new IllegalArgumentException("Cannot handle " + type.getName());
 
-        // Canvas, i.e. plot, is not directly size-manageable by a layout.
+        // Plot is not directly size-manageable by a layout.
         // --> Let BorderPane resize 'center', then plot binds to is size.
         final Pane center = new Pane(plot);
-        plot.widthProperty().bind(center.widthProperty());
-        plot.heightProperty().bind(center.heightProperty());
+        final ChangeListener<? super Number> resize_listener = (p, o, n) -> plot.setSize(center.getWidth(), center.getHeight());
+        center.widthProperty().addListener(resize_listener);
+        center.heightProperty().addListener(resize_listener);
         setCenter(center);
         showToolbar(active);
 

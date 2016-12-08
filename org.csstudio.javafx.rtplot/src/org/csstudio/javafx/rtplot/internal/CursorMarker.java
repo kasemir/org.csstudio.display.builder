@@ -7,14 +7,12 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.List;
 
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
-
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
 /** Mark where a trace crosses the cursor.
  *
@@ -63,7 +61,7 @@ class CursorMarker implements Comparable<CursorMarker>
      *  @param markers {@link CursorMarker}s to draw
      *  @param bounds
      */
-    public static void drawMarkers(final GraphicsContext gc, final List<CursorMarker> markers, final Rectangle bounds)
+    public static void drawMarkers(final Graphics2D gc, final List<CursorMarker> markers, final Rectangle bounds)
     {
         int height = 10; // Non-zero guess, updated as markers are drawn
         int last_y = -1;
@@ -88,11 +86,11 @@ class CursorMarker implements Comparable<CursorMarker>
         }
     }
 
-    private static int drawMark(final GraphicsContext gc, final int y, final CursorMarker mark, final Rectangle bounds)
+    private static int drawMark(final Graphics2D gc, final int y, final CursorMarker mark, final Rectangle bounds)
     {
     	final Rectangle metrics = GraphicsUtils.measureText(gc, mark.label);
     	final int dir = (mark.x + ARROW + metrics.width + BORDER <= bounds.width) ? 1 : -1;
-    	final double[] outline_x = new double[]
+    	final int[] outline_x = new int[]
         {
             mark.x,
             mark.x + dir * ARROW,
@@ -100,7 +98,7 @@ class CursorMarker implements Comparable<CursorMarker>
             mark.x + dir *(ARROW + metrics.width + BORDER),
             mark.x + dir * ARROW,
         };
-        final double[] outline_y = new double[]
+        final int[] outline_y = new int[]
         {
             mark.y,
             y - metrics.height/2 - BORDER,
@@ -109,22 +107,19 @@ class CursorMarker implements Comparable<CursorMarker>
             y + metrics.height/2 + BORDER,
         };
 
-        final Paint orig_fill = gc.getFill();
-        final Paint orig_stroke = gc.getStroke();
+        final Color orig_fill = gc.getColor();
 
-    	gc.setFill(new Color(1.0, 1.0, 1.0, 0.8));
+        gc.setColor(new Color(1.0f, 1.0f, 1.0f, 0.8f));
         gc.fillPolygon(outline_x, outline_y, 5);
 
-        gc.setFill(mark.rgb);
-        gc.setStroke(mark.rgb);
-        gc.strokePolygon(outline_x, outline_y, 5);
+        gc.setColor(mark.rgb);
+        gc.drawPolygon(outline_x, outline_y, 5);
         if (dir > 0)
-            gc.fillText(mark.label, mark.x + ARROW, y - metrics.height/2 + metrics.y);
+            gc.drawString(mark.label, mark.x + ARROW, y - metrics.height/2 + metrics.y);
         else
-            gc.fillText(mark.label, mark.x - ARROW - metrics.width, y - metrics.height/2 + metrics.y);
+            gc.drawString(mark.label, mark.x - ARROW - metrics.width, y - metrics.height/2 + metrics.y);
 
-        gc.setFill(orig_fill);
-        gc.setStroke(orig_stroke);
+        gc.setColor(orig_fill);
 
         return metrics.height;
     }

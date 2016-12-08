@@ -18,6 +18,7 @@ import org.csstudio.javafx.rtplot.internal.Plot;
 import org.csstudio.javafx.rtplot.internal.TraceImpl;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -70,8 +71,9 @@ public class BasicPlotDemo extends Application
         plot.setMouseMode(MouseMode.PAN);
 
 		final Pane root = new Pane(plot);
-		plot.widthProperty().bind(root.widthProperty());
-		plot.heightProperty().bind(root.heightProperty());
+		final ChangeListener<? super Number> resize_listener = (p, o, n) -> plot.setSize(root.getWidth(), root.getHeight());
+        root.widthProperty().addListener(resize_listener);
+        root.heightProperty().addListener(resize_listener);
 
         final Scene scene = new Scene(root, 800, 600);
         stage.setScene(scene);
