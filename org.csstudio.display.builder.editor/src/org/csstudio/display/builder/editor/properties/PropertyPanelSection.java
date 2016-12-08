@@ -10,6 +10,7 @@ package org.csstudio.display.builder.editor.properties;
 import static org.csstudio.display.builder.editor.DisplayEditor.logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -21,11 +22,14 @@ import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetClassSupport;
 import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.persist.WidgetClassesService;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
+import org.csstudio.display.builder.model.properties.ClassWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
@@ -246,6 +250,28 @@ public class PropertyPanelSection extends GridPane
             binding.bind();
             field = new HBox(text, select_file);
             HBox.setHgrow(text, Priority.ALWAYS);
+        }
+        else if (property instanceof ClassWidgetProperty)
+        {
+            final ClassWidgetProperty clazz = (ClassWidgetProperty) property;
+            final ComboBox<String> combo = new ComboBox<>();
+            combo.setPromptText(property.getDefaultValue().toString());
+            combo.setEditable(true);
+            // List classes of this widget
+            final String type = property.getWidget().getType();
+            final WidgetClassSupport class_support = WidgetClassesService.getWidgetClasses();
+            final Collection<String> classes = class_support != null
+                    ? class_support.getWidgetClasses(type)
+                    : Arrays.asList(WidgetClassSupport.DEFAULT);
+            combo.getItems().addAll(classes);
+            combo.setMaxWidth(Double.MAX_VALUE);
+            // TODO Bind class support
+               combo.setValue(clazz.getValue());
+//            final EnumWidgetPropertyBinding binding =
+//                    new EnumWidgetPropertyBinding(undo, combo, enum_prop, other);
+//            bindings.add(binding);
+//            binding.bind();
+            field = combo;
         }
         else if (property instanceof MacroizedWidgetProperty)
         {

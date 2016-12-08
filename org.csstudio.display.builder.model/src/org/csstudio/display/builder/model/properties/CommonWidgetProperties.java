@@ -207,7 +207,14 @@ public class CommonWidgetProperties
      *  <p>Widget class, used to set properties that follow the suggestions from class
      */
     public static final WidgetPropertyDescriptor<String> propWidgetClass =
-            newStringPropertyDescriptor(WidgetPropertyCategory.WIDGET, "class", Messages.WidgetProperties_Class);
+        new WidgetPropertyDescriptor<String>(WidgetPropertyCategory.WIDGET, "class", Messages.WidgetProperties_Class)
+    {
+        @Override
+        public WidgetProperty<String> createProperty(final Widget widget, final String value)
+        {
+            return new ClassWidgetProperty(this, widget);
+        }
+    };
 
     /** 'macros' property */
     public static final WidgetPropertyDescriptor<Macros> propMacros =
