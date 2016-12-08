@@ -284,7 +284,7 @@ public class DisplayEditor
     }
 
     /** Set Model
-     * @param model Model to show and edit
+     *  @param model Model to show and edit
      */
     public void setModel(final DisplayModel model)
     {

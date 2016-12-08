@@ -29,7 +29,6 @@ import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.persist.WidgetClassesService;
 import org.csstudio.display.builder.model.properties.ActionsWidgetProperty;
 import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
-import org.csstudio.display.builder.model.properties.ClassWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorWidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
@@ -40,6 +39,7 @@ import org.csstudio.display.builder.model.properties.MacrosWidgetProperty;
 import org.csstudio.display.builder.model.properties.PointsWidgetProperty;
 import org.csstudio.display.builder.model.properties.RulesWidgetProperty;
 import org.csstudio.display.builder.model.properties.ScriptsWidgetProperty;
+import org.csstudio.display.builder.model.properties.WidgetClassProperty;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.representation.javafx.FilenameSupport;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
@@ -251,9 +251,9 @@ public class PropertyPanelSection extends GridPane
             field = new HBox(text, select_file);
             HBox.setHgrow(text, Priority.ALWAYS);
         }
-        else if (property instanceof ClassWidgetProperty)
+        else if (property instanceof WidgetClassProperty)
         {
-            final ClassWidgetProperty clazz = (ClassWidgetProperty) property;
+            final WidgetClassProperty widget_class_prop = (WidgetClassProperty) property;
             final ComboBox<String> combo = new ComboBox<>();
             combo.setPromptText(property.getDefaultValue().toString());
             combo.setEditable(true);
@@ -265,12 +265,9 @@ public class PropertyPanelSection extends GridPane
                     : Arrays.asList(WidgetClassSupport.DEFAULT);
             combo.getItems().addAll(classes);
             combo.setMaxWidth(Double.MAX_VALUE);
-            // TODO Bind class support
-               combo.setValue(clazz.getValue());
-//            final EnumWidgetPropertyBinding binding =
-//                    new EnumWidgetPropertyBinding(undo, combo, enum_prop, other);
-//            bindings.add(binding);
-//            binding.bind();
+            final WidgetClassBinding binding = new WidgetClassBinding(undo, combo, widget_class_prop, other);
+            bindings.add(binding);
+            binding.bind();
             field = combo;
         }
         else if (property instanceof MacroizedWidgetProperty)
@@ -490,6 +487,12 @@ public class PropertyPanelSection extends GridPane
         add(label, 0, row);
         add(field, 1, row);
 
+        // TODO Indicate use_class, enable/disable field
+        if (property.isUsingWidgetClass())
+        {
+            label.setText(label.getText() + " [ ]");
+            field.setDisable(true);
+        }
         final Separator separator = new Separator();
         separator.getStyleClass().add("property_separator");
         add(separator, 0, getNextGridRow(), 2, 1);

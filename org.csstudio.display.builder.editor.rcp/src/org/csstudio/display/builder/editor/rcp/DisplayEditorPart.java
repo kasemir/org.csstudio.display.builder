@@ -35,9 +35,8 @@ import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.Macros;
-import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
-import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.rcp.DisplayInfo;
@@ -234,10 +233,7 @@ public class DisplayEditorPart extends EditorPart
         try
         {
             final String ws_location = file.getFullPath().toOSString();
-            final ModelReader reader = new ModelReader(ModelResourceUtil.openResourceStream(ws_location));
-            final DisplayModel model = reader.readModel();
-            model.setUserData(DisplayModel.USER_DATA_INPUT_FILE, ws_location);
-            return model;
+            return ModelLoader.loadModel(ws_location);
         }
         catch (Exception ex)
         {

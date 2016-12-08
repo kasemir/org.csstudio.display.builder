@@ -212,7 +212,7 @@ public class CommonWidgetProperties
         @Override
         public WidgetProperty<String> createProperty(final Widget widget, final String value)
         {
-            return new ClassWidgetProperty(this, widget);
+            return new WidgetClassProperty(this, widget);
         }
     };
 

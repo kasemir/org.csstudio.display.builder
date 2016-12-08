@@ -10,8 +10,9 @@ package org.csstudio.display.builder.model;
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 
@@ -113,16 +114,21 @@ public class WidgetClassSupport
      */
     public WidgetClassSupport(final InputStream stream) throws Exception
     {
-        final DisplayModel model = new ModelReader(stream).readModel();
-
-        // Register all DEFAULT widgets
+        // Register all DEFAULT widgets, including model itself
+        DisplayModel model = new DisplayModel();
+        model.propName().setValue(DEFAULT);
+        registerClass(model);
         for (WidgetDescriptor descr : WidgetFactory.getInstance().getWidgetDescriptions())
         {
             final Widget widget = descr.createWidget();
             widget.propName().setValue(DEFAULT);
             registerClass(widget);
         }
-        // Register widgets from class definition file
+
+        // Register widget classes from class definition file
+        model = new ModelReader(stream).readModel();
+        model.propName().setValue(DEFAULT);
+        registerClass(model);
         for (Widget widget : model.getChildren())
             registerClass(widget);
     }
@@ -143,9 +149,12 @@ public class WidgetClassSupport
      *  @param widget_type Widget type
      *  @return Widget class names for that type
      */
-    public Set<String> getWidgetClasses(final String widget_type)
+    public Collection<String> getWidgetClasses(final String widget_type)
     {
-        return widget_types.get(widget_type).keySet();
+        final Map<String, Map<String, ClassValue>> classes = widget_types.get(widget_type);
+        if (classes == null)
+            return Arrays.asList(DEFAULT);
+        return classes.keySet();
     }
 
     /** Get class-based properties

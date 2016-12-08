@@ -22,10 +22,10 @@ import org.w3c.dom.Element;
  *
  *  @author Kay Kasemir
  */
-public class ClassWidgetProperty extends WidgetProperty<String>
+public class WidgetClassProperty extends WidgetProperty<String>
 {
 
-    public ClassWidgetProperty(final WidgetPropertyDescriptor<String> descriptor,
+    public WidgetClassProperty(final WidgetPropertyDescriptor<String> descriptor,
                                final Widget widget)
     {
         super(descriptor, widget, WidgetClassSupport.DEFAULT, false);
