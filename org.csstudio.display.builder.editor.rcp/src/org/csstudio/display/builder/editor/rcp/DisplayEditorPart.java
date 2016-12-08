@@ -33,6 +33,7 @@ import org.csstudio.display.builder.editor.rcp.actions.UndoAction;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetClassSupport;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelLoader;
@@ -325,7 +326,9 @@ public class DisplayEditorPart extends EditorPart
     public void doSave(final IProgressMonitor monitor)
     {
         IFile file = getInputFile();
-        if (file != null   &&  DisplayModel.FILE_EXTENSION.equals(file.getFileExtension()))
+        if (file != null   &&
+            (DisplayModel.FILE_EXTENSION.equals(file.getFileExtension()) ||
+             WidgetClassSupport.FILE_EXTENSION.equals(file.getFileExtension())))
             saveModelToFile(monitor, file);
         else
         {   // No file name, or using legacy file extension -> prompt for name
@@ -449,8 +452,11 @@ public class DisplayEditorPart extends EditorPart
         IPath path = dlg.getResult();
         if (path == null)
             return null;
-        // Assert correct file extension
-        if (! DisplayModel.FILE_EXTENSION.equals(path.getFileExtension()))
+        // Assert correct file extension.
+        // If not display or class file, make it a display file.
+        final String ext = path.getFileExtension();
+        if (! (DisplayModel.FILE_EXTENSION.equals(ext) ||
+               WidgetClassSupport.FILE_EXTENSION.equals(ext)))
             path = path.removeFileExtension().addFileExtension(DisplayModel.FILE_EXTENSION);
         return root.getFile(path);
     }

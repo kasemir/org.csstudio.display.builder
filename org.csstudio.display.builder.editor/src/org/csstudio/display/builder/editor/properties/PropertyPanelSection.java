@@ -72,10 +72,17 @@ public class PropertyPanelSection extends GridPane
     private static final AutocompleteMenu autocomplete_menu = new AutocompleteMenu();
     private static final Tooltip use_class_tooltip = new Tooltip(Messages.UseWidgetClass_TT);
 
+    private final boolean class_mode;
+
     private final List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
     private int next_row = -1;
     private Collection<WidgetProperty<?>> properties = Collections.emptyList();
     private boolean show_categories;
+
+    public PropertyPanelSection(final boolean class_mode)
+    {
+        this.class_mode = class_mode;
+    }
 
     public void fill(final UndoableActionManager undo,
             final Collection<WidgetProperty<?>> properties,
@@ -91,6 +98,9 @@ public class PropertyPanelSection extends GridPane
         {
             // Skip runtime properties
             if (property.getCategory() == WidgetPropertyCategory.RUNTIME)
+                continue;
+
+            if (property instanceof WidgetClassProperty  &&  class_mode)
                 continue;
 
             // Start of new category that needs to be shown?
@@ -448,14 +458,11 @@ public class PropertyPanelSection extends GridPane
             add(separator, 0, getNextGridRow(), 2, 1);
 
             // array elements
-            List<WidgetProperty<?>> wpeList = array.getValue();
-
-            for ( int i = 0; i < wpeList.size(); i++ ) {
-
-                WidgetProperty<?> elem = wpeList.get(i);
-
-                this.createPropertyUI(undo, elem, other, i);
-
+            final List<WidgetProperty<?>> wpeList = array.getValue();
+            for (int i = 0; i < wpeList.size(); i++)
+            {
+                final WidgetProperty<?> elem = wpeList.get(i);
+                createPropertyUI(undo, elem, other, i);
             }
 
             // mark end of array
@@ -491,9 +498,10 @@ public class PropertyPanelSection extends GridPane
         add(label, 0, row);
         add(field, 2, row);
 
-        // TODO Indicate use_class, enable/disable field
+        // Check box for 'use_class'?
         final Widget widget = property.getWidget();
-        if (! (property == widget.getProperty("type")  ||
+        if (! (class_mode                              ||
+               property == widget.getProperty("type")  ||
                property == widget.getProperty("name")  ||
                property instanceof WidgetClassProperty))
         {

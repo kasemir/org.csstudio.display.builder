@@ -29,7 +29,7 @@ import javafx.scene.control.ScrollPane;
 public class PropertyPanel extends ScrollPane
 {
     private final DisplayEditor editor;
-    private final PropertyPanelSection section = new PropertyPanelSection();
+    private final PropertyPanelSection section;
 
     /** @param selection Selection handler
      *  @param undo 'Undo' manager
@@ -37,6 +37,7 @@ public class PropertyPanel extends ScrollPane
     public PropertyPanel(final DisplayEditor editor)
     {
         this.editor = editor;
+        section = new PropertyPanelSection(editor.isClassMode());
 
         setFitToWidth(true);
         setContent(section);

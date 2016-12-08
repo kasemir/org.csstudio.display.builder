@@ -262,8 +262,8 @@ public class EditorDemoGUI
             logger.log(Level.FINE, "Save as {0}", file);
             try
             (
-                    final ModelWriter writer = new ModelWriter(new FileOutputStream(file));
-                    )
+                final ModelWriter writer = new ModelWriter(new FileOutputStream(file));
+            )
             {
                 writer.writeModel(editor.getModel());
                 this.file = file;

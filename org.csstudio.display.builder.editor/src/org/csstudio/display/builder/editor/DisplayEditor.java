@@ -30,6 +30,7 @@ import org.csstudio.display.builder.editor.util.WidgetTransfer;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetClassSupport;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.widgets.ArrayWidget;
@@ -131,13 +132,21 @@ public class DisplayEditor
         selection_tracker.enableGrid(true);
     }
 
-    /**
-     * Create UI elements
-     *
-     * @return Root Node
-     */
-    public Parent create ( ) {
+    /** @return Is this an editor for a class file? */
+    public boolean isClassMode()
+    {
+        if (model == null)
+            return false;
+        final String filename = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+        return filename != null &&
+               filename.endsWith(WidgetClassSupport.FILE_EXTENSION);
+    }
 
+    /** Create UI elements
+     *  @return Root Node
+     */
+    public Parent create ()
+    {
         model_root = toolkit.createModelRoot();
         autoScrollHandler = new AutoScrollHandler(model_root);
 
@@ -160,7 +169,6 @@ public class DisplayEditor
         hookListeners();
 
         return root;
-
     }
 
     /** @return Selection tracker */
@@ -175,7 +183,8 @@ public class DisplayEditor
         return selection;
     }
 
-    public AutoScrollHandler getAutoScrollHandler() {
+    public AutoScrollHandler getAutoScrollHandler()
+    {
         return autoScrollHandler;
     }
 
@@ -185,11 +194,13 @@ public class DisplayEditor
         return undo;
     }
 
-    private void hookListeners ( ) {
-
-        toolkit.addListener(new ToolkitListener() {
+    private void hookListeners ()
+    {
+        toolkit.addListener(new ToolkitListener()
+        {
             @Override
-            public void handleClick ( final Widget widget, final boolean with_control ) {
+            public void handleClick (final Widget widget, final boolean with_control)
+            {
                 logger.log(Level.FINE, "Selected {0}", widget);
                 // Toggle selection of widget when Ctrl is held
                 if ( with_control )
@@ -199,7 +210,8 @@ public class DisplayEditor
             }
         });
 
-        model_root.setOnMousePressed(event -> {
+        model_root.setOnMousePressed(event ->
+        {
             if ( event.isControlDown() )
                 return;
             logger.log(Level.FINE, "Mouse pressed in 'editor', de-select all widgets");
