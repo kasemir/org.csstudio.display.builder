@@ -50,6 +50,7 @@ public class Messages extends NLS
     public static String Undo_TT;
     public static String UpdateWidgetLocation;
     public static String UpdateWidgetOrder;
+    public static String UseWidgetClass_TT;
     public static String WT_FromString_dialog_content;
     public static String WT_FromString_dialog_headerFMT;
     public static String WT_FromString_dialog_title;

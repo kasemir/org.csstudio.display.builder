@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
@@ -48,6 +49,7 @@ import org.csstudio.javafx.MultiLineInputDialog;
 
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
@@ -67,11 +69,13 @@ import javafx.scene.layout.Priority;
 @SuppressWarnings("nls")
 public class PropertyPanelSection extends GridPane
 {
+    private static final AutocompleteMenu autocomplete_menu = new AutocompleteMenu();
+    private static final Tooltip use_class_tooltip = new Tooltip(Messages.UseWidgetClass_TT);
+
     private final List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
     private int next_row = -1;
     private Collection<WidgetProperty<?>> properties = Collections.emptyList();
     private boolean show_categories;
-    private static final AutocompleteMenu autocomplete_menu = new AutocompleteMenu();
 
     public void fill(final UndoableActionManager undo,
             final Collection<WidgetProperty<?>> properties,
@@ -140,6 +144,7 @@ public class PropertyPanelSection extends GridPane
             final WidgetProperty<?> property,
             final List<Widget> other)
     {
+        final Widget widget = property.getWidget();
         Node field = null;
 
         if (property.isReadonly())
@@ -147,7 +152,7 @@ public class PropertyPanelSection extends GridPane
             //  If "Type", use a label with an icon.
             if (property.getName().equals(CommonWidgetProperties.propType.getName()))
             {
-                final String type = property.getWidget().getType();
+                final String type = widget.getType();
                 try
                 {
                     final Image image = new Image(WidgetFactory.getInstance().getWidgetDescriptor(type).getIconStream());
@@ -234,7 +239,6 @@ public class PropertyPanelSection extends GridPane
             select_file.setOnAction(event -> {
                 try {
 
-                    final Widget widget = file_prop.getWidget();
                     final String filename = FilenameSupport.promptForRelativePath(widget, file_prop.getValue());
 
                     if ( filename != null ) {
@@ -258,7 +262,7 @@ public class PropertyPanelSection extends GridPane
             combo.setPromptText(property.getDefaultValue().toString());
             combo.setEditable(true);
             // List classes of this widget
-            final String type = property.getWidget().getType();
+            final String type = widget.getType();
             final WidgetClassSupport class_support = WidgetClassesService.getWidgetClasses();
             final Collection<String> classes = class_support != null
                     ? class_support.getWidgetClasses(type)
@@ -485,14 +489,22 @@ public class PropertyPanelSection extends GridPane
         GridPane.setHgrow(label, Priority.ALWAYS);
         GridPane.setHgrow(field, Priority.ALWAYS);
         add(label, 0, row);
-        add(field, 1, row);
+        add(field, 2, row);
 
         // TODO Indicate use_class, enable/disable field
-        if (property.isUsingWidgetClass())
+        final Widget widget = property.getWidget();
+        if (! (property == widget.getProperty("type")  ||
+               property == widget.getProperty("name")  ||
+               property instanceof WidgetClassProperty))
         {
-            label.setText(label.getText() + " [ ]");
-            field.setDisable(true);
+            final CheckBox check = new CheckBox();
+            check.setTooltip(use_class_tooltip);
+            final UseWidgetClassBinding binding = new UseWidgetClassBinding(undo, check, property, field);
+            bindings.add(binding);
+            binding.bind();
+            add(check, 1, row);
         }
+
         final Separator separator = new Separator();
         separator.getStyleClass().add("property_separator");
         add(separator, 0, getNextGridRow(), 2, 1);

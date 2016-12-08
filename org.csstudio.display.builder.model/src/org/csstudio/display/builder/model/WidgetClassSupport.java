@@ -200,22 +200,33 @@ public class WidgetClassSupport
     {
         final Map<String, ClassValue> class_settings = getClassSettings(widget);
         if (class_settings != null)
-        {
             for (WidgetProperty<?> prop : widget.getProperties())
-            {
-                if (prop instanceof RuntimeWidgetProperty  ||  !prop.isUsingWidgetClass())
-                    continue;
-
-                final ClassValue class_setting = class_settings.get(prop.getName());
-                if (class_setting != null)
-                    class_setting.apply(prop);
-            }
-        }
+                apply(class_settings, prop);
         // Apply to child widgets
         final ChildrenProperty children = ChildrenProperty.getChildren(widget);
         if (children != null)
             for (Widget child : children.getValue())
                 apply(child);
+    }
+
+    private  void apply(final Map<String, ClassValue> class_settings, final WidgetProperty<?> property)
+    {
+        if (property instanceof RuntimeWidgetProperty  ||  !property.isUsingWidgetClass())
+            return;
+
+        final ClassValue class_setting = class_settings.get(property.getName());
+        if (class_setting != null)
+            class_setting.apply(property);
+    }
+
+    /** Apply class-based setting to a property
+     *  @param property Property to which to apply settings for its widget's class
+     */
+    public void apply(final WidgetProperty<?> property)
+    {
+        final Map<String, ClassValue> class_settings = getClassSettings(property.getWidget());
+        if (class_settings != null)
+            apply(class_settings, property);
     }
 
     /** @return Debug representation */
