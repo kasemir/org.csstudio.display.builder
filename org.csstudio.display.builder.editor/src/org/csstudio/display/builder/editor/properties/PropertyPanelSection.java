@@ -72,14 +72,14 @@ public class PropertyPanelSection extends GridPane
     private static final AutocompleteMenu autocomplete_menu = new AutocompleteMenu();
     private static final Tooltip use_class_tooltip = new Tooltip(Messages.UseWidgetClass_TT);
 
-    private final boolean class_mode;
+    private boolean class_mode = false;
 
     private final List<WidgetPropertyBinding<?,?>> bindings = new ArrayList<>();
     private int next_row = -1;
     private Collection<WidgetProperty<?>> properties = Collections.emptyList();
     private boolean show_categories;
 
-    public PropertyPanelSection(final boolean class_mode)
+    public void setClassMode(final boolean class_mode)
     {
         this.class_mode = class_mode;
     }

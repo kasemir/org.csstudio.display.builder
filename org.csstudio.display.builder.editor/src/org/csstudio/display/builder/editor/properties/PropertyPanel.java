@@ -37,7 +37,7 @@ public class PropertyPanel extends ScrollPane
     public PropertyPanel(final DisplayEditor editor)
     {
         this.editor = editor;
-        section = new PropertyPanelSection(editor.isClassMode());
+        section = new PropertyPanelSection();
 
         setFitToWidth(true);
         setContent(section);
@@ -53,6 +53,7 @@ public class PropertyPanel extends ScrollPane
     private void setSelectedWidgets(final List<Widget> widgets)
     {
     	section.clear();
+    	section.setClassMode(editor.isClassMode());
 
         if (widgets.size() < 1)
         {   // Use the DisplayModel
