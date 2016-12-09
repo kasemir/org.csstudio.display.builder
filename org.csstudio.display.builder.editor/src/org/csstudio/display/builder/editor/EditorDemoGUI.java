@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
-import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+import static org.csstudio.display.builder.editor.Plugin.logger;
 
 import java.io.File;
 import java.io.FileInputStream;

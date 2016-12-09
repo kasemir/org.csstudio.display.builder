@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.poly;
 
-import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+import static org.csstudio.display.builder.editor.Plugin.logger;
 
 import java.util.logging.Level;
 
@@ -137,8 +137,6 @@ public class PointsEditor
         event.consume();
     };
 
-    private Cursor original_cursor;
-
     /** Static initialization of custom cursors */
     private static synchronized void init()
     {   // Already initialized?
@@ -166,8 +164,6 @@ public class PointsEditor
     public PointsEditor(final Group root, final Points points, final PointsEditorListener listener)
     {
         init();
-
-        original_cursor = root.getScene().getCursor();
 
         this.points = points;
         this.listener = listener;

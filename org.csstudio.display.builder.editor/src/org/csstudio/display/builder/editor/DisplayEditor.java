@@ -7,13 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
+import static org.csstudio.display.builder.editor.Plugin.logger;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.palette.Palette;
 import org.csstudio.display.builder.editor.poly.PointsBinding;
@@ -100,9 +101,6 @@ import javafx.scene.layout.Pane;
 @SuppressWarnings("nls")
 public class DisplayEditor
 {
-    /** Suggested logger for the editor */
-    public final static Logger logger = Logger.getLogger(DisplayEditor.class.getName());
-
     private final JFXRepresentation toolkit;
     private final WidgetNaming widget_naming = new WidgetNaming();
     private final UndoableActionManager undo;

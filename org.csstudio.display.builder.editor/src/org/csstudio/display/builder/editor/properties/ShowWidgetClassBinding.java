@@ -7,10 +7,15 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
+import static org.csstudio.display.builder.editor.Plugin.logger;
+
+import java.util.logging.Level;
+
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.util.ResourceUtil;
 
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -40,10 +45,9 @@ public class ShowWidgetClassBinding extends WidgetPropertyBinding<Node, WidgetPr
         {
             return new Image(ResourceUtil.openPlatformResource("platform:/plugin/org.csstudio.display.builder.editor/icons/class_property.png"));
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Cannot load icon", ex);
         }
         return null;
     }
@@ -63,10 +67,13 @@ public class ShowWidgetClassBinding extends WidgetPropertyBinding<Node, WidgetPr
 
     private void updateFromModel()
     {
-        jfx_node.setDisable(widget_property.isUsingWidgetClass());
-        if (widget_property.isUsingWidgetClass())
-            indicator.setGraphic(new ImageView(class_icon));
-        else
-            indicator.setGraphic(null);
+        Platform.runLater(() ->
+        {
+            jfx_node.setDisable(widget_property.isUsingWidgetClass());
+            if (widget_property.isUsingWidgetClass())
+                indicator.setGraphic(new ImageView(class_icon));
+            else
+                indicator.setGraphic(null);
+        });
     }
 }
