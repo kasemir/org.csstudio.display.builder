@@ -46,37 +46,13 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
      *  @param descriptor Property descriptor
      *  @param widget Widget that holds the property and handles listeners
      *  @param default_value Default and initial value
-     *  @deprecated Use constructor with 'use_class'
      */
-    @Deprecated
     public MacroizedWidgetProperty(
             final WidgetPropertyDescriptor<T> descriptor,
             final Widget widget,
             final T default_value)
     {
-        super(descriptor, widget, default_value, false);
-        // XXX Should null become "null" or ""?
-        specification = computeSpecification(default_value);
-        // If specification contains macro,
-        // clear value to force evaluation of macro on first value request.
-        // Can't evaluate now because macros may not be available.
-        if (MacroHandler.containsMacros(specification))
-            value = null;
-    }
-
-    /** Constructor
-     *  @param descriptor Property descriptor
-     *  @param widget Widget that holds the property and handles listeners
-     *  @param default_value Default and initial value
-     *  @param use_class Follow value suggested by class?
-     */
-    public MacroizedWidgetProperty(
-            final WidgetPropertyDescriptor<T> descriptor,
-            final Widget widget,
-            final T default_value,
-            final boolean use_class)
-    {
-        super(descriptor, widget, default_value, use_class);
+        super(descriptor, widget, default_value);
         // XXX Should null become "null" or ""?
         specification = computeSpecification(default_value);
         // If specification contains macro,
@@ -201,7 +177,7 @@ abstract public class MacroizedWidgetProperty<T> extends WidgetProperty<T>
     @Override
     public boolean isDefaultValue()
     {
-        return specification.equals(computeSpecification(default_value));
+        return !use_class  &&  specification.equals(computeSpecification(default_value));
     }
 
     /** Sets property to a typed value.

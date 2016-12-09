@@ -28,7 +28,7 @@ public class WidgetClassProperty extends WidgetProperty<String>
     public WidgetClassProperty(final WidgetPropertyDescriptor<String> descriptor,
                                final Widget widget)
     {
-        super(descriptor, widget, WidgetClassSupport.DEFAULT, false);
+        super(descriptor, widget, WidgetClassSupport.DEFAULT);
     }
 
     @Override

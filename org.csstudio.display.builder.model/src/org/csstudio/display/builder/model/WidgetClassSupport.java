@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.logging.Level;
 
@@ -109,6 +110,14 @@ public class WidgetClassSupport
                                               " to property " + property.getName() + " of " + widget, ex);
                 }
         }
+
+        @Override
+        public String toString()
+        {
+            if (specification != null)
+                return specification;
+            return Objects.toString(value);
+        }
     }
 
     /** Map:
@@ -148,15 +157,27 @@ public class WidgetClassSupport
     }
 
     /** @param widget Widget to register, using its class and properties */
-    private void registerClass(final Widget widget)
+    public void registerClass(final Widget widget)
     {
         final String type = widget.getType();
-        // For the class definition file, the widget _name_ sets the class to define
+        // For the class definition file, the widget 'name' sets the class to define.
+        // The 'class' is later used to pick the class to apply to a widget,
+        // it's ignored when defining classes.
         final String widget_class = widget.getName();
         final Map<String, Map<String, ClassValue>> widget_classes = widget_types.computeIfAbsent(type, t -> new TreeMap<>(classname_sort));
-        final Map<String, ClassValue> class_properties = widget_classes.computeIfAbsent(widget_class, c -> new TreeMap<>());
+
+        Map<String, ClassValue> class_properties = widget_classes.get(widget_class);
+        if (class_properties == null)
+        {
+            class_properties = new TreeMap<>();
+            widget_classes.put(widget_class, class_properties);
+        }
+        else
+            logger.log(Level.WARNING, "Widget type '" + type + "' class '" + widget_class + "' is defined more than once");
+
         for (WidgetProperty<?> property : widget.getProperties())
-            class_properties.put(property.getName(), new ClassValue(property));
+            if (property.isUsingWidgetClass())
+                class_properties.put(property.getName(), new ClassValue(property));
     }
 
     /** Get known widget classes
@@ -211,12 +232,20 @@ public class WidgetClassSupport
 
     private  void apply(final Map<String, ClassValue> class_settings, final WidgetProperty<?> property)
     {
-        if (property instanceof RuntimeWidgetProperty  ||  !property.isUsingWidgetClass())
+        if (property instanceof RuntimeWidgetProperty)
+        {
+            property.useWidgetClass(false);
             return;
+        }
 
         final ClassValue class_setting = class_settings.get(property.getName());
-        if (class_setting != null)
+        if (class_setting == null)
+            property.useWidgetClass(false);
+        else
+        {
+            property.useWidgetClass(true);
             class_setting.apply(property);
+        }
     }
 
     /** Apply class-based setting to a property
@@ -241,7 +270,12 @@ public class WidgetClassSupport
 
             final Map<String, Map<String, ClassValue>> widget_classes = widget_types.get(type);
             for (String clazz : widget_classes.keySet())
-                buf.append("   ").append(clazz).append("\n");
+            {
+                buf.append("  ").append(clazz).append("\n");
+                final Map<String, ClassValue> class_props = widget_classes.get(clazz);
+                for (String prop : class_props.keySet())
+                    buf.append("    ").append(prop).append(" = ").append(class_props.get(prop)).append("\n");
+            }
         }
 
         return buf.toString();

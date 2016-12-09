@@ -43,7 +43,7 @@ public class ClassSupportUnitTest
         // Default behavior
         final Widget widget = new LabelWidget();
         assertThat(widget.getProperty("text").isUsingWidgetClass(), equalTo(false));
-        assertThat(widget.getProperty("font").isUsingWidgetClass(), equalTo(true));
+        assertThat(widget.getProperty("font").isUsingWidgetClass(), equalTo(false));
 
         // Can be changed
         widget.getProperty("text").useWidgetClass(true);
@@ -78,7 +78,7 @@ public class ClassSupportUnitTest
 
         final LabelWidget widget = new LabelWidget();
         assertThat(widget.getWidgetClass(), equalTo(WidgetClassSupport.DEFAULT));
-        assertThat(widget.propFont().isUsingWidgetClass(), equalTo(true));
+        assertThat(widget.propFont().isUsingWidgetClass(), equalTo(false));
 
         // Original, default font of Label
         WidgetFont value = widget.propFont().getValue();
@@ -104,26 +104,17 @@ public class ClassSupportUnitTest
         final NamedWidgetFont comment_font = (NamedWidgetFont) value;
         assertThat(comment_font.getName(), not(equalTo(orig_font.getName())));
         assertThat(comment_font.getName(), not(equalTo(title_font.getName())));
+        assertThat(widget.propFont().isUsingWidgetClass(), equalTo(true));
 
-        // DEFAULT class -> widget back to original
+        // DEFAULT class -> stays with the last fone, but no longer 'is using class'
         widget.setPropertyValue("class", "DEFAULT");
         widget_classes.apply(widget);
         value = widget.propFont().getValue();
         System.out.println("DEFAULT class font: " + value);
         assertThat(value, instanceOf(NamedWidgetFont.class));
         final NamedWidgetFont default_font = (NamedWidgetFont) value;
-        assertThat(default_font, equalTo(orig_font));
-
-        // Configure font to ignore the widget class,
-        // instead set some specific font
-        // -> class now ignored, font stays as set
-        widget.propFont().useWidgetClass(false);
-        widget.propFont().setValue(NamedWidgetFonts.DEFAULT_BOLD);
-        widget.setPropertyValue("class", "TITLE");
-        widget_classes.apply(widget);
-        value = widget.propFont().getValue();
-        System.out.println("TITLE class font when not using class: " + value);
-        assertThat(value, equalTo(NamedWidgetFonts.DEFAULT_BOLD));
+        assertThat(default_font, equalTo(comment_font));
+        assertThat(widget.propFont().isUsingWidgetClass(), equalTo(false));
     }
 
     @Test
@@ -164,6 +155,16 @@ public class ClassSupportUnitTest
         widget = new Widget("Bogus");
         widget_classes.apply(widget);
         assertThat(last_log_message.get().toLowerCase(), containsString("unknown widget type"));
+
+        // Re-defining the same class
+        assertThat(widget_classes.getWidgetClasses("label"), hasItem("TITLE"));
+        final LabelWidget another = new LabelWidget();
+        another.setPropertyValue("name", "TITLE");
+        another.propFont().setValue(NamedWidgetFonts.DEFAULT_BOLD);
+        another.propFont().useWidgetClass(true);
+        widget_classes.registerClass(another);
+        assertThat(last_log_message.get(), containsString("TITLE"));
+        assertThat(last_log_message.get(), containsString("more than once"));
     }
 
     @Test

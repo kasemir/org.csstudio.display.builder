@@ -35,22 +35,7 @@ public class StringWidgetProperty extends MacroizedWidgetProperty<String>
             final Widget widget,
             final String default_value)
     {
-        this(descriptor, widget, default_value, false);
-    }
-
-    /** Constructor
-     *  @param descriptor Property descriptor
-     *  @param widget Widget that holds the property and handles listeners
-     *  @param default_value Default and initial value
-     *  @param use_class Follow value suggested by class?
-     */
-    public StringWidgetProperty(
-            final WidgetPropertyDescriptor<String> descriptor,
-            final Widget widget,
-            final String default_value,
-            final boolean use_class)
-    {
-        super(descriptor, widget, default_value, use_class);
+        super(descriptor, widget, default_value);
     }
 
     @Override

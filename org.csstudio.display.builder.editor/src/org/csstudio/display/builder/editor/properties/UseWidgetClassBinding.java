@@ -12,7 +12,6 @@ import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
-import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 
 /** Bind checkbox and field for property's value to 'use_class' attribute
@@ -20,7 +19,6 @@ import javafx.scene.control.CheckBox;
  */
 public class UseWidgetClassBinding extends WidgetPropertyBinding<CheckBox, WidgetProperty<?>>
 {
-    private final Node field;
     private final UntypedWidgetPropertyListener model_listener = (p, o, n) ->
     {
         if (! updating)
@@ -28,10 +26,9 @@ public class UseWidgetClassBinding extends WidgetPropertyBinding<CheckBox, Widge
     };
 
     public UseWidgetClassBinding(final UndoableActionManager undo, final CheckBox node,
-                                 final WidgetProperty<?> widget_property, final Node field)
+                                 final WidgetProperty<?> widget_property)
     {
         super(undo, node, widget_property, null);
-        this.field = field;
     }
 
     @Override
@@ -41,7 +38,6 @@ public class UseWidgetClassBinding extends WidgetPropertyBinding<CheckBox, Widge
         jfx_node.setOnAction(event ->
         {
             updating = true;
-            field.setDisable(jfx_node.isSelected());
             undo.execute(new UseClassAction(widget_property, jfx_node.isSelected()));
             updating = false;
         });
@@ -58,6 +54,5 @@ public class UseWidgetClassBinding extends WidgetPropertyBinding<CheckBox, Widge
     private void updateFromModel()
     {
         jfx_node.setSelected(widget_property.isUsingWidgetClass());
-        field.setDisable(jfx_node.isSelected());
     }
 }

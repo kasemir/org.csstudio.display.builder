@@ -256,7 +256,7 @@ public class CommonWidgetProperties
         @Override
         public WidgetProperty<Boolean> createProperty(final Widget widget, final Boolean value)
         {
-            return new BooleanWidgetProperty(this, widget, value, false);
+            return new BooleanWidgetProperty(this, widget, value);
         }
     };
 
@@ -335,7 +335,7 @@ public class CommonWidgetProperties
         @Override
         public WidgetProperty<String> createProperty(final Widget widget, final String value)
         {
-            return new StringWidgetProperty(this, widget, value, true);
+            return new StringWidgetProperty(this, widget, value);
         }
     };
 
@@ -446,7 +446,7 @@ public class CommonWidgetProperties
         public EnumWidgetProperty<RotationStep> createProperty(final Widget widget,
                 final RotationStep default_value)
         {
-            return new EnumWidgetProperty<RotationStep>(this, widget, default_value, false);
+            return new EnumWidgetProperty<RotationStep>(this, widget, default_value);
         }
     };
 

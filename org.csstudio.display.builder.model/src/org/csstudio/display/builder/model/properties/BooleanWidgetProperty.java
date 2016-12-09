@@ -34,24 +34,8 @@ public class BooleanWidgetProperty extends MacroizedWidgetProperty<Boolean>
             final Widget widget,
             final Boolean default_value)
     {
-        this(descriptor, widget, default_value, true);
+        super(descriptor, widget, default_value);
     }
-
-    /** Constructor
-     *  @param descriptor Property descriptor
-     *  @param widget Widget that holds the property and handles listeners
-     *  @param default_value Default and initial value
-     *  @param use_class Follow value suggested by class?
-     */
-    public BooleanWidgetProperty(
-            final WidgetPropertyDescriptor<Boolean> descriptor,
-            final Widget widget,
-            final Boolean default_value,
-            final boolean use_class)
-    {
-        super(descriptor, widget, default_value, use_class);
-    }
-
 
     @Override
     protected Boolean parseExpandedSpecification(final String text) throws Exception

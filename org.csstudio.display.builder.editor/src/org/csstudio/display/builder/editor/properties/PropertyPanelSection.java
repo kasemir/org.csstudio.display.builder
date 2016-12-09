@@ -71,6 +71,7 @@ public class PropertyPanelSection extends GridPane
 {
     private static final AutocompleteMenu autocomplete_menu = new AutocompleteMenu();
     private static final Tooltip use_class_tooltip = new Tooltip(Messages.UseWidgetClass_TT);
+    private static final Tooltip using_class_tooltip = new Tooltip(Messages.UsingWidgetClass_TT);
 
     private boolean class_mode = false;
 
@@ -85,9 +86,9 @@ public class PropertyPanelSection extends GridPane
     }
 
     public void fill(final UndoableActionManager undo,
-            final Collection<WidgetProperty<?>> properties,
-            final List<Widget> other,
-            final boolean show_categories)
+                     final Collection<WidgetProperty<?>> properties,
+                     final List<Widget> other,
+                     final boolean show_categories)
     {
         clear();
         this.properties = properties;
@@ -100,12 +101,14 @@ public class PropertyPanelSection extends GridPane
             if (property.getCategory() == WidgetPropertyCategory.RUNTIME)
                 continue;
 
+            // 'class' is not used for the class definition itself,
+            // it's only shown for displays where classes are then applied
             if (property instanceof WidgetClassProperty  &&  class_mode)
                 continue;
 
             // Start of new category that needs to be shown?
             if (show_categories &&
-                    property.getCategory() != category)
+                property.getCategory() != category)
             {
                 category = property.getCategory();
 
@@ -113,12 +116,12 @@ public class PropertyPanelSection extends GridPane
 
                 header.getStyleClass().add("property_category");
                 header.setMaxWidth(Double.MAX_VALUE);
-                add(header, 0, getNextGridRow(), 2, 1);
+                add(header, 0, getNextGridRow(), 3, 1);
 
                 Separator separator = new Separator();
 
                 separator.getStyleClass().add("property_separator");
-                add(separator, 0, getNextGridRow(), 2, 1);
+                add(separator, 0, getNextGridRow(), 3, 1);
 
             }
 
@@ -127,7 +130,7 @@ public class PropertyPanelSection extends GridPane
     }
 
     public void refill(final UndoableActionManager undo,
-            final List<Widget> other)
+                       final List<Widget> other)
     {
         fill(undo, this.properties, other, this.show_categories);
     }
@@ -150,7 +153,7 @@ public class PropertyPanelSection extends GridPane
      */
     public static Node bindSimplePropertyField (
             final UndoableActionManager undo,
-            List<WidgetPropertyBinding<?,?>> bindings,
+            final List<WidgetPropertyBinding<?,?>> bindings,
             final WidgetProperty<?> property,
             final List<Widget> other)
     {
@@ -498,19 +501,30 @@ public class PropertyPanelSection extends GridPane
         add(label, 0, row);
         add(field, 2, row);
 
-        // Check box for 'use_class'?
         final Widget widget = property.getWidget();
-        if (! (class_mode                              ||
-               property == widget.getProperty("type")  ||
-               property == widget.getProperty("name")  ||
-               property instanceof WidgetClassProperty))
+        if (! (property == widget.getProperty("type")  ||
+               property == widget.getProperty("name")))
         {
-            final CheckBox check = new CheckBox();
-            check.setTooltip(use_class_tooltip);
-            final UseWidgetClassBinding binding = new UseWidgetClassBinding(undo, check, property, field);
-            bindings.add(binding);
-            binding.bind();
-            add(check, 1, row);
+            if (class_mode)
+            {   // Class definition mode:
+                // Check box for 'use_class'
+                final CheckBox check = new CheckBox();
+                check.setTooltip(use_class_tooltip);
+                final WidgetPropertyBinding<?,?> binding = new UseWidgetClassBinding(undo, check, property);
+                bindings.add(binding);
+                binding.bind();
+                add(check, 1, row);
+            }
+            else
+            {   // Display file mode:
+                // Show if property is set by the class, not editable.
+                final Label indicator = new Label();
+                indicator.setTooltip(using_class_tooltip);
+                final WidgetPropertyBinding<?,?> binding = new ShowWidgetClassBinding(field, property, indicator);
+                bindings.add(binding);
+                binding.bind();
+                add(indicator, 1, row);
+            }
         }
 
         final Separator separator = new Separator();
