@@ -28,17 +28,30 @@ public class Plugin implements BundleActivator
 
     public final static Logger logger = Logger.getLogger(Plugin.class.getName());
 
-    @Override
-    public void start(final BundleContext context) throws Exception
+    /** Trigger re-load of configuration files
+     *
+     *  <p>Loads widget classes, fonts, colors.
+     *
+     *  <p>When asking e.g. WidgetClassesService
+     *  for information right away, beware
+     *  that it will delay until done loading the file.
+     */
+    public static void reloadConfigurationFiles()
     {
-        final String classes = Preferences.getClassesFile();
-        WidgetClassesService.loadWidgetClasses(classes, () -> ModelResourceUtil.openResourceStream(classes));
-
         final String colors = Preferences.getColorFile();
         WidgetColorService.loadColors(colors, () -> ModelResourceUtil.openResourceStream(colors));
 
         final String fonts = Preferences.getFontFile();
         WidgetFontService.loadFonts(fonts, () -> ModelResourceUtil.openResourceStream(fonts));
+
+        final String classes = Preferences.getClassesFile();
+        WidgetClassesService.loadWidgetClasses(classes, () -> ModelResourceUtil.openResourceStream(classes));
+    }
+
+    @Override
+    public void start(final BundleContext context) throws Exception
+    {
+        reloadConfigurationFiles();
     }
 
     @Override

@@ -26,6 +26,7 @@ import org.csstudio.display.builder.editor.rcp.actions.CutDeleteAction;
 import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayAction;
 import org.csstudio.display.builder.editor.rcp.actions.PasteAction;
 import org.csstudio.display.builder.editor.rcp.actions.RedoAction;
+import org.csstudio.display.builder.editor.rcp.actions.ReloadClassesAction;
 import org.csstudio.display.builder.editor.rcp.actions.ReloadDisplayAction;
 import org.csstudio.display.builder.editor.rcp.actions.RemoveGroupAction;
 import org.csstudio.display.builder.editor.rcp.actions.SelectAllAction;
@@ -38,6 +39,8 @@ import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.persist.WidgetClassesService;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.rcp.DisplayInfo;
@@ -194,6 +197,7 @@ public class DisplayEditorPart extends EditorPart
         final ImageDescriptor icon = AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/display.png");
         final Action perspective = new OpenPerspectiveAction(icon, Messages.OpenEditorPerspective, EditorPerspective.ID);
         final Action reload = new ReloadDisplayAction(this);
+        final Action reload_classes = editor.isClassMode() ? null : new ReloadClassesAction(this);
 
         mm.setRemoveAllWhenShown(true);
         mm.addMenuListener(manager ->
@@ -213,12 +217,15 @@ public class DisplayEditorPart extends EditorPart
             }
 
             manager.add(reload);
+            if (reload_classes != null)
+                manager.add(reload_classes);
             manager.add(perspective);
         });
 
         return mm.createContextMenu(parent);
     }
 
+    /** (Re-)load model specified in editor input */
     public void loadModel()
     {
         final IEditorInput input = getEditorInput();
@@ -246,6 +253,22 @@ public class DisplayEditorPart extends EditorPart
                 ExceptionDetailsErrorDialog.openError(shell, message, ex));
             return null;
         }
+    }
+
+    /** Re-load widget classes and apply to model */
+    public void loadWidgetClasses()
+    {
+        // Trigger re-load of classes
+        org.csstudio.display.builder.rcp.Plugin.reloadConfigurationFiles();
+        // On separate thread..
+        ModelThreadPool.getExecutor().execute(() ->
+        {   // .. wait for new classes
+            final WidgetClassSupport classes = WidgetClassesService.getWidgetClasses();
+            // and apply to model
+            final DisplayModel model = editor.getModel();
+            if (classes != null  &&  model != null)
+                classes.apply(model);
+        });
     }
 
     private void setModel(final DisplayModel model)
@@ -419,6 +442,11 @@ public class DisplayEditorPart extends EditorPart
                     save_monitor.done();
                 }
                 progress.done();
+
+                // If this was a class file, load it so from now on
+                // displays will use it.
+                if (editor.isClassMode())
+                    org.csstudio.display.builder.rcp.Plugin.reloadConfigurationFiles();
 
                 return Status.OK_STATUS;
             }

@@ -37,7 +37,7 @@
   </widget>
   <widget type="led" version="2.0.0">
     <name>ON_OFF_LED</name>
-    <x>300</x>
+    <x>250</x>
     <y>100</y>
     <off_color use_class="true">
       <color name="Off" red="60" green="100" blue="60">
@@ -50,7 +50,7 @@
   </widget>
   <widget type="led" version="2.0.0">
     <name>WARNING_LED</name>
-    <x>300</x>
+    <x>250</x>
     <y>140</y>
     <off_color use_class="true">
       <color name="Off" red="60" green="100" blue="60">
