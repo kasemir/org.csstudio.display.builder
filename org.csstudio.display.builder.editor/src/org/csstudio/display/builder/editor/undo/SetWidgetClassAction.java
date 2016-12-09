@@ -7,8 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.undo;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.csstudio.display.builder.editor.Messages;
+import org.csstudio.display.builder.model.RuntimeWidgetProperty;
 import org.csstudio.display.builder.model.WidgetClassSupport;
+import org.csstudio.display.builder.model.WidgetClassSupport.PropertyValue;
+import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.persist.WidgetClassesService;
 import org.csstudio.display.builder.model.properties.WidgetClassProperty;
 import org.csstudio.display.builder.util.undo.UndoableAction;
@@ -21,6 +27,7 @@ public class SetWidgetClassAction extends UndoableAction
 {
     private final WidgetClassProperty widget_property;
     private final String orig_value, value;
+    private final Map<String, WidgetClassSupport.PropertyValue> orig_prop_values = new HashMap<>();
 
     public SetWidgetClassAction(final WidgetClassProperty widget_property,
                                 final String value)
@@ -34,12 +41,23 @@ public class SetWidgetClassAction extends UndoableAction
     @Override
     public void run()
     {
+        // Save the original value (or specification) for every property
+        for (WidgetProperty<?> prop : widget_property.getWidget().getProperties())
+            if (! (prop instanceof RuntimeWidgetProperty))
+                orig_prop_values.put(prop.getName(), new WidgetClassSupport.PropertyValue(prop));
         setClass(value);
     }
 
     @Override
     public void undo()
     {
+        // Restore original value (or specification) for every property
+        for (WidgetProperty<?> prop : widget_property.getWidget().getProperties())
+        {
+            final PropertyValue orig = orig_prop_values.get(prop.getName());
+            if (orig != null)
+                orig.apply(prop);
+        }
         setClass(orig_value);
     }
 

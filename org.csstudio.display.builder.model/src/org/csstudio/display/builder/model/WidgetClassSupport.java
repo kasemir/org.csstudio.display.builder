@@ -60,18 +60,18 @@ public class WidgetClassSupport
         return cmp;
     };
 
-    /** Class-based value for a property
+    /** Value for a property
      *
      *  <p>Keeps either the specification (for macro-based)
      *  or the class-based value of property
      *  and supports applying it to a widget's property.
      */
-    private static class ClassValue
+    public static class PropertyValue
     {
         private final String specification;
         private final Object value;
 
-        public ClassValue(final WidgetProperty<?> property)
+        public PropertyValue(final WidgetProperty<?> property)
         {
             if (property instanceof MacroizedWidgetProperty)
             {
@@ -128,7 +128,7 @@ public class WidgetClassSupport
     // TreeMap  -> sorted; may help when dumping, debugging
     private final Map<String,
                       Map<String,
-                          Map<String, ClassValue>>> widget_types = new TreeMap<>();
+                          Map<String, PropertyValue>>> widget_types = new TreeMap<>();
 
     /** Load widget classes
      *
@@ -164,9 +164,9 @@ public class WidgetClassSupport
         // The 'class' is later used to pick the class to apply to a widget,
         // it's ignored when defining classes.
         final String widget_class = widget.getName();
-        final Map<String, Map<String, ClassValue>> widget_classes = widget_types.computeIfAbsent(type, t -> new TreeMap<>(classname_sort));
+        final Map<String, Map<String, PropertyValue>> widget_classes = widget_types.computeIfAbsent(type, t -> new TreeMap<>(classname_sort));
 
-        Map<String, ClassValue> class_properties = widget_classes.get(widget_class);
+        Map<String, PropertyValue> class_properties = widget_classes.get(widget_class);
         if (class_properties == null)
         {
             class_properties = new TreeMap<>();
@@ -177,7 +177,7 @@ public class WidgetClassSupport
 
         for (WidgetProperty<?> property : widget.getProperties())
             if (property.isUsingWidgetClass())
-                class_properties.put(property.getName(), new ClassValue(property));
+                class_properties.put(property.getName(), new PropertyValue(property));
     }
 
     /** Get known widget classes
@@ -186,7 +186,7 @@ public class WidgetClassSupport
      */
     public Collection<String> getWidgetClasses(final String widget_type)
     {
-        final Map<String, Map<String, ClassValue>> classes = widget_types.get(widget_type);
+        final Map<String, Map<String, PropertyValue>> classes = widget_types.get(widget_type);
         if (classes == null)
             return Arrays.asList(DEFAULT);
         return classes.keySet();
@@ -197,16 +197,16 @@ public class WidgetClassSupport
      *  @param widget Widget for which to get the class info
      *  @return Properties and values for that widget type and class, or <code>null</code>
      */
-    private Map<String, ClassValue> getClassSettings(final Widget widget)
+    private Map<String, PropertyValue> getClassSettings(final Widget widget)
     {
-        final Map<String, Map<String, ClassValue>> widget_classes = widget_types.get(widget.getType());
+        final Map<String, Map<String, PropertyValue>> widget_classes = widget_types.get(widget.getType());
         if (widget_classes == null)
         {
             logger.log(Level.WARNING, "No class support for unknown widget type " + widget);
             return null;
         }
 
-        final Map<String, ClassValue> result = widget_classes.get(widget.getWidgetClass());
+        final Map<String, PropertyValue> result = widget_classes.get(widget.getWidgetClass());
         if (result == null)
             logger.log(Level.WARNING, "Undefined widget type " + widget.getType() +
                                       " and class " + widget.getWidgetClass());
@@ -219,7 +219,7 @@ public class WidgetClassSupport
      */
     public void apply(final Widget widget)
     {
-        final Map<String, ClassValue> class_settings = getClassSettings(widget);
+        final Map<String, PropertyValue> class_settings = getClassSettings(widget);
         if (class_settings != null)
             for (WidgetProperty<?> prop : widget.getProperties())
                 apply(class_settings, prop);
@@ -230,7 +230,7 @@ public class WidgetClassSupport
                 apply(child);
     }
 
-    private  void apply(final Map<String, ClassValue> class_settings, final WidgetProperty<?> property)
+    private  void apply(final Map<String, PropertyValue> class_settings, final WidgetProperty<?> property)
     {
         if (property instanceof RuntimeWidgetProperty)
         {
@@ -238,7 +238,7 @@ public class WidgetClassSupport
             return;
         }
 
-        final ClassValue class_setting = class_settings.get(property.getName());
+        final PropertyValue class_setting = class_settings.get(property.getName());
         if (class_setting == null)
             property.useWidgetClass(false);
         else
@@ -253,7 +253,7 @@ public class WidgetClassSupport
      */
     public void apply(final WidgetProperty<?> property)
     {
-        final Map<String, ClassValue> class_settings = getClassSettings(property.getWidget());
+        final Map<String, PropertyValue> class_settings = getClassSettings(property.getWidget());
         if (class_settings != null)
             apply(class_settings, property);
     }
@@ -268,11 +268,11 @@ public class WidgetClassSupport
         {
             buf.append(type).append(":\n");
 
-            final Map<String, Map<String, ClassValue>> widget_classes = widget_types.get(type);
+            final Map<String, Map<String, PropertyValue>> widget_classes = widget_types.get(type);
             for (String clazz : widget_classes.keySet())
             {
                 buf.append("  ").append(clazz).append("\n");
-                final Map<String, ClassValue> class_props = widget_classes.get(clazz);
+                final Map<String, PropertyValue> class_props = widget_classes.get(clazz);
                 for (String prop : class_props.keySet())
                     buf.append("    ").append(prop).append(" = ").append(class_props.get(prop)).append("\n");
             }
