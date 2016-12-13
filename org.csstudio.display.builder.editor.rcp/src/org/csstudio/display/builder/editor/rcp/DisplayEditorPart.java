@@ -197,7 +197,6 @@ public class DisplayEditorPart extends EditorPart
         final ImageDescriptor icon = AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/display.png");
         final Action perspective = new OpenPerspectiveAction(icon, Messages.OpenEditorPerspective, EditorPerspective.ID);
         final Action reload = new ReloadDisplayAction(this);
-        final Action reload_classes = editor.isClassMode() ? null : new ReloadClassesAction(this);
 
         mm.setRemoveAllWhenShown(true);
         mm.addMenuListener(manager ->
@@ -217,8 +216,11 @@ public class DisplayEditorPart extends EditorPart
             }
 
             manager.add(reload);
-            if (reload_classes != null)
-                manager.add(reload_classes);
+
+            final DisplayModel model = editor.getModel();
+            if (model != null  &&  !model.isClassModel())
+                manager.add(new ReloadClassesAction(this));
+
             manager.add(perspective);
         });
 
@@ -444,7 +446,7 @@ public class DisplayEditorPart extends EditorPart
 
                 // If this was a class file, load it so from now on
                 // displays will use it.
-                if (editor.isClassMode())
+                if (editor.getModel().isClassModel())
                     org.csstudio.display.builder.rcp.Plugin.reloadConfigurationFiles();
 
                 return Status.OK_STATUS;

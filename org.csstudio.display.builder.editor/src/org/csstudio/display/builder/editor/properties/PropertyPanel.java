@@ -52,12 +52,12 @@ public class PropertyPanel extends ScrollPane
      */
     private void setSelectedWidgets(final List<Widget> widgets)
     {
+        final DisplayModel model = editor.getModel();
     	section.clear();
-    	section.setClassMode(editor.isClassMode());
+    	section.setClassMode(model != null  && model.isClassModel());
 
         if (widgets.size() < 1)
         {   // Use the DisplayModel
-            final DisplayModel model = editor.getModel();
             if (model != null)
                 section.fill(editor.getUndoableActionManager(), model.getProperties(), Collections.emptyList(), true);
         }

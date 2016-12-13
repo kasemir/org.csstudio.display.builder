@@ -382,11 +382,19 @@ public class SelectedWidgetUITracker extends Tracker
 
                 if (orig_parent_children == parent_children)
                 {   // Slightly faster since parent stays the same
-                    widget.propX().setValue((int) (orig.getMinX() + dx));
-                    widget.propY().setValue((int) (orig.getMinY() + dy));
+                    if (! widget.propX().isUsingWidgetClass())
+                        widget.propX().setValue((int) (orig.getMinX() + dx));
+                    if (! widget.propY().isUsingWidgetClass())
+                        widget.propY().setValue((int) (orig.getMinY() + dy));
                 }
                 else
                 {   // Update to new parent
+                    if (widget.getDisplayModel().isClassModel())
+                    {
+                        logger.log(Level.WARNING, "Widget hierarchy is not permitted for class model");
+                        return;
+                    }
+
                     final Point2D old_offset = GeometryTools.getDisplayOffset(widget);
                     orig_parent_children.removeChild(widget);
                     parent_children.addChild(widget);
@@ -396,11 +404,15 @@ public class SelectedWidgetUITracker extends Tracker
                                new Object[] { widget, orig_parent_children.getWidget(), old_offset,
                                                       parent_children.getWidget(), new_offset});
                     // Account for old and new display offset
-                    widget.propX().setValue((int) (orig.getMinX() + dx + old_offset.getX() - new_offset.getX()));
-                    widget.propY().setValue((int) (orig.getMinY() + dy + old_offset.getY() - new_offset.getY()));
+                    if (! widget.propX().isUsingWidgetClass())
+                        widget.propX().setValue((int) (orig.getMinX() + dx + old_offset.getX() - new_offset.getX()));
+                    if (! widget.propY().isUsingWidgetClass())
+                        widget.propY().setValue((int) (orig.getMinY() + dy + old_offset.getY() - new_offset.getY()));
                 }
-                widget.propWidth().setValue((int) Math.max(1, orig.getWidth() + dw));
-                widget.propHeight().setValue((int) Math.max(1, orig.getHeight() + dh));
+                if (! widget.propWidth().isUsingWidgetClass())
+                    widget.propWidth().setValue((int) Math.max(1, orig.getWidth() + dw));
+                if (! widget.propHeight().isUsingWidgetClass())
+                    widget.propHeight().setValue((int) Math.max(1, orig.getHeight() + dh));
 
                 undo.add(new UpdateWidgetLocationAction(widget,
                                                         orig_parent_children,
@@ -476,7 +488,6 @@ public class SelectedWidgetUITracker extends Tracker
 
         // Get focus to allow use of arrow keys
         tracker.requestFocus();
-
     }
 
     @Override

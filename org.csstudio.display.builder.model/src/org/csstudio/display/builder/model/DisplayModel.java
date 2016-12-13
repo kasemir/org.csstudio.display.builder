@@ -136,6 +136,14 @@ public class DisplayModel extends Widget
         return name;
     }
 
+    /** Is this display model for a class file? */
+    public final boolean isClassModel()
+    {
+        final String filename = getUserData(USER_DATA_INPUT_FILE);
+        return filename != null &&
+               filename.endsWith(WidgetClassSupport.FILE_EXTENSION);
+    }
+
     /** @return <code>true</code> if this display is a top-level display,
      *          <code>false</code> if it's held by an embedded widget
      */

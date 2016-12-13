@@ -31,7 +31,6 @@ import org.csstudio.display.builder.editor.util.WidgetTransfer;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.WidgetClassSupport;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.widgets.ArrayWidget;
@@ -128,16 +127,6 @@ public class DisplayEditor
         selection_tracker = new SelectedWidgetUITracker(toolkit, group_handler, selection, undo);
         selection_tracker.enableSnap(true);
         selection_tracker.enableGrid(true);
-    }
-
-    /** @return Is this an editor for a class file? */
-    public boolean isClassMode()
-    {
-        if (model == null)
-            return false;
-        final String filename = model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
-        return filename != null &&
-               filename.endsWith(WidgetClassSupport.FILE_EXTENSION);
     }
 
     /** Create UI elements
