@@ -300,9 +300,10 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         if (annotation instanceof AnnotationImpl)
             annotations.add((AnnotationImpl)annotation);
         else
-            annotations.add(new AnnotationImpl<XTYPE>(annotation.getTrace(), annotation.getPosition(),
-                    annotation.getValue(), annotation.getOffset(),
-                    annotation.getText()));
+            annotations.add(new AnnotationImpl<XTYPE>(annotation.isInternal(),
+                                                      annotation.getTrace(), annotation.getPosition(),
+                                                      annotation.getValue(), annotation.getOffset(),
+                                                      annotation.getText()));
         requestUpdate();
         fireAnnotationsChanged();
     }

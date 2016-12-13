@@ -13,6 +13,7 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.rtplot.Activator;
+import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.Messages;
 import org.csstudio.javafx.rtplot.RTPlot;
 import org.csstudio.javafx.rtplot.RTPlotListener;
@@ -122,14 +123,14 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
         add_annotation.setOnAction(event ->
         {
             new AddAnnotationDialog<>(plot).showAndWait();
-            edit_annotation.setDisable(plot.getAnnotations().isEmpty());
+            edit_annotation.setDisable(! haveUserAnnotations());
         });
 
         edit_annotation = newButton(ToolIcons.EDIT_ANNOTATION, Messages.EditAnnotation);
         edit_annotation.setOnAction(event ->
         {
             new EditAnnotationDialog<XTYPE>(plot).showAndWait();
-            edit_annotation.setDisable(plot.getAnnotations().isEmpty());
+            edit_annotation.setDisable(! haveUserAnnotations());
         });
         // Enable if there are annotations to remove
         edit_annotation.setDisable(plot.getAnnotations().isEmpty());
@@ -138,12 +139,21 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
             @Override
             public void changedAnnotations()
             {
-                Platform.runLater(() -> edit_annotation.setDisable(plot.getAnnotations().isEmpty()));
+                Platform.runLater(() -> edit_annotation.setDisable(! haveUserAnnotations()));
             }
         });
 
         final ToggleButton crosshair = newToggleButton(ToolIcons.CROSSHAIR, Messages.Crosshair_Cursor);
         crosshair.setOnAction(event ->  plot.showCrosshair(crosshair.isSelected()));
+    }
+
+    /** @return Are there any user (non-internal) annotations? */
+    private boolean haveUserAnnotations()
+    {
+        for (Annotation<XTYPE> annotation : plot.getAnnotations())
+            if (!annotation.isInternal())
+                return true;
+        return false;
     }
 
     private void addZoom()
