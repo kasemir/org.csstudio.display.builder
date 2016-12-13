@@ -80,7 +80,7 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
         super(descriptor, widget, default_value);
     }
 
-    /** @param value Must be RuleInfo array(!), or empty List */
+    /** @param value Must be RuleInfo array or List */
     @Override
     public void setValueFromObject(final Object value) throws Exception
     {
@@ -90,12 +90,10 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
         {
             final List<RuleInfo> rules = new ArrayList<>();
             for (Object item : (Collection<?>)value)
-            {
                 if (item instanceof RuleInfo)
                     rules.add((RuleInfo) item);
                 else
                     throw new Exception("Need RuleInfo[], got " + value);
-            }
             setValue(rules);
         }
         else
