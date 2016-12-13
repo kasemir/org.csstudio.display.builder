@@ -177,13 +177,15 @@ public class WidgetClassSupport
         final String widget_class = widget.getName();
         final Map<String, Map<String, PropertyValue>> widget_classes = widget_types.computeIfAbsent(type, t -> new TreeMap<>(classname_sort));
 
+        // New class for this widget?
+        // OK to re-define 'DEFAULT', warn for others
         Map<String, PropertyValue> class_properties = widget_classes.get(widget_class);
         if (class_properties == null)
         {
             class_properties = new TreeMap<>();
             widget_classes.put(widget_class, class_properties);
         }
-        else
+        else if (! DEFAULT.equals(widget_class))
             logger.log(Level.WARNING, "Widget type '" + type + "' class '" + widget_class + "' is defined more than once");
 
         for (WidgetProperty<?> property : widget.getProperties())
