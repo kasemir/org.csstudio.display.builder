@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp;
 
+import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.WidgetClassSupport;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -156,7 +158,8 @@ public class NewDisplayWizardPage extends WizardPage
         else
         {
             final String ext = fileName.substring(dotLoc + 1);
-            if (ext.equalsIgnoreCase(Messages.NewDisplay_Extension) == false)
+            if (! (DisplayModel.FILE_EXTENSION.equals(ext) ||
+                   WidgetClassSupport.FILE_EXTENSION.equals(ext)))
             {
                 updateStatus(Messages.NewDisplay_ExtensionError);
                 return;

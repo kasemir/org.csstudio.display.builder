@@ -28,7 +28,6 @@ public class Messages extends NLS
     public static String NewDisplay_ContainerNotFound;
     public static String NewDisplay_Description;
     public static String NewDisplay_Error;
-    public static String NewDisplay_Extension;
     public static String NewDisplay_ExtensionError;
     public static String NewDisplay_Filename;
     public static String NewDisplay_InitialName;

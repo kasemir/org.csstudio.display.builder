@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
+import java.util.logging.Logger;
+
 /** Plugin Info
  *  @author Kay Kasemir
  */
@@ -15,4 +17,7 @@ public class Plugin
 {
     /** Plugin ID */
     public final static String ID = "org.csstudio.display.builder.editor";
+
+    /** Suggested logger for the editor */
+    public final static Logger logger = Logger.getLogger(DisplayEditor.class.getName());
 }

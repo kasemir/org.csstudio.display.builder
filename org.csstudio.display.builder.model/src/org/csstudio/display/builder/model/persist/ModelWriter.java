@@ -74,7 +74,7 @@ public class ModelWriter implements Closeable
 
         writer.writeStartDocument(XMLUtil.ENCODING, "1.0");
         writer.writeStartElement(XMLTags.DISPLAY);
-        writer.writeAttribute(XMLTags.VERSION, "1.0.0");
+        writer.writeAttribute(XMLTags.VERSION, DisplayModel.VERSION.toString());
     }
 
     /** Write display model
@@ -146,6 +146,8 @@ public class ModelWriter implements Closeable
     public void writeProperty(final WidgetProperty<?> property) throws Exception
     {
         writer.writeStartElement(property.getName());
+        if (property.isUsingWidgetClass())
+            writer.writeAttribute(XMLTags.USE_CLASS, Boolean.TRUE.toString());
         property.writeToXML(this, writer);
         writer.writeEndElement();
     }

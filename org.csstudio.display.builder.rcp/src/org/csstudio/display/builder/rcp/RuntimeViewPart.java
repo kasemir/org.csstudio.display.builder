@@ -429,7 +429,7 @@ public class RuntimeViewPart extends ViewPart
     {
         try
         {
-            final DisplayModel model = ModelLoader.loadModel(null, info.getPath());
+            final DisplayModel model = ModelLoader.loadModel(info.getPath());
 
             // This code is called
             // 1) From OpenDisplayAction

@@ -92,6 +92,14 @@ public class ModelReader
         version = readVersion(root);
     }
 
+    /** @return Version of the file that's being read.
+     *          See {@link DisplayModel#VERSION} for supported versions.
+     */
+    public Version getVersion()
+    {
+        return version;
+    }
+
     /** Read model from XML.
      *  @return Model
      *  @throws Exception on error

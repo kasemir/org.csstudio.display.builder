@@ -50,6 +50,28 @@ public class WidgetFont
     }
 
     @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = family.hashCode();
+        long temp = Double.doubleToLongBits(size);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + style.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj)
+    {
+        if (! (obj instanceof WidgetFont))
+            return false;
+        final WidgetFont other = (WidgetFont) obj;
+        return family.equals(other.family) &&
+               size == other.size &&
+               style == other.style;
+    }
+
+    @Override
     public String toString()
     {
         return "'" + family + "', " + style + ", " + size + ")";

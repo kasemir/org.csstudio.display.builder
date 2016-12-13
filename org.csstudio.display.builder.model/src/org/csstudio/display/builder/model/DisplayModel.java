@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.osgi.framework.Version;
 
 /** Display Model.
  *
@@ -31,9 +32,27 @@ import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 @SuppressWarnings("nls")
 public class DisplayModel extends Widget
 {
+    /** Version
+     *
+     *  <ul>
+     *  <li>1.0.0 -
+     *      Legacy BOY format,
+     *      and initial display builder files where
+     *      widgets started to use their new XML,
+     *      but no support for classes.
+     *  </li>
+     *  <li>2.0.0 -
+     *      Supports widget classes and honors the
+     *      'use_class' attribute of properties.
+     *  </li>
+     *  </ul>
+     */
+    public static final Version VERSION = new Version(2, 0, 0);
+
     /** File extension used for display files */
     public static final String FILE_EXTENSION = "bob";
 
+    /** Widget type used by the display model */
     public static final String WIDGET_TYPE = "display";
 
     /** Reserved DisplayModel user data key for name of input file */
@@ -91,6 +110,12 @@ public class DisplayModel extends Widget
         super(WIDGET_TYPE, 800, 600);
     }
 
+    @Override
+    public Version getVersion()
+    {
+        return VERSION;
+    }
+
     /** Get display name
      *
      *  <p>Provides the configured 'name',
@@ -109,6 +134,14 @@ public class DisplayModel extends Widget
                 name = "<No name>";
         }
         return name;
+    }
+
+    /** Is this display model for a class file? */
+    public final boolean isClassModel()
+    {
+        final String filename = getUserData(USER_DATA_INPUT_FILE);
+        return filename != null &&
+               filename.endsWith(WidgetClassSupport.FILE_EXTENSION);
     }
 
     /** @return <code>true</code> if this display is a top-level display,

@@ -46,6 +46,27 @@ public class WidgetColor
         return blue;
     }
 
+        @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = blue;
+        result = prime * result + green;
+        result = prime * result + red;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (! (obj instanceof WidgetColor))
+            return false;
+        final WidgetColor other = (WidgetColor) obj;
+        return blue == other.blue   &&
+               green == other.green &&
+               red == other.red;
+    }
+
     @Override
     public String toString()
     {

@@ -7,12 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
-import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+import static org.csstudio.display.builder.editor.Plugin.logger;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.Random;
 import java.util.logging.Level;
 
@@ -23,7 +22,7 @@ import org.csstudio.display.builder.editor.properties.PropertyPanel;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.editor.tree.WidgetTree;
 import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.util.ResourceUtil;
@@ -242,7 +241,8 @@ public class EditorDemoGUI
         {
             try
             {
-                doLoad(new FileInputStream(file), file.getCanonicalPath());
+                final DisplayModel model = ModelLoader.loadModel(new FileInputStream(file), file.getCanonicalPath());
+                setModel(model);
                 this.file = file;
             }
             catch (final Exception ex)
@@ -250,14 +250,6 @@ public class EditorDemoGUI
                 logger.log(Level.SEVERE, "Cannot start", ex);
             }
         });
-    }
-
-    private void doLoad(final InputStream stream, final String display_path) throws Exception
-    {
-        final ModelReader reader = new ModelReader(stream);
-        final DisplayModel model = reader.readModel();
-        model.setUserData(DisplayModel.USER_DATA_INPUT_FILE, display_path);
-        setModel(model);
     }
 
     /** Save model to file
@@ -270,8 +262,8 @@ public class EditorDemoGUI
             logger.log(Level.FINE, "Save as {0}", file);
             try
             (
-                    final ModelWriter writer = new ModelWriter(new FileOutputStream(file));
-                    )
+                final ModelWriter writer = new ModelWriter(new FileOutputStream(file));
+            )
             {
                 writer.writeModel(editor.getModel());
                 this.file = file;

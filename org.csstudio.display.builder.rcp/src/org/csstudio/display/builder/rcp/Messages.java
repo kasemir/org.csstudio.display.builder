@@ -28,6 +28,7 @@ public class Messages extends NLS
 
     public static String OpenStandalone;
     public static String Print;
+    public static String ReloadClasses;
     public static String ReloadDisplay;
     public static String SaveSnapshot;
     public static String SelectWorkspaceFile;

@@ -65,7 +65,7 @@ public class AddAnnotationDialog<XTYPE extends Comparable<XTYPE>> extends Dialog
     	setTitle(Messages.AddAnnotation);
     	setHeaderText(Messages.AddAnnotation_Info);
         setResizable(true);
-  
+
         final GridPane content = new GridPane();
         content.setHgap(10);
         content.setVgap(10);
@@ -81,7 +81,7 @@ public class AddAnnotationDialog<XTYPE extends Comparable<XTYPE>> extends Dialog
         content.add(label, 0, 0);
         content.add(trace_list, 1, 0);
         GridPane.setValignment(label, VPos.TOP);
-        
+
         label = new Label(Messages.AddAnnotation_Content);
         text = new TextArea();
         text.setText(Messages.AddAnnotation_DefaultText);
@@ -93,10 +93,10 @@ public class AddAnnotationDialog<XTYPE extends Comparable<XTYPE>> extends Dialog
 
         final Label info = new Label(Messages.AddAnnotation_Content_Help);
         content.add(info, 0, 2, 2, 1);
-        
+
         getDialogPane().setContent(content);
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-        
+
         // Prevent closing dialog when input fails validation
         final Button ok = (Button) getDialogPane().lookupButton(ButtonType.OK);
         ok.addEventFilter(ActionEvent.ACTION, event ->

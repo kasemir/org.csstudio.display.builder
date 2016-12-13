@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -79,16 +80,25 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
         super(descriptor, widget, default_value);
     }
 
-    /** @param value Must be ScriptInfo array(!), not List */
+    /** @param value Must be RuleInfo array or List */
     @Override
     public void setValueFromObject(final Object value) throws Exception
     {
         if (value instanceof RuleInfo[])
             setValue(Arrays.asList((RuleInfo[]) value));
+        else if (value instanceof Collection)
+        {
+            final List<RuleInfo> rules = new ArrayList<>();
+            for (Object item : (Collection<?>)value)
+                if (item instanceof RuleInfo)
+                    rules.add((RuleInfo) item);
+                else
+                    throw new Exception("Need RuleInfo[], got " + value);
+            setValue(rules);
+        }
         else
             throw new Exception("Need RuleInfo[], got " + value);
     }
-
 
     @Override
     public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception

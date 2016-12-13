@@ -27,7 +27,7 @@ import org.w3c.dom.Element;
  * The property name identifies a property inside the model. A separate
  * description, which can be localized, is meant for user interfaces that
  * present the property to humans.
- * 
+ *
  * <p>
  * Note: names including the string 'pv' are reserved for properties to which PV
  * name auto-completion is applied.
@@ -51,6 +51,9 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
      *  when receiving an invalid new value.
      */
     protected final T default_value;
+
+    /** Does property follow the value suggested by class? */
+    protected volatile boolean use_class = false;
 
     /** Current value of the property */
     protected volatile T value;
@@ -146,7 +149,29 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
     /** @return <code>true</code> if current value matches the default value */
     public boolean isDefaultValue()
     {
-        return Objects.equals(value, default_value);
+        // In class editor, even 'default' values need
+        // to be written if they're marked as 'use_class'.
+        // In display editor, if the value came from the
+        // class but happens to match the default it's
+        // still written - no big deal.
+        return !use_class  &&  Objects.equals(value, default_value);
+    }
+
+    /** @param use_class Should value of this property follow
+     *                   the suggestion from the class support?
+     */
+    public void useWidgetClass(final boolean use_class)
+    {
+        this.use_class = use_class;
+        firePropertyChange(null, null);
+    }
+
+    /** @return Is value of this property following
+     *          the suggestion from the class support?
+     */
+    public boolean isUsingWidgetClass()
+    {
+        return use_class;
     }
 
     /** Restrict value.

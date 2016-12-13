@@ -39,6 +39,7 @@
 <li><a href="#get_started">Getting Started</a></li>
 <li><a href="#editor">Display Editor</a></li>
 <li><a href="#conversion">BOY <i>*.opi</i> File Conversion</a></li>
+<li><a href="#classes">Widget Classes</a></li>
 <li><a href="#runtime">Display Builder Runtime</a></li>
 <li><a href="#perspective">Display Runtime Perspective, Full-screen, Standalone</a></li>
 <li><a href="#widgets">Widgets</a></li>
@@ -391,6 +392,56 @@ from <i>Display Builder/script_util/porting.opi</i> and
 <i>Display Builder/script_util/portable.py</i>.
 </p>
 
+
+
+<!-- ====================================================== -->
+<h2><a name="classes">Widget Classes</a></h2>
+<!-- ====================================================== -->
+
+<h3>Defining Widget Classes</h3>
+
+<p>Create a new display file via <b>New</b> > <b>New Display</b>,
+but enter a file name like "classes.bcf" that ends in <b>*.bcf</b>
+instead of the usual "*.bob" to create a class file.
+</p>
+
+<p>When the display editor is used for class files,
+each property of a widget has a check box next to it
+to mark this property of being included in the class definition.
+For example, drag a <b>Label</b> widget from the palette
+into the editor.
+Set its name to TITLE.
+Then check the x, y, font, color and transparent properties
+and set them as shown in the screenshot.
+</p>
+
+<img src="images/class_def.png"/>
+
+<p>This defines a "TITLE" class for labels:
+Its position is always in the upper left corner of the display (x and y set to 0).
+It uses a certain font and colors.
+</p>
+
+
+<h3>Using Widget Classes</h3>
+
+<p>When you now open the display editor to create a new display,
+i.e. a "*.bob" file and add a label to the display,
+note that the "class" property has a drop-down list that includes
+"TITLE" as a known class name.
+Selecting "TITLE" will apply the x, y, font, color and transparent
+settings that were defined in the class.
+Furthermore, these properties are marked with a blue "C" in the
+property panel, they cannot be modified.
+</p>
+
+<img src="images/class_use.png"/>
+
+<p>Whenever a display is executed in the display builder runtime,
+the current class settings are applied, meaning you can update
+the class definition files and those new settings will then
+be applied when a display is executed.
+</p>
 
 <!-- ====================================================== -->
 <h2><a name="runtime">Display Builder Runtime</a></h2>

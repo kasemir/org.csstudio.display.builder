@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -63,6 +64,9 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
     {
         if (value instanceof ActionInfo[])
             setValue(Arrays.asList((ActionInfo[]) value));
+        else if ((value instanceof Collection) &&
+                ((Collection<?>)value).isEmpty())
+           setValue(Collections.emptyList());
         else
             throw new Exception("Need ActionInfo[], got " + value);
     }
