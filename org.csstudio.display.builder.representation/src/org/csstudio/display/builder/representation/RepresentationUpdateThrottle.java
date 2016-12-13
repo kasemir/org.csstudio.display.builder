@@ -218,11 +218,13 @@ public class RepresentationUpdateThrottle
         }
         try
         {
-            throttle_thread.join();
+            throttle_thread.join(2000);
         }
         catch (final InterruptedException ex)
         {
             // Ignore, closing down anyway
         }
+        if (throttle_thread.isAlive())
+            logger.log(Level.WARNING, "Representation update throttle fails to terminate within 2 seconds");
     }
 }
