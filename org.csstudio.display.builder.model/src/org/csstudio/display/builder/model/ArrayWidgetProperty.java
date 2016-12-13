@@ -101,6 +101,15 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
     }
 
     @Override
+    public boolean isUsingWidgetClass()
+    {   // Array uses class if any element uses it
+        for (WidgetProperty<?> element : value)
+            if (! element.isUsingWidgetClass())
+                return false;
+        return true;
+    }
+
+    @Override
     public boolean isDefaultValue()
     {
         // Array has 'default' value if it contains

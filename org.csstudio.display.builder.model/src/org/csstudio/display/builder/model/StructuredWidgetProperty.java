@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static java.lang.Boolean.parseBoolean;
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.w3c.dom.Element;
 
@@ -54,6 +56,16 @@ public class StructuredWidgetProperty extends WidgetProperty<List<WidgetProperty
             final Widget widget, final List<WidgetProperty<?>> elements)
     {
         super(descriptor, widget, elements);
+    }
+
+    /** @return <code>true</code> if any element is using class support */
+    @Override
+    public boolean isUsingWidgetClass()
+    {
+        for (WidgetProperty<?> element : value)
+            if (element.isUsingWidgetClass())
+                return true;
+        return false;
     }
 
     /** @return <code>true</code> if all elements have default value */
@@ -118,9 +130,35 @@ public class StructuredWidgetProperty extends WidgetProperty<List<WidgetProperty
     }
 
     @Override
-    public void setValueFromObject(final Object value) throws Exception
+    public void setValueFromObject(final Object new_value) throws Exception
     {
-        throw new Exception("Elements of structure " + getName() + " cannot be re-defined");
+        if (new_value instanceof List)
+        {   // Allow assignment of another structure's value, i.e. list with same elements
+            final List<?> new_elements = (List<?>)new_value;
+            if (new_elements.size() != value.size())
+                throw new Exception("Elements of structure " + getName() + " must provide " + value.size() + " elements, got " + new_elements.size());
+            for (int i=0; i<value.size(); ++i)
+            {
+                final WidgetProperty<?> element = value.get(i);
+                final Object new_object = new_elements.get(i);
+                if (element.getClass() != new_object.getClass())
+                    throw new Exception("Cannot set structure " + getName() + "." + element.getName() + " to " + new_object);
+
+                final WidgetProperty<?> new_element = (WidgetProperty<?>)new_object;
+                if (element.getName() != new_element.getName())
+                    throw new Exception("Cannot set structure " + getName() + "." + element.getName() + " to " + new_element.getName());
+                try
+                {
+                    element.setValueFromObject(new_element.getValue());
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Cannot set structure " + getName() + "." + element.getName() + " to " + new_element, ex);
+                }
+            }
+        }
+        else
+            throw new Exception("Elements of structure " + getName() + " cannot be assigned from " + new_value);
     }
 
     @Override
@@ -146,6 +184,7 @@ public class StructuredWidgetProperty extends WidgetProperty<List<WidgetProperty
             try
             {
                 element.readFromXML(model_reader, xml);
+                element.useWidgetClass(parseBoolean(xml.getAttribute(XMLTags.USE_CLASS)));
             }
             catch (Exception ex)
             {

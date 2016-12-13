@@ -84,11 +84,7 @@ public class WidgetConfigurator
             try
             {
                 property.readFromXML(model_reader, prop_xml);
-                // Versions 2.0.0 and later support widget classes
-                if (model_reader.getVersion().getMajor() >= 2)
-                    property.useWidgetClass(parseBoolean(prop_xml.getAttribute(XMLTags.USE_CLASS)));
-                else
-                    property.useWidgetClass(false);
+                property.useWidgetClass(parseBoolean(prop_xml.getAttribute(XMLTags.USE_CLASS)));
             }
             catch (Exception ex)
             {

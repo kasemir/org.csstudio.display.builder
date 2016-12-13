@@ -414,7 +414,9 @@ public class PropertyPanelSection extends GridPane
             field = rules_field;
         }
         else if (property instanceof StructuredWidgetProperty)
-        {
+        {   // Don't allow editing structures and their elements in class mode
+            if (class_mode)
+                return;
             final StructuredWidgetProperty struct = (StructuredWidgetProperty) property;
             final Label header = new Label(struct.getDescription() + ( structureIndex > 0 ? " " + String.valueOf(1 + structureIndex) : ""));
             header.getStyleClass().add("structure_property_name");
@@ -431,7 +433,9 @@ public class PropertyPanelSection extends GridPane
             return;
         }
         else if (property instanceof ArrayWidgetProperty)
-        {
+        {   // Don't allow editing arrays and their elements in class mode
+            if (class_mode)
+                return;
             @SuppressWarnings("unchecked")
             final ArrayWidgetProperty<WidgetProperty<?>> array = (ArrayWidgetProperty<WidgetProperty<?>>) property;
 
