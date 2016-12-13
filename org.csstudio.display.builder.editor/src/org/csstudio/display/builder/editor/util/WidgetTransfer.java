@@ -118,7 +118,14 @@ public class WidgetTransfer
             editor.getWidgetSelectionHandler().clear();
 
             final Widget widget = descriptor.createWidget();
-            WidgetClassesService.getWidgetClasses().apply(widget);
+
+            // In class editor mode, create widget with some class name.
+            // In display editor mode, apply the class settings.
+            final DisplayModel model = editor.getModel();
+            if (model != null  &&  model.isClassModel())
+                widget.propName().setValue("MY_CLASS");
+            else
+                WidgetClassesService.getWidgetClasses().apply(widget);
             final String xml;
             try
             {
