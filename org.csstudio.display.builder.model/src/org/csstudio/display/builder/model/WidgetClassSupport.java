@@ -219,10 +219,15 @@ public class WidgetClassSupport
             return null;
         }
 
-        final Map<String, PropertyValue> result = widget_classes.get(widget.getWidgetClass());
+        // Empty class name indicates: Do not apply any class, not even DEFAULT
+        final String class_name = widget.getWidgetClass();
+        if (class_name.isEmpty())
+            return null;
+
+        final Map<String, PropertyValue> result = widget_classes.get(class_name);
         if (result == null)
             logger.log(Level.WARNING, "Undefined widget type " + widget.getType() +
-                                      " and class " + widget.getWidgetClass());
+                                      " and class " + class_name);
         return result;
     }
 
@@ -233,9 +238,8 @@ public class WidgetClassSupport
     public void apply(final Widget widget)
     {
         final Map<String, PropertyValue> class_settings = getClassSettings(widget);
-        if (class_settings != null)
-            for (WidgetProperty<?> prop : widget.getProperties())
-                apply(class_settings, prop);
+        for (WidgetProperty<?> prop : widget.getProperties())
+            apply(class_settings, prop);
         // Apply to child widgets
         final ChildrenProperty children = ChildrenProperty.getChildren(widget);
         if (children != null)
@@ -243,9 +247,15 @@ public class WidgetClassSupport
                 apply(child);
     }
 
-    private  void apply(final Map<String, PropertyValue> class_settings, final WidgetProperty<?> property)
+    /** Apply class-based property values to a property
+     *
+     *  @param class_settings Settings for a property
+     *  @param property Property to update
+     */
+    private void apply(final Map<String, PropertyValue> class_settings, final WidgetProperty<?> property)
     {
-        if (property instanceof RuntimeWidgetProperty)
+        if (class_settings == null  ||
+            (property instanceof RuntimeWidgetProperty))
         {
             property.useWidgetClass(false);
             return;
