@@ -23,10 +23,10 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.ImageData;
-
-import javafx.scene.image.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
+
+import javafx.scene.image.Image;
 
 /** Eclipse Plugin Activator
  *  @author Kay Kasemir
@@ -48,7 +48,7 @@ public class Activator extends AbstractUIPlugin
     private static Activator plugin;
 
     /** Logger for this plugin */
-    private static Logger logger = Logger.getLogger(PLUGIN_ID);
+    public static final Logger logger = Logger.getLogger(PLUGIN_ID);
 
     final public static ExecutorService thread_pool = Executors.newCachedThreadPool(new NamedThreadFactory("DataBrowserJobs"));
 

@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.ui;
 
+import static org.csstudio.trends.databrowser3.Activator.logger;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -23,7 +25,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.apputil.time.AbsoluteTimeParser;
 import org.csstudio.apputil.time.PeriodFormat;
@@ -135,13 +136,10 @@ public abstract class ControllerBase
         public void archiveFetchFailed(final ArchiveFetchJob job,
                 final ArchiveDataSource archive, final Exception error)
         {
-
-            //TODO: fix logger object
             if (Preferences.doPromptForErrors())
                 reportError(job.getPVItem().getResolvedDisplayName(), error);
             else
-                Logger.getLogger(getClass().getName()).log(Level.WARNING,
-                        "No archived data for " + job.getPVItem().getDisplayName(), error);
+                logger.log(Level.WARNING, "No archived data for " + job.getPVItem().getDisplayName(), error);
             // always remove the problematic archive data source, but has to happen in UI thread
             executeOnUIThread(e -> job.getPVItem().removeArchiveDataSource(archive));
         }
@@ -159,7 +157,7 @@ public abstract class ControllerBase
                 if (Preferences.doPromptForErrors())
                     reportError(job.getPVItem().getResolvedDisplayName(), null);
                 else
-                    Logger.getLogger(getClass().getName()).log(Level.FINE,
+                    logger.log(Level.FINE,
                             "Channel " + job.getPVItem().getResolvedDisplayName() + " not found in any of the archived sources.");
             }
         }
@@ -196,8 +194,7 @@ public abstract class ControllerBase
             }
             catch (Exception ex)
             {
-                Logger.getLogger(ControllerBase.class.getName()).log(Level.WARNING,
-                        "Cannot adjust time range to " + start_spec + " .. " + end_spec, ex);
+                logger.log(Level.WARNING, "Cannot adjust time range to " + start_spec + " .. " + end_spec, ex);
             }
             // Controller's ModelListener will fetch new archived data
         }
@@ -508,7 +505,7 @@ public abstract class ControllerBase
         }
         catch (Throwable ex)
         {
-            Activator.getLogger().log(Level.WARNING, "Error in Plot refresh timer", ex); //$NON-NLS-1$
+            logger.log(Level.WARNING, "Error in Plot refresh timer", ex);
         }
     }
 
@@ -518,7 +515,7 @@ public abstract class ControllerBase
     public void stop()
     {
         if (! isRunning())
-            throw new IllegalStateException("Not started"); //$NON-NLS-1$
+            throw new IllegalStateException("Not started");
         // Stop ongoing archive access
         synchronized (archive_fetch_jobs)
         {
@@ -604,7 +601,7 @@ public abstract class ControllerBase
                 }
                 catch (Exception ex)
                 {
-                    Activator.getLogger().log(Level.WARNING, "Cannot cancel " + running, ex);
+                    logger.log(Level.WARNING, "Cannot cancel " + running, ex);
                 }
             }
             // .. then start new one
