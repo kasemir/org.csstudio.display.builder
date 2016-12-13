@@ -102,11 +102,11 @@ public class ArrayWidgetProperty<WPE extends WidgetProperty<?>> extends WidgetPr
 
     @Override
     public boolean isUsingWidgetClass()
-    {   // Array uses class if any element uses it
+    {   // Array uses class if any elements use it
         for (WidgetProperty<?> element : value)
-            if (! element.isUsingWidgetClass())
-                return false;
-        return true;
+            if (element.isUsingWidgetClass())
+                return true;
+        return false;
     }
 
     @Override

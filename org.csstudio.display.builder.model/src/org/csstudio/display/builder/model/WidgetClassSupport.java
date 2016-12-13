@@ -175,6 +175,10 @@ public class WidgetClassSupport
         // The 'class' is later used to pick the class to apply to a widget,
         // it's ignored when defining classes.
         final String widget_class = widget.getName();
+
+        // Empty -> Not meant to define a class
+        if (widget_class.isEmpty())
+            return;
         final Map<String, Map<String, PropertyValue>> widget_classes = widget_types.computeIfAbsent(type, t -> new TreeMap<>(classname_sort));
 
         // New class for this widget?
