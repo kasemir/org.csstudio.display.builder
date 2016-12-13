@@ -9,6 +9,7 @@ package org.csstudio.trends.databrowser3.ui;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,10 +30,11 @@ import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.model.ModelItem;
 import org.csstudio.trends.databrowser3.preferences.Preferences;
 import org.eclipse.osgi.util.NLS;
-import javafx.scene.control.Button;
+
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.Button;
 
 /** Data Browser 'Plot' that displays the samples in a {@link Model}.
  *  <p>
@@ -117,9 +119,10 @@ public class ModelBasedPlot
                 for (Annotation<Instant> annotation : plot.getAnnotations())
                 {
                     final int item_index = traces.indexOf(annotation.getTrace());
-                    annotations.add(new AnnotationInfo(item_index,
-                            annotation.getPosition(), annotation.getValue(),
-                            annotation.getOffset(), annotation.getText()));
+                    annotations.add(new AnnotationInfo(annotation.isInternal(),
+                                                       item_index,
+                                                       annotation.getPosition(), annotation.getValue(),
+                                                       annotation.getOffset(), annotation.getText()));
                 }
                 listener.ifPresent((l) -> l.changedAnnotations(annotations));
             }
@@ -228,20 +231,6 @@ public class ModelBasedPlot
         axis.setOnRight(config.isOnRight());
     }
 
-    //    /** Update value axis from model
-    //     *  @param index Axis index. Y axes will be created as needed.
-    //     *  @param config Desired axis configuration
-    //     */
-    //    public void updateXAxis(final AxisConfig config)
-    //    {
-    //        final Axis<Instant> axis = plot.getXAxis();
-    //        axis.setName(config.getResolvedName());
-    //        axis.setColor(config.getPaintColor());
-    //        axis.setGridVisible(config.isGridVisible());
-    //        axis.setAutoscale(config.isAutoScale());
-    //        axis.setVisible(config.isVisible());
-    //    }
-
     /** Add a trace to the plot
      *  @param item ModelItem for which to add a trace
      *  @author Laurent PHILIPPE
@@ -344,6 +333,30 @@ public class ModelBasedPlot
     {
         //display.asyncExec(() -> plot.getXAxis().setValueRange(start, end));
         Platform.runLater(() -> plot.getXAxis().setValueRange(start, end));
+    }
+
+    /** Set annotations in plot to match model's annotations
+     *  @param newAnnotations Annotations to show in plot
+     */
+    void setAnnotations(final Collection<AnnotationInfo> newAnnotations)
+    {
+        final List<Trace<Instant>> traces = new ArrayList<>();
+        for (Trace<Instant> trace : plot.getTraces())
+            traces.add(trace);
+
+        // Remove old annotations from plot
+        final List<Annotation<Instant>> plot_annotations = new ArrayList<>(plot.getAnnotations());
+        for (Annotation<Instant> old : plot_annotations)
+            plot.removeAnnotation(old);
+
+        // Set new annotations in plot
+        for (AnnotationInfo annotation : newAnnotations)
+            plot.addAnnotation(new Annotation<Instant>(annotation.isInternal(),
+                                                       traces.get(annotation.getItemIndex()),
+                                                       annotation.getTime(),
+                                                       annotation.getValue(),
+                                                       annotation.getOffset(),
+                                                       annotation.getText()));
     }
 
     /** Refresh the plot because the data has changed */

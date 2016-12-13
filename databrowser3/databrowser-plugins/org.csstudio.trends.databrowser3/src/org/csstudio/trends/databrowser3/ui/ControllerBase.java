@@ -48,7 +48,6 @@ import org.csstudio.trends.databrowser3.model.PVItem;
 import org.csstudio.trends.databrowser3.preferences.Preferences;
 import org.diirt.util.time.TimeDuration;
 import org.eclipse.osgi.util.NLS;
-//import org.eclipse.swt.widgets.Shell;
 
 /** Controller that interfaces the {@link Model} with the {@link ModelBasedPlotSWT}:
  *  <ul>
@@ -70,6 +69,9 @@ public abstract class ControllerBase
 
     /** GUI for displaying the data */
     final ModelBasedPlot plot;
+
+    /** Prevent loop between model and plot when changing their annotations */
+    private boolean changing_annotations = false;
 
     /** Timer that triggers scrolling or trace redraws */
     final private static ScheduledExecutorService update_timer =
@@ -213,7 +215,11 @@ public abstract class ControllerBase
         @Override
         public void changedAnnotations(final List<AnnotationInfo> annotations)
         {
+            if (changing_annotations)
+                return;
+            changing_annotations = true;
             model.setAnnotations(annotations);
+            changing_annotations = false;
         }
 
         @Override
@@ -385,6 +391,16 @@ public abstract class ControllerBase
             {
                 getArchivedData(item, model.getStartTime(), model.getEndTime());
             }
+
+            @Override
+            public void changedAnnotations()
+            {
+                if (changing_annotations)
+                    return;
+                changing_annotations = true;
+                plot.setAnnotations(model.getAnnotations());
+                changing_annotations = false;
+            }
         };
         model.addListener(model_listener);
     }
@@ -441,7 +457,7 @@ public abstract class ControllerBase
         {
             final Trace<Instant> trace = traces.get(info.getItemIndex());
             final Annotation<Instant> annotation =
-                    new Annotation<Instant>(trace , info.getTime(), info.getValue(), info.getOffset(), info.getText());
+                    new Annotation<Instant>(info.isInternal(), trace , info.getTime(), info.getValue(), info.getOffset(), info.getText());
             plot.getPlot().addAnnotation(annotation);
         }
         createUpdateTask();
