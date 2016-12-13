@@ -7,8 +7,11 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.properties;
 
+import java.util.List;
+
 import org.csstudio.display.builder.editor.undo.UseClassAction;
 import org.csstudio.display.builder.model.UntypedWidgetPropertyListener;
+import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 
@@ -26,9 +29,9 @@ public class UseWidgetClassBinding extends WidgetPropertyBinding<CheckBox, Widge
     };
 
     public UseWidgetClassBinding(final UndoableActionManager undo, final CheckBox node,
-                                 final WidgetProperty<?> widget_property)
+                                 final WidgetProperty<?> widget_property, final List<Widget> other)
     {
-        super(undo, node, widget_property, null);
+        super(undo, node, widget_property, other);
     }
 
     @Override
@@ -39,6 +42,11 @@ public class UseWidgetClassBinding extends WidgetPropertyBinding<CheckBox, Widge
         {
             updating = true;
             undo.execute(new UseClassAction(widget_property, jfx_node.isSelected()));
+            for (Widget w : other)
+            {
+                final WidgetProperty<?> other_prop = w.getProperty(widget_property.getName());
+                undo.execute(new UseClassAction(other_prop, jfx_node.isSelected()));
+            }
             updating = false;
         });
         widget_property.addUntypedPropertyListener(model_listener);

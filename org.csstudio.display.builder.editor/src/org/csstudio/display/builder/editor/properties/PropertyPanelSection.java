@@ -505,7 +505,7 @@ public class PropertyPanelSection extends GridPane
                 // Check box for 'use_class'
                 final CheckBox check = new CheckBox();
                 check.setTooltip(use_class_tooltip);
-                final WidgetPropertyBinding<?,?> binding = new UseWidgetClassBinding(undo, check, property);
+                final WidgetPropertyBinding<?,?> binding = new UseWidgetClassBinding(undo, check, property, other);
                 bindings.add(binding);
                 binding.bind();
                 add(check, 1, row);
