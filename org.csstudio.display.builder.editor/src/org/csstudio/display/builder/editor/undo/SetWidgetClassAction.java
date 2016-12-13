@@ -64,8 +64,6 @@ public class SetWidgetClassAction extends UndoableAction
     private void setClass(final String widget_class)
     {
         widget_property.setValue(widget_class);
-        final WidgetClassSupport class_support = WidgetClassesService.getWidgetClasses();
-        if (class_support != null)
-            class_support.apply(widget_property.getWidget());
+        WidgetClassesService.getWidgetClasses().apply(widget_property.getWidget());
     }
 }

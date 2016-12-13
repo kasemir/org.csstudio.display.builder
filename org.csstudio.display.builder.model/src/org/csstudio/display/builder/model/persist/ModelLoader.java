@@ -65,9 +65,7 @@ public class ModelLoader
        if (reader.getVersion().getMajor() >= 2  &&
            !display_path.endsWith(WidgetClassSupport.FILE_EXTENSION))
        {
-           final WidgetClassSupport classes = WidgetClassesService.getWidgetClasses();
-           if (classes != null)
-               classes.apply(model);
+           WidgetClassesService.getWidgetClasses().apply(model);
        }
        return model;
   }

@@ -10,7 +10,6 @@ package org.csstudio.display.builder.editor.properties;
 import static org.csstudio.display.builder.editor.Plugin.logger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +22,6 @@ import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.WidgetClassSupport;
 import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
@@ -276,10 +274,7 @@ public class PropertyPanelSection extends GridPane
             combo.setEditable(true);
             // List classes of this widget
             final String type = widget.getType();
-            final WidgetClassSupport class_support = WidgetClassesService.getWidgetClasses();
-            final Collection<String> classes = class_support != null
-                    ? class_support.getWidgetClasses(type)
-                    : Arrays.asList(WidgetClassSupport.DEFAULT);
+            final Collection<String> classes = WidgetClassesService.getWidgetClasses().getWidgetClasses(type);
             combo.getItems().addAll(classes);
             combo.setMaxWidth(Double.MAX_VALUE);
             final WidgetClassBinding binding = new WidgetClassBinding(undo, combo, widget_class_prop, other);

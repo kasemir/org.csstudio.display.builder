@@ -46,6 +46,7 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.persist.WidgetClassesService;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
@@ -117,8 +118,8 @@ public class WidgetTransfer
             editor.getWidgetSelectionHandler().clear();
 
             final Widget widget = descriptor.createWidget();
+            WidgetClassesService.getWidgetClasses().apply(widget);
             final String xml;
-
             try
             {
                 xml = ModelWriter.getXML(Arrays.asList(widget));

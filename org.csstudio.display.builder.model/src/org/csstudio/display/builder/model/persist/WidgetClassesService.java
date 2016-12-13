@@ -73,9 +73,9 @@ public class WidgetClassesService
      *  This method should thus be called off the UI thread.
      *
      *  <p>This method will not wait indefinitely, however.
-     *  Eventually, it will return <code>null</code>.
+     *  Eventually, it will log a warnnig and return a default model.
      *
-     *  @return {@link WidgetClassSupport} or <code>null</code>
+     *  @return {@link WidgetClassSupport}
      */
     public static WidgetClassSupport getWidgetClasses()
     {
@@ -93,6 +93,6 @@ public class WidgetClassesService
             {
                 logger.log(Level.WARNING, "Cannot obtain widget classes", ex);
             }
-        return null;
+        return new WidgetClassSupport();
     }
 }

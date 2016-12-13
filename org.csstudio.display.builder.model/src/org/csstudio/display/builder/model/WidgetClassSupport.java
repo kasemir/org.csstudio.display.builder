@@ -130,6 +130,12 @@ public class WidgetClassSupport
                       Map<String,
                           Map<String, PropertyValue>>> widget_types = new TreeMap<>();
 
+    /** Default model */
+    public WidgetClassSupport()
+    {
+        registerDefaultWidgets();
+    }
+
     /** Load widget classes
      *
      *  @param stream Stream for a widget class file
@@ -137,8 +143,20 @@ public class WidgetClassSupport
      */
     public WidgetClassSupport(final InputStream stream) throws Exception
     {
-        // Register all DEFAULT widgets, including model itself
-        DisplayModel model = new DisplayModel();
+        registerDefaultWidgets();
+
+        // Register widget classes from class definition file
+        final DisplayModel model = new ModelReader(stream).readModel();
+        model.propName().setValue(DEFAULT);
+        registerClass(model);
+        for (Widget widget : model.getChildren())
+            registerClass(widget);
+    }
+
+    /** Register all DEFAULT widgets, including model itself */
+    private void registerDefaultWidgets()
+    {
+        final DisplayModel model = new DisplayModel();
         model.propName().setValue(DEFAULT);
         registerClass(model);
         for (WidgetDescriptor descr : WidgetFactory.getInstance().getWidgetDescriptions())
@@ -147,13 +165,6 @@ public class WidgetClassSupport
             widget.propName().setValue(DEFAULT);
             registerClass(widget);
         }
-
-        // Register widget classes from class definition file
-        model = new ModelReader(stream).readModel();
-        model.propName().setValue(DEFAULT);
-        registerClass(model);
-        for (Widget widget : model.getChildren())
-            registerClass(widget);
     }
 
     /** @param widget Widget to register, using its class and properties */

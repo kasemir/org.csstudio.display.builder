@@ -262,12 +262,11 @@ public class DisplayEditorPart extends EditorPart
         org.csstudio.display.builder.rcp.Plugin.reloadConfigurationFiles();
         // On separate thread..
         ModelThreadPool.getExecutor().execute(() ->
-        {   // .. wait for new classes
-            final WidgetClassSupport classes = WidgetClassesService.getWidgetClasses();
-            // and apply to model
+        {
+            // get widget classes and apply to model
             final DisplayModel model = editor.getModel();
-            if (classes != null  &&  model != null)
-                classes.apply(model);
+            if (model != null)
+                WidgetClassesService.getWidgetClasses().apply(model);
         });
     }
 
