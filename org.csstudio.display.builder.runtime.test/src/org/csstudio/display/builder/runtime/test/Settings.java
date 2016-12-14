@@ -44,6 +44,6 @@ public class Settings
         System.setProperty("gov.aps.jca.jni.JNIContext.max_array_bytes", max_array_bytes);
 
         final String color_file = "../org.csstudio.display.builder.model/examples/color.def";
-        WidgetColorService.loadColors(color_file, () -> new FileInputStream(color_file));
+        WidgetColorService.loadColors(new String[] { color_file } , file -> new FileInputStream(file));
     }
 }
