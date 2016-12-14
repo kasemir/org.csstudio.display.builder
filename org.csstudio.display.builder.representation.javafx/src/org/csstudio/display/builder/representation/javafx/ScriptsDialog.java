@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.ScriptPV;
+import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.MultiLineInputDialog;
 
 import javafx.beans.property.BooleanProperty;
@@ -305,6 +306,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
                 selected_script_item.text = Messages.ScriptsDialog_DefaultEmbeddedPython;
 
             final MultiLineInputDialog dlg = new MultiLineInputDialog(scripts_table, selected_script_item.text);
+            DialogHelper.positionDialog(dlg, btn_embed_py, -300, -200);
             final Optional<String> result = dlg.showAndWait();
             if (result.isPresent())
             {
@@ -322,6 +324,7 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
                 selected_script_item.text = Messages.ScriptsDialog_DefaultEmbeddedJavaScript;
 
             final MultiLineInputDialog dlg = new MultiLineInputDialog(scripts_table, selected_script_item.text);
+            DialogHelper.positionDialog(dlg, btn_embed_js, -300, -200);
             final Optional<String> result = dlg.showAndWait();
             if (result.isPresent())
             {
