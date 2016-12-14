@@ -5,7 +5,8 @@ Bundle-Description: Display runtime test
 Bundle-SymbolicName: org.csstudio.display.builder.runtime.test
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.junit,
+Require-Bundle: org.junit;bundle-version="4.12.0",
+ org.hamcrest.core;bundle-version="1.3.0",
  org.python.jython;bundle-version="2.7.0",
  org.eclipse.jface;bundle-version="3.10.1",
  org.diirt.util;bundle-version="3.1.2",
