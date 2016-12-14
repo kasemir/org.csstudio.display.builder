@@ -127,7 +127,7 @@ public class StructuredWidgetPropertyUnitTest
         }
         catch (Exception ex)
         {
-            assertThat(ex.getMessage(), containsString("cannot"));
+            assertThat(ex.getMessage(), containsString("must provide 2 elements"));
         }
     }
 
