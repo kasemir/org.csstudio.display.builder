@@ -15,6 +15,7 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.representation.javafx.FilenameSupport;
 import org.csstudio.ui.util.dialogs.ResourceSelectionDialog;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.window.Window;
@@ -48,12 +49,19 @@ public class Plugin extends org.eclipse.core.runtime.Plugin
         try
         {
             final DisplayModel model = widget.getDisplayModel();
-            final Path path = new Path(ModelResourceUtil.resolveResource(model, initial));
+            final IPath path;
+            if (initial.isEmpty())
+                // Use directory of display file
+                path = new Path(model.getUserData(DisplayModel.USER_DATA_INPUT_FILE)).removeLastSegments(1);
+            else
+                // Use current file
+                path = new Path(ModelResourceUtil.resolveResource(model, initial));
             dialog.setSelectedResource(path);
         }
         catch (Exception ex)
         {
             // Can't set initial file name, ignore.
+            ex.printStackTrace();
         }
 
         if (dialog.open() == Window.CANCEL)
