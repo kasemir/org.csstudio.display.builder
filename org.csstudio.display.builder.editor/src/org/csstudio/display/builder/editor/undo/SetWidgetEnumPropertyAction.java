@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.undo;
 
-import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+import static org.csstudio.display.builder.editor.Plugin.logger;
 
 import java.util.logging.Level;
 

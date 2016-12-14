@@ -33,6 +33,21 @@ public class NamedWidgetFont extends WidgetFont
         return name;
     }
 
+    // In comparisons, the names must match.
+    // Current settings (family, size, ..) may actually differ!
+    @Override
+    public int hashCode()
+    {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj)
+    {
+        return (obj instanceof NamedWidgetFont)  &&
+               name.equals(((NamedWidgetFont)obj).name);
+    }
+
     @Override
     public String toString()
     {

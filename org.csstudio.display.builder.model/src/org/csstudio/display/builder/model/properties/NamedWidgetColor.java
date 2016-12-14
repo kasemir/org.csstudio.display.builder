@@ -33,6 +33,21 @@ public class NamedWidgetColor extends WidgetColor
         return name;
     }
 
+    // In comparisons, the names must match.
+    // Current RGB may actually differ!
+    @Override
+    public int hashCode()
+    {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj)
+    {
+        return (obj instanceof NamedWidgetColor)  &&
+               name.equals(((NamedWidgetColor)obj).name);
+    }
+
     @Override
     public String toString()
     {

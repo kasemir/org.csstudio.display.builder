@@ -79,11 +79,13 @@ public class UndoableActionManager
         fireOperationsHistoryChanged();
     }
 
-    /** Undo the last command */
-    public void undoLast()
+    /** Undo the last command
+     *  @returns Action that was un-done
+     */
+    public UndoableAction undoLast()
     {
         if (undoStack.isEmpty())
-            return;
+            return null;
         final UndoableAction action = undoStack.pop();
         try
         {
@@ -93,22 +95,26 @@ public class UndoableActionManager
         catch (final Throwable ex)
         {
             logger.log(Level.WARNING, "Undo failed: " + action, ex);
-            return;
+            return null;
         }
         redoStack.push(action);
         fireOperationsHistoryChanged();
+        return action;
     }
 
-    /** Re-do the last command */
-    public void redoLast()
+    /** Re-do the last command
+     *  @returns Action that was re-done
+     */
+    public UndoableAction redoLast()
     {
         if (redoStack.isEmpty())
-            return;
+            return null;
         final UndoableAction action = redoStack.pop();
         logger.log(Level.FINE, "Redo {0}", action);
         action.run();
         undoStack.push(action);
         fireOperationsHistoryChanged();
+        return action;
     }
 
     /** Clear all undo/redo operations */

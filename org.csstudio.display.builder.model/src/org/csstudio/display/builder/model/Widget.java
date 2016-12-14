@@ -14,6 +14,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propRules;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propScripts;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propType;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidgetClass;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propY;
@@ -144,6 +145,7 @@ public class Widget
     // Actual properties
     private WidgetProperty<String> type;
     private WidgetProperty<String> name;
+    private WidgetProperty<String> widget_class;
     private WidgetProperty<Integer> x;
     private WidgetProperty<Integer> y;
     private WidgetProperty<Integer> width;
@@ -176,6 +178,7 @@ public class Widget
         // -- Mandatory properties --
         prelim_properties.add(this.type = propType.createProperty(this, type));
         prelim_properties.add(name = propName.createProperty(this, ""));
+        prelim_properties.add(widget_class = propWidgetClass.createProperty(this, WidgetClassSupport.DEFAULT));
         prelim_properties.add(x = propX.createProperty(this, 0));
         prelim_properties.add(y = propY.createProperty(this, 0));
         prelim_properties.add(width = propWidth.createProperty(this, default_width));
@@ -209,6 +212,23 @@ public class Widget
                 Collectors.toMap(WidgetProperty::getName, Function.identity()));
     }
 
+    /** Unique runtime identifier of a widget
+     *
+     *  <p>At runtime, this ID can be used to construct
+     *  PVs that are unique and specific to this instance
+     *  of a widget.
+     *  Even if the same display is opened multiple times
+     *  within the same JVM, the widget is very likely
+     *  to receive a new, unique identifier.
+     *
+     *  @return Unique Runtime Identifier for widget
+     */
+    public final String getID()
+    {   // Base on ID hash code
+        final int id = System.identityHashCode(this);
+        return "WD" + Integer.toHexString(id);
+    }
+
     /** @return Widget version number */
     public Version getVersion()
     {
@@ -231,21 +251,10 @@ public class Widget
         return name.getValue();
     }
 
-    /** Unique runtime identifier of a widget
-     *
-     *  <p>At runtime, this ID can be used to construct
-     *  PVs that are unique and specific to this instance
-     *  of a widget.
-     *  Even if the same display is opened multiple times
-     *  within the same JVM, the widget is very likely
-     *  to receive a new, unique identifier.
-     *
-     *  @return Unique Runtime Identifier for widget
-     */
-    public final String getID()
-    {   // Base on ID hash code
-        final int id = System.identityHashCode(this);
-        return "WD" + Integer.toHexString(id);
+    /** @return Widget class to use for updating properties that use the class */
+    public final String getWidgetClass()
+    {
+        return widget_class.getValue();
     }
 
     /** @return Parent widget in Widget tree */

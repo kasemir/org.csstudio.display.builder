@@ -7,13 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
+import static org.csstudio.display.builder.editor.Plugin.logger;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.palette.Palette;
 import org.csstudio.display.builder.editor.poly.PointsBinding;
@@ -99,9 +100,6 @@ import javafx.scene.layout.Pane;
 @SuppressWarnings("nls")
 public class DisplayEditor
 {
-    /** Suggested logger for the editor */
-    public final static Logger logger = Logger.getLogger(DisplayEditor.class.getName());
-
     private final JFXRepresentation toolkit;
     private final WidgetNaming widget_naming = new WidgetNaming();
     private final UndoableActionManager undo;
@@ -131,13 +129,11 @@ public class DisplayEditor
         selection_tracker.enableGrid(true);
     }
 
-    /**
-     * Create UI elements
-     *
-     * @return Root Node
+    /** Create UI elements
+     *  @return Root Node
      */
-    public Parent create ( ) {
-
+    public Parent create ()
+    {
         model_root = toolkit.createModelRoot();
         autoScrollHandler = new AutoScrollHandler(model_root);
 
@@ -160,7 +156,6 @@ public class DisplayEditor
         hookListeners();
 
         return root;
-
     }
 
     /** @return Selection tracker */
@@ -175,7 +170,8 @@ public class DisplayEditor
         return selection;
     }
 
-    public AutoScrollHandler getAutoScrollHandler() {
+    public AutoScrollHandler getAutoScrollHandler()
+    {
         return autoScrollHandler;
     }
 
@@ -185,11 +181,13 @@ public class DisplayEditor
         return undo;
     }
 
-    private void hookListeners ( ) {
-
-        toolkit.addListener(new ToolkitListener() {
+    private void hookListeners ()
+    {
+        toolkit.addListener(new ToolkitListener()
+        {
             @Override
-            public void handleClick ( final Widget widget, final boolean with_control ) {
+            public void handleClick (final Widget widget, final boolean with_control)
+            {
                 logger.log(Level.FINE, "Selected {0}", widget);
                 // Toggle selection of widget when Ctrl is held
                 if ( with_control )
@@ -199,7 +197,8 @@ public class DisplayEditor
             }
         });
 
-        model_root.setOnMousePressed(event -> {
+        model_root.setOnMousePressed(event ->
+        {
             if ( event.isControlDown() )
                 return;
             logger.log(Level.FINE, "Mouse pressed in 'editor', de-select all widgets");
@@ -284,7 +283,7 @@ public class DisplayEditor
     }
 
     /** Set Model
-     * @param model Model to show and edit
+     *  @param model Model to show and edit
      */
     public void setModel(final DisplayModel model)
     {

@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.Preferences;
 import org.csstudio.display.builder.model.properties.NamedWidgetColor;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
@@ -32,11 +33,6 @@ import org.csstudio.display.builder.model.util.ModelThreadPool;
 @SuppressWarnings("nls")
 public class WidgetColorService
 {
-    /** Time in seconds used to wait for a 'load' that's in progress
-     *  before falling back to a default set of colors
-     */
-    protected static final int LOAD_DELAY = 5;
-
     /** Current set of named colors.
      *  When still in the process of loading,
      *  this future will be active, i.e. <code>! isDone()</code>.
@@ -49,7 +45,7 @@ public class WidgetColorService
      *
      *  @param color_resource Name of resource for named color
      */
-    public static void loadColors(final String color_resource)
+    public static void loadColorsXXX(final String color_resource)
     {
         colors = ModelThreadPool.getExecutor().submit(() ->
         {
@@ -118,7 +114,7 @@ public class WidgetColorService
         // When in the process of loading, wait a little bit..
         try
         {
-            return colors.get(LOAD_DELAY, TimeUnit.SECONDS);
+            return colors.get(Preferences.getReadTimeout(), TimeUnit.MILLISECONDS);
         }
         catch (TimeoutException timeout)
         {

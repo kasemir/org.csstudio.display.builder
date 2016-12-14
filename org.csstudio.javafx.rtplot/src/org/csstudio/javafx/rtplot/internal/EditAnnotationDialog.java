@@ -83,7 +83,8 @@ public class EditAnnotationDialog<XTYPE extends Comparable<XTYPE>> extends Dialo
     	this.plot = plot;
 
         for (Annotation<XTYPE> annotation : plot.getAnnotations())
-        	annotations.add(new AnnotationItem(annotation));
+            if (! annotation.isInternal())
+                annotations.add(new AnnotationItem(annotation));
 
         annotation_list = new ListView<>(annotations);
         annotation_list.setCellFactory(view -> new AnnotationCell());

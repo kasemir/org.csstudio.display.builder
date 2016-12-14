@@ -126,7 +126,7 @@ public class RuntimeApplication implements IApplication
     {
         try
         {
-            final DisplayModel model = ModelLoader.loadModel(null, display_path);
+            final DisplayModel model = ModelLoader.loadModel(display_path);
 
             // Representation needs to be created in UI thread
             toolkit.execute(() -> representModel(model));

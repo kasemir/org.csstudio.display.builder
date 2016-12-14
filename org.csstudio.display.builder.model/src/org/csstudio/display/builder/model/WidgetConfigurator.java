@@ -7,12 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model;
 
+import static java.lang.Boolean.parseBoolean;
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
 import java.util.Optional;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.XMLTags;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.osgi.framework.Version;
 import org.w3c.dom.Element;
@@ -78,14 +80,16 @@ public class WidgetConfigurator
             final Optional<WidgetProperty<Object>> prop = widget.checkProperty(prop_name);
             if (! prop.isPresent())
                 continue;
+            final WidgetProperty<Object> property = prop.get();
             try
             {
-                prop.get().readFromXML(model_reader, prop_xml);
+                property.readFromXML(model_reader, prop_xml);
+                property.useWidgetClass(parseBoolean(prop_xml.getAttribute(XMLTags.USE_CLASS)));
             }
             catch (Exception ex)
             {
                 logger.log(Level.SEVERE,
-                           "Error reading widget " + widget + " property " + prop.get().getName() +
+                           "Error reading widget " + widget + " property " + property.getName() +
                            ", line " + XMLUtil.getLineInfo(prop_xml), ex);
             }
         }

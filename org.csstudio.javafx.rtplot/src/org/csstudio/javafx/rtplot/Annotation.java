@@ -20,6 +20,7 @@ import javafx.geometry.Point2D;
 @SuppressWarnings("nls")
 public class Annotation<XTYPE extends Comparable<XTYPE>>
 {
+    final protected boolean internal;
     final protected Trace<XTYPE> trace;
 
     /** The position and value, i.e. x/y in value space */
@@ -33,13 +34,20 @@ public class Annotation<XTYPE extends Comparable<XTYPE>>
     protected String text;
 
     /** Constructor */
-    public Annotation(final Trace<XTYPE> trace, final XTYPE position, final double value, final Point2D offset, final String text)
+    public Annotation(final boolean internal, final Trace<XTYPE> trace, final XTYPE position, final double value, final Point2D offset, final String text)
     {
+        this.internal = internal;
         this.trace = Objects.requireNonNull(trace);
         this.position = Objects.requireNonNull(position);
         this.value = value;
         this.offset = Objects.requireNonNull(offset);
         this.text = Objects.requireNonNull(text);
+    }
+
+    /** @return Internal annotation, not created by user? */
+    public boolean isInternal()
+    {
+        return internal;
     }
 
     /** @return Trace for which this annotation shows values */

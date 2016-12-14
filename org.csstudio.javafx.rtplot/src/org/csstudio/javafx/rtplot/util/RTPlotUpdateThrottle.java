@@ -128,7 +128,8 @@ public class RTPlotUpdateThrottle
         timer.shutdown();
         try
         {
-            timer.awaitTermination(1, TimeUnit.SECONDS);
+            if (! timer.awaitTermination(2, TimeUnit.SECONDS))
+                logger.log(Level.WARNING, "Plot update throttle failed to terminate within 2 seconds");
         }
         catch (InterruptedException e)
         {

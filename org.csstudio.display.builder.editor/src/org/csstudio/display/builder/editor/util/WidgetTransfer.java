@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.util;
 
-import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+import static org.csstudio.display.builder.editor.Plugin.logger;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -46,6 +46,7 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
+import org.csstudio.display.builder.model.persist.WidgetClassesService;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
@@ -117,8 +118,15 @@ public class WidgetTransfer
             editor.getWidgetSelectionHandler().clear();
 
             final Widget widget = descriptor.createWidget();
-            final String xml;
 
+            // In class editor mode, create widget with some class name.
+            // In display editor mode, apply the class settings.
+            final DisplayModel model = editor.getModel();
+            if (model != null  &&  model.isClassModel())
+                widget.propName().setValue("MY_CLASS");
+            else
+                WidgetClassesService.getWidgetClasses().apply(widget);
+            final String xml;
             try
             {
                 xml = ModelWriter.getXML(Arrays.asList(widget));

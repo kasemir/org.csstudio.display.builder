@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.ui;
 
+import static org.csstudio.trends.databrowser3.Activator.logger;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -23,7 +25,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.apputil.time.AbsoluteTimeParser;
 import org.csstudio.apputil.time.PeriodFormat;
@@ -48,7 +49,6 @@ import org.csstudio.trends.databrowser3.model.PVItem;
 import org.csstudio.trends.databrowser3.preferences.Preferences;
 import org.diirt.util.time.TimeDuration;
 import org.eclipse.osgi.util.NLS;
-//import org.eclipse.swt.widgets.Shell;
 
 /** Controller that interfaces the {@link Model} with the {@link ModelBasedPlotSWT}:
  *  <ul>
@@ -70,6 +70,9 @@ public abstract class ControllerBase
 
     /** GUI for displaying the data */
     final ModelBasedPlot plot;
+
+    /** Prevent loop between model and plot when changing their annotations */
+    private boolean changing_annotations = false;
 
     /** Timer that triggers scrolling or trace redraws */
     final private static ScheduledExecutorService update_timer =
@@ -133,13 +136,10 @@ public abstract class ControllerBase
         public void archiveFetchFailed(final ArchiveFetchJob job,
                 final ArchiveDataSource archive, final Exception error)
         {
-
-            //TODO: fix logger object
             if (Preferences.doPromptForErrors())
                 reportError(job.getPVItem().getResolvedDisplayName(), error);
             else
-                Logger.getLogger(getClass().getName()).log(Level.WARNING,
-                        "No archived data for " + job.getPVItem().getDisplayName(), error);
+                logger.log(Level.WARNING, "No archived data for " + job.getPVItem().getDisplayName(), error);
             // always remove the problematic archive data source, but has to happen in UI thread
             executeOnUIThread(e -> job.getPVItem().removeArchiveDataSource(archive));
         }
@@ -157,7 +157,7 @@ public abstract class ControllerBase
                 if (Preferences.doPromptForErrors())
                     reportError(job.getPVItem().getResolvedDisplayName(), null);
                 else
-                    Logger.getLogger(getClass().getName()).log(Level.FINE,
+                    logger.log(Level.FINE,
                             "Channel " + job.getPVItem().getResolvedDisplayName() + " not found in any of the archived sources.");
             }
         }
@@ -194,8 +194,7 @@ public abstract class ControllerBase
             }
             catch (Exception ex)
             {
-                Logger.getLogger(ControllerBase.class.getName()).log(Level.WARNING,
-                        "Cannot adjust time range to " + start_spec + " .. " + end_spec, ex);
+                logger.log(Level.WARNING, "Cannot adjust time range to " + start_spec + " .. " + end_spec, ex);
             }
             // Controller's ModelListener will fetch new archived data
         }
@@ -213,7 +212,11 @@ public abstract class ControllerBase
         @Override
         public void changedAnnotations(final List<AnnotationInfo> annotations)
         {
+            if (changing_annotations)
+                return;
+            changing_annotations = true;
             model.setAnnotations(annotations);
+            changing_annotations = false;
         }
 
         @Override
@@ -385,6 +388,16 @@ public abstract class ControllerBase
             {
                 getArchivedData(item, model.getStartTime(), model.getEndTime());
             }
+
+            @Override
+            public void changedAnnotations()
+            {
+                if (changing_annotations)
+                    return;
+                changing_annotations = true;
+                plot.setAnnotations(model.getAnnotations());
+                changing_annotations = false;
+            }
         };
         model.addListener(model_listener);
     }
@@ -441,7 +454,7 @@ public abstract class ControllerBase
         {
             final Trace<Instant> trace = traces.get(info.getItemIndex());
             final Annotation<Instant> annotation =
-                    new Annotation<Instant>(trace , info.getTime(), info.getValue(), info.getOffset(), info.getText());
+                    new Annotation<Instant>(info.isInternal(), trace , info.getTime(), info.getValue(), info.getOffset(), info.getText());
             plot.getPlot().addAnnotation(annotation);
         }
         createUpdateTask();
@@ -492,7 +505,7 @@ public abstract class ControllerBase
         }
         catch (Throwable ex)
         {
-            Activator.getLogger().log(Level.WARNING, "Error in Plot refresh timer", ex); //$NON-NLS-1$
+            logger.log(Level.WARNING, "Error in Plot refresh timer", ex);
         }
     }
 
@@ -502,7 +515,7 @@ public abstract class ControllerBase
     public void stop()
     {
         if (! isRunning())
-            throw new IllegalStateException("Not started"); //$NON-NLS-1$
+            throw new IllegalStateException("Not started");
         // Stop ongoing archive access
         synchronized (archive_fetch_jobs)
         {
@@ -588,7 +601,7 @@ public abstract class ControllerBase
                 }
                 catch (Exception ex)
                 {
-                    Activator.getLogger().log(Level.WARNING, "Cannot cancel " + running, ex);
+                    logger.log(Level.WARNING, "Cannot cancel " + running, ex);
                 }
             }
             // .. then start new one

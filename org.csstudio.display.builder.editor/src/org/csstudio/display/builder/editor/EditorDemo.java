@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.logging.LogManager;
 
+import org.csstudio.display.builder.model.persist.WidgetClassesService;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.WidgetFontService;
 
@@ -42,6 +43,9 @@ public class EditorDemo extends Application
     @Override
     public void start(final Stage stage)
     {
+        final File classes_file = new File("../org.csstudio.display.builder.model/examples/classes.bcf");
+        WidgetClassesService.loadWidgetClasses(classes_file.getPath(), () -> new FileInputStream(classes_file));
+
         final File color_file = new File("../org.csstudio.display.builder.model/examples/color.def");
         WidgetColorService.loadColors(color_file.getPath(), () -> new FileInputStream(color_file));
 

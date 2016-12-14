@@ -377,7 +377,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
             if (location != null)
                 plot.getUndoableActionManager().execute(
                     new AddAnnotationAction<XTYPE>(plot,
-                                                   new AnnotationImpl<XTYPE>(trace, location, value,
+                                                   new AnnotationImpl<XTYPE>(false, trace, location, value,
                                                                              new Point2D(20, -20),
                                                                              text)));
         });
