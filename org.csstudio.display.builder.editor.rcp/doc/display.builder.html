@@ -407,7 +407,7 @@ instead of the usual "*.bob" to create a class file.
 
 <p>When the display editor is used for class files,
 each property of a widget has a check box next to it
-to mark this property of being included in the class definition.
+to mark this property as being included in the class definition.
 For example, drag a <b>Label</b> widget from the palette
 into the editor.
 Set its name to TITLE.
@@ -445,8 +445,14 @@ property panel, they cannot be modified.
 
 <img src="images/class_use.png"/>
 
-<p>Whenever a display is executed in the display builder runtime,
-the current class settings are applied, meaning you can update
+<p>The display is saved with all the settings of the widget,
+including those that were provided by the class.
+Whenever a display is executed in the display builder runtime,
+the current class settings are applied.
+If the current class files don't define a "TITLE" class for labels,
+the display will appear as it was last saved.
+If the current class files do define a "TITLE" class for labels,
+those will be applied, meaning you can update
 the class definition files and those new settings will then
 be applied when a display is executed.
 </p>
