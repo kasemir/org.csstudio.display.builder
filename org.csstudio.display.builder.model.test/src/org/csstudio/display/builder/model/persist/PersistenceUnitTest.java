@@ -238,33 +238,26 @@ public class PersistenceUnitTest
     @Test
     public void testClassSupportPersistence() throws Exception
     {
-        // By default, Label font uses class
+        // By default, Label font does not use class
         final DisplayModel model = new DisplayModel();
         final LabelWidget label = new LabelWidget();
-        assertThat(label.propFont().isUsingWidgetClass(), equalTo(true));
+        assertThat(label.propFont().isUsingWidgetClass(), equalTo(false));
         label.propFont().setValue(new NamedWidgetFont("TEST", "Sans", WidgetFontStyle.REGULAR, 10.0));
         model.runtimeChildren().addChild(label);
 
-        // "use_class" is persisted in XML and read back
         String xml = toXML(model);
-        System.out.println(xml);
-        assertThat(xml, containsString("font use_class=\"true\""));
-        DisplayModel readback = ModelReader.parseXML(xml);
-        assertThat(readback.getChildren().get(0).getProperty("font").isUsingWidgetClass(), equalTo(true));
-
-        // Load older model: No property has 'use_class' set
-        xml = xml.replace("display version=\"2", "display version=\"1");
-        readback = ModelReader.parseXML(xml);
-        assertThat(readback.getChildren().get(0).getProperty("font").isUsingWidgetClass(), equalTo(false));
-
-        // Configure font to _not_ use the class.
-        // Also persisted and read back
-        label.propFont().useWidgetClass(false);
-        xml = toXML(model);
         System.out.println(xml);
         assertThat(xml, containsString("display version=\"2"));
         assertThat(xml, containsString("font>"));
-        readback = ModelReader.parseXML(xml);
+        DisplayModel readback = ModelReader.parseXML(xml);
         assertThat(readback.getChildren().get(0).getProperty("font").isUsingWidgetClass(), equalTo(false));
+
+        // "use_class" is persisted in XML and read back
+        label.propFont().useWidgetClass(true);
+        xml = toXML(model);
+        System.out.println(xml);
+        assertThat(xml, containsString("font use_class=\"true\""));
+        readback = ModelReader.parseXML(xml);
+        assertThat(readback.getChildren().get(0).getProperty("font").isUsingWidgetClass(), equalTo(true));
     }
 }

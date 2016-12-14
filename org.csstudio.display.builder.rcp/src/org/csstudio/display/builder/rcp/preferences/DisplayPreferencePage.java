@@ -73,8 +73,8 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
             }
         });
 
-        addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.CLASSES_FILE,
-                                       "Widget Classes File:", getFieldEditorParent())
+        addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.CLASS_FILES,
+                                       "Widget Class Files:", getFieldEditorParent())
         {
             @Override
             public IPreferenceStore getPreferenceStore()
@@ -88,7 +88,7 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
             }
         });
 
-        addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.COLOR_FILE,
+        addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.COLOR_FILES,
                                        "Color File:", getFieldEditorParent())
         {
             @Override
@@ -103,7 +103,7 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
             }
         });
 
-        addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.FONT_FILE,
+        addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.FONT_FILES,
                                        "Font File:", getFieldEditorParent())
         {
             @Override

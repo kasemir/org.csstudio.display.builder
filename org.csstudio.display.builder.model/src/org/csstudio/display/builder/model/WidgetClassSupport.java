@@ -144,8 +144,16 @@ public class WidgetClassSupport
     public WidgetClassSupport(final InputStream stream) throws Exception
     {
         registerDefaultWidgets();
-
         // Register widget classes from class definition file
+        loadClasses(stream);
+    }
+
+    /** Load widget classes
+     *  @param stream Stream for a widget class file
+     *  @throws Exception on error
+     */
+    public void loadClasses(final InputStream stream) throws Exception
+    {
         final DisplayModel model = new ModelReader(stream).readModel();
         model.propName().setValue(DEFAULT);
         registerClass(model);

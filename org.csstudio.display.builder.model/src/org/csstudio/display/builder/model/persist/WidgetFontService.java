@@ -10,7 +10,6 @@ package org.csstudio.display.builder.model.persist;
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
 import java.io.InputStream;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -36,31 +35,34 @@ public class WidgetFontService
      */
     private volatile static Future<NamedWidgetFonts> fonts = CompletableFuture.completedFuture(new NamedWidgetFonts());
 
-    /** Ask service to load fonts from a source.
+    /** Ask service to load fonts from sources.
      *
      *  <p>Service loads the fonts in background thread.
-     *  The 'source' is called in that background thread
+     *  The 'opener' is called in that background thread
      *  to provide the input stream.
      *  The source should thus perform any potentially slow operation
      *  (open file, connect to http://) when called, not beforehand.
      *
-     *  @param name   Name that identifies the source (for error messages)
-     *  @param source Supplier of InputStream for named fonts
+     *  @param names   Names that identify the sources
+     *  @param opener  Will be called for each name to supply InputStream
      */
-    public static void loadFonts(final String name, final Callable<InputStream> source)
+    public static void loadFonts(final String[] names, final FileToStreamFunction opener)
     {
         fonts = ModelThreadPool.getExecutor().submit(() ->
         {
             final NamedWidgetFonts fonts = new NamedWidgetFonts();
-            try
+            for (String name : names)
             {
-                final InputStream stream = source.call();
-                logger.log(Level.CONFIG, "Loading named fonts from {0}",  name);
-                fonts.read(stream);
-            }
-            catch (Exception ex)
-            {
-                logger.log(Level.WARNING, "Cannot load fonts from " + name, ex);
+                try
+                {
+                    final InputStream stream = opener.open(name);
+                    logger.log(Level.CONFIG, "Loading named fonts from {0}",  name);
+                    fonts.read(stream);
+                }
+                catch (Exception ex)
+                {
+                    logger.log(Level.WARNING, "Cannot load fonts from " + name, ex);
+                }
             }
             // In case of error, result may only contain partial content of file
             return fonts;
