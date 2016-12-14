@@ -52,8 +52,10 @@ public class ClassSupportUnitTest
 
     protected WidgetClassSupport getExampleClasses() throws Exception
     {
+        final WidgetClassSupport classes = new WidgetClassSupport();
         final InputStream stream = new FileInputStream("../org.csstudio.display.builder.model/examples/classes.bcf");
-        return new WidgetClassSupport(stream);
+        classes.loadClasses(stream);
+        return classes;
     }
 
     @Test
@@ -171,7 +173,7 @@ public class ClassSupportUnitTest
     public void testService() throws Exception
     {
         final Callable<InputStream> delayed_stream = new DelayedStream("../org.csstudio.display.builder.model/examples/classes.bcf", 4);
-        WidgetClassesService.loadWidgetClasses("test", delayed_stream);
+        WidgetClassesService.loadWidgetClasses(new String[] { "test" }, name -> delayed_stream.call());
 
         long start = System.currentTimeMillis();
         final WidgetClassSupport widget_classes = WidgetClassesService.getWidgetClasses();
