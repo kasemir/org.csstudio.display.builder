@@ -47,7 +47,7 @@ public class CheckBoxWidget extends PVWidget
     };
     /** 'label' property: Text for label */
     public static final WidgetPropertyDescriptor<String> propLabel =
-        newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "label", Messages.Checkbox_Label);
+        newStringPropertyDescriptor(WidgetPropertyCategory.WIDGET, "label", Messages.Checkbox_Label);
 
     /** 'auto_size' property: Automatically adjust size of widget */
     public static final WidgetPropertyDescriptor<Boolean> propAutoSize =
