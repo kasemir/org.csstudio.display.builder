@@ -285,12 +285,25 @@ public class Widget
      */
     public final DisplayModel getDisplayModel() throws Exception
     {
+        final DisplayModel model = checkDisplayModel();
+        if (model == null)
+            throw new Exception("Missing DisplayModel for " + this);
+        return model;
+    }
+
+    /** Locate display model, i.e. root of widget tree
+     *
+     *  @return {@link DisplayModel} for widget or <code>null</code>
+     *  @see #getDisplayModel() version that throws exception
+     */
+    public final DisplayModel checkDisplayModel()
+    {
         Widget candidate = this;
         while (candidate.getParent().isPresent())
             candidate = candidate.getParent().get();
         if (candidate instanceof DisplayModel)
             return (DisplayModel) candidate;
-        throw new Exception("Missing DisplayModel for " + this);
+        return null;
     }
 
     /** Locate top display model.
@@ -338,6 +351,12 @@ public class Widget
     public final WidgetProperty<String> propName()
     {
         return name;
+    }
+
+    /** @return 'class' property */
+    public final WidgetProperty<String> propClass()
+    {
+        return widget_class;
     }
 
     /** @return 'x' property */

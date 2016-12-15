@@ -89,7 +89,7 @@ public class ClassSupportUnitTest
         System.out.println("Original font: " + orig_font);
 
         // TITLE class -> widget now using a different font
-        widget.setPropertyValue("class", "TITLE");
+        widget.propClass().setValue("TITLE");
         widget_classes.apply(widget);
         value = widget.propFont().getValue();
         System.out.println("TITLE class font: " + value);
@@ -98,7 +98,7 @@ public class ClassSupportUnitTest
         assertThat(title_font.getName(), not(equalTo(orig_font.getName())));
 
         // COMMENT class -> widget now using a different font
-        widget.setPropertyValue("class", "COMMENT");
+        widget.propClass().setValue("COMMENT");
         widget_classes.apply(widget);
         value = widget.propFont().getValue();
         System.out.println("COMMENT class font: " + value);
@@ -109,7 +109,7 @@ public class ClassSupportUnitTest
         assertThat(widget.propFont().isUsingWidgetClass(), equalTo(true));
 
         // DEFAULT class -> stays with the last fone, but no longer 'is using class'
-        widget.setPropertyValue("class", "DEFAULT");
+        widget.propClass().setValue("DEFAULT");
         widget_classes.apply(widget);
         value = widget.propFont().getValue();
         System.out.println("DEFAULT class font: " + value);
@@ -149,7 +149,7 @@ public class ClassSupportUnitTest
 
         // Using an unknown widget class results in a warning
         Widget widget = new LabelWidget();
-        widget.setPropertyValue("class", "NonexistingClass");
+        widget.propClass().setValue("NonexistingClass");
         widget_classes.apply(widget);
         assertThat(last_log_message.get(), containsString("NonexistingClass"));
 

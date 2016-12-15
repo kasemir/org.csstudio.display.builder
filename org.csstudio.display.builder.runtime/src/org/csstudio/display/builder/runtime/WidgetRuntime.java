@@ -28,6 +28,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
+import org.csstudio.display.builder.model.persist.WidgetClassesService;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.RuleInfo;
@@ -173,6 +174,11 @@ public class WidgetRuntime<MW extends Widget>
         }
     };
 
+    /** When widget class changes, re-apply class to widget */
+    private static final WidgetPropertyListener<String> update_widget_class =
+        (prop, old, class_name) ->  WidgetClassesService.getWidgetClasses().apply(prop.getWidget());
+
+
     /** @param widget {@link Widget}
      *  @return {@link WidgetRuntime} of that widget
      */
@@ -286,6 +292,8 @@ public class WidgetRuntime<MW extends Widget>
             if (action_pvs.size() > 0)
                 this.writable_pvs = action_pvs;
         }
+
+        widget.propClass().addPropertyListener(update_widget_class);
 
         // Start scripts in pool because Jython setup is expensive
         RuntimeUtil.getExecutor().execute(this::startScripts);
@@ -481,6 +489,8 @@ public class WidgetRuntime<MW extends Widget>
     /** Stop: Disconnect PVs, ... */
     public void stop()
     {
+        widget.propClass().removePropertyListener(update_widget_class);
+
         final List<RuntimePV> safe_pvs = writable_pvs;
         if (safe_pvs != null)
         {

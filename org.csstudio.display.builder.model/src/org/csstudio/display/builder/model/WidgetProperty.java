@@ -162,8 +162,15 @@ public abstract class WidgetProperty<T extends Object> extends PropertyChangeHan
      */
     public void useWidgetClass(final boolean use_class)
     {
+        if (this.use_class == use_class)
+            return;
+
         this.use_class = use_class;
-        firePropertyChange(null, null);
+
+        // Editor for class model needs update, runtime doesn't
+        final DisplayModel model = getWidget().checkDisplayModel();
+        if (model != null  &&  model.isClassModel())
+            firePropertyChange(null, null);
     }
 
     /** @return Is value of this property following
