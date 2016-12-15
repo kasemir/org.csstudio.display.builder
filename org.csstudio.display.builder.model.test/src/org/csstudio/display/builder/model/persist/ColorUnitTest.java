@@ -105,7 +105,7 @@ public class ColorUnitTest
         // Load colors, using a source with artificial delay
         final Callable<InputStream> slow_color_source =
             new DelayedStream("../org.csstudio.display.builder.model/examples/color.def", delay_seconds);
-        WidgetColorService.loadColors("Slow file", slow_color_source);
+        WidgetColorService.loadColors(new String[] { "Slow file" }, file -> slow_color_source.call());
 
         // Getting the colors is now delayed by the WidgetColorService.LOAD_DELAY
         long start = System.currentTimeMillis();

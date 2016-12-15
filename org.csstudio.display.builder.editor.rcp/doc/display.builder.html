@@ -407,7 +407,7 @@ instead of the usual "*.bob" to create a class file.
 
 <p>When the display editor is used for class files,
 each property of a widget has a check box next to it
-to mark this property of being included in the class definition.
+to mark this property as being included in the class definition.
 For example, drag a <b>Label</b> widget from the palette
 into the editor.
 Set its name to TITLE.
@@ -425,6 +425,14 @@ It uses a certain font and colors.
 
 <h3>Using Widget Classes</h3>
 
+<p>Open the menu <b>Edit</b> > <b>Preferences</b> to locate the Display Builder settings.
+Note the "Widget Class Files:" setting which allows for a list of class files,
+separating multiple entries with a semicolon.
+The class files are loaded when the display builder starts for the first time.
+They are re-loaded whenever you save a class file,
+or via the <b>Re-load Widget Classes</b> context menu of the display file editor.
+</p>
+
 <p>When you now open the display editor to create a new display,
 i.e. a "*.bob" file and add a label to the display,
 note that the "class" property has a drop-down list that includes
@@ -437,8 +445,14 @@ property panel, they cannot be modified.
 
 <img src="images/class_use.png"/>
 
-<p>Whenever a display is executed in the display builder runtime,
-the current class settings are applied, meaning you can update
+<p>The display is saved with all the settings of the widget,
+including those that were provided by the class.
+Whenever a display is executed in the display builder runtime,
+the current class settings are applied.
+If the current class files don't define a "TITLE" class for labels,
+the display will appear as it was last saved.
+If the current class files do define a "TITLE" class for labels,
+those will be applied, meaning you can update
 the class definition files and those new settings will then
 be applied when a display is executed.
 </p>

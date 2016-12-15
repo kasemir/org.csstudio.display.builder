@@ -38,14 +38,14 @@ public class Plugin implements BundleActivator
      */
     public static void reloadConfigurationFiles()
     {
-        final String colors = Preferences.getColorFile();
-        WidgetColorService.loadColors(colors, () -> ModelResourceUtil.openResourceStream(colors));
+        final String colors[] = Preferences.getColorFiles();
+        WidgetColorService.loadColors(colors, file -> ModelResourceUtil.openResourceStream(file));
 
-        final String fonts = Preferences.getFontFile();
-        WidgetFontService.loadFonts(fonts, () -> ModelResourceUtil.openResourceStream(fonts));
+        final String fonts[] = Preferences.getFontFiles();
+        WidgetFontService.loadFonts(fonts, file -> ModelResourceUtil.openResourceStream(file));
 
-        final String classes = Preferences.getClassesFile();
-        WidgetClassesService.loadWidgetClasses(classes, () -> ModelResourceUtil.openResourceStream(classes));
+        final String class_files[] = Preferences.getClassFiles();
+        WidgetClassesService.loadWidgetClasses(class_files, file -> ModelResourceUtil.openResourceStream(file));
     }
 
     @Override

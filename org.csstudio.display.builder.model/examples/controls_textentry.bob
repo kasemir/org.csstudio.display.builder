@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="1.0.0">
+<display version="2.0.0">
   <name>Text Entry</name>
   <width>850</width>
   <widget type="label" version="2.0.0">
     <name>Label</name>
+    <class>TITLE</class>
     <text>Text Entry Widget</text>
+    <x use_class="true">0</x>
+    <y use_class="true">0</y>
     <width>241</width>
     <height>31</height>
-    <font>
+    <font use_class="true">
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
     </font>
+    <foreground_color use_class="true">
+      <color name="Text" red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <transparent use_class="true">true</transparent>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
@@ -114,12 +122,13 @@
       </font>
     </font>
     <background_color>
-      <color red="255" green="255" blue="77">
+      <color red="229" green="193" blue="255">
       </color>
     </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_11</name>
+    <class>COMMENT</class>
     <text>The text entry widget updates whenever the value of the
 associated PV changes.
 
@@ -134,15 +143,21 @@ Pressing 'Enter' confirms editing and writes the entered value to the PV.</text>
     <y>391</y>
     <width>451</width>
     <height>210</height>
-    <font>
+    <font use_class="true">
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
+    <foreground_color use_class="true">
+      <color name="Text" red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <transparent use_class="true">true</transparent>
+    <wrap_words use_class="true">true</wrap_words>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_12</name>
     <text>Multiple Lines:</text>
-    <x>481</x>
+    <x>470</x>
     <y>231</y>
     <width>201</width>
     <font>
@@ -153,7 +168,7 @@ Pressing 'Enter' confirms editing and writes the entered value to the PV.</text>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_6</name>
     <pv_name>loc://long_text("Some long text...")</pv_name>
-    <x>481</x>
+    <x>470</x>
     <y>261</y>
     <width>289</width>
     <height>110</height>
@@ -162,6 +177,7 @@ Pressing 'Enter' confirms editing and writes the entered value to the PV.</text>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_13</name>
+    <class>COMMENT</class>
     <text>The text entry widget can be "multi-lined",
 starting a new line on each newline character in the text.
 Optionally, it can also wrap words to a new line when
@@ -169,13 +185,47 @@ reaching the end of a line.
 
 Since pressing 'Enter' now simply starts a new line,
 'Control-Enter' now confirms editing and writes the entered value to the PV.</text>
-    <x>481</x>
+    <x>470</x>
     <y>391</y>
     <width>359</width>
     <height>210</height>
-    <font>
+    <font use_class="true">
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
+    <foreground_color use_class="true">
+      <color name="Text" red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <transparent use_class="true">true</transparent>
+    <wrap_words use_class="true">true</wrap_words>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_3</name>
+    <class>COMMENT</class>
+    <text>Text Entry widgets display the current value
+of a PV.
+When you click the widget or type anything
+into the widget, it enters an 'active' state,
+indicated by a different background color.
+
+It will now stop displaying received PV
+updates so you can edit without interruptions.
+Press 'Enter' to confirm.
+Press 'Escape', 'Tab', or click elsewhere to abort.</text>
+    <x>470</x>
+    <y>31</y>
+    <width>310</width>
+    <height>189</height>
+    <font use_class="true">
+      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
+      </font>
+    </font>
+    <foreground_color use_class="true">
+      <color name="Text" red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <transparent use_class="true">true</transparent>
+    <wrap_words use_class="true">true</wrap_words>
   </widget>
 </display>

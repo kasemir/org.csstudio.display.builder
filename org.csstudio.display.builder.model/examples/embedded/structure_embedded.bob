@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="1.0.0">
+<display version="2.0.0">
   <name>Display</name>
   <macros>
     <groupname>MacroGroupName</groupname>
@@ -8,13 +8,21 @@
   <height>1000</height>
   <widget type="label" version="2.0.0">
     <name>Label</name>
+    <class>TITLE</class>
     <text>Embedded Display Widget</text>
+    <x use_class="true">0</x>
+    <y use_class="true">0</y>
     <width>311</width>
     <height>31</height>
-    <font>
+    <font use_class="true">
       <font name="Header 1" family="Liberation Sans" style="BOLD" size="22.0">
       </font>
     </font>
+    <foreground_color use_class="true">
+      <color name="Text" red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <transparent use_class="true">true</transparent>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
@@ -47,14 +55,6 @@ are always a compromise that often results in inconsistent widget sizes.</text>
     <y>187</y>
     <width>80</width>
     <height>26</height>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="255" green="255" blue="255">
-      </color>
-    </background_color>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded</name>
@@ -75,14 +75,6 @@ are always a compromise that often results in inconsistent widget sizes.</text>
     <y>187</y>
     <width>103</width>
     <height>26</height>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="255" green="255" blue="255">
-      </color>
-    </background_color>
   </widget>
   <widget type="embedded" version="2.0.0">
     <name>Embedded</name>
@@ -103,14 +95,6 @@ are always a compromise that often results in inconsistent widget sizes.</text>
     <y>187</y>
     <width>103</width>
     <height>26</height>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
-    <background_color>
-      <color red="255" green="255" blue="255">
-      </color>
-    </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
@@ -217,5 +201,35 @@ template or master display, possibly setting different macros.</text>
     <width>170</width>
     <height>220</height>
     <group_name>$(groupname)</group_name>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button</name>
+    <actions>
+      <action type="open_display">
+        <file>sub.bob</file>
+        <macros>
+          <FILE>a.bob</FILE>
+          <M>ZPos</M>
+        </macros>
+        <target>replace</target>
+        <description>Open Display</description>
+      </action>
+    </actions>
+    <x>420</x>
+    <y>830</y>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_6</name>
+    <text>The name of the embedded display
+can be a macro.
+In this example, the button passes
+a FILE macro to a sub display,
+which then uses that to embed
+the display provided in the macro.</text>
+    <x>380</x>
+    <y>701</y>
+    <width>250</width>
+    <height>119</height>
   </widget>
 </display>

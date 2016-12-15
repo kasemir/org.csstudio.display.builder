@@ -10,7 +10,6 @@ package org.csstudio.display.builder.model.persist;
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
 import java.io.InputStream;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -36,30 +35,42 @@ public class WidgetClassesService
      */
     private volatile static Future<WidgetClassSupport> class_support = null;
 
-    /** Ask color service to load colors from a source.
+    /** Ask service to load widget classes from a sources.
      *
-     *  <p>Service loads the colors in background thread.
-     *  The 'source' is called in that background thread
+     *  <p>Service loads in background thread.
+     *  The 'opener' is called in that background thread
      *  to provide the input stream.
-     *  The source should thus perform any potentially slow operation
+     *  The opener should thus perform any potentially slow operation
      *  (open file, connect to http://) when called, not beforehand.
      *
-     *  @param name   Name that identifies the source (for error messages)
-     *  @param source Supplier of InputStream for named colors
+     *  @param names   Names that identify the sources
+     *  @param opener  Will be called for each name to supply InputStream
      */
-    public static void loadWidgetClasses(final String name, final Callable<InputStream> source)
+    public static void loadWidgetClasses(final String[] names, final FileToStreamFunction opener)
     {
         class_support = ModelThreadPool.getExecutor().submit(() ->
         {
             try
             {
-                final InputStream stream = source.call();
-                logger.log(Level.CONFIG, "Loading widget classes from {0}",  name);
-                return new WidgetClassSupport(stream);
+                final WidgetClassSupport classes = new WidgetClassSupport();
+                for (String name : names)
+                {
+                    try
+                    {
+                        final InputStream stream = opener.open(name);
+                        classes.loadClasses(stream);
+                        logger.log(Level.CONFIG, "Loading widget classes from {0}",  name);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.log(Level.WARNING, "Cannot load widget classes from '" + name + "'", ex);
+                    }
+                }
+                return classes;
             }
             catch (Exception ex)
             {
-                logger.log(Level.WARNING, "Cannot load widget classes from " + name, ex);
+                logger.log(Level.WARNING, "Cannot load widget classes", ex);
             }
             return null;
         });

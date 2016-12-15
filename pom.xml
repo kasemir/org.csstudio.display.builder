@@ -200,7 +200,7 @@
       <id>all_platforms</id>
       <activation>
         <property>
-	      <name>!specific_platform</name>
+          <name>!specific_platform</name>
         </property>
       </activation>
       <build>
@@ -210,6 +210,31 @@
             <artifactId>target-platform-configuration</artifactId>
             <version>${tycho.version}</version>
             <configuration>
+              <!-- When importing diirt into the same IDE,
+                   IDE will use an older org.junit 4.10 plugin with
+                   older org.hamcrest, and then test code won't compile.
+                   Try to force junit 4.12 and org.hamcrest from its own plugin,
+                    not the package from diirt's org.junit plugin
+                -->
+              <!-- Doesn't make any difference to IDE...
+              <filters>
+                <filter>
+                  <type>eclipse-plugin</type>
+                  <id>org.junit</id>
+                  <restrictTo>
+                    <version>4.12</version>
+                  </restrictTo>
+                </filter>
+                <filter>
+                  <type>java-package</type>
+                  <id>org.hamcrest</id>
+                  <restrictTo>
+                    <type>eclipse-plugin</type>
+                    <id>org.hamcrest.core</id>
+                  </restrictTo>
+                </filter>
+              </filters>
+              -->
               <environments>
                 <!-- 
                 <environment>

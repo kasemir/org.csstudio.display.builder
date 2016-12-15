@@ -19,29 +19,32 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 @SuppressWarnings("nls")
 public class Preferences
 {
-    public static final String CLASSES_FILE = "classes_file";
-    public static final String COLOR_FILE = "color_file";
-    public static final String FONT_FILE = "font_file";
+    public static final String CLASS_FILES = "class_files";
+    public static final String COLOR_FILES = "color_files";
+    public static final String FONT_FILES = "font_files";
     public static final String READ_TIMEOUT = "read_timeout";
     public static final String LEGACY_FONT_CALIBRATION = "legacy_font_calibration";
     public static final String MACROS = "macros";
 
-    public static String getClassesFile()
+    public static String[] getClassFiles()
     {
-        return getPreference(CLASSES_FILE,
-                             "platform:/plugin/org.csstudio.display.builder.model/examples/classes.bcf");
+        return getPreference(CLASS_FILES,
+                             "platform:/plugin/org.csstudio.display.builder.model/examples/classes.bcf")
+                            .split(" *; *");
     }
 
-    public static String getColorFile()
+    public static String[] getColorFiles()
     {
-        return getPreference(COLOR_FILE,
-                             "platform:/plugin/org.csstudio.display.builder.model/examples/color.def");
+        return getPreference(COLOR_FILES,
+                             "platform:/plugin/org.csstudio.display.builder.model/examples/color.def")
+                            .split(" *; *");
     }
 
-    public static String getFontFile()
+    public static String[] getFontFiles()
     {
-        return getPreference(FONT_FILE,
-                             "platform:/plugin/org.csstudio.display.builder.model/examples/font.def");
+        return getPreference(FONT_FILES,
+                             "platform:/plugin/org.csstudio.display.builder.model/examples/font.def")
+                            .split(" *; *");
     }
 
     /** @return Read timeout [ms] */
