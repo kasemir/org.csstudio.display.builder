@@ -87,7 +87,7 @@ public class RuleInfo
          * The expression will alter the property value. This needs to be a property
          * object created for this expression, probably by the containing rule.
          */
-        public ExprInfoValue(String bool_exp, WidgetProperty<T> prop_val)
+        public ExprInfoValue(final String bool_exp, WidgetProperty<T> prop_val)
         {
             super(bool_exp, prop_val);
         }

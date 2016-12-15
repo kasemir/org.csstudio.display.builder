@@ -564,7 +564,13 @@ public class Widget
             // Fetch individual array element?
             if (index >= 0)
                 if (property instanceof ArrayWidgetProperty)
-                    property = ((ArrayWidgetProperty)property).getElement(index);
+                {
+                    final ArrayWidgetProperty array = (ArrayWidgetProperty)property;
+                    // Add array elements
+                    while (array.size() <= index)
+                        array.addElement();
+                    property = array.getElement(index);
+                }
                 else
                     throw new IllegalArgumentException("'" + name + "' of '" + path_name + "' it not an array");
         }
