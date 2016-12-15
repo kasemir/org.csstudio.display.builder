@@ -55,7 +55,7 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
     {
         try
         {
-            return widget.getProperty(prop_id).clone();
+            return widget.getPropertyByPath(prop_id, true).clone();
         }
         catch (Throwable ex)
         {

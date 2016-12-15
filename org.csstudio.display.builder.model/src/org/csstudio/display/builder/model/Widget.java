@@ -514,11 +514,13 @@ public class Widget
      *  @return {@link WidgetProperty}
      *  @throws IllegalArgumentException if property is unknown
      *  @see #checkProperty(String)
+     *  @throws IllegalArgumentException if path includes invalid elements,
+     *          IndexOutOfBoundsException for access to array beyond size
      */
-    public WidgetProperty<?> getProperty(final String name)
+    public WidgetProperty<?> getProperty(final String name) throws IllegalArgumentException, IndexOutOfBoundsException
     {   // Is name a path "struct_prop.array_prop[2].element" ?
         if (name.indexOf('.') >=0  ||  name.indexOf('[') >= 0)
-            return getPropertyByPath(name);
+            return getPropertyByPath(name, false);
         // Plain property name
         final WidgetProperty<?> property = property_map.get(name);
         if (property == null)
@@ -528,11 +530,13 @@ public class Widget
 
     /** Get property via path
      *  @param path_name "struct_prop.array_prop[2].element"
+     *  @param create_elements Create missing array elements?
      *  @return Property for "element"
-     *  @throws IllegalArgumentException if path includes invalid elements
+     *  @throws IllegalArgumentException if path includes invalid elements,
+     *          IndexOutOfBoundsException for access to array beyond size
      */
     @SuppressWarnings("rawtypes")
-    private WidgetProperty<?> getPropertyByPath(final String path_name) throws IllegalArgumentException
+    public WidgetProperty<?> getPropertyByPath(final String path_name, final boolean create_elements) throws IllegalArgumentException, IndexOutOfBoundsException
     {
         final String[] path = path_name.split("\\.");
         WidgetProperty<?> property = null;
@@ -566,9 +570,16 @@ public class Widget
                 if (property instanceof ArrayWidgetProperty)
                 {
                     final ArrayWidgetProperty array = (ArrayWidgetProperty)property;
-                    // Add array elements
-                    while (array.size() <= index)
-                        array.addElement();
+                    // Add array elements?
+                    if (create_elements)
+                    {
+                        while (array.size() <= index)
+                            array.addElement();
+                    }
+                    else
+                        if (array.size() < index)
+                            throw new IndexOutOfBoundsException("'" + name + "' of '" + path_name +
+                                                                "' has only " + array.size() + " elements");
                     property = array.getElement(index);
                 }
                 else
