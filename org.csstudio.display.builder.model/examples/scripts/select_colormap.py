@@ -12,7 +12,7 @@ for map in ColorMap.PREDEFINED:
         break
 
 if colormap is None:
-    ScriptUtil.getLogger().warning("Unkonwn color map " + mapname)
+    ScriptUtil.getLogger().warning("Unknown color map " + mapname)
 else:
     widget.setPropertyValue("color_map", colormap)
 
