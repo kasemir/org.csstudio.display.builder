@@ -57,7 +57,7 @@ abstract class PlotCanvasBase extends ImageView
 
     protected static final int ARROW_SIZE = 8;
 
-    protected static final double ZOOM_FACTOR = 1.5;
+    protected static final double ZOOM_FACTOR = 1.2;
 
     /** When using 'rubberband' to zoom in, need to select a region
      *  at least this wide resp. high.
