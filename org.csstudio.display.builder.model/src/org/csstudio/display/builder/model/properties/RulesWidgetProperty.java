@@ -12,6 +12,7 @@ import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -54,11 +55,11 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
     {
         try
         {
-            return widget.getProperty(prop_id).clone();
+            return widget.getPropertyByPath(prop_id, true).clone();
         }
-        catch (Exception ex)
+        catch (Throwable ex)
         {
-            logger.log(Level.WARNING, widget + " cannot make new unknown property id " + prop_id);
+            logger.log(Level.WARNING, widget + " cannot make new unknown property id " + prop_id, ex);
 
             if ((dbg_tag != null) && (dbg_tag.length() > 0))
                 return miscUnknownPropID.createProperty(null, dbg_tag);
@@ -219,11 +220,10 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
             {
                 exprs = readExpressions(model_reader, prop_id, prop_as_expr, xml);
             }
-            catch (Exception ex)
+            catch (Throwable ex)
             {
-                logger.log(Level.WARNING, "Failure to readExpressions for " + prop_id);
-                exprs = new ArrayList<>();
-                ex.printStackTrace();
+                logger.log(Level.WARNING, "Failure to readExpressions for " + prop_id, ex);
+                exprs = Collections.emptyList();
             }
 
             final List<ScriptPV> pvs = readPVs(xml);
@@ -262,13 +262,10 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
             {
                 final String val_str = (val_xml != null) ? XMLUtil.elementsToString(val_xml.getChildNodes(), false) : "";
 
-                WidgetProperty<?> val_prop = propIDToNewProp(
-                        this.getWidget(), prop_id, val_str);
+                final WidgetProperty<?> val_prop = propIDToNewProp(getWidget(), prop_id, val_str);
 
-                if ( val_prop.getName() != miscUnknownPropID.getName() )
-                {
+                if ( ! miscUnknownPropID.getName().equals(val_prop.getName()))
                     val_prop.readFromXML(model_reader, val_xml);
-                }
                 exprs.add(new ExprInfoValue<>(bool_exp, val_prop));
             }
         }

@@ -35,7 +35,7 @@
     <wrap_words use_class="true">true</wrap_words>
   </widget>
   <widget type="led" version="2.0.0">
-    <name>ON_OFF_LED</name>
+    <name>ON_OFF</name>
     <x>120</x>
     <y>150</y>
     <off_color use_class="true">
@@ -48,7 +48,7 @@
     </on_color>
   </widget>
   <widget type="led" version="2.0.0">
-    <name>WARNING_LED</name>
+    <name>WARNING</name>
     <x>120</x>
     <y>190</y>
     <off_color use_class="true">
@@ -76,7 +76,7 @@
     <transparent use_class="true">true</transparent>
   </widget>
   <widget type="label" version="2.0.0">
-    <text>ON_OFF_LED</text>
+    <text>ON_OFF</text>
     <y>150</y>
     <width>120</width>
     <font>
@@ -85,7 +85,7 @@
     </font>
   </widget>
   <widget type="label" version="2.0.0">
-    <text>WARNING_LED</text>
+    <text>WARNING</text>
     <y>190</y>
     <width>120</width>
     <font>
