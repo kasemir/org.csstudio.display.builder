@@ -74,6 +74,7 @@ public class Messages extends NLS
     public static String Zoom_Out_Y;
     public static String Zoom_Stagger;
     public static String Zoom_Stagger_TT;
+
     static
     {
         // initialize resource bundle

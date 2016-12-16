@@ -102,6 +102,14 @@ public class ImagePlot extends PlotCanvasBase
     /** Regions of interest */
     private final List<RegionOfInterest> rois = new CopyOnWriteArrayList<>();
 
+    /** Show crosshair marker, positioned on click?
+     *  Otherwise update cursor listener with each mouse movement.
+     */
+    private volatile boolean crosshair = false;
+
+    /** Crosshair position (when using crosshair) */
+    private volatile Point2D crosshair_position = null;
+
     private volatile RTImagePlotListener plot_listener = null;
 
     private Tracker roi_tracker;
@@ -228,6 +236,24 @@ public class ImagePlot extends PlotCanvasBase
     {
         colorbar_axis.setScaleFont(font);
         requestLayout();
+    }
+
+    /** @param show Show crosshair, moved on click?
+     *              Or update cursor listener with each mouse move,
+     *              not showing a persistent crosshair?
+     */
+    public void showCrosshair(final boolean show)
+    {
+        if (!show)
+            crosshair_position = null;
+        crosshair = show;
+        requestRedraw();
+    }
+
+    /** @return Is crosshair enabled? */
+    public boolean isCrosshairVisible()
+    {
+        return crosshair;
     }
 
     /** Add region of interest
@@ -632,18 +658,43 @@ public class ImagePlot extends PlotCanvasBase
     protected void drawMouseModeFeedback(final Graphics2D gc)
     {   // Safe copy, then check null (== isPresent())
         final Point2D current = mouse_current.orElse(null);
-        if (current == null)
-            return;
-
-        final Point2D start = mouse_start.orElse(null);
         final Rectangle plot_bounds = image_area;
-
-        if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
-            drawZoomXMouseFeedback(gc, plot_bounds, start, current);
-        else if (mouse_mode == MouseMode.ZOOM_IN_Y  &&  start != null)
-            drawZoomYMouseFeedback(gc, plot_bounds, start, current);
-        else if (mouse_mode == MouseMode.ZOOM_IN_PLOT  &&  start != null)
-            drawZoomMouseFeedback(gc, plot_bounds, start, current);
+        if (current != null)
+        {
+            final Point2D start = mouse_start.orElse(null);
+            if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
+                drawZoomXMouseFeedback(gc, plot_bounds, start, current);
+            else if (mouse_mode == MouseMode.ZOOM_IN_Y  &&  start != null)
+                drawZoomYMouseFeedback(gc, plot_bounds, start, current);
+            else if (mouse_mode == MouseMode.ZOOM_IN_PLOT  &&  start != null)
+                drawZoomMouseFeedback(gc, plot_bounds, start, current);
+        }
+        final Point2D cross = crosshair ? crosshair_position : null;
+        if (cross != null)
+        {
+            final int x = x_axis.getScreenCoord(cross.getX());
+            final int y = y_axis.getScreenCoord(cross.getY());
+            if (plot_bounds.contains(x, y))
+            {
+                for (int i=0; i<2; ++i)
+                {
+                    if (i==0)
+                    {
+                        gc.setColor(java.awt.Color.BLACK );
+                        gc.setStroke(MOUSE_FEEDBACK_BACK);
+                    }
+                    else
+                    {
+                        gc.setColor(java.awt.Color.RED);
+                        gc.setStroke(MOUSE_FEEDBACK_FRONT);
+                    }
+                    gc.drawLine(plot_bounds.x, y, x-2, y);
+                    gc.drawLine(x+2, y, plot_bounds.x + plot_bounds.width, y);
+                    gc.drawLine(x, plot_bounds.y, x, y-2);
+                    gc.drawLine(x, y+2, x, plot_bounds.y + plot_bounds.height);
+                }
+            }
+        }
     }
 
     /** onMousePressed */
@@ -690,7 +741,15 @@ public class ImagePlot extends PlotCanvasBase
 
         final int clicks = e.getClickCount();
 
-        if (mouse_mode == MouseMode.PAN)
+        if (mouse_mode == MouseMode.NONE)
+        {
+            if (crosshair)
+            {
+                updateLocationInfo(e.getX(), e.getY());
+                requestRedraw();
+            }
+        }
+        else if (mouse_mode == MouseMode.PAN)
         {   // Determine start of 'pan'
             mouse_start_x_range = x_axis.getValueRange();
             mouse_start_y_range = y_axis.getValueRange();
@@ -744,7 +803,8 @@ public class ImagePlot extends PlotCanvasBase
             break;
         default:
         }
-        updateLocationInfo(e.getX(), e.getY());
+        if (! crosshair)
+            updateLocationInfo(e.getX(), e.getY());
     }
 
     /** Update information about the image location under the mouse pointer
@@ -754,9 +814,6 @@ public class ImagePlot extends PlotCanvasBase
     private void updateLocationInfo(final double mouse_x, final double mouse_y)
     {
         final RTImagePlotListener listener = plot_listener;
-        if (listener == null)
-            return;
-
         if (image_area.contains(mouse_x, mouse_y))
         {
             // Pass 'double' mouse_x/y?
@@ -768,6 +825,7 @@ public class ImagePlot extends PlotCanvasBase
             // Location on axes, i.e. what user configured as horizontal and vertical values
             final double x_val = x_axis.getValue(screen_x);
             final double y_val = y_axis.getValue(screen_y);
+            crosshair_position = new Point2D(x_val, y_val);
 
             // Location as coordinate in image
             // No "+0.5" rounding! Truncate to get full pixel offsets,
@@ -787,10 +845,15 @@ public class ImagePlot extends PlotCanvasBase
 
             final ListNumber data = image_data;
             final double pixel = data == null ? Double.NaN : data.getDouble(image_x + image_y * data_width);
-            listener.changedCursorLocation(x_val, y_val, image_x, image_y, pixel);
+            if (listener != null)
+                listener.changedCursorLocation(x_val, y_val, image_x, image_y, pixel);
         }
         else
-            listener.changedCursorLocation(Double.NaN, Double.NaN, -1, -1, Double.NaN);
+        {
+            crosshair_position = null;
+            if (listener != null)
+                listener.changedCursorLocation(Double.NaN, Double.NaN, -1, -1, Double.NaN);
+        }
     }
 
     /** setOnMouseReleased */
@@ -862,7 +925,8 @@ public class ImagePlot extends PlotCanvasBase
         // Clear mouse position so drawMouseModeFeedback() won't restore cursor
         mouse_current = Optional.empty();
         PlotCursors.setCursor(this, Cursor.DEFAULT);
-        updateLocationInfo(-1, -1);
+        if (! crosshair)
+            updateLocationInfo(-1, -1);
     }
 
     /** Zoom 'in' or 'out' from where the mouse was clicked

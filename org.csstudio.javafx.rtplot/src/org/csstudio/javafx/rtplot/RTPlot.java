@@ -35,6 +35,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -89,7 +90,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
             addEventFilter(KeyEvent.KEY_PRESSED, this::keyPressed);
             // Need focus to receive key events. Get focus when mouse moves.
             // (tried mouse _entered_, but can then loose focus while mouse still in widget)
-            setOnMouseMoved(event -> requestFocus());
+            addEventFilter(MouseEvent.MOUSE_MOVED, event -> requestFocus());
         }
     }
 
@@ -103,7 +104,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         else if (event.getCode() == KeyCode.T)
             showToolbar(! isToolbarVisible());
         else if (event.getCode() == KeyCode.C)
-            plot.showCrosshair(! plot.isCrosshairVisible());
+            toolbar.toggleCrosshair();
         else if (event.getCode() == KeyCode.L)
             plot.showLegend(! plot.isLegendVisible());
         else if (event.getCode() == KeyCode.S)
@@ -246,6 +247,12 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
     public void showCrosshair(final boolean show)
     {
         plot.showCrosshair(show);
+    }
+
+    /** @return Is crosshair enabled? */
+    public boolean isCrosshairVisible()
+    {
+        return plot.isCrosshairVisible();
     }
 
     /** Stagger the range of axes */

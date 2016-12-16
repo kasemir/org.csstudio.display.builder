@@ -216,6 +216,7 @@ the value range.</text>
     <y>551</y>
     <width>622</width>
     <height>320</height>
+    <show_toolbar>true</show_toolbar>
     <y_axis>
       <visible>true</visible>
       <title>Y</title>
@@ -248,36 +249,6 @@ the value range.</text>
         <height_pv>loc://roi_h(10)</height_pv>
       </roi>
     </rois>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_6</name>
-    <text>- Horizontal, vertical axes
-- Color bar
-- Regions of interest
-- Cursor Info PV</text>
-    <y>921</y>
-    <width>271</width>
-    <height>140</height>
-    <font>
-      <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
-      </font>
-    </font>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_7</name>
-    <class>SECTION</class>
-    <text>Options</text>
-    <y>890</y>
-    <width>171</width>
-    <font use_class="true">
-      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
-      </font>
-    </font>
-    <foreground_color use_class="true">
-      <color name="Text" red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
-    <transparent use_class="true">true</transparent>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
@@ -415,6 +386,8 @@ PVs can be assigned to the X/Y position and size.</text>
     <name>Label_17</name>
     <text>A cursor info PV is updated with the current mouse position
 in the image and the pixel value at that location.
+(When the crosshair is active, the position of the crosshair
+is used instead of the current mouse position)
 The location is reported both in X/Y axis coordinates
 and as integer offsets within the image.
 
@@ -423,12 +396,12 @@ or used in a script for customized formatting.</text>
     <x>651</x>
     <y>741</y>
     <width>409</width>
-    <height>130</height>
+    <height>170</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_18</name>
     <x>651</x>
-    <y>1020</y>
+    <y>1060</y>
     <width>330</width>
     <background_color>
       <color name="Read_Background" red="240" green="240" blue="240">
@@ -445,7 +418,7 @@ or used in a script for customized formatting.</text>
     <name>Table</name>
     <pv_name>loc://cursor_info</pv_name>
     <x>651</x>
-    <y>940</y>
+    <y>980</y>
     <width>429</width>
     <height>70</height>
     <columns>
@@ -491,7 +464,7 @@ or used in a script for customized formatting.</text>
     <name>Text Update</name>
     <pv_name>loc://cursor_info</pv_name>
     <x>651</x>
-    <y>871</y>
+    <y>911</y>
     <width>409</width>
     <height>50</height>
   </widget>
@@ -549,5 +522,43 @@ an adequate representation of the image when zooming out.</text>
     <text>Color Map:</text>
     <x>331</x>
     <y>510</y>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_22</name>
+    <class>SECTION</class>
+    <text>Toolbar</text>
+    <y>891</y>
+    <width>171</width>
+    <font use_class="true">
+      <font name="Default Bold" family="Liberation Sans" style="BOLD" size="14.0">
+      </font>
+    </font>
+    <foreground_color use_class="true">
+      <color name="Text" red="0" green="0" blue="0">
+      </color>
+    </foreground_color>
+    <transparent use_class="true">true</transparent>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_23</name>
+    <text>The toolbar can be
+enabled or hidden
+via the context
+menu of the plot
+or by pressing 't'.
+
+It lists similar options
+to the XYPlot, refer
+to its description for
+details.
+
+The crosshair option
+enables a marker
+that can be positioned
+by clicking into
+the plot.</text>
+    <y>911</y>
+    <width>220</width>
+    <height>279</height>
   </widget>
 </display>
