@@ -283,7 +283,13 @@ public class ScriptsDialog extends Dialog<List<ScriptInfo>>
         {
             try
             {
-                final String path = FilenameSupport.promptForRelativePath(widget, selected_script_item.file.get());
+                // Use the script file name, except if that's the example name,
+                // because it doesn't exist and file dialog will then start
+                // in some random directory instead of the display file's dir.
+                String initial = selected_script_item.file.get();
+                if (Messages.ScriptsDialog_DefaultScriptFile.equals(initial))
+                    initial = "";
+                final String path = FilenameSupport.promptForRelativePath(widget, initial);
                 if (path != null)
                 {
                     selected_script_item.file.set(path);

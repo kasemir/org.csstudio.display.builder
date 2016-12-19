@@ -57,7 +57,7 @@ abstract class PlotCanvasBase extends ImageView
 
     protected static final int ARROW_SIZE = 8;
 
-    protected static final double ZOOM_FACTOR = 1.5;
+    protected static final double ZOOM_FACTOR = 1.2;
 
     /** When using 'rubberband' to zoom in, need to select a region
      *  at least this wide resp. high.
@@ -67,7 +67,7 @@ abstract class PlotCanvasBase extends ImageView
     protected static final int ZOOM_PIXEL_THRESHOLD = 20;
 
     /** Strokes used for mouse feedback */
-    protected static final BasicStroke MOUSE_FEEDBACK_BACK = new BasicStroke(3),
+    protected static final BasicStroke MOUSE_FEEDBACK_BACK = new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER),
                                        MOUSE_FEEDBACK_FRONT = new BasicStroke(1);
 
     /** Support for un-do and re-do */

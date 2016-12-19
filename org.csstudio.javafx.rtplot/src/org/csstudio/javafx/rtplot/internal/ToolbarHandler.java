@@ -55,7 +55,7 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
     final private RTPlot<XTYPE> plot;
 
     final private ToolBar toolbar;
-    private ToggleButton zoom_in, zoom_out, pan, pointer;
+    private ToggleButton crosshair, zoom_in, zoom_out, pan, pointer;
     private Button edit_annotation;
 
     /** Have any custom items been added? */
@@ -148,7 +148,7 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
             }
         });
 
-        final ToggleButton crosshair = newToggleButton(ToolIcons.CROSSHAIR, Messages.Crosshair_Cursor);
+        crosshair = newToggleButton(ToolIcons.CROSSHAIR, Messages.Crosshair_Cursor);
         crosshair.setOnAction(event ->  plot.showCrosshair(crosshair.isSelected()));
     }
 
@@ -293,5 +293,13 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
     {
         for (ToggleButton ti : new ToggleButton[] { zoom_in, zoom_out, pan, pointer })
             ti.setSelected(ti == item);
+    }
+
+    /** Turn crosshair on/off */
+    public void toggleCrosshair()
+    {
+        final boolean show = ! plot.isCrosshairVisible();
+        crosshair.setSelected(show);
+        plot.showCrosshair(show);
     }
 }

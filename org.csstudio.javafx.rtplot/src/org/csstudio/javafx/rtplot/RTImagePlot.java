@@ -22,6 +22,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
@@ -59,7 +60,7 @@ public class RTImagePlot extends BorderPane
             addEventFilter(KeyEvent.KEY_PRESSED, this::keyPressed);
             // Need focus to receive key events. Get focus when mouse moves.
             // (tried mouse _entered_, but can then loose focus while mouse still in widget)
-            setOnMouseMoved(event -> requestFocus());
+            addEventFilter(MouseEvent.MOUSE_MOVED, event -> requestFocus());
         }
     }
 
@@ -70,6 +71,8 @@ public class RTImagePlot extends BorderPane
             plot.getUndoableActionManager().undoLast();
         else if (event.getCode() == KeyCode.Y)
             plot.getUndoableActionManager().redoLast();
+        else if (event.getCode() == KeyCode.C)
+            toolbar.toggleCrosshair();
         else if (event.getCode() == KeyCode.T)
             showToolbar(! isToolbarVisible());
         else if (event.isControlDown())
@@ -241,6 +244,21 @@ public class RTImagePlot extends BorderPane
     public void setColorMapFont(final Font font)
     {
         plot.setColorMapFont(font);
+    }
+
+    /** @param show Show crosshair, moved on click?
+     *              Or update cursor listener with each mouse move,
+     *              not showing a persistent crosshair?
+     */
+    public void showCrosshair(final boolean show)
+    {
+        plot.showCrosshair(show);
+    }
+
+    /** @return Is crosshair enabled? */
+    public boolean isCrosshairVisible()
+    {
+        return plot.isCrosshairVisible();
     }
 
     /** Set axis range for 'full' image

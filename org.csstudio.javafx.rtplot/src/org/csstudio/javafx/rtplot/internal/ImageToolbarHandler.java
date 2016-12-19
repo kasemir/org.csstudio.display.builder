@@ -38,6 +38,7 @@ public class ImageToolbarHandler
         ZOOM_IN,
         ZOOM_OUT,
         PAN,
+        CROSSHAIR,
         POINTER,
         UNDO,
         REDO
@@ -46,7 +47,7 @@ public class ImageToolbarHandler
     final private RTImagePlot plot;
 
     final private ToolBar toolbar;
-    private ToggleButton zoom_in, zoom_out, pan, pointer;
+    private ToggleButton zoom_in, zoom_out, pan, crosshair, pointer;
 
     /** Have any custom items been added? */
     private boolean have_custom_items = false;
@@ -101,6 +102,7 @@ public class ImageToolbarHandler
         zoom_in = newToggleButton(ToolIcons.ZOOM_IN, Messages.Zoom_In_TT);
         zoom_out = newToggleButton(ToolIcons.ZOOM_OUT, Messages.Zoom_Out_TT);
         pan = newToggleButton(ToolIcons.PAN, Messages.Pan_TT);
+        crosshair = newToggleButton(ToolIcons.CROSSHAIR, Messages.Crosshair_Cursor);
         pointer = newToggleButton(ToolIcons.POINTER, Messages.Plain_Pointer);
 
         zoom_in.setOnAction(event ->
@@ -118,6 +120,10 @@ public class ImageToolbarHandler
         {
             selectMouseMode(pan);
             plot.setMouseMode(MouseMode.PAN);
+        });
+        crosshair.setOnAction(event ->
+        {
+            plot.showCrosshair(crosshair.isSelected());
         });
         pointer.setOnAction(event ->
         {
@@ -223,5 +229,13 @@ public class ImageToolbarHandler
     {
         for (ToggleButton ti : new ToggleButton[] { zoom_in, zoom_out, pan, pointer })
         	ti.setSelected(ti == item);
+    }
+
+    /** Turn crosshair on/off */
+    public void toggleCrosshair()
+    {
+        final boolean show = ! plot.isCrosshairVisible();
+        crosshair.setSelected(show);
+        plot.showCrosshair(show);
     }
 }

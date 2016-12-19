@@ -156,18 +156,18 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.propHeight().addUntypedPropertyListener(this::positionChanged);
 
         model_widget.propBackground().addUntypedPropertyListener(this::configChanged);
-        model_widget.propToolbar().addUntypedPropertyListener(this::configChanged);
-        model_widget.propDataColormap().addPropertyListener(this::colormapChanged);
         model_widget.propColorbar().visible().addUntypedPropertyListener(this::configChanged);
         model_widget.propColorbar().barSize().addUntypedPropertyListener(this::configChanged);
         model_widget.propColorbar().scaleFont().addUntypedPropertyListener(this::configChanged);
         addAxisListener(model_widget.propXAxis());
         addAxisListener(model_widget.propYAxis());
 
-        model_widget.propDataAutoscale().addUntypedPropertyListener(this::configChanged);
-        model_widget.propDataMinimum().addUntypedPropertyListener(this::configChanged);
-        model_widget.propDataMaximum().addUntypedPropertyListener(this::configChanged);
-        model_widget.propDataInterpolation().addUntypedPropertyListener(this::configChanged);
+        model_widget.propDataInterpolation().addUntypedPropertyListener(this::coloringChanged);
+        model_widget.propToolbar().addUntypedPropertyListener(this::coloringChanged);
+        model_widget.propDataColormap().addUntypedPropertyListener(this::coloringChanged);
+        model_widget.propDataAutoscale().addUntypedPropertyListener(this::coloringChanged);
+        model_widget.propDataMinimum().addUntypedPropertyListener(this::coloringChanged);
+        model_widget.propDataMaximum().addUntypedPropertyListener(this::coloringChanged);
 
         model_widget.propDataWidth().addUntypedPropertyListener(this::contentChanged);
         model_widget.propDataHeight().addUntypedPropertyListener(this::contentChanged);
@@ -176,7 +176,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         image_plot.setListener(plot_listener);
 
         // Initial update
-        colormapChanged(null, null, model_widget.propDataColormap().getValue());
+        coloringChanged(null, null,null);
         configChanged(null, null, null);
     }
 
@@ -196,19 +196,28 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         toolkit.scheduleUpdate(this);
     }
 
-    private void colormapChanged(final WidgetProperty<ColorMap> property, final ColorMap old_value, final ColorMap colormap)
+    /** Changes that affect the coloring of the image but not the zoom, size */
+    private void coloringChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
+        image_plot.showToolbar(model_widget.propToolbar().getValue());
+        image_plot.setInterpolation(Interpolation.values()[model_widget.propDataInterpolation().getValue().ordinal()]);
+        final ColorMap colormap = model_widget.propDataColormap().getValue();
         image_plot.setColorMapping(value ->
         {
             final WidgetColor color = colormap.getColor(value);
             return ColorMappingFunction.getRGB(color.getRed(), color.getGreen(), color.getBlue());
         });
+        image_plot.setAutoscale(model_widget.propDataAutoscale().getValue());
+        image_plot.setValueRange(model_widget.propDataMinimum().getValue(),
+                                 model_widget.propDataMaximum().getValue());
     }
 
+    /** Changes that affect size of the data, resulting in a reset of the image's zoom & pan,
+     *  or other operations that should be rare at runtime
+     */
     private void configChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
         image_plot.setBackground(JFXUtil.convert(model_widget.propBackground().getValue()));
-        image_plot.showToolbar(model_widget.propToolbar().getValue());
         image_plot.showColorMap(model_widget.propColorbar().visible().getValue());
         image_plot.setColorMapSize(model_widget.propColorbar().barSize().getValue());
         image_plot.setColorMapFont(JFXUtil.convert(model_widget.propColorbar().scaleFont().getValue()));
@@ -218,10 +227,6 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
                                 model_widget.propYAxis().maximum().getValue());
         axisChanged(model_widget.propXAxis(), image_plot.getXAxis());
         axisChanged(model_widget.propYAxis(), image_plot.getYAxis());
-        image_plot.setAutoscale(model_widget.propDataAutoscale().getValue());
-        image_plot.setInterpolation(Interpolation.values()[model_widget.propDataInterpolation().getValue().ordinal()]);
-        image_plot.setValueRange(model_widget.propDataMinimum().getValue(),
-                                 model_widget.propDataMaximum().getValue());
     }
 
     private void axisChanged(final AxisWidgetProperty property, final Axis<Double> axis)
