@@ -7,10 +7,6 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.model;
 
-import static org.diirt.datasource.ExpressionLanguage.newValuesOf;
-import static org.diirt.datasource.vtype.ExpressionLanguage.vType;
-import static org.diirt.util.time.TimeDuration.ofSeconds;
-
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +26,10 @@ import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.imports.ImportArchiveReaderFactory;
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
 import org.csstudio.trends.databrowser3.preferences.Preferences;
-import org.diirt.datasource.PVManager;
-import org.diirt.datasource.PVReader;
-import org.diirt.datasource.PVReaderEvent;
-import org.diirt.datasource.PVReaderListener;
+import org.csstudio.vtype.pv.PV;
+import org.csstudio.vtype.pv.PVListener;
+import org.csstudio.vtype.pv.PVListenerAdapter;
+import org.csstudio.vtype.pv.PVPool;
 import org.diirt.vtype.Display;
 import org.diirt.vtype.VType;
 import org.w3c.dom.Element;
@@ -51,7 +47,7 @@ import org.w3c.dom.Element;
  *  @author Takashi Nakamoto changed PVItem to handle waveform index.
  */
 @SuppressWarnings("nls")
-public class PVItem extends ModelItem implements PVReaderListener<List<VType>>
+public class PVItem extends ModelItem
 {
     /** Waveform Index */
     final private AtomicInteger waveform_index = new AtomicInteger(0);
@@ -64,7 +60,42 @@ public class PVItem extends ModelItem implements PVReaderListener<List<VType>>
     = new ArrayList<ArchiveDataSource>();
 
     /** Control system PV, set when running */
-    private PVReader<List<VType>> pv = null;
+    private PV pv = null;
+
+    private final PVListener listener = new PVListenerAdapter()
+    {
+        @Override
+        public void valueChanged(final PV pv, final VType value)
+        {
+            boolean added = false;
+            // Cache most recent for 'scanned' operation
+            current_value = value;
+            // In 'monitor' mode, add to live sample buffer
+            if (period <= 0)
+            {
+                Activator.getLogger().log(Level.FINE, "PV {0} received {1}", new Object[] { getName(), value });
+                samples.addLiveSample(value);
+                added = true;
+            }
+            // Set units unless already defined
+            if (getUnits() == null)
+                updateUnits(value);
+            if (automaticRefresh && added &&
+                model.isPresent() &&
+                samples.isHistoryRefreshNeeded(model.get().getStartTime(), model.get().getEndTime()))
+                model.get().fireItemRefreshRequested(PVItem.this);
+        }
+
+        @Override
+        public void disconnected(final PV pv)
+        {
+            // No current value
+            current_value = null;
+            // In 'monitor' mode, mark in live sample buffer
+            if (period <= 0)
+                logDisconnected();
+        }
+    };
 
     /** Most recently received value */
     private volatile VType current_value;
@@ -311,7 +342,8 @@ public class PVItem extends ModelItem implements PVReaderListener<List<VType>>
     {
         if (pv != null)
             throw new RuntimeException("Already started " + getName());
-        pv = PVManager.read(newValuesOf(vType(getResolvedName()))).timeout(ofSeconds(30.0)).readListener(this).maxRate(ofSeconds(0.1));
+        pv = PVPool.getPV(getResolvedName());
+        pv.addListener(listener);
         // Log every received value?
         if (period <= 0.0)
             return;
@@ -325,12 +357,13 @@ public class PVItem extends ModelItem implements PVReaderListener<List<VType>>
     {
         if (pv == null)
             throw new RuntimeException("Not running " + getName());
+        pv.removeListener(listener);
         if (scanner != null)
         {
             scanner.cancel(true);
             scanner = null;
         }
-        pv.close();
+        PVPool.releasePV(pv);
         pv = null;
     }
 
@@ -341,49 +374,6 @@ public class PVItem extends ModelItem implements PVReaderListener<List<VType>>
         return samples;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void pvChanged(final PVReaderEvent<List<VType>> event)
-    {
-        final PVReader<List<VType>> pv = event.getPvReader();
-        // Check for error
-        final Exception error = pv.lastException();
-        if (error != null)
-            Activator.getLogger().log(Level.FINE, "PV " + pv.getName() + " error", error);
-
-        final List<VType> values = pv.getValue();
-        if (values == null)
-        {   // No current value
-            current_value = null;
-            // In 'monitor' mode, mark in live sample buffer
-            if (period <= 0)
-                logDisconnected();
-            return;
-        }
-        else
-        {
-            boolean added = false;
-            for (VType value : values)
-            {
-                // Cache most recent for 'scanned' operation
-                current_value = value;
-                // In 'monitor' mode, add to live sample buffer
-                if (period <= 0)
-                {
-                    Activator.getLogger().log(Level.FINE, "PV {0} received {1}", new Object[] { getName(), value });
-                    samples.addLiveSample(value);
-                    added = true;
-                }
-            }
-            // Set units unless already defined
-            if (getUnits() == null)
-                updateUnits(current_value);
-            if (automaticRefresh && added &&
-                    model.isPresent() &&
-                    samples.isHistoryRefreshNeeded(model.get().getStartTime(), model.get().getEndTime()))
-                model.get().fireItemRefreshRequested(this);
-        }
-    }
 
     private void updateUnits(final VType value)
     {
