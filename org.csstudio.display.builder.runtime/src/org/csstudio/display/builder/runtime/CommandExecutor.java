@@ -24,15 +24,19 @@ import java.util.logging.Level;
  *  <p>Logs standard output of the command as INFO,
  *  error output as warning.
  *
- *  <p>For briefly running commands, it awaits the exit status.
+ *  <p>For briefly running commands, it awaits the exit status
+ *  and then returns the exit code.
  *
  *  <p>For longer running commands, the logging remains active
- *  but the exit code is ignored.
+ *  but the call returns <code>null</code> since the exit code is not known.
  *
  *  @author Kay Kasemir
  */
-public class CommandExecutor implements Callable<Void>
+public class CommandExecutor implements Callable<Integer>
 {
+    /** Seconds to wait for a launched program */
+    private static final int WAIT_SECONDS = 5;
+
     /** Thread that writes data from stream to log */
     private static class LogWriter extends Thread
     {
@@ -42,6 +46,7 @@ public class CommandExecutor implements Callable<Void>
 
         public LogWriter(final InputStream stream, final String cmd, final Level level)
         {
+            super("LogWriter " + level.getName() + " " + cmd);
             reader = new BufferedReader(new InputStreamReader(stream));
             this.cmd = cmd;
             this.level = level;
@@ -65,6 +70,7 @@ public class CommandExecutor implements Callable<Void>
     };
 
     private final ProcessBuilder process_builder;
+    private volatile Process process;
 
     public CommandExecutor(final String cmd, final File directory)
     {
@@ -114,7 +120,7 @@ public class CommandExecutor implements Callable<Void>
     }
 
     @Override
-    public Void call() throws Exception
+    public Integer call() throws Exception
     {
         // Get 'basename' of command
         String cmd = process_builder.command().get(0);
@@ -122,25 +128,38 @@ public class CommandExecutor implements Callable<Void>
         if (sep >= 0)
             cmd = cmd.substring(sep+1);
 
-        // Start command as external process
-        final Process process = process_builder.start();
+        process = process_builder.start();
         // Send stdout and error output to log
         final Thread stdout = new LogWriter(process.getInputStream(), cmd, Level.INFO);
         final Thread stderr = new LogWriter(process.getErrorStream(), cmd, Level.WARNING);
         stdout.start();
         stderr.start();
 
-
-        // TODO Wait for some time...
-        process.waitFor(5, TimeUnit.SECONDS);
-        stderr.join();
-        stdout.join();
-        final int status = process.exitValue();
-        if (status != 0)
-        {
-            logger.log(Level.WARNING, "Command {0} exited with status {1}",  new Object[] { process_builder.command(), status });
+        // Wait for some time...
+        if (process.waitFor(WAIT_SECONDS, TimeUnit.SECONDS))
+        {   // Process completed, await exit of log watching threads
+            stderr.join();
+            stdout.join();
+            // Check exit code
+            final int status = process.exitValue();
+            if (status != 0)
+                logger.log(Level.WARNING, "Command {0} exited with status {1}",  new Object[] { process_builder.command(), status });
+            return status;
         }
 
+        // Leave running, continuing to log outputs, but no longer checking status
         return null;
+    }
+
+    @Override
+    public String toString()
+    {
+        final Process p = process;
+        if (p == null)
+            return "CommandExecutor (idle): " +  process_builder.command().get(0);
+        else if (p.isAlive())
+            return "CommandExecutor (running): " +  process_builder.command().get(0);
+        else
+            return "CommandExecutor (" + p.exitValue() + "): " +  process_builder.command().get(0);
     }
 }
