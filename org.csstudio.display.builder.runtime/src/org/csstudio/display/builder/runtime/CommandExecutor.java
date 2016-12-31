@@ -60,7 +60,7 @@ public class CommandExecutor implements Callable<Integer>
             {
                 String line;
                 while ((line = reader.readLine()) != null)
-                    logger.log(level, "{0} - {1}", new Object[] { cmd, line });
+                    logger.log(level, "Cmd {0}: {1}", new Object[] { cmd, line });
             }
             catch (Exception ex)
             {

@@ -7,23 +7,23 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
-/** Information about an action that executes a script
+/** Information about an action that executes an external command
  *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class ExecuteScriptActionInfo extends ActionInfo
+public class ExecuteCommandActionInfo extends ActionInfo
 {
-    private final ScriptInfo info;
+    private final String command;
 
     /** @param description Action description
      *  @param pv PV name
      *  @param value Value to write
      */
-    public ExecuteScriptActionInfo(final String description, final ScriptInfo info)
+    public ExecuteCommandActionInfo(final String description, final String command)
     {
         super(description);
-        this.info = info;
+        this.command = command;
     }
 
     @Override
@@ -32,17 +32,17 @@ public class ExecuteScriptActionInfo extends ActionInfo
         return ActionType.EXECUTE_SCRIPT;
     }
 
-    /** @return Script info */
-    public ScriptInfo getInfo()
+    /** @return Command */
+    public String getCommand()
     {
-        return info;
+        return command;
     }
 
     @Override
     public String toString()
     {
         if (getDescription().isEmpty())
-            return "Execute " + info.getPath();
+            return "Execute " + command;
         else
             return getDescription();
     }

@@ -31,6 +31,7 @@ public abstract class ActionInfo
         OPEN_DISPLAY("Open Display", "icons/open_display.png"),
         WRITE_PV("Write PV", "icons/write_pv.png"),
         EXECUTE_SCRIPT("Execute Script", "icons/execute_script.png"),
+        EXECUTE_COMMAND("Execute Command", "icons/execute_script.png"),
         OPEN_FILE("Open File", "icons/open_file.png");
 
         private final String name, icon_path;
@@ -84,6 +85,8 @@ public abstract class ActionInfo
                                                new ScriptInfo(ScriptInfo.EMBEDDED_PYTHON, "print 'Hello'",
                                                               false,
                                                               Collections.emptyList()));
+        case EXECUTE_COMMAND:
+            return new ExecuteCommandActionInfo(type.toString(), "some_command");
         case OPEN_FILE:
             return new OpenFileActionInfo(type.toString(), "");
         default:

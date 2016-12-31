@@ -1,29 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="1.0.0">
+<display version="2.0.0">
   <name>Display</name>
-  <x>-1</x>
-  <y>-1</y>
-  <width>800</width>
-  <height>600</height>
-  <widget type="action_button" version="2.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>AB1</name>
-    <x>70</x>
-    <y>201</y>
-    <width>270</width>
-    <height>40</height>
-    <text>Action Buttton 1 action</text>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
-    <background_color>
-      <color red="228" green="176" blue="189">
-      </color>
-    </background_color>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
     <actions>
       <action type="open_display">
         <file>combo.opi</file>
@@ -31,27 +10,19 @@
         <description>OpenComboTab</description>
       </action>
     </actions>
-    <pv_name></pv_name>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>AB4_run2</name>
+    <text>Action Buttton 1 action</text>
     <x>70</x>
-    <y>312</y>
+    <y>201</y>
     <width>270</width>
     <height>40</height>
-    <text>Action Buttton 4 action, run #2</text>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
     <background_color>
-      <color red="160" green="236" blue="210">
+      <color red="228" green="176" blue="189">
       </color>
     </background_color>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>AB4_run2</name>
     <actions>
       <action type="open_display">
         <file>combo.opi</file>
@@ -74,27 +45,19 @@
         <description>OpenRulesTab</description>
       </action>
     </actions>
-    <pv_name></pv_name>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>AB4_runall</name>
+    <text>Action Buttton 4 action, run #2</text>
     <x>70</x>
-    <y>424</y>
+    <y>312</y>
     <width>270</width>
     <height>40</height>
-    <text>Action Buttton 4 action, run all</text>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
     <background_color>
-      <color red="80" green="0" blue="80">
+      <color red="160" green="236" blue="210">
       </color>
     </background_color>
-    <foreground_color>
-      <color name="Attention" red="255" green="160" blue="0">
-      </color>
-    </foreground_color>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>AB4_runall</name>
     <actions>
       <action type="open_display">
         <file>combo.opi</file>
@@ -113,31 +76,42 @@
       </action>
       <action type="open_display">
         <file>rules.opi</file>
-        <target>window</target>
+        <target>standalone</target>
         <description>OpenRulesNewWindow</description>
       </action>
     </actions>
-    <pv_name></pv_name>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>MenuButton_5action</name>
-    <x>422</x>
+    <text>Action Buttton 4 action, run all</text>
+    <x>70</x>
     <y>424</y>
     <width>270</width>
     <height>40</height>
-    <text>Menu Button 5 actions</text>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
+    <foreground_color>
+      <color name="Attention" red="255" green="160" blue="0">
+      </color>
+    </foreground_color>
     <background_color>
       <color red="80" green="0" blue="80">
       </color>
     </background_color>
-    <foreground_color>
-      <color name="Header_ForeGround" red="255" green="255" blue="255">
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="combo" version="2.0.0">
+    <name>MenuButton_FromPV</name>
+    <pv_name>loc://test</pv_name>
+    <x>411</x>
+    <y>201</y>
+    <width>270</width>
+    <height>40</height>
+    <background_color>
+      <color red="220" green="158" blue="175">
       </color>
-    </foreground_color>
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <items>
+    </items>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>MenuButton_5action</name>
     <actions>
       <action type="write_pv">
         <pv_name>$(pv_name)</pv_name>
@@ -162,156 +136,145 @@
       </action>
     </actions>
     <pv_name>loc://test</pv_name>
+    <text>Menu Button 5 actions</text>
+    <x>422</x>
+    <y>424</y>
+    <width>270</width>
+    <height>40</height>
+    <foreground_color>
+      <color name="Header_ForeGround" red="255" green="255" blue="255">
+      </color>
+    </foreground_color>
+    <background_color>
+      <color red="80" green="0" blue="80">
+      </color>
+    </background_color>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label</name>
+    <text>Import as action button to do 1 action</text>
     <x>70</x>
     <y>169</y>
     <width>270</width>
     <height>22</height>
-    <text>Import as action button to do 1 action</text>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
     <background_color>
       <color name="Read_Background" red="240" green="240" blue="240">
       </color>
     </background_color>
     <transparent>false</transparent>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
     <vertical_alignment>1</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
+    <text>Import as action button with dropdown of 4</text>
     <x>70</x>
     <y>280</y>
     <width>270</width>
     <height>22</height>
-    <text>Import as action button with dropdown of 4</text>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
     <background_color>
       <color name="Read_Background" red="240" green="240" blue="240">
       </color>
     </background_color>
     <transparent>false</transparent>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
     <vertical_alignment>1</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_2</name>
+    <text>Import as action button with dropdown of 4</text>
     <x>70</x>
     <y>388</y>
     <width>270</width>
     <height>22</height>
-    <text>Import as action button with dropdown of 4</text>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
     <background_color>
       <color name="Read_Background" red="240" green="240" blue="240">
       </color>
     </background_color>
     <transparent>false</transparent>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
     <vertical_alignment>1</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_3</name>
+    <text>Import as combo box from PV</text>
     <x>411</x>
     <y>169</y>
     <width>270</width>
     <height>22</height>
-    <text>Import as combo box from PV</text>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
     <background_color>
       <color name="Read_Background" red="240" green="240" blue="240">
       </color>
     </background_color>
     <transparent>false</transparent>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
     <vertical_alignment>1</vertical_alignment>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_4</name>
+    <text>Import as action button with dropdown of 5</text>
     <x>422</x>
     <y>388</y>
     <width>270</width>
     <height>22</height>
-    <text>Import as action button with dropdown of 5</text>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
     <background_color>
       <color name="Read_Background" red="240" green="240" blue="240">
       </color>
     </background_color>
     <transparent>false</transparent>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
     <vertical_alignment>1</vertical_alignment>
   </widget>
   <widget type="textupdate" version="2.0.0">
     <name>Text Update</name>
+    <pv_name>loc://test</pv_name>
     <x>70</x>
     <y>76</y>
     <width>80</width>
     <height>26</height>
-    <border_alarm_sensitive>true</border_alarm_sensitive>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
-    <precision>0</precision>
-    <show_units>true</show_units>
-    <pv_name>loc://test</pv_name>
+    <vertical_alignment>1</vertical_alignment>
+    <wrap_words>false</wrap_words>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_5</name>
+    <text>Test PV Value</text>
     <x>70</x>
     <y>45</y>
     <width>270</width>
     <height>22</height>
-    <text>Test PV Value</text>
-    <foreground_color>
-      <color red="0" green="0" blue="0">
-      </color>
-    </foreground_color>
     <background_color>
       <color name="Read_Background" red="240" green="240" blue="240">
       </color>
     </background_color>
     <transparent>false</transparent>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
     <vertical_alignment>1</vertical_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_6</name>
+    <text>Action to execute external command</text>
+    <x>411</x>
+    <y>280</y>
+    <width>270</width>
+    <height>22</height>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+    <transparent>false</transparent>
+    <vertical_alignment>1</vertical_alignment>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>AB1_1</name>
+    <actions>
+      <action type="command">
+        <command>echo Hello</command>
+        <description>Hello</description>
+      </action>
+    </actions>
+    <text>Hello</text>
+    <x>411</x>
+    <y>312</y>
+    <width>270</width>
+    <height>40</height>
+    <background_color>
+      <color red="228" green="176" blue="189">
+      </color>
+    </background_color>
+    <tooltip>Print Hello</tooltip>
   </widget>
 </display>
