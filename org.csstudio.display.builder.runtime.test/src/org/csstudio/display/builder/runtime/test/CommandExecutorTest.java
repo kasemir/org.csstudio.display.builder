@@ -100,11 +100,12 @@ public class CommandExecutorTest
             return;
         setupLogger();
 
-        final String cmd = new File("examples/cmd_error.sh").getAbsolutePath();
-        final Integer status = new CommandExecutor(cmd, new File("examples")).call();
+        final String cmd = new File("examples/cmd_short.sh").getAbsolutePath();
+        // Start one directory 'up' to generate error
+        final Integer status = new CommandExecutor(cmd, new File("examples").getParentFile()).call();
 
         final String log = getLoggedMessages();
-        assertThat(log, containsString("Example ERROR"));
+        assertThat(log, containsString("Wrong directory"));
         assertThat(log, containsString("exited with status 2"));
         assertThat(status, equalTo(2));
     }

@@ -8,4 +8,12 @@ do
     echo "Arg: $arg"
 done
 echo "Example warning" >&2
-echo "Finished OK"
+echo "Directory: "
+echo `pwd`
+if [ -f cmd_short.sh ]
+then
+    echo "Finished OK"
+else
+    echo "Wrong directory" >&2
+    exit 2
+ fi
