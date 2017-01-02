@@ -8,6 +8,8 @@
 package org.csstudio.display.builder.model.macros;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import org.csstudio.display.builder.model.DisplayModel;
@@ -78,5 +80,33 @@ public class MacroHierarchyUnitTest
         // Finally, the EmbeddedDisplayWidget can replace macros,
         // but testing that requires the runtime to load the embedded content
         // --> Leaving that to examples/macros
+    }
+
+    /** Test access to widget properties, Java properties and environment
+     *  @throws Exception on error
+     */
+    @Test
+    public void testPropertiesAndEnvironment() throws Exception
+    {
+        // Display model uses preferences
+        final DisplayModel model = new DisplayModel();
+        MacroValueProvider macros = model.getEffectiveMacros();
+        assertThat(macros.getValue("EXAMPLE_MACRO"), equalTo("Value from Preferences"));
+
+        // Can also fall back to widget properties
+        assertThat(macros.getValue("type"), nullValue());
+        macros = model.getMacrosOrProperties();
+        String value = macros.getValue("type");
+        assertThat(value, equalTo("display"));
+
+        // Check fall back to Java properties
+        value = macros.getValue("os.name");
+        System.out.println("Java property os.name: " + value);
+        assertThat(value, not(nullValue()));
+
+        // Check fall back to environment variables
+        value = macros.getValue("HOME");
+        System.out.println("Environment variable $HOME: " + value);
+        assertThat(value, not(nullValue()));
     }
 }
