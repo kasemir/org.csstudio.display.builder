@@ -579,7 +579,11 @@ public class Widget
             // Get property for the 'name'.
             // For first item, from widget. Later descent into structure.
             if (property == null)
+            {
                 property = property_map.get(name);
+                if (property == null)
+                    throw new IllegalArgumentException("Cannot locate '" + name + "' for '" + path_name + "'");
+            }
             else if (property instanceof StructuredWidgetProperty)
                 property = ((StructuredWidgetProperty)property).getElement(name);
             else
