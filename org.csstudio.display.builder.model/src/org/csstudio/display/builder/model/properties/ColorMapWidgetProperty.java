@@ -7,7 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.util.Optional;
+import java.util.logging.Level;
 
 import javax.xml.stream.XMLStreamWriter;
 
@@ -76,39 +79,58 @@ public class ColorMapWidgetProperty extends WidgetProperty<ColorMap>
     @Override
     public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
-        // Translate legacy <map>2</map>
-        final Optional<Integer> legacy_map = XMLUtil.getChildInteger(property_xml, "map");
-        if (legacy_map.isPresent())
-        {
-            switch (legacy_map.get())
-            {
-            case 1: // GrayScale
-                setValue(ColorMap.GRAY);
-                break;
-            case 2: // JET
-                setValue(ColorMap.JET);
-                break;
-            case 3: // ColorSpectrum
-                setValue(ColorMap.SPECTRUM);
-                break;
-            case 4: // Hot
-                setValue(ColorMap.HOT);
-                break;
-            case 5: // Cool
-                setValue(ColorMap.COOL);
-                break;
-            case 6: // Shaded
-                setValue(ColorMap.SHADED);
-                break;
-            }
-            return;
-        }
+        final int[][] sections = new int[256][4];
+        int entries = 0;
 
-        // TODO Read legacy sections?
-        // <map>
-        //   <e red="0" green="0" blue="0">0.0</e>
-        //   <e red="255" green="255" blue="255">1.0</e>
-        // </map>
+        final Element map_xml = XMLUtil.getChildElement(property_xml, "map");
+        if (map_xml != null)
+        {
+            try
+            {
+                final int legacy_map = Integer.valueOf(XMLUtil.getString(map_xml));
+                // Translate legacy <map>2</map>
+                switch (legacy_map)
+                {
+                case 1: // GrayScale
+                    setValue(ColorMap.GRAY);
+                    break;
+                case 2: // JET
+                    setValue(ColorMap.JET);
+                    break;
+                case 3: // ColorSpectrum
+                    setValue(ColorMap.SPECTRUM);
+                    break;
+                case 4: // Hot
+                    setValue(ColorMap.HOT);
+                    break;
+                case 5: // Cool
+                    setValue(ColorMap.COOL);
+                    break;
+                case 6: // Shaded
+                    setValue(ColorMap.SHADED);
+                    break;
+                default:
+                    logger.log(Level.WARNING, "Unknown legacy color map index " + legacy_map + " for color map of " + getWidget());
+                }
+                return;
+            }
+            catch (NumberFormatException ex)
+            {
+                // There was no map index, ignore
+            }
+
+            // Read legacy sections  <e red="255" green="255" blue="255">1.0</e>
+            for (Element entry : XMLUtil.getChildElements(map_xml, "e"))
+            {
+                if (entries >= sections.length)
+                    throw new Exception("More than " + sections.length + " legacy color map sections");
+                sections[entries][0] = (int) (Double.parseDouble(XMLUtil.getString(entry)) * 255);
+                sections[entries][1] = Integer.parseInt(entry.getAttribute(XMLTags.RED));
+                sections[entries][2] = Integer.parseInt(entry.getAttribute(XMLTags.GREEN));
+                sections[entries][3] = Integer.parseInt(entry.getAttribute(XMLTags.BLUE));
+                ++entries;
+            }
+        }
 
         // Named (predefined) color map?
         final Optional<String> name = XMLUtil.getChildString(property_xml, XMLTags.NAME);
@@ -118,22 +140,22 @@ public class ColorMapWidgetProperty extends WidgetProperty<ColorMap>
                 if (map.getName().equals(name.get()))
                 {
                     setValue(map);
-                    break;
+                    return;
                 }
-            return;
         }
-        // Sectional color map?
-        final int[][] sections = new int[256][4];
-        int entries = 0;
-        for (Element section : XMLUtil.getChildElements(property_xml, "section"))
-        {
-            if (entries >= sections.length)
-                throw new Exception("More than " + sections.length + " color map sections");
-            sections[entries][0] = Integer.parseInt(section.getAttribute(XMLTags.VALUE));
-            sections[entries][1] = Integer.parseInt(section.getAttribute(XMLTags.RED));
-            sections[entries][2] = Integer.parseInt(section.getAttribute(XMLTags.GREEN));
-            sections[entries][3] = Integer.parseInt(section.getAttribute(XMLTags.BLUE));
-            ++entries;
+
+        if (entries <= 0)
+        {   // Sectional color map in new format
+            for (Element section : XMLUtil.getChildElements(property_xml, "section"))
+            {
+                if (entries >= sections.length)
+                    throw new Exception("More than " + sections.length + " color map sections");
+                sections[entries][0] = Integer.parseInt(section.getAttribute(XMLTags.VALUE));
+                sections[entries][1] = Integer.parseInt(section.getAttribute(XMLTags.RED));
+                sections[entries][2] = Integer.parseInt(section.getAttribute(XMLTags.GREEN));
+                sections[entries][3] = Integer.parseInt(section.getAttribute(XMLTags.BLUE));
+                ++entries;
+            }
         }
         if (entries > 0)
         {   // Shrink array
@@ -142,5 +164,7 @@ public class ColorMapWidgetProperty extends WidgetProperty<ColorMap>
                 System.arraycopy(sections[i], 0, used[i], 0, 4);
             setValue(new ColorMap(used));
         }
+        else
+            logger.log(Level.WARNING, "No value for color map of " + getWidget());
     }
 }
