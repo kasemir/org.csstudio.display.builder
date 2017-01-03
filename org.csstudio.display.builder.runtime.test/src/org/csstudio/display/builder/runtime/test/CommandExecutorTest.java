@@ -28,6 +28,7 @@ import org.junit.Test;
 /** JUnit test of the CommandExecutor
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class CommandExecutorTest
 {
     /** Example shell scripts are only functional on Linux and Mac OS X.
@@ -130,7 +131,9 @@ public class CommandExecutorTest
 
         // Messages continue to be logged
         int log_writers = 0;
-        Thread[] threads = new Thread[10];
+        final int count = Thread.activeCount();
+        System.out.println("Checking " + count + " active threads");
+        Thread[] threads = new Thread[2*count];
         Thread.enumerate(threads);
         for (Thread thread : threads)
             if (thread != null  &&  thread.getName().contains("LogWriter"))
