@@ -111,16 +111,13 @@ public class PropertyPanelSection extends GridPane
                 category = property.getCategory();
 
                 final Label header = new Label(category.getDescription());
-
                 header.getStyleClass().add("property_category");
                 header.setMaxWidth(Double.MAX_VALUE);
-                add(header, 0, getNextGridRow(), 3, 1);
+                add(header, 0, getNextGridRow(), 2, 1);
 
-                Separator separator = new Separator();
-
+                final Separator separator = new Separator();
                 separator.getStyleClass().add("property_separator");
-                add(separator, 0, getNextGridRow(), 3, 1);
-
+                add(separator, 0, getNextGridRow(), 2, 1);
             }
 
             createPropertyUI(undo, property, other, 0);
@@ -364,7 +361,7 @@ public class PropertyPanelSection extends GridPane
         label.setMinWidth(100);
         final String tooltip = property.getDescription() + " (" + property.getName() + ")";
         label.setTooltip(new Tooltip(tooltip));
-        //this.setGridLinesVisible(true);
+        // setGridLinesVisible(true); // For debugging the layout
 
         Node field = bindSimplePropertyField(undo, bindings, property, other);
         if (field != null)
@@ -422,11 +419,11 @@ public class PropertyPanelSection extends GridPane
             header.getStyleClass().add("structure_property_name");
             header.setMaxWidth(Double.MAX_VALUE);
 
-            add(header, 0, getNextGridRow(), 2, 1);
+            add(header, 0, getNextGridRow(), 1, 1);
 
             final Separator separator = new Separator();
             separator.getStyleClass().add("property_separator");
-            add(separator, 0, getNextGridRow(), 2, 1);
+            add(separator, 0, getNextGridRow(), 1, 1);
 
             for (WidgetProperty<?> elem : struct.getValue())
                 this.createPropertyUI(undo, elem, other, -1);
@@ -448,16 +445,17 @@ public class PropertyPanelSection extends GridPane
             // set size of array
             final int row = getNextGridRow();
             label.getStyleClass().add("array_property_name");
+            label.setMaxWidth(Double.MAX_VALUE);
             label.setMaxHeight(Double.MAX_VALUE);
             spinner.getStyleClass().add("array_property_value");
-            spinner.setMaxWidth(Double.MAX_VALUE);
-            add(label, 0, row);
-            add(spinner, 1, row);
+            // Place array size spinner in 'label' section
+            HBox.setHgrow(label, Priority.ALWAYS);
+            add(new HBox(label, spinner), 0, row);
 
             Separator separator = new Separator();
 
             separator.getStyleClass().add("property_separator");
-            add(separator, 0, getNextGridRow(), 2, 1);
+            add(separator, 0, getNextGridRow(), 1, 1);
 
             // array elements
             final List<WidgetProperty<?>> wpeList = array.getValue();
@@ -472,12 +470,12 @@ public class PropertyPanelSection extends GridPane
             endlabel.setMaxWidth(Double.MAX_VALUE);
             GridPane.setHgrow(endlabel, Priority.ALWAYS);
             endlabel.getStyleClass().add("array_property_end");
-            add(endlabel, 0, getNextGridRow(), 2, 1);
+            add(endlabel, 0, getNextGridRow(), 1, 1);
 
             separator = new Separator();
 
             separator.getStyleClass().add("property_separator");
-            add(separator, 0, getNextGridRow(), 2, 1);
+            add(separator, 0, getNextGridRow(), 1, 1);
 
             return;
         }
@@ -495,10 +493,12 @@ public class PropertyPanelSection extends GridPane
         field.getStyleClass().add("property_value");
 
         final int row = getNextGridRow();
-        GridPane.setHgrow(label, Priority.ALWAYS);
+        // Allow label to shrink (can use tooltip to see),
+        // but show the value
+        // GridPane.setHgrow(label, Priority.ALWAYS);
         GridPane.setHgrow(field, Priority.ALWAYS);
         add(label, 0, row);
-        add(field, 2, row);
+        add(field, 1, row);
 
         final Widget widget = property.getWidget();
         if (! (property == widget.getProperty("type")  ||
