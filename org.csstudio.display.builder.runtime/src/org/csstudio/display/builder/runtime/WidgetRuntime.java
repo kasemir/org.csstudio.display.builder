@@ -146,7 +146,11 @@ public class WidgetRuntime<MW extends Widget>
             disconnectPrimaryPV();
 
             if (pv_name.isEmpty())
+            {   // Send 'null' update on value.
+                // In runtime mode, this will create a 'disconnected' representation.
+                widget.getProperty(runtimePropValue).setValue(null);
                 return;
+            }
 
             logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, pv_name });
 
