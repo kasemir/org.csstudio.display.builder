@@ -159,6 +159,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.propColorbar().visible().addUntypedPropertyListener(this::configChanged);
         model_widget.propColorbar().barSize().addUntypedPropertyListener(this::configChanged);
         model_widget.propColorbar().scaleFont().addUntypedPropertyListener(this::configChanged);
+        model_widget.propCursorCrosshair().addUntypedPropertyListener(this::configChanged);
         addAxisListener(model_widget.propXAxis());
         addAxisListener(model_widget.propYAxis());
 
@@ -221,6 +222,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         image_plot.showColorMap(model_widget.propColorbar().visible().getValue());
         image_plot.setColorMapSize(model_widget.propColorbar().barSize().getValue());
         image_plot.setColorMapFont(JFXUtil.convert(model_widget.propColorbar().scaleFont().getValue()));
+        image_plot.showCrosshair(model_widget.propCursorCrosshair().getValue());
         image_plot.setAxisRange(model_widget.propXAxis().minimum().getValue(),
                                 model_widget.propXAxis().maximum().getValue(),
                                 model_widget.propYAxis().minimum().getValue(),

@@ -235,6 +235,9 @@ the value range.</text>
     <minimum>-1.0</minimum>
     <maximum>1.0</maximum>
     <cursor_info_pv>loc://cursor_info</cursor_info_pv>
+    <x_pv>loc://cursor_x</x_pv>
+    <y_pv>loc://cursor_y</y_pv>
+    <cursor_crosshair>true</cursor_crosshair>
     <rois>
       <roi>
         <visible>true</visible>
@@ -560,5 +563,33 @@ the plot.</text>
     <y>911</y>
     <width>220</width>
     <height>279</height>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_4</name>
+    <pv_name>loc://cursor_x</pv_name>
+    <x>720</x>
+    <y>1090</y>
+  </widget>
+  <widget type="textentry" version="3.0.0">
+    <name>Text Entry_5</name>
+    <pv_name>loc://cursor_y</pv_name>
+    <x>720</x>
+    <y>1120</y>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_6</name>
+    <text>X:</text>
+    <x>660</x>
+    <y>1091</y>
+    <width>40</width>
+    <height>19</height>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_7</name>
+    <text>Y:</text>
+    <x>660</x>
+    <y>1120</y>
+    <width>40</width>
+    <height>19</height>
   </widget>
 </display>

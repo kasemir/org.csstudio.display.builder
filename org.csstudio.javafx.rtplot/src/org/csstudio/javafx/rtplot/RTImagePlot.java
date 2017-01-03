@@ -252,6 +252,7 @@ public class RTImagePlot extends BorderPane
      */
     public void showCrosshair(final boolean show)
     {
+        toolbar.showCrosshair(show);
         plot.showCrosshair(show);
     }
 
