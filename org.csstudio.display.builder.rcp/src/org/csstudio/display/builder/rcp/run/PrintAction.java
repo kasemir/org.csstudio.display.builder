@@ -146,5 +146,8 @@ public class PrintAction extends Action
         {
             printer.dispose();
         }
+        // Image used by printer must only be disposed after the printer that used it.
+        // Otherwise crash, https://github.com/ControlSystemStudio/cs-studio/issues/1937
+        snapshot.dispose();
     }
 }
