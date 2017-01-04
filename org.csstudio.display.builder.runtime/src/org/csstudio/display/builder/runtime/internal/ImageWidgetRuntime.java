@@ -10,6 +10,7 @@ package org.csstudio.display.builder.runtime.internal;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,6 @@ import org.csstudio.display.builder.runtime.pv.PVFactory;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.csstudio.display.builder.runtime.pv.RuntimePVListener;
 import org.csstudio.display.builder.runtime.script.PVUtil;
-import org.csstudio.display.builder.runtime.script.ValueUtil;
 import org.diirt.vtype.VType;
 
 /** Runtime for the ImageWidget
@@ -47,11 +47,12 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
 
     private final List<RuntimePV> roi_pvs = new CopyOnWriteArrayList<>();
 
-    /** Listen to the 'cursor_info' runtime property, update PVs */
+    /** Listen to the 'cursor_info' runtime property, update PV */
     private final WidgetPropertyListener<VType> cursor_info_listener = (prop, old, value) ->
     {
         RuntimePV pv = cursor_pv;
         if (pv != null)
+        {
             try
             {
                 pv.write(value);
@@ -60,12 +61,19 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
             {
                 logger.log(Level.WARNING, "Error writing " + value + " to " + pv, ex);
             }
-        pv = x_pv;
+        }
+    };
+
+    /** Listen to the 'crosshair' runtime property, update X, Y PVs */
+    private final WidgetPropertyListener<Double[]> crosshair_listener = (prop, old, value) ->
+    {
+        RuntimePV pv = x_pv;
         if (pv != null)
+        {
             try
             {
                 final VType existing = pv.read();
-                final Object new_value = ValueUtil.getTableCell(value, 0, 0);
+                final double new_value = value[0];
                 if (! Objects.equals(existing, new_value))
                     pv.write(new_value);
             }
@@ -73,12 +81,15 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
             {
                 logger.log(Level.WARNING, "Error writing " + value + " to " + pv, ex);
             }
+        }
+
         pv = y_pv;
         if (pv != null)
+        {
             try
             {
                 final VType existing = pv.read();
-                final Object new_value = ValueUtil.getTableCell(value, 0, 1);
+                final double new_value = value[1];
                 if (! Objects.equals(existing, new_value))
                     pv.write(new_value);
             }
@@ -86,6 +97,7 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
             {
                 logger.log(Level.WARNING, "Error writing " + value + " to " + pv, ex);
             }
+        }
     };
 
     /** Listen to the X/Y cursor PVs, update the plot's crosshair */
@@ -94,8 +106,21 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
         @Override
         public void valueChanged(final RuntimePV pv, final VType value)
         {
+            // TODO
+            final Double[] current = widget.runtimePropCrosshair().getValue();
+            System.out.println(pv + " changed to " + value + ", xhair at " + Arrays.toString(current));
             final double x = PVUtil.getDouble(x_pv);
+            if (pv == x_pv  &&  current != null && x == current[0])
+            {
+                System.out.println("Breaking X PV update loop");
+                return;
+            }
             final double y = PVUtil.getDouble(y_pv);
+            if (pv == y_pv  &&  current != null && y == current[1])
+            {
+                System.out.println("Breaking Y PV update loop");
+                return;
+            }
             widget.runtimePropCrosshair().setValue(new Double[] { x, y });
         }
     };
@@ -121,12 +146,15 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
     {
         super.start();
 
-        // Connect cursor info PV
-        cursor_pv = bindCursorInfo(widget.propCursorInfoPV().getValue());
-        x_pv = bindCursorInfo(widget.propCursorXPV().getValue());
-        y_pv = bindCursorInfo(widget.propCursorYPV().getValue());
-        if (cursor_pv != null  ||  x_pv != null  ||  y_pv != null)
+        // Connect cursor related PVs
+        cursor_pv = bindPV(widget.propCursorInfoPV().getValue());
+        x_pv = bindPV(widget.propCursorXPV().getValue());
+        y_pv = bindPV(widget.propCursorYPV().getValue());
+        if (cursor_pv != null)
             widget.runtimePropCursorInfo().addPropertyListener(cursor_info_listener);
+        if (x_pv != null  ||  y_pv != null)
+            widget.runtimePropCrosshair().addPropertyListener(crosshair_listener);
+
         if (x_pv != null  &&  y_pv != null)
         {
             x_pv.addListener(cursor_pv_listener);
@@ -142,23 +170,23 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
         }
     }
 
-    /** @param cursor_pv_name Name of cursor related PV
+    /** @param pv_name Name of cursor related PV
      *  @return {@link RuntimePV} or <code>null</code>
      */
-    private RuntimePV bindCursorInfo(final String cursor_pv_name)
+    private RuntimePV bindPV(final String pv_name)
     {
-        if (! cursor_pv_name.isEmpty())
+        if (! pv_name.isEmpty())
         {
-            logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, cursor_pv_name });
+            logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, pv_name });
             try
             {
-                final RuntimePV pv = PVFactory.getPV(cursor_pv_name);
+                final RuntimePV pv = PVFactory.getPV(pv_name);
                 addPV(pv);
                 return pv;
             }
             catch (Exception ex)
             {
-                logger.log(Level.WARNING, "Error connecting PV " + cursor_pv_name, ex);
+                logger.log(Level.WARNING, "Error connecting PV " + pv_name, ex);
             }
         }
         return null;
@@ -246,8 +274,10 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
             y_pv.removeListener(cursor_pv_listener);
             x_pv.removeListener(cursor_pv_listener);
         }
-        if (unbind(y_pv) || unbind(x_pv) || unbind(cursor_pv))
+        if (unbind(cursor_pv))
             widget.runtimePropCursorInfo().removePropertyListener(cursor_info_listener);
+        if (unbind(y_pv) || unbind(x_pv))
+            widget.runtimePropCrosshair().removePropertyListener(crosshair_listener);
         y_pv = x_pv = cursor_pv = null;
         super.stop();
     }

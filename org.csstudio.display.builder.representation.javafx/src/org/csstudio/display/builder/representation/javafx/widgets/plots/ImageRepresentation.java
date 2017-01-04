@@ -60,7 +60,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     private final RTImagePlotListener plot_listener = new RTImagePlotListener()
     {
         @Override
-        public void changedCursorLocation(final double x, final double y, final int xi, final int yi, final double value)
+        public void changedCursorInfo(final double x, final double y, final int xi, final int yi, final double value)
         {
             model_widget.runtimePropCursorInfo().setValue(
                 ValueFactory.newVTable(cursor_info_types,
@@ -68,6 +68,12 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
                                        Arrays.asList(new ArrayDouble(x), new ArrayDouble(y),
                                                      new ArrayDouble(value),
                                                      new ArrayInt(xi), new ArrayInt(yi))));
+        }
+
+        @Override
+        public void changedCrosshair(final double x, final double y)
+        {
+            model_widget.runtimePropCrosshair().setValue(new Double[] { x, y });
         }
 
         @Override

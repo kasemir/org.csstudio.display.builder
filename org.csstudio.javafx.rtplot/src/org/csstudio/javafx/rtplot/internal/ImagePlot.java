@@ -836,32 +836,33 @@ public class ImagePlot extends PlotCanvasBase
      */
     public void setCrosshairLocation(final double x_val, final double y_val)
     {
-        if (setCrosshairLocation(x_val, y_val, null))
-            requestRedraw();
+        setCrosshairLocation(x_val, y_val, null);
     }
 
     /** Set location of crosshair
      *  @param x_val
      *  @param y_val
-     *  @param listener Listener to notify, or <code>null</code>
-     *  @return <code>true</code> if this was a new location, <code>false</code> if NOP
      */
-    private boolean setCrosshairLocation(final double x_val, final double y_val, final RTImagePlotListener listener)
+    public void setCrosshairLocation(final double x_val, final double y_val, final RTImagePlotListener listener)
     {
         if (Double.isNaN(x_val)  ||  Double.isNaN(y_val))
         {
             if (crosshair_position == null)
-                return false;
+                return;
             crosshair_position = null;
             if (listener != null)
-                listener.changedCursorLocation(Double.NaN, Double.NaN, -1, -1, Double.NaN);
-            return true;
+                listener.changedCursorInfo(Double.NaN, Double.NaN, -1, -1, Double.NaN);
+            requestRedraw();
+            return;
         }
 
         final Point2D pos = new Point2D(x_val, y_val);
         if (pos.equals(crosshair_position))
-            return false;
+            return;
         crosshair_position = pos;
+        if (listener != null)
+            listener.changedCrosshair(x_val, y_val);
+
         // Location as coordinate in image
         // No "+0.5" rounding! Truncate to get full pixel offsets,
         // don't jump to next pixel when mouse moves beyond 'half' of the current pixel.
@@ -881,8 +882,8 @@ public class ImagePlot extends PlotCanvasBase
         final ListNumber data = image_data;
         final double pixel = data == null ? Double.NaN : data.getDouble(image_x + image_y * data_width);
         if (listener != null)
-            listener.changedCursorLocation(x_val, y_val, image_x, image_y, pixel);
-        return true;
+            listener.changedCursorInfo(x_val, y_val, image_x, image_y, pixel);
+        requestRedraw();
     }
 
     /** setOnMouseReleased */

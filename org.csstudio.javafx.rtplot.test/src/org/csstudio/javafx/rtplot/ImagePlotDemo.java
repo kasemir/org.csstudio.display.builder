@@ -95,7 +95,7 @@ public class ImagePlotDemo extends Application
         {
 
             @Override
-            public void changedCursorLocation(double x, double y, int xi,
+            public void changedCursorInfo(double x, double y, int xi,
                     int yi, double value)
             {
                 System.out.println("Cursor at " + x + ", " + y);
