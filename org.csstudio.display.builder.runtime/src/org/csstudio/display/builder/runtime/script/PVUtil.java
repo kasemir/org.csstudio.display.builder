@@ -32,12 +32,13 @@ public class PVUtil
      *  @param pv PV
      *  @return Current value.
      *          <code>Double.NaN</code> in case the value type
-     *          does not decode into a number.
-     *  @throws NullPointerException if the PV has no value
+     *          does not decode into a number,
+     *          or PV has no value.
      */
-    public static double getDouble(final RuntimePV pv) throws NullPointerException
+    public static double getDouble(final RuntimePV pv)
     {
-        return ValueUtil.getDouble(getVType(pv));
+        final VType value = pv.read();
+        return ValueUtil.getDouble(value);
     }
 
     /** Try to get an integer from the PV.
