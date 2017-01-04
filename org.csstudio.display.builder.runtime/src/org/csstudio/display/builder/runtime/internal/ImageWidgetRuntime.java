@@ -276,7 +276,9 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
         }
         if (unbind(cursor_pv))
             widget.runtimePropCursorInfo().removePropertyListener(cursor_info_listener);
-        if (unbind(y_pv) || unbind(x_pv))
+        boolean x_or_y = unbind(y_pv);
+        x_or_y |= unbind(x_pv);
+        if (x_or_y)
             widget.runtimePropCrosshair().removePropertyListener(crosshair_listener);
         y_pv = x_pv = cursor_pv = null;
         super.stop();
