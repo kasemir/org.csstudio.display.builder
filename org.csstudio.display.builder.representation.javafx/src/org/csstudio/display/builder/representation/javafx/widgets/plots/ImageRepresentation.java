@@ -268,8 +268,6 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
 
     private void crosshairChanged(final WidgetProperty<Double[]> property, final Double[] old_value, final Double[] new_value)
     {
-        // TODO Remove debug message
-        System.out.println("ImageRepresentation: crosshairChanged to " + Arrays.toString(new_value));
         image_plot.setCrosshairLocation(new_value[0], new_value[1]);
     }
 

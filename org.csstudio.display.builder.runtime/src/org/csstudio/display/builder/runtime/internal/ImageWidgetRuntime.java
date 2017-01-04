@@ -10,11 +10,9 @@ package org.csstudio.display.builder.runtime.internal;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
@@ -64,6 +62,16 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
         }
     };
 
+    /** When user moves the mouse, this will create a flurry of writes to the X and Y crosshair PVs.
+     *  That's OK for local PVs, but when using PVs on IOC this flurry of values will be
+     *  received with a delay, resulting in an infinite re-run of cursor movements when those
+     *  are then used to update the crosshair from the PV.
+     *
+     *  -> Ignore received updates of the X and Y PVs until the received value matches the
+     *  current crosshair.
+     */
+    private volatile boolean ignore_x_updates = false, ignore_y_updates = false;
+
     /** Listen to the 'crosshair' runtime property, update X, Y PVs */
     private final WidgetPropertyListener<Double[]> crosshair_listener = (prop, old, value) ->
     {
@@ -72,10 +80,13 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
         {
             try
             {
-                final VType existing = pv.read();
+                final double existing = PVUtil.getDouble(pv);
                 final double new_value = value[0];
-                if (! Objects.equals(existing, new_value))
+                if (Double.doubleToLongBits(existing) != Double.doubleToLongBits(new_value))
+                {
+                    ignore_x_updates = true;
                     pv.write(new_value);
+                }
             }
             catch (Exception ex)
             {
@@ -88,10 +99,13 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
         {
             try
             {
-                final VType existing = pv.read();
+                final double existing = PVUtil.getDouble(pv);
                 final double new_value = value[1];
-                if (! Objects.equals(existing, new_value))
+                if (Double.doubleToLongBits(existing) != Double.doubleToLongBits(new_value))
+                {
+                    ignore_y_updates = true;
                     pv.write(new_value);
+                }
             }
             catch (Exception ex)
             {
@@ -106,20 +120,32 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
         @Override
         public void valueChanged(final RuntimePV pv, final VType value)
         {
-            // TODO
             final Double[] current = widget.runtimePropCrosshair().getValue();
-            System.out.println(pv + " changed to " + value + ", xhair at " + Arrays.toString(current));
-            final double x = PVUtil.getDouble(x_pv);
-            if (pv == x_pv  &&  current != null && x == current[0])
-            {
-                System.out.println("Breaking X PV update loop");
+            final double x = PVUtil.getDouble(x_pv),
+                         y = PVUtil.getDouble(y_pv);
+            // Ignore NaN
+            if (Double.isNaN(x)  ||  Double.isNaN(y))
                 return;
+            if (pv == x_pv)
+            {
+                if (current != null  &&  x == current[0])
+                {   // Caught up with value we wrote out
+                    ignore_x_updates = false;
+                    return;
+                }
+                // Ignore X updates until caught up
+                if (ignore_x_updates)
+                    return;
             }
-            final double y = PVUtil.getDouble(y_pv);
-            if (pv == y_pv  &&  current != null && y == current[1])
+            if (pv == y_pv)
             {
-                System.out.println("Breaking Y PV update loop");
-                return;
+                if (current != null  &&  y == current[1])
+                {
+                    ignore_y_updates = false;
+                    return;
+                }
+                if (ignore_y_updates)
+                    return;
             }
             widget.runtimePropCrosshair().setValue(new Double[] { x, y });
         }
@@ -225,7 +251,7 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
                 }
             };
             value_prop.addPropertyListener(prop_listener);
-            roi_prop_listeners .put(value_prop, prop_listener);
+            roi_prop_listeners.put(value_prop, prop_listener);
 
             // Write PV updates to the value
             final RuntimePVListener pv_listener = new RuntimePVListener()
