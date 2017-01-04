@@ -231,11 +231,17 @@ public class ImageToolbarHandler
         	ti.setSelected(ti == item);
     }
 
+    /** @param show Show crosshair, moved on click? */
+    public void showCrosshair(final boolean show)
+    {
+        crosshair.setSelected(show);
+    }
+
     /** Turn crosshair on/off */
     public void toggleCrosshair()
     {
         final boolean show = ! plot.isCrosshairVisible();
-        crosshair.setSelected(show);
+        showCrosshair(show);
         plot.showCrosshair(show);
     }
 }

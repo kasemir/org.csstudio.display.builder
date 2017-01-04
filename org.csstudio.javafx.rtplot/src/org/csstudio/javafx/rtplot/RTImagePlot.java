@@ -252,6 +252,9 @@ public class RTImagePlot extends BorderPane
      */
     public void showCrosshair(final boolean show)
     {
+        if (plot.isCrosshairVisible() == show)
+            return;
+        toolbar.showCrosshair(show);
         plot.showCrosshair(show);
     }
 
@@ -259,6 +262,15 @@ public class RTImagePlot extends BorderPane
     public boolean isCrosshairVisible()
     {
         return plot.isCrosshairVisible();
+    }
+
+    /** Set location of crosshair
+     *  @param x_val
+     *  @param y_val
+     */
+    public void setCrosshairLocation(final double x_val, final double y_val)
+    {
+        plot.setCrosshairLocation(x_val, y_val);
     }
 
     /** Set axis range for 'full' image

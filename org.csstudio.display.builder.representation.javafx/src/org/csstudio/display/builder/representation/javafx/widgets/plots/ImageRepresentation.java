@@ -60,7 +60,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     private final RTImagePlotListener plot_listener = new RTImagePlotListener()
     {
         @Override
-        public void changedCursorLocation(final double x, final double y, final int xi, final int yi, final double value)
+        public void changedCursorInfo(final double x, final double y, final int xi, final int yi, final double value)
         {
             model_widget.runtimePropCursorInfo().setValue(
                 ValueFactory.newVTable(cursor_info_types,
@@ -68,6 +68,12 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
                                        Arrays.asList(new ArrayDouble(x), new ArrayDouble(y),
                                                      new ArrayDouble(value),
                                                      new ArrayInt(xi), new ArrayInt(yi))));
+        }
+
+        @Override
+        public void changedCrosshair(final double x, final double y)
+        {
+            model_widget.runtimePropCrosshair().setValue(new Double[] { x, y });
         }
 
         @Override
@@ -159,6 +165,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.propColorbar().visible().addUntypedPropertyListener(this::configChanged);
         model_widget.propColorbar().barSize().addUntypedPropertyListener(this::configChanged);
         model_widget.propColorbar().scaleFont().addUntypedPropertyListener(this::configChanged);
+        model_widget.propCursorCrosshair().addUntypedPropertyListener(this::configChanged);
         addAxisListener(model_widget.propXAxis());
         addAxisListener(model_widget.propYAxis());
 
@@ -172,6 +179,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.propDataWidth().addUntypedPropertyListener(this::contentChanged);
         model_widget.propDataHeight().addUntypedPropertyListener(this::contentChanged);
         model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
+
+        model_widget.runtimePropCrosshair().addPropertyListener(this::crosshairChanged);
 
         image_plot.setListener(plot_listener);
 
@@ -221,6 +230,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         image_plot.showColorMap(model_widget.propColorbar().visible().getValue());
         image_plot.setColorMapSize(model_widget.propColorbar().barSize().getValue());
         image_plot.setColorMapFont(JFXUtil.convert(model_widget.propColorbar().scaleFont().getValue()));
+        image_plot.showCrosshair(model_widget.propCursorCrosshair().getValue());
         image_plot.setAxisRange(model_widget.propXAxis().minimum().getValue(),
                                 model_widget.propXAxis().maximum().getValue(),
                                 model_widget.propYAxis().minimum().getValue(),
@@ -254,6 +264,11 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         else if (value != null)
             logger.log(Level.WARNING, "Cannot draw image from {0}", value);
         // else: Ignore null values
+    }
+
+    private void crosshairChanged(final WidgetProperty<Double[]> property, final Double[] old_value, final Double[] new_value)
+    {
+        image_plot.setCrosshairLocation(new_value[0], new_value[1]);
     }
 
     @Override

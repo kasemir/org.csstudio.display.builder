@@ -111,16 +111,16 @@ public class RuleToScript
             }
             else if (matches(text, i, "&&"))
             {
-                result.append("and");
+                result.append(" and ");
                 i += 1;
             }
             else if (matches(text, i, "||"))
             {
-                result.append("or");
+                result.append(" or ");
                 i += 1;
             }
             else if (text.charAt(i) == '!'  &&  ! matches(text, i, "!="))
-                result.append("not");
+                result.append(" not ");
             else
                 result.append(text.charAt(i));
         }
