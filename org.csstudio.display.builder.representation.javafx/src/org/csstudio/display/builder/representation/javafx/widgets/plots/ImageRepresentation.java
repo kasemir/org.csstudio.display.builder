@@ -174,6 +174,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.propDataHeight().addUntypedPropertyListener(this::contentChanged);
         model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
 
+        model_widget.runtimePropCrosshair().addPropertyListener(this::crosshairChanged);
+
         image_plot.setListener(plot_listener);
 
         // Initial update
@@ -256,6 +258,13 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         else if (value != null)
             logger.log(Level.WARNING, "Cannot draw image from {0}", value);
         // else: Ignore null values
+    }
+
+    private void crosshairChanged(final WidgetProperty<Double[]> property, final Double[] old_value, final Double[] new_value)
+    {
+        // TODO Remove debug message
+        System.out.println("ImageRepresentation: crosshairChanged to " + Arrays.toString(new_value));
+        image_plot.setCrosshairLocation(new_value[0], new_value[1]);
     }
 
     @Override

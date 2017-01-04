@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
@@ -63,7 +64,10 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
         if (pv != null)
             try
             {
-                pv.write(ValueUtil.getTableCell(value, 0, 0));
+                final VType existing = pv.read();
+                final Object new_value = ValueUtil.getTableCell(value, 0, 0);
+                if (! Objects.equals(existing, new_value))
+                    pv.write(new_value);
             }
             catch (Exception ex)
             {
@@ -73,7 +77,10 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
         if (pv != null)
             try
             {
-                pv.write(ValueUtil.getTableCell(value, 0, 1));
+                final VType existing = pv.read();
+                final Object new_value = ValueUtil.getTableCell(value, 0, 1);
+                if (! Objects.equals(existing, new_value))
+                    pv.write(new_value);
             }
             catch (Exception ex)
             {
@@ -89,8 +96,7 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
         {
             final double x = PVUtil.getDouble(x_pv);
             final double y = PVUtil.getDouble(y_pv);
-            // TODO
-            System.out.format("Should move crosshair to %.1f, %.1f\n", x, y);
+            widget.runtimePropCrosshair().setValue(new Double[] { x, y });
         }
     };
 

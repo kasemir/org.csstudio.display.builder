@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.Messages;
+import org.csstudio.display.builder.model.RuntimeWidgetProperty;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.StructuredWidgetProperty.Descriptor;
 import org.csstudio.display.builder.model.Widget;
@@ -201,6 +202,26 @@ public class ImageWidget extends PVWidget
     private static final WidgetPropertyDescriptor<Boolean> propCursorCrosshair =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC, "cursor_crosshair", Messages.WidgetProperties_CursorCrosshair);
 
+    private static final WidgetPropertyDescriptor<Double[]> propCrosshairLocation =
+        new WidgetPropertyDescriptor<Double[]>(WidgetPropertyCategory.RUNTIME, "crosshair_location", "Crosshair Location")
+        {
+            @Override
+            public WidgetProperty<Double[]> createProperty(final Widget widget, final Double[] value)
+            {
+                return new RuntimeWidgetProperty<Double[]>(this, widget, value)
+                {
+                    @Override
+                    public void setValueFromObject(final Object value) throws Exception
+                    {
+                        if (value instanceof Double[])
+                            setValue((Double[]) value);
+                        else
+                            throw new Exception("Need Double[], got " + value);
+                    }
+                };
+            }
+        };
+
     /** Structure for ROI */
     private static final WidgetPropertyDescriptor<WidgetColor> propColor =
         CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "color", Messages.PlotWidget_Color);
@@ -328,6 +349,7 @@ public class ImageWidget extends PVWidget
     private volatile WidgetProperty<String> cursor_info_pv, cursor_x_pv, cursor_y_pv;
     private volatile WidgetProperty<VType> cursor_info;
     private volatile WidgetProperty<Boolean> cursor_crosshair;
+    private volatile WidgetProperty<Double[]> crosshair_location;
     private volatile ArrayWidgetProperty<ROIWidgetProperty> rois;
 
     public ImageWidget()
@@ -357,6 +379,7 @@ public class ImageWidget extends PVWidget
         properties.add(cursor_y_pv = propCursorYPV.createProperty(this, ""));
         properties.add(cursor_info = runtimePropCursorInfo.createProperty(this, null));
         properties.add(cursor_crosshair = propCursorCrosshair.createProperty(this, false));
+        properties.add(crosshair_location = propCrosshairLocation.createProperty(this, null));
         properties.add(rois = propROIs.createProperty(this, Collections.emptyList()));
     }
 
@@ -473,6 +496,12 @@ public class ImageWidget extends PVWidget
     public WidgetProperty<Boolean> propCursorCrosshair()
     {
         return cursor_crosshair;
+    }
+
+    /** @return Runtime property for location of cursor crosshair, holds Double[] { x, y } */
+    public WidgetProperty<Double[]> runtimePropCrosshair()
+    {
+        return crosshair_location;
     }
 
     /** @return 'rois' property */
