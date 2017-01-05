@@ -68,9 +68,12 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
      *  are then used to update the crosshair from the PV.
      *
      *  -> Ignore received updates of the X and Y PVs until the received value matches the
-     *  current crosshair.
+     *  current crosshair, or the timeout expired.
+     *  ignore_*_updates is set to the system time ms when updates should again be permitted.
      */
-    private volatile boolean ignore_x_updates = false, ignore_y_updates = false;
+    private volatile long ignore_x_updates = 0, ignore_y_updates = 0;
+
+    private static final long IGNORE_MS = 1000;
 
     /** Listen to the 'crosshair' runtime property, update X, Y PVs */
     private final WidgetPropertyListener<Double[]> crosshair_listener = (prop, old, value) ->
@@ -84,13 +87,13 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
                 final double new_value = value[0];
                 if (Double.doubleToLongBits(existing) != Double.doubleToLongBits(new_value))
                 {
-                    ignore_x_updates = true;
+                    ignore_x_updates = System.currentTimeMillis() + IGNORE_MS;
                     pv.write(new_value);
                 }
             }
             catch (Exception ex)
             {   // Couldn't write, so don't wait for a read back of that value
-                ignore_x_updates = false;
+                ignore_x_updates = 0;
                 logger.log(Level.WARNING, "Error writing " + value + " to " + pv, ex);
             }
         }
@@ -104,13 +107,13 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
                 final double new_value = value[1];
                 if (Double.doubleToLongBits(existing) != Double.doubleToLongBits(new_value))
                 {
-                    ignore_y_updates = true;
+                    ignore_y_updates = System.currentTimeMillis() + IGNORE_MS;
                     pv.write(new_value);
                 }
             }
             catch (Exception ex)
             {
-                ignore_y_updates = false;
+                ignore_y_updates = 0;
                 logger.log(Level.WARNING, "Error writing " + value + " to " + pv, ex);
             }
         }
@@ -128,25 +131,26 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
             // Ignore NaN
             if (Double.isNaN(x)  ||  Double.isNaN(y))
                 return;
+            final long now = System.currentTimeMillis();
             if (pv == x_pv)
             {
                 if (current != null  &&  x == current[0])
                 {   // Caught up with value we wrote out
-                    ignore_x_updates = false;
+                    ignore_x_updates = 0;
                     return;
                 }
-                // Ignore X updates until caught up
-                if (ignore_x_updates)
+                // Ignore X updates until caught up or waited long enough
+                if (now < ignore_x_updates)
                     return;
             }
             if (pv == y_pv)
             {
                 if (current != null  &&  y == current[1])
                 {
-                    ignore_y_updates = false;
+                    ignore_y_updates = 0;
                     return;
                 }
-                if (ignore_y_updates)
+                if (now < ignore_y_updates)
                     return;
             }
             widget.runtimePropCrosshair().setValue(new Double[] { x, y });
