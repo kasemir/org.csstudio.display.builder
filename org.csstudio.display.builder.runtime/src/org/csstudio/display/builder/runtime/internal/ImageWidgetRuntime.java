@@ -89,7 +89,8 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
                 }
             }
             catch (Exception ex)
-            {
+            {   // Couldn't write, so don't wait for a read back of that value
+                ignore_x_updates = false;
                 logger.log(Level.WARNING, "Error writing " + value + " to " + pv, ex);
             }
         }
@@ -109,6 +110,7 @@ public class ImageWidgetRuntime extends WidgetRuntime<ImageWidget>
             }
             catch (Exception ex)
             {
+                ignore_y_updates = false;
                 logger.log(Level.WARNING, "Error writing " + value + " to " + pv, ex);
             }
         }
