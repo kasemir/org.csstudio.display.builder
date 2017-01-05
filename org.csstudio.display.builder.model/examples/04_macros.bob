@@ -111,9 +111,9 @@ A widget inside that 'Group' widget will see macros "PV=MyPV, TITLE=Welcome, VIS
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
     <text>When entering the property of a widget, most places
-allow using "$(MACRO_NAME)".
+allow using \$(MACRO_NAME).
 
-For example, the 'PV Name' can be entered as "$(PV)".
+For example, the 'PV Name' can be entered as \$(PV).
 At runtime, the value of the macro "PV" will then be used as the PV Name.
 
 Similarly, properties for the 'X Position' or 'Width' of a widget can use macros,
@@ -147,9 +147,9 @@ equals "true" resp. "false".</text>
     <text>When evaluating a macro, if the macro has not been defined,
 the properties of the widget are searched.
 
-For example, when using the macro $ ( x ) while no value
+For example, when using the macro \$(x) while no value
 for the macro "x" has been defined, the 'x' property of the widget
-will be used: $ ( x ) = $(x).
+will be used: \$(x) = $(x).
 
 Note that this mechanism uses the internal, non-localized name of
 the property as it is for example found in the *.bob file.
@@ -158,12 +158,12 @@ The 'X Position' property for example has an internal name 'x'.
 If there is no widget property for the requested macro name,
 Java system properties are used.
 
-For example, the $ ( os.name ) is currently: $(os.name).
+For example, the \$(os.name) is currently: $(os.name).
 
 Finally, if neigher a widget property nor a Java system property
 matches the requested name, the environment variables are used.
 
-For example, $ HOME is:
+For example, \$(HOME) is:
 $(HOME)</text>
     <x>541</x>
     <y>661</y>

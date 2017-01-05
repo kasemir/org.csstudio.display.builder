@@ -30,26 +30,18 @@ public class MacroHandler
 
     // Pattern for $(xxx) or ${xxx}, or $(x=y) or ${x=y}, asserting that there is NO leading '\' to escape it
     // "=" is matched with any number of whitespace characters (space, tab, etc.) on either side
-
     private static final Pattern spec = Pattern
             .compile("(?<!\\\\)\\$\\((" + Macros.MACRO_NAME_PATTERN + ")((\\s*=\\s*).*)?\\)" +
                      "|" +
                      "(?<!\\\\)\\$\\{(" + Macros.MACRO_NAME_PATTERN + ")((\\s*=\\s*).*)?\\}");
 
     /** Check if input contains unresolved macros
-     *  @param input Text that may contain macros "$(NAME)" or "${NAME}",
-     *  @return <code>true</code> if there is at least one unresolved macro
+     *  @param input Text that may contain macros "$(NAME)" or "${NAME}", even escaped ones because they need to be un-escaped
+     *  @return <code>true</code> if there is at least one potential macro
      */
     public static boolean containsMacros(final String input)
     {
-        // Short cut to full regular expression
-        if (input == null || input.indexOf('$') < 0)
-            return false;
-
-        // There is at least one '$'
-        // Check if it matches the spec
-        final Matcher matcher = spec.matcher(input);
-        return matcher.find();
+        return input != null  &&  input.indexOf('$') >= 0;
     }
 
     /** Replace macros in input
@@ -62,10 +54,10 @@ public class MacroHandler
      */
     public static String replace(final MacroValueProvider macros, final String input) throws Exception
     {
-
-        return replace(macros, input, 0);
+        // Replace macros, then un-escape escaped dollar signs
+        final String replaced = replace(macros, input, 0);
+        return replaced.replace("\\$", "$");
     }
-
 
     /** Replace macros in input
      *
