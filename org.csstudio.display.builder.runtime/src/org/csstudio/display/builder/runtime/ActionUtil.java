@@ -174,8 +174,18 @@ public class ActionUtil
         }
         catch (final Exception ex)
         {
-            logger.log(Level.WARNING, action + " failed", ex);
-            ScriptUtil.showErrorDialog(source_widget, "Cannot write " + action.getPV() + ".\n\nSee log for details.");
+            String pv_name = action.getPV();
+            try
+            {
+                pv_name = MacroHandler.replace(source_widget.getMacrosOrProperties(), pv_name);
+            }
+            catch (Exception ignore)
+            {
+                // NOP
+            }
+            final String message = "Cannot write " + pv_name + " = " + action.getValue();
+            logger.log(Level.WARNING, message, ex);
+            ScriptUtil.showErrorDialog(source_widget, message + ".\n\nSee log for details.");
         }
     }
 
