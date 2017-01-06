@@ -36,6 +36,7 @@ public class RTImagePlot extends BorderPane
 {
     final protected ImagePlot plot;
     final protected ImageToolbarHandler toolbar;
+    private boolean handle_keys = false;
 
     /** Constructor
      *  @param active Active mode where plot reacts to mouse/keyboard?
@@ -60,13 +61,22 @@ public class RTImagePlot extends BorderPane
             addEventFilter(KeyEvent.KEY_PRESSED, this::keyPressed);
             // Need focus to receive key events. Get focus when mouse moves.
             // (tried mouse _entered_, but can then loose focus while mouse still in widget)
-            addEventFilter(MouseEvent.MOUSE_MOVED, event -> requestFocus());
+            addEventFilter(MouseEvent.MOUSE_MOVED, event ->
+            {
+                handle_keys = true;
+                requestFocus();
+            } );
+            // Don't want to handle key events when mouse is outside the widget.
+            // Cannot 'loose focus', so using flag to ignore them
+            addEventFilter(MouseEvent.MOUSE_EXITED, event -> handle_keys = false);
         }
     }
 
     /** onKeyPressed */
     private void keyPressed(final KeyEvent event)
     {
+        if (! handle_keys)
+            return;
         if (event.getCode() == KeyCode.Z)
             plot.getUndoableActionManager().undoLast();
         else if (event.getCode() == KeyCode.Y)
