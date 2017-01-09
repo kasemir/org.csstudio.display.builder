@@ -79,11 +79,15 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                             // assuming all samples are ordered as common
                             // for a time axis or position axis
                             XTYPE pos = data.get(0).getPosition();
+                            if ((pos instanceof Double)  &&  !Double.isFinite((Double) pos))
+                                continue;
                             if (start == null  ||  start.compareTo(pos) > 0)
                                 start = pos;
                             if (end == null  ||  end.compareTo(pos) < 0)
                                 end = pos;
                             pos = data.get(N-1).getPosition();
+                            if ((pos instanceof Double)  &&  !Double.isFinite((Double) pos))
+                                    continue;
                             if (start.compareTo(pos) > 0)
                                 start = pos;
                             if (end.compareTo(pos) < 0)
