@@ -7,10 +7,12 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.script;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
+import org.csstudio.java.time.TimestampFormats;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VTable;
 import org.diirt.vtype.VType;
@@ -105,6 +107,42 @@ public class PVUtil
     public static double[] getDoubleArray(final RuntimePV pv) throws NullPointerException
     {
         return ValueUtil.getDoubleArray(getVType(pv));
+    }
+
+    /** Get the timestamp string of the PV.
+     *
+     *  <p>Time stamp of the PV is formatted using
+     *  the common TimestampFormats helper for
+     *  the local time zone.
+     *
+     *  @param pv PV
+     *  @return Timestamp string
+     *
+     *  @see ValueUtil#getTimestamp(VType) to fetch time stamp for custom formatting
+     */
+    public static String getTimeString(final RuntimePV pv)
+    {
+        final Instant time = ValueUtil.getTimestamp(getVType(pv));
+        if (time == null)
+            return "";
+        return TimestampFormats.FULL_FORMAT.format(time);
+    }
+
+    /** Get milliseconds since POSIX Epoch, i.e. 1 January 1970 0:00 UTC.
+     *  <p>
+     *  Note that we always return milliseconds relative to this UTC epoch,
+     *  even if the original control system data source might use a different
+     *  epoch (example: EPICS uses 1990), because the 1970 epoch is most
+     *  compatible with existing programming environments.
+     *  @param pv PV
+     *  @return milliseconds since 1970.
+     */
+    public final static long getTimeInMilliseconds(final RuntimePV pv)
+    {
+        final Instant time = ValueUtil.getTimestamp(getVType(pv));
+        if (time == null)
+            return 0;
+        return time.toEpochMilli();
     }
 
     /** Get a table from PV
