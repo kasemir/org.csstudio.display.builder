@@ -13,6 +13,8 @@ import java.util.Objects;
 
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
 import org.csstudio.java.time.TimestampFormats;
+import org.diirt.vtype.Alarm;
+import org.diirt.vtype.AlarmSeverity;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VTable;
 import org.diirt.vtype.VType;
@@ -143,6 +145,63 @@ public class PVUtil
         if (time == null)
             return 0;
         return time.toEpochMilli();
+    }
+
+    /** Get alarm severity of the PV as an integer value.
+     *  @param pv PV
+     *  @return 0: OK;  1: Major; 2:Minor, -1: Invalid or Undefined
+     */
+    public final static int getSeverity(final RuntimePV pv)
+    {
+        final VType value = pv.read();
+        if (value instanceof Alarm)
+        {
+            final Alarm alarm = (Alarm) value;
+            switch (alarm.getAlarmSeverity())
+            {
+            case NONE:
+                return 0;
+            case MAJOR:
+                return 1;
+            case MINOR:
+                return 2;
+            case UNDEFINED:
+            case INVALID:
+            default:
+                break;
+            }
+        }
+        return -1;
+    }
+
+    /** Get alarm severity of the PV as a string
+     *  @param pv PV
+     *  @return String representation of alarm severity
+     */
+    public final static String getSeverityString(final RuntimePV pv)
+    {
+        final VType value = pv.read();
+        if (value instanceof Alarm)
+        {
+            final Alarm alarm = (Alarm) value;
+            return alarm.getAlarmSeverity().toString();
+        }
+        return AlarmSeverity.UNDEFINED.toString();
+    }
+
+    /** Get alarm status, i.e. text that might describe the alarm severity
+     *  @param pv PV
+     *  @return Alarm status
+     */
+    public final static String getStatus(final RuntimePV pv)
+    {
+        final VType value = pv.read();
+        if (value instanceof Alarm)
+        {
+            final Alarm alarm = (Alarm) value;
+            return alarm.getAlarmName();
+        }
+        return "Disconnected";
     }
 
     /** Get a table from PV

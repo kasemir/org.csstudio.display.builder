@@ -73,7 +73,7 @@ ScriptUtil.getLogger().info("This is a warning log message.")]]></text>
     <name>pv_name</name>
     <pv_name>loc://getPV&lt;String&gt;("loc://test1")</pv_name>
     <x>640</x>
-    <y>479</y>
+    <y>680</y>
     <width>140</width>
     <items>
       <item>loc://test1</item>
@@ -87,7 +87,7 @@ ScriptUtil.getLogger().info("This is a warning log message.")]]></text>
     <name>test1</name>
     <pv_name>loc://test1</pv_name>
     <x>880</x>
-    <y>479</y>
+    <y>680</y>
     <width>50</width>
     <height>30</height>
   </widget>
@@ -95,7 +95,7 @@ ScriptUtil.getLogger().info("This is a warning log message.")]]></text>
     <name>test2</name>
     <pv_name>loc://test2</pv_name>
     <x>880</x>
-    <y>519</y>
+    <y>720</y>
     <width>50</width>
     <height>30</height>
   </widget>
@@ -103,7 +103,7 @@ ScriptUtil.getLogger().info("This is a warning log message.")]]></text>
     <name>test3</name>
     <pv_name>loc://test3</pv_name>
     <x>880</x>
-    <y>559</y>
+    <y>760</y>
     <width>50</width>
     <height>30</height>
   </widget>
@@ -111,7 +111,7 @@ ScriptUtil.getLogger().info("This is a warning log message.")]]></text>
     <name>test4</name>
     <pv_name>loc://test4</pv_name>
     <x>880</x>
-    <y>599</y>
+    <y>800</y>
     <width>50</width>
     <height>30</height>
   </widget>
@@ -119,7 +119,7 @@ ScriptUtil.getLogger().info("This is a warning log message.")]]></text>
     <name>pv_value</name>
     <pv_name>loc://the_value(42.0)</pv_name>
     <x>640</x>
-    <y>516</y>
+    <y>717</y>
     <width>135</width>
     <height>30</height>
     <show_units>false</show_units>
@@ -134,7 +134,7 @@ ScriptUtil.getLogger().info("This is a warning log message.")]]></text>
       </action>
     </actions>
     <x>640</x>
-    <y>565</y>
+    <y>766</y>
     <width>135</width>
     <tooltip>$(actions)</tooltip>
   </widget>
@@ -327,7 +327,7 @@ and finally also disposing the PV when the display is closed
 is best handled by the display runtime, so scripts simply
 access PVs that have already been created.</text>
     <x>530</x>
-    <y>289</y>
+    <y>490</y>
     <width>450</width>
     <height>180</height>
   </widget>
@@ -335,7 +335,7 @@ access PVs that have already been created.</text>
     <name>Label_13</name>
     <text>ScriptUtil: Widget PVs</text>
     <x>530</x>
-    <y>269</y>
+    <y>470</y>
     <width>250</width>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
@@ -346,42 +346,42 @@ access PVs that have already been created.</text>
     <name>Label_14</name>
     <text>Test PV 1:</text>
     <x>810</x>
-    <y>485</y>
+    <y>686</y>
     <width>80</width>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_15</name>
     <text>Test PV 2:</text>
     <x>810</x>
-    <y>525</y>
+    <y>726</y>
     <width>80</width>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_16</name>
     <text>Test PV 3:</text>
     <x>810</x>
-    <y>565</y>
+    <y>766</y>
     <width>80</width>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_17</name>
     <text>Test PV 4:</text>
     <x>810</x>
-    <y>605</y>
+    <y>806</y>
     <width>80</width>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_18</name>
     <text>PV to write:</text>
     <x>530</x>
-    <y>485</y>
+    <y>686</y>
     <width>80</width>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_19</name>
     <text>Value (number):</text>
     <x>530</x>
-    <y>522</y>
+    <y>723</y>
     <width>110</width>
   </widget>
   <widget type="action_button" version="3.0.0">
@@ -455,8 +455,8 @@ else:
   <widget type="label" version="2.0.0">
     <name>Label_20</name>
     <text>ScriptUtil: Displays</text>
-    <x>520</x>
-    <y>690</y>
+    <x>530</x>
+    <y>860</y>
     <width>170</width>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
@@ -466,8 +466,8 @@ else:
   <widget type="label" version="2.0.0">
     <name>Label_21</name>
     <text>Scripts can replace a display or open another one.</text>
-    <x>520</x>
-    <y>710</y>
+    <x>530</x>
+    <y>880</y>
     <width>385</width>
     <height>40</height>
   </widget>
@@ -483,8 +483,8 @@ ScriptUtil.openDisplay(widget, "../01_main.bob", "TAB", None)]]></text>
         <description>Open 'Main' Tab</description>
       </action>
     </actions>
-    <x>520</x>
-    <y>750</y>
+    <x>530</x>
+    <y>920</y>
     <width>150</width>
     <tooltip>$(actions)</tooltip>
   </widget>
@@ -500,8 +500,8 @@ ScriptUtil.openDisplay(widget, "../01_main.bob", "REPLACE", None)]]></text>
         <description>Replace w/ 'Main'</description>
       </action>
     </actions>
-    <x>520</x>
-    <y>790</y>
+    <x>530</x>
+    <y>960</y>
     <width>150</width>
     <tooltip>$(actions)</tooltip>
   </widget>
@@ -517,8 +517,8 @@ ScriptUtil.closeDisplay(widget)]]></text>
         <description>Close Display</description>
       </action>
     </actions>
-    <x>690</x>
-    <y>750</y>
+    <x>700</x>
+    <y>920</y>
     <width>150</width>
     <tooltip>$(actions)</tooltip>
   </widget>
@@ -589,5 +589,103 @@ widget.setPropertyValue("text", PVUtil.getTimeString(pvs[0]))
         <pv_name>sim://sine</pv_name>
       </script>
     </scripts>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_28</name>
+    <text>PVUtil: Alarm Info</text>
+    <x>530</x>
+    <y>300</y>
+    <width>210</width>
+    <font>
+      <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
+      </font>
+    </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_29</name>
+    <text>The PVUtil can read the alarm
+severity and status of a PV.</text>
+    <x>530</x>
+    <y>320</y>
+    <width>400</width>
+    <height>41</height>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_30</name>
+    <x>600</x>
+    <y>371</y>
+    <width>120</width>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+    <transparent>false</transparent>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[from org.csstudio.display.builder.runtime.script import PVUtil
+widget.setPropertyValue("text", PVUtil.getSeverityString(pvs[0]))
+]]></text>
+        <pv_name>sim://sine</pv_name>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_31</name>
+    <text>Severity:</text>
+    <x>530</x>
+    <y>371</y>
+    <width>80</width>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_32</name>
+    <text>Status:</text>
+    <x>530</x>
+    <y>401</y>
+    <width>80</width>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_33</name>
+    <x>600</x>
+    <y>401</y>
+    <width>118</width>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+    <transparent>false</transparent>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[from org.csstudio.display.builder.runtime.script import PVUtil
+widget.setPropertyValue("text", PVUtil.getStatus(pvs[0]))
+]]></text>
+        <pv_name>sim://sine</pv_name>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_34</name>
+    <x>810</x>
+    <y>371</y>
+    <width>40</width>
+    <background_color>
+      <color name="Read_Background" red="240" green="240" blue="240">
+      </color>
+    </background_color>
+    <transparent>false</transparent>
+    <scripts>
+      <script file="EmbeddedPy">
+        <text><![CDATA[from org.csstudio.display.builder.runtime.script import PVUtil
+widget.setPropertyValue("text", str(PVUtil.getSeverity(pvs[0])))
+]]></text>
+        <pv_name>sim://sine</pv_name>
+      </script>
+    </scripts>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_35</name>
+    <text>.. as code:</text>
+    <x>730</x>
+    <y>371</y>
+    <width>80</width>
   </widget>
 </display>
