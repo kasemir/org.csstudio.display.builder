@@ -680,6 +680,12 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                 logger.log(Level.FINE, "Axis removed?", ex);
             }
         }
+        else if (mouse_mode == MouseMode.ZOOM_IN_X  ||
+                 mouse_mode == MouseMode.ZOOM_IN_Y  ||
+                 mouse_mode == MouseMode.ZOOM_IN_PLOT)
+        {   // Show mouse feedback for ongoing zoom
+            requestRedraw();
+        }
         else
             updateCursor();
     }
