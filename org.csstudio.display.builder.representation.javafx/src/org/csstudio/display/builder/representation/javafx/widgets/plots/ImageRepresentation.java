@@ -112,7 +112,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     {
         final RegionOfInterest plot_roi = image_plot.addROI(model_roi.name().getValue(),
                                                             JFXUtil.convert(model_roi.color().getValue()),
-                                                            model_roi.visible().getValue());
+                                                            model_roi.visible().getValue(),
+                                                            model_roi.interactive().getValue());
         // Show/hide ROI as roi.visible() changes
         model_roi.visible().addPropertyListener((prop, old, visible) ->
         {
@@ -120,6 +121,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
             Platform.runLater(() -> image_plot.removeROITracker());
             image_plot.requestUpdate();
         });
+
+        // For now _not_ listening to runtime changes of roi.interactive() ...
 
         // Listen to roi.x_value(), .. and update plot_roi
         final WidgetPropertyListener<Double> model_roi_listener = (o, old, value) ->

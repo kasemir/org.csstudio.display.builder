@@ -20,7 +20,7 @@ public class RegionOfInterest
 {
     private final String name;
     private final Color color;
-    private volatile boolean visible;
+    private volatile boolean visible, interactive;
     private volatile Rectangle2D region;
 
     /** Constructor
@@ -34,11 +34,13 @@ public class RegionOfInterest
      */
     public RegionOfInterest(final String name, final Color color,
                             final boolean visible,
+                            final boolean interactive,
                             final double x, final double y, final double width, final double height)
     {
         this.name = name;
         this.color = color;
         this.visible = visible;
+        this.interactive = interactive;
         this.region = new Rectangle2D(x, y, width, height);
     }
 
@@ -65,6 +67,12 @@ public class RegionOfInterest
     {
         this.visible = visible;
         // Caller needs to request update of image
+    }
+
+    /** @return Is region interactive? */
+    public boolean isInteractive()
+    {
+        return interactive;
     }
 
     /** @return Region of interest within image */

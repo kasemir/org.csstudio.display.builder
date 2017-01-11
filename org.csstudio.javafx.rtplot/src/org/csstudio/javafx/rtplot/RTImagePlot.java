@@ -186,11 +186,13 @@ public class RTImagePlot extends BorderPane
      *  @param name
      *  @param color
      *  @param visible
+     *  @param interactive
      *  @return {@link RegionOfInterest}
      */
-    public RegionOfInterest addROI(final String name, final javafx.scene.paint.Color color, final boolean visible)
+    public RegionOfInterest addROI(final String name, final javafx.scene.paint.Color color,
+                                   final boolean visible, final boolean interactive)
     {
-        return plot.addROI(name, color, visible);
+        return plot.addROI(name, color, visible, interactive);
     }
 
     /** @return Regions of interest */

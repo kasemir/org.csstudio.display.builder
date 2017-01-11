@@ -260,11 +260,13 @@ public class ImagePlot extends PlotCanvasBase
      *  @param name
      *  @param color
      *  @param visible
+     *  @param interactive
      *  @return {@link RegionOfInterest}
      */
-    public RegionOfInterest addROI(final String name, final javafx.scene.paint.Color color, final boolean visible)
+    public RegionOfInterest addROI(final String name, final javafx.scene.paint.Color color,
+                                   final boolean visible, final boolean interactive)
     {   // Return a ROI that triggers a redraw as it's moved
-        final RegionOfInterest roi = new RegionOfInterest(name, color, visible, 0, 0, 10, 10)
+        final RegionOfInterest roi = new RegionOfInterest(name, color, visible, interactive, 0, 0, 10, 10)
         {
             @Override
             public void setVisible(boolean visible)
@@ -717,7 +719,7 @@ public class ImagePlot extends PlotCanvasBase
         // Select any tracker
         final Point2D current = new Point2D(e.getX(), e.getY());
         for (RegionOfInterest roi : rois)
-            if (roi.isVisible())
+            if (roi.isVisible()  &&  roi.isInteractive())
             {
                 final Rectangle rect = roiToScreen(roi);
                 if (rect.contains(current.getX(), current.getY()))

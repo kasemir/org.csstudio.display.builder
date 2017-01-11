@@ -88,7 +88,7 @@ public class ImagePlotDemo extends Application
         plot.getYAxis().setGridVisible(true);
         plot.getYAxis().setScaleFont(Font.font("Liberation Sans", FontPosture.ITALIC, 25));
 
-        final RegionOfInterest roi = plot.addROI("R.O.I.", javafx.scene.paint.Color.BLUEVIOLET, true);
+        final RegionOfInterest roi = plot.addROI("R.O.I.", javafx.scene.paint.Color.BLUEVIOLET, true, true);
         roi.setRegion(new Rectangle2D(20, 40, 20, 10));
 
         plot.setListener(new RTImagePlotListener()
