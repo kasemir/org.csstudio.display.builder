@@ -173,6 +173,7 @@ public class Messages extends NLS
     public static String WidgetProperties_LabelsFromPV;
     public static String WidgetProperties_Increment;
     public static String WidgetProperties_Insets;
+    public static String WidgetProperties_Interactive;
     public static String WidgetProperties_Interpolation;
     public static String WidgetProperties_LevelHigh;
     public static String WidgetProperties_LevelHiHi;

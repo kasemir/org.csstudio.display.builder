@@ -213,7 +213,7 @@ the value range.</text>
   <widget type="image" version="2.0.0">
     <name>Image_2</name>
     <pv_name>sim://sawtooth(10, 50, 10000, 0.5)</pv_name>
-    <y>541</y>
+    <y>551</y>
     <width>622</width>
     <height>320</height>
     <show_toolbar>true</show_toolbar>
@@ -235,37 +235,21 @@ the value range.</text>
     <minimum>-1.0</minimum>
     <maximum>1.0</maximum>
     <cursor_info_pv>loc://cursor_info</cursor_info_pv>
-    <x_pv>loc://cursor_x</x_pv>
-    <y_pv>loc://cursor_y</y_pv>
+    <x_pv>cursor_x</x_pv>
+    <y_pv>cursor_y</y_pv>
     <cursor_crosshair>true</cursor_crosshair>
     <rois>
       <roi>
+        <visible>true</visible>
         <name>ROI 0</name>
         <color>
           <color red="255" green="168" blue="0">
           </color>
         </color>
-        <visible>true</visible>
-        <interactive>true</interactive>
         <x_pv>loc://roi_x(10)</x_pv>
         <y_pv>loc://roi_y(10)</y_pv>
         <width_pv>loc://roi_w(10)</width_pv>
         <height_pv>loc://roi_h(10)</height_pv>
-        <file></file>
-      </roi>
-      <roi>
-        <name></name>
-        <color>
-          <color red="255" green="0" blue="0">
-          </color>
-        </color>
-        <visible>true</visible>
-        <interactive>false</interactive>
-        <x_pv>loc://roi_x2(50)</x_pv>
-        <y_pv>loc://roi_y2(40)</y_pv>
-        <width_pv>loc://roi_w2(10)</width_pv>
-        <height_pv>loc://roi_h2(20)</height_pv>
-        <file>pic/xmark.png</file>
       </roi>
     </rois>
   </widget>
@@ -582,13 +566,13 @@ the plot.</text>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_4</name>
-    <pv_name>loc://cursor_x</pv_name>
+    <pv_name>cursor_x</pv_name>
     <x>720</x>
     <y>1090</y>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_5</name>
-    <pv_name>loc://cursor_y</pv_name>
+    <pv_name>cursor_y</pv_name>
     <x>720</x>
     <y>1120</y>
   </widget>
