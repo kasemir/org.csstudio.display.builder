@@ -8,6 +8,7 @@
 package org.csstudio.javafx.rtplot;
 
 import javafx.geometry.Rectangle2D;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 /** Region of Interest
@@ -20,6 +21,7 @@ public class RegionOfInterest
 {
     private final String name;
     private final Color color;
+    private volatile Image image = null;
     private volatile boolean visible, interactive;
     private volatile Rectangle2D region;
 
@@ -54,6 +56,18 @@ public class RegionOfInterest
     public Color getColor()
     {
         return color;
+    }
+
+    /** @param image Image to show (instead of colored border) */
+    public void setImage(final Image image)
+    {
+        this.image = image;
+    }
+
+    /** @return Image to show (instead of colored border) */
+    public Image getImage()
+    {
+        return image;
     }
 
     /** @return Is region visible? */

@@ -35,9 +35,11 @@ import org.csstudio.javafx.rtplot.internal.util.LinearScreenTransform;
 import org.diirt.util.array.IteratorNumber;
 import org.diirt.util.array.ListNumber;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 
@@ -265,9 +267,16 @@ public class ImagePlot extends PlotCanvasBase
      */
     public RegionOfInterest addROI(final String name, final javafx.scene.paint.Color color,
                                    final boolean visible, final boolean interactive)
-    {   // Return a ROI that triggers a redraw as it's moved
+    {   // Return a ROI that triggers a redraw as it's changed
         final RegionOfInterest roi = new RegionOfInterest(name, color, visible, interactive, 0, 0, 10, 10)
         {
+            @Override
+            public void setImage(final Image image)
+            {
+                super.setImage(image);
+                requestUpdate();
+            }
+
             @Override
             public void setVisible(boolean visible)
             {
@@ -547,9 +556,19 @@ public class ImagePlot extends PlotCanvasBase
     {
         if (! roi.isVisible())
             return;
+
         gc.setColor(GraphicsUtils.convert(roi.getColor()));
         final java.awt.geom.Rectangle2D rect = image_area.createIntersection(roiToScreen(roi));
-        gc.drawRect((int)rect.getMinX(), (int)rect.getMinY(), (int)rect.getWidth(), (int)rect.getHeight());
+
+        final Image image = roi.getImage();
+        if (image == null)
+            gc.drawRect((int)rect.getMinX(), (int)rect.getMinY(), (int)rect.getWidth(), (int)rect.getHeight());
+        else
+        {
+            final BufferedImage awt_image = SwingFXUtils.fromFXImage(image, null);
+            gc.drawImage(awt_image, (int)rect.getMinX(), (int)rect.getMinY(), (int)rect.getWidth(), (int)rect.getHeight(), null);
+        }
+
         gc.drawString(roi.getName(), (int)rect.getMinX(), (int)rect.getMinY());
     }
 
