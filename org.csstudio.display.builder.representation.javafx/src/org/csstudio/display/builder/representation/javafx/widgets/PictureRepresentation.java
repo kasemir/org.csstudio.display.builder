@@ -7,6 +7,10 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation.javafx.widgets;
 
+import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
+
+import java.util.logging.Level;
+
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -27,7 +31,6 @@ import javafx.scene.transform.Translate;
 /** Creates JavaFX item for model widget
  *  @author Megan Grodowitz
  */
-
 @SuppressWarnings("nls")
 public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureWidget>
 {
@@ -43,7 +46,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
     private volatile String img_path;
     private volatile double native_ratio = 1.0;
 
-    private static final Color border_color = Color.GRAY;
+    // private static final Color border_color = Color.GRAY;
     private static final int inset = 0;
     private static final int border_width = 1;
     private volatile Rectangle border = new Rectangle();
@@ -80,8 +83,6 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
         final String img_name = model_widget.propFile().getValue();
         model_widget.propFile().addPropertyListener(this::contentChanged);
         ModelThreadPool.getExecutor().execute(() -> contentChanged(null, null, img_name));
-        //ModelThreadPool.getExecutor().execute(() -> contentChanged(null, null, model_widget.displayFile().getValue()));
-
     }
 
     private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
@@ -97,9 +98,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
     }
 
     private void contentChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
-    //private void contentChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        //dirty_content.mark();
         // Imagine if updateChanges executes here. Mark is cleared and image updated before new image loaded.
         // Subsequent Scheduled image update would not happen.
 
@@ -110,10 +109,7 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
 
         try
         {
-            // TODO: load this image if the given path fails
-            //final String base_path = "platform:/plugin/org.csstudio.display.representation.javafx/icons/add.png"; //$NON-NLS-1$
-
-            // expand macros in the file name
+            // Expand macros in the file name
             final String expanded_path = MacroHandler.replace(model_widget.getMacrosOrProperties(), base_path);
 
             // Resolve new image file relative to the source widget model (not 'top'!)
@@ -137,10 +133,9 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
                 img_loaded = new Image(ModelResourceUtil.openResourceStream(img_path));
                 native_ratio = img_loaded.getWidth() / img_loaded.getHeight();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                System.out.println("Failure loading image file:" + img_path);
-                e.printStackTrace();
+                logger.log(Level.WARNING, "Failure loading image file:" + img_path, ex);
                 load_failed = true;
             }
         }
@@ -154,13 +149,10 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
                 img_loaded = new Image(ModelResourceUtil.openResourceStream(dflt_img));
                 native_ratio = img_loaded.getWidth() / img_loaded.getHeight();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                System.out.println("Failure loading default image file:" + dflt_img);
-                e.printStackTrace();
-                load_failed = true;
+                logger.log(Level.WARNING, "Failure loading default image file:" + img_path, ex);
             }
-
         }
 
         // Resize/reorient in case we are preserving aspect ratio and changed native_ratio
@@ -237,12 +229,8 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
             border.setWidth(final_pic_w - 2*inset);
             border.setHeight(final_pic_h - 2*inset);
 
-            //iv.setImage(visible ? img_loaded : null);
             iv.setFitHeight(final_pic_h);
             iv.setFitWidth(final_pic_w);
-
-            //jfx_node.maxWidth(final_pic_w);
-            //jfx_node.maxHeight(final_pic_h);
 
             // Rotate around the center of the resized image
             rotation.setAngle(model_widget.propRotation().getValue());
@@ -253,6 +241,5 @@ public class PictureRepresentation extends JFXBaseRepresentation<Group, PictureW
             translate.setX((widg_w - final_pic_w) / 2.0);
             translate.setY((widg_h - final_pic_h) / 2.0);
         }
-
     }
 }
