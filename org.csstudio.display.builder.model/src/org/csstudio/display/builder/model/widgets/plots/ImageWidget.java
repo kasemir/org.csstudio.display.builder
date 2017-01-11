@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.widgets.plots;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMaximum;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMinimum;
 import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
@@ -33,6 +34,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.persist.XMLUtil;
+import org.csstudio.display.builder.model.properties.BooleanWidgetProperty;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.ColorMapWidgetProperty;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
@@ -226,6 +228,16 @@ public class ImageWidget extends PVWidget
     private static final WidgetPropertyDescriptor<WidgetColor> propColor =
         CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "color", Messages.PlotWidget_Color);
 
+    private static final WidgetPropertyDescriptor<Boolean> propInteractive =
+        new WidgetPropertyDescriptor<Boolean>(WidgetPropertyCategory.DISPLAY, "interactive", Messages.WidgetProperties_Interactive)
+        {
+            @Override
+            public WidgetProperty<Boolean> createProperty(final Widget widget, final Boolean value)
+            {
+                return new BooleanWidgetProperty(this, widget, value);
+            }
+        };
+
     private static final WidgetPropertyDescriptor<String> propXPVName =
         CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "x_pv", Messages.WidgetProperties_XPVName);
 
@@ -258,30 +270,34 @@ public class ImageWidget extends PVWidget
         protected ROIWidgetProperty(final Widget widget, final String name)
         {
             super(propROI, widget,
-                  Arrays.asList(CommonWidgetProperties.propVisible.createProperty(widget, true),
-                                CommonWidgetProperties.propName.createProperty(widget, name),
+                  Arrays.asList(CommonWidgetProperties.propName.createProperty(widget, name),
                                 propColor.createProperty(widget, new WidgetColor(255, 0, 0)),
+                                CommonWidgetProperties.propVisible.createProperty(widget, true),
+                                propInteractive.createProperty(widget, true),
                                 propXPVName.createProperty(widget, ""),
                                 propYPVName.createProperty(widget, ""),
                                 propWidthPVName.createProperty(widget, ""),
                                 propHeightPVName.createProperty(widget, ""),
+                                propFile.createProperty(widget, ""),
                                 propXValue.createProperty(widget, Double.NaN),
                                 propYValue.createProperty(widget, Double.NaN),
                                 propWidthValue.createProperty(widget, Double.NaN),
                                 propHeightValue.createProperty(widget, Double.NaN) ));
         }
 
-        public WidgetProperty<Boolean> visible()       { return getElement(0); }
-        public WidgetProperty<String> name()           { return getElement(1); }
-        public WidgetProperty<WidgetColor> color()     { return getElement(2); }
-        public WidgetProperty<String> x_pv()           { return getElement(3); }
-        public WidgetProperty<String> y_pv()           { return getElement(4); }
-        public WidgetProperty<String> width_pv()       { return getElement(5); }
-        public WidgetProperty<String> height_pv()      { return getElement(6); }
-        public WidgetProperty<Double> x_value()        { return getElement(7); }
-        public WidgetProperty<Double> y_value()        { return getElement(8); }
-        public WidgetProperty<Double> width_value()    { return getElement(9); }
-        public WidgetProperty<Double> height_value()   { return getElement(10); }
+        public WidgetProperty<String> name()           { return getElement(0); }
+        public WidgetProperty<WidgetColor> color()     { return getElement(1); }
+        public WidgetProperty<Boolean> visible()       { return getElement(2); }
+        public WidgetProperty<Boolean> interactive()   { return getElement(3); }
+        public WidgetProperty<String> x_pv()           { return getElement(4); }
+        public WidgetProperty<String> y_pv()           { return getElement(5); }
+        public WidgetProperty<String> width_pv()       { return getElement(6); }
+        public WidgetProperty<String> height_pv()      { return getElement(7); }
+        public WidgetProperty<String> file()           { return getElement(8); }
+        public WidgetProperty<Double> x_value()        { return getElement(9); }
+        public WidgetProperty<Double> y_value()        { return getElement(10); }
+        public WidgetProperty<Double> width_value()    { return getElement(11); }
+        public WidgetProperty<Double> height_value()   { return getElement(12); }
     };
 
     /** 'roi' array */

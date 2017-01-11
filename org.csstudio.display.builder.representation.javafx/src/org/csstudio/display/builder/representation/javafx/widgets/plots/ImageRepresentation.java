@@ -14,10 +14,14 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
+import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget.AxisWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget.ROIWidgetProperty;
@@ -39,6 +43,7 @@ import org.diirt.vtype.ValueFactory;
 
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 
 /** Creates JavaFX item for model widget
@@ -112,7 +117,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     {
         final RegionOfInterest plot_roi = image_plot.addROI(model_roi.name().getValue(),
                                                             JFXUtil.convert(model_roi.color().getValue()),
-                                                            model_roi.visible().getValue());
+                                                            model_roi.visible().getValue(),
+                                                            model_roi.interactive().getValue());
         // Show/hide ROI as roi.visible() changes
         model_roi.visible().addPropertyListener((prop, old, visible) ->
         {
@@ -120,6 +126,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
             Platform.runLater(() -> image_plot.removeROITracker());
             image_plot.requestUpdate();
         });
+
+        // For now _not_ listening to runtime changes of roi.interactive() or roi.file() ...
 
         // Listen to roi.x_value(), .. and update plot_roi
         final WidgetPropertyListener<Double> model_roi_listener = (o, old, value) ->
@@ -140,6 +148,9 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_roi.y_value().addPropertyListener(model_roi_listener);
         model_roi.width_value().addPropertyListener(model_roi_listener);
         model_roi.height_value().addPropertyListener(model_roi_listener);
+
+        // Load image file (if there is one) on background thread
+        ModelThreadPool.getExecutor().execute(() -> loadROI_Image(plot_roi, model_roi));
     }
 
     /** @param old Existing value
@@ -152,6 +163,31 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         if (value == null)
             return old;
         return value;
+    }
+
+    private void loadROI_Image(final RegionOfInterest plot_roi, final ROIWidgetProperty model_roi)
+    {
+        String image_name = model_roi.file().getValue();
+        Image image = null;
+        try
+        {
+            image_name = MacroHandler.replace(model_widget.getMacrosOrProperties(), image_name);
+            if (! image_name.isEmpty())
+            {
+                // Resolve new image file relative to the source widget model (not 'top'!)
+                // Get the display model from the widget tied to this representation
+                final DisplayModel widget_model = model_widget.getDisplayModel();
+                // Resolve the image path using the parent model file path
+                image_name = ModelResourceUtil.resolveResource(widget_model, image_name);
+
+                image = new Image(ModelResourceUtil.openResourceStream(image_name));
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot load ROI image " + image_name, ex);
+        }
+        plot_roi.setImage(image);
     }
 
     @Override
