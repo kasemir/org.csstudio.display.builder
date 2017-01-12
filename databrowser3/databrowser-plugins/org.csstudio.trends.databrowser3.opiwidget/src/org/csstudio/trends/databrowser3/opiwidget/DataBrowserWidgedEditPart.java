@@ -16,14 +16,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.csstudio.opibuilder.editparts.AbstractWidgetEditPart;
-import org.csstudio.opibuilder.editparts.ExecutionMode;
 import org.csstudio.javafx.rtplot.RTPlotListener;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
+import org.csstudio.opibuilder.editparts.AbstractWidgetEditPart;
+import org.csstudio.opibuilder.editparts.ExecutionMode;
 import org.csstudio.trends.databrowser3.model.TimeHelper;
 import org.csstudio.trends.databrowser3.ui.ControllerSWT;
-import org.csstudio.trends.databrowser3.ui.ModelBasedPlotSWT;
+import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
 import org.diirt.datasource.ExpressionLanguage;
 import org.diirt.datasource.PVManager;
 import org.diirt.datasource.PVWriter;
@@ -155,7 +155,7 @@ public class DataBrowserWidgedEditPart extends AbstractWidgetEditPart
             try
             {
                 // Connect plot to model (created by OPI/GEF)
-                final ModelBasedPlotSWT plot_widget = gui.getDataBrowserPlot();
+                final ModelBasedPlot plot_widget = gui.getDataBrowserPlot();
                 controller = new ControllerSWT(null, getWidgetModel().createDataBrowserModel(),
                         plot_widget);
                 controller.start();

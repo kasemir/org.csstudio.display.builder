@@ -13,8 +13,6 @@ import java.time.Instant;
 import org.csstudio.apputil.xml.DOMHelper;
 import org.csstudio.apputil.xml.XMLWriter;
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
-import org.csstudio.trends.databrowser3.ui.ModelBasedPlotSWT;
-//import org.eclipse.swt.graphics.Point;
 import org.w3c.dom.Element;
 
 import javafx.geometry.Point2D;

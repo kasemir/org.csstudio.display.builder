@@ -7,42 +7,68 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.opiwidget;
 
-import org.csstudio.javafx.rtplot.RTTimePlot;
-import org.csstudio.trends.databrowser3.ui.ModelBasedPlotSWT;
-import org.eclipse.draw2d.Figure;
-import org.eclipse.swt.widgets.Composite;
+import static org.csstudio.trends.databrowser3.Activator.logger;
+
+import java.util.logging.Level;
+
 import org.csstudio.opibuilder.editparts.AbstractBaseEditPart;
+import org.csstudio.opibuilder.widgets.figures.AbstractSWTWidgetFigure;
+import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
+
+import javafx.embed.swt.FXCanvas;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+
 
 /** OPI Figure that displays data browser plot on screen,
  *  holds a Data Browser Plot
  *
  *  @author Kay Kasemir
  */
-//public class DataBrowserWidgetFigure extends AbstractSWTWidgetFigure<RTTimePlot>
-public class DataBrowserWidgetFigure extends Figure
+@SuppressWarnings("nls")
+public class DataBrowserWidgetFigure extends AbstractSWTWidgetFigure<FXCanvas>
 {
     /** Data Browser plot */
-    private ModelBasedPlotSWT plot;
+    private ModelBasedPlot plot;
 
     /** Initialize
      *  @param filename Configuration file name
      */
     public DataBrowserWidgetFigure(final AbstractBaseEditPart editPart, final String selectionValuePv, final boolean showValueLabels)
     {
-        //super(editPart);
-
-        plot.getPlot().showCrosshair(showValueLabels);
+        super(editPart);
+        // TODO selectionValuePv?
+        setShowValueLabels(showValueLabels);
     }
 
-    //@Override
-    protected RTTimePlot createSWTWidget(final Composite parent, final int style) throws Exception
+    @Override
+    protected FXCanvas createSWTWidget(final Composite parent, final int style)
     {
-        plot = new ModelBasedPlotSWT(parent);
-        return plot.getPlot();
+        final FXCanvas canvas = new FXCanvas(parent, SWT.NONE);
+
+        Parent root;
+        try
+        {
+            plot = new ModelBasedPlot(true);
+            root = plot.getPlot();
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot create Data Browser OPI Widget's plot", ex);
+            root = new Label("Cannot initialize Plot");
+        }
+        final Scene scene = new Scene(root);
+
+        canvas.setScene(scene);
+
+        return canvas;
     }
 
     /** @return Data Browser Plot */
-    public ModelBasedPlotSWT getDataBrowserPlot()
+    public ModelBasedPlot getDataBrowserPlot()
     {
         return plot;
     }
