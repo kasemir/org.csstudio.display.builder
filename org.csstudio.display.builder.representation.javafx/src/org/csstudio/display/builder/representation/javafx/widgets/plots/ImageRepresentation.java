@@ -14,10 +14,14 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
+import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.properties.ColorMap;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget.AxisWidgetProperty;
 import org.csstudio.display.builder.model.widgets.plots.ImageWidget.ROIWidgetProperty;
@@ -39,6 +43,7 @@ import org.diirt.vtype.ValueFactory;
 
 import javafx.application.Platform;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 
 /** Creates JavaFX item for model widget
@@ -60,7 +65,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     private final RTImagePlotListener plot_listener = new RTImagePlotListener()
     {
         @Override
-        public void changedCursorLocation(final double x, final double y, final int xi, final int yi, final double value)
+        public void changedCursorInfo(final double x, final double y, final int xi, final int yi, final double value)
         {
             model_widget.runtimePropCursorInfo().setValue(
                 ValueFactory.newVTable(cursor_info_types,
@@ -68,6 +73,12 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
                                        Arrays.asList(new ArrayDouble(x), new ArrayDouble(y),
                                                      new ArrayDouble(value),
                                                      new ArrayInt(xi), new ArrayInt(yi))));
+        }
+
+        @Override
+        public void changedCrosshair(final double x, final double y)
+        {
+            model_widget.runtimePropCrosshair().setValue(new Double[] { x, y });
         }
 
         @Override
@@ -106,7 +117,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
     {
         final RegionOfInterest plot_roi = image_plot.addROI(model_roi.name().getValue(),
                                                             JFXUtil.convert(model_roi.color().getValue()),
-                                                            model_roi.visible().getValue());
+                                                            model_roi.visible().getValue(),
+                                                            model_roi.interactive().getValue());
         // Show/hide ROI as roi.visible() changes
         model_roi.visible().addPropertyListener((prop, old, visible) ->
         {
@@ -114,6 +126,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
             Platform.runLater(() -> image_plot.removeROITracker());
             image_plot.requestUpdate();
         });
+
+        // For now _not_ listening to runtime changes of roi.interactive() or roi.file() ...
 
         // Listen to roi.x_value(), .. and update plot_roi
         final WidgetPropertyListener<Double> model_roi_listener = (o, old, value) ->
@@ -134,6 +148,9 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_roi.y_value().addPropertyListener(model_roi_listener);
         model_roi.width_value().addPropertyListener(model_roi_listener);
         model_roi.height_value().addPropertyListener(model_roi_listener);
+
+        // Load image file (if there is one) on background thread
+        ModelThreadPool.getExecutor().execute(() -> loadROI_Image(plot_roi, model_roi));
     }
 
     /** @param old Existing value
@@ -148,6 +165,31 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         return value;
     }
 
+    private void loadROI_Image(final RegionOfInterest plot_roi, final ROIWidgetProperty model_roi)
+    {
+        String image_name = model_roi.file().getValue();
+        Image image = null;
+        try
+        {
+            image_name = MacroHandler.replace(model_widget.getMacrosOrProperties(), image_name);
+            if (! image_name.isEmpty())
+            {
+                // Resolve new image file relative to the source widget model (not 'top'!)
+                // Get the display model from the widget tied to this representation
+                final DisplayModel widget_model = model_widget.getDisplayModel();
+                // Resolve the image path using the parent model file path
+                image_name = ModelResourceUtil.resolveResource(widget_model, image_name);
+
+                image = new Image(ModelResourceUtil.openResourceStream(image_name));
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot load ROI image " + image_name, ex);
+        }
+        plot_roi.setImage(image);
+    }
+
     @Override
     protected void registerListeners()
     {
@@ -159,6 +201,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.propColorbar().visible().addUntypedPropertyListener(this::configChanged);
         model_widget.propColorbar().barSize().addUntypedPropertyListener(this::configChanged);
         model_widget.propColorbar().scaleFont().addUntypedPropertyListener(this::configChanged);
+        model_widget.propCursorCrosshair().addUntypedPropertyListener(this::configChanged);
         addAxisListener(model_widget.propXAxis());
         addAxisListener(model_widget.propYAxis());
 
@@ -172,6 +215,8 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         model_widget.propDataWidth().addUntypedPropertyListener(this::contentChanged);
         model_widget.propDataHeight().addUntypedPropertyListener(this::contentChanged);
         model_widget.runtimePropValue().addUntypedPropertyListener(this::contentChanged);
+
+        model_widget.runtimePropCrosshair().addPropertyListener(this::crosshairChanged);
 
         image_plot.setListener(plot_listener);
 
@@ -221,6 +266,7 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         image_plot.showColorMap(model_widget.propColorbar().visible().getValue());
         image_plot.setColorMapSize(model_widget.propColorbar().barSize().getValue());
         image_plot.setColorMapFont(JFXUtil.convert(model_widget.propColorbar().scaleFont().getValue()));
+        image_plot.showCrosshair(model_widget.propCursorCrosshair().getValue());
         image_plot.setAxisRange(model_widget.propXAxis().minimum().getValue(),
                                 model_widget.propXAxis().maximum().getValue(),
                                 model_widget.propYAxis().minimum().getValue(),
@@ -254,6 +300,11 @@ public class ImageRepresentation extends RegionBaseRepresentation<Pane, ImageWid
         else if (value != null)
             logger.log(Level.WARNING, "Cannot draw image from {0}", value);
         // else: Ignore null values
+    }
+
+    private void crosshairChanged(final WidgetProperty<Double[]> property, final Double[] old_value, final Double[] new_value)
+    {
+        image_plot.setCrosshairLocation(new_value[0], new_value[1]);
     }
 
     @Override

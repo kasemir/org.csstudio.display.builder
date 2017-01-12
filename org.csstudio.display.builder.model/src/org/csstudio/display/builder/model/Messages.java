@@ -147,8 +147,11 @@ public class Messages extends NLS
     public static String WidgetProperties_Connected;
     public static String WidgetProperties_CornerHeight;
     public static String WidgetProperties_CornerWidth;
+    public static String WidgetProperties_CursorCrosshair;
     public static String WidgetProperties_CursorInfo;
     public static String WidgetProperties_CursorInfoPV;
+    public static String WidgetProperties_CursorXPV;
+    public static String WidgetProperties_CursorYPV;
     public static String WidgetProperties_DataHeight;
     public static String WidgetProperties_DataWidth;
     public static String WidgetProperties_Direction;
@@ -170,6 +173,7 @@ public class Messages extends NLS
     public static String WidgetProperties_LabelsFromPV;
     public static String WidgetProperties_Increment;
     public static String WidgetProperties_Insets;
+    public static String WidgetProperties_Interactive;
     public static String WidgetProperties_Interpolation;
     public static String WidgetProperties_LevelHigh;
     public static String WidgetProperties_LevelHiHi;

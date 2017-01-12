@@ -76,6 +76,9 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
         bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
         model_widget.propBit().addPropertyListener(this::bitChanged);
         model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
+
+        // Initial Update
+        valueChanged(null, null, model_widget.runtimePropValue().getValue());
    }
 
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)

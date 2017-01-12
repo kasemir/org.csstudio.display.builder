@@ -22,28 +22,28 @@ public class RuleToScript_ReplacementTests
     public void testTrueFalse()
     {
         assertThat(RuleToScript.javascriptToPythonLogic(" true "), equalTo(" True "));
-        assertThat(RuleToScript.javascriptToPythonLogic(" ! false "), equalTo(" not False "));
+        assertThat(RuleToScript.javascriptToPythonLogic(" ! false "), equalTo("  not  False "));
         assertThat(RuleToScript.javascriptToPythonLogic("  \"false\"  "), equalTo("  \"false\"  "));
     }
 
     @Test
     public void testAndOr()
     {
-        assertThat(RuleToScript.javascriptToPythonLogic("x && y"), equalTo("x and y"));
-        assertThat(RuleToScript.javascriptToPythonLogic("x || y"), equalTo("x or y"));
+        assertThat(RuleToScript.javascriptToPythonLogic("x && y"), equalTo("x  and  y"));
+        assertThat(RuleToScript.javascriptToPythonLogic("x || y"), equalTo("x  or  y"));
 
-        assertThat(RuleToScript.javascriptToPythonLogic("a < 1 && y != \"a && b\""), equalTo("a < 1 and y != \"a && b\""));
-        assertThat(RuleToScript.javascriptToPythonLogic("y != \"a && b\" && a < 1"), equalTo("y != \"a && b\" and a < 1"));
+        assertThat(RuleToScript.javascriptToPythonLogic("a < 1 && y != \"a && b\""), equalTo("a < 1  and  y != \"a && b\""));
+        assertThat(RuleToScript.javascriptToPythonLogic("y != \"a && b\" && a < 1"), equalTo("y != \"a && b\"  and  a < 1"));
 
-        assertThat(RuleToScript.javascriptToPythonLogic("a < 1 || y != \"a || b\""), equalTo("a < 1 or y != \"a || b\""));
+        assertThat(RuleToScript.javascriptToPythonLogic("a < 1 || y != \"a || b\""), equalTo("a < 1  or  y != \"a || b\""));
     }
 
     @Test
     public void testNot()
     {
         assertThat(RuleToScript.javascriptToPythonLogic("x != y"), equalTo("x != y"));
-        assertThat(RuleToScript.javascriptToPythonLogic("!(x+y > 1)"), equalTo("not(x+y > 1)"));
-        assertThat(RuleToScript.javascriptToPythonLogic("!(a==b) && x != \"!\""), equalTo("not(a==b) and x != \"!\""));
+        assertThat(RuleToScript.javascriptToPythonLogic("!(x+y > 1)"), equalTo(" not (x+y > 1)"));
+        assertThat(RuleToScript.javascriptToPythonLogic("!(a==b) && x != \"!\""), equalTo(" not (a==b)  and  x != \"!\""));
     }
 
     @Test
@@ -52,6 +52,6 @@ public class RuleToScript_ReplacementTests
         //                         a == "a"   || x != "\""     && y == "b!"
         final String expression = "a == \"a\" || x != \"\\\"\" && y == \"b!\"";
         assertThat(RuleToScript.javascriptToPythonLogic(expression),
-                                                equalTo("a == \"a\" or x != \"\\\"\" and y == \"b!\""));
+                                                equalTo("a == \"a\"  or  x != \"\\\"\"  and  y == \"b!\""));
     }
 }

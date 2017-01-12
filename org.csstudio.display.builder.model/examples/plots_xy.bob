@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="1.0.0">
+<display version="2.0.0">
   <name>XY Plot</name>
   <width>1150</width>
   <height>900</height>
@@ -282,7 +282,7 @@ Double-click zooms back out.</text>
     <width>70</width>
   </widget>
   <widget type="xyplot" version="2.0.0">
-    <name>X/Y Plot_2</name>
+    <name>RightPlot</name>
     <x>591</x>
     <y>91</y>
     <width>511</width>
@@ -322,7 +322,7 @@ pvs[1].write(err)
     <y_axes>
       <y_axis>
         <title>Y</title>
-        <autoscale>false</autoscale>
+        <autoscale>true</autoscale>
         <log_scale>false</log_scale>
         <minimum>0.0</minimum>
         <maximum>120.0</maximum>
@@ -405,10 +405,6 @@ All waveforms must have the same length.
     <y>471</y>
     <width>511</width>
     <height>300</height>
-    <font>
-      <font name="Default" family="Liberation Sans" style="REGULAR" size="14.0">
-      </font>
-    </font>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_26</name>
@@ -423,5 +419,42 @@ That local PV is then used as the error bar waveform.</text>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_27</name>
+    <text>This plot auto-scales the "Y" axis.
+Manual zoom disables auto-scale.
+Push button to re-enable.</text>
+    <x>591</x>
+    <y>31</y>
+    <width>379</width>
+    <height>50</height>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button</name>
+    <actions>
+      <action type="execute">
+        <script file="EmbeddedPy">
+          <text><![CDATA[from org.csstudio.display.builder.runtime.script import ScriptUtil
+
+# 'widget' is this button.
+# Fetch plot widget based on its name
+plot = widget.getDisplayModel().runtimeChildren().getChildByName("RightPlot")
+
+# The widget's "autoscale" option is still 'true',
+# not updated from the plot as user zooms in.
+# Force update by changing falue to false, then true again.
+plot.setPropertyValue("y_axes[0].autoscale", False)
+plot.setPropertyValue("y_axes[0].autoscale", True)
+]]></text>
+        </script>
+        <description>Autoscale</description>
+      </action>
+    </actions>
+    <x>1000</x>
+    <y>31</y>
+    <width>102</width>
+    <height>29</height>
+    <tooltip>$(actions)</tooltip>
   </widget>
 </display>

@@ -11,12 +11,13 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.diirt.datasource.CompositeDataSource;
-import org.diirt.datasource.PVManager;
-import org.diirt.datasource.loc.LocalDataSource;
+import org.csstudio.archive.vtype.TimestampHelper;
+import org.csstudio.vtype.pv.PVPool;
+import org.csstudio.vtype.pv.jca.JCA_PVFactory;
+import org.csstudio.vtype.pv.local.LocalPVFactory;
+import org.csstudio.vtype.pv.sim.SimPVFactory;
 //import org.epics.pvmanager.sim.SimulationDataSource;
 import org.diirt.util.array.ArrayDouble;
-import org.csstudio.archive.vtype.TimestampHelper;
 import org.diirt.vtype.AlarmSeverity;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueFactory;
@@ -30,12 +31,10 @@ public class TestHelper
 {
     public static void setup()
     {
-        // PVManager data sources
-        final CompositeDataSource sources = new CompositeDataSource();
-        sources.putDataSource("loc", new LocalDataSource());
-        //TODO: Add back Simulation data source?
-        //sources.putDataSource("sim", new SimulationDataSource());
-        PVManager.setDefaultDataSource(sources);
+        PVPool.addPVFactory(new JCA_PVFactory());
+        PVPool.addPVFactory(new LocalPVFactory());
+        PVPool.addPVFactory(new SimPVFactory());
+        PVPool.setDefaultType(LocalPVFactory.TYPE);
 
         // Logging
         final Level level = Level.FINE;

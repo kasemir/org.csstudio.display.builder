@@ -9,6 +9,7 @@ package org.csstudio.display.builder.runtime;
 
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
+import java.io.File;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 
@@ -18,6 +19,7 @@ import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.properties.ExecuteCommandActionInfo;
 import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.properties.OpenFileActionInfo;
@@ -45,6 +47,8 @@ public class ActionUtil
             RuntimeUtil.getExecutor().execute(() -> writePV(source_widget, (WritePVActionInfo) action));
         else if (action instanceof ExecuteScriptActionInfo)
             RuntimeUtil.getExecutor().execute(() -> executeScript(source_widget, (ExecuteScriptActionInfo) action));
+        else if (action instanceof ExecuteCommandActionInfo)
+            RuntimeUtil.getExecutor().execute(() -> executeCommand(source_widget, (ExecuteCommandActionInfo) action));
         else if (action instanceof OpenFileActionInfo)
             RuntimeUtil.getExecutor().execute(() -> openFile(source_widget, (OpenFileActionInfo) action));
         else
@@ -170,8 +174,18 @@ public class ActionUtil
         }
         catch (final Exception ex)
         {
-            logger.log(Level.WARNING, action + " failed", ex);
-            ScriptUtil.showErrorDialog(source_widget, "Cannot write " + action.getPV() + ".\n\nSee log for details.");
+            String pv_name = action.getPV();
+            try
+            {
+                pv_name = MacroHandler.replace(source_widget.getMacrosOrProperties(), pv_name);
+            }
+            catch (Exception ignore)
+            {
+                // NOP
+            }
+            final String message = "Cannot write " + pv_name + " = " + action.getValue();
+            logger.log(Level.WARNING, message, ex);
+            ScriptUtil.showErrorDialog(source_widget, message + ".\n\nSee log for details.");
         }
     }
 
@@ -190,6 +204,36 @@ public class ActionUtil
         {
             logger.log(Level.WARNING, action + " failed", ex);
             ScriptUtil.showErrorDialog(source_widget, "Cannot execute " + action.getInfo().getPath() + ".\n\nSee log for details.");
+        }
+    }
+
+    /** Execute external command
+     *  @param source_widget Widget from which the action is invoked
+     *  @param action        Command action to execute
+     */
+    private static void executeCommand(final Widget source_widget, final ExecuteCommandActionInfo action)
+    {
+        try
+        {
+            // Path to resolve, after expanding macros
+            final Macros macros = source_widget.getEffectiveMacros();
+            final String command = MacroHandler.replace(macros, action.getCommand());
+            logger.log(Level.FINER, "{0}, effective macros {1} ({2})", new Object[] { action, macros, command });
+
+            // Resolve command relative to the source widget model (not 'top'!)
+            final DisplayModel widget_model = source_widget.getDisplayModel();
+            final String parent_file = widget_model.getUserData(DisplayModel.USER_DATA_INPUT_FILE);
+            final String parent_dir = ModelResourceUtil.getDirectory(ModelResourceUtil.getLocalPath(parent_file));
+
+            // Execute (this is already running on background thread)
+            logger.log(Level.FINE, "Executing command {0} in {1}", new Object[] { command, parent_dir });
+            final CommandExecutor executor = new CommandExecutor(command, new File(parent_dir));
+            executor.call();
+        }
+        catch (final Throwable ex)
+        {
+            logger.log(Level.WARNING, action + " failed", ex);
+            ScriptUtil.showErrorDialog(source_widget, "Cannot execute " + action + ".\n\nSee log for details.");
         }
     }
 

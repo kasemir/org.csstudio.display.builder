@@ -35,9 +35,11 @@ import org.csstudio.javafx.rtplot.internal.util.LinearScreenTransform;
 import org.diirt.util.array.IteratorNumber;
 import org.diirt.util.array.ListNumber;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 
@@ -244,8 +246,8 @@ public class ImagePlot extends PlotCanvasBase
      */
     public void showCrosshair(final boolean show)
     {
-        if (!show)
-            crosshair_position = null;
+        if (show == crosshair)
+            return;
         crosshair = show;
         requestRedraw();
     }
@@ -260,12 +262,21 @@ public class ImagePlot extends PlotCanvasBase
      *  @param name
      *  @param color
      *  @param visible
+     *  @param interactive
      *  @return {@link RegionOfInterest}
      */
-    public RegionOfInterest addROI(final String name, final javafx.scene.paint.Color color, final boolean visible)
-    {   // Return a ROI that triggers a redraw as it's moved
-        final RegionOfInterest roi = new RegionOfInterest(name, color, visible, 0, 0, 10, 10)
+    public RegionOfInterest addROI(final String name, final javafx.scene.paint.Color color,
+                                   final boolean visible, final boolean interactive)
+    {   // Return a ROI that triggers a redraw as it's changed
+        final RegionOfInterest roi = new RegionOfInterest(name, color, visible, interactive, 0, 0, 10, 10)
         {
+            @Override
+            public void setImage(final Image image)
+            {
+                super.setImage(image);
+                requestUpdate();
+            }
+
             @Override
             public void setVisible(boolean visible)
             {
@@ -545,9 +556,19 @@ public class ImagePlot extends PlotCanvasBase
     {
         if (! roi.isVisible())
             return;
+
         gc.setColor(GraphicsUtils.convert(roi.getColor()));
         final java.awt.geom.Rectangle2D rect = image_area.createIntersection(roiToScreen(roi));
-        gc.drawRect((int)rect.getMinX(), (int)rect.getMinY(), (int)rect.getWidth(), (int)rect.getHeight());
+
+        final Image image = roi.getImage();
+        if (image == null)
+            gc.drawRect((int)rect.getMinX(), (int)rect.getMinY(), (int)rect.getWidth(), (int)rect.getHeight());
+        else
+        {
+            final BufferedImage awt_image = SwingFXUtils.fromFXImage(image, null);
+            gc.drawImage(awt_image, (int)rect.getMinX(), (int)rect.getMinY(), (int)rect.getWidth(), (int)rect.getHeight(), null);
+        }
+
         gc.drawString(roi.getName(), (int)rect.getMinX(), (int)rect.getMinY());
     }
 
@@ -717,7 +738,7 @@ public class ImagePlot extends PlotCanvasBase
         // Select any tracker
         final Point2D current = new Point2D(e.getX(), e.getY());
         for (RegionOfInterest roi : rois)
-            if (roi.isVisible())
+            if (roi.isVisible()  &&  roi.isInteractive())
             {
                 final Rectangle rect = roiToScreen(roi);
                 if (rect.contains(current.getX(), current.getY()))
@@ -813,7 +834,6 @@ public class ImagePlot extends PlotCanvasBase
      */
     private void updateLocationInfo(final double mouse_x, final double mouse_y)
     {
-        final RTImagePlotListener listener = plot_listener;
         if (image_area.contains(mouse_x, mouse_y))
         {
             // Pass 'double' mouse_x/y?
@@ -825,35 +845,66 @@ public class ImagePlot extends PlotCanvasBase
             // Location on axes, i.e. what user configured as horizontal and vertical values
             final double x_val = x_axis.getValue(screen_x);
             final double y_val = y_axis.getValue(screen_y);
-            crosshair_position = new Point2D(x_val, y_val);
-
-            // Location as coordinate in image
-            // No "+0.5" rounding! Truncate to get full pixel offsets,
-            // don't jump to next pixel when mouse moves beyond 'half' of the current pixel.
-            int image_x = (int) (data_width * (x_val - min_x) / (max_x - min_x));
-            if (image_x < 0)
-                image_x = 0;
-            else if (image_x >= data_width)
-                image_x = data_width - 1;
-
-            // Mouse and image coords for Y go 'down'
-            int image_y = (int) (data_height * (max_y - y_val) / (max_y - min_y));
-            if (image_y < 0)
-                image_y = 0;
-            else if (image_y >= data_height)
-                image_y = data_height - 1;
-
-            final ListNumber data = image_data;
-            final double pixel = data == null ? Double.NaN : data.getDouble(image_x + image_y * data_width);
-            if (listener != null)
-                listener.changedCursorLocation(x_val, y_val, image_x, image_y, pixel);
+            setCrosshairLocation(x_val, y_val, plot_listener);
         }
         else
+            setCrosshairLocation(Double.NaN, Double.NaN, plot_listener);
+    }
+
+    /** Set location of crosshair
+     *  @param x_val
+     *  @param y_val
+     */
+    public void setCrosshairLocation(final double x_val, final double y_val)
+    {
+        setCrosshairLocation(x_val, y_val, null);
+    }
+
+    /** Set location of crosshair
+     *  @param x_val
+     *  @param y_val
+     */
+    public void setCrosshairLocation(final double x_val, final double y_val, final RTImagePlotListener listener)
+    {
+        if (Double.isNaN(x_val)  ||  Double.isNaN(y_val))
         {
+            if (crosshair_position == null)
+                return;
             crosshair_position = null;
             if (listener != null)
-                listener.changedCursorLocation(Double.NaN, Double.NaN, -1, -1, Double.NaN);
+                listener.changedCursorInfo(Double.NaN, Double.NaN, -1, -1, Double.NaN);
+            requestRedraw();
+            return;
         }
+
+        final Point2D pos = new Point2D(x_val, y_val);
+        if (pos.equals(crosshair_position))
+            return;
+        crosshair_position = pos;
+        if (listener != null)
+            listener.changedCrosshair(x_val, y_val);
+
+        // Location as coordinate in image
+        // No "+0.5" rounding! Truncate to get full pixel offsets,
+        // don't jump to next pixel when mouse moves beyond 'half' of the current pixel.
+        int image_x = (int) (data_width * (x_val - min_x) / (max_x - min_x));
+        if (image_x < 0)
+            image_x = 0;
+        else if (image_x >= data_width)
+            image_x = data_width - 1;
+
+        // Mouse and image coords for Y go 'down'
+        int image_y = (int) (data_height * (max_y - y_val) / (max_y - min_y));
+        if (image_y < 0)
+            image_y = 0;
+        else if (image_y >= data_height)
+            image_y = data_height - 1;
+
+        final ListNumber data = image_data;
+        final double pixel = data == null ? Double.NaN : data.getDouble(image_x + image_y * data_width);
+        if (listener != null)
+            listener.changedCursorInfo(x_val, y_val, image_x, image_y, pixel);
+        requestRedraw();
     }
 
     /** setOnMouseReleased */

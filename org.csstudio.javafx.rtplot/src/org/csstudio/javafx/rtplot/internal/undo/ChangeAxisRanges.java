@@ -96,10 +96,7 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
     public void run()
     {
         if (x_axis != null)
-        {
-            if (x_axis.setValueRange(new_x_range.getLow(), new_x_range.getHigh()))
-                plot.fireXAxisChange();
-        }
+            setXRange(new_x_range);
         if (yaxes != null)
             setRange(new_yranges);
     }
@@ -108,12 +105,19 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
     public void undo()
     {
         if (x_axis != null)
-        {
-            if (x_axis.setValueRange(original_x_range.getLow(), original_x_range.getHigh()))
-                plot.fireXAxisChange();
-        }
+            setXRange(original_x_range);
         if (yaxes != null)
             setRange(original_yranges);
+    }
+
+    private void setXRange(AxisRange<XTYPE> range)
+    {
+        if (x_axis.setValueRange(range.getLow(), range.getHigh()))
+        {
+            if (x_axis.isAutoscale())
+                x_axis.setAutoscale(false);
+            plot.fireXAxisChange();
+        }
     }
 
     private void setRange(final List<AxisRange<Double>> ranges)

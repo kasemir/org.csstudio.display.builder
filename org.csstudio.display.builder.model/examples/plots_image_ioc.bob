@@ -213,7 +213,7 @@ the value range.</text>
   <widget type="image" version="2.0.0">
     <name>Image_2</name>
     <pv_name>sim://sawtooth(10, 50, 10000, 0.5)</pv_name>
-    <y>541</y>
+    <y>551</y>
     <width>622</width>
     <height>320</height>
     <show_toolbar>true</show_toolbar>
@@ -235,37 +235,21 @@ the value range.</text>
     <minimum>-1.0</minimum>
     <maximum>1.0</maximum>
     <cursor_info_pv>loc://cursor_info</cursor_info_pv>
-    <x_pv>loc://cursor_x</x_pv>
-    <y_pv>loc://cursor_y</y_pv>
+    <x_pv>cursor_x</x_pv>
+    <y_pv>cursor_y</y_pv>
     <cursor_crosshair>true</cursor_crosshair>
     <rois>
       <roi>
+        <visible>true</visible>
         <name>ROI 0</name>
         <color>
           <color red="255" green="168" blue="0">
           </color>
         </color>
-        <visible>true</visible>
-        <interactive>true</interactive>
         <x_pv>loc://roi_x(10)</x_pv>
         <y_pv>loc://roi_y(10)</y_pv>
         <width_pv>loc://roi_w(10)</width_pv>
         <height_pv>loc://roi_h(10)</height_pv>
-        <file></file>
-      </roi>
-      <roi>
-        <name></name>
-        <color>
-          <color red="255" green="0" blue="0">
-          </color>
-        </color>
-        <visible>true</visible>
-        <interactive>false</interactive>
-        <x_pv>loc://roi_x2(50)</x_pv>
-        <y_pv>loc://roi_y2(40)</y_pv>
-        <width_pv>loc://roi_w2(10)</width_pv>
-        <height_pv>loc://roi_h2(20)</height_pv>
-        <file>pic/xmark.png</file>
       </roi>
     </rois>
   </widget>
@@ -323,14 +307,14 @@ For NTNDArray PVs, the image size is provided by the PV.</text>
     <name>Label_11</name>
     <text>X:</text>
     <x>651</x>
-    <y>640</y>
+    <y>637</y>
     <width>25</width>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry</name>
     <pv_name>loc://roi_x(10)</pv_name>
     <x>686</x>
-    <y>640</y>
+    <y>637</y>
     <format>1</format>
     <precision>2</precision>
   </widget>
@@ -338,14 +322,14 @@ For NTNDArray PVs, the image size is provided by the PV.</text>
     <name>Label_13</name>
     <text>Y:</text>
     <x>651</x>
-    <y>672</y>
+    <y>669</y>
     <width>25</width>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_1</name>
     <pv_name>loc://roi_y(10)</pv_name>
     <x>686</x>
-    <y>672</y>
+    <y>669</y>
     <format>1</format>
     <precision>2</precision>
   </widget>
@@ -353,14 +337,14 @@ For NTNDArray PVs, the image size is provided by the PV.</text>
     <name>Label_14</name>
     <text>W:</text>
     <x>811</x>
-    <y>640</y>
+    <y>637</y>
     <width>25</width>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_2</name>
     <pv_name>loc://roi_w(10)</pv_name>
     <x>846</x>
-    <y>640</y>
+    <y>637</y>
     <format>1</format>
     <precision>2</precision>
   </widget>
@@ -368,14 +352,14 @@ For NTNDArray PVs, the image size is provided by the PV.</text>
     <name>Label_15</name>
     <text>H:</text>
     <x>811</x>
-    <y>672</y>
+    <y>669</y>
     <width>25</width>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_3</name>
     <pv_name>loc://roi_h(10)</pv_name>
     <x>846</x>
-    <y>672</y>
+    <y>669</y>
     <format>1</format>
     <precision>2</precision>
   </widget>
@@ -383,20 +367,18 @@ For NTNDArray PVs, the image size is provided by the PV.</text>
     <name>Label_16</name>
     <text>Image can have one or more regions of interest.
 Each ROI is shown on the plot.
-PVs can be assigned to the X/Y position and size.
-The first ROI is 'interactive', you can move it via
-the mouse and the PVs.
-</text>
+You can move it interactively.
+PVs can be assigned to the X/Y position and size.</text>
     <x>651</x>
     <y>546</y>
     <width>330</width>
-    <height>94</height>
+    <height>81</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_12</name>
     <text>Cursor Info</text>
     <x>651</x>
-    <y>830</y>
+    <y>711</y>
     <width>149</width>
     <font>
       <font name="Header 3" family="Liberation Sans" style="BOLD" size="16.0">
@@ -415,14 +397,14 @@ and as integer offsets within the image.
 The value is of type VTable and can be displayed directly,
 or used in a script for customized formatting.</text>
     <x>651</x>
-    <y>860</y>
+    <y>741</y>
     <width>409</width>
     <height>170</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_18</name>
     <x>651</x>
-    <y>1179</y>
+    <y>1060</y>
     <width>330</width>
     <background_color>
       <color name="Read_Background" red="240" green="240" blue="240">
@@ -439,7 +421,7 @@ or used in a script for customized formatting.</text>
     <name>Table</name>
     <pv_name>loc://cursor_info</pv_name>
     <x>651</x>
-    <y>1099</y>
+    <y>980</y>
     <width>429</width>
     <height>70</height>
     <columns>
@@ -485,7 +467,7 @@ or used in a script for customized formatting.</text>
     <name>Text Update</name>
     <pv_name>loc://cursor_info</pv_name>
     <x>651</x>
-    <y>1030</y>
+    <y>911</y>
     <width>409</width>
     <height>50</height>
   </widget>
@@ -584,21 +566,21 @@ the plot.</text>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_4</name>
-    <pv_name>loc://cursor_x</pv_name>
+    <pv_name>cursor_x</pv_name>
     <x>720</x>
-    <y>1209</y>
+    <y>1090</y>
   </widget>
   <widget type="textentry" version="3.0.0">
     <name>Text Entry_5</name>
-    <pv_name>loc://cursor_y</pv_name>
+    <pv_name>cursor_y</pv_name>
     <x>720</x>
-    <y>1239</y>
+    <y>1120</y>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_6</name>
     <text>X:</text>
     <x>660</x>
-    <y>1210</y>
+    <y>1091</y>
     <width>40</width>
     <height>19</height>
   </widget>
@@ -606,48 +588,8 @@ the plot.</text>
     <name>Label_7</name>
     <text>Y:</text>
     <x>660</x>
-    <y>1239</y>
+    <y>1120</y>
     <width>40</width>
     <height>19</height>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_24</name>
-    <text>The second ROI uses an image.
-It is not interactive, moving only
-via PVs.</text>
-    <x>651</x>
-    <y>710</y>
-    <width>330</width>
-    <height>60</height>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_25</name>
-    <text>X:</text>
-    <x>651</x>
-    <y>770</y>
-    <width>25</width>
-  </widget>
-  <widget type="textentry" version="3.0.0">
-    <name>Text Entry_6</name>
-    <pv_name>loc://roi_x2(50)</pv_name>
-    <x>686</x>
-    <y>770</y>
-    <format>1</format>
-    <precision>2</precision>
-  </widget>
-  <widget type="label" version="2.0.0">
-    <name>Label_26</name>
-    <text>Y:</text>
-    <x>651</x>
-    <y>802</y>
-    <width>25</width>
-  </widget>
-  <widget type="textentry" version="3.0.0">
-    <name>Text Entry_7</name>
-    <pv_name>loc://roi_y2(40)</pv_name>
-    <x>686</x>
-    <y>802</y>
-    <format>1</format>
-    <precision>2</precision>
   </widget>
 </display>

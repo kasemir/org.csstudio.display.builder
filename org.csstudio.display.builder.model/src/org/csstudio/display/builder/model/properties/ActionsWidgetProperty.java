@@ -43,6 +43,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
     private static final String OPEN_DISPLAY = "open_display";
     private static final String WRITE_PV = "write_pv";
     private static final String EXECUTE_SCRIPT = "execute";
+    private static final String EXECUTE_COMMAND = "command";
     private static final String OPEN_FILE = "open_file";
 
     /** Constructor
@@ -153,6 +154,14 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 writer.writeCharacters(action.getFile());
                 writer.writeEndElement();
             }
+            else if (info instanceof ExecuteCommandActionInfo)
+            {
+                final ExecuteCommandActionInfo action = (ExecuteCommandActionInfo) info;
+                writer.writeAttribute(XMLTags.TYPE, EXECUTE_COMMAND);
+                writer.writeStartElement(XMLTags.COMMAND);
+                writer.writeCharacters(action.getCommand());
+                writer.writeEndElement();
+            }
             else
                 throw new Exception("Cannot write action of type " + info.getClass().getName());
             if (! info.getDescription().isEmpty())
@@ -242,7 +251,8 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                     actions.add(new ExecuteScriptActionInfo(description, info));
                 }
             }
-            else if (type.startsWith("EXECUTE_"))
+            else if ("EXECUTE_PYTHONSCRIPT".equalsIgnoreCase(type) ||
+                     "EXECUTE_JAVASCRIPT".equalsIgnoreCase(type))
             {
                 // Legacy XML:
                 // <action type="EXECUTE_PYTHONSCRIPT"> .. or "EXECUTE_JAVASCRIPT"
@@ -271,6 +281,38 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                                            .orElse(XMLUtil.getChildString(action_xml, XMLTags.PATH)
                                            .orElse(""));
                 actions.add(new OpenFileActionInfo(description, file));
+            }
+            else if (EXECUTE_COMMAND.equalsIgnoreCase(type) ||
+                    "EXECUTE_CMD".equalsIgnoreCase(type))
+            {
+                // Legacy:
+                // <action type="EXECUTE_CMD">
+                //   <command>echo Hello</command>
+                //   <command_directory>$(user.home)</command_directory>
+                //   <wait_time>10</wait_time>
+                //   <description>Hello</description>
+                // </action>
+                //
+                // New:
+                // <action type="command">
+                //   <command>echo Hello</command>
+                //   <description>Hello</description>
+                // </action>
+                String command = XMLUtil.getChildString(action_xml, XMLTags.COMMAND).orElse("");
+                String directory = XMLUtil.getChildString(action_xml, "command_directory")
+                                                .orElse(null);
+                // Legacy allowed "opi.dir" as magic macro.
+                // Commands are now by default resolved relative to the display file.
+                if ("$(opi.dir)".equals(directory))
+                    directory = null;
+                // Legacy allowed user.home as a 'current working directory'.
+                // Commands are now executed with their location as cwd.
+                if ("$(user.home)".equals(directory))
+                    directory = null;
+                // If a legacy directory was provided, locate command there
+                if (directory != null  &&  !directory.isEmpty())
+                    command = directory + "/" + command;
+                actions.add(new ExecuteCommandActionInfo(description, command));
             }
             else
                 logger.log(Level.WARNING, "Ignoring action of unknown type '" + type + "'");

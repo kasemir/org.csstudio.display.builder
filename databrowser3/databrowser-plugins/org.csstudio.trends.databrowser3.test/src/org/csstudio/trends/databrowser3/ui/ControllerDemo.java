@@ -19,6 +19,8 @@ import org.csstudio.trends.databrowser3.model.PVItem;
 import org.csstudio.trends.databrowser3.model.PlotSample;
 import org.csstudio.trends.databrowser3.model.PlotSamples;
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
+import org.csstudio.vtype.pv.PVPool;
+import org.csstudio.vtype.pv.sim.SimPVFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -28,8 +30,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.diirt.datasource.CompositeDataSource;
-import org.diirt.datasource.PVManager;
 
 /** [Headless] JUnit Plug-in demo of Controller for Plot and Model.
  *
@@ -37,6 +37,7 @@ import org.diirt.datasource.PVManager;
  *  but does not have a workbench.
  *
  *  Must run as plug-in test to load XY Graph icons etc.
+ *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -51,9 +52,8 @@ public class ControllerDemo
 
     private void setup()
     {
-        final CompositeDataSource sources = new CompositeDataSource();
-        //sources.putDataSource("sim", new SimulationDataSource());
-        PVManager.setDefaultDataSource(sources);
+        PVPool.addPVFactory(new SimPVFactory());
+        PVPool.setDefaultType(SimPVFactory.TYPE);
     }
 
     private class TestMacros implements MacroValueProvider
@@ -67,7 +67,6 @@ public class ControllerDemo
                 return "Sine (scanned)";
             return null;
         }
-
     }
 
     private void createModel() throws Exception
@@ -124,8 +123,7 @@ public class ControllerDemo
         {
             e1.printStackTrace();
         }
-        //TODO: Fix or remove
-        //plot.getPlot().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
+        plot.getCanvas().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
 
         // [Debug] button
         final Button debug = new Button(parent, SWT.PUSH);

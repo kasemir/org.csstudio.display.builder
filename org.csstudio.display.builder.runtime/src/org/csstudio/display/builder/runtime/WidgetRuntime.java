@@ -146,7 +146,11 @@ public class WidgetRuntime<MW extends Widget>
             disconnectPrimaryPV();
 
             if (pv_name.isEmpty())
+            {   // Send 'null' update on value.
+                // In runtime mode, this will create a 'disconnected' representation.
+                widget.getProperty(runtimePropValue).setValue(null);
                 return;
+            }
 
             logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, pv_name });
 
@@ -432,11 +436,12 @@ public class WidgetRuntime<MW extends Widget>
     {
         final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
         String name_to_check = expanded;
-        // For local PV, strip initializer
+        // For local PV, strip optional initializer
         if (expanded.startsWith("loc://"))
         {
             final int sep = expanded.indexOf('(');
-            name_to_check = expanded.substring(0, sep);
+            if (sep > 0)
+                name_to_check = expanded.substring(0, sep);
         }
         final List<RuntimePV> safe_pvs = writable_pvs;
         if (safe_pvs != null)

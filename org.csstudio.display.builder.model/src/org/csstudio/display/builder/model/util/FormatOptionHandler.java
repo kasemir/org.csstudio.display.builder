@@ -348,7 +348,8 @@ public class FormatOptionHandler
             else
                 bytes[len++] = b;
         }
-        return new String(bytes, UTF8);
+        // Use actual 'len', not data.size()
+        return new String(bytes, 0, len, UTF8);
     }
 
     /** Parse a string, presumably as formatted by this class,

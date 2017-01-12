@@ -36,6 +36,7 @@ public class RTImagePlot extends BorderPane
 {
     final protected ImagePlot plot;
     final protected ImageToolbarHandler toolbar;
+    private boolean handle_keys = false;
 
     /** Constructor
      *  @param active Active mode where plot reacts to mouse/keyboard?
@@ -60,13 +61,22 @@ public class RTImagePlot extends BorderPane
             addEventFilter(KeyEvent.KEY_PRESSED, this::keyPressed);
             // Need focus to receive key events. Get focus when mouse moves.
             // (tried mouse _entered_, but can then loose focus while mouse still in widget)
-            addEventFilter(MouseEvent.MOUSE_MOVED, event -> requestFocus());
+            addEventFilter(MouseEvent.MOUSE_MOVED, event ->
+            {
+                handle_keys = true;
+                requestFocus();
+            } );
+            // Don't want to handle key events when mouse is outside the widget.
+            // Cannot 'loose focus', so using flag to ignore them
+            addEventFilter(MouseEvent.MOUSE_EXITED, event -> handle_keys = false);
         }
     }
 
     /** onKeyPressed */
     private void keyPressed(final KeyEvent event)
     {
+        if (! handle_keys)
+            return;
         if (event.getCode() == KeyCode.Z)
             plot.getUndoableActionManager().undoLast();
         else if (event.getCode() == KeyCode.Y)
@@ -176,11 +186,13 @@ public class RTImagePlot extends BorderPane
      *  @param name
      *  @param color
      *  @param visible
+     *  @param interactive
      *  @return {@link RegionOfInterest}
      */
-    public RegionOfInterest addROI(final String name, final javafx.scene.paint.Color color, final boolean visible)
+    public RegionOfInterest addROI(final String name, final javafx.scene.paint.Color color,
+                                   final boolean visible, final boolean interactive)
     {
-        return plot.addROI(name, color, visible);
+        return plot.addROI(name, color, visible, interactive);
     }
 
     /** @return Regions of interest */
@@ -252,6 +264,9 @@ public class RTImagePlot extends BorderPane
      */
     public void showCrosshair(final boolean show)
     {
+        if (plot.isCrosshairVisible() == show)
+            return;
+        toolbar.showCrosshair(show);
         plot.showCrosshair(show);
     }
 
@@ -259,6 +274,15 @@ public class RTImagePlot extends BorderPane
     public boolean isCrosshairVisible()
     {
         return plot.isCrosshairVisible();
+    }
+
+    /** Set location of crosshair
+     *  @param x_val
+     *  @param y_val
+     */
+    public void setCrosshairLocation(final double x_val, final double y_val)
+    {
+        plot.setCrosshairLocation(x_val, y_val);
     }
 
     /** Set axis range for 'full' image

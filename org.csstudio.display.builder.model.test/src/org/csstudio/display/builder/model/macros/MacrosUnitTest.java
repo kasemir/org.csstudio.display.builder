@@ -32,7 +32,7 @@ public class MacrosUnitTest
         assertThat(MacroHandler.containsMacros("This is $(S)"), equalTo(true));
         assertThat(MacroHandler.containsMacros("$(MACRO)"), equalTo(true));
         assertThat(MacroHandler.containsMacros("$(${MACRO})"), equalTo(true));
-        assertThat(MacroHandler.containsMacros("Escaped \\$(S)"), equalTo(false));
+        assertThat(MacroHandler.containsMacros("Escaped \\$(S)"), equalTo(true));
         assertThat(MacroHandler.containsMacros("Escaped \\$(S) Used $(S)"), equalTo(true));
     }
 
@@ -52,13 +52,19 @@ public class MacrosUnitTest
         assertThat(MacroHandler.replace(macros, "Plain Text"), equalTo("Plain Text"));
         assertThat(MacroHandler.replace(macros, "${S}"), equalTo("BL7"));
         assertThat(MacroHandler.replace(macros, "This is $(S)"), equalTo("This is BL7"));
+        // Plain macro
         assertThat(MacroHandler.replace(macros, "$(MACRO)"), equalTo("S"));
+        // $($(MACRO)) ->  $(S) -> BL7
         assertThat(MacroHandler.replace(macros, "$(${MACRO})"), equalTo("BL7"));
         assertThat(MacroHandler.replace(macros, "$(TAB)$(NAME)$(TAB)"), equalTo("    Flint, Eugene    "));
         assertThat(MacroHandler.replace(macros, "$(traces[0].y_pv)"), equalTo("TheValueWaveform"));
 
-        assertThat(MacroHandler.replace(macros, "Escaped \\$(S)"), equalTo("Escaped \\$(S)"));
-        assertThat(MacroHandler.replace(macros, "Escaped \\$(S) Used $(S)"), equalTo("Escaped \\$(S) Used BL7"));
+        // Escaped macros leave the $(..), i.e. remove the escape char
+        assertThat(MacroHandler.replace(macros, "Escaped \\$(S)"), equalTo("Escaped $(S)"));
+        assertThat(MacroHandler.replace(macros, "Escaped \\$(S) Used $(S)"), equalTo("Escaped $(S) Used BL7"));
+
+        // If you want to keep a '\$' in the output, escape the escape
+        assertThat(MacroHandler.replace(macros, "Escaped \\\\$(S)"), equalTo("Escaped \\$(S)"));
     }
 
     /** Test special cases

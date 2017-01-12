@@ -15,12 +15,14 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.javafx.Styles;
 import org.csstudio.javafx.rtplot.internal.ImagePlot;
 import org.diirt.util.array.ArrayDouble;
 import org.diirt.util.array.ListDouble;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
@@ -86,6 +88,26 @@ public class ImagePlotDemo extends Application
         plot.getYAxis().setGridVisible(true);
         plot.getYAxis().setScaleFont(Font.font("Liberation Sans", FontPosture.ITALIC, 25));
 
+        final RegionOfInterest roi = plot.addROI("R.O.I.", javafx.scene.paint.Color.BLUEVIOLET, true, true);
+        roi.setRegion(new Rectangle2D(20, 40, 20, 10));
+
+        plot.setListener(new RTImagePlotListener()
+        {
+
+            @Override
+            public void changedCursorInfo(double x, double y, int xi,
+                    int yi, double value)
+            {
+                System.out.println("Cursor at " + x + ", " + y);
+            }
+
+            @Override
+            public void changedROI(int index, String name, Rectangle2D region)
+            {
+                System.out.println("ROI " + name + " now at " + region);
+            }
+        });
+
         timer.scheduleAtFixedRate(() -> plot.setValue(WIDTH, HEIGHT, computeData(), false),
                                   200, 100, TimeUnit.MILLISECONDS);
 
@@ -101,6 +123,7 @@ public class ImagePlotDemo extends Application
 		root.heightProperty().addListener(resize_listener);
 
         final Scene scene = new Scene(root, 800, 600);
+        Styles.setSceneStyle(scene);
         stage.setScene(scene);
         stage.setTitle("Image Plot Demo");
         stage.show();
