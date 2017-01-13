@@ -7,6 +7,10 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.bobwidget;
 
+import static org.csstudio.trends.databrowser3.Activator.logger;
+
+import java.util.logging.Level;
+
 import org.csstudio.display.builder.runtime.RuntimeAction;
 import org.csstudio.trends.databrowser3.editor.DataBrowserEditor;
 import org.csstudio.trends.databrowser3.editor.DataBrowserModelEditorInput;
@@ -30,8 +34,7 @@ public class OpenDataBrowserAction extends RuntimeAction
 
     public OpenDataBrowserAction(final DataBrowserWidget widget)
     {
-        //TODO: Fix icon path
-        super(Messages.OpenDataBrowser, "platform:/plugin/org.csstudio.javafx.rtplot/icons/toolbar.png");
+        super(Messages.OpenDataBrowser, "platform:/plugin/org.csstudio.trends.databrowser3/icons/databrowser.png");
         this.widget = widget;
     }
 
@@ -43,10 +46,9 @@ public class OpenDataBrowserAction extends RuntimeAction
         {
             filename = SingleSourcePlugin.getResourceHelper().newPath(widget.getExpandedFilename());
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Cannot determine path", ex);
             return;
         }
         final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
