@@ -45,7 +45,7 @@ public class RTImagePlot extends BorderPane
     public RTImagePlot(final boolean active)
     {
         plot = new ImagePlot(active);
-        toolbar = new ImageToolbarHandler(this);
+        toolbar = new ImageToolbarHandler(this, active);
 
         // Canvas, i.e. plot, is not directly size-manageable by a layout.
         // --> Let BorderPane resize 'center', then plot binds to is size.
