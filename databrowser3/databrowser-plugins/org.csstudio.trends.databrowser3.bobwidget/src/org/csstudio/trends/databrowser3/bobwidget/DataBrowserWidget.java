@@ -9,9 +9,9 @@ package org.csstudio.trends.databrowser3.bobwidget;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineStyle;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineStyle;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -21,19 +21,24 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties.WidgetLineStyle;
-import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
 import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
 
 /** Model for persisting data browser widget configuration.
  *
@@ -65,8 +70,33 @@ public class DataBrowserWidget extends VisibleWidget
         }
     };
 
+    private static class CustomConfigurator extends WidgetConfigurator
+    {
+        public CustomConfigurator(final Version xml_version)
+        {
+            super(xml_version);
+        }
+
+        @Override
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget,
+                                        final Element xml) throws Exception
+        {
+            if (! super.configureFromXML(model_reader, widget, xml))
+                return false;
+
+            final DataBrowserWidget dbwidget = (DataBrowserWidget) widget;
+
+            // Legacy used 'filename' instead of 'name'
+            final Element el = XMLUtil.getChildElement(xml, "filename");
+            if (el != null)
+                dbwidget.filename.setValue(XMLUtil.getString(el));
+
+            return true;
+        }
+    }
+
     public static final WidgetPropertyDescriptor<Boolean> propShowToolbar =
-            CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_toolbar", Messages.PlotWidget_ShowToolbar);
+        CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_toolbar", Messages.PlotWidget_ShowToolbar);
 
     private volatile WidgetProperty<Boolean> show_toolbar;
     private volatile WidgetProperty<String> filename;
@@ -95,6 +125,12 @@ public class DataBrowserWidget extends VisibleWidget
         properties.add(line_color = propLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
         properties.add(line_style = propLineStyle.createProperty(this, WidgetLineStyle.SOLID));
         properties.add(macros = propMacros.createProperty(this, new Macros()));
+    }
+
+    @Override
+    public WidgetConfigurator getConfigurator(final Version persisted_version) throws Exception
+    {
+        return new CustomConfigurator(persisted_version);
     }
 
     /**

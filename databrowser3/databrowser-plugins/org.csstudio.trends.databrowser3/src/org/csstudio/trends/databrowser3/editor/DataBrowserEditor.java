@@ -7,20 +7,27 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.editor;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 
 import org.csstudio.apputil.ui.workbench.OpenViewAction;
-import org.csstudio.email.EMailSender;
+import org.csstudio.csdata.ProcessVariable;
+import org.csstudio.display.builder.rcp.JFXCursorFix;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.email.EMailSender;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.Perspective;
 import org.csstudio.trends.databrowser3.exportview.ExportView;
 import org.csstudio.trends.databrowser3.imports.SampleImporters;
+import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
 import org.csstudio.trends.databrowser3.model.AxisConfig;
+import org.csstudio.trends.databrowser3.model.ChannelInfo;
 import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.model.ModelItem;
 import org.csstudio.trends.databrowser3.model.ModelListener;
@@ -34,11 +41,13 @@ import org.csstudio.trends.databrowser3.sampleview.SampleView;
 import org.csstudio.trends.databrowser3.search.SearchView;
 import org.csstudio.trends.databrowser3.ui.AddPVAction;
 import org.csstudio.trends.databrowser3.ui.ControllerSWT;
-import org.csstudio.trends.databrowser3.ui.ModelBasedPlotSWT;
+import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
+import org.csstudio.trends.databrowser3.ui.PlotListener;
 import org.csstudio.trends.databrowser3.ui.RefreshAction;
 import org.csstudio.trends.databrowser3.waveformview.WaveformView;
 import org.csstudio.ui.util.EmptyEditorInput;
 import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
+import org.csstudio.ui.util.dnd.ControlSystemDropTarget;
 import org.csstudio.ui.util.perspective.OpenPerspectiveAction;
 import org.csstudio.utility.singlesource.PathEditorInput;
 import org.csstudio.utility.singlesource.ResourceHelper;
@@ -53,6 +62,8 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -72,6 +83,9 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.views.properties.IPropertySheetPage;
+
+import javafx.embed.swt.FXCanvas;
+import javafx.scene.Scene;
 
 /** Eclipse 'editor' for the Data Browser
  *  <p>
@@ -93,8 +107,11 @@ public class DataBrowserEditor extends EditorPart
     /** Listener to model that updates this editor*/
     private ModelListener model_listener;
 
+    /** Canvas that holds the plot's JFX content */
+    private FXCanvas plot_canvas;
+
     /** GUI for the plot */
-    private ModelBasedPlotSWT plot;
+    private ModelBasedPlot plot;
 
     private ToggleToolbarAction toggle_toolbar;
     private ToggleLegendAction toggle_legend;
@@ -291,14 +308,21 @@ public class DataBrowserEditor extends EditorPart
     {
         // Create GUI elements (Plot)
         parent.setLayout(new FillLayout());
+
+
+        plot_canvas = new FXCanvas(parent, SWT.NONE);
         try
         {
-            plot = new ModelBasedPlotSWT(parent);
+            plot = new ModelBasedPlot(true);
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
+        final Scene scene = new Scene(plot.getPlot());
+        plot_canvas.setScene(scene);
+        JFXCursorFix.apply(scene, plot_canvas);
+        fixCanvasDragAndDrop(plot_canvas);
 
         // Create and start controller
         controller = new ControllerSWT(parent.getShell(), model, plot);
@@ -359,7 +383,87 @@ public class DataBrowserEditor extends EditorPart
         toggle_legend = new ToggleLegendAction(plot.getPlot(), true);
         toggle_toolbar = new ToggleToolbarAction(plot.getPlot(), true);
         snapshot = new SnapshotAction(plot.getPlot(), parent.getShell());
-        createContextMenu(plot.getCanvas());
+        createContextMenu(plot_canvas);
+    }
+
+    private void fixCanvasDragAndDrop(final FXCanvas canvas)
+    {
+        // The droptarget gets set automatically for fxcanvas in setscene
+        // Which will cause the ControlSystemDropTarget constructor to fail
+        // unless we remove the drop target
+        canvas.setData(DND.DROP_TARGET_KEY, null);
+
+        // Allow dropped arrays
+        new ControlSystemDropTarget(canvas, ChannelInfo[].class,
+                ProcessVariable[].class, ArchiveDataSource[].class,
+                File.class,
+                String.class)
+        {
+            @Override
+            public void handleDrop(final Object item)
+            {
+                final PlotListener lst = plot.getListener();
+                if (lst == null)
+                    return;
+
+                if (item instanceof ChannelInfo[])
+                {
+                    final ChannelInfo[] channels = (ChannelInfo[]) item;
+                    final int N = channels.length;
+                    final ProcessVariable[] pvs = new ProcessVariable[N];
+                    final ArchiveDataSource[] archives = new ArchiveDataSource[N];
+                    for (int i=0; i<N; ++i)
+                    {
+                        pvs[i] = channels[i].getProcessVariable();
+                        archives[i] = channels[i].getArchiveDataSource();
+                    }
+                    lst.droppedPVNames(pvs, archives);
+                }
+                else if (item instanceof ProcessVariable[])
+                {
+                    final ProcessVariable[] pvs = (ProcessVariable[]) item;
+                    lst.droppedPVNames(pvs, null);
+                }
+                else if (item instanceof ArchiveDataSource[])
+                {
+                    final ArchiveDataSource[] archives = (ArchiveDataSource[]) item;
+                    lst.droppedPVNames(null, archives);
+                }
+                else if (item instanceof String)
+                {
+                    final List<String> pvs = new ArrayList<>();
+                    // Allow passing in many names, assuming that white space separates them
+                    final String[] names = ((String)item).split("[\\r\\n\\t ]+"); //$NON-NLS-1$
+                    for (String one_name : names)
+                    {   // Might also have received "[pv1, pv2, pv2]", turn that into "pv1", "pv2", "pv3"
+                        String suggestion = one_name;
+                        if (suggestion.startsWith("["))
+                            suggestion = suggestion.substring(1);
+                        if (suggestion.endsWith("]")  &&  !suggestion.contains("["))
+                            suggestion = suggestion.substring(0, suggestion.length()-1);
+                        if (suggestion.endsWith(","))
+                            suggestion = suggestion.substring(0, suggestion.length()-1);
+                        pvs.add(suggestion);
+                    }
+                    if (pvs.size() > 0)
+                        lst.droppedNames(pvs.toArray(new String[pvs.size()]));
+                }
+                else if (item instanceof String[])
+                {   // File names arrive as String[]...
+                    final String[] files = (String[])item;
+                    try
+                    {
+                        for (String filename : files)
+                            lst.droppedFilename(filename);
+                    }
+                    catch (Exception ex)
+                    {
+                        ExceptionDetailsErrorDialog.openError(canvas.getShell(), Messages.Error, ex);
+                    }
+                }
+            }
+        };
+
     }
 
     /** Create context menu */

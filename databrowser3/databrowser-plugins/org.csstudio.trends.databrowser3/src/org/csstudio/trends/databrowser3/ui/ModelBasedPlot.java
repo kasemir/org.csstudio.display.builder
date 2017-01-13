@@ -32,8 +32,6 @@ import org.csstudio.trends.databrowser3.preferences.Preferences;
 import org.eclipse.osgi.util.NLS;
 
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 
 /** Data Browser 'Plot' that displays the samples in a {@link Model}.
@@ -55,23 +53,11 @@ public class ModelBasedPlot
 
     final private Map<Trace<Instant>, ModelItem> items_by_trace = new ConcurrentHashMap<>();
 
-    ModelBasedPlot()
-    {
-
-    }
-
-    public ModelBasedPlot(Boolean active) throws Exception
-    {
-        this.initBase(active);
-    }
-
-    //This can't go in the constructor because the ModelBasedPlot using SWT has to call this after it creates the FXCanvas,
-    //or the javafx toolkit will not be initialized
     /** Initialize plot
      *  @param parent Parent widget
-     * @throws Exception
+     *  @throws Exception
      */
-    protected void initBase(final Boolean active) throws Exception
+    public ModelBasedPlot(final boolean active) throws Exception
     {
         plot = new RTTimePlot(active);
         plot.setOpacity(Preferences.getOpacity());
@@ -79,11 +65,7 @@ public class ModelBasedPlot
         final Button time_config_button =
                 plot.addToolItem(Activator.getIcon("time_range"), Messages.StartEndDialogTT);
 
-        time_config_button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent e) {
-                listener.ifPresent((l) -> l.timeConfigRequested());
-            }
-        });
+        time_config_button.setOnAction(e -> listener.ifPresent((l) -> l.timeConfigRequested()));
 
         // Configure axes
         final Axis<Instant> time_axis = plot.getXAxis();
@@ -161,6 +143,11 @@ public class ModelBasedPlot
         if (this.listener.isPresent())
             throw new IllegalStateException("Only one listener supported");
         this.listener = Optional.of(listener);
+    }
+
+    public PlotListener getListener()
+    {
+        return listener.orElse(null);
     }
 
     /** Remove all axes and traces */
@@ -331,7 +318,6 @@ public class ModelBasedPlot
      */
     public void setTimeRange(final Instant start, final Instant end)
     {
-        //display.asyncExec(() -> plot.getXAxis().setValueRange(start, end));
         Platform.runLater(() -> plot.getXAxis().setValueRange(start, end));
     }
 
