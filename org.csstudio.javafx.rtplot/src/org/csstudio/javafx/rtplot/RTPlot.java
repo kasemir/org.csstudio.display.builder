@@ -66,12 +66,12 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         if (type == Double.class)
         {
             plot = (Plot) new Plot<Double>(Double.class, active);
-            toolbar = (ToolbarHandler) new ToolbarHandler<Double>((RTPlot)this);
+            toolbar = (ToolbarHandler) new ToolbarHandler<Double>((RTPlot)this, active);
         }
         else if (type == Instant.class)
         {
             plot = (Plot) new Plot<Instant>(Instant.class, active);
-            toolbar = (ToolbarHandler) new ToolbarHandler<Instant>((RTPlot)this);
+            toolbar = (ToolbarHandler) new ToolbarHandler<Instant>((RTPlot)this, active);
         }
         else
             throw new IllegalArgumentException("Cannot handle " + type.getName());
