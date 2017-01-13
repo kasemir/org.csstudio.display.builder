@@ -45,7 +45,7 @@ import org.eclipse.core.runtime.Path;
 public class DataBrowserWidgedModel extends AbstractContainerModel
 {
     /** Widget ID registered in plugin.xml */
-    final public static String ID = "org.csstudio.trends.databrowser3.opiwidget";
+    final public static String ID = "org.csstudio.trends.databrowser.opiwidget";
 
     /** Property for name of data browser configuration file */
     final public static String PROP_FILENAME = "filename";
