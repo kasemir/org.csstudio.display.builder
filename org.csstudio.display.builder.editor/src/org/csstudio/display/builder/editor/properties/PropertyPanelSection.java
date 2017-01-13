@@ -244,16 +244,16 @@ public class PropertyPanelSection extends GridPane
             text.setPromptText(file_prop.getDefaultValue().toString());
             text.setMaxWidth(Double.MAX_VALUE);
             final Button select_file = new Button("...");
-            select_file.setOnAction(event -> {
-                try {
-
+            select_file.setOnAction(event ->
+            {
+                try
+                {
                     final String filename = FilenameSupport.promptForRelativePath(widget, file_prop.getValue());
-
-                    if ( filename != null ) {
+                    if (filename != null)
                         undo.execute(new SetMacroizedWidgetPropertyAction(file_prop, filename));
-                    }
-
-                } catch ( Exception ex ) {
+                }
+                catch (Exception ex)
+                {
                     logger.log(Level.WARNING, "Cannot prompt for " + file_prop, ex);
                 }
             });
