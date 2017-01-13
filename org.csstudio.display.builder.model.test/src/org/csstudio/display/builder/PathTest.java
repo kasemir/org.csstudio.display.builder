@@ -72,23 +72,43 @@ public class PathTest
     {
         String parent = "/one/of/my/directories/parent.bob";
 
+        // Same dir
         String path = ModelResourceUtil.getRelativePath(parent, "/one/of/my/directories/other.bob");
         assertThat(path, equalTo("other.bob"));
 
+        // Other dirs, made relative
         path = ModelResourceUtil.getRelativePath(parent, "/one/of/my/alternate_dirs/example.bob");
         assertThat(path, equalTo("../alternate_dirs/example.bob"));
 
         path = ModelResourceUtil.getRelativePath(parent, "/one/main.bob");
         assertThat(path, equalTo("../../../main.bob"));
 
-        path = ModelResourceUtil.getRelativePath(parent, "/elsewhere/file.txt");
-        assertThat(path, equalTo("/elsewhere/file.txt"));
+        path = ModelResourceUtil.getRelativePath(parent, "/other/of/my/directories/file.bob");
+        assertThat(path, equalTo("../../../../other/of/my/directories/file.bob"));
 
+        // Entered with "..", will be normalized and then made relative
+        path = ModelResourceUtil.getRelativePath(parent, "/elsewhere/b/../file.txt");
+        assertThat(path, equalTo("../../../../elsewhere/file.txt"));
+
+        // File to make relative is already relative
+        path = ModelResourceUtil.getRelativePath(parent, "file.bob");
+        assertThat(path, equalTo("file.bob"));
+
+        path = ModelResourceUtil.getRelativePath(parent, "../c/d/file.bob");
+        assertThat(path, equalTo("../c/d/file.bob"));
+
+        // Same relative layout of file.bob and other.bob, once via http ..
         parent = "http://server/folder/main/file.bob";
         path = ModelResourceUtil.getRelativePath(parent, "http://server/folder/main/other.bob");
         assertThat(path, equalTo("other.bob"));
 
         path = ModelResourceUtil.getRelativePath(parent, "http://server/folder/share/common.bob");
         assertThat(path, equalTo("../share/common.bob"));
+
+        // .. and in local file system
+        parent = "/main/file.bob";
+        path = ModelResourceUtil.getRelativePath(parent, "/share/common.bob");
+        assertThat(path, equalTo("../share/common.bob"));
+
     }
 }
