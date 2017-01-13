@@ -59,33 +59,37 @@ public class RTTimePlot extends RTPlot<Instant>
 
         scroll = addToolItem(scroll_img, "");
         setScrolling(true);
-        scroll.setOnAction(event ->
-        {
-            getUndoableActionManager().execute(new UpdateScrolling(RTTimePlot.this, !isScrolling()));
-            plot.fireXAxisChange();
-        });
 
-        // Stop scrolling when x axis modified by user
-        plot.addListener(new RTPlotListener<Instant>()
+        if (active)
         {
-            @Override
-            public void changedXAxis(final Axis<Instant> x_axis)
+            scroll.setOnAction(event ->
             {
-                if (! isScrolling())
-                    return;
-                final long now = Instant.now().getEpochSecond();
-                final AxisRange<Instant> value_range = x_axis.getValueRange();
-                final long range = value_range.getHigh().getEpochSecond() - value_range.getLow().getEpochSecond();
-                // Iffy range?
-                if (range <= 0)
-                    return;
-                final long dist = Math.abs(value_range.getHigh().getEpochSecond() - now);
-                // In scroll mode, if the end time selected by the user via
-                // the GUI is 25 % away from 'now', stop scrolling
-                if (dist * 100 / (range + scroll_step.getSeconds()) > 25)
-                    getUndoableActionManager().execute(new UpdateScrolling(RTTimePlot.this, false));
-            }
-        });
+                getUndoableActionManager().execute(new UpdateScrolling(RTTimePlot.this, !isScrolling()));
+                plot.fireXAxisChange();
+            });
+
+            // Stop scrolling when x axis modified by user
+            plot.addListener(new RTPlotListener<Instant>()
+            {
+                @Override
+                public void changedXAxis(final Axis<Instant> x_axis)
+                {
+                    if (! isScrolling())
+                        return;
+                    final long now = Instant.now().getEpochSecond();
+                    final AxisRange<Instant> value_range = x_axis.getValueRange();
+                    final long range = value_range.getHigh().getEpochSecond() - value_range.getLow().getEpochSecond();
+                    // Iffy range?
+                    if (range <= 0)
+                        return;
+                    final long dist = Math.abs(value_range.getHigh().getEpochSecond() - now);
+                    // In scroll mode, if the end time selected by the user via
+                    // the GUI is 25 % away from 'now', stop scrolling
+                    if (dist * 100 / (range + scroll_step.getSeconds()) > 25)
+                        getUndoableActionManager().execute(new UpdateScrolling(RTTimePlot.this, false));
+                }
+            });
+        }
     }
 
     /** @return <code>true</code> if scrolling is enabled */
