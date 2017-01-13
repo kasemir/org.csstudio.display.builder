@@ -63,9 +63,9 @@ public class ModelBasedPlot
         plot.setOpacity(Preferences.getOpacity());
 
         final Button time_config_button =
-                plot.addToolItem(Activator.getIcon("time_range"), Messages.StartEndDialogTT);
-
-        time_config_button.setOnAction(e -> listener.ifPresent((l) -> l.timeConfigRequested()));
+            plot.addToolItem(Activator.getIcon("time_range"), Messages.StartEndDialogTT);
+        if (active)
+            time_config_button.setOnAction(e -> listener.ifPresent((l) -> l.timeConfigRequested()));
 
         // Configure axes
         final Axis<Instant> time_axis = plot.getXAxis();
