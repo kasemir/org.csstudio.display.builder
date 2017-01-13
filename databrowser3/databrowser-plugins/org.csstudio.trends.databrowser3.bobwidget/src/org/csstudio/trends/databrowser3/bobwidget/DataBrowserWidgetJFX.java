@@ -7,9 +7,12 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.bobwidget;
 
+import static org.csstudio.trends.databrowser3.Activator.logger;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -20,9 +23,10 @@ import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseReprese
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
 import org.csstudio.trends.databrowser3.ui.ControllerJFX;
 import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
+
+import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.Group;
 
 /** OPI Figure that displays data browser plot on screen,
  *  holds a Data Browser Plot
@@ -43,7 +47,7 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
     /** Data Browser plot */
     private volatile ModelBasedPlot plot;
 
-    private volatile ControllerJFX controller;
+    private volatile ControllerJFX controller = null;
 
     private volatile InputStream stream;
 
@@ -69,7 +73,8 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
     public void dispose()
     {
         super.dispose();
-        controller.stop();
+        if (controller != null)
+            controller.stop();
     }
 
     /** @return Data Browser Plot */
@@ -82,9 +87,9 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
     protected void registerListeners()
     {
         super.registerListeners();
-        controller = new ControllerJFX(model_widget.getModel(), plot);
-        controller.suppressRedraws(toolkit.isEditMode());
 
+        if (! toolkit.isEditMode())
+            controller = new ControllerJFX(model_widget.getModel(), plot);
         model_widget.propWidth().addUntypedPropertyListener(this::sizeChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::sizeChanged);
         model_widget.propShowToolbar().addUntypedPropertyListener(this::optsChanged);
@@ -99,16 +104,16 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Group, DataBrows
 
         ModelThreadPool.getExecutor().execute(() -> lineChanged(null, null, null));
 
-        try
-        {
-            //TODO: stop this when not visible?
-            controller.start();
-        }
-        catch (Exception e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        if (controller != null)
+            try
+            {
+                // XXX: stop this when not visible?
+                controller.start();
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot start controller", ex);
+            }
     }
 
     private void sizeChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
