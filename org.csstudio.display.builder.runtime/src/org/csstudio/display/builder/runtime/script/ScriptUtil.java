@@ -335,8 +335,7 @@ public class ScriptUtil
      */
     public static RuntimePV getPrimaryPV(final Widget widget)
     {
-        Optional<RuntimePV> pv = WidgetRuntime.ofWidget(widget).getPrimaryPV();
-        return pv.orElse(null);
+        return WidgetRuntime.ofWidget(widget).getPrimaryPV().orElse(null);
     }
 
     /** Get all PVs of a widget.
