@@ -37,6 +37,7 @@ public class RCPHacks
         "org.csstudio.security.toolbar",
         // Make logbook entry
         "org.csstudio.logbook.ui.toolbar",
+        // "Search" drop-down
         "org.eclipse.ui.edit.text.actionSet.presentation"
        );
 
@@ -61,7 +62,17 @@ public class RCPHacks
         {
             // System.out.println(item.getId());
             if (remove_from_toolbar.contains(item.getId()))
-                toolbar.remove(item);
+            {   // Result of trial-and-error:
+                // * item.setVisible(false) has no effect
+                // * toolbar.remove(item) results in
+                //   Error disposing widget for : org.eclipse.e4.ui.model.application.ui.menu.impl.ToolBarImpl
+                //     java.lang.NullPointerException
+                //     at org.eclipse.e4.ui.workbench.renderers.swt.ToolBarManagerRenderer.cleanUpCopy(ToolBarManagerRenderer.java:554)
+                //     at org.eclipse.e4.ui.workbench.renderers.swt.ToolBarManagerRenderer.cleanUp(ToolBarManagerRenderer.java:534)
+                //     at org.eclipse.e4.ui.workbench.renderers.swt.ToolBarManagerRenderer$4.widgetDisposed(ToolBarManagerRenderer.java:423
+                // * disposing the item without removing it from the toolbar "works" ?!
+                item.dispose();
+            }
         }
         toolbar.update(true);
 

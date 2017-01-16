@@ -21,21 +21,28 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.rcp.actions.CopyAction;
+import org.csstudio.display.builder.editor.rcp.actions.CreateGroupAction;
 import org.csstudio.display.builder.editor.rcp.actions.CutDeleteAction;
 import org.csstudio.display.builder.editor.rcp.actions.ExecuteDisplayAction;
 import org.csstudio.display.builder.editor.rcp.actions.PasteAction;
 import org.csstudio.display.builder.editor.rcp.actions.RedoAction;
+import org.csstudio.display.builder.editor.rcp.actions.ReloadClassesAction;
+import org.csstudio.display.builder.editor.rcp.actions.ReloadDisplayAction;
+import org.csstudio.display.builder.editor.rcp.actions.RemoveGroupAction;
 import org.csstudio.display.builder.editor.rcp.actions.SelectAllAction;
 import org.csstudio.display.builder.editor.rcp.actions.UndoAction;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetClassSupport;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.Macros;
-import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
-import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.model.persist.WidgetClassesService;
+import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.JFXCursorFix;
 import org.csstudio.display.builder.rcp.Preferences;
@@ -170,16 +177,13 @@ public class DisplayEditorPart extends EditorPart
 
         createRetargetableActionHandlers();
 
-        final IEditorInput input = getEditorInput();
-        final IFile file = input.getAdapter(IFile.class);
-        if (file != null)
-            loadModel(file);
-
         editor.getUndoableActionManager().addListener(undo_redo_listener);
 
         fx_canvas.setMenu(createContextMenu(fx_canvas));
 
         PlatformUI.getWorkbench().getHelpSystem().setHelp(parent, "org.csstudio.display.builder.editor.rcp.display_builder");
+
+        loadModel();
     }
 
     private Menu createContextMenu(final Control parent)
@@ -192,6 +196,7 @@ public class DisplayEditorPart extends EditorPart
 
         final ImageDescriptor icon = AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, "icons/display.png");
         final Action perspective = new OpenPerspectiveAction(icon, Messages.OpenEditorPerspective, EditorPerspective.ID);
+        final Action reload = new ReloadDisplayAction(this);
 
         mm.setRemoveAllWhenShown(true);
         mm.addMenuListener(manager ->
@@ -201,10 +206,20 @@ public class DisplayEditorPart extends EditorPart
             final List<Widget> selection = editor.getWidgetSelectionHandler().getSelection();
             if (! selection.isEmpty())
             {
+                if (selection.size() > 1)
+                    manager.add(new CreateGroupAction(editor, selection));
+                if (selection.size() == 1  &&  selection.get(0) instanceof GroupWidget)
+                    manager.add(new RemoveGroupAction(editor, (GroupWidget)selection.get(0)));
                 if (selection.size() == 1  &&  selection.get(0) instanceof EmbeddedDisplayWidget)
                     manager.add(new EditEmbeddedDisplayAction((EmbeddedDisplayWidget)selection.get(0)));
                 manager.add(morph);
             }
+
+            manager.add(reload);
+
+            final DisplayModel model = editor.getModel();
+            if (model != null  &&  !model.isClassModel())
+                manager.add(new ReloadClassesAction(this));
 
             manager.add(perspective);
         });
@@ -212,11 +227,15 @@ public class DisplayEditorPart extends EditorPart
         return mm.createContextMenu(parent);
     }
 
-    private void loadModel(final IFile file)
+    /** (Re-)load model specified in editor input */
+    public void loadModel()
     {
-        // Load model in background thread, then set it
-        CompletableFuture.supplyAsync(() -> doLoadModel(file), EditorUtil.getExecutor())
-                         .thenAccept(this::setModel);
+        final IEditorInput input = getEditorInput();
+        final IFile file = input.getAdapter(IFile.class);
+        if (file != null)
+            // Load model in background thread, then set it
+            CompletableFuture.supplyAsync(() -> doLoadModel(file), EditorUtil.getExecutor())
+                             .thenAccept(this::setModel);
     }
 
     private DisplayModel doLoadModel(final IFile file)
@@ -224,10 +243,7 @@ public class DisplayEditorPart extends EditorPart
         try
         {
             final String ws_location = file.getFullPath().toOSString();
-            final ModelReader reader = new ModelReader(ModelResourceUtil.openResourceStream(ws_location));
-            final DisplayModel model = reader.readModel();
-            model.setUserData(DisplayModel.USER_DATA_INPUT_FILE, ws_location);
-            return model;
+            return ModelLoader.loadModel(ws_location);
         }
         catch (Exception ex)
         {
@@ -241,6 +257,21 @@ public class DisplayEditorPart extends EditorPart
         }
     }
 
+    /** Re-load widget classes and apply to model */
+    public void loadWidgetClasses()
+    {
+        // Trigger re-load of classes
+        org.csstudio.display.builder.rcp.Plugin.reloadConfigurationFiles();
+        // On separate thread..
+        ModelThreadPool.getExecutor().execute(() ->
+        {
+            // get widget classes and apply to model
+            final DisplayModel model = editor.getModel();
+            if (model != null)
+                WidgetClassesService.getWidgetClasses().apply(model);
+        });
+    }
+
     private void setModel(final DisplayModel model)
     {
         final DisplayModel old_model = editor.getModel();
@@ -251,7 +282,7 @@ public class DisplayEditorPart extends EditorPart
         // In UI thread..
         toolkit.execute(() ->
         {
-            setPartName(model.getName());
+            setPartName(model.getDisplayName());
             editor.setModel(model);
             if (outline_page != null)
                 outline_page.setModel(model);
@@ -319,7 +350,9 @@ public class DisplayEditorPart extends EditorPart
     public void doSave(final IProgressMonitor monitor)
     {
         IFile file = getInputFile();
-        if (file != null   &&  DisplayModel.FILE_EXTENSION.equals(file.getFileExtension()))
+        if (file != null   &&
+            (DisplayModel.FILE_EXTENSION.equals(file.getFileExtension()) ||
+             WidgetClassSupport.FILE_EXTENSION.equals(file.getFileExtension())))
             saveModelToFile(monitor, file);
         else
         {   // No file name, or using legacy file extension -> prompt for name
@@ -388,7 +421,7 @@ public class DisplayEditorPart extends EditorPart
                 final Future<Object> update_input = toolkit.submit(() ->
                 {   // Update editor input to current file name
                     setInput(input);
-                    setPartName(model.getName());
+                    setPartName(model.getDisplayName());
                     setTitleToolTip(input.getToolTipText());
 
                     // Clear 'undo'
@@ -410,6 +443,11 @@ public class DisplayEditorPart extends EditorPart
                     save_monitor.done();
                 }
                 progress.done();
+
+                // If this was a class file, load it so from now on
+                // displays will use it.
+                if (editor.getModel().isClassModel())
+                    org.csstudio.display.builder.rcp.Plugin.reloadConfigurationFiles();
 
                 return Status.OK_STATUS;
             }
@@ -443,8 +481,11 @@ public class DisplayEditorPart extends EditorPart
         IPath path = dlg.getResult();
         if (path == null)
             return null;
-        // Assert correct file extension
-        if (! DisplayModel.FILE_EXTENSION.equals(path.getFileExtension()))
+        // Assert correct file extension.
+        // If not display or class file, make it a display file.
+        final String ext = path.getFileExtension();
+        if (! (DisplayModel.FILE_EXTENSION.equals(ext) ||
+               WidgetClassSupport.FILE_EXTENSION.equals(ext)))
             path = path.removeFileExtension().addFileExtension(DisplayModel.FILE_EXTENSION);
         return root.getFile(path);
     }
@@ -454,7 +495,7 @@ public class DisplayEditorPart extends EditorPart
     {
         final IFile file = getInputFile();
         // Providing workspace location, which is handled in ModelResourceUtil
-        return new DisplayInfo(file.getFullPath().toOSString(), editor.getModel().getName(), new Macros());
+        return new DisplayInfo(file.getFullPath().toOSString(), editor.getModel().getDisplayName(), new Macros());
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })

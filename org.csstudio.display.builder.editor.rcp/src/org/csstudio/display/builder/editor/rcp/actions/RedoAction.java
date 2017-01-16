@@ -8,6 +8,10 @@
 package org.csstudio.display.builder.editor.rcp.actions;
 
 import org.csstudio.display.builder.editor.DisplayEditor;
+import org.csstudio.display.builder.editor.undo.GroupWidgetsAction;
+import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
+import org.csstudio.display.builder.editor.undo.UnGroupWidgetsAction;
+import org.csstudio.display.builder.util.undo.UndoableAction;
 import org.eclipse.ui.actions.ActionFactory;
 
 /** Action to re-do last operation
@@ -24,7 +28,10 @@ public class RedoAction extends RetargetActionHandler
     @Override
     public void run()
     {
-        editor.getWidgetSelectionHandler().clear();
-        editor.getUndoableActionManager().redoLast();
+        final UndoableAction action = editor.getUndoableActionManager().redoLast();
+        if (action instanceof RemoveWidgetsAction  ||
+                action instanceof GroupWidgetsAction ||
+                action instanceof UnGroupWidgetsAction)
+            editor.getWidgetSelectionHandler().clear();
     }
 }

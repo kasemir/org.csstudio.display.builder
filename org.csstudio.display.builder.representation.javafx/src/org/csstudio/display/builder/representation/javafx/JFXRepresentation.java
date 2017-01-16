@@ -12,6 +12,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,6 +127,8 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Line;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
 
 /** Represent model items in JavaFX toolkit
  *
@@ -268,26 +271,29 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
      *  @return ScrollPane
      *  @throws IllegalStateException if had already been called
      */
-    final public ScrollPane createModelRoot ()
+    final public ScrollPane createModelRoot()
     {
-        if ( model_root != null )
+        if (model_root != null)
             throw new IllegalStateException("Already created model root");
 
         model_parent = new Group();
-
         scroll_body = new Pane(model_parent);
+
         if (isEditMode())
         {
             horiz_bound = new Line();
             horiz_bound.getStyleClass().add("display_model_bounds");
             horiz_bound.setStartX(0);
+
             vert_bound = new Line();
             vert_bound.getStyleClass().add("display_model_bounds");
             vert_bound.setStartY(0);
+
             scroll_body.getChildren().addAll(vert_bound, horiz_bound);
         }
 
         model_root = new ScrollPane(scroll_body);
+
         final InvalidationListener resized = prop -> handleViewportChanges();
         model_root.widthProperty().addListener(resized);
         model_root.heightProperty().addListener(resized);
@@ -391,16 +397,19 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     }
 
     /** Update lines that indicate model's size in edit mode */
-    private void updateModelSizeIndicators()
-    {
+    private void updateModelSizeIndicators ( ) {
+
         final int width = model.propWidth().getValue();
         final int height = model.propHeight().getValue();
-        horiz_bound.setStartY(height - 1);
-        horiz_bound.setEndX(width - 1);
-        horiz_bound.setEndY(height - 1);
-        vert_bound.setStartX(width - 1);
-        vert_bound.setEndY(height - 1);
-        vert_bound.setEndX(width - 1);
+
+        horiz_bound.setStartY(height);
+        horiz_bound.setEndX(width);
+        horiz_bound.setEndY(height);
+
+        vert_bound.setStartX(width);
+        vert_bound.setEndY(height);
+        vert_bound.setEndX(width);
+
     }
 
     @Override
@@ -597,10 +606,17 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
     @Override
     public String showSaveAsDialog(final Widget widget, final String initial_value)
     {
-        // This is implemented in the RCP_JFXRepresentation, using the workspace.
-        // Could provide a file-system based dialog here for use without RCP/workspace.
-        logger.log(Level.WARNING, "showSaveAsDialog('" + initial_value + "') is not implemented");
-        return null;
+        final FileChooser dialog = new FileChooser();
+        if (initial_value != null)
+        {
+            final File file = new File(initial_value);
+            dialog.setInitialDirectory(file.getParentFile());
+            dialog.setInitialFileName(file.getName());
+        }
+        dialog.getExtensionFilters().addAll(FilenameSupport.file_extensions);
+        final Window window = null;
+        final File file = dialog.showSaveDialog(window);
+        return file == null ? null : file.toString();
     }
 
     /** Update background, using background color and grid information from model */

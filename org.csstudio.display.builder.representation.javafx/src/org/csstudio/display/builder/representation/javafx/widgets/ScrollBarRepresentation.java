@@ -40,7 +40,7 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
     @Override
     protected ScrollBar createJFXNode() throws Exception
     {
-        ScrollBar scrollbar = new ScrollBar();
+        final ScrollBar scrollbar = new ScrollBar();
         scrollbar.setOrientation(model_widget.propHorizontal().getValue() ? Orientation.VERTICAL : Orientation.HORIZONTAL);
         scrollbar.setFocusTraversable(true);
         scrollbar.setOnKeyPressed((final KeyEvent event) ->
@@ -73,6 +73,12 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
     }
 
     @Override
+    protected boolean isFilteringEditModeClicks()
+    {
+        return true;
+    }
+
+    @Override
     protected void registerListeners()
     {
         super.registerListeners();
@@ -82,8 +88,7 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         model_widget.propMaximum().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propHorizontal().addPropertyListener(this::sizeChanged);
         model_widget.propBarLength().addPropertyListener(this::sizeChanged);
-        model_widget.propStepIncrement().addPropertyListener(this::sizeChanged);
-        model_widget.propPageIncrement().addPropertyListener(this::sizeChanged);
+        model_widget.propIncrement().addPropertyListener(this::sizeChanged);
         model_widget.propEnabled().addPropertyListener(this::sizeChanged);
 
         //Since both the widget's PV value and the ScrollBar node's value property might be
@@ -163,8 +168,8 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
             jfx_node.setMin(min);
             jfx_node.setMax(max);
             jfx_node.setOrientation(model_widget.propHorizontal().getValue() ? Orientation.HORIZONTAL : Orientation.VERTICAL);
-            jfx_node.setUnitIncrement(model_widget.propStepIncrement().getValue());
-            jfx_node.setBlockIncrement(model_widget.propPageIncrement().getValue());
+            jfx_node.setUnitIncrement(model_widget.propIncrement().getValue());
+            jfx_node.setBlockIncrement(model_widget.propIncrement().getValue());
             jfx_node.setVisibleAmount(model_widget.propBarLength().getValue());
         }
         if (dirty_value.checkAndClear())

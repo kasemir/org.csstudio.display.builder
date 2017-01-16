@@ -73,6 +73,7 @@
     <module>org.csstudio.display.builder.editor</module>
     <module>org.csstudio.display.builder.editor.rcp</module>
     <module>org.csstudio.display.builder.examples</module>
+    
     <module>org.csstudio.display.builder.model</module>
     <module>org.csstudio.display.builder.model.rcp</module>
     <module>org.csstudio.display.builder.model.test</module>
@@ -141,6 +142,8 @@
         <artifactId>tycho-compiler-plugin</artifactId>
         <version>${tycho.version}</version>
         <configuration>
+          <!-- https://github.com/kasemir/org.csstudio.display.builder/pull/163 -->
+          <compilerArgument>-warn:+discouraged,forbidden</compilerArgument>
           <encoding>UTF-8</encoding>
           <extraClasspathElements>
             <!-- Add jfxswt.jar to avoid error w/ missing FXCanvas -->
@@ -197,7 +200,7 @@
       <id>all_platforms</id>
       <activation>
         <property>
-	      <name>!specific_platform</name>
+          <name>!specific_platform</name>
         </property>
       </activation>
       <build>
@@ -207,6 +210,31 @@
             <artifactId>target-platform-configuration</artifactId>
             <version>${tycho.version}</version>
             <configuration>
+              <!-- When importing diirt into the same IDE,
+                   IDE will use an older org.junit 4.10 plugin with
+                   older org.hamcrest, and then test code won't compile.
+                   Try to force junit 4.12 and org.hamcrest from its own plugin,
+                    not the package from diirt's org.junit plugin
+                -->
+              <!-- Doesn't make any difference to IDE...
+              <filters>
+                <filter>
+                  <type>eclipse-plugin</type>
+                  <id>org.junit</id>
+                  <restrictTo>
+                    <version>4.12</version>
+                  </restrictTo>
+                </filter>
+                <filter>
+                  <type>java-package</type>
+                  <id>org.hamcrest</id>
+                  <restrictTo>
+                    <type>eclipse-plugin</type>
+                    <id>org.hamcrest.core</id>
+                  </restrictTo>
+                </filter>
+              </filters>
+              -->
               <environments>
                 <!-- 
                 <environment>

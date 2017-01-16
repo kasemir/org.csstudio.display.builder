@@ -12,7 +12,9 @@ import static org.csstudio.javafx.rtplot.Activator.logger;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
+import org.csstudio.javafx.DialogHelper;
 import org.csstudio.javafx.rtplot.Activator;
+import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.Messages;
 import org.csstudio.javafx.rtplot.RTPlot;
 import org.csstudio.javafx.rtplot.RTPlotListener;
@@ -53,7 +55,7 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
     final private RTPlot<XTYPE> plot;
 
     final private ToolBar toolbar;
-    private ToggleButton zoom_in, zoom_out, pan, pointer;
+    private ToggleButton crosshair, zoom_in, zoom_out, pan, pointer;
     private Button edit_annotation;
 
     /** Have any custom items been added? */
@@ -61,24 +63,14 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
 
     /** Construct tool bar
      *  @param plot {@link RTPlot} to control from tool bar
+     *  @param active React to mouse clicks?
      */
-    public ToolbarHandler(final RTPlot<XTYPE> plot)
+    public ToolbarHandler(final RTPlot<XTYPE> plot, final boolean active)
     {
         this.plot = plot;
         toolbar = new ToolBar();
-        makeGUI();
+        makeGUI(active);
     }
-
-//    /** {@link RTPlot} creates {@link ToolbarHandler} in two stages:  TODO
-//     *  Construct, then call init, so that tool bar can refer back to the
-//     *  {@link ToggleToolbarAction}
-//     */
-//    public void addContextMenu(final Action toggle_action)
-//    {
-//        final MenuManager mm = new MenuManager();
-//        mm.add(toggle_action);
-//        toolbar.setMenu(mm.createContextMenu(toolbar));
-//    }
 
     /** @return The actual toolbar for {@link RTPlot} to handle its layout */
     public ToolBar getToolBar()
@@ -91,7 +83,7 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
      *  @param tool_tip Tool tip text
      *  @return {@link ToolItem}
      */
-    public Button addItem(final Image icon, final String tool_tip)
+    public Button addItem(final ImageView icon, final String tool_tip)
     {
         if (!have_custom_items)
         {
@@ -99,150 +91,183 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
             have_custom_items = true;
         }
         final Button item = new Button();
-        item.setGraphic(new ImageView(icon));
+        item.setGraphic(icon);
         item.setTooltip(new Tooltip(tool_tip));
         toolbar.getItems().add(item);
         return item;
     }
 
-    private void makeGUI()
+    /** Add a custom tool bar item
+     *  @param icon Icon {@link Image}
+     *  @param tool_tip Tool tip text
+     *  @return {@link ToolItem}
+     */
+    public Button addItem(final Image icon, final String tool_tip)
     {
-        addOptions();
-        addZoom();
-        addMouseModes();
+        return this.addItem(new ImageView(icon), tool_tip);
+    }
+
+    private void makeGUI(final boolean active)
+    {
+        addOptions(active);
+        addZoom(active);
+        addMouseModes(active);
         toolbar.getItems().add(new Separator());
-        addUndo();
+        addUndo(active);
 
         // Initially, panning is selected
         selectMouseMode(pan);
     }
 
-    private void addOptions()
+    private void addOptions(final boolean active)
     {
-    	final Button add_annotation = newButton(ToolIcons.ADD_ANNOTATION, Messages.AddAnnotation);
-    	add_annotation.setOnAction(event ->
-    	{
-    		new AddAnnotationDialog<>(plot).showAndWait();
-    		edit_annotation.setDisable(plot.getAnnotations().isEmpty());
-    	});
+        final Button add_annotation = newButton(ToolIcons.ADD_ANNOTATION, Messages.AddAnnotation);
 
         edit_annotation = newButton(ToolIcons.EDIT_ANNOTATION, Messages.EditAnnotation);
-        edit_annotation.setOnAction(event ->
-        {
-        	new EditAnnotationDialog<XTYPE>(plot).showAndWait();
-            edit_annotation.setDisable(plot.getAnnotations().isEmpty());
-        });
         // Enable if there are annotations to remove
         edit_annotation.setDisable(plot.getAnnotations().isEmpty());
-        plot.addListener(new RTPlotListener<XTYPE>()
-        {
-            @Override
-            public void changedAnnotations()
-            {
-            	Platform.runLater(() -> edit_annotation.setDisable(plot.getAnnotations().isEmpty()));
-            }
-        });
 
-        final ToggleButton crosshair = newToggleButton(ToolIcons.CROSSHAIR, Messages.Crosshair_Cursor);
-        crosshair.setOnAction(event ->  plot.showCrosshair(crosshair.isSelected()));
+        crosshair = newToggleButton(ToolIcons.CROSSHAIR, Messages.Crosshair_Cursor);
+
+        if (active)
+        {
+            add_annotation.setOnAction(event ->
+            {
+                final AddAnnotationDialog<XTYPE> dialog = new AddAnnotationDialog<>(plot);
+                DialogHelper.positionDialog(dialog, add_annotation, 0, 0);
+                dialog.showAndWait();
+                edit_annotation.setDisable(! haveUserAnnotations());
+            });
+            edit_annotation.setOnAction(event ->
+            {
+                final EditAnnotationDialog<XTYPE> dialog = new EditAnnotationDialog<XTYPE>(plot);
+                DialogHelper.positionDialog(dialog, edit_annotation, 0, 0);
+                dialog.showAndWait();
+                edit_annotation.setDisable(! haveUserAnnotations());
+            });
+            plot.addListener(new RTPlotListener<XTYPE>()
+            {
+                @Override
+                public void changedAnnotations()
+                {
+                    Platform.runLater(() -> edit_annotation.setDisable(! haveUserAnnotations()));
+                }
+            });
+            crosshair.setOnAction(event ->  plot.showCrosshair(crosshair.isSelected()));
+        }
     }
 
-    private void addZoom()
+    /** @return Are there any user (non-internal) annotations? */
+    private boolean haveUserAnnotations()
+    {
+        for (Annotation<XTYPE> annotation : plot.getAnnotations())
+            if (!annotation.isInternal())
+                return true;
+        return false;
+    }
+
+    private void addZoom(final boolean active)
     {
         final Button stagger = newButton(ToolIcons.STAGGER, Messages.Zoom_Stagger_TT);
-        stagger.setOnAction(event -> plot.stagger());
+        if (active)
+            stagger.setOnAction(event -> plot.stagger());
     }
 
-    private void addMouseModes()
+    private void addMouseModes(final boolean active)
     {
         zoom_in = newToggleButton(ToolIcons.ZOOM_IN, Messages.Zoom_In_TT);
         zoom_out = newToggleButton(ToolIcons.ZOOM_OUT, Messages.Zoom_Out_TT);
         pan = newToggleButton(ToolIcons.PAN, Messages.Pan_TT);
         pointer = newToggleButton(ToolIcons.POINTER, Messages.Plain_Pointer);
 
-        zoom_in.setOnAction(event ->
+        if (active)
         {
-            selectMouseMode(zoom_in);
-            plot.setMouseMode(MouseMode.ZOOM_IN);
-        });
-        zoom_out.setOnAction(event ->
-        {
-            selectMouseMode(zoom_out);
-            plot.setMouseMode(MouseMode.ZOOM_OUT);
-        });
-        pan.setOnAction(event ->
-        {
-            selectMouseMode(pan);
-            plot.setMouseMode(MouseMode.PAN);
-        });
-        pointer.setOnAction(event ->
-        {
-            selectMouseMode(pointer);
-            plot.setMouseMode(MouseMode.NONE);
-        });
+            zoom_in.setOnAction(event ->
+            {
+                selectMouseMode(zoom_in);
+                plot.setMouseMode(MouseMode.ZOOM_IN);
+            });
+            zoom_out.setOnAction(event ->
+            {
+                selectMouseMode(zoom_out);
+                plot.setMouseMode(MouseMode.ZOOM_OUT);
+            });
+            pan.setOnAction(event ->
+            {
+                selectMouseMode(pan);
+                plot.setMouseMode(MouseMode.PAN);
+            });
+            pointer.setOnAction(event ->
+            {
+                selectMouseMode(pointer);
+                plot.setMouseMode(MouseMode.NONE);
+            });
+        }
     }
 
-    private void addUndo()
+    private void addUndo(final boolean active)
     {
         final Button undo = newButton(ToolIcons.UNDO, Messages.Undo_TT);
-        undo.setOnAction(event -> plot.getUndoableActionManager().undoLast());
-
         final Button redo = newButton(ToolIcons.REDO, Messages.Redo_TT);
-        redo.setOnAction(event -> plot.getUndoableActionManager().redoLast());
-
         final UndoableActionManager undo_mgr = plot.getUndoableActionManager();
         undo.setDisable(!undo_mgr.canUndo());
         redo.setDisable(!undo_mgr.canRedo());
-        undo_mgr.addListener((to_undo, to_redo) ->
+
+        if (active)
         {
-        	Platform.runLater(()->
+            undo.setOnAction(event -> plot.getUndoableActionManager().undoLast());
+            redo.setOnAction(event -> plot.getUndoableActionManager().redoLast());
+            undo_mgr.addListener((to_undo, to_redo) ->
             {
-                if (to_undo == null)
+                Platform.runLater(()->
                 {
-                    undo.setDisable(true);
-                    undo.setTooltip(new Tooltip(Messages.Undo_TT));
-                }
-                else
-                {
-                    undo.setDisable(false);
-                    undo.setTooltip(new Tooltip(NLS.bind(Messages.Undo_Fmt_TT, to_undo)));
-                }
-                if (to_redo == null)
-                {
-                    redo.setDisable(true);
-                    redo.setTooltip(new Tooltip(Messages.Redo_TT));
-                }
-                else
-                {
-                    redo.setDisable(false);
-                    redo.setTooltip(new Tooltip(NLS.bind(Messages.Redo_Fmt_TT, to_redo)));
-                }
+                    if (to_undo == null)
+                    {
+                        undo.setDisable(true);
+                        undo.setTooltip(new Tooltip(Messages.Undo_TT));
+                    }
+                    else
+                    {
+                        undo.setDisable(false);
+                        undo.setTooltip(new Tooltip(NLS.bind(Messages.Undo_Fmt_TT, to_undo)));
+                    }
+                    if (to_redo == null)
+                    {
+                        redo.setDisable(true);
+                        redo.setTooltip(new Tooltip(Messages.Redo_TT));
+                    }
+                    else
+                    {
+                        redo.setDisable(false);
+                        redo.setTooltip(new Tooltip(NLS.bind(Messages.Redo_Fmt_TT, to_redo)));
+                    }
+                });
             });
-        });
+        }
     }
 
     private Button newButton(final ToolIcons icon, final String tool_tip)
     {
-    	return (Button) newItem(false, icon, tool_tip);
+        return (Button) newItem(false, icon, tool_tip);
     }
 
     private ToggleButton newToggleButton(final ToolIcons icon, final String tool_tip)
     {
-    	return (ToggleButton) newItem(true, icon, tool_tip);
+        return (ToggleButton) newItem(true, icon, tool_tip);
     }
 
     private ButtonBase newItem(final boolean toggle, final ToolIcons icon, final String tool_tip)
     {
-    	final ButtonBase item = toggle ? new ToggleButton() : new Button();
-		try
-		{
-			item.setGraphic(new ImageView(Activator.getIcon(icon.name().toLowerCase())));
-		}
-		catch (Exception ex)
-		{
-			logger.log(Level.WARNING, "Cannot get icon" + icon, ex);
-			item.setText(icon.toString());
-		}
+        final ButtonBase item = toggle ? new ToggleButton() : new Button();
+        try
+        {
+            item.setGraphic(new ImageView(Activator.getIcon(icon.name().toLowerCase())));
+        }
+        catch (Exception ex)
+        {
+            logger.log(Level.WARNING, "Cannot get icon" + icon, ex);
+            item.setText(icon.toString());
+        }
         item.setTooltip(new Tooltip(tool_tip));
 
         toolbar.getItems().add(item);
@@ -278,6 +303,14 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
     private void selectMouseMode(final ToggleButton item)
     {
         for (ToggleButton ti : new ToggleButton[] { zoom_in, zoom_out, pan, pointer })
-        	ti.setSelected(ti == item);
+            ti.setSelected(ti == item);
+    }
+
+    /** Turn crosshair on/off */
+    public void toggleCrosshair()
+    {
+        final boolean show = ! plot.isCrosshairVisible();
+        crosshair.setSelected(show);
+        plot.showCrosshair(show);
     }
 }

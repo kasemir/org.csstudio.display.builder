@@ -9,6 +9,7 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.properties.RotationStep;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
@@ -19,6 +20,8 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Translate;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -28,6 +31,14 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
     private volatile Pos pos;
+
+    /** Was there ever any transformation applied to the jfx_node?
+     *
+     *  <p>Used to optimize:
+     *  If there never was a rotation, don't even _clear()_ it
+     *  to keep the Node's nodeTransformation == null
+     */
+    private boolean was_ever_transformed = false;
 
     @Override
     public Label createJFXNode() throws Exception
@@ -49,6 +60,7 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
         model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
         model_widget.propHorizontalAlignment().addUntypedPropertyListener(this::styleChanged);
         model_widget.propVerticalAlignment().addUntypedPropertyListener(this::styleChanged);
+        model_widget.propRotationStep().addUntypedPropertyListener(this::styleChanged);
         model_widget.propWrapWords().addUntypedPropertyListener(this::styleChanged);
         model_widget.propText().addUntypedPropertyListener(this::contentChanged);
     }
@@ -73,17 +85,42 @@ public class LabelRepresentation extends RegionBaseRepresentation<Label, LabelWi
         super.updateChanges();
         if (dirty_style.checkAndClear())
         {
-            Color color = JFXUtil.convert(model_widget.propForegroundColor().getValue());
-            jfx_node.setTextFill(color);
-
-            jfx_node.setPrefSize(model_widget.propWidth().getValue(),
-                                 model_widget.propHeight().getValue());
+            final int width = model_widget.propWidth().getValue();
+            final int height = model_widget.propHeight().getValue();
+            final RotationStep rotation = model_widget.propRotationStep().getValue();
+            switch (rotation)
+            {
+            case NONE:
+                jfx_node.setPrefSize(width, height);
+                if (was_ever_transformed)
+                    jfx_node.getTransforms().clear();
+                break;
+            case NINETY:
+                jfx_node.setPrefSize(height, width);
+                jfx_node.getTransforms().setAll(new Rotate(-rotation.getAngle()),
+                                                new Translate(-height, 0));
+                was_ever_transformed = true;
+                break;
+            case ONEEIGHTY:
+                jfx_node.setPrefSize(width, height);
+                jfx_node.getTransforms().setAll(new Rotate(-rotation.getAngle()),
+                                                new Translate(-width, -height));
+                was_ever_transformed = true;
+                               break;
+            case MINUS_NINETY:
+                jfx_node.setPrefSize(height, width);
+                jfx_node.getTransforms().setAll(new Rotate(-rotation.getAngle()),
+                                                new Translate(0, -width));
+                was_ever_transformed = true;
+                break;
+            }
             jfx_node.setAlignment(pos);
             jfx_node.setWrapText(model_widget.propWrapWords().getValue());
+
+            Color color = JFXUtil.convert(model_widget.propForegroundColor().getValue());
+            jfx_node.setTextFill(color);
             if (model_widget.displayTransparent().getValue())
-            {   // No fill
-                jfx_node.setBackground(null);
-            }
+                jfx_node.setBackground(null); // No fill
             else
             {   // Fill background
                 color = JFXUtil.convert(model_widget.propBackgroundColor().getValue());

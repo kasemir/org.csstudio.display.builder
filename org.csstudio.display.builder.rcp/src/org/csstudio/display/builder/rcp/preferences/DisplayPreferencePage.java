@@ -73,11 +73,50 @@ public class DisplayPreferencePage extends FieldEditorPreferencePage
             }
         });
 
-        addField(new StringFieldEditor(org.csstudio.display.builder.rcp.Preferences.COLOR_FILE,
-                                       "Color File:", getFieldEditorParent()));
+        addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.CLASS_FILES,
+                                       "Widget Class Files:", getFieldEditorParent())
+        {
+            @Override
+            public IPreferenceStore getPreferenceStore()
+            {
+                return model_prefs;
+            }
+            @Override
+            public void store()
+            {
+                doStore();
+            }
+        });
 
-        addField(new StringFieldEditor(org.csstudio.display.builder.rcp.Preferences.FONT_FILE,
-                                       "Font File:", getFieldEditorParent()));
+        addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.COLOR_FILES,
+                                       "Color File:", getFieldEditorParent())
+        {
+            @Override
+            public IPreferenceStore getPreferenceStore()
+            {
+                return model_prefs;
+            }
+            @Override
+            public void store()
+            {
+                doStore();
+            }
+        });
+
+        addField(new StringFieldEditor(org.csstudio.display.builder.model.Preferences.FONT_FILES,
+                                       "Font File:", getFieldEditorParent())
+        {
+            @Override
+            public IPreferenceStore getPreferenceStore()
+            {
+                return model_prefs;
+            }
+            @Override
+            public void store()
+            {
+                doStore();
+            }
+        });
 
         addField(new StringFieldEditor(org.csstudio.display.builder.runtime.Preferences.PYTHON_PATH,
                                        "Jython Path:", getFieldEditorParent())

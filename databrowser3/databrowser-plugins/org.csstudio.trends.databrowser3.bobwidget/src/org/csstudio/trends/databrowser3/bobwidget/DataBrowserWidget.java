@@ -7,7 +7,38 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.bobwidget;
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineColor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineStyle;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineWidth;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
+
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+
+import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.model.Messages;
+import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetCategory;
+import org.csstudio.display.builder.model.WidgetConfigurator;
+import org.csstudio.display.builder.model.WidgetDescriptor;
+import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.WidgetPropertyCategory;
+import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.macros.MacroHandler;
+import org.csstudio.display.builder.model.macros.Macros;
+import org.csstudio.display.builder.model.persist.ModelReader;
+import org.csstudio.display.builder.model.persist.XMLUtil;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties.WidgetLineStyle;
+import org.csstudio.display.builder.model.properties.WidgetColor;
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
+import org.csstudio.trends.databrowser3.model.Model;
+import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
+import org.osgi.framework.Version;
+import org.w3c.dom.Element;
 
 /** Model for persisting data browser widget configuration.
  *
@@ -16,20 +47,216 @@ import org.csstudio.display.builder.model.widgets.VisibleWidget;
  *
  *  @author Jaka Bobnar - Original selection value PV support
  *  @author Kay Kasemir
+ *  @author Megan Grodowitz - Databrowser 3 ported from 2
  */
 @SuppressWarnings("nls")
 public class DataBrowserWidget extends VisibleWidget
 {
+    /** Model with data to display */
+    private volatile Model model = new Model();
 
-    public DataBrowserWidget(String type)
+    /** Widget descriptor */
+    public static final WidgetDescriptor WIDGET_DESCRIPTOR =
+            new WidgetDescriptor("databrowser", WidgetCategory.PLOT,
+                    "Data Browser",
+                    "platform:/plugin/org.csstudio.trends.databrowser3.bobwidget/icons/databrowser.png",
+                    "Embedded Data Brower",
+                    Arrays.asList("org.csstudio.trends.databrowser.opiwidget"))
     {
-        super(type);
-        // TODO Auto-generated constructor stub
+        @Override
+        public Widget createWidget()
+        {
+            return new DataBrowserWidget();
+        }
+    };
+
+    private static class CustomConfigurator extends WidgetConfigurator
+    {
+        public CustomConfigurator(final Version xml_version)
+        {
+            super(xml_version);
+        }
+
+        @Override
+        public boolean configureFromXML(final ModelReader model_reader, final Widget widget,
+                                        final Element xml) throws Exception
+        {
+            if (! super.configureFromXML(model_reader, widget, xml))
+                return false;
+
+            final DataBrowserWidget dbwidget = (DataBrowserWidget) widget;
+
+            // Legacy used 'filename' instead of 'name'
+            final Element el = XMLUtil.getChildElement(xml, "filename");
+            if (el != null)
+                dbwidget.filename.setValue(XMLUtil.getString(el));
+
+            return true;
+        }
+    }
+
+    public static final WidgetPropertyDescriptor<Boolean> propShowToolbar =
+        CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_toolbar", Messages.PlotWidget_ShowToolbar);
+
+    private volatile WidgetProperty<Boolean> show_toolbar;
+    private volatile WidgetProperty<String> filename;
+    private volatile WidgetProperty<Macros> macros;
+
+    //TODO: more properties: show/hide legend, show/hide title, title text... others?
+
+    //TODO: configure these from border_color, border_width
+    private volatile WidgetProperty<WidgetColor> line_color;
+    private volatile WidgetProperty<Integer> line_width;
+    private volatile WidgetProperty<WidgetLineStyle> line_style;
+
+    public DataBrowserWidget()
+    {
+        super(WIDGET_DESCRIPTOR.getType(), 200, 200);
+        model.setMacros(this.getMacrosOrProperties());
+    }
+
+    @Override
+    protected void defineProperties(final List<WidgetProperty<?>> properties)
+    {
+        super.defineProperties(properties);
+        properties.add(filename = propFile.createProperty(this, ""));
+        properties.add(show_toolbar = propShowToolbar.createProperty(this, true));
+        properties.add(line_width = propLineWidth.createProperty(this, 2));
+        properties.add(line_color = propLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
+        properties.add(line_style = propLineStyle.createProperty(this, WidgetLineStyle.SOLID));
+        properties.add(macros = propMacros.createProperty(this, new Macros()));
+    }
+
+    @Override
+    public WidgetConfigurator getConfigurator(final Version persisted_version) throws Exception
+    {
+        return new CustomConfigurator(persisted_version);
+    }
+
+    /**
+     * Databrowser widget extends parent macros
+     *
+     * @return {@link Macros}
+     */
+    @Override
+    public Macros getEffectiveMacros()
+    {
+        final Macros base = super.getEffectiveMacros();
+        final Macros my_macros = propMacros().getValue();
+        return Macros.merge(base, my_macros);
+    }
+
+
+    /** @return 'macros' property */
+    public WidgetProperty<Macros> propMacros()
+    {
+        return macros;
+    }
+
+    /** @return 'text' property */
+    public WidgetProperty<String> propFile()
+    {
+        return filename;
+    }
+
+    /** @return 'show_toolbar' property */
+    public WidgetProperty<Boolean> propShowToolbar()
+    {
+        return show_toolbar;
+    }
+
+    /** @return 'show_toolbar' property */
+    public WidgetProperty<WidgetColor> propLineColor()
+    {
+        return line_color;
+    }
+
+    /** @return 'show_toolbar' property */
+    public WidgetProperty<Integer> propLineWidth()
+    {
+        return line_width;
+    }
+
+    /** @return 'show_toolbar' property */
+    public WidgetProperty<WidgetLineStyle> propLineStyle()
+    {
+        return line_style;
+    }
+
+
+    public Model getModel() {
+        return model;
+    }
+
+    public Model cloneModel() {
+        //TODO: see about copying over live samples from old to new model
+        final Model model = new Model();
+        model.setMacros(this.getMacrosOrProperties());
+        try
+        {
+            final InputStream input = this.getFileInputStream();
+            new XMLPersistence().load(model, input);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return model;
+    }
+
+    public InputStream getFileInputStream(final String base_path) {
+        InputStream stream;
+        String file_path;
+
+        try
+        {
+            file_path = this.getExpandedFilename(base_path);
+        }
+        catch (Exception e)
+        {
+            //TODO: change to logging message
+            System.out.println("Failure resolving image path from base path: " + base_path);
+            e.printStackTrace();
+            return null;
+        }
+
+        try
+        {
+            stream = ModelResourceUtil.openResourceStream(file_path);
+        }
+        catch (Exception e)
+        {
+            //System.out.println("Failure loading plot file:" + file_path);
+            e.printStackTrace();
+            return null;
+        }
+
+        return stream;
+    }
+
+    public InputStream getFileInputStream() {
+        return this.getFileInputStream(this.filename.getValue());
+    }
+
+    public String getExpandedFilename(String base_path) throws Exception
+    {
+        // expand macros in the file name
+        final String expanded_path = MacroHandler.replace(this.getMacrosOrProperties(), base_path);
+        // Resolve new image file relative to the source widget model (not 'top'!)
+        // Get the display model from the widget tied to this representation
+        final DisplayModel widget_model = this.getDisplayModel();
+        // Resolve the path using the parent model file path
+        return ModelResourceUtil.resolveResource(widget_model, expanded_path);
+    }
+
+    public String getExpandedFilename() throws Exception
+    {
+        return getExpandedFilename(this.filename.getValue());
     }
 
     @Override
     public String toString()
     {
-        return "DataBrowserWidgetModel";
+        return "DataBrowserWidgetModel: " + filename;
     }
 }

@@ -7,16 +7,15 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.model;
 
-import javafx.geometry.Point2D;
 import java.io.PrintWriter;
 import java.time.Instant;
 
 import org.csstudio.apputil.xml.DOMHelper;
 import org.csstudio.apputil.xml.XMLWriter;
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
-import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
-//import org.eclipse.swt.graphics.Point;
 import org.w3c.dom.Element;
+
+import javafx.geometry.Point2D;
 
 /** Information about a Plot Annotation
  *
@@ -25,27 +24,35 @@ import org.w3c.dom.Element;
  *
  *  <p>This class is used by the model to read initial annotations
  *  from the {@link Model}'s XML file,
- *  and to later read them back from the {@link ModelBasedPlot} for writing
+ *  and to later read them back from the {@link ModelBasedPlotSWT} for writing
  *  them to the XML file.
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class AnnotationInfo
 {
+    final private boolean internal;
     final int item_index;
     final private Instant time;
     final private double value;
     final private Point2D offset;
     final private String text;
 
-    public AnnotationInfo(final int item_index, final Instant time, final double value, final Point2D point2d, final String text)
+    public AnnotationInfo(final boolean internal, final int item_index, final Instant time, final double value, final Point2D point2d, final String text)
     {
-
+        this.internal = internal;
         this.item_index = item_index;
         this.time = time;
         this.value = value;
         this.offset = point2d;
         this.text = text;
+    }
+
+    /** @return Internal annotation, created by databrowser and not user? */
+    public boolean isInternal()
+    {
+        return internal;
     }
 
     /** @return Index of item */
@@ -78,11 +85,35 @@ public class AnnotationInfo
         return text;
     }
 
-    @SuppressWarnings("nls")
     @Override
-    public String toString()
+    public int hashCode()
     {
-        return "Annotation for item " + item_index + ": '" + text + "' @ " + TimeHelper.format(time) + ", " + value;
+        final int prime = 31;
+        int result = internal ? prime : 0;
+        result = prime * result + item_index;
+        result = prime * result + offset.hashCode();
+        result = prime * result + text.hashCode();
+        result = prime * result + time.hashCode();
+        long temp;
+        temp = Double.doubleToLongBits(value);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (! (obj instanceof AnnotationInfo))
+            return false;
+        final AnnotationInfo other = (AnnotationInfo) obj;
+        return internal == other.internal      &&
+               item_index == other.item_index  &&
+               offset.equals(other.offset)     &&
+               text.equals(other.text)         &&
+               time.equals(other.time)         &&
+               Double.doubleToLongBits(value) == Double.doubleToLongBits(other.value);
     }
 
     /** Write XML formatted annotation configuration
@@ -90,6 +121,8 @@ public class AnnotationInfo
      */
     public void write(final PrintWriter writer)
     {
+        if (internal)
+            return;
         XMLWriter.start(writer, 2, XMLPersistence.TAG_ANNOTATION);
         writer.println();
         XMLWriter.XML(writer, 3, XMLPersistence.TAG_PV, item_index);
@@ -127,6 +160,13 @@ public class AnnotationInfo
             x = DOMHelper.getSubelementInt(offset, XMLPersistence.TAG_X, x);
             y = DOMHelper.getSubelementInt(offset, XMLPersistence.TAG_Y, y);
         }
-        return new AnnotationInfo(item_index, time, value, new Point2D(x, y), text);
+        return new AnnotationInfo(false, item_index, time, value, new Point2D(x, y), text);
+    }
+
+    @Override
+    public String toString()
+    {
+        return (internal ? "Internal Annotation for item " : "Annotation for item ") + item_index + ": '" +
+               text + "' @ " + TimeHelper.format(time) + ", " + value;
     }
 }

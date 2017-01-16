@@ -8,10 +8,8 @@
 package org.csstudio.display.builder.model.macros;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propType;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -24,18 +22,14 @@ import org.csstudio.display.builder.model.WidgetProperty;
 @SuppressWarnings("nls")
 public class MacroOrPropertyProvider implements MacroValueProvider
 {
-    private final MacroValueProvider macros;
-    private final Map<String, WidgetProperty<?>> properties;
+    private final Widget widget;
 
     /** Initialize
-     *  @param macros      Macros to use
-     *  @param properties  Properties on which to fall back
+     *  @param widget      Widget for which to provide macros or properties
      */
-    public MacroOrPropertyProvider(final MacroValueProvider macros,
-                                   final Map<String, WidgetProperty<?>> properties)
+    public MacroOrPropertyProvider(final Widget widget)
     {
-        this.macros = macros;
-        this.properties = properties;
+        this.widget = widget;
     }
 
     @Override
@@ -50,7 +44,7 @@ public class MacroOrPropertyProvider implements MacroValueProvider
             // so fetch that to get the widget and then the display.
             try
             {
-                return properties.get(propType.getName()).getWidget().getDisplayModel().getID();
+                return widget.getDisplayModel().getID();
             }
             catch (Exception ex)
             {
@@ -64,7 +58,7 @@ public class MacroOrPropertyProvider implements MacroValueProvider
         {
             try
             {
-                return properties.get(propType.getName()).getWidget().getDisplayModel().propName().getValue();
+                return widget.getDisplayModel().getName();
             }
             catch (Exception ex)
             {
@@ -73,34 +67,49 @@ public class MacroOrPropertyProvider implements MacroValueProvider
             }
         }
 
+        // Check actual macros
+        final Macros macros = widget.getEffectiveMacros();
         String value = macros.getValue(name);
         if (value != null)
             return value;
 
-        final WidgetProperty<?> property = properties.get(name);
-        if (property != null)
-        {   // If value is a single-element collection, get string for that one element.
-            // This is primarily for buttons that use $(actions) as their text,
-            // and there's a single action which should show as "That Action"
-            // and not "[That Action]".
-            final Object prop_val = property.getValue();
-            if (prop_val instanceof Collection<?>)
-            {
-                final Collection<?> coll = (Collection<?>) prop_val;
-                if (coll.size() == 1)
-                    return coll.iterator().next().toString();
+        // Fall back to widget properties
+        try
+        {
+            final WidgetProperty<?> property = widget.getProperty(name);
+            if (property != null)
+            {   // If value is a single-element collection, get string for that one element.
+                // This is primarily for buttons that use $(actions) as their text,
+                // and there's a single action which should show as "That Action"
+                // and not "[That Action]".
+                final Object prop_val = property.getValue();
+                if (prop_val instanceof Collection<?>)
+                {
+                    final Collection<?> coll = (Collection<?>) prop_val;
+                    if (coll.size() == 1)
+                        return coll.iterator().next().toString();
+                }
+                // Value of property may be null, example: Initial pv_value
+                return Objects.toString(prop_val);
             }
-            // Value of property may be null, example: Initial pv_value
-            return Objects.toString(prop_val);
         }
-        return null;
+        catch (IllegalArgumentException ex)
+        {
+            // Ignore unknown macro
+        }
+
+        // Fall back to Java system properties
+        value = System.getProperty(name);
+        if (value != null)
+            return value;
+
+        // Finally, fall back to environment variables
+        return System.getenv(name);
     }
 
     @Override
     public String toString()
     {
-        // Properties always contain "name". Use that to fetch widget.
-        final Widget widget = properties.get("name").getWidget();
-        return widget + " macros or properties: " + macros.toString();
+        return widget + " macros or properties: " + widget.getEffectiveMacros();
     }
 }

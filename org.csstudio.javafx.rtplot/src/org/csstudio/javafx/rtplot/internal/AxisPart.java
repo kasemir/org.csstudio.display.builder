@@ -9,6 +9,7 @@ package org.csstudio.javafx.rtplot.internal;
 
 import static org.csstudio.javafx.rtplot.Activator.logger;
 
+import java.awt.BasicStroke;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -21,8 +22,6 @@ import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.RTPlot;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.ScreenTransform;
-
-import javafx.scene.canvas.GraphicsContext;
 
 /** Base class for X and Y axes.
  *  <p>
@@ -40,7 +39,15 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
 
     protected static final int TICK_LENGTH = 10;
 
-    protected static final int TICK_WIDTH = 2;
+    /** Width of major tick marks
+     *
+     *  2 will look similar to 3,
+     *  but 2 with AA results in fuzz,
+     *  while 3 creates sharp 3 pixel line.
+     */
+    protected static final int TICK_WIDTH = 3;
+
+    protected static final BasicStroke TICK_STROKE = new BasicStroke(TICK_WIDTH, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER);
 
     protected static final int MINOR_TICK_LENGTH = 5;
 
@@ -248,6 +255,8 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
         {   // Any change at all?
             if (low.equals(range.getLow())  &&  high.equals(range.getHigh()))
                 return false;
+            logger.log(Level.FINE, "Axis {0}: Value range {1} ... {2}",
+                                   new Object[] { getName(), low, high });
             // Can axis handle this range?
             if (! ticks.isSupportedRange(low, high))
             {
@@ -362,16 +371,9 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
      *
      *  @param gc GC to use
      *  @param tick Location of the tick
+     *  @param floating Draw in 'floating' mode above ordinary tick labels?
      */
-    abstract public void drawTickLabel(final Graphics2D gc, final T tick);
-
-    /** Draw a tick label, used both to paint the normal axis labels
-     *  and for special, cursor-related tick locations.
-     *
-     *  @param gc GC to use
-     *  @param tick Location of the tick
-     */
-    abstract public void drawFloatingTickLabel(final GraphicsContext gc, final T tick);
+    abstract public void drawTickLabel(final Graphics2D gc, final T tick, final boolean floating);
 
 	@Override
     public String toString()

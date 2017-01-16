@@ -30,7 +30,7 @@ import javafx.stage.Stage;
  *  -->
  *  The actual drawing of the canvas takes place when it's added to
  *  the scene graph. The "background" drawing doesn't help.
- *  Matches the comment "Rendering a canvas on a background thread is very slow when updateing the scene graph"
+ *  Matches the comment "Rendering a canvas on a background thread is very slow when updating the scene graph"
  *  from https://community.oracle.com/thread/3755802
  *
  *  <p>On Mac OS X,

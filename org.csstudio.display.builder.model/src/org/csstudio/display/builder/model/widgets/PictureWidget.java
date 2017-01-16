@@ -35,13 +35,13 @@ import org.w3c.dom.Text;
 @SuppressWarnings("nls")
 public class PictureWidget extends VisibleWidget
 {
-    public final static String default_pic = "platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif"; //$NON-NLS-1$
+    public final static String default_pic = "platform:/plugin/org.csstudio.display.builder.model/icons/default_picture.png"; //$NON-NLS-1$
 
     /** Widget descriptor */
     public static final WidgetDescriptor WIDGET_DESCRIPTOR =
             new WidgetDescriptor("picture", WidgetCategory.GRAPHIC,
                     "Picture",
-                    "platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif",
+                    "platform:/plugin/org.csstudio.display.builder.model/icons/picture.png",
                     "Display a picture from a file",
                     Arrays.asList("org.csstudio.opibuilder.widgets.Image"))
     {
@@ -100,7 +100,7 @@ public class PictureWidget extends VisibleWidget
 
     public PictureWidget()
     {
-        super(WIDGET_DESCRIPTOR.getType());
+        super(WIDGET_DESCRIPTOR.getType(), 150, 100);
     }
 
     @Override

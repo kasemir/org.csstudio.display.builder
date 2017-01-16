@@ -25,6 +25,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 
+import javafx.embed.swt.SWTFXUtils;
+
 /** An Action for printing the current image.
  *  @author Kay Kasemir
  */
@@ -33,6 +35,7 @@ public class PrintAction extends Action
 {
     final private Shell shell;
     final private RTTimePlot graph;
+    final private SWTMediaPool media_pool;
 
     /** Initialize
      *  @param shell Parent shell
@@ -44,6 +47,7 @@ public class PrintAction extends Action
                 PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ETOOL_PRINT_EDIT));
         this.shell = shell;
         this.graph = graph;
+        this.media_pool = new SWTMediaPool(shell);
 
         // Skip printer check on GTK because of hangups:
         // https://bugs.eclipse.org/bugs/show_bug.cgi?id=153936,
@@ -74,8 +78,8 @@ public class PrintAction extends Action
     public void run()
     {
         // Get snapshot. Disposed at end of printing
-        //TODO: Implement image retrieval and transform functions
-        final Image snapshot = SWTMediaPool.get(graph.getImage());
+        final Image snapshot = media_pool.get(SWTFXUtils.fromFXImage(graph.getImage(), null));
+
         if (snapshot == null)
         {
             Logger.getLogger(getClass().getName()).fine("Cannot obtain image");

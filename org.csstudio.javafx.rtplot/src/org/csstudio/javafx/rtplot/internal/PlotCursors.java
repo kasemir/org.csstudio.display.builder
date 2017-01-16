@@ -43,13 +43,15 @@ public class PlotCursors
     {
         try
         {
-            cursor_pan = new ImageCursor(Activator.getIcon("cursor_pan"));
-            cursor_zoom_in = new ImageCursor(Activator.getIcon("cursor_zoom_in"));
-            cursor_zoom_out = new ImageCursor(Activator.getIcon("cursor_zoom_out"));
+            // cursor_cross = new ImageCursor(Activator.getIcon("cursor_cross"), 17, 17);
+            cursor_pan = new ImageCursor(Activator.getIcon("cursor_pan"), 8, 8);
+            cursor_zoom_in = new ImageCursor(Activator.getIcon("cursor_zoom_in"), 5, 5);
+            cursor_zoom_out = new ImageCursor(Activator.getIcon("cursor_zoom_out"), 5, 5);
         }
         catch (Exception ex)
         {
             logger.log(Level.WARNING, "Error loading cursors", ex);
+            // cursor_cross = Cursor.CROSSHAIR;
             cursor_pan = Cursor.HAND;
             cursor_zoom_in = Cursor.DEFAULT;
             cursor_zoom_out = Cursor.DEFAULT;
@@ -88,17 +90,19 @@ public class PlotCursors
         switch (mode)
         {
         case PAN:
+        case PAN_X:
+        case PAN_Y:
+        case PAN_PLOT:
             return cursor_pan;
         case ZOOM_IN:
-            return cursor_zoom_in;
-        case ZOOM_OUT:
-            return cursor_zoom_out;
         case ZOOM_IN_PLOT:
         case ZOOM_IN_X:
         case ZOOM_IN_Y:
-            return Cursor.CROSSHAIR;
+            return cursor_zoom_in;
+        case ZOOM_OUT:
+            return cursor_zoom_out;
         default:
-            return Cursor.DEFAULT;
+             return Cursor.DEFAULT;
         }
     }
 }

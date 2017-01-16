@@ -7,11 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp;
 
-import java.io.ByteArrayInputStream;
+import static org.csstudio.display.builder.editor.rcp.Plugin.logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -100,7 +103,6 @@ public class NewDisplayWizard extends Wizard implements INewWizard
     private void doFinish(final String containerName, final String fileName,
                           final IProgressMonitor monitor) throws Exception
     {
-        // create a sample file
         monitor.beginTask("Creating " + fileName, 2);
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         final IResource resource = root.findMember(new Path(containerName));
@@ -109,20 +111,18 @@ public class NewDisplayWizard extends Wizard implements INewWizard
         final IContainer container = (IContainer) resource;
         final IFile file = container.getFile(new Path(fileName));
         try
-        {
+        (
             final InputStream stream = getInitialContent();
-            if (file.exists())
-            {
-                file.setContents(stream, true, true, monitor);
-            }
-            else
-            {
-                file.create(stream, true, monitor);
-            }
-            stream.close();
-        }
-        catch (IOException e)
+        )
         {
+            if (file.exists())
+                file.setContents(stream, true, true, monitor);
+            else
+                file.create(stream, true, monitor);
+        }
+        catch (IOException ex)
+        {
+            logger.log(Level.WARNING, "Cannot create initial file " + fileName, ex);
         }
         monitor.worked(1);
         monitor.setTaskName("Opening file for editing...");
@@ -133,29 +133,16 @@ public class NewDisplayWizard extends Wizard implements INewWizard
             {
                 IDE.openEditor(page, file, true);
             }
-            catch (PartInitException e)
+            catch (PartInitException ex)
             {
+                logger.log(Level.WARNING, "Cannot open editor for " + fileName, ex);
             }
         });
         monitor.worked(1);
     }
 
-    private InputStream getInitialContent()
+    private InputStream getInitialContent() throws Exception
     {
-        final String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-"<display version=\"1.0.0\">" +
-"  <name>Display</name>" +
-"  <widget type=\"label\" version=\"2.0.0\">" +
-"    <name>Label</name>" +
-"    <width>281</width>" +
-"    <height>31</height>" +
-"    <text>My Display</text>" +
-"    <font>" +
-"      <font name=\"Header 1\" family=\"Liberation Sans\" style=\"BOLD\" size=\"22.0\">" +
-"      </font>" +
-"    </font>" +
-"  </widget>" +
-"</display>";
-        return new ByteArrayInputStream(xml.getBytes());
+        return ModelResourceUtil.openResourceStream("platform:/plugin/org.csstudio.display.builder.model/examples/initial.bob");
     }
 }

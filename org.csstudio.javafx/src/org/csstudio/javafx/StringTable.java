@@ -28,6 +28,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.control.Button;
+import javafx.scene.control.Cell;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -89,6 +90,12 @@ public class StringTable extends BorderPane
      */
     private static final List<String> MAGIC_LAST_ROW = Arrays.asList(Messages.MagicLastRow);
 
+    /** Data shown in the table, includes MAGIC_LAST_ROW */
+    private final ObservableList<List<String>> data = FXCollections.observableArrayList();
+
+    /** Optional cell coloring, does not include MAGIC_LAST_ROW */
+    private volatile List<List<Color>> cell_colors = null;
+
     /** Cell factory for displaying the text
      *
      *  <p>special coloring of MAGIC_LAST_ROW which only has one column
@@ -132,9 +139,10 @@ public class StringTable extends BorderPane
             super.updateItem(item, empty);
             if (empty)
                 return;
-            final List<List<String>> data = getTableView().getItems();
             final int row = getIndex();
+            final int col = getTableView().getColumns().indexOf(getTableColumn());
             setTextFill(data.get(row) == MAGIC_LAST_ROW ? last_row_color : text_color);
+            setCellStyle(this, row, col);
         }
     }
 
@@ -152,8 +160,8 @@ public class StringTable extends BorderPane
 
             checkbox.setOnAction(event ->
             {
-                final int col = getTableView().getColumns().indexOf(getTableColumn());
                 final int row = getIndex();
+                final int col = getTableView().getColumns().indexOf(getTableColumn());
                 final String value = Boolean.toString(checkbox.isSelected());
                 data.get(row).set(col, value);
                 fireDataChanged();
@@ -180,6 +188,8 @@ public class StringTable extends BorderPane
                     setText(null);
                     setGraphic(checkbox);
                     checkbox.setSelected(item.equalsIgnoreCase("true"));
+                    final int col = getTableView().getColumns().indexOf(getTableColumn());
+                    setCellStyle(this, row, col);
                 }
             }
         }
@@ -193,13 +203,21 @@ public class StringTable extends BorderPane
             super(FXCollections.observableArrayList(options));
             setComboBoxEditable(true);
         }
+
+        @Override
+        public void updateItem(final String item, final boolean empty)
+        {
+            super.updateItem(item, empty);
+            if (empty)
+                return;
+            final int row = getIndex();
+            final int col = getTableView().getColumns().indexOf(getTableColumn());
+            setCellStyle(this, row, col);
+        }
     };
 
 
     private final ToolBar toolbar = new ToolBar();
-
-    /** Data shown in the table, includes MAGIC_LAST_ROW */
-    private final ObservableList<List<String>> data = FXCollections.observableArrayList();
 
     private final TableView<List<String>> table = new TableView<>(data);
 
@@ -365,6 +383,7 @@ public class StringTable extends BorderPane
     public void setHeaders(final List<String> headers)
     {
         table.getColumns().clear();
+        cell_colors = null;
         data.clear();
         if (editable)
             data.add(MAGIC_LAST_ROW);
@@ -515,6 +534,7 @@ public class StringTable extends BorderPane
     public void setData(final List<List<String>> new_data)
     {
         final int columns = getColumnCount();
+        cell_colors = null;
         data.clear();
         for (List<String> new_row : new_data)
         {
@@ -570,6 +590,66 @@ public class StringTable extends BorderPane
         }
     }
 
+    /** Set background color for specific cells
+     *
+     *  <p>Expects a list of rows,
+     *  where each row contains a list of colors for each cell
+     *  in that row.
+     *  The list may be sparse, i.e. the list for a certain row
+     *  may be <code>null</code>, or contain <code>null</code>
+     *  instead of a color for a specific cell.
+     *
+     *  <p><b>Note:</b> The cell colors are used as provided,
+     *  no deep copy is created!
+     *  Caller needs to either provide a static or a thread-safe
+     *  table of colors.
+     *
+     *  @param row Table row
+     *  @param col Table column
+     *  @param color Color of that cell, <code>null</code> for default
+     */
+    public void setCellColors(final List<List<Color>> colors)
+    {
+        cell_colors = colors;
+        table.refresh();
+    }
+
+    /** Get background color for a specific cell
+     *  @param row Table row
+     *  @param col Table column
+     *  @return Color of that cell, <code>null</code> for default
+     */
+    private Color getCellColor(final int row, final int col)
+    {
+        final List<List<Color>> colors = cell_colors;
+        if (colors != null  &&  row < colors.size())
+        {
+            final List<Color> row_colors = colors.get(row);
+            if (col < row_colors.size())
+                return row_colors.get(col);
+        }
+        return null;
+    }
+
+    /** Set style of table cell to reflect optional background color
+     * @param cell
+     *  @param row Table row
+     *  @param col Table column
+     */
+    private void setCellStyle(Cell<String> cell, final int row, final int col)
+    {
+        final Color color = getCellColor(row, col);
+        if (color == null)
+            cell.setStyle(null);
+        else
+        {   // Based on modena.css
+            // .table-cell has no -fx-background-color to see overall background,
+            // but .table-cell:selected uses this to get border with an inset color
+            cell.setStyle("-fx-background-color: -fx-table-cell-border-color, " + JFXUtil.webRGB(color) +
+                          ";-fx-background-insets: 0, 0 0 1 0;");
+        }
+    }
+
     /** Handle key pressed on the table
      *
      *  <p>Ignores keystrokes while editing a cell.
@@ -594,6 +674,7 @@ public class StringTable extends BorderPane
      */
     private void addRow()
     {
+        cell_colors = null;
         int row = table.getSelectionModel().getSelectedIndex();
         final List<List<String>> data = table.getItems();
         final int len = data.size();
@@ -629,6 +710,7 @@ public class StringTable extends BorderPane
      */
     private void moveRow(final int row, final int target)
     {
+        cell_colors = null;
         final int column = getSelectedColumn();
         final List<String> line = data.remove(row);
         data.add(target, line);
@@ -639,6 +721,7 @@ public class StringTable extends BorderPane
     /** Delete currently selected row */
     private void deleteRow()
     {
+        cell_colors = null;
         int row = table.getSelectionModel().getSelectedIndex();
         final List<List<String>> data = table.getItems();
         final int len = data.size();
@@ -719,6 +802,7 @@ public class StringTable extends BorderPane
         final String name = getColumnName(Messages.DefaultNewColumnName);
         if (name == null)
             return;
+        cell_colors = null;
         if (column < 0)
             column = table.getColumns().size();
         createTableColumn(column, name);
@@ -754,6 +838,7 @@ public class StringTable extends BorderPane
      */
     private void moveColumn(final int column, final int target)
     {
+        cell_colors = null;
         int row = table.getSelectionModel().getSelectedIndex();
         final TableColumn<List<String>, ?> col = table.getColumns().remove(column);
         table.getColumns().add(target, col);
@@ -770,6 +855,7 @@ public class StringTable extends BorderPane
     /** Delete currently selected column */
     private void deleteColumn()
     {
+        cell_colors = null;
         final int column = getSelectedColumn();
         if (column < 0)
             return;

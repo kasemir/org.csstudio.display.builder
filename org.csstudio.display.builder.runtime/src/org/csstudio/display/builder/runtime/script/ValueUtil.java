@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.script;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.diirt.util.array.CollectionNumbers;
 import org.diirt.util.array.ListDouble;
 import org.diirt.util.array.ListNumber;
+import org.diirt.vtype.Time;
 import org.diirt.vtype.VByteArray;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VNumber;
@@ -130,6 +132,18 @@ public class ValueUtil
             return result;
         }
         return new double[] { getDouble(value) };
+    }
+
+    /** Get time stamp of a value.
+     *
+     *  @param value Value of a PV
+     *  @return {@link Instant} or <code>null</code>
+     */
+    public static Instant getTimestamp(final VType value)
+    {
+        if (value instanceof Time)
+            return ((Time) value).getTimestamp();
+        return null;
     }
 
     /** Get a table from PV

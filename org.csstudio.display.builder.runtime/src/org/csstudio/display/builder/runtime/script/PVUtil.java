@@ -7,10 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime.script;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
+import org.csstudio.java.time.TimestampFormats;
+import org.diirt.vtype.Alarm;
+import org.diirt.vtype.AlarmSeverity;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VTable;
 import org.diirt.vtype.VType;
@@ -32,12 +36,13 @@ public class PVUtil
      *  @param pv PV
      *  @return Current value.
      *          <code>Double.NaN</code> in case the value type
-     *          does not decode into a number.
-     *  @throws NullPointerException if the PV has no value
+     *          does not decode into a number,
+     *          or PV has no value.
      */
-    public static double getDouble(final RuntimePV pv) throws NullPointerException
+    public static double getDouble(final RuntimePV pv)
     {
-        return ValueUtil.getDouble(getVType(pv));
+        final VType value = pv.read();
+        return ValueUtil.getDouble(value);
     }
 
     /** Try to get an integer from the PV.
@@ -104,6 +109,99 @@ public class PVUtil
     public static double[] getDoubleArray(final RuntimePV pv) throws NullPointerException
     {
         return ValueUtil.getDoubleArray(getVType(pv));
+    }
+
+    /** Get the timestamp string of the PV.
+     *
+     *  <p>Time stamp of the PV is formatted using
+     *  the common TimestampFormats helper for
+     *  the local time zone.
+     *
+     *  @param pv PV
+     *  @return Timestamp string
+     *
+     *  @see ValueUtil#getTimestamp(VType) to fetch time stamp for custom formatting
+     */
+    public static String getTimeString(final RuntimePV pv)
+    {
+        final Instant time = ValueUtil.getTimestamp(getVType(pv));
+        if (time == null)
+            return "";
+        return TimestampFormats.FULL_FORMAT.format(time);
+    }
+
+    /** Get milliseconds since POSIX Epoch, i.e. 1 January 1970 0:00 UTC.
+     *  <p>
+     *  Note that we always return milliseconds relative to this UTC epoch,
+     *  even if the original control system data source might use a different
+     *  epoch (example: EPICS uses 1990), because the 1970 epoch is most
+     *  compatible with existing programming environments.
+     *  @param pv PV
+     *  @return milliseconds since 1970.
+     */
+    public final static long getTimeInMilliseconds(final RuntimePV pv)
+    {
+        final Instant time = ValueUtil.getTimestamp(getVType(pv));
+        if (time == null)
+            return 0;
+        return time.toEpochMilli();
+    }
+
+    /** Get alarm severity of the PV as an integer value.
+     *  @param pv PV
+     *  @return 0: OK;  1: Major; 2:Minor, -1: Invalid or Undefined
+     */
+    public final static int getSeverity(final RuntimePV pv)
+    {
+        final VType value = pv.read();
+        if (value instanceof Alarm)
+        {
+            final Alarm alarm = (Alarm) value;
+            switch (alarm.getAlarmSeverity())
+            {
+            case NONE:
+                return 0;
+            case MAJOR:
+                return 1;
+            case MINOR:
+                return 2;
+            case UNDEFINED:
+            case INVALID:
+            default:
+                break;
+            }
+        }
+        return -1;
+    }
+
+    /** Get alarm severity of the PV as a string
+     *  @param pv PV
+     *  @return String representation of alarm severity
+     */
+    public final static String getSeverityString(final RuntimePV pv)
+    {
+        final VType value = pv.read();
+        if (value instanceof Alarm)
+        {
+            final Alarm alarm = (Alarm) value;
+            return alarm.getAlarmSeverity().toString();
+        }
+        return AlarmSeverity.UNDEFINED.toString();
+    }
+
+    /** Get alarm status, i.e. text that might describe the alarm severity
+     *  @param pv PV
+     *  @return Alarm status
+     */
+    public final static String getStatus(final RuntimePV pv)
+    {
+        final VType value = pv.read();
+        if (value instanceof Alarm)
+        {
+            final Alarm alarm = (Alarm) value;
+            return alarm.getAlarmName();
+        }
+        return "Disconnected";
     }
 
     /** Get a table from PV

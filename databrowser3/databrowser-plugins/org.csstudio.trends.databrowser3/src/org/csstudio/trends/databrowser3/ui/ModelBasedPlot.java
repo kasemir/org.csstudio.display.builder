@@ -7,16 +7,14 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.ui;
 
-import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.csstudio.csdata.ProcessVariable;
-import org.csstudio.display.builder.rcp.JFXCursorFix;
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.Axis;
 import org.csstudio.javafx.rtplot.AxisRange;
@@ -24,25 +22,17 @@ import org.csstudio.javafx.rtplot.RTPlotListener;
 import org.csstudio.javafx.rtplot.RTTimePlot;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.YAxis;
-import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.model.AnnotationInfo;
-import org.csstudio.trends.databrowser3.model.ArchiveDataSource;
 import org.csstudio.trends.databrowser3.model.AxisConfig;
-import org.csstudio.trends.databrowser3.model.ChannelInfo;
 import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.model.ModelItem;
 import org.csstudio.trends.databrowser3.preferences.Preferences;
-import org.csstudio.ui.util.dialogs.ExceptionDetailsErrorDialog;
-import org.csstudio.ui.util.dnd.ControlSystemDropTarget;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 
-import javafx.scene.Scene;
+import javafx.application.Platform;
 import javafx.scene.control.Button;
-import javafx.embed.swt.FXCanvas;
 
 /** Data Browser 'Plot' that displays the samples in a {@link Model}.
  *  <p>
@@ -50,61 +40,32 @@ import javafx.embed.swt.FXCanvas;
  *
  *  @author Kay Kasemir
  *  @author Laurent PHILIPPE Modify addListener method to add property changed event capability
+ *  @author Megan Grodowitz Remove SWT components
  */
 @SuppressWarnings("nls")
 public class ModelBasedPlot
 {
     /** Plot Listener */
-    private Optional<PlotListener> listener = Optional.empty();
-
-    /** {@link Display} used by this plot */
-    final private Display display;
+    protected Optional<PlotListener> listener = Optional.empty();
 
     /** Plot widget/figure */
-    final private RTTimePlot plot;
+    protected RTTimePlot plot;
 
     final private Map<Trace<Instant>, ModelItem> items_by_trace = new ConcurrentHashMap<>();
 
-    //private JFXPanel dummyjfx = null;
-    private final FXCanvas canvas;
-
-    //final private SWTMediaPool media;
-
     /** Initialize plot
      *  @param parent Parent widget
-     * @throws Exception
+     *  @throws Exception
      */
-    public ModelBasedPlot(final Composite parent) throws Exception
+    public ModelBasedPlot(final boolean active) throws Exception
     {
-        //media = new SWTMediaPool(parent.getDisplay());
-
-        this.display = parent.getDisplay();
-        //plot = new RTTimePlot(parent);
-
-        canvas = new FXCanvas(parent, 0);
-        plot = new RTTimePlot(true);
-
-        final Scene scene = new Scene(plot);
-        canvas.setScene(scene);
-
-        JFXCursorFix.apply(scene, canvas);
-
+        plot = new RTTimePlot(active);
         plot.setOpacity(Preferences.getOpacity());
 
-        //final ToolItem time_config_button =
-        //      plot.addToolItem(SWT.PUSH, Activator.getDefault().getImage("icons/time_range.png"), Messages.StartEndDialogTT);
         final Button time_config_button =
-                plot.addToolItem(Activator.getIcon("time_range"), Messages.StartEndDialogTT);
-
-        //TODO: add time config button listener
-        //time_config_button.addSelectionListener(new SelectionAdapter()
-        //{
-        //  @Override
-        // public void widgetSelected(SelectionEvent e)
-        //{
-        //    listener.ifPresent((l) -> l.timeConfigRequested());
-        //}
-        //});
+            plot.addToolItem(Activator.getIcon("time_range"), Messages.StartEndDialogTT);
+        if (active)
+            time_config_button.setOnAction(e -> listener.ifPresent((l) -> l.timeConfigRequested()));
 
         // Configure axes
         final Axis<Instant> time_axis = plot.getXAxis();
@@ -140,9 +101,10 @@ public class ModelBasedPlot
                 for (Annotation<Instant> annotation : plot.getAnnotations())
                 {
                     final int item_index = traces.indexOf(annotation.getTrace());
-                    annotations.add(new AnnotationInfo(item_index,
-                            annotation.getPosition(), annotation.getValue(),
-                            annotation.getOffset(), annotation.getText()));
+                    annotations.add(new AnnotationInfo(annotation.isInternal(),
+                                                       item_index,
+                                                       annotation.getPosition(), annotation.getValue(),
+                                                       annotation.getOffset(), annotation.getText()));
                 }
                 listener.ifPresent((l) -> l.changedAnnotations(annotations));
             }
@@ -167,9 +129,6 @@ public class ModelBasedPlot
                 listener.ifPresent((l) -> l.changedLegend(visible));
             }
         });
-
-        //TODO: attach to drag and drop
-        //hookDragAndDrop(plot);
     }
 
     /** @return RTTimePlot */
@@ -178,91 +137,17 @@ public class ModelBasedPlot
         return plot;
     }
 
-    /**
-     * Attach to drag-and-drop, notifying the plot listener
-     *
-     * @param canvas
-     */
-    private void hookDragAndDrop(final Composite parent)
-    {
-        // Allow dropped arrays
-        new ControlSystemDropTarget(parent, ChannelInfo[].class,
-                ProcessVariable[].class, ArchiveDataSource[].class,
-                File.class,
-                String.class)
-        {
-            @Override
-            public void handleDrop(final Object item)
-            {
-                final PlotListener lst = listener.orElse(null);
-                if (lst == null)
-                    return;
-
-                if (item instanceof ChannelInfo[])
-                {
-                    final ChannelInfo[] channels = (ChannelInfo[]) item;
-                    final int N = channels.length;
-                    final ProcessVariable[] pvs = new ProcessVariable[N];
-                    final ArchiveDataSource[] archives = new ArchiveDataSource[N];
-                    for (int i=0; i<N; ++i)
-                    {
-                        pvs[i] = channels[i].getProcessVariable();
-                        archives[i] = channels[i].getArchiveDataSource();
-                    }
-                    lst.droppedPVNames(pvs, archives);
-                }
-                else if (item instanceof ProcessVariable[])
-                {
-                    final ProcessVariable[] pvs = (ProcessVariable[]) item;
-                    lst.droppedPVNames(pvs, null);
-                }
-                else if (item instanceof ArchiveDataSource[])
-                {
-                    final ArchiveDataSource[] archives = (ArchiveDataSource[]) item;
-                    lst.droppedPVNames(null, archives);
-                }
-                else if (item instanceof String)
-                {
-                    final List<String> pvs = new ArrayList<>();
-                    // Allow passing in many names, assuming that white space separates them
-                    final String[] names = ((String)item).split("[\\r\\n\\t ]+"); //$NON-NLS-1$
-                    for (String one_name : names)
-                    {   // Might also have received "[pv1, pv2, pv2]", turn that into "pv1", "pv2", "pv3"
-                        String suggestion = one_name;
-                        if (suggestion.startsWith("["))
-                            suggestion = suggestion.substring(1);
-                        if (suggestion.endsWith("]")  &&  !suggestion.contains("["))
-                            suggestion = suggestion.substring(0, suggestion.length()-1);
-                        if (suggestion.endsWith(","))
-                            suggestion = suggestion.substring(0, suggestion.length()-1);
-                        pvs.add(suggestion);
-                    }
-                    if (pvs.size() > 0)
-                        lst.droppedNames(pvs.toArray(new String[pvs.size()]));
-                }
-                else if (item instanceof String[])
-                {   // File names arrive as String[]...
-                    final String[] files = (String[])item;
-                    try
-                    {
-                        for (String filename : files)
-                            lst.droppedFilename(filename);
-                    }
-                    catch (Exception ex)
-                    {
-                        ExceptionDetailsErrorDialog.openError(parent.getShell(), Messages.Error, ex);
-                    }
-                }
-            }
-        };
-    }
-
     /** Add a listener (currently only one supported) */
     public void addListener(final PlotListener listener)
     {
         if (this.listener.isPresent())
             throw new IllegalStateException("Only one listener supported");
         this.listener = Optional.of(listener);
+    }
+
+    public PlotListener getListener()
+    {
+        return listener.orElse(null);
     }
 
     /** Remove all axes and traces */
@@ -294,6 +179,26 @@ public class ModelBasedPlot
         return plot.getYAxes().get(index);
     }
 
+    /** Get number of axes (includes xaxis)
+     *
+     * @return number of y axes plus 1 for x axis
+     */
+    public int getTotalAxesCount ()
+    {
+        return (plot.getYAxes().size() + 1);
+    }
+
+    public Axis<?> getPlotAxis(final int index)
+    {
+        if (index < plot.getYAxes().size())
+            return plot.getYAxes().get(index);
+
+        if (index == plot.getYAxes().size())
+            return plot.getXAxis();
+
+        return null;
+    }
+
     /** Update value axis from model
      *  @param index Axis index. Y axes will be created as needed.
      *  @param config Desired axis configuration
@@ -305,8 +210,6 @@ public class ModelBasedPlot
         axis.useAxisName(config.isUsingAxisName());
         axis.useTraceNames(config.isUsingTraceNames());
         axis.setColor(config.getPaintColor());
-        axis.setLabelFont(SWTMediaPool.getJFX(config.getLabelFont()));
-        axis.setScaleFont(SWTMediaPool.getJFX(config.getScaleFont()));
         axis.setLogarithmic(config.isLogScale());
         axis.setGridVisible(config.isGridVisible());
         axis.setAutoscale(config.isAutoScale());
@@ -415,7 +318,31 @@ public class ModelBasedPlot
      */
     public void setTimeRange(final Instant start, final Instant end)
     {
-        display.asyncExec(() -> plot.getXAxis().setValueRange(start, end));
+        Platform.runLater(() -> plot.getXAxis().setValueRange(start, end));
+    }
+
+    /** Set annotations in plot to match model's annotations
+     *  @param newAnnotations Annotations to show in plot
+     */
+    void setAnnotations(final Collection<AnnotationInfo> newAnnotations)
+    {
+        final List<Trace<Instant>> traces = new ArrayList<>();
+        for (Trace<Instant> trace : plot.getTraces())
+            traces.add(trace);
+
+        // Remove old annotations from plot
+        final List<Annotation<Instant>> plot_annotations = new ArrayList<>(plot.getAnnotations());
+        for (Annotation<Instant> old : plot_annotations)
+            plot.removeAnnotation(old);
+
+        // Set new annotations in plot
+        for (AnnotationInfo annotation : newAnnotations)
+            plot.addAnnotation(new Annotation<Instant>(annotation.isInternal(),
+                                                       traces.get(annotation.getItemIndex()),
+                                                       annotation.getTime(),
+                                                       annotation.getValue(),
+                                                       annotation.getOffset(),
+                                                       annotation.getText()));
     }
 
     /** Refresh the plot because the data has changed */

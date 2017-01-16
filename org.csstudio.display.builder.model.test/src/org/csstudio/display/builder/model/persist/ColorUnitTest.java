@@ -16,7 +16,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.model.properties.NamedWidgetColor;
 import org.junit.Test;
@@ -95,22 +94,18 @@ public class ColorUnitTest
     public void testColorService() throws Exception
     {
         System.out.println("On " + Thread.currentThread().getName());
-        final Logger logger = Logger.getLogger(getClass().getName());
 
         // Default colors do now include 'STOP'
         NamedWidgetColors colors = WidgetColorService.getColors();
         NamedWidgetColor color = colors.getColor("STOP").orElse(null);
         assertThat(color, nullValue());
 
+        int delay_seconds = 10;
+
         // Load colors, using a source with artificial delay
-        final Callable<InputStream> slow_color_source = () ->
-        {
-            logger.warning("Delaying file access.. on " + Thread.currentThread().getName());
-            TimeUnit.SECONDS.sleep(2 * WidgetColorService.LOAD_DELAY);
-            logger.warning("Finally opening the file");
-            return new FileInputStream("../org.csstudio.display.builder.model/examples/color.def");
-        };
-        WidgetColorService.loadColors("Slow file", slow_color_source);
+        final Callable<InputStream> slow_color_source =
+            new DelayedStream("../org.csstudio.display.builder.model/examples/color.def", delay_seconds);
+        WidgetColorService.loadColors(new String[] { "Slow file" }, file -> slow_color_source.call());
 
         // Getting the colors is now delayed by the WidgetColorService.LOAD_DELAY
         long start = System.currentTimeMillis();
@@ -124,7 +119,7 @@ public class ColorUnitTest
         assertThat(color, nullValue());
 
         // The file is still loading, and eventually we should get it
-        TimeUnit.SECONDS.sleep(2 * WidgetColorService.LOAD_DELAY);
+        TimeUnit.SECONDS.sleep(delay_seconds);
         start = System.currentTimeMillis();
         colors = WidgetColorService.getColors();
         seconds = (System.currentTimeMillis() - start) / 1000.0;

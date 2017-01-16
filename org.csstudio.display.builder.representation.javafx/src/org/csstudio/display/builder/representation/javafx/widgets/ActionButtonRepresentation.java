@@ -25,6 +25,7 @@ import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.Messages;
 import org.eclipse.osgi.util.NLS;
 
+import javafx.geometry.Side;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBase;
 import javafx.scene.control.MenuButton;
@@ -85,8 +86,14 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
     /** @param event Mouse event to check for target modifier keys */
     private void checkModifiers(final MouseEvent event)
     {
-        if (event.isControlDown())
-            target_modifier = Optional.of(OpenDisplayActionInfo.Target.TAB);
+        // 'control' ('command' on Mac OS X)
+        if (event.isShortcutDown())
+        {
+            if (event.isShiftDown())
+                target_modifier = Optional.of(OpenDisplayActionInfo.Target.STANDALONE);
+            else
+                target_modifier = Optional.of(OpenDisplayActionInfo.Target.TAB);
+        }
         else if (event.isShiftDown())
             target_modifier = Optional.of(OpenDisplayActionInfo.Target.WINDOW);
         else
@@ -102,6 +109,8 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             base.arm();
         }
     }
+
+    private int calls = 0;
 
     /** Create <code>base</code>, either single-action button
      *  or menu for selecting one out of N actions
@@ -123,6 +132,22 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         else
         {
             final MenuButton button = new MenuButton();
+            button.showingProperty().addListener((prop, old, showing) ->
+            {
+                if (showing)
+                {
+                    // System.out.println("Showing " + model_widget + " menu: " + showing);
+                    if (++calls > 2)
+                    {
+                        System.out.println("Hack!");
+                        if (button.getPopupSide() == Side.BOTTOM)
+                            button.setPopupSide(Side.LEFT);
+                        else
+                            button.setPopupSide(Side.BOTTOM);
+                        // button.layout();
+                    }
+                }
+            });
             for (final ActionInfo action : actions)
             {
                 final MenuItem item = new MenuItem(makeActionText(action));

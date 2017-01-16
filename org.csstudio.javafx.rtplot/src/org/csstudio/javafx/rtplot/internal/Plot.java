@@ -37,11 +37,8 @@ import org.csstudio.javafx.rtplot.internal.undo.ChangeAxisRanges;
 import org.csstudio.javafx.rtplot.internal.undo.UpdateAnnotationAction;
 import org.csstudio.javafx.rtplot.internal.util.ScreenTransform;
 
-import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 
 /** Plot with axes and area that displays the traces
@@ -303,9 +300,10 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         if (annotation instanceof AnnotationImpl)
             annotations.add((AnnotationImpl)annotation);
         else
-            annotations.add(new AnnotationImpl<XTYPE>(annotation.getTrace(), annotation.getPosition(),
-                    annotation.getValue(), annotation.getOffset(),
-                    annotation.getText()));
+            annotations.add(new AnnotationImpl<XTYPE>(annotation.isInternal(),
+                                                      annotation.getTrace(), annotation.getPosition(),
+                                                      annotation.getValue(), annotation.getOffset(),
+                                                      annotation.getText()));
         requestUpdate();
         fireAnnotationsChanged();
     }
@@ -434,14 +432,35 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                 plot_width -= axis_region.width;
             }
 
-        x_axis.setBounds(total_left_axes_width, title_height+y_axis_height, plot_width, x_axis_height);
+        // So far the areas have been computed to exactly touch, without any overlap:
+        //   |::::::::::::::::::::::::::::::::::
+        //   Y:::::::::::::Plot:::::::::::::::::
+        //   |::::::::::::::::::::::::::::::::::
+        // 0-+*:::::::::::::::::::::::::::::::::
+        //    +------- X -----------------------
+        //    |
+        //    0
+        //
+        // Adjusting such that the origin (x,y) = (0,0) is in the lower left corner,
+        // and both axis markers meet there like this:
+        //   |::::::::::::::::::::::::::::::::::
+        //   Y:::::::::::::Plot:::::::::::::::::
+        //   |::::::::::::::::::::::::::::::::::
+        // 0-*-------- X -----------------------
+        //   |
+        //   0
 
-        plot_area.setBounds(total_left_axes_width, title_height, plot_width, y_axis_height);
+
+        // X axis move up (and higher) by one pixel to overlap the bottom pixel line of the plot_area,
+        // and moving X axis left (and longer) to get the leftmost data in plot onto the Y axis
+        x_axis.setBounds(total_left_axes_width-1, title_height+y_axis_height-1, plot_width+1, x_axis_height+1);
+
+        plot_area.setBounds(total_left_axes_width-1, title_height, plot_width+1, y_axis_height);
     }
 
     /** Draw all components into image buffer */
     @Override
-    protected Image updateImageBuffer()
+    protected BufferedImage updateImageBuffer()
     {
         final Rectangle area_copy = area;
         if (area_copy.width <= 0  ||  area_copy.height <= 0)
@@ -452,10 +471,15 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         final BufferedImage image = new BufferedImage(area_copy.width, area_copy.height, BufferedImage.TYPE_INT_ARGB);
         final Graphics2D gc = image.createGraphics();
 
-        gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-        gc.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
-        gc.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
-        gc.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+        // Really need AA for text to avoid anemic fonts.
+        // AA for lines results in some fuzzyness,
+        // but also required for any line that's not strictly horizontal or vertical.
+        gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        // Text AA is implied in general AA
+        // gc.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+        gc.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        gc.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        gc.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
         if (need_layout.getAndSet(false))
             computeLayout(gc, area_copy);
@@ -489,8 +513,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
         gc.dispose();
 
-        // Convert to JFX
-        return SwingFXUtils.toFXImage(image, null);
+        return image;
     }
 
     /** Draw visual feedback (rubber band rectangle etc.)
@@ -498,7 +521,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
      *  @param gc GC
      */
     @Override
-    protected void drawMouseModeFeedback(final GraphicsContext gc)
+    protected void drawMouseModeFeedback(final Graphics2D gc)
     {   // Safe copy, then check null (== isPresent())
         final Point2D current = mouse_current.orElse(null);
         if (current == null)
@@ -513,36 +536,25 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         }
         else if (show_crosshair  &&  plot_bounds.contains(current.getX(), current.getY()))
         {   // Cross-hair Cursor
-            gc.strokeLine(plot_bounds.x, current.getY(), plot_bounds.x + plot_bounds.width, current.getY());
-            gc.strokeLine(current.getX(), plot_bounds.y, current.getX(), plot_bounds.y + plot_bounds.height);
+            gc.setStroke(MOUSE_FEEDBACK_BACK);
+            gc.setColor(Color.WHITE);
+            gc.drawLine(plot_bounds.x, (int)current.getY(), plot_bounds.x + plot_bounds.width, (int)current.getY());
+            gc.drawLine((int)current.getX(), plot_bounds.y, (int)current.getX(), plot_bounds.y + plot_bounds.height);
+            gc.setStroke(MOUSE_FEEDBACK_FRONT);
+            gc.setColor(Color.BLACK);
+            gc.drawLine(plot_bounds.x, (int)current.getY(), plot_bounds.x + plot_bounds.width, (int)current.getY());
+            gc.drawLine((int)current.getX(), plot_bounds.y, (int)current.getX(), plot_bounds.y + plot_bounds.height);
             // Corresponding axis ticks
-            x_axis.drawFloatingTickLabel(gc, x_axis.getValue((int)current.getX()));
+            x_axis.drawTickLabel(gc, x_axis.getValue((int)current.getX()), true);
             for (YAxisImpl<XTYPE> axis : y_axes)
-                axis.drawFloatingTickLabel(gc, axis.getValue((int)current.getY()));
+                axis.drawTickLabel(gc, axis.getValue((int)current.getY()), true);
             // Trace markers
             final List<CursorMarker> safe_markers = cursor_markers.orElse(null);
             if (safe_markers != null)
                 CursorMarker.drawMarkers(gc, safe_markers, area);
         }
 
-        if (mouse_mode == MouseMode.ZOOM_IN  ||  mouse_mode == MouseMode.ZOOM_OUT)
-        {   // Update mouse pointer in ready-to-zoom mode
-            if (plot_bounds.contains(current.getX(), current.getY()))
-                PlotCursors.setCursor(this, mouse_mode);
-            else if (x_axis.getBounds().contains(current.getX(), current.getY()))
-                PlotCursors.setCursor(this, Cursor.H_RESIZE);
-            else
-            {
-                for (YAxisImpl<XTYPE> axis : y_axes)
-                    if (axis.getBounds().contains(current.getX(), current.getY()))
-                    {
-                        PlotCursors.setCursor(this, Cursor.V_RESIZE);
-                        return;
-                    }
-                PlotCursors.setCursor(this, Cursor.DEFAULT);
-            }
-        }
-        else if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
+        if (mouse_mode == MouseMode.ZOOM_IN_X  &&  start != null)
             drawZoomXMouseFeedback(gc, plot_bounds, start, current);
         else if (mouse_mode == MouseMode.ZOOM_IN_Y  &&  start != null)
             drawZoomYMouseFeedback(gc, plot_bounds, start, current);
@@ -553,7 +565,11 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     /** @param show Show the cross-hair cursor? */
     public void showCrosshair(final boolean show)
     {
+        if (show_crosshair == show)
+            return;
         show_crosshair = show;
+        // Redraw once to show or hide crosshair
+        requestRedraw();
     }
 
     /** return Show the cross-hair cursor? */
@@ -571,6 +587,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         final Point2D current = new Point2D(e.getX(), e.getY());
         mouse_start = mouse_current = Optional.of(current);
 
+        final int clicks = e.getClickCount();
         if (selectMouseAnnotation())
             return;
         else if (mouse_mode == MouseMode.PAN)
@@ -593,7 +610,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
                 mouse_mode = MouseMode.PAN_X;
         }
-        else if (mouse_mode == MouseMode.ZOOM_IN)
+        else if (mouse_mode == MouseMode.ZOOM_IN  &&  clicks == 1)
         {   // Determine start of 'rubberband' zoom.
             // Reset cursor from SIZE* to CROSS.
             for (int i=0; i<y_axes.size(); ++i)
@@ -601,7 +618,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                 {
                     mouse_y_axis = i;
                     mouse_mode = MouseMode.ZOOM_IN_Y;
-                    PlotCursors.setCursor(this, mouse_mode);
                     return;
                 }
             if (plot_area.getBounds().contains(current.getX(), current.getY()))
@@ -612,10 +628,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             else if (x_axis.getBounds().contains(current.getX(), current.getY()))
             {
                 mouse_mode = MouseMode.ZOOM_IN_X;
-                PlotCursors.setCursor(this, mouse_mode);
             }
         }
-        else if (mouse_mode == MouseMode.ZOOM_OUT)
+        else if ((mouse_mode == MouseMode.ZOOM_IN && clicks == 2)  ||  mouse_mode == MouseMode.ZOOM_OUT)
             zoomInOut(current.getX(), current.getY(), ZOOM_FACTOR);
     }
 
@@ -624,6 +639,7 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     {
         final Point2D current = new Point2D(e.getX(), e.getY());
         mouse_current = Optional.of(current);
+        PlotCursors.setCursor(this, mouse_mode);
 
         final Point2D start = mouse_start.orElse(null);
 
@@ -664,6 +680,12 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                 logger.log(Level.FINE, "Axis removed?", ex);
             }
         }
+        else if (mouse_mode == MouseMode.ZOOM_IN_X  ||
+                 mouse_mode == MouseMode.ZOOM_IN_Y  ||
+                 mouse_mode == MouseMode.ZOOM_IN_PLOT)
+        {   // Show mouse feedback for ongoing zoom
+            requestRedraw();
+        }
         else
             updateCursor();
     }
@@ -685,7 +707,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     private void updateCursors(final List<CursorMarker> markers)
     {
         cursor_markers = Optional.ofNullable(markers);
-        redrawSafely();
+        // Need to redraw for crosshair?
+        if (show_crosshair)
+            requestRedraw();
         fireCursorsChanged();
     }
 
@@ -837,12 +861,12 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     private void mouseExit(final MouseEvent e)
     {
         deselectMouseAnnotation();
-        if (show_crosshair)
-        {
-            mouse_current = Optional.empty();
-            redrawSafely();
-        }
+        // Reset cursor
+        // Clear mouse position so drawMouseModeFeedback() won't restore cursor
+        mouse_current = Optional.empty();
         PlotCursors.setCursor(this, Cursor.DEFAULT);
+        if (show_crosshair)
+            requestRedraw();
     }
 
     /** Stagger the range of axes */

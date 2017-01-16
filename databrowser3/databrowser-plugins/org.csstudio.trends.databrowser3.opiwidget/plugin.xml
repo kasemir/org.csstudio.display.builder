@@ -5,12 +5,12 @@
          point="org.csstudio.opibuilder.widget">
       <widget
             category="Monitors"
-            description="Display a Data Browser 3 configuration"
+            description="Display a Data Browser configuration"
             editpart_class="org.csstudio.trends.databrowser3.opiwidget.DataBrowserWidgedEditPart"
             icon="icons/databrowser.png"
             model_class="org.csstudio.trends.databrowser3.opiwidget.DataBrowserWidgedModel"
-            name="Data Browser 3"
-            typeId="org.csstudio.trends.databrowser3.opiwidget">
+            name="Data Browser"
+            typeId="org.csstudio.trends.databrowser.opiwidget">
       </widget>
    </extension>
 

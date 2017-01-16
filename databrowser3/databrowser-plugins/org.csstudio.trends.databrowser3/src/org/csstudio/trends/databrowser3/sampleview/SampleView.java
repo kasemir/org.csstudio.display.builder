@@ -65,7 +65,7 @@ import org.diirt.vtype.VType;
 public class SampleView extends DataBrowserAwareView
 {
     /** View ID registered in plugin.xml */
-    final public static String ID = "org.csstudio.trends.databrowser3.sample_view";
+    final public static String ID = "org.csstudio.trends.databrowser.sample_view";
 
     /** Model of the currently active Data Browser plot or <code>null</code> */
     private Model model;
@@ -173,7 +173,7 @@ public class SampleView extends DataBrowserAwareView
         table.setLinesVisible(true);
         // Time column
         TableViewerColumn col =
-            TableHelper.createColumn(table_layout, sample_table, Messages.TimeColumn, 90, 100);
+                TableHelper.createColumn(table_layout, sample_table, Messages.TimeColumn, 90, 100);
         col.setLabelProvider(new CellLabelProvider()
         {
             @Override
@@ -204,12 +204,12 @@ public class SampleView extends DataBrowserAwareView
                 {
                     final VStatistics mmd = (VStatistics) value;
                     return NLS.bind(Messages.SampleView_MinMaxValueTT,
-                        new String[]
-                        {
-                            Double.toString(mmd.getAverage()),
-                            Double.toString(mmd.getMin()),
-                            Double.toString(mmd.getMax())
-                        });
+                            new String[]
+                                    {
+                                            Double.toString(mmd.getAverage()),
+                                            Double.toString(mmd.getMin()),
+                                            Double.toString(mmd.getMax())
+                                    });
                 }
                 else if (value instanceof VNumber)
                 {

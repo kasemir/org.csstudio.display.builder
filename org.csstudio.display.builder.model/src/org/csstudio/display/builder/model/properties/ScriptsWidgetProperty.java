@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -45,12 +46,22 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
         super(descriptor, widget, default_value);
     }
 
-    /** @param value Must be ScriptInfo array(!), not List */
+    /** @param value Must be ScriptInfo array or List */
     @Override
     public void setValueFromObject(final Object value) throws Exception
     {
         if (value instanceof ScriptInfo[])
             setValue(Arrays.asList((ScriptInfo[]) value));
+        else if (value instanceof Collection)
+        {
+            final List<ScriptInfo> scripts = new ArrayList<>();
+            for (Object item : (Collection<?>)value)
+                if (item instanceof ScriptInfo)
+                    scripts.add((ScriptInfo)item);
+                else
+                    throw new Exception("Need ScriptInfo[], got " + value);
+            setValue(scripts);
+        }
         else
             throw new Exception("Need ScriptInfo[], got " + value);
     }
@@ -65,6 +76,8 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
         {
             writer.writeStartElement(XMLTags.SCRIPT);
             writer.writeAttribute(XMLTags.FILE, info.getPath());
+            if (! info.getCheckConnections())
+                writer.writeAttribute(XMLTags.CHECK_CONNECTIONS, Boolean.FALSE.toString());
             final String text = info.getText();
             if (text != null)
             {
@@ -107,6 +120,13 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
             if (file.isEmpty())
                 logger.log(Level.WARNING, "Missing script 'file'");
 
+            String tag = xml.getAttribute(XMLTags.CHECK_CONNECTIONS);
+            if (tag.isEmpty())
+                tag = xml.getAttribute("checkConnect");
+            final boolean check_connections = tag.isEmpty()
+                    ? true
+                    : Boolean.valueOf(tag);
+
             // Script content embedded in XML?
             Element text_xml = XMLUtil.getChildElement(xml, XMLTags.TEXT);
             if (text_xml == null)  // Fall back to legacy tag
@@ -116,7 +136,7 @@ public class ScriptsWidgetProperty extends WidgetProperty<List<ScriptInfo>>
                 : null;
 
             final List<ScriptPV> pvs = readPVs(xml);
-            scripts.add(new ScriptInfo(file, text, pvs));
+            scripts.add(new ScriptInfo(file, text, check_connections, pvs));
         }
         setValue(scripts);
     }

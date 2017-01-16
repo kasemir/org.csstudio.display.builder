@@ -17,23 +17,9 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 @SuppressWarnings("nls")
 public class Preferences
 {
-    public static final String COLOR_FILE = "color_file";
-    public static final String FONT_FILE = "font_file";
     public static final String TOP_DISPLAYS = "top_displays";
     public static final String UNDO_SIZE = "undo_size";
     public static final String SHOW_RUNTIME_STACKS = "show_runtime_stacks";
-
-    public static String getColorFile()
-    {
-        return getPreference(COLOR_FILE,
-                             "platform:/plugin/org.csstudio.display.builder.model/examples/color.def");
-    }
-
-    public static String getFontFile()
-    {
-        return getPreference(FONT_FILE,
-                             "platform:/plugin/org.csstudio.display.builder.model/examples/font.def");
-    }
 
     public static String getTopDisplays()
     {

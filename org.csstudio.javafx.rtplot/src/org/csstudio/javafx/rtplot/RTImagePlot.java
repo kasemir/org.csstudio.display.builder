@@ -7,10 +7,8 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
-import java.util.function.DoubleFunction;
 
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.rtplot.data.PlotDataItem;
@@ -21,8 +19,10 @@ import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.diirt.util.array.ListNumber;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
@@ -36,6 +36,7 @@ public class RTImagePlot extends BorderPane
 {
     final protected ImagePlot plot;
     final protected ImageToolbarHandler toolbar;
+    private boolean handle_keys = false;
 
     /** Constructor
      *  @param active Active mode where plot reacts to mouse/keyboard?
@@ -44,13 +45,14 @@ public class RTImagePlot extends BorderPane
     public RTImagePlot(final boolean active)
     {
         plot = new ImagePlot(active);
-        toolbar = new ImageToolbarHandler(this);
+        toolbar = new ImageToolbarHandler(this, active);
 
         // Canvas, i.e. plot, is not directly size-manageable by a layout.
         // --> Let BorderPane resize 'center', then plot binds to is size.
         final Pane center = new Pane(plot);
-        plot.widthProperty().bind(center.widthProperty());
-        plot.heightProperty().bind(center.heightProperty());
+        final ChangeListener<? super Number> resize_listener = (p, o, n) -> plot.setSize(center.getWidth(), center.getHeight());
+        center.widthProperty().addListener(resize_listener);
+        center.heightProperty().addListener(resize_listener);
         setCenter(center);
         showToolbar(active);
 
@@ -59,17 +61,28 @@ public class RTImagePlot extends BorderPane
             addEventFilter(KeyEvent.KEY_PRESSED, this::keyPressed);
             // Need focus to receive key events. Get focus when mouse moves.
             // (tried mouse _entered_, but can then loose focus while mouse still in widget)
-            setOnMouseMoved(event -> requestFocus());
+            addEventFilter(MouseEvent.MOUSE_MOVED, event ->
+            {
+                handle_keys = true;
+                requestFocus();
+            } );
+            // Don't want to handle key events when mouse is outside the widget.
+            // Cannot 'loose focus', so using flag to ignore them
+            addEventFilter(MouseEvent.MOUSE_EXITED, event -> handle_keys = false);
         }
     }
 
     /** onKeyPressed */
     private void keyPressed(final KeyEvent event)
     {
+        if (! handle_keys)
+            return;
         if (event.getCode() == KeyCode.Z)
             plot.getUndoableActionManager().undoLast();
         else if (event.getCode() == KeyCode.Y)
             plot.getUndoableActionManager().redoLast();
+        else if (event.getCode() == KeyCode.C)
+            toolbar.toggleCrosshair();
         else if (event.getCode() == KeyCode.T)
             showToolbar(! isToolbarVisible());
         else if (event.isControlDown())
@@ -80,9 +93,9 @@ public class RTImagePlot extends BorderPane
             toolbar.selectMouseMode(MouseMode.PAN);
         else
             toolbar.selectMouseMode(MouseMode.NONE);
+        event.consume();
     }
 
-    // TODO Add/remove listener?
     /** @param plot_listener Plot listener */
     public void setListener(final RTImagePlotListener plot_listener)
     {
@@ -121,8 +134,6 @@ public class RTImagePlot extends BorderPane
                 Platform.runLater(() -> layoutChildren() );
                 return null;
             });
-
-        // TODO plot.fireToolbarChange(show);
     }
 
     /** @param mode New {@link MouseMode}
@@ -147,6 +158,12 @@ public class RTImagePlot extends BorderPane
         return plot.getUndoableActionManager();
     }
 
+    /** @param interpolation How to interpolate from image to screen pixels */
+    public void setInterpolation(final Interpolation interpolation)
+    {
+        plot.setInterpolation(interpolation);
+    }
+
     /** @param autoscale  Auto-scale the color mapping? */
     public void setAutoscale(boolean autoscale)
     {
@@ -169,11 +186,13 @@ public class RTImagePlot extends BorderPane
      *  @param name
      *  @param color
      *  @param visible
+     *  @param interactive
      *  @return {@link RegionOfInterest}
      */
-    public RegionOfInterest addROI(final String name, final javafx.scene.paint.Color color, final boolean visible)
+    public RegionOfInterest addROI(final String name, final javafx.scene.paint.Color color,
+                                   final boolean visible, final boolean interactive)
     {
-        return plot.addROI(name, color, visible);
+        return plot.addROI(name, color, visible, interactive);
     }
 
     /** @return Regions of interest */
@@ -215,8 +234,8 @@ public class RTImagePlot extends BorderPane
         plot.setBackground(GraphicsUtils.convert(color));
     }
 
-    /** @param color_mapping Function that returns {@link Color} for value 0.0 .. 1.0 */
-    public void setColorMapping(final DoubleFunction<Color> color_mapping)
+    /** @param color_mapping Function that returns color for value 0.0 .. 1.0 */
+    public void setColorMapping(final ColorMappingFunction color_mapping)
     {
         plot.setColorMapping(color_mapping);
     }
@@ -237,6 +256,33 @@ public class RTImagePlot extends BorderPane
     public void setColorMapFont(final Font font)
     {
         plot.setColorMapFont(font);
+    }
+
+    /** @param show Show crosshair, moved on click?
+     *              Or update cursor listener with each mouse move,
+     *              not showing a persistent crosshair?
+     */
+    public void showCrosshair(final boolean show)
+    {
+        if (plot.isCrosshairVisible() == show)
+            return;
+        toolbar.showCrosshair(show);
+        plot.showCrosshair(show);
+    }
+
+    /** @return Is crosshair enabled? */
+    public boolean isCrosshairVisible()
+    {
+        return plot.isCrosshairVisible();
+    }
+
+    /** Set location of crosshair
+     *  @param x_val
+     *  @param y_val
+     */
+    public void setCrosshairLocation(final double x_val, final double y_val)
+    {
+        plot.setCrosshairLocation(x_val, y_val);
     }
 
     /** Set axis range for 'full' image

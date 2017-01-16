@@ -134,6 +134,15 @@ public class TextUpdateWidget extends PVWidget
             case 7: // ENG (since Aug. 2016)
                 format.setValue(FormatOption.ENGINEERING);
                 break;
+            case 8: // SEXA (since Dec. 2016)
+                format.setValue(FormatOption.SEXAGESIMAL);
+                break;
+            case 9: // SEXA_HMS (since Dec. 2016)
+                format.setValue(FormatOption.SEXAGESIMAL_HMS);
+                break;
+            case 10: // SEXA_DMS (since Dec. 2016)
+                format.setValue(FormatOption.SEXAGESIMAL_DMS);
+                break;
             default:
                 format.setValue(FormatOption.DEFAULT);
             }

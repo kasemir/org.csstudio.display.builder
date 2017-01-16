@@ -18,9 +18,6 @@ import java.util.logging.Level;
 
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Paint;
-
 /** 'X' or 'horizontal' axis for numbers.
  *  @see TimeAxis
  *  @author Kay Kasemir
@@ -90,24 +87,22 @@ public class HorizontalNumericAxis extends NumericAxis
                 gc.drawLine(x, region.y, x, region.y + MINOR_TICK_LENGTH);
             }
 
-            // Major tick marks
-            gc.setStroke(new BasicStroke(TICK_WIDTH));
-            int x = getScreenCoord(tick);
-            gc.drawLine(x, region.y, x, region.y + TICK_LENGTH);
-
-            if (show_grid)
+            // Major tick marks (skipping those outside visible region)
+            final int x = getScreenCoord(tick);
+            if (x >= region.x  &&  x <= region.x + region.width)
             {
-                x = getScreenCoord(tick);
-                final Stroke stroke = gc.getStroke();
-                // Dashed line
-                gc.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1, new float[] { 5 }, 0));
-                gc.drawLine(x, plot_bounds.y, x, plot_bounds.y + plot_bounds.height-1);
-                gc.setStroke(stroke);
+                gc.setStroke(TICK_STROKE);
+                gc.drawLine(x, region.y+2, x, region.y + TICK_LENGTH - 1);
+
+                if (show_grid)
+                {   // Dashed line
+                    gc.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 1, new float[] { 5 }, 0));
+                    gc.drawLine(x, plot_bounds.y, x, plot_bounds.y + plot_bounds.height-1);
+                }
+                gc.setStroke(old_width);
+
+                drawTickLabel(gc, tick, false);
             }
-            gc.setStroke(old_width);
-
-            drawTickLabel(gc, tick);
-
             prev = tick;
         }
         // Minor ticks after last major tick?
@@ -132,33 +127,25 @@ public class HorizontalNumericAxis extends NumericAxis
 
     /** {@inheritDoc} */
     @Override
-    public void drawTickLabel(final Graphics2D gc, final Double tick)
+    public void drawTickLabel(final Graphics2D gc, final Double tick, final boolean floating)
     {
         final Rectangle region = getBounds();
         final int x = getScreenCoord(tick);
-        gc.drawLine(x, region.y, x, region.y + TICK_LENGTH);
-        final String mark = ticks.format(tick);
+        final String mark = floating ? ticks.formatDetailed(tick) : ticks.format(tick);
+        gc.setFont(scale_font);
         final Rectangle metrics = GraphicsUtils.measureText(gc, mark);
         final int tx = x - metrics.width/2;
-        gc.drawString(mark, tx, region.y + metrics.y + TICK_LENGTH);
-    }
 
-    /** {@inheritDoc} */
-    @Override
-    public void drawFloatingTickLabel(final GraphicsContext gc, final Double tick)
-    {
-        final Rectangle region = getBounds();
-        final int x = getScreenCoord(tick);
-        gc.strokeLine(x, region.y, x, region.y + TICK_LENGTH);
-        final String mark = ticks.formatDetailed(tick);
-        gc.setFont(GraphicsUtils.convert(scale_font));
-        final Rectangle metrics = GraphicsUtils.measureText(gc, mark);
-        final int tx = x - metrics.width/2;
-        final Paint orig_fill = gc.getFill();
-        gc.setFill(javafx.scene.paint.Color.WHITE);
-        gc.fillRect(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
-        gc.setFill(orig_fill);
-        gc.strokeRect(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
-        gc.fillText(mark, tx, region.y + metrics.y + TICK_LENGTH);
+        if (floating)
+        {
+            gc.drawLine(x, region.y, x, region.y + TICK_LENGTH);
+            final Color orig_fill = gc.getColor();
+            gc.setColor(java.awt.Color.WHITE);
+            gc.fillRect(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
+            gc.setColor(orig_fill);
+            gc.drawRect(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
+        }
+
+        gc.drawString(mark, tx, region.y + metrics.y + TICK_LENGTH);
     }
 }

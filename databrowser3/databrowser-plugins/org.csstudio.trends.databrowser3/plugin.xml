@@ -46,7 +46,7 @@
             default="true"
             extensions="plt,css-plt"
             icon="icons/databrowser.png"
-            id="org.csstudio.trends.databrowser3.ploteditor.PlotEditor"
+            id="org.csstudio.trends.databrowser.ploteditor.PlotEditor"
             name="%Databrowser">
       </editor>
    </extension>
@@ -61,7 +61,7 @@
             category="org.csstudio"
             class="org.csstudio.trends.databrowser3.search.SearchView"
             icon="icons/search.gif"
-            id="org.csstudio.trends.databrowser3.archiveview.ArchiveView"
+            id="org.csstudio.trends.databrowser.archiveview.ArchiveView"
             name="%SearchView"
             restorable="true">
       </view>
@@ -70,7 +70,7 @@
             category="org.csstudio"
             class="org.csstudio.trends.databrowser3.sampleview.SampleView"
             icon="icons/inspect.gif"
-            id="org.csstudio.trends.databrowser3.sample_view"
+            id="org.csstudio.trends.databrowser.sample_view"
             name="%SampleView"
             restorable="true">
       </view>
@@ -79,7 +79,7 @@
             category="org.csstudio"
             class="org.csstudio.trends.databrowser3.exportview.ExportView"
             icon="icons/export.png"
-            id="org.csstudio.trends.databrowser3.exportview.ExportView"
+            id="org.csstudio.trends.databrowser.exportview.ExportView"
             name="%ExportView"
             restorable="true">
       </view>
@@ -87,7 +87,7 @@
             category="org.csstudio"
             class="org.csstudio.trends.databrowser3.waveformview.WaveformView"
             icon="icons/wavesample.gif"
-            id="org.csstudio.trends.databrowser3.waveformview.WaveformView"
+            id="org.csstudio.trends.databrowser.waveformview.WaveformView"
             name="%WaveformView"
             restorable="true">
       </view>
@@ -97,7 +97,7 @@
       <perspective
             class="org.csstudio.trends.databrowser3.Perspective"
             icon="icons/databrowser.png"
-            id="org.csstudio.trends.databrowser3.Perspective"
+            id="org.csstudio.trends.databrowser.Perspective"
             name="%Databrowser">
       </perspective>
    </extension>
@@ -106,7 +106,7 @@
       <page
             category="org.csstudio.platform.ui.css.applications.trends"
             class="org.csstudio.trends.databrowser3.preferences.PreferencePage"
-            id="org.csstudio.trends.databrowser3.preferences"
+            id="org.csstudio.trends.databrowser.preferences"
             name="%Databrowser">
       </page>
    </extension>
@@ -142,12 +142,12 @@
          point="org.eclipse.ui.commands">
       <command
             defaultHandler="org.csstudio.trends.databrowser3.OpenDataBrowserPopup"
-            id="org.csstudio.trends.databrowser3.OpenDataBrowserPopup"
+            id="org.csstudio.trends.databrowser.OpenDataBrowserPopup"
             name="%Databrowser">
       </command>
       <command
             defaultHandler="org.csstudio.trends.databrowser3.NewDataBrowserHandler"
-            id="org.csstudio.trends.databrowser3.NewDataBrowserHandler"
+            id="org.csstudio.trends.databrowser.NewDataBrowserHandler"
             name="%Databrowser">
       </command>
    </extension>
@@ -176,7 +176,7 @@
             allPopups="false"
             locationURI="popup:org.csstudio.ui.menu.popup.processvariable">
          <command
-               commandId="org.csstudio.trends.databrowser3.OpenDataBrowserPopup"
+               commandId="org.csstudio.trends.databrowser.OpenDataBrowserPopup"
                icon="icons/new_databrowser.png"
                label="%Databrowser"
                style="push"
@@ -187,7 +187,7 @@
             allPopups="false"
             locationURI="menu:trends">
          <command
-               commandId="org.csstudio.trends.databrowser3.NewDataBrowserHandler"
+               commandId="org.csstudio.trends.databrowser.NewDataBrowserHandler"
                icon="icons/new_databrowser.png"
                label="%Databrowser"
                style="push"
@@ -200,7 +200,7 @@
          <toolbar
                id="org.csstudio.trends.databrowser3.toolbar">
              <command
-                   commandId="org.csstudio.trends.databrowser3.NewDataBrowserHandler"
+                   commandId="org.csstudio.trends.databrowser.NewDataBrowserHandler"
                    icon="icons/new_databrowser.png"
                    label="%Databrowser"
                    style="push"

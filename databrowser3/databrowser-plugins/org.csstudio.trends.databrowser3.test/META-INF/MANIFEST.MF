@@ -1,0 +1,17 @@
+Bundle-Name: Test Fragment
+Bundle-SymbolicName: org.csstudio.trends.databrowser3.test
+Fragment-Host: org.csstudio.trends.databrowser3
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.junit;bundle-version="4.12",
+ org.hamcrest.core;bundle-version="1.3.0",
+ org.csstudio.vtype.pv;bundle-version="4.0.3" 
+Export-Package: org.csstudio.trends.databrowser3.archive,
+ org.csstudio.trends.databrowser3.export,
+ org.csstudio.trends.databrowser3.imports,
+ org.csstudio.trends.databrowser3.model,
+ org.csstudio.trends.databrowser3.propsheet,
+ org.csstudio.trends.databrowser3.ui
+Import-Package: gov.aps.jca.cas

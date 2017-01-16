@@ -15,7 +15,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class DirtyFlag
 {
-    final private AtomicBoolean is_dirty = new AtomicBoolean(true);
+    final private AtomicBoolean is_dirty;
+
+    public DirtyFlag()
+    {
+        this(true);
+    }
+
+    public DirtyFlag(final boolean initially_set)
+    {
+        is_dirty = new AtomicBoolean(initially_set);
+    }
 
     public void mark()
     {

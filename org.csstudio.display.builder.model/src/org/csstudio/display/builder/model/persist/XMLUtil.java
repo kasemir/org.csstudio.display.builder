@@ -267,6 +267,20 @@ public class XMLUtil
         }
     }
 
+    /** Given a parent element, locate boolean value of a child node.
+     *  @param parent Parent element
+     *  @param name Name of child element
+     *  @return Value of child element, or empty result
+     */
+    public static Optional<Boolean> getChildBoolean(final Element parent, final String name)
+    {
+        final Element child = getChildElement(parent, name);
+        if (child != null)
+            return Optional.of(Boolean.parseBoolean(getString(child)));
+        else
+            return Optional.empty();
+    }
+
     /** @param text Text that should contain true or false
      *  @param default_value Value to use when text is empty
      *  @return Boolean value of text

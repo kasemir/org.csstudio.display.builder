@@ -197,7 +197,7 @@ public class ArrayWidgetPropertyUnitTest
         }
         catch (IndexOutOfBoundsException ex)
         {
-            assertThat(ex.getMessage(), containsString("element 5"));
+            assertThat(ex.getMessage(), containsString("only 1 element"));
         }
 
         try

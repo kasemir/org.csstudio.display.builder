@@ -233,12 +233,7 @@ abstract public class JFXBaseRepresentation<JFX extends Node, MW extends Widget>
             jfx_node.relocate(model_widget.propX().getValue(),
                               model_widget.propY().getValue());
             if (visible != null)
-            {   // In edit more, somewhat 'hide', but remain visible
-                if (toolkit.isEditMode())
-                    jfx_node.setDisable(! visible.getValue());
-                else
-                    jfx_node.setVisible(visible.getValue());
-            }
+                jfx_node.setVisible(visible.getValue());
         }
     }
 }

@@ -73,7 +73,7 @@ public class ContextMenuSupport
         private final ActionInfo info;
         public ActionInfoWrapper(final Widget widget, final ActionInfo info)
         {
-            super(info.getDescription(),
+            super(info.toString(),
                   AbstractUIPlugin.imageDescriptorFromPlugin(ModelPlugin.ID, info.getType().getIconPath()));
             this.widget = widget;
             this.info = info;
@@ -215,8 +215,12 @@ public class ContextMenuSupport
             final Node node = JFXBaseRepresentation.getJFXNode(context_menu_widget);
             final Scene scene = node.getScene();
 
+            manager.add(new SaveSnapshotAction(shell, scene));
+            manager.add(new PrintAction(shell, scene));
             manager.add(new SendEMailAction(shell, scene));
             manager.add(new SendLogbookAction(shell, scene));
+            manager.add(new FullScreenAction(view.getSite().getPage()));
+            manager.add(new StandaloneAction(view));
         }
 
         // Placeholder for the display editor.

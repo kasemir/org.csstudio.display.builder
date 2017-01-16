@@ -10,12 +10,14 @@ package org.csstudio.display.builder.representation.javafx.widgets;
 import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
 
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
+import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 
 import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
@@ -26,12 +28,22 @@ import javafx.scene.control.Tooltip;
 @SuppressWarnings("nls")
 public class TooltipSupport
 {
+    /** Legacy tool tip: "$(pv_name)\n$(pv_value)" where number of '\n' can vary */
+    private final static Pattern legacy_tooltip = Pattern.compile("\\$\\(pv_name\\)\\s*\\$\\(pv_value\\)");
+
     /** Attach tool tip
      *  @param node Node that should have the tool tip
      *  @param tooltip_property Tool tip to show
      */
     public static void attach(final Node node, final WidgetProperty<String> tooltip_property)
     {
+        // Patch legacy tool tips that defaulted to pv name & value,
+        // even for static widgets
+        final StringWidgetProperty ttp = (StringWidgetProperty)tooltip_property;
+        if (legacy_tooltip.matcher(ttp.getSpecification()).matches()  &&
+            ! tooltip_property.getWidget().checkProperty("pv_name").isPresent())
+            ttp.setSpecification("");
+
         // Suppress tool tip if _initial_ text is empty.
         // In case a script changes the tool tip at runtime,
         // tool tip must have some initial non-empty value.

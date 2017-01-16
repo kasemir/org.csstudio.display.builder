@@ -14,9 +14,10 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.graphics.Image;
 
 /** Thread-safe caching pool of {@link Color}, {@link Font}
  *
@@ -29,8 +30,7 @@ public class SWTMediaPool
 
     final private Map<RGB, Color> colors = new HashMap<>();
     final private Map<FontData, Font> fonts = new HashMap<>();
-
-    final private Map<FontData, javafx.scene.text.Font> jfx_fonts = new HashMap<>();
+    final private Map<ImageData, Image> images = new HashMap<>();
 
     /** Create pool for device
      *
@@ -162,11 +162,21 @@ public class SWTMediaPool
             font.dispose();
         for (Color color : colors.values())
             color.dispose();
+        for (Image img : images.values())
+            img.dispose();
     }
 
-    //TODO: implement function stub
-    public static Image get(javafx.scene.image.Image img)
+    public Image get(ImageData image_data)
     {
-        return null;
+        synchronized (images)
+        {
+            Image img = images.get(image_data);
+            if (img == null)
+            {
+                img = new Image(device, image_data);
+                images.put(image_data, img);
+            }
+            return img;
+        }
     }
 }

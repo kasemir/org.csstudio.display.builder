@@ -32,8 +32,7 @@ public class ExecuteScriptActionInfo extends ActionInfo
         return ActionType.EXECUTE_SCRIPT;
     }
 
-    /** @return Script info
-     */
+    /** @return Script info */
     public ScriptInfo getInfo()
     {
         return info;

@@ -12,7 +12,6 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
@@ -110,10 +109,12 @@ public class MultiStateLEDWidget extends BaseLEDWidget
             BaseLEDWidget.handle_legacy_position(widget, xml_version, xml);
 
             // If legacy widgets was configured to not use labels, clear them
-            final Optional<String> show = XMLUtil.getChildString(xml, "show_boolean_label");
-            if (show.isPresent()  &&  !XMLUtil.parseBoolean(show.get(), false))
-                for (int i=0; i<states.size(); ++i)
-                    states.getElement(i).label().setValue("");
+            XMLUtil.getChildBoolean(xml, "show_boolean_label").ifPresent(show ->
+            {
+                if (! show)
+                    for (int i=0; i<states.size(); ++i)
+                        states.getElement(i).label().setValue("");
+            });
 
             return true;
         }

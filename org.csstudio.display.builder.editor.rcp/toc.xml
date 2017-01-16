@@ -4,17 +4,22 @@
 <toc label="Display Builder" link_to="../org.csstudio.ui.help/tocApps.xml#display">
     <topic label="Display Builder" href="doc/display.builder.html">
         <!-- Topics are duplicated in display.builder.html -->
-        <topic label="Overview" href="doc/overview.html"/>
-        <topic label="Getting Started" href="doc/GettingStarted.html"/>
-        <topic label="Properties" href="doc/properties.html"/>
-        <topic label="Rules" href="doc/rules.html"/>
-        <topic label="Scripts" href="doc/scripts.html">
-            <topic label="API" href="doc/java/overview-summary.html"/>
+        <topic label="Overview" href="doc/display.builder.html#overview"/>
+        <topic label="Getting Started" href="doc/display.builder.html#get_started"/>
+        <topic href="doc/display.builder.html#editor" label="Display Editor">
+           <topic href="doc/display.builder.html#drag_and_drop" label="Drag &amp; Drop">
+           </topic>
         </topic>
-        <topic label="Widgets" href="doc/widgets/widgets.html">
-            <topic label="Graphics Widgets" href="doc/widgets/graphics_cat.html">
-                <topic label="Label" href="doc/widgets/label.html"/>
-            </topic>
+        <topic label="BOY *.opi Conversion" href="doc/display.builder.html#conversion"/>
+        <topic label="Widget Classes" href="doc/display.builder.html#classes"/>
+        <topic label="Display Runtime" href="doc/display.builder.html#runtime"/>
+        <topic label="Display Runtime Perspective, Full-screen, Standalone" href="doc/display.builder.html#perspective"/>
+        <topic label="Widgets" href="doc/display.builder.html#widgets"/>
+        <topic label="Properties" href="doc/display.builder.html#properties"/>
+        <topic href="doc/display.builder.html#rules" label="Rules">
+        </topic>
+        <topic label="Scripts" href="doc/display.builder.html#scripts">
+            <topic label="API" href="doc/java/overview-summary.html"/>
         </topic>
     </topic>
 </toc>

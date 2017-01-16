@@ -41,6 +41,15 @@ import javafx.scene.shape.StrokeType;
  *
  *  <p>Implements alarm-sensitive border based on the Region's border.
  *
+ *  <p>For widgets with "border_alarm_sensitive" and "value" properties,
+ *  the border is based on the alarm severity of that value,
+ *  which in turn tends to be read from a primary PV.
+ *
+ *  <p>In addition, the "connected" runtime property is checked,
+ *  which is updated by the runtime to indicate if _all_ PVs
+ *  associated with the widget are connected.
+ *  Whenever any PV is disconnected, the border reflects that.
+ *
  *  @author Kay Kasemir
  */
 abstract public class RegionBaseRepresentation<JFX extends Region, MW extends VisibleWidget> extends JFXBaseRepresentation<JFX, MW>
@@ -125,6 +134,9 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
     {
         super.registerListeners();
 
+        if (toolkit.isEditMode())
+            return;
+        // In runtime mode, handle alarm-sensitive border
         final Optional<WidgetProperty<Boolean>> border = model_widget.checkProperty(propBorderAlarmSensitive);
         final Optional<WidgetProperty<VType>> value = model_widget.checkProperty(runtimePropValue);
         if (border.isPresent()  &&  value.isPresent())
@@ -139,6 +151,7 @@ abstract public class RegionBaseRepresentation<JFX extends Region, MW extends Vi
             value_prop.addUntypedPropertyListener(this::valueChanged);
         }
 
+        // Indicate 'disconnected' state
         model_widget.runtimePropConnected().addPropertyListener(this::connectionChanged);
     }
 

@@ -8,6 +8,9 @@
 package org.csstudio.trends.databrowser3.model;
 
 import java.time.Instant;
+import java.util.Arrays;
+
+import org.csstudio.javafx.rtplot.data.TimeDataSearch;
 
 /** Helper for merging archived samples.
  *  <p>
@@ -18,6 +21,8 @@ import java.time.Instant;
  */
 public class PlotSampleMerger
 {
+    final private static TimeDataSearch searcher = new TimeDataSearch();
+
     /** Add newly received samples to existing array of samples.
      *  @param old Existing data
      *  @param add Newly received data
@@ -38,6 +43,8 @@ public class PlotSampleMerger
         // ITimestamp old_end = old[No-1].getTime();
         Instant add_start = add[0].getPosition();
         Instant add_end = add[Na-1].getPosition();
+
+        final PlotSampleArray searchable_array = new PlotSampleArray();
 
         //        System.out.print("Have samples " + old_start.toString());
         //        System.out.print(" to " + old_end.toString());
@@ -61,7 +68,8 @@ public class PlotSampleMerger
         {
             // Result starts with 'new' samples. Then, how many 'old' samples?
             // Determine the first sample to use from the 'old'
-            int x = PlotSampleSearch.findSampleGreaterThan(old, add_end);
+            searchable_array.set(Arrays.asList(old));
+            int x = searcher.findSampleGreaterThan(searchable_array, add_end);
             if (x < 0)
             {   // Old samples contain nothing beyond end of new samples
                 return add;
@@ -80,8 +88,9 @@ public class PlotSampleMerger
         if (add_start.compareTo(old_start) >= 0)
         {
             // Determine the left/right indices of the section within 'old'.
-            final int l = PlotSampleSearch.findSampleLessThan(old, add_start);
-            final int r = PlotSampleSearch.findSampleGreaterThan(old, add_end);
+            searchable_array.set(Arrays.asList(old));
+            final int l = searcher.findSampleLessThan(searchable_array, add_start);
+            final int r = searcher.findSampleGreaterThan(searchable_array, add_end);
             final int Nl = (l < 0) ? 0 : l + 1;
             final int Nr = (r < 0) ? 0 : No-r;
             final PlotSample result[] = new PlotSample[Nl + Na + Nr];

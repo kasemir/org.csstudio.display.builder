@@ -72,9 +72,18 @@ public class MacroXMLUtil
     public static Macros readMacros(final String macros_xml) throws Exception
     {
         final String full_xml = "<" + XMLTags.MACROS + ">" + macros_xml + "</" + XMLTags.MACROS + ">";
-        final ByteArrayInputStream stream = new ByteArrayInputStream(full_xml.getBytes());
-        final Element root = XMLUtil.openXMLDocument(stream, XMLTags.MACROS);
-        return readMacros(root);
+        try
+        {
+            final ByteArrayInputStream stream = new ByteArrayInputStream(full_xml.getBytes());
+            final Element root = XMLUtil.openXMLDocument(stream, XMLTags.MACROS);
+            return readMacros(root);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Macros need to be in the format " +
+                                "<name>value</name><other_name>value</other_name>, got " + macros_xml,
+                                ex);
+        }
     }
 
     /** @param macros Macros to write

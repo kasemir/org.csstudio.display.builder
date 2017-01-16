@@ -174,7 +174,7 @@
             category="GRAPHIC"
             class="org.csstudio.display.builder.model.widgets.PictureWidget"
             description="%PictureWidget_Description"
-            icon="platform:/plugin/org.csstudio.display.builder.model/icons/picture.gif"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/picture.png"
             name="%PictureWidget_Name"
             type="picture">
          <alternates

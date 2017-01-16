@@ -19,16 +19,13 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
-import javafx.scene.paint.Color;
 
-import org.csstudio.apputil.macros.IMacroTableProvider;
-import org.csstudio.apputil.macros.InfiniteLoopException;
-import org.csstudio.apputil.macros.MacroTable;
-import org.csstudio.apputil.macros.MacroUtil;
 import org.csstudio.apputil.time.PeriodFormat;
 import org.csstudio.apputil.time.RelativeTime;
 import org.csstudio.apputil.time.StartEndTimeParser;
 import org.csstudio.archive.vtype.TimestampHelper;
+import org.csstudio.display.builder.model.macros.MacroHandler;
+import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.javafx.rtplot.util.RGBFactory;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
@@ -41,6 +38,8 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 
+import javafx.scene.paint.Color;
+
 /** Data Browser model
  *  <p>
  *  Maintains a list of {@link ModelItem}s
@@ -50,6 +49,7 @@ import org.eclipse.swt.widgets.Display;
  *                           the same name so that Data Browser can show the
  *                           trend of the same PV in different axes or with
  *                           different waveform indexes.
+ *  @author Megan Grodowitz ported from databrowser 2 to databrowser 3
  */
 @SuppressWarnings("nls")
 public class Model
@@ -69,7 +69,13 @@ public class Model
     final private RGBFactory default_colors = new RGBFactory();
 
     /** Macros */
-    private volatile IMacroTableProvider macros = new MacroTable(Collections.emptyMap());
+    private volatile MacroValueProvider macros = new MacroValueProvider() {
+        @Override
+        public String getValue(String name)
+        {
+            return null;
+        }
+    };
 
     /** Listeners to model changes */
     final private List<ModelListener> listeners = new CopyOnWriteArrayList<>();
@@ -79,6 +85,8 @@ public class Model
 
     /** Axes configurations */
     final private List<AxisConfig> axes = new CopyOnWriteArrayList<AxisConfig>();
+    //TODO: Separate config for x axis?
+    //final private AxisConfig x_axis = null;
 
     /** All the items in this model */
     final private List<ModelItem> items = new CopyOnWriteArrayList<ModelItem>();
@@ -168,10 +176,10 @@ public class Model
                 listener.changedSaveChangesBehavior(save_changes);
     }
 
-    /** @param macros Macros to use in this model */
-    public void setMacros(final IMacroTableProvider macros)
+    /** @param macroValueProvider Macros to use in this model */
+    public void setMacros(final MacroValueProvider macroValueProvider)
     {
-        this.macros = Objects.requireNonNull(macros);
+        this.macros = Objects.requireNonNull(macroValueProvider);
     }
 
     /** Resolve macros
@@ -182,12 +190,13 @@ public class Model
     {
         try
         {
-            return MacroUtil.replaceMacros(text, macros);
+            return MacroHandler.replace(macros, text);
         }
-        catch (InfiniteLoopException ex)
+        catch (Exception e)
         {
             Activator.getLogger().log(Level.WARNING,
-                    "Problem in macro {0}: {1}", new Object[] { text, ex.getMessage()});
+                    "Problem in macro {0}: {1}", new Object[] { text, e.getMessage()});
+            e.printStackTrace();
             return text;
         }
     }
@@ -256,6 +265,12 @@ public class Model
             return null;
         }
     }
+
+    //TODO: separate config for x axis?
+    //    public AxisConfig getXAxis()
+    //    {
+    //        return x_axis;
+    //    }
 
     /** Locate index of value axis
      *  @param axis Value axis configuration
@@ -809,6 +824,7 @@ public class Model
         label_font = font;
         for (ModelListener listener : listeners)
             listener.changedColorsOrFonts();
+
     }
 
     /** @return Scale font */
@@ -977,4 +993,6 @@ public class Model
         }
         return Optional.empty();
     }
+
+
 }

@@ -10,7 +10,9 @@ Require-Bundle: org.eclipse.osgi,
  org.csstudio.display.builder.model;bundle-version="1.0.0",
  org.csstudio.display.builder.representation;bundle-version="1.0.0",
  org.csstudio.display.builder.representation.javafx;bundle-version="1.0.0",
- org.csstudio.display.builder.util;bundle-version="1.0.0"
+ org.csstudio.display.builder.util;bundle-version="1.0.0",
+ org.apache.commons.io;bundle-version="2.5.0",
+ org.apache.commons.lang3;bundle-version="3.5.0"
 Bundle-Vendor: Kay Kasemir - SNS
 Export-Package: org.csstudio.display.builder.editor,
  org.csstudio.display.builder.editor.actions,

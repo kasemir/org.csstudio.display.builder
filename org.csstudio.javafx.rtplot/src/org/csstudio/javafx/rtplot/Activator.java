@@ -24,13 +24,11 @@ public class Activator
 
     final public static Logger logger =  Logger.getLogger(ID);
 
-    /** @param base_name Icon base name (no path, no extension)
-     *  @return Image
-     *  @throws Exception on error
-     */
+    final public static String IconPath = "platform:/plugin/org.csstudio.javafx.rtplot/icons/";
+
     public static Image getIcon(final String base_name) throws Exception
     {
-        String path = "platform:/plugin/org.csstudio.javafx.rtplot/icons/" + base_name + ".png";
+        String path = org.csstudio.javafx.rtplot.Activator.IconPath + base_name + ".png";
         return new Image(ResourceUtil.openPlatformResource(path));
     }
 }

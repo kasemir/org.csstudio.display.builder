@@ -14,18 +14,30 @@ import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.rcp.DisplayInfo;
 import org.csstudio.display.builder.rcp.Messages;
+import org.csstudio.display.builder.rcp.RuntimePerspective;
 import org.csstudio.display.builder.rcp.RuntimeViewPart;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
+import org.csstudio.display.builder.representation.javafx.JFXStageRepresentation;
 import org.csstudio.ui.util.dialogs.ResourceSelectionDialog;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.stage.Stage;
 
 /** Represent display builder in JFX inside RCP Views
  *
@@ -45,14 +57,47 @@ public class RCP_JFXRepresentation extends JFXRepresentation
     }
 
     @Override
+    public ToolkitRepresentation<Parent, Node> openPanel(final DisplayModel model,
+                                                         final Consumer<DisplayModel> close_handler) throws Exception
+    {
+        return openDisplayOnPage(null, model, close_handler);
+    }
+
+    @Override
     public ToolkitRepresentation<Parent, Node> openNewWindow(final DisplayModel model,
                                                              final Consumer<DisplayModel> close_handler) throws Exception
     {
+        // Create new workbench page
+        final IWorkbenchWindow window = PlatformUI.getWorkbench().openWorkbenchWindow(RuntimePerspective.ID, null);
+        final IWorkbenchPage page = window.getActivePage();
+        final Shell shell = window.getShell();
+        shell.forceActive();
+        shell.forceFocus();
+        shell.moveAbove(null);
+        return openDisplayOnPage(page, model, close_handler);
+    }
+
+    private ToolkitRepresentation<Parent, Node> openDisplayOnPage(final IWorkbenchPage page,
+                                                                  final DisplayModel model,
+                                                                  final Consumer<DisplayModel> close_handler) throws Exception
+    {
         final DisplayInfo info = DisplayInfo.forModel(model);
-        final RuntimeViewPart part = RuntimeViewPart.open(close_handler, info);
+        final RuntimeViewPart part = RuntimeViewPart.open(page, close_handler, info);
         final RCP_JFXRepresentation new_representation = part.getRepresentation();
         new_representation.representModel(part.getRoot(), model);
         return new_representation;
+    }
+
+    @Override
+    public ToolkitRepresentation<Parent, Node> openStandaloneWindow(final DisplayModel model,
+                                                                    final Consumer<DisplayModel> close_handler) throws Exception
+    {
+        final Stage stage = new Stage();
+        final JFXStageRepresentation toolkit = new JFXStageRepresentation(stage);
+        final Parent root = toolkit.configureStage(model, close_handler);
+        stage.show();
+        toolkit.representModel(root, model);
+        return toolkit;
     }
 
     @Override
@@ -102,5 +147,28 @@ public class RCP_JFXRepresentation extends JFXRepresentation
         final IWorkbenchPage page = part.getSite().getPage();
         final Display display = page.getWorkbenchWindow().getShell().getDisplay();
         display.asyncExec(() -> page.hideView(part));
+    }
+
+    @Override
+    public void openFile(final String path) throws Exception
+    {
+        final IPath rcp_path = new Path(path);
+        final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        final IFile file = root.getFile(rcp_path);
+        if (file.exists())
+        {   // Open workspace file.
+            // Clear the last-used-editor info to always get the default editor,
+            // the one configurable via Preferences, General, Editors, File Associations,
+            // and not whatever one user may have used last via Navigator's "Open With..".
+            // Other cases below use a new, local file that won't have last-used-editor info, yet
+            file.setPersistentProperty(IDE.EDITOR_KEY, null);
+            IDE.openEditor(page, file, true);
+        }
+        else
+        {   // Open file that is outside of workspace
+            final IFileStore localFile = EFS.getLocalFileSystem().getStore(rcp_path);
+            IDE.openEditorOnFileStore(page, localFile);
+        }
     }
 }

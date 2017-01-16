@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.tracker;
 
-import static org.csstudio.display.builder.editor.DisplayEditor.logger;
+import static org.csstudio.display.builder.editor.Plugin.logger;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +29,8 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
+import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
@@ -51,6 +53,7 @@ import javafx.scene.input.TransferMode;
  *  moving and resizing them.
  *
  *  @author Kay Kasemir
+ *  @author Claudio Rosati
  */
 @SuppressWarnings("nls")
 public class SelectedWidgetUITracker extends Tracker
@@ -141,6 +144,7 @@ public class SelectedWidgetUITracker extends Tracker
 
         // When tracker moved, update widgets
         setListener(this::updateWidgetsFromTracker);
+
     }
 
     public void setModel(final DisplayModel model)
@@ -148,7 +152,13 @@ public class SelectedWidgetUITracker extends Tracker
         grid_constraint.configure(model);
     }
 
+    public DisplayModel getModel()
+    {
+        return grid_constraint.getModel();
+    }
+
     /** Apply enabled constraints to requested position
+     *
      *  @param x Requested X position
      *  @param y Requested Y position
      *  @return Constrained coordinate
@@ -157,11 +167,40 @@ public class SelectedWidgetUITracker extends Tracker
     protected Point2D constrain(final double x, final double y)
     {
         Point2D result = super.constrain(x, y);
-        if (grid_constraint.isEnabled())
-            result = grid_constraint.constrain(result.getX(), result.getY());
-        if (snap_constraint.isEnabled())
-            result = snap_constraint.constrain(result.getX(), result.getY());
+
+        result = gridConstrain(result.getX(), result.getY());
+        result = snapConstrain(result.getX(), result.getY());
+
         return result;
+
+    }
+
+    /** Apply enabled constraints to requested position
+     *
+     *  @param x Requested X position
+     *  @param y Requested Y position
+     *  @return Constrained coordinate
+     */
+    public Point2D gridConstrain(final double x, final double y)
+    {
+        if (grid_constraint.isEnabled())
+            return grid_constraint.constrain(x, y);
+        else
+            return new Point2D(x, y);
+    }
+
+    /** Apply enabled constraints to requested position
+     *
+     *  @param x Requested X position
+     *  @param y Requested Y position
+     *  @return Constrained coordinate
+     */
+    public Point2D snapConstrain(final double x, final double y)
+    {
+        if (snap_constraint.isEnabled())
+            return snap_constraint.constrain(x, y);
+        else
+            return new Point2D(x, y);
     }
 
     /** @param event {@link MouseEvent} */
@@ -213,7 +252,17 @@ public class SelectedWidgetUITracker extends Tracker
     private void createInlineEditor(final Widget widget)
     {
         // Check for an inline-editable property
-        Optional<WidgetProperty<String>> check = widget.checkProperty(CommonWidgetProperties.propPVName);
+        Optional<WidgetProperty<String>> check;
+
+        // Defaulting to PV name or text property with some hard-coded exceptions.
+        // Alternative if the list of hard-coded widgets grows:
+        // Add Widget#getInlineEditableProperty()
+        if (widget instanceof ActionButtonWidget)
+            check = Optional.of(((ActionButtonWidget) widget).propText());
+        else if (widget instanceof GroupWidget)
+            check = Optional.of(((GroupWidget) widget).propName());
+        else
+            check = widget.checkProperty(CommonWidgetProperties.propPVName);
         if (! check.isPresent())
             check = widget.checkProperty(CommonWidgetProperties.propText);
         if (! check.isPresent())
@@ -333,11 +382,19 @@ public class SelectedWidgetUITracker extends Tracker
 
                 if (orig_parent_children == parent_children)
                 {   // Slightly faster since parent stays the same
-                    widget.propX().setValue((int) (orig.getMinX() + dx));
-                    widget.propY().setValue((int) (orig.getMinY() + dy));
+                    if (! widget.propX().isUsingWidgetClass())
+                        widget.propX().setValue((int) (orig.getMinX() + dx));
+                    if (! widget.propY().isUsingWidgetClass())
+                        widget.propY().setValue((int) (orig.getMinY() + dy));
                 }
                 else
                 {   // Update to new parent
+                    if (widget.getDisplayModel().isClassModel())
+                    {
+                        logger.log(Level.WARNING, "Widget hierarchy is not permitted for class model");
+                        return;
+                    }
+
                     final Point2D old_offset = GeometryTools.getDisplayOffset(widget);
                     orig_parent_children.removeChild(widget);
                     parent_children.addChild(widget);
@@ -347,11 +404,15 @@ public class SelectedWidgetUITracker extends Tracker
                                new Object[] { widget, orig_parent_children.getWidget(), old_offset,
                                                       parent_children.getWidget(), new_offset});
                     // Account for old and new display offset
-                    widget.propX().setValue((int) (orig.getMinX() + dx + old_offset.getX() - new_offset.getX()));
-                    widget.propY().setValue((int) (orig.getMinY() + dy + old_offset.getY() - new_offset.getY()));
+                    if (! widget.propX().isUsingWidgetClass())
+                        widget.propX().setValue((int) (orig.getMinX() + dx + old_offset.getX() - new_offset.getX()));
+                    if (! widget.propY().isUsingWidgetClass())
+                        widget.propY().setValue((int) (orig.getMinY() + dy + old_offset.getY() - new_offset.getY()));
                 }
-                widget.propWidth().setValue((int) Math.max(1, orig.getWidth() + dw));
-                widget.propHeight().setValue((int) Math.max(1, orig.getHeight() + dh));
+                if (! widget.propWidth().isUsingWidgetClass())
+                    widget.propWidth().setValue((int) Math.max(1, orig.getWidth() + dw));
+                if (! widget.propHeight().isUsingWidgetClass())
+                    widget.propHeight().setValue((int) Math.max(1, orig.getHeight() + dh));
 
                 undo.add(new UpdateWidgetLocationAction(widget,
                                                         orig_parent_children,
@@ -367,6 +428,7 @@ public class SelectedWidgetUITracker extends Tracker
         finally
         {
             updating = false;
+            updateTrackerFromWidgets();
         }
     }
 
@@ -374,9 +436,7 @@ public class SelectedWidgetUITracker extends Tracker
     {
         if (updating)
             return;
-        final Rectangle2D rect = widgets.stream()
-                                        .map(GeometryTools::getDisplayBounds)
-                                        .reduce(null, GeometryTools::join);
+        final Rectangle2D rect = GeometryTools.getDisplayBounds(widgets);
         updating = true;
         setPosition(rect);
         updating = false;

@@ -10,7 +10,7 @@ package org.csstudio.display.builder.editor.palette;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.csstudio.display.builder.editor.WidgetSelectionHandler;
+import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.util.WidgetIcons;
 import org.csstudio.display.builder.editor.util.WidgetTransfer;
 import org.csstudio.display.builder.model.WidgetCategory;
@@ -44,12 +44,11 @@ public class Palette
     // unless that's set to a fixed pixel value.
     private final static int PREFERRED_WIDTH = 160;
 
-    private final WidgetSelectionHandler selection;
+    private final DisplayEditor editor;
 
     /** @param selection Selection handler */
-    public Palette(final WidgetSelectionHandler selection)
-    {
-        this.selection = selection;
+    public Palette ( final DisplayEditor editor ) {
+        this.editor = editor;
     }
 
     /** Create UI elements
@@ -112,7 +111,7 @@ public class Palette
             button.setTooltip(new Tooltip(desc.getDescription()));
             palette_groups.get(desc.getCategory()).getChildren().add(button);
 
-            WidgetTransfer.addDragSupport(button, selection, desc, icon);
+            WidgetTransfer.addDragSupport(button, editor, desc, icon);
         }
     }
 }

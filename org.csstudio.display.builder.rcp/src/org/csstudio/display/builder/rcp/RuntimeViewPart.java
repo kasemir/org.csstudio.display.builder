@@ -35,11 +35,13 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IViewReference;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -89,20 +91,63 @@ public class RuntimeViewPart extends ViewPart
 
 	private DisplayModel active_model;
 
+	// Life cycle:
+	// View is created with a unique ID.
+	// This prevents re-use of the same view in multiple perspectives.
+	// If a view is closed, RCP disposes it for good,
+	// no chance same view is still in another perspective.
+	// onDispose() will stop the runtime etc.
+	//
+	// View can become hidden when moved behind other tab, minimized,
+	// selecting a different perspective.
+	//
+	// Stopping & restarting the runtime when view is hidden/revealed
+	// would save the most CPU, but restart takes enough time for user
+	// to notice initial disconnect state, and certain widgets (plots)
+	// would loose their history.
+	// Profiling revealed that FXCanvas updates are already suppressed
+	// by the framework, and pausing the representation skips the JFX node updates,
+	// resulting in significant CPU reduction while hidden.
+	private final IPartListener2 show_hide_listener = new IPartListener2()
+    {
+        @Override
+        public void partHidden(final IWorkbenchPartReference ref)
+        {
+            if (ref.getPart(false) == RuntimeViewPart.this)
+                representation.enable(false);
+        }
+
+        @Override
+        public void partVisible(final IWorkbenchPartReference ref)
+        {
+            if (ref.getPart(false) == RuntimeViewPart.this)
+                representation.enable(true);
+        }
+
+        @Override public void partOpened(IWorkbenchPartReference ref)       { /* Ignore */ }
+        @Override public void partInputChanged(IWorkbenchPartReference ref) { /* Ignore */ }
+        @Override public void partDeactivated(IWorkbenchPartReference ref)  { /* Ignore */ }
+        @Override public void partClosed(IWorkbenchPartReference ref)       { /* Ignore */ }
+        @Override public void partBroughtToTop(IWorkbenchPartReference ref) { /* Ignore */ }
+        @Override public void partActivated(IWorkbenchPartReference ref)    { /* Ignore */ }
+    };
+
     /** Open a runtime display
      *
      *  <p>Either opens a new display, or if there is already an existing view
      *  for that input, "activate" it, which pops a potentially hidden view to the top.
      *
+     *  @param page Page to use. <code>null</code> for 'active' page
      *  @param close_handler Code to call when part is closed
      *  @param info DisplayInfo (to compare with currently open displays)
      *  @return {@link RuntimeViewPart}
      *  @throws Exception on error
      */
-    public static RuntimeViewPart open(final Consumer<DisplayModel> close_handler, final DisplayInfo info)
+    public static RuntimeViewPart open(IWorkbenchPage page, final Consumer<DisplayModel> close_handler, final DisplayInfo info)
             throws Exception
     {
-        final IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        if (page == null)
+            page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
         if (info != null)
             for (IViewReference view_ref : page.getViewReferences())
                 if (view_ref.getId().startsWith(ID))
@@ -241,6 +286,11 @@ public class RuntimeViewPart extends ViewPart
                 representation.fireContextMenu(model);
             }
         });
+
+        // Track when view is hidden/restored
+        // Only add once, so remove previous one
+        getSite().getPage().removePartListener(show_hide_listener);
+        getSite().getPage().addPartListener(show_hide_listener);
     }
 
 	public RCP_JFXRepresentation getRepresentation()
@@ -325,6 +375,12 @@ public class RuntimeViewPart extends ViewPart
         RuntimeUtil.getExecutor().execute(() -> loadModel(info));
     }
 
+    /** @return Info about current display model or <code>null</code> */
+    public DisplayModel getDisplayModel()
+    {
+        return active_model;
+    }
+
     /** @return Info about current display or <code>null</code> */
     public DisplayInfo getDisplayInfo()
     {
@@ -373,7 +429,7 @@ public class RuntimeViewPart extends ViewPart
     {
         try
         {
-            final DisplayModel model = ModelLoader.loadModel(null, info.getPath());
+            final DisplayModel model = ModelLoader.loadModel(info.getPath());
 
             // This code is called
             // 1) From OpenDisplayAction
@@ -441,6 +497,8 @@ public class RuntimeViewPart extends ViewPart
     {
         disposeModel();
         representation.shutdown();
+        // No longer track when view is hidden/restored
+        getSite().getPage().removePartListener(show_hide_listener);
     }
 
 	@Override

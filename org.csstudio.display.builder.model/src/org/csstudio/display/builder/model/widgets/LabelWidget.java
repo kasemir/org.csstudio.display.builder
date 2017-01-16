@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontalAlignment;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propRotationStep;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propText;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTransparent;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propVerticalAlignment;
@@ -29,6 +30,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.NamedWidgetFonts;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.properties.HorizontalAlignment;
+import org.csstudio.display.builder.model.properties.RotationStep;
 import org.csstudio.display.builder.model.properties.VerticalAlignment;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.properties.WidgetFont;
@@ -62,6 +64,7 @@ public class LabelWidget extends VisibleWidget
     private volatile WidgetProperty<WidgetFont> font;
     private volatile WidgetProperty<HorizontalAlignment> horizontal_alignment;
     private volatile WidgetProperty<VerticalAlignment> vertical_alignment;
+    private volatile WidgetProperty<RotationStep> rotation_step;
     private volatile WidgetProperty<Boolean> wrap_words;
 
     public LabelWidget()
@@ -80,6 +83,7 @@ public class LabelWidget extends VisibleWidget
         properties.add(transparent = propTransparent.createProperty(this, true));
         properties.add(horizontal_alignment = propHorizontalAlignment.createProperty(this, HorizontalAlignment.LEFT));
         properties.add(vertical_alignment = propVerticalAlignment.createProperty(this, VerticalAlignment.TOP));
+        properties.add(rotation_step = propRotationStep.createProperty(this, RotationStep.NONE));
         properties.add(wrap_words = propWrapWords.createProperty(this, true));
     }
 
@@ -134,6 +138,12 @@ public class LabelWidget extends VisibleWidget
     public WidgetProperty<VerticalAlignment> propVerticalAlignment()
     {
         return vertical_alignment;
+    }
+
+    /** @return 'rotation_step' property */
+    public WidgetProperty<RotationStep> propRotationStep()
+    {
+        return rotation_step;
     }
 
     /** @return 'wrap_words' property */

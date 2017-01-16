@@ -22,9 +22,6 @@ import org.csstudio.javafx.rtplot.AxisRange;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.TimeScreenTransform;
 
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Paint;
-
 /** 'X' or 'horizontal' axis for time stamps.
  *  @see HorizontalNumericAxis
  *  @author Kay Kasemir
@@ -138,20 +135,20 @@ public class TimeAxis extends AxisPart<Instant>
             }
 
             // Major tick marks
-            gc.setStroke(new BasicStroke(TICK_WIDTH));
+            gc.setStroke(TICK_STROKE);
             gc.drawLine(x, region.y, x, region.y + TICK_LENGTH);
 
             // Grid line
             if (show_grid)
             {
                 // Dashed line
-                gc.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER, 10, new float[] { 2 }, 0));
+                gc.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10, new float[] { 2 }, 0));
                 gc.drawLine(x, plot_bounds.y, x, region.y-1);
             }
             gc.setStroke(old_width);
 
             // Tick Label
-            drawTickLabel(gc, tick);
+            drawTickLabel(gc, tick, false);
 
             prev_x = x;
             tick = ticks.getNext(tick);
@@ -181,33 +178,25 @@ public class TimeAxis extends AxisPart<Instant>
 
     /** {@inheritDoc} */
     @Override
-    public void drawTickLabel(final Graphics2D gc, final Instant tick)
-    {
-        final int x = getScreenCoord(tick);
-        int y = getBounds().y + TICK_LENGTH;
-        final String mark = ticks.format(tick);
-        final Rectangle metrics = GraphicsUtils.measureText(gc, mark);
-        final int tx = x - metrics.width/2;
-        // gc.drawRect(tx, y, metrics.width, metrics.height);
-        GraphicsUtils.drawMultilineText(gc, tx, y + metrics.y, mark);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void drawFloatingTickLabel(final GraphicsContext gc, final Instant tick)
+    public void drawTickLabel(final Graphics2D gc, final Instant tick, final boolean floating)
     {
         final Rectangle region = getBounds();
         final int x = getScreenCoord(tick);
-        gc.strokeLine(x, region.y, x, region.y + TICK_LENGTH);
-        final String mark = ticks.formatDetailed(tick);
-        gc.setFont(GraphicsUtils.convert(scale_font));
+        final String mark = floating ? ticks.formatDetailed(tick) : ticks.format(tick);
+        gc.setFont(scale_font);
         final Rectangle metrics = GraphicsUtils.measureText(gc, mark);
         final int tx = x - metrics.width/2;
-        final Paint orig_fill = gc.getFill();
-        gc.setFill(javafx.scene.paint.Color.WHITE);
-        gc.fillRect(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
-        gc.setFill(orig_fill);
-        gc.strokeRect(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
-        gc.fillText(mark, tx, region.y + metrics.y + TICK_LENGTH);
+
+        if (floating)
+        {
+            gc.drawLine(x, region.y, x, region.y + TICK_LENGTH);
+            final Color orig_fill = gc.getColor();
+            gc.setColor(java.awt.Color.WHITE);
+            gc.fillRect(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
+            gc.setColor(orig_fill);
+            gc.drawRect(tx-BORDER, region.y + TICK_LENGTH-BORDER, metrics.width+2*BORDER, metrics.height+2*BORDER);
+        }
+        // gc.drawRect(tx, y, metrics.width, metrics.height);
+        GraphicsUtils.drawMultilineText(gc, tx, region.y + TICK_LENGTH + metrics.y, mark);
     }
 }

@@ -37,6 +37,8 @@ public class ImageToolbarHandler
     {
         ZOOM_IN,
         ZOOM_OUT,
+        PAN,
+        CROSSHAIR,
         POINTER,
         UNDO,
         REDO
@@ -45,7 +47,7 @@ public class ImageToolbarHandler
     final private RTImagePlot plot;
 
     final private ToolBar toolbar;
-    private ToggleButton zoom_in, zoom_out, pointer;
+    private ToggleButton zoom_in, zoom_out, pan, crosshair, pointer;
 
     /** Have any custom items been added? */
     private boolean have_custom_items = false;
@@ -53,11 +55,11 @@ public class ImageToolbarHandler
     /** Construct tool bar
      *  @param plot {@link RTImagePlot} to control from tool bar
      */
-    public ImageToolbarHandler(final RTImagePlot plot)
+    public ImageToolbarHandler(final RTImagePlot plot, final boolean active)
     {
         this.plot = plot;
         toolbar = new ToolBar();
-        makeGUI();
+        makeGUI(active);
     }
 
     /** @return The actual toolbar for {@link RTImagePlot} to handle its layout */
@@ -85,77 +87,93 @@ public class ImageToolbarHandler
         return item;
     }
 
-    private void makeGUI()
+    private void makeGUI(final boolean active)
     {
-        addMouseModes();
+        addMouseModes(active);
         toolbar.getItems().add(new Separator());
-        addUndo();
+        addUndo(active);
 
         // Initially, zooming is selected
         selectMouseMode(zoom_in);
     }
 
-    private void addMouseModes()
+    private void addMouseModes(final boolean active)
     {
         zoom_in = newToggleButton(ToolIcons.ZOOM_IN, Messages.Zoom_In_TT);
         zoom_out = newToggleButton(ToolIcons.ZOOM_OUT, Messages.Zoom_Out_TT);
+        pan = newToggleButton(ToolIcons.PAN, Messages.Pan_TT);
+        crosshair = newToggleButton(ToolIcons.CROSSHAIR, Messages.Crosshair_Cursor);
         pointer = newToggleButton(ToolIcons.POINTER, Messages.Plain_Pointer);
 
-        zoom_in.setOnAction(event ->
+        if (active)
         {
-            selectMouseMode(zoom_in);
-            plot.setMouseMode(MouseMode.ZOOM_IN);
-        });
-        zoom_out.setOnAction(event ->
-        {
-            selectMouseMode(zoom_out);
-            plot.setMouseMode(MouseMode.ZOOM_OUT);
-            plot.zoomInOut(false);
-        });
-        pointer.setOnAction(event ->
-        {
-            selectMouseMode(pointer);
-            plot.setMouseMode(MouseMode.NONE);
-        });
+            zoom_in.setOnAction(event ->
+            {
+                selectMouseMode(zoom_in);
+                plot.setMouseMode(MouseMode.ZOOM_IN);
+            });
+            zoom_out.setOnAction(event ->
+            {
+                selectMouseMode(zoom_out);
+                plot.setMouseMode(MouseMode.ZOOM_OUT);
+                plot.zoomInOut(false);
+            });
+            pan.setOnAction(event ->
+            {
+                selectMouseMode(pan);
+                plot.setMouseMode(MouseMode.PAN);
+            });
+            crosshair.setOnAction(event ->
+            {
+                plot.showCrosshair(crosshair.isSelected());
+            });
+            pointer.setOnAction(event ->
+            {
+                selectMouseMode(pointer);
+                plot.setMouseMode(MouseMode.NONE);
+            });
+        }
     }
 
-    private void addUndo()
+    private void addUndo(final boolean active)
     {
         final Button undo = newButton(ToolIcons.UNDO, Messages.Undo_TT);
-        undo.setOnAction(event -> plot.getUndoableActionManager().undoLast());
-
         final Button redo = newButton(ToolIcons.REDO, Messages.Redo_TT);
-        redo.setOnAction(event -> plot.getUndoableActionManager().redoLast());
-
         final UndoableActionManager undo_mgr = plot.getUndoableActionManager();
         undo.setDisable(!undo_mgr.canUndo());
         redo.setDisable(!undo_mgr.canRedo());
-        undo_mgr.addListener((to_undo, to_redo) ->
+
+        if (active)
         {
-        	Platform.runLater(()->
+            undo.setOnAction(event -> plot.getUndoableActionManager().undoLast());
+            redo.setOnAction(event -> plot.getUndoableActionManager().redoLast());
+            undo_mgr.addListener((to_undo, to_redo) ->
             {
-                if (to_undo == null)
+            	Platform.runLater(()->
                 {
-                    undo.setDisable(true);
-                    undo.setTooltip(new Tooltip(Messages.Undo_TT));
-                }
-                else
-                {
-                    undo.setDisable(false);
-                    undo.setTooltip(new Tooltip(NLS.bind(Messages.Undo_Fmt_TT, to_undo)));
-                }
-                if (to_redo == null)
-                {
-                    redo.setDisable(true);
-                    redo.setTooltip(new Tooltip(Messages.Redo_TT));
-                }
-                else
-                {
-                    redo.setDisable(false);
-                    redo.setTooltip(new Tooltip(NLS.bind(Messages.Redo_Fmt_TT, to_redo)));
-                }
+                    if (to_undo == null)
+                    {
+                        undo.setDisable(true);
+                        undo.setTooltip(new Tooltip(Messages.Undo_TT));
+                    }
+                    else
+                    {
+                        undo.setDisable(false);
+                        undo.setTooltip(new Tooltip(NLS.bind(Messages.Undo_Fmt_TT, to_undo)));
+                    }
+                    if (to_redo == null)
+                    {
+                        redo.setDisable(true);
+                        redo.setTooltip(new Tooltip(Messages.Redo_TT));
+                    }
+                    else
+                    {
+                        redo.setDisable(false);
+                        redo.setTooltip(new Tooltip(NLS.bind(Messages.Redo_Fmt_TT, to_redo)));
+                    }
+                });
             });
-        });
+        }
     }
 
     private Button newButton(final ToolIcons icon, final String tool_tip)
@@ -199,6 +217,11 @@ public class ImageToolbarHandler
             selectMouseMode(zoom_out);
             plot.setMouseMode(mode);
         }
+        else if (mode == MouseMode.PAN)
+        {
+            selectMouseMode(pan);
+            plot.setMouseMode(mode);
+        }
         else
         {
             selectMouseMode(pointer);
@@ -209,7 +232,21 @@ public class ImageToolbarHandler
     /** @param item Tool item to select, all others will be de-selected */
     private void selectMouseMode(final ToggleButton item)
     {
-        for (ToggleButton ti : new ToggleButton[] { zoom_in, zoom_out, pointer })
+        for (ToggleButton ti : new ToggleButton[] { zoom_in, zoom_out, pan, pointer })
         	ti.setSelected(ti == item);
+    }
+
+    /** @param show Show crosshair, moved on click? */
+    public void showCrosshair(final boolean show)
+    {
+        crosshair.setSelected(show);
+    }
+
+    /** Turn crosshair on/off */
+    public void toggleCrosshair()
+    {
+        final boolean show = ! plot.isCrosshairVisible();
+        showCrosshair(show);
+        plot.showCrosshair(show);
     }
 }

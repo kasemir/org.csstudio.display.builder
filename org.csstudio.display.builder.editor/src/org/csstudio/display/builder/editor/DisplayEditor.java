@@ -7,19 +7,21 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor;
 
+import static org.csstudio.display.builder.editor.Plugin.logger;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Objects;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.csstudio.display.builder.editor.palette.Palette;
 import org.csstudio.display.builder.editor.poly.PointsBinding;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.editor.undo.AddWidgetAction;
 import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
+import org.csstudio.display.builder.editor.util.AutoScrollHandler;
 import org.csstudio.display.builder.editor.util.GeometryTools;
 import org.csstudio.display.builder.editor.util.JFXGeometryTools;
 import org.csstudio.display.builder.editor.util.ParentHandler;
@@ -93,31 +95,24 @@ import javafx.scene.layout.Pane;
  *  it uses the edit_tools for that.
  *
  *  @author Kay Kasemir
+ *  @author Claudio Rosati
  */
 @SuppressWarnings("nls")
 public class DisplayEditor
 {
-    /** Suggested logger for the editor */
-    public final static Logger logger = Logger.getLogger(DisplayEditor.class.getName());
-
     private final JFXRepresentation toolkit;
-
-    private DisplayModel model;
-
     private final WidgetNaming widget_naming = new WidgetNaming();
-
     private final UndoableActionManager undo;
-
     private final WidgetSelectionHandler selection = new WidgetSelectionHandler();
-
     private final ParentHandler group_handler;
-
     private final SelectedWidgetUITracker selection_tracker;
+    private final Group edit_tools = new Group();
 
+    private AutoScrollHandler autoScrollHandler;
+    private DisplayModel model;
     private SplitPane root;
     private ScrollPane model_root;
     private Group model_parent;
-    private final Group edit_tools = new Group();
 
     /** @param toolkit JFX Toolkit
      *  @param stack_size Number of undo/redo entries
@@ -137,24 +132,27 @@ public class DisplayEditor
     /** Create UI elements
      *  @return Root Node
      */
-    public Parent create()
+    public Parent create ()
     {
         model_root = toolkit.createModelRoot();
+        autoScrollHandler = new AutoScrollHandler(model_root);
+
         final Pane scroll_body = (Pane) model_root.getContent();
+
         model_parent = (Group) scroll_body.getChildren().get(0);
+
         scroll_body.getChildren().add(edit_tools);
 
-        final Palette palette = new Palette(selection);
+        final Palette palette = new Palette(this);
         final Node palette_node = palette.create();
 
         root = new SplitPane();
+
         root.getItems().addAll(model_root, palette_node);
         root.setDividerPositions(1);
 
         SplitPane.setResizableWithParent(palette_node, false);
-
         edit_tools.getChildren().addAll(selection_tracker);
-
         hookListeners();
 
         return root;
@@ -172,22 +170,27 @@ public class DisplayEditor
         return selection;
     }
 
+    public AutoScrollHandler getAutoScrollHandler()
+    {
+        return autoScrollHandler;
+    }
+
     /** @return Undo manager */
     public UndoableActionManager getUndoableActionManager()
     {
         return undo;
     }
 
-    private void hookListeners()
+    private void hookListeners ()
     {
         toolkit.addListener(new ToolkitListener()
         {
             @Override
-            public void handleClick(final Widget widget, final boolean with_control)
+            public void handleClick (final Widget widget, final boolean with_control)
             {
-                logger.log(Level.FINE, "Selected {0}",  widget);
+                logger.log(Level.FINE, "Selected {0}", widget);
                 // Toggle selection of widget when Ctrl is held
-                if (with_control)
+                if ( with_control )
                     selection.toggleSelection(widget);
                 else
                     selection.setSelection(Arrays.asList(widget));
@@ -196,7 +199,7 @@ public class DisplayEditor
 
         model_root.setOnMousePressed(event ->
         {
-            if (event.isControlDown())
+            if ( event.isControlDown() )
                 return;
             logger.log(Level.FINE, "Mouse pressed in 'editor', de-select all widgets");
             event.consume();
@@ -204,17 +207,21 @@ public class DisplayEditor
         });
 
         new Rubberband(model_root, edit_tools, this::selectWidgetsInRegion);
-
         new PointsBinding(edit_tools, selection, undo);
 
-        WidgetTransfer.addDropSupport(model_root, group_handler, this::addWidgets);
+        WidgetTransfer.addDropSupport(model_root, group_handler, selection_tracker, this::addWidgets);
+
     }
 
-    private void selectWidgetsInRegion(final Rectangle2D region)
+    private void selectWidgetsInRegion(final Rectangle2D region, final boolean update_existing)
     {
         final List<Widget> found = GeometryTools.findWidgets(model, region);
         logger.log(Level.FINE, "Selected widgets in {0}: {1}",  new Object[] { region, found });
-        selection.setSelection(found);
+        if (update_existing)
+            for (Widget widget : found)
+                selection.toggleSelection(widget);
+        else
+            selection.setSelection(found);
     }
 
     /** @param widgets Widgets to be added to existing model */
@@ -276,7 +283,7 @@ public class DisplayEditor
     }
 
     /** Set Model
-     * @param model Model to show and edit
+     *  @param model Model to show and edit
      */
     public void setModel(final DisplayModel model)
     {

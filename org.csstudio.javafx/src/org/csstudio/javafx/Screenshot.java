@@ -13,6 +13,7 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.WritableImage;
 
@@ -22,14 +23,69 @@ import javafx.scene.image.WritableImage;
 @SuppressWarnings("nls")
 public class Screenshot
 {
-    private final File file;
+    private final BufferedImage image;
 
-    public static File createTempFile(final String file_prefix) throws Exception
+    /** Initialize screenshot
+     *
+     *  <p>Must be called on UI thread
+     *  @param scene Scene to capture
+     *  @throws Exception on error
+     */
+    public Screenshot(final Scene scene) throws Exception
+    {
+        image = fromNode(scene.getRoot());
+        // Create snapshot file
+        //        final WritableImage jfx = scene.snapshot(null);
+        //        image = new BufferedImage((int)jfx.getWidth(),
+        //                (int)jfx.getHeight(),
+        //                BufferedImage.TYPE_INT_ARGB);
+        //        SwingFXUtils.fromFXImage(jfx, image);
+    }
+
+    public Screenshot(final Node node) throws Exception
+    {
+        image = fromNode(node);
+    }
+
+    public static BufferedImage fromNode(Node node)
+    {
+        final WritableImage jfx = node.snapshot(null, null);
+        final BufferedImage img = new BufferedImage((int)jfx.getWidth(),
+                (int)jfx.getHeight(),
+                BufferedImage.TYPE_INT_ARGB);
+        SwingFXUtils.fromFXImage(jfx, img);
+
+        return img;
+    }
+
+    /** Write to file
+     *  @param file Output file
+     *  @throws Exception on error
+     */
+    public void writeToFile(final File file) throws Exception
+    {
+        try
+        {
+            ImageIO.write(image, "png", file);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Cannot create screenshot " + file.getAbsolutePath(), ex);
+        }
+    }
+
+    /** Write to temp. file
+     *  @param file_prefix File prefix
+     *  @return File that was created
+     *  @throws Exception on error
+     */
+    public File writeToTempfile(final String file_prefix) throws Exception
     {
         try
         {
             final File file = File.createTempFile(file_prefix, ".png");
             file.deleteOnExit();
+            writeToFile(file);
             return file;
         }
         catch (Exception ex)
@@ -37,46 +93,4 @@ public class Screenshot
             throw new Exception("Cannot create tmp. file:\n" + ex.getMessage());
         }
     }
-
-    public Screenshot(final Scene scene, final String file_prefix) throws Exception
-    {
-        this(scene, createTempFile(file_prefix));
-    }
-
-    public Screenshot(final Scene scene, final File file) throws Exception
-    {
-        this.file = file;
-
-        // Create snapshot file
-        final WritableImage jfx = scene.snapshot(null);
-        final BufferedImage image = new BufferedImage((int)jfx.getWidth(),
-                                                       (int)jfx.getHeight(),
-                                                       BufferedImage.TYPE_INT_ARGB);
-        SwingFXUtils.fromFXImage(jfx, image);
-
-        // Write to file
-        try
-        {
-            ImageIO.write(image, "png", file);
-        }
-        catch (Exception ex)
-        {
-            throw new Exception("Cannot create screenshot " + getFilename(), ex);
-        }
-    }
-
-
-    /** @return File that contains the screenshot */
-    public File getFile()
-    {
-        return file;
-    }
-
-    /** @return Name of file that contains the screenshot */
-    public String getFilename()
-    {
-        return file.getAbsolutePath();
-    }
-
-
 }

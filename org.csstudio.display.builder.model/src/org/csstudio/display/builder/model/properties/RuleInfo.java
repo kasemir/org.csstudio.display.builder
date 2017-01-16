@@ -15,7 +15,6 @@ import java.util.Objects;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
-import org.csstudio.display.builder.model.macros.MacroValueProvider;
 
 /** Information about a rule
  *
@@ -88,7 +87,7 @@ public class RuleInfo
          * The expression will alter the property value. This needs to be a property
          * object created for this expression, probably by the containing rule.
          */
-        public ExprInfoValue(String bool_exp, WidgetProperty<T> prop_val)
+        public ExprInfoValue(final String bool_exp, WidgetProperty<T> prop_val)
         {
             super(bool_exp, prop_val);
         }
@@ -108,7 +107,16 @@ public class RuleInfo
         public PropInfo(final Widget attached_widget, final String prop_id_str)
         {
             prop_id = prop_id_str;
-            prop = attached_widget.checkProperty(prop_id_str).orElse(null);
+            WidgetProperty<?> check;
+            try
+            {
+                check = attached_widget.getProperty(prop_id_str);
+            }
+            catch (IllegalArgumentException ex)
+            {
+                check = null;
+            }
+            prop = check;
         }
 
         public WidgetProperty<?> getProp() {
@@ -120,11 +128,10 @@ public class RuleInfo
         }
 
         @Override
-        public String toString() {
+        public String toString()
+        {
             if (prop == null)
-            {
                 return "INVALID: " + prop_id;
-            }
             return prop_id + ", [" + prop.getName() + "=" + prop.getValue() + "]";
         }
     }
@@ -153,44 +160,35 @@ public class RuleInfo
         this.pvs = Collections.unmodifiableList(Objects.requireNonNull(pvs));
     }
 
-    /** Some properties cannot be the target of rules. This function takes a widget and returns a list of
-     * valid targets for expressions
-     * @param attached_widget
-     * @return List of all properties of a widget that a rule can target
+    /** Some properties cannot be the target of rules.
+     *  This function takes a widget and returns a list of
+     *  valid targets for expressions
+     *  @param attached_widget
+     *  @return List of all properties of a widget that a rule can target
      */
     static public List<PropInfo> getTargettableProperties (final Widget attached_widget)
     {
         final List<PropInfo> propls = new ArrayList<>();
-
-        attached_widget.getProperties().forEach(prop ->
+        for (WidgetProperty<?> prop : attached_widget.getProperties())
         {
-            // Do not include properties from categories: WIDGET or RUNTIME
+            // Do not include RUNTIME properties
+            if (prop.getCategory() == WidgetPropertyCategory.RUNTIME)
+                continue;
+            // Used to exclude WIDGET properties (type, name)
+            // until key properties like "text", "pv_name" became WIDGET props.
+            // Now only skipping read-only properties
+            if (prop.isReadonly())
+                continue;
             // Do not include properties that are not supported in scripting
-            WidgetPropertyCategory pcat = prop.getCategory();
-            switch(pcat)
-            {
-            case WIDGET:
-            case RUNTIME:
-                break;
-            default:
-            {
-                if ( !(prop instanceof MacrosWidgetProperty) &&
-                     !(prop instanceof ActionsWidgetProperty) &&
-                     !(prop instanceof ScriptsWidgetProperty) &&
-                     !(prop instanceof RulesWidgetProperty) )
-                {
-                    final List<String> names = new ArrayList<>();
+            if ( (prop instanceof MacrosWidgetProperty)  ||
+                 (prop instanceof ActionsWidgetProperty) ||
+                 (prop instanceof ScriptsWidgetProperty) ||
+                 (prop instanceof RulesWidgetProperty) )
+                continue;
 
-                    Widget.addPropertyNames(names, prop.getName(), prop);
-
-                    for (String name : names)
-                    {
-                        propls.add(new PropInfo(attached_widget, name));
-                    }
-                }
-            }
-            }
-        });
+            for (String name : Widget.expandPropertyNames(prop))
+                propls.add(new PropInfo(attached_widget, name));
+        };
 
         return propls;
     }
@@ -224,21 +222,9 @@ public class RuleInfo
         return prop_as_expr_flag;
     }
 
-    public String getTextPy(final Widget attached_widget, final MacroValueProvider macros)
+    public String getTextPy(final Widget attached_widget)
     {
-        return RuleToScript.generatePy(attached_widget, macros, this);
-    }
-
-    public String getNumberedTextPy(final Widget attached_widget, final MacroValueProvider macros)
-    {
-        final String scr = RuleToScript.generatePy(attached_widget, macros, this);
-        String ret = "";
-        String[] lines = scr.split("\r\n|\r|\n");
-        for (int ldx = 0; ldx < lines.length; ldx++)
-        {
-            ret += String.format("%4d", ldx+1) + ": " + lines[ldx] + "\n";
-        }
-        return ret;
+        return RuleToScript.generatePy(attached_widget, this);
     }
 
     @Override

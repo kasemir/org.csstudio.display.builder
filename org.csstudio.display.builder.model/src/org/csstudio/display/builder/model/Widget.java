@@ -14,12 +14,12 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propRules;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propScripts;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propType;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidgetClass;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propX;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propY;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -145,13 +145,14 @@ public class Widget
     // Actual properties
     private WidgetProperty<String> type;
     private WidgetProperty<String> name;
+    private WidgetProperty<String> widget_class;
     private WidgetProperty<Integer> x;
     private WidgetProperty<Integer> y;
     private WidgetProperty<Integer> width;
     private WidgetProperty<Integer> height;
     private WidgetProperty<List<ActionInfo>> actions;
-    private WidgetProperty<List<ScriptInfo>> scripts;
     private WidgetProperty<List<RuleInfo>> rules;
+    private WidgetProperty<List<ScriptInfo>> scripts;
 
     /** Map of user data */
     protected final Map<String, Object> user_data = new ConcurrentHashMap<>(4); // Reserve room for "representation", "runtime"
@@ -177,13 +178,14 @@ public class Widget
         // -- Mandatory properties --
         prelim_properties.add(this.type = propType.createProperty(this, type));
         prelim_properties.add(name = propName.createProperty(this, ""));
+        prelim_properties.add(widget_class = propWidgetClass.createProperty(this, WidgetClassSupport.DEFAULT));
         prelim_properties.add(x = propX.createProperty(this, 0));
         prelim_properties.add(y = propY.createProperty(this, 0));
         prelim_properties.add(width = propWidth.createProperty(this, default_width));
         prelim_properties.add(height = propHeight.createProperty(this, default_height));
         prelim_properties.add(actions = propActions.createProperty(this, Collections.emptyList()));
-        prelim_properties.add(scripts = propScripts.createProperty(this, Collections.emptyList()));
         prelim_properties.add(rules = propRules.createProperty(this, Collections.emptyList()));
+        prelim_properties.add(scripts = propScripts.createProperty(this, Collections.emptyList()));
 
         // -- Widget-specific properties --
         defineProperties(prelim_properties);
@@ -210,6 +212,23 @@ public class Widget
                 Collectors.toMap(WidgetProperty::getName, Function.identity()));
     }
 
+    /** Unique runtime identifier of a widget
+     *
+     *  <p>At runtime, this ID can be used to construct
+     *  PVs that are unique and specific to this instance
+     *  of a widget.
+     *  Even if the same display is opened multiple times
+     *  within the same JVM, the widget is very likely
+     *  to receive a new, unique identifier.
+     *
+     *  @return Unique Runtime Identifier for widget
+     */
+    public final String getID()
+    {   // Base on ID hash code
+        final int id = System.identityHashCode(this);
+        return "WD" + Integer.toHexString(id);
+    }
+
     /** @return Widget version number */
     public Version getVersion()
     {
@@ -232,21 +251,10 @@ public class Widget
         return name.getValue();
     }
 
-    /** Unique runtime identifier of a widget
-     *
-     *  <p>At runtime, this ID can be used to construct
-     *  PVs that are unique and specific to this instance
-     *  of a widget.
-     *  Even if the same display is opened multiple times
-     *  within the same JVM, the widget is very likely
-     *  to receive a new, unique identifier.
-     *
-     *  @return Unique Runtime Identifier for widget
-     */
-    public final String getID()
-    {   // Base on ID hash code
-        final int id = System.identityHashCode(this);
-        return "WD" + Integer.toHexString(id);
+    /** @return Widget class to use for updating properties that use the class */
+    public final String getWidgetClass()
+    {
+        return widget_class.getValue();
     }
 
     /** @return Parent widget in Widget tree */
@@ -260,6 +268,8 @@ public class Widget
      */
     protected void setParent(final Widget parent)
     {
+        if (parent == this)
+            throw new IllegalArgumentException();
         this.parent = parent;
     }
 
@@ -275,12 +285,25 @@ public class Widget
      */
     public final DisplayModel getDisplayModel() throws Exception
     {
+        final DisplayModel model = checkDisplayModel();
+        if (model == null)
+            throw new Exception("Missing DisplayModel for " + this);
+        return model;
+    }
+
+    /** Locate display model, i.e. root of widget tree
+     *
+     *  @return {@link DisplayModel} for widget or <code>null</code>
+     *  @see #getDisplayModel() version that throws exception
+     */
+    public final DisplayModel checkDisplayModel()
+    {
         Widget candidate = this;
         while (candidate.getParent().isPresent())
             candidate = candidate.getParent().get();
         if (candidate instanceof DisplayModel)
             return (DisplayModel) candidate;
-        throw new Exception("Missing DisplayModel for " + this);
+        return null;
     }
 
     /** Locate top display model.
@@ -330,6 +353,12 @@ public class Widget
         return name;
     }
 
+    /** @return 'class' property */
+    public final WidgetProperty<String> propClass()
+    {
+        return widget_class;
+    }
+
     /** @return 'x' property */
     public final WidgetProperty<Integer> propX()
     {
@@ -360,16 +389,16 @@ public class Widget
         return actions;
     }
 
-    /** @return 'scripts' property */
-    public final WidgetProperty<List<ScriptInfo>> propScripts()
-    {
-        return scripts;
-    }
-
     /** @return 'rules' property */
     public final WidgetProperty<List<RuleInfo>> propRules()
     {
         return rules;
+    }
+
+    /** @return 'scripts' property */
+    public final WidgetProperty<List<ScriptInfo>> propScripts()
+    {
+        return scripts;
     }
 
     /** Obtain configurator.
@@ -399,40 +428,29 @@ public class Widget
         return properties;
     }
 
-    /** Get names of all properties of the widget
+    /** Helper for obtaining the complete property name 'paths'
      *
-     *  <p>Provides the complete list of properties,
-     *  including all current array items and structure elements
-     *  via their path name.
+     *  <p>For a scalar property, this method simply returns that property name.
      *
-     *  @return Property names
+     *  <p>For arrays or structures, it returns names for each array resp. structure element.
+     *
+     *  @param property
+     *  @return List of property names
      */
-    public final Collection<String> getCurrentPropertyNames()
+    public static final List<String> expandPropertyNames(final WidgetProperty<?> property)
     {
         final List<String> names = new ArrayList<>();
-        for (WidgetProperty<?> property : properties)
-            addPropertyNames(names, property.getName(), property);
+        doAddPropertyNames(names, property.getName(), property);
         return names;
     }
 
-    /** Helper for adding the complete property name 'paths'
-     *
-     *  <p>For a scalar property, this method simply adds that property
-     *  name to the list of names.
-     *
-     *  <p>For arrays or structures, it adds names for each array resp. structure element.
-     *
-     * @param names
-     * @param path
-     * @param property
-     */
-    public static final void addPropertyNames(final List<String> names, String path, final WidgetProperty<?> property)
+    private static final void doAddPropertyNames(final List<String> names, String path, final WidgetProperty<?> property)
     {
         if (property instanceof ArrayWidgetProperty)
         {
             final ArrayWidgetProperty<?> array = (ArrayWidgetProperty<?>) property;
             for (int i=0; i<array.size(); ++i)
-                addPropertyNames(names, path + "[" + i + "]", array.getElement(i));
+                doAddPropertyNames(names, path + "[" + i + "]", array.getElement(i));
         }
         else if (property instanceof StructuredWidgetProperty)
         {
@@ -440,7 +458,7 @@ public class Widget
             for (int i=0; i<struct.size(); ++i)
             {
                 final WidgetProperty<?> item = struct.getElement(i);
-                addPropertyNames(names, path + "." + item.getName(), item);
+                doAddPropertyNames(names, path + "." + item.getName(), item);
             }
         }
         else
@@ -515,11 +533,13 @@ public class Widget
      *  @return {@link WidgetProperty}
      *  @throws IllegalArgumentException if property is unknown
      *  @see #checkProperty(String)
+     *  @throws IllegalArgumentException if path includes invalid elements,
+     *          IndexOutOfBoundsException for access to array beyond size
      */
-    public WidgetProperty<?> getProperty(final String name)
+    public WidgetProperty<?> getProperty(final String name) throws IllegalArgumentException, IndexOutOfBoundsException
     {   // Is name a path "struct_prop.array_prop[2].element" ?
         if (name.indexOf('.') >=0  ||  name.indexOf('[') >= 0)
-            return getPropertyByPath(name);
+            return getPropertyByPath(name, false);
         // Plain property name
         final WidgetProperty<?> property = property_map.get(name);
         if (property == null)
@@ -529,11 +549,13 @@ public class Widget
 
     /** Get property via path
      *  @param path_name "struct_prop.array_prop[2].element"
+     *  @param create_elements Create missing array elements?
      *  @return Property for "element"
-     *  @throws IllegalArgumentException if path includes invalid elements
+     *  @throws IllegalArgumentException if path includes invalid elements,
+     *          IndexOutOfBoundsException for access to array beyond size
      */
     @SuppressWarnings("rawtypes")
-    private WidgetProperty<?> getPropertyByPath(final String path_name) throws IllegalArgumentException
+    public WidgetProperty<?> getPropertyByPath(final String path_name, final boolean create_elements) throws IllegalArgumentException, IndexOutOfBoundsException
     {
         final String[] path = path_name.split("\\.");
         WidgetProperty<?> property = null;
@@ -557,7 +579,11 @@ public class Widget
             // Get property for the 'name'.
             // For first item, from widget. Later descent into structure.
             if (property == null)
+            {
                 property = property_map.get(name);
+                if (property == null)
+                    throw new IllegalArgumentException("Cannot locate '" + name + "' for '" + path_name + "'");
+            }
             else if (property instanceof StructuredWidgetProperty)
                 property = ((StructuredWidgetProperty)property).getElement(name);
             else
@@ -565,7 +591,20 @@ public class Widget
             // Fetch individual array element?
             if (index >= 0)
                 if (property instanceof ArrayWidgetProperty)
-                    property = ((ArrayWidgetProperty)property).getElement(index);
+                {
+                    final ArrayWidgetProperty array = (ArrayWidgetProperty)property;
+                    // Add array elements?
+                    if (create_elements)
+                    {
+                        while (array.size() <= index)
+                            array.addElement();
+                    }
+                    else
+                        if (array.size() < index)
+                            throw new IndexOutOfBoundsException("'" + name + "' of '" + path_name +
+                                                                "' has only " + array.size() + " elements");
+                    property = array.getElement(index);
+                }
                 else
                     throw new IllegalArgumentException("'" + name + "' of '" + path_name + "' it not an array");
         }
@@ -659,7 +698,7 @@ public class Widget
     /** @return Macro provider for effective macros, falling back to properties */
     public MacroValueProvider getMacrosOrProperties()
     {
-        return new MacroOrPropertyProvider(getEffectiveMacros(), property_map);
+        return new MacroOrPropertyProvider(this);
     }
 
     /** Set user data

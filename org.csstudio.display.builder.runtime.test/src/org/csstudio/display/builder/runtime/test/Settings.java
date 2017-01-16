@@ -43,7 +43,7 @@ public class Settings
         System.setProperty("com.cosylab.epics.caj.CAJContext.max_array_bytes", max_array_bytes);
         System.setProperty("gov.aps.jca.jni.JNIContext.max_array_bytes", max_array_bytes);
 
-        final String color_url = "https://webopi.sns.gov/share/opi/color.def";
-        WidgetColorService.loadColors(color_url);
+        final String color_file = "../org.csstudio.display.builder.model/examples/color.def";
+        WidgetColorService.loadColors(new String[] { color_file } , file -> new FileInputStream(file));
     }
 }

@@ -29,6 +29,7 @@ import org.csstudio.javafx.rtplot.data.PlotDataSearch;
 import org.csstudio.javafx.rtplot.data.ValueRange;
 import org.csstudio.javafx.rtplot.internal.undo.AddAnnotationAction;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeAxisRanges;
+import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.Log10;
 
 import javafx.geometry.Point2D;
@@ -78,11 +79,15 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                             // assuming all samples are ordered as common
                             // for a time axis or position axis
                             XTYPE pos = data.get(0).getPosition();
+                            if ((pos instanceof Double)  &&  !Double.isFinite((Double) pos))
+                                continue;
                             if (start == null  ||  start.compareTo(pos) > 0)
                                 start = pos;
                             if (end == null  ||  end.compareTo(pos) < 0)
                                 end = pos;
                             pos = data.get(N-1).getPosition();
+                            if ((pos instanceof Double)  &&  !Double.isFinite((Double) pos))
+                                    continue;
                             if (start.compareTo(pos) > 0)
                                 start = pos;
                             if (end.compareTo(pos) < 0)
@@ -105,9 +110,10 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
 
     /** Submit background job to determine value range
      *  @param data {@link PlotDataProvider} with values
+     *  @param position_range Range of positions to consider
      *  @return {@link Future} to {@link ValueRange}
      */
-    public Future<ValueRange> determineValueRange(final PlotDataProvider<XTYPE> data)
+    public Future<ValueRange> determineValueRange(final PlotDataProvider<XTYPE> data, AxisRange<XTYPE> position_range)
     {
         return thread_pool.submit(new Callable<ValueRange>()
         {
@@ -123,13 +129,16 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                     for (int i=0; i<N; ++i)
                     {
                         final PlotDataItem<XTYPE> item = data.get(i);
-                        final double value = item.getValue();
-                        if (! Double.isFinite(value))
-                            continue;
-                        if (value < low)
-                            low = value;
-                        if (value > high)
-                            high = value;
+                        if (position_range.contains(item.getPosition()))
+                        {
+                            final double value = item.getValue();
+                            if (! Double.isFinite(value))
+                                continue;
+                            if (value < low)
+                                low = value;
+                            if (value > high)
+                                high = value;
+                        }
                     }
                 }
                 finally
@@ -143,9 +152,10 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
 
     /** Submit background job to determine value range
      *  @param axis {@link YAxisImpl} for which to determine range
+     *  @param position_range Range of positions to consider
      *  @return {@link Future} to {@link ValueRange}
      */
-    public Future<ValueRange> determineValueRange(final YAxisImpl<XTYPE> axis)
+    public Future<ValueRange> determineValueRange(final YAxisImpl<XTYPE> axis, AxisRange<XTYPE> position_range)
     {
         return thread_pool.submit(new Callable<ValueRange>()
         {
@@ -155,7 +165,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 // In parallel, determine range of all traces in this axis
                 final List<Future<ValueRange>> ranges = new ArrayList<Future<ValueRange>>();
                 for (Trace<XTYPE> trace : axis.getTraces())
-                    ranges.add(determineValueRange(trace.getData()));
+                    ranges.add(determineValueRange(trace.getData(), position_range));
 
                 // Merge the trace ranges into overall axis range
                 double low = Double.MAX_VALUE;
@@ -215,7 +225,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                 // As fallback, assume that new range matches old range
                 new_ranges.add(axis.getValueRange());
                 original_ranges.add(axis.getValueRange());
-                ranges.add(determineValueRange(axis));
+                ranges.add(determineValueRange(axis, plot.getXAxis().getValueRange()));
             }
             final int N = y_axes.size();
             for (int i=0; i<N; ++i)
@@ -334,7 +344,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
                         final String units = trace.getUnits();
                         if (! units.isEmpty())
                             label += " " + units;
-                        markers.add(new CursorMarker(cursor_x, axis.getScreenCoord(value), trace.getColor(), label));
+                        markers.add(new CursorMarker(cursor_x, axis.getScreenCoord(value), GraphicsUtils.convert(trace.getColor()), label));
                     }
                 }
             Collections.sort(markers);
@@ -376,7 +386,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
             if (location != null)
                 plot.getUndoableActionManager().execute(
                     new AddAnnotationAction<XTYPE>(plot,
-                                                   new AnnotationImpl<XTYPE>(trace, location, value,
+                                                   new AnnotationImpl<XTYPE>(false, trace, location, value,
                                                                              new Point2D(20, -20),
                                                                              text)));
         });
@@ -419,7 +429,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
             if (axis.isAutoscale())
             {
                 y_axes.add(axis);
-                ranges.add(determineValueRange(axis));
+                ranges.add(determineValueRange(axis, plot.getXAxis().getValueRange()));
             }
         // If X axis is auto-scale, schedule fetching its range
         final Future<AxisRange<XTYPE>> pos_range = plot.getXAxis().isAutoscale()

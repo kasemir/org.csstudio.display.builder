@@ -13,22 +13,18 @@ import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
-import org.csstudio.display.builder.model.properties.FormatOption;
+import org.csstudio.display.builder.model.persist.NamedWidgetColors;
+import org.csstudio.display.builder.model.persist.WidgetColorService;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.VType;
 
-import javafx.geometry.Insets;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
 
 /** Creates JavaFX item for model widget
  *  @author Kay Kasemir
@@ -36,13 +32,19 @@ import javafx.scene.paint.Color;
 @SuppressWarnings("nls")
 public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputControl, TextEntryWidget>
 {
-    /** Is user actively editing the content, so updates should be suppressed? */
-    private volatile boolean active = false;
+    /** Is user actively editing the content, so updates should be suppressed?
+     *
+     *  <p>Only updated on the UI thread,
+     *  but also read when receiving new value
+     */
+    private boolean active = false;
 
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_style = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
     private volatile String value_text = "<?>";
+
+    private static WidgetColor active_color = WidgetColorService.getColor(NamedWidgetColors.ACTIVE_TEXT);
 
     @Override
     public TextInputControl createJFXNode() throws Exception
@@ -63,6 +65,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
         else
             text = new TextField();
         text.setMinSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+        text.getStyleClass().add("text_entry");
 
         if (! toolkit.isEditMode())
         {
@@ -71,7 +74,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
             // That widget will then NOT show any value, because we're active as if the
             // user just navigated into the field to edit it.
             // Now requiring key press, including use of cursor keys, to activate.
-            text.setOnKeyPressed((final KeyEvent event) ->
+            text.setOnKeyPressed(event ->
             {
                 switch (event.getCode())
                 {
@@ -79,26 +82,39 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
                     if (active)
                     {   // Revert original value, leave active state
                         restore();
-                        active = false;
+                        setActive(false);
                     }
                     break;
                 case ENTER:
+                case UNDEFINED:
+                    // On Linux, ENTER means 'enter' key on main keyboard.
+                    // The  the numeric keypad 'enter' key sends UNDEFINED?!
+                    // --> Handle in onKeyTyped for both cases
+                    break;
+                default:
+                    // Any other key results in active state
+                    setActive(true);
+                }
+            });
+            text.setOnKeyTyped(event ->
+            {
+                final String typed = event.getCharacter();
+                if (typed.length() == 1  &&  event.getCharacter().charAt(0) == 13)
+                {
                     // Single line mode uses plain ENTER.
                     // Multi line mode requires Control-ENTER.
                     if (!isMultiLine()  ||  event.isControlDown())
                     {
                         // Submit value, leave active state
                         submit();
-                        active = false;
+                        setActive(false);
                     }
-                    break;
-                default:
-                    // Any other key results in active state
-                    active = true;
                 }
             });
+            // Clicking into widget also activates
+            text.setOnMouseClicked(event -> setActive(true));
             // While getting the focus does not activate the widget
-            // (first need to type something),
+            // (first need to type something or click),
             // _loosing_ focus de-activates the widget.
             // Otherwise widget where one moves the cursor, then clicks
             // someplace else would remain active and not show any updates
@@ -107,11 +123,23 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
                 if (active  &&  !focused)
                 {
                     restore();
-                    active = false;
+                    setActive(false);
                 }
             });
         }
         return text;
+    }
+
+    private void setActive(final boolean active)
+    {
+        if (this.active == active)
+            return;
+        // Don't enable when widget is disabled
+        if (active  &&  !model_widget.propEnabled().getValue())
+            return;
+        this.active = active;
+        dirty_style.mark();
+        updateChanges();
     }
 
     /** @return Using the multi-line TextArea? */
@@ -134,11 +162,8 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
         // Strip 'units' etc. from text
         final String text = jfx_node.getText();
 
-        final Object value;
-        if (model_widget.propFormat().getValue() == FormatOption.STRING)
-            value = text;
-        else
-            value = FormatOptionHandler.parse(model_widget.runtimePropValue().getValue(), text);
+        final Object value = FormatOptionHandler.parse(model_widget.runtimePropValue().getValue(), text,
+                                                       model_widget.propFormat().getValue());
         logger.log(Level.FINE, "Writing '" + text + "' as " + value + " (" + value.getClass().getName() + ")");
         toolkit.fireWrite(model_widget, value);
 
@@ -241,16 +266,9 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
             final String color = JFXUtil.webRGB(model_widget.propForegroundColor().getValue());
             String style = "-fx-text-fill:" + color + ";";
 
-            if (isMultiLine())
-            {   // http://stackoverflow.com/questions/27700006/how-do-you-change-the-background-color-of-a-textfield-without-changing-the-border
-                style += "-fx-control-inner-background: " + JFXUtil.webRGB(model_widget.propBackgroundColor().getValue()) + ";";
-            }
-            else
-            {
-                final Color background = JFXUtil.convert(model_widget.propBackgroundColor().getValue());
-                jfx_node.setBackground(new Background(new BackgroundFill(background, CornerRadii.EMPTY, Insets.EMPTY)));
-            }
-
+            // http://stackoverflow.com/questions/27700006/how-do-you-change-the-background-color-of-a-textfield-without-changing-the-border
+            final WidgetColor back_color = active ? active_color : model_widget.propBackgroundColor().getValue();
+            style += "-fx-control-inner-background: " + JFXUtil.webRGB(back_color) + ";";
 
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
 
@@ -263,7 +281,6 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
                 style += "-fx-opacity: 0.4;";
 
             jfx_node.setStyle(style);
-
         }
         if (active)
             return;

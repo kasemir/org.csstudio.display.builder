@@ -33,8 +33,8 @@ public class SendEMailAction extends AbstractSendEMailAction
     {
         try
         {
-            final Screenshot screenshot = new Screenshot(scene, "display");
-            return screenshot.getFilename();
+            final Screenshot screenshot = new Screenshot(scene);
+            return screenshot.writeToTempfile("display").getAbsolutePath();
         }
         catch (Exception ex)
         {

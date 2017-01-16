@@ -1,9 +1,13 @@
+# OSX
+*.DS_Store
+
 target/
 build/build/
 build/cachedir/
 org.csstudio.display.builder.runtime.test/cachedir/
 build.log
 *.class
+*.pyc
 
 # Ignore generated Javadoc
 org.csstudio.display.builder.editor.rcp/doc/java/
@@ -16,6 +20,7 @@ org.csstudio.display.builder.editor.rcp/doc/java/
 # while the Eclipse-generated .classpath will prohibit it
 .classpath
 !databrowser3/databrowser-plugins/org.csstudio.trends.databrowser3/.classpath
+!databrowser3/databrowser-plugins/org.csstudio.trends.databrowser3.opiwidget/.classpath
 !org.csstudio.display.builder.editor/.classpath
 !org.csstudio.display.builder.editor.rcp/.classpath
 !org.csstudio.display.builder.rcp/.classpath

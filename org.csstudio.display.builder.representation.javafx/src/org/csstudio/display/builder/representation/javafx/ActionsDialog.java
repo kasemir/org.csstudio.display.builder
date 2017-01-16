@@ -17,9 +17,11 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ActionInfo.ActionType;
+import org.csstudio.display.builder.model.properties.ExecuteCommandActionInfo;
 import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
 import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo.Target;
+import org.csstudio.display.builder.model.properties.OpenFileActionInfo;
 import org.csstudio.display.builder.model.properties.ScriptInfo;
 import org.csstudio.display.builder.model.properties.WritePVActionInfo;
 
@@ -27,6 +29,7 @@ import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -82,6 +85,12 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
     // UI elements for ExecuteScriptAction
     private TextField execute_script_description, execute_script_file;
     private TextArea execute_script_text;
+
+    // UI elements for ExecuteCommnadAction
+    private TextField execute_command_description, execute_command_file;
+
+    // UI elements for OpenFileAction
+    private TextField open_file_description, open_file_file;
 
     /** Prevent circular updates */
     private boolean updating = false;
@@ -232,11 +241,16 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         final GridPane open_display_details = createOpenDisplayDetails();
         final GridPane write_pv_details = createWritePVDetails();
         final GridPane execute_script_details = createExecuteScriptDetails();
+        final GridPane execute_command_details = createExecuteCommandDetails();
+        final GridPane open_file_details = createOpenFileDetails();
         open_display_details.setVisible(false);
         write_pv_details.setVisible(false);
         execute_script_details.setVisible(false);
+        execute_command_details.setVisible(false);
+        open_file_details.setVisible(false);
 
-        final StackPane details = new StackPane(open_display_details, write_pv_details, execute_script_details);
+        final StackPane details = new StackPane(open_display_details, write_pv_details,
+                                                execute_script_details, execute_command_details, open_file_details);
         layout.add(details, 2, 1);
         GridPane.setHgrow(details, Priority.ALWAYS);
         GridPane.setVgrow(details, Priority.ALWAYS);
@@ -261,31 +275,31 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
             selected_action_index = selection;
             if (action instanceof OpenDisplayActionInfo)
             {
-                write_pv_details.setVisible(false);
-                open_display_details.setVisible(true);
-                execute_script_details.setVisible(false);
+                selectStackPane(details, open_display_details);
                 showOpenDisplayAction((OpenDisplayActionInfo) action);
             }
             else if (action instanceof WritePVActionInfo)
             {
-                open_display_details.setVisible(false);
-                write_pv_details.setVisible(true);
-                execute_script_details.setVisible(false);
+                selectStackPane(details, write_pv_details);
                 showWritePVAction((WritePVActionInfo) action);
             }
             else if (action instanceof ExecuteScriptActionInfo)
             {
-                open_display_details.setVisible(false);
-                write_pv_details.setVisible(false);
-                execute_script_details.setVisible(true);
+                selectStackPane(details, execute_script_details);
                 showExecuteScriptAction((ExecuteScriptActionInfo)action);
             }
-            else
+            else if (action instanceof ExecuteCommandActionInfo)
             {
-                write_pv_details.setVisible(false);
-                open_display_details.setVisible(false);
-                logger.log(Level.WARNING, "Unknown action type " + action);
+                selectStackPane(details, execute_command_details);
+                showExecuteCommandAction((ExecuteCommandActionInfo)action);
             }
+            else if (action instanceof OpenFileActionInfo)
+            {
+                selectStackPane(details, open_file_details);
+                showOpenFileAction((OpenFileActionInfo)action);
+            }
+            else
+                selectStackPane(details, null);
         });
 
         setResultConverter(button ->
@@ -298,6 +312,15 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
         // Select first action, if there is one
         if (actions.size() > 0)
             action_list.getSelectionModel().select(0);
+    }
+
+    /** @param details StackPane
+     *  @param active Child pane to show, all others are hidden
+     */
+    private void selectStackPane(final StackPane details, final GridPane active)
+    {
+        for (Node pane : details.getChildren())
+            pane.setVisible(pane == active);
     }
 
     /** @return Sub-pane for OpenDisplay action */
@@ -555,6 +578,140 @@ public class ActionsDialog extends Dialog<List<ActionInfo>>
                             ? execute_script_text.getText()
                             : null;
         return new ExecuteScriptActionInfo(execute_script_description.getText(),
-                                           new ScriptInfo(file, text, Collections.emptyList()));
+                                           new ScriptInfo(file, text, false, Collections.emptyList()));
+    }
+
+    /** @return Sub-pane for ExecuteCommand action */
+    private GridPane createExecuteCommandDetails()
+    {
+        final InvalidationListener update = whatever ->
+        {
+            if (updating  ||  selected_action_index < 0)
+                return;
+            actions.set(selected_action_index, getExecuteCommandAction());
+        };
+
+        final GridPane execute_command_details = new GridPane();
+        execute_command_details.setHgap(10);
+        execute_command_details.setVgap(10);
+
+        execute_command_details.add(new Label(Messages.ActionsDialog_Description), 0, 0);
+        execute_command_description = new TextField();
+        execute_command_description.textProperty().addListener(update);
+        execute_command_details.add(execute_command_description, 1, 0);
+        GridPane.setHgrow(execute_command_description, Priority.ALWAYS);
+
+        execute_command_details.add(new Label(Messages.ActionsDialog_FilePath), 0, 1);
+        execute_command_file = new TextField();
+        execute_command_file.textProperty().addListener(update);
+        final Button select = new Button("...");
+        select.setOnAction(event ->
+        {
+            try
+            {
+                final String path = FilenameSupport.promptForRelativePath(widget, execute_command_file.getText());
+                if (path != null)
+                    execute_command_file.setText(path);
+                FilenameSupport.performMostAwfulTerribleNoGoodHack(action_list);
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot prompt for filename", ex);
+            }
+        });
+        final HBox path_box = new HBox(execute_command_file, select);
+        HBox.setHgrow(execute_command_file, Priority.ALWAYS);
+        execute_command_details.add(path_box, 1, 1);
+
+        return execute_command_details;
+    }
+
+    /** @param action {@link ExecuteCommandActionInfo} to show */
+    private void showExecuteCommandAction(final ExecuteCommandActionInfo action)
+    {
+        updating = true;
+        try
+        {
+            execute_command_description.setText(action.getDescription());
+            execute_command_file.setText(action.getCommand());
+        }
+        finally
+        {
+            updating = false;
+        }
+    }
+
+    /** @return {@link ExecuteCommandActionInfo} from sub pane */
+    private ExecuteCommandActionInfo getExecuteCommandAction()
+    {
+        return new ExecuteCommandActionInfo(execute_command_description.getText(),
+                                            execute_command_file.getText());
+    }
+
+    /** @return Sub-pane for PpenFile action */
+    private GridPane createOpenFileDetails()
+    {
+        final InvalidationListener update = whatever ->
+        {
+            if (updating  ||  selected_action_index < 0)
+                return;
+            actions.set(selected_action_index, getOpenFileAction());
+        };
+
+        final GridPane open_file_details = new GridPane();
+        open_file_details.setHgap(10);
+        open_file_details.setVgap(10);
+
+        open_file_details.add(new Label(Messages.ActionsDialog_Description), 0, 0);
+        open_file_description = new TextField();
+        open_file_description.textProperty().addListener(update);
+        open_file_details.add(open_file_description, 1, 0);
+        GridPane.setHgrow(open_file_description, Priority.ALWAYS);
+
+        open_file_details.add(new Label(Messages.ActionsDialog_FilePath), 0, 1);
+        open_file_file = new TextField();
+        open_file_file.textProperty().addListener(update);
+        final Button select = new Button("...");
+        select.setOnAction(event ->
+        {
+            try
+            {
+                final String path = FilenameSupport.promptForRelativePath(widget, open_file_file.getText());
+                if (path != null)
+                    open_file_file.setText(path);
+                FilenameSupport.performMostAwfulTerribleNoGoodHack(action_list);
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot prompt for filename", ex);
+            }
+        });
+        final HBox path_box = new HBox(open_file_file, select);
+        HBox.setHgrow(open_file_file, Priority.ALWAYS);
+        open_file_details.add(path_box, 1, 1);
+
+        return open_file_details;
+    }
+
+    /** @param action {@link OpenFileActionInfo} to show */
+    private void showOpenFileAction(final OpenFileActionInfo action)
+    {
+        updating = true;
+        try
+        {
+            open_file_description.setText(action.getDescription());
+            open_file_file.setText(action.getFile());
+        }
+        finally
+        {
+            updating = false;
+        }
+    }
+
+    /** @return {@link OpenFileActionInfo} from sub pane */
+    private OpenFileActionInfo getOpenFileAction()
+    {
+        return new OpenFileActionInfo(open_file_description.getText(),
+                                      open_file_file.getText().trim());
     }
 }

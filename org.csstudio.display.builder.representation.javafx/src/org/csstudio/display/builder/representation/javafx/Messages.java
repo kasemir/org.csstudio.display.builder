@@ -23,6 +23,7 @@ public class Messages extends NLS
     public static String ActionsDialog_Description;
     public static String ActionsDialog_Detail;
     public static String ActionsDialog_DisplayPath;
+    public static String ActionsDialog_FilePath;
     public static String ActionsDialog_Info;
     public static String ActionsDialog_PVName;
     public static String ActionsDialog_ScriptPath;
@@ -35,6 +36,7 @@ public class Messages extends NLS
     public static String ColorDialog_Info;
     public static String ColorDialog_Predefined;
     public static String ColorDialog_Title;
+    public static String ColorMap_Custom;
     public static String ColorMapDialog_Add;
     public static String ColorMapDialog_Color;
     public static String ColorMapDialog_Info;
@@ -90,6 +92,7 @@ public class Messages extends NLS
     public static String ScriptsDialog_BtnEmbedJS;
     public static String ScriptsDialog_BtnEmbedPy;
     public static String ScriptsDialog_BtnFile;
+    public static String ScriptsDialog_CheckConnections;
     public static String ScriptsDialog_ColPV;
     public static String ScriptsDialog_ColScript;
     public static String ScriptsDialog_ColTrigger;

@@ -7,11 +7,14 @@
  *******************************************************************************/
 package org.csstudio.display.builder.model.properties;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.stream.XMLStreamWriter;
 
@@ -35,11 +38,6 @@ import org.w3c.dom.Element;
 @SuppressWarnings("nls")
 public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
 {
-    private final Logger logger = Logger.getLogger(getClass().getName());
-
-    //private static final WidgetPropertyDescriptor<String> miscUnknownPropID =
-    //      newStringPropertyDescriptor(WidgetPropertyCategory.MISC, "rule_unknown_propid", "?");
-
     private static final WidgetPropertyDescriptor<String> miscUnknownPropID =
             new WidgetPropertyDescriptor<String>(WidgetPropertyCategory.MISC,
                     "rule_unknown_propid", "RulesWidgetProperty:miscUnknownPropID", false)
@@ -57,13 +55,11 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
     {
         try
         {
-            return widget.getProperty(prop_id).clone();
+            return widget.getPropertyByPath(prop_id, true).clone();
         }
-        catch (Exception ex)
+        catch (Throwable ex)
         {
-            Logger.getLogger("RulesWidgetProperty.propIDToNewWidget")
-            .log(Level.WARNING, "Widget " + widget.getClass().getName()
-                    + " cannot make new unknown property id " + prop_id);
+            logger.log(Level.WARNING, widget + " cannot make new unknown property id " + prop_id, ex);
 
             if ((dbg_tag != null) && (dbg_tag.length() > 0))
                 return miscUnknownPropID.createProperty(null, dbg_tag);
@@ -85,21 +81,30 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
         super(descriptor, widget, default_value);
     }
 
-    /** @param value Must be ScriptInfo array(!), not List */
+    /** @param value Must be RuleInfo array or List */
     @Override
     public void setValueFromObject(final Object value) throws Exception
     {
         if (value instanceof RuleInfo[])
             setValue(Arrays.asList((RuleInfo[]) value));
+        else if (value instanceof Collection)
+        {
+            final List<RuleInfo> rules = new ArrayList<>();
+            for (Object item : (Collection<?>)value)
+                if (item instanceof RuleInfo)
+                    rules.add((RuleInfo) item);
+                else
+                    throw new Exception("Need RuleInfo[], got " + value);
+            setValue(rules);
+        }
         else
             throw new Exception("Need RuleInfo[], got " + value);
     }
 
-
     @Override
     public void writeToXML(final ModelWriter model_writer, final XMLStreamWriter writer) throws Exception
     {
-        logger.log(Level.WARNING, "Write " + value.size() + " rules to XML");
+        logger.log(Level.FINE, "Write " + value.size() + " rules to XML");
         for (final RuleInfo info : value)
         {
             // <rule name="name" prop_id="prop" out_exp="true">
@@ -162,62 +167,63 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
     @Override
     public void readFromXML(final ModelReader model_reader, final Element property_xml) throws Exception
     {
-        Iterable<Element> rule_xml;
-        rule_xml = XMLUtil.getChildElements(property_xml, XMLTags.RULE);
+        final Iterable<Element> rule_xml = XMLUtil.getChildElements(property_xml, XMLTags.RULE);
 
         final List<RuleInfo> rules = new ArrayList<>();
         for (final Element xml : rule_xml)
         {
             String name, prop_id, out_exp_str;
 
-            try {
+            try
+            {
                 name = xml.getAttribute(XMLTags.NAME);
                 if (name.isEmpty())
-                    Logger.getLogger(getClass().getName())
-                    .log(Level.WARNING, "Missing rule 'name'");
+                    logger.log(Level.WARNING, "Missing rule 'name'");
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 name = "unknown";
-                Logger.getLogger(getClass().getName())
-                .log(Level.WARNING, "Failed to find rule name");
+                logger.log(Level.WARNING, "Failed to find rule name");
             }
 
 
-            try {
+            try
+            {
                 prop_id = xml.getAttribute("prop_id");
                 if (prop_id.isEmpty())
-                    Logger.getLogger(getClass().getName())
-                    .log(Level.WARNING, "Missing rule 'prop_id'");
-            } catch (Exception e) {
+                    logger.log(Level.WARNING, "Missing rule 'prop_id'");
+            }
+            catch (Exception e)
+            {
                 prop_id = "unknown";
-                Logger.getLogger(getClass().getName())
-                .log(Level.WARNING, "Failed to find rule prop_id");
+                logger.log(Level.WARNING, "Failed to find rule prop_id");
             }
 
 
             boolean prop_as_expr = false;
-            try {
+            try
+            {
                 out_exp_str = xml.getAttribute("out_exp");
                 prop_as_expr = false;
                 if (out_exp_str.isEmpty())
-                    Logger.getLogger(getClass().getName())
-                    .log(Level.WARNING, "Missing rule 'out_exp'");
+                    logger.log(Level.WARNING, "Missing rule 'out_exp'");
                 else
                     prop_as_expr = Boolean.parseBoolean(out_exp_str);
-            } catch (Exception e) {
-                Logger.getLogger(getClass().getName())
-                .log(Level.WARNING, "Failed to find rule out_exp");
+            }
+            catch (Exception e)
+            {
+                logger.log(Level.WARNING, "Failed to find rule out_exp");
             }
 
             List<ExpressionInfo<?>> exprs;
-            try {
+            try
+            {
                 exprs = readExpressions(model_reader, prop_id, prop_as_expr, xml);
             }
-            catch (Exception ex) {
-                Logger.getLogger(getClass().getName())
-                .log(Level.WARNING, "Failure to readExpressions for " + prop_id);
-                exprs = new ArrayList<>();
-                ex.printStackTrace();
+            catch (Throwable ex)
+            {
+                logger.log(Level.WARNING, "Failure to readExpressions for " + prop_id, ex);
+                exprs = Collections.emptyList();
             }
 
             final List<ScriptPV> pvs = readPVs(xml);
@@ -234,16 +240,14 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
             final Element xml) throws Exception
     {
         final List<ExpressionInfo<?>> exprs = new ArrayList<>();
-        final Iterable<Element> exprs_xml;
-        exprs_xml = XMLUtil.getChildElements(xml, "exp");
+        final Iterable<Element> exprs_xml = XMLUtil.getChildElements(xml, "exp");
         final String tagstr = (prop_as_expr) ? "expression" : "value";
 
         for (final Element exp_xml : exprs_xml)
         {
             String bool_exp = exp_xml.getAttribute("bool_exp");
             if (bool_exp.isEmpty())
-                Logger.getLogger(getClass().getName())
-                .log(Level.WARNING, "Missing exp 'bool_exp'");
+                logger.log(Level.WARNING, "Missing exp 'bool_exp'");
 
             final Element tag_xml = XMLUtil.getChildElement(exp_xml, tagstr);
             //legacy case where value is used for all value expression
@@ -258,13 +262,10 @@ public class RulesWidgetProperty extends WidgetProperty<List<RuleInfo>>
             {
                 final String val_str = (val_xml != null) ? XMLUtil.elementsToString(val_xml.getChildNodes(), false) : "";
 
-                WidgetProperty<?> val_prop = propIDToNewProp(
-                        this.getWidget(), prop_id, val_str);
+                final WidgetProperty<?> val_prop = propIDToNewProp(getWidget(), prop_id, val_str);
 
-                if ( val_prop.getName() != miscUnknownPropID.getName() )
-                {
+                if ( ! miscUnknownPropID.getName().equals(val_prop.getName()))
                     val_prop.readFromXML(model_reader, val_xml);
-                }
                 exprs.add(new ExprInfoValue<>(bool_exp, val_prop));
             }
         }

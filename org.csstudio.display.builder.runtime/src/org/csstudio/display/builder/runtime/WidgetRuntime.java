@@ -22,11 +22,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 
+import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.model.macros.MacroValueProvider;
+import org.csstudio.display.builder.model.persist.WidgetClassesService;
 import org.csstudio.display.builder.model.properties.ActionInfo;
 import org.csstudio.display.builder.model.properties.ExecuteScriptActionInfo;
 import org.csstudio.display.builder.model.properties.RuleInfo;
@@ -144,7 +146,11 @@ public class WidgetRuntime<MW extends Widget>
             disconnectPrimaryPV();
 
             if (pv_name.isEmpty())
+            {   // Send 'null' update on value.
+                // In runtime mode, this will create a 'disconnected' representation.
+                widget.getProperty(runtimePropValue).setValue(null);
                 return;
+            }
 
             logger.log(Level.FINER, "Connecting {0} to {1}",  new Object[] { widget, pv_name });
 
@@ -171,6 +177,11 @@ public class WidgetRuntime<MW extends Widget>
             }
         }
     };
+
+    /** When widget class changes, re-apply class to widget */
+    private static final WidgetPropertyListener<String> update_widget_class =
+        (prop, old, class_name) ->  WidgetClassesService.getWidgetClasses().apply(prop.getWidget());
+
 
     /** @param widget {@link Widget}
      *  @return {@link WidgetRuntime} of that widget
@@ -286,6 +297,8 @@ public class WidgetRuntime<MW extends Widget>
                 this.writable_pvs = action_pvs;
         }
 
+        widget.propClass().addPropertyListener(update_widget_class);
+
         // Start scripts in pool because Jython setup is expensive
         RuntimeUtil.getExecutor().execute(this::startScripts);
     }
@@ -308,8 +321,19 @@ public class WidgetRuntime<MW extends Widget>
                 }
                 catch (final Exception ex)
                 {
-                    logger.log(Level.WARNING,
-                        "Widget " + widget.getName() + " script " + script_info.getPath() + " failed to initialize", ex);
+                    final StringBuilder buf = new StringBuilder();
+                    buf.append("Script failed to compile\n");
+                    try
+                    {
+                        final DisplayModel model = widget.getDisplayModel();
+                        buf.append("Display '").append(model.getDisplayName()).append("', ");
+                    }
+                    catch (Exception ignore)
+                    {
+                        // Skip display model
+                    }
+                    buf.append(widget).append(", ").append(script_info.getPath());
+                    logger.log(Level.WARNING, buf.toString(), ex);
                 }
             }
 
@@ -321,8 +345,19 @@ public class WidgetRuntime<MW extends Widget>
                 }
                 catch (final Exception ex)
                 {
-                    logger.log(Level.WARNING,
-                        "Widget " + widget.getName() + " rule " + rule_info.getName() + " failed to initialize", ex);
+                    final StringBuilder buf = new StringBuilder();
+                    buf.append("Rule failed to compile\n");
+                    try
+                    {
+                        final DisplayModel model = widget.getDisplayModel();
+                        buf.append("Display '").append(model.getDisplayName()).append("', ");
+                    }
+                    catch (Exception ignore)
+                    {
+                        // Skip display model
+                    }
+                    buf.append(widget).append(", ").append(rule_info.getName());
+                    logger.log(Level.WARNING, buf.toString(), ex);
                 }
             }
 
@@ -349,8 +384,19 @@ public class WidgetRuntime<MW extends Widget>
                 }
                 catch (final Exception ex)
                 {
-                    logger.log(Level.WARNING,
-                        "Widget " + widget.getName() + " script action " + script_action + " failed to initialize", ex);
+                    final StringBuilder buf = new StringBuilder();
+                    buf.append("Script for action failed to compile\n");
+                    try
+                    {
+                        final DisplayModel model = widget.getDisplayModel();
+                        buf.append("Display '").append(model.getDisplayName()).append("', ");
+                    }
+                    catch (Exception ignore)
+                    {
+                        // Skip display model
+                    }
+                    buf.append(widget).append(", ").append(script_action);
+                    logger.log(Level.WARNING, buf.toString(), ex);
                 }
             }
             if (scripts.size() > 0)
@@ -389,10 +435,18 @@ public class WidgetRuntime<MW extends Widget>
     public void writePV(final String pv_name, final Object value) throws Exception
     {
         final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
+        String name_to_check = expanded;
+        // For local PV, strip optional initializer
+        if (expanded.startsWith("loc://"))
+        {
+            final int sep = expanded.indexOf('(');
+            if (sep > 0)
+                name_to_check = expanded.substring(0, sep);
+        }
         final List<RuntimePV> safe_pvs = writable_pvs;
         if (safe_pvs != null)
             for (final RuntimePV pv : safe_pvs)
-                if (pv.getName().equals(expanded))
+                if (pv.getName().equals(name_to_check))
                 {
                     try
                     {
@@ -400,11 +454,11 @@ public class WidgetRuntime<MW extends Widget>
                     }
                     catch (final Exception ex)
                     {
-                        throw new Exception("Failed to write " + value + " to PV " + expanded, ex);
+                        throw new Exception("Failed to write " + value + " to PV " + name_to_check, ex);
                     }
                     return;
                 }
-        throw new Exception("Unknown PV '" + pv_name + "' (expanded: '" + expanded + "')");
+        throw new Exception("Unknown PV '" + pv_name + "' (expanded: '" + name_to_check + "')");
     }
 
     /** Execute script
@@ -440,6 +494,8 @@ public class WidgetRuntime<MW extends Widget>
     /** Stop: Disconnect PVs, ... */
     public void stop()
     {
+        widget.propClass().removePropertyListener(update_widget_class);
+
         final List<RuntimePV> safe_pvs = writable_pvs;
         if (safe_pvs != null)
         {

@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.properties.FormatOption;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.RadioWidget;
@@ -89,8 +90,9 @@ public class RadioRepresentation extends JFXBaseRepresentation<TilePane, RadioWi
             try
             {
                 toggle.selectToggle(oldval);
-                Object value = FormatOptionHandler.parse(model_widget.runtimePropValue().getValue(),
-                        ((RadioButton) newval).getText());
+                final Object value = FormatOptionHandler.parse(model_widget.runtimePropValue().getValue(),
+                                                               ((RadioButton) newval).getText(),
+                                                               FormatOption.DEFAULT);
                 toolkit.fireWrite(model_widget, value);
             }
             finally

@@ -10,14 +10,13 @@ package org.csstudio.display.builder.model.persist;
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
 import java.io.InputStream;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 
-import org.csstudio.display.builder.model.util.ModelResourceUtil;
+import org.csstudio.display.builder.model.Preferences;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 
 /** Service that provides {@link NamedWidgetFonts}
@@ -30,68 +29,40 @@ import org.csstudio.display.builder.model.util.ModelThreadPool;
 @SuppressWarnings("nls")
 public class WidgetFontService
 {
-    /** Time in seconds used to wait for a 'load' that's in progress
-     *  before falling back to a default set of fonts
-     */
-    protected static final int LOAD_DELAY = 5;
-
     /** Current set of named fonts.
      *  When still in the process of loading,
      *  this future will be active, i.e. <code>! isDone()</code>.
      */
     private volatile static Future<NamedWidgetFonts> fonts = CompletableFuture.completedFuture(new NamedWidgetFonts());
 
-    /** Ask service to load fonts from a source.
+    /** Ask service to load fonts from sources.
      *
      *  <p>Service loads the fonts in background thread.
-     *
-     *  @param font_resource Name of resource for named fonts
-     */
-    public static void loadFonts(final String font_resource)
-    {
-        fonts = ModelThreadPool.getExecutor().submit(() ->
-        {
-            final NamedWidgetFonts fonts = new NamedWidgetFonts();
-            try
-            {
-                final InputStream stream = ModelResourceUtil.openResourceStream(font_resource);
-                logger.log(Level.CONFIG, "Loading named fonts from {0}",  font_resource);
-                fonts.read(stream);
-            }
-            catch (Exception ex)
-            {
-                logger.log(Level.WARNING, "Cannot load fonts from " + font_resource, ex);
-            }
-            // In case of error, result may only contain partial content of file
-            return fonts;
-        });
-    }
-
-    /** Ask service to load fonts from a source.
-     *
-     *  <p>Service loads the fonts in background thread.
-     *  The 'source' is called in that background thread
+     *  The 'opener' is called in that background thread
      *  to provide the input stream.
      *  The source should thus perform any potentially slow operation
      *  (open file, connect to http://) when called, not beforehand.
      *
-     *  @param name   Name that identifies the source (for error messages)
-     *  @param source Supplier of InputStream for named fonts
+     *  @param names   Names that identify the sources
+     *  @param opener  Will be called for each name to supply InputStream
      */
-    public static void loadFonts(final String name, final Callable<InputStream> source)
+    public static void loadFonts(final String[] names, final FileToStreamFunction opener)
     {
         fonts = ModelThreadPool.getExecutor().submit(() ->
         {
             final NamedWidgetFonts fonts = new NamedWidgetFonts();
-            try
+            for (String name : names)
             {
-                final InputStream stream = source.call();
-                logger.log(Level.CONFIG, "Loading named fonts from {0}",  name);
-                fonts.read(stream);
-            }
-            catch (Exception ex)
-            {
-                logger.log(Level.WARNING, "Cannot load fonts from " + name, ex);
+                try
+                {
+                    final InputStream stream = opener.open(name);
+                    logger.log(Level.CONFIG, "Loading named fonts from {0}",  name);
+                    fonts.read(stream);
+                }
+                catch (Exception ex)
+                {
+                    logger.log(Level.WARNING, "Cannot load fonts from " + name, ex);
+                }
             }
             // In case of error, result may only contain partial content of file
             return fonts;
@@ -116,7 +87,7 @@ public class WidgetFontService
         // When in the process of loading, wait a little bit..
         try
         {
-            return fonts.get(LOAD_DELAY, TimeUnit.SECONDS);
+            return fonts.get(Preferences.getReadTimeout(), TimeUnit.MILLISECONDS);
         }
         catch (TimeoutException timeout)
         {

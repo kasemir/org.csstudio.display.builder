@@ -50,9 +50,9 @@ public class AnnotationImpl<XTYPE extends Comparable<XTYPE>> extends Annotation<
     private Optional<Rectangle> screen_box = Optional.empty();
 
     /** Constructor */
-    public AnnotationImpl(final Trace<XTYPE> trace, final XTYPE position, final double value, final Point2D offset, final String text)
+    public AnnotationImpl(final boolean internal, final Trace<XTYPE> trace, final XTYPE position, final double value, final Point2D offset, final String text)
     {
-        super(trace, position, value, offset, text);
+        super(internal, trace, position, value, offset, text);
     }
 
     /** Set to new location
@@ -124,9 +124,10 @@ public class AnnotationImpl<XTYPE extends Comparable<XTYPE>> extends Annotation<
     /** Paint the annotation on given gc and axes. */
     void paint(final Graphics2D gc, final AxisPart<XTYPE> xaxis, final YAxisImpl<XTYPE> yaxis)
     {
+        // Position on screen (or maybe actually outside of plot?)
         final int x = xaxis.getScreenCoord(position);
         final int y = Double.isFinite(value) ? yaxis.getScreenCoord(value) : yaxis.getScreenRange().getLow();
-        screen_pos = Optional.of(new Point(x, y));
+        final boolean in_range = xaxis.getScreenRange().contains(x);
 
         String value_text = yaxis.getTicks().format(value);
         final String units = trace.getUnits();
@@ -140,46 +141,72 @@ public class AnnotationImpl<XTYPE extends Comparable<XTYPE>> extends Annotation<
                     value_text
                 });
 
-        // Layout like this:
+        // Layout like this when in_range
         //
         //    Text
         //    Blabla
-        //    Yaddi yaddi
         //    ___________
         //   /
         //  O
+        //
+        // When not in range, the 'O' is at the end of the line.
         final Rectangle metrics = GraphicsUtils.measureText(gc, label);
-        final int tx = (int) (x + offset.getX()), ty = (int) (y + offset.getY());
-        final int txt_top = ty - metrics.height;
-        // Update the screen position so that we can later 'select' this annotation.
-        final Rectangle rect = new Rectangle(tx, txt_top, metrics.width, metrics.height);
-        screen_box = Optional.of(rect);
+        final int tx;
+        if (in_range)
+        {   // Position text relative to sample
+            tx = (int) (x + offset.getX());
+        }
+        else
+        {   // Position at left or right side of plot
+            if (x <= xaxis.getScreenRange().getLow())
+                tx = xaxis.getScreenRange().getLow() + X_RADIUS;
+            else
+                tx = (int) (xaxis.getScreenRange().getHigh() - X_RADIUS - metrics.getWidth());
+        }
+        final int ty = (int) (y + offset.getY());
 
-        // Marker 'O' around the actual x/y point, line to annotation.
-        // Line first from actual point, will then paint the 'O' over it
-        final int line_x = (x <= tx + metrics.width/2) ? tx : tx+metrics.width;
-        final int line_y = (y > ty - metrics.height/2) ? ty : ty-metrics.height;
-
-        final Color o_col = gc.getColor();
         // Text
+        final int txt_top = ty - metrics.height;
+        final Rectangle rect = new Rectangle(tx, txt_top, metrics.width, metrics.height);
+        final Color o_col = gc.getColor();
         gc.setColor(new Color(255, 255, 255, 170));
         gc.fillRect(rect.x, rect.y, rect.width, rect.height);
         gc.setColor(GraphicsUtils.convert(trace.getColor()));
         GraphicsUtils.drawMultilineText(gc, tx, txt_top + metrics.y, label);
 
-        // Fill white, then draw around to get higher-contrast 'O'
+        // Line over or under the text, rectangle when selected
+        final int line_x = (x <= tx + metrics.width/2) ? tx : tx+metrics.width;
+        final int line_y = (y > ty - metrics.height/2) ? ty : ty-metrics.height;
         gc.setColor(Color.BLACK);
-        gc.drawLine(x, y, line_x, line_y);
-        gc.setColor(Color.WHITE);
-        gc.fillOval(x-X_RADIUS, y-X_RADIUS, 2*X_RADIUS, 2*X_RADIUS);
-        gc.setColor(Color.BLACK);
-        gc.drawOval(x-X_RADIUS, y-X_RADIUS, 2*X_RADIUS, 2*X_RADIUS);
-        // Line over or under the text
         if (selected != Selection.None)
             gc.drawRect(rect.x, rect.y, rect.width, rect.height);
         else // '___________'
             gc.drawLine(tx, line_y, tx+metrics.width, line_y);
 
+        if (in_range)
+        {   // Marker 'O' around the actual x/y point, line to annotation.
+            // Line first from actual point, will then paint the 'O' over it
+
+            // Fill white, then draw around to get higher-contrast 'O'
+            gc.drawLine(x, y, line_x, line_y);
+            gc.setColor(Color.WHITE);
+            gc.fillOval(x-X_RADIUS, y-X_RADIUS, 2*X_RADIUS, 2*X_RADIUS);
+            gc.setColor(Color.BLACK);
+            gc.drawOval(x-X_RADIUS, y-X_RADIUS, 2*X_RADIUS, 2*X_RADIUS);
+            // Update the screen position so that we can later 'select' this annotation.
+            screen_pos = Optional.of(new Point(x, y));
+            screen_box = Optional.of(rect);
+        }
+        else
+        {
+            gc.setColor(Color.WHITE);
+            gc.fillOval(line_x-X_RADIUS, line_y-X_RADIUS, 2*X_RADIUS, 2*X_RADIUS);
+            gc.setColor(Color.BLACK);
+            gc.drawOval(line_x-X_RADIUS, line_y-X_RADIUS, 2*X_RADIUS, 2*X_RADIUS);
+            // Can't be selected
+            screen_pos = Optional.empty();
+            screen_box = Optional.empty();
+        }
 
         gc.setColor(o_col);
     }

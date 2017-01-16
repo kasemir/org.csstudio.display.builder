@@ -216,21 +216,23 @@ public class Tracker extends Group
     }
 
     /** @param event {@link MouseEvent} */
-    protected void startDrag(final MouseEvent event)
-    {
+    protected void startDrag ( final MouseEvent event ) {
+
         // Take snapshot of current positions
-        if (event == null)
-        {
+        if ( event == null ) {
             start_x = -1;
             start_y = -1;
-        }
-        else
-        {
+        } else {
+
             event.consume();
+
             start_x = event.getX();
             start_y = event.getY();
+
         }
+
         orig = new Rectangle2D(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight());
+
     }
 
     /** @param event {@link MouseEvent} */
@@ -240,61 +242,92 @@ public class Tracker extends Group
     }
 
     /** @param event {@link MouseEvent} */
-    protected void endMouseDrag(final MouseEvent event)
-    {
-        if (start_x < 0)
+    protected void endMouseDrag ( final MouseEvent event ) {
+
+        if ( start_x < 0 )
             return;
-        if (event != null)
-            event.consume();
+
+        //  Don't consume the event, otherwise the
+        //  AutoScrollHandler will not work properly.
+
         notifyListenerOfChange();
+
+        start_x = -1;
+        start_y = -1;
+
     }
 
-    /** Allow move/resize with cursor keys.
+    /**
+     * Allow move/resize with cursor keys, and abord Dran & Drop operations with ESC key.
+     * <p>
+     * Shift: Resize
      *
-     *  <p>Shift: Resize
-     *  @param event {@link KeyEvent}
+     * @param event {@link KeyEvent}
      */
-    private void handleKeyEvent(final KeyEvent event)
-    {
+    private void handleKeyEvent ( final KeyEvent event ) {
+
         // Consume handled event to keep the key focus,
         // which is otherwise lost to the 'tab-order' traversal
         final KeyCode code = event.getCode();
-        switch (code)
-        {
-        case UP:
-            if (event.isShiftDown())
-                setPosition(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight()-1);
-            else
-                setPosition(tracker.getX(), tracker.getY()-1, tracker.getWidth(), tracker.getHeight());
-            break;
-        case DOWN:
-            if (event.isShiftDown())
-                setPosition(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight()+1);
-            else
-                setPosition(tracker.getX(), tracker.getY()+1, tracker.getWidth(), tracker.getHeight());
-            break;
-        case LEFT:
-            if (event.isShiftDown())
-                setPosition(tracker.getX(), tracker.getY(), tracker.getWidth()-1, tracker.getHeight());
-            else
-                setPosition(tracker.getX()-1, tracker.getY(), tracker.getWidth(), tracker.getHeight());
-            break;
-        case RIGHT:
-            if (event.isShiftDown())
-                setPosition(tracker.getX(), tracker.getY(), tracker.getWidth()+1, tracker.getHeight());
-            else
-                setPosition(tracker.getX()+1, tracker.getY(), tracker.getWidth(), tracker.getHeight());
-            break;
-        default:
-            return;
+        boolean notify = false;
+
+        switch ( code ) {
+            case UP:
+                if ( event.isShiftDown() ) {
+                    setPosition(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight() - 1);
+                } else {
+                    setPosition(tracker.getX(), tracker.getY() - 1, tracker.getWidth(), tracker.getHeight());
+                }
+                notify = true;
+                break;
+            case DOWN:
+                if ( event.isShiftDown() ) {
+                    setPosition(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight() + 1);
+                } else {
+                    setPosition(tracker.getX(), tracker.getY() + 1, tracker.getWidth(), tracker.getHeight());
+                }
+                notify = true;
+                break;
+            case LEFT:
+                if ( event.isShiftDown() ) {
+                    setPosition(tracker.getX(), tracker.getY(), tracker.getWidth() - 1, tracker.getHeight());
+                } else {
+                    setPosition(tracker.getX() - 1, tracker.getY(), tracker.getWidth(), tracker.getHeight());
+                }
+                notify = true;
+                break;
+            case RIGHT:
+                if ( event.isShiftDown() ) {
+                    setPosition(tracker.getX(), tracker.getY(), tracker.getWidth() + 1, tracker.getHeight());
+                } else {
+                    setPosition(tracker.getX() + 1, tracker.getY(), tracker.getWidth(), tracker.getHeight());
+                }
+                notify = true;
+                break;
+            case ESCAPE:
+                if ( start_x >= 0 ) {
+                    setPosition(orig);
+                    endMouseDrag(null);
+                    notify = true;
+                }
+                break;
+            default:
+                return;
         }
+
         event.consume();
 
-        notifyListenerOfChange();
+        if ( notify ) {
+            notifyListenerOfChange();
+        }
 
-        // Reset tracker as if we started at this position.
-        // That way, a sequence of cursor key moves turns into individual undo-able actions.
-        orig = new Rectangle2D(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight());
+        if ( code != KeyCode.ESCAPE ) {
+            // Reset tracker as if we started at this position.
+            // That way, a sequence of cursor key moves turns into individual
+            // undo-able actions.
+            orig = new Rectangle2D(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight());
+        }
+
     }
 
     public final void setPosition(final Rectangle2D position)

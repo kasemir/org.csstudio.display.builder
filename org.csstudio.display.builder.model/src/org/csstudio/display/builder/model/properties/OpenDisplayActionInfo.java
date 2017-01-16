@@ -28,7 +28,10 @@ public class OpenDisplayActionInfo extends ActionInfo
         TAB(Messages.Target_Tab),
 
         /** Open a new window */
-        WINDOW(Messages.Target_Window);
+        WINDOW(Messages.Target_Window),
+
+        /** Open standalone window */
+        STANDALONE(Messages.Target_Standalone);
 
         private final String name;
 

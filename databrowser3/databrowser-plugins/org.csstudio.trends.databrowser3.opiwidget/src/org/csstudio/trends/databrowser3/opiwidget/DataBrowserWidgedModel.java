@@ -45,18 +45,18 @@ import org.eclipse.core.runtime.Path;
 public class DataBrowserWidgedModel extends AbstractContainerModel
 {
     /** Widget ID registered in plugin.xml */
-    final public static String ID = "org.csstudio.trends.databrowser3.opiwidget";
+    final public static String ID = "org.csstudio.trends.databrowser.opiwidget";
 
     /** Property for name of data browser configuration file */
     final public static String PROP_FILENAME = "filename";
 
-//    TODO Add these properties again when they can be correctly initialized form the .plt file
-//
-//    /** Property to show/hide the toolbar */
-//    public static final String PROP_SHOW_TOOLBAR = "show_toolbar";
-//
-//    /** Property to show/hide the legend */
-//    public static final String PROP_SHOW_LEGEND = "show_legend";
+    //    TODO Add these properties again when they can be correctly initialized form the .plt file
+    //
+    //    /** Property to show/hide the toolbar */
+    //    public static final String PROP_SHOW_TOOLBAR = "show_toolbar";
+    //
+    //    /** Property to show/hide the legend */
+    //    public static final String PROP_SHOW_LEGEND = "show_legend";
 
     public static final IPath EMPTY_PATH = new Path("");
 
@@ -77,7 +77,7 @@ public class DataBrowserWidgedModel extends AbstractContainerModel
     public Model createDataBrowserModel() throws CoreException, Exception
     {
         final Model model = new Model();
-        model.setMacros(getAllMacros());
+        //model.setMacros(getAllMacros());
         try
         (
             final InputStream input = SingleSourcePlugin.getResourceHelper().getInputStream(getExpandedFilename());
@@ -123,8 +123,8 @@ public class DataBrowserWidgedModel extends AbstractContainerModel
                 WidgetPropertyCategory.Basic, EMPTY_PATH,
                 new String[]
                 {
-                    Model.FILE_EXTENSION,
-                    Model.FILE_EXTENSION_OLD
+                        Model.FILE_EXTENSION,
+                        Model.FILE_EXTENSION_OLD
                 }));
         addProperty(new StringProperty(PROP_SELECTION_VALUE_PV,
                 "Selection Value PV (VTable)", WidgetPropertyCategory.Basic, ""));

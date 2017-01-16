@@ -33,7 +33,16 @@ public enum FormatOption
     COMPACT(Messages.Format_Compact),
 
     /** Force string, most important for array-of-bytes */
-    STRING(Messages.Format_String);
+    STRING(Messages.Format_String),
+
+    /** Sexagesimal degrees-or-hours:minutes:seconds */
+    SEXAGESIMAL(Messages.Format_Sexagesimal),
+
+    /** Sexagesimal, number is assumed to be radians with 2pi == 24 hours */
+    SEXAGESIMAL_HMS(Messages.Format_SexagesimalHMS),
+
+    /** Sexagesimal, number is assumed to be radians with 2pi == 360 degrees */
+    SEXAGESIMAL_DMS(Messages.Format_SexagesimalDMS);
 
     private final String label;
 

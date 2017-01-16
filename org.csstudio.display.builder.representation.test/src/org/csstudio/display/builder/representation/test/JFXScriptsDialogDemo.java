@@ -33,8 +33,8 @@ public class JFXScriptsDialogDemo extends Application
     public void start(final Stage stage)
     {
         final List<ScriptInfo> scripts = new ArrayList<>();
-        scripts.add(new ScriptInfo("/tmp/demo1.py", new ScriptPV("pv1")));
-        scripts.add(new ScriptInfo("/tmp/demo2.py", new ScriptPV("pv1"), new ScriptPV("pv2", false)));
+        scripts.add(new ScriptInfo("/tmp/demo1.py", true, new ScriptPV("pv1")));
+        scripts.add(new ScriptInfo("/tmp/demo2.py", false, new ScriptPV("pv1"), new ScriptPV("pv2", false)));
 
         final ScriptsDialog dialog = new ScriptsDialog(new Widget("demo"), scripts);
         System.out.println(dialog.showAndWait());

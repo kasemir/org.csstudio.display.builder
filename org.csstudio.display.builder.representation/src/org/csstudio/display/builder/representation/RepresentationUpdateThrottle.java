@@ -59,6 +59,9 @@ public class RepresentationUpdateThrottle
     /** Thread that performs the throttling */
     private final Thread throttle_thread;
 
+    /** Flag that informs throttle_thread to enable updates or ignore */
+    protected volatile boolean enabled = true;
+
     /** Flag that informs throttle_thread to run or exit */
     protected volatile boolean run = true;
 
@@ -96,6 +99,16 @@ public class RepresentationUpdateThrottle
         }
     }
 
+    /** @param enable Enable updates, or pause? */
+    public void enable(final boolean enable)
+    {
+        enabled = enable;
+        synchronized (updateable)
+        {
+            updateable.notifyAll();
+        }
+    }
+
     private void doRun()
     {
         // Running average of update duration, i.e. time spend in UI thread
@@ -117,7 +130,8 @@ public class RepresentationUpdateThrottle
                     return;
                 // Wait a little longer to allow more updates to accumulate
                 Thread.sleep(update_accumulation_time);
-
+                if (! enabled)
+                    continue;
                 // Obtain safe copy, clear what had been accumulated
                 final WidgetRepresentation<?, ?, ?>[] representations;
                 synchronized (updateable)
@@ -204,11 +218,13 @@ public class RepresentationUpdateThrottle
         }
         try
         {
-            throttle_thread.join();
+            throttle_thread.join(2000);
         }
         catch (final InterruptedException ex)
         {
             // Ignore, closing down anyway
         }
+        if (throttle_thread.isAlive())
+            logger.log(Level.WARNING, "Representation update throttle fails to terminate within 2 seconds");
     }
 }

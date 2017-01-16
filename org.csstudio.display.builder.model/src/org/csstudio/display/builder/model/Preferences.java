@@ -19,11 +19,33 @@ import org.eclipse.core.runtime.preferences.IPreferencesService;
 @SuppressWarnings("nls")
 public class Preferences
 {
+    public static final String CLASS_FILES = "class_files";
+    public static final String COLOR_FILES = "color_files";
+    public static final String FONT_FILES = "font_files";
     public static final String READ_TIMEOUT = "read_timeout";
-
     public static final String LEGACY_FONT_CALIBRATION = "legacy_font_calibration";
-
     public static final String MACROS = "macros";
+
+    public static String[] getClassFiles()
+    {
+        return getPreference(CLASS_FILES,
+                             "platform:/plugin/org.csstudio.display.builder.model/examples/classes.bcf")
+                            .split(" *; *");
+    }
+
+    public static String[] getColorFiles()
+    {
+        return getPreference(COLOR_FILES,
+                             "platform:/plugin/org.csstudio.display.builder.model/examples/color.def")
+                            .split(" *; *");
+    }
+
+    public static String[] getFontFiles()
+    {
+        return getPreference(FONT_FILES,
+                             "platform:/plugin/org.csstudio.display.builder.model/examples/font.def")
+                            .split(" *; *");
+    }
 
     /** @return Read timeout [ms] */
     public static int getReadTimeout()
@@ -63,5 +85,17 @@ public class Preferences
         {
             return null;
         }
+    }
+
+    /** @param key Preference key
+     *  @param default_value Default value
+     *  @return Preference text or default value
+     */
+    public static String getPreference(final String key, final String default_value)
+    {
+        final IPreferencesService prefs = Platform.getPreferencesService();
+        if (prefs != null)
+            return prefs.getString(ModelPlugin.ID, key, default_value, null);
+        return default_value;
     }
 }

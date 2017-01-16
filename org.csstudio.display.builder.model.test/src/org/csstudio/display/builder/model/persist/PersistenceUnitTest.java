@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.persist;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
@@ -15,6 +16,7 @@ import static org.junit.Assert.assertThat;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
@@ -27,8 +29,11 @@ import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetFactoryUnitTest;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
+import org.csstudio.display.builder.model.properties.NamedWidgetFont;
 import org.csstudio.display.builder.model.properties.StringWidgetProperty;
+import org.csstudio.display.builder.model.properties.WidgetFontStyle;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
+import org.csstudio.display.builder.model.widgets.LabelWidget;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -57,6 +62,21 @@ public class PersistenceUnitTest
     public static void setup()
     {
         WidgetFactoryUnitTest.initializeFactory();
+    }
+
+    protected String toXML(final DisplayModel model)
+            throws Exception, IOException
+    {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try
+        (
+            final ModelWriter writer = new ModelWriter(out);
+        )
+        {
+            writer.writeModel(model);
+        }
+        String xml = out.toString();
+        return xml;
     }
 
     /** Writing widgets as XML
@@ -203,17 +223,8 @@ public class PersistenceUnitTest
         widget.getProperty("x").setValueFromObject(42);
         model.runtimeChildren().addChild(widget);
 
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        try
-        (
-            final ModelWriter writer = new ModelWriter(out);
-        )
-        {
-            writer.writeModel(model);
-        }
-        final String xml = out.toString();
+        final String xml = toXML(model);
         System.out.println(xml);
-
 
         final ModelReader reader = new ModelReader(new ByteArrayInputStream(xml.getBytes()));
         final DisplayModel readback = reader.readModel();
@@ -222,5 +233,31 @@ public class PersistenceUnitTest
         assertThat(readback.getPropertyValue(CommonWidgetProperties.propHeight), equalTo(800));
         assertThat(readback.getChildren().size(), equalTo(1));
         assertThat(readback.getChildren().get(0).getPropertyValue(CommonWidgetProperties.propX), equalTo(42));
+    }
+
+    @Test
+    public void testClassSupportPersistence() throws Exception
+    {
+        // By default, Label font does not use class
+        final DisplayModel model = new DisplayModel();
+        final LabelWidget label = new LabelWidget();
+        assertThat(label.propFont().isUsingWidgetClass(), equalTo(false));
+        label.propFont().setValue(new NamedWidgetFont("TEST", "Sans", WidgetFontStyle.REGULAR, 10.0));
+        model.runtimeChildren().addChild(label);
+
+        String xml = toXML(model);
+        System.out.println(xml);
+        assertThat(xml, containsString("display version=\"2"));
+        assertThat(xml, containsString("font>"));
+        DisplayModel readback = ModelReader.parseXML(xml);
+        assertThat(readback.getChildren().get(0).getProperty("font").isUsingWidgetClass(), equalTo(false));
+
+        // "use_class" is persisted in XML and read back
+        label.propFont().useWidgetClass(true);
+        xml = toXML(model);
+        System.out.println(xml);
+        assertThat(xml, containsString("font use_class=\"true\""));
+        readback = ModelReader.parseXML(xml);
+        assertThat(readback.getChildren().get(0).getProperty("font").isUsingWidgetClass(), equalTo(true));
     }
 }

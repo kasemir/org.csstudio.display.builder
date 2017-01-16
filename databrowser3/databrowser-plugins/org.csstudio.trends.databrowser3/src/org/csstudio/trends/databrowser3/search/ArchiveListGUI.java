@@ -9,6 +9,7 @@ package org.csstudio.trends.databrowser3.search;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.csstudio.apputil.ui.swt.TableColumnSortHelper;
 import org.csstudio.archive.reader.ArchiveInfo;
@@ -27,6 +28,7 @@ import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.ViewerCell;
@@ -64,12 +66,16 @@ public abstract class ArchiveListGUI
     /** Archive servers */
     private final ArchiveServerURL[] server_urls;
 
+    /** Default archives per server if selected */
+    private final ArchiveDataSource[] default_archives;
+
     /** Initialize
      *  @param parent Parent widget
      */
     public ArchiveListGUI(final Composite parent)
     {
         server_urls = Preferences.getArchiveServerURLs();
+        default_archives = Preferences.getArchives();
 
         createGUI(parent);
 
@@ -258,10 +264,16 @@ public abstract class ArchiveListGUI
                         if (info.isDisposed())
                             return;
                         ArchiveListGUI.this.url = url;
-                        final ArrayList<ArchiveDataSource> archives = new ArrayList<ArchiveDataSource>();
+                        final List<ArchiveDataSource> archives = new ArrayList<>();
                         for (ArchiveInfo info : infos)
                             archives.add(new ArchiveDataSource(url, info.getKey(), info.getName(), info.getDescription()));
                         archive_table.setInput(archives);
+                        // Select all default archive data sources for this URL
+                        final List<ArchiveDataSource> selected = new ArrayList<>();
+                        for (ArchiveDataSource dataSource : default_archives)
+                            if (dataSource.getUrl().equals(url) && archives.contains(dataSource))
+                                selected.add(dataSource);
+                        archive_table.setSelection(new StructuredSelection(selected));
                         // Enable operations on server resp. archives
                         info.setEnabled(true);
                         handleArchiveUpdate();

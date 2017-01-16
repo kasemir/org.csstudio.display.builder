@@ -31,22 +31,17 @@ public class MacroHandler
     // Pattern for $(xxx) or ${xxx}, or $(x=y) or ${x=y}, asserting that there is NO leading '\' to escape it
     // "=" is matched with any number of whitespace characters (space, tab, etc.) on either side
     private static final Pattern spec = Pattern
-            .compile("(?<!\\\\)\\$\\((\\w+)((\\s*=\\s*).*)?\\)" + "|" + "(?<!\\\\)\\$\\{(\\w+)((\\s*=\\s*).*)?\\}");
+            .compile("(?<!\\\\)\\$\\((" + Macros.MACRO_NAME_PATTERN + ")((\\s*=\\s*).*)?\\)" +
+                     "|" +
+                     "(?<!\\\\)\\$\\{(" + Macros.MACRO_NAME_PATTERN + ")((\\s*=\\s*).*)?\\}");
 
     /** Check if input contains unresolved macros
-     *  @param input Text that may contain macros "$(NAME)" or "${NAME}",
-     *  @return <code>true</code> if there is at least one unresolved macro
+     *  @param input Text that may contain macros "$(NAME)" or "${NAME}", even escaped ones because they need to be un-escaped
+     *  @return <code>true</code> if there is at least one potential macro
      */
     public static boolean containsMacros(final String input)
     {
-        // Short cut to full regular expression
-        if (input.indexOf('$') < 0)
-            return false;
-
-        // There is at least one '$'
-        // Check if it matches the spec
-        final Matcher matcher = spec.matcher(input);
-        return matcher.find();
+        return input != null  &&  input.indexOf('$') >= 0;
     }
 
     /** Replace macros in input
@@ -59,10 +54,10 @@ public class MacroHandler
      */
     public static String replace(final MacroValueProvider macros, final String input) throws Exception
     {
-
-        return replace(macros, input, 0);
+        // Replace macros, then un-escape escaped dollar signs
+        final String replaced = replace(macros, input, 0);
+        return replaced.replace("\\$", "$");
     }
-
 
     /** Replace macros in input
      *
@@ -101,7 +96,7 @@ public class MacroHandler
 
             // Find macro name and default value
             final String name = input.substring(matcher.start(which), matcher.end(which));
-            //find default value between end of "=" group and end of "=y" group
+            // Find default value between end of "=" group and end of "=y" group
             final String def_val = matcher.end(which + 1) < 0 ? null
                     : input.substring(matcher.end(which + 2), matcher.end(which + 1));
 

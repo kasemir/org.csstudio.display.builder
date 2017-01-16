@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="1.0.0">
+<display version="2.0.0">
   <name>Main</name>
   <widget type="label" version="2.0.0">
     <name>Label</name>
@@ -11,11 +11,8 @@
       </font>
     </font>
   </widget>
-  <widget type="action_button" version="2.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Action Button</name>
-    <y>81</y>
-    <width>120</width>
-    <height>26</height>
     <actions>
       <action type="open_display">
         <file>02_intro.bob</file>
@@ -23,13 +20,13 @@
         <description>Introduction</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_1</name>
-    <x>191</x>
-    <y>121</y>
+    <y>81</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_1</name>
     <actions>
       <action type="open_display">
         <file>graphics_label.bob</file>
@@ -37,13 +34,14 @@
         <description>Label</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_2</name>
-    <x>332</x>
+    <x>191</x>
     <y>121</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_2</name>
     <actions>
       <action type="open_display">
         <file>monitors_textupdate.bob</file>
@@ -51,13 +49,14 @@
         <description>Text Update</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_3</name>
     <x>332</x>
-    <y>161</y>
+    <y>121</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_3</name>
     <actions>
       <action type="open_display">
         <file>monitors_led.bob</file>
@@ -65,6 +64,11 @@
         <description>LED</description>
       </action>
     </actions>
+    <x>332</x>
+    <y>161</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_1</name>
@@ -137,12 +141,8 @@
       </font>
     </font>
   </widget>
-  <widget type="action_button" version="2.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Action Button_4</name>
-    <x>332</x>
-    <y>321</y>
-    <width>120</width>
-    <height>26</height>
     <actions>
       <action type="open_display">
         <file>plots_xy.bob</file>
@@ -150,13 +150,14 @@
         <description>X/Y Plot</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_5</name>
     <x>332</x>
-    <y>361</y>
+    <y>321</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_5</name>
     <actions>
       <action type="open_display">
         <file>plots_image.bob</file>
@@ -164,12 +165,14 @@
         <description>Image</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_6</name>
-    <y>241</y>
+    <x>332</x>
+    <y>361</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_6</name>
     <actions>
       <action type="open_display">
         <file>06_runtime.bob</file>
@@ -177,12 +180,13 @@
         <description>Runtime</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_7</name>
-    <y>121</y>
+    <y>241</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_7</name>
     <actions>
       <action type="open_display">
         <file>03_properties.bob</file>
@@ -190,12 +194,13 @@
         <description>Properties</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_9</name>
-    <y>161</y>
+    <y>121</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_9</name>
     <actions>
       <action type="open_display">
         <file>04_macros.bob</file>
@@ -203,12 +208,13 @@
         <description>Macros</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_10</name>
-    <y>201</y>
+    <y>161</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_10</name>
     <actions>
       <action type="open_display">
         <file>05_actions.bob</file>
@@ -216,13 +222,13 @@
         <description>Actions</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_8</name>
-    <x>191</x>
-    <y>161</y>
+    <y>201</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_8</name>
     <actions>
       <action type="open_display">
         <file>graphics_picture.bob</file>
@@ -230,6 +236,11 @@
         <description>Picture</description>
       </action>
     </actions>
+    <x>191</x>
+    <y>161</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_7</name>
@@ -243,12 +254,8 @@
       </font>
     </font>
   </widget>
-  <widget type="action_button" version="2.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Action Button_11</name>
-    <x>471</x>
-    <y>161</y>
-    <width>120</width>
-    <height>26</height>
     <actions>
       <action type="open_display">
         <file>embedded/structure_embedded.bob</file>
@@ -256,13 +263,14 @@
         <description>Embedded</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_12</name>
     <x>471</x>
-    <y>201</y>
+    <y>161</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_12</name>
     <actions>
       <action type="open_display">
         <file>structure_tabs.bob</file>
@@ -270,13 +278,14 @@
         <description>Tabs</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_13</name>
     <x>471</x>
-    <y>121</y>
+    <y>201</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_13</name>
     <actions>
       <action type="open_display">
         <file>structure_group.bob</file>
@@ -284,13 +293,14 @@
         <description>Group</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_14</name>
-    <x>191</x>
-    <y>321</y>
+    <x>471</x>
+    <y>121</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_14</name>
     <actions>
       <action type="open_display">
         <file>controls_textentry.bob</file>
@@ -298,13 +308,14 @@
         <description>Text Entry</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_15</name>
     <x>191</x>
-    <y>361</y>
+    <y>321</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_15</name>
     <actions>
       <action type="open_display">
         <file>control_toggle_buttons.bob</file>
@@ -312,13 +323,14 @@
         <description>Toggle Buttons</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_16</name>
     <x>191</x>
-    <y>401</y>
+    <y>361</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_16</name>
     <actions>
       <action type="open_display">
         <file>control_action_buttons.bob</file>
@@ -326,13 +338,14 @@
         <description>Action Buttons</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_17</name>
     <x>191</x>
-    <y>201</y>
+    <y>401</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_17</name>
     <actions>
       <action type="open_display">
         <file>graphics_poly.bob</file>
@@ -340,13 +353,14 @@
         <description>Polygon/line</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_18</name>
     <x>191</x>
-    <y>441</y>
+    <y>201</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_18</name>
     <actions>
       <action type="open_display">
         <file>controls_spinner_slider_scrollbar.bob</file>
@@ -354,13 +368,14 @@
         <description>Incr. Controls</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_19</name>
     <x>191</x>
-    <y>481</y>
+    <y>441</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_19</name>
     <actions>
       <action type="open_display">
         <file>controls_combo.bob</file>
@@ -368,6 +383,11 @@
         <description>Combo Box</description>
       </action>
     </actions>
+    <x>191</x>
+    <y>481</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_8</name>
@@ -381,12 +401,8 @@
       </font>
     </font>
   </widget>
-  <widget type="action_button" version="2.0.0">
+  <widget type="action_button" version="3.0.0">
     <name>Action Button_20</name>
-    <x>471</x>
-    <y>321</y>
-    <width>120</width>
-    <height>26</height>
     <actions>
       <action type="open_display">
         <file>misc_webbrowser.bob</file>
@@ -394,13 +410,14 @@
         <description>Web Browser</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_20</name>
-    <x>332</x>
-    <y>201</y>
+    <x>471</x>
+    <y>321</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_20</name>
     <actions>
       <action type="open_display">
         <file>monitors_bytemonitor.bob</file>
@@ -408,13 +425,14 @@
         <description>Byte Monitor</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_21</name>
-    <x>471</x>
-    <y>241</y>
+    <x>332</x>
+    <y>201</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_21</name>
     <actions>
       <action type="open_display">
         <file>structure_array.bob</file>
@@ -422,13 +440,14 @@
         <description>Array</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_22</name>
-    <x>191</x>
-    <y>561</y>
+    <x>471</x>
+    <y>241</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_22</name>
     <actions>
       <action type="open_display">
         <file>controls_fileselector.bob</file>
@@ -436,13 +455,14 @@
         <description>File Selector</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_23</name>
     <x>191</x>
-    <y>521</y>
+    <y>561</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_23</name>
     <actions>
       <action type="open_display">
         <file>controls_radio.bob</file>
@@ -450,12 +470,14 @@
         <description>Radio Button</description>
       </action>
     </actions>
-  </widget>
-  <widget type="action_button" version="2.0.0">
-    <name>Action Button_24</name>
-    <y>280</y>
+    <x>191</x>
+    <y>521</y>
     <width>120</width>
     <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_24</name>
     <actions>
       <action type="open_display">
         <file>10_scripts.bob</file>
@@ -463,5 +485,23 @@
         <description>Scripts</description>
       </action>
     </actions>
+    <y>280</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_25</name>
+    <actions>
+      <action type="open_display">
+        <file>use_classes.bob</file>
+        <target>replace</target>
+        <description>Classes</description>
+      </action>
+    </actions>
+    <y>321</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
   </widget>
 </display>

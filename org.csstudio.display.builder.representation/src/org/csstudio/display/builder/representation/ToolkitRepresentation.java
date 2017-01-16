@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.csstudio.display.builder.representation;
 
+import java.awt.Desktop;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -150,7 +152,33 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         return Objects.requireNonNull(toolkit, "Toolkit not set");
     }
 
+    /** Open display panel
+    *
+    *  <p>For RCP-based representation, this is a new workbench 'view'.
+    *
+    *  <p>Is invoked with the _initial_ model,
+    *  calling <code>representModel</code> to create the
+    *  individual widget representations.
+    *
+    *  <p>To later replace the model, call <code>disposeRepresentation</code>
+    *  with the current model, and then <code>representModel</code> with the new model.
+    *
+    *  @param model {@link DisplayModel} that provides name and initial size
+    *  @param close_handler Will be invoked when user closes the window
+    *                       with the then active model, i.e. the model
+    *                       provided in last call to <code>representModel</code>.
+    *                       Should stop runtime, dispose representation.
+    *  @return The new ToolkitRepresentation of the new window
+    *  @throws Exception on error
+    */
+    public ToolkitRepresentation<TWP, TW> openPanel(DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception
+    {   // Default: Same as openNewWindow
+        return openNewWindow(model, close_handler);
+    }
+
     /** Open new top-level window
+     *
+     *  <p>For RCP-based representation, this is a new workbench window.
      *
      *  <p>Is invoked with the _initial_ model,
      *  calling <code>representModel</code> to create the
@@ -168,6 +196,31 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *  @throws Exception on error
      */
     abstract public ToolkitRepresentation<TWP, TW> openNewWindow(DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception;
+
+    /** Open standalone window
+     *
+     *  <p>For RCP-based representation, this is a plain shell or stage,
+     *  not associated with a workbench.
+     *
+     *  <p>Is invoked with the _initial_ model,
+     *  calling <code>representModel</code> to create the
+     *  individual widget representations.
+     *
+     *  <p>To later replace the model, call <code>disposeRepresentation</code>
+     *  with the current model, and then <code>representModel</code> with the new model.
+     *
+     *  @param model {@link DisplayModel} that provides name and initial size
+     *  @param close_handler Will be invoked when user closes the window
+     *                       with the then active model, i.e. the model
+     *                       provided in last call to <code>representModel</code>.
+     *                       Should stop runtime, dispose representation.
+     *  @return The new ToolkitRepresentation of the new window
+     *  @throws Exception on error
+     */
+    public ToolkitRepresentation<TWP, TW> openStandaloneWindow(DisplayModel model, Consumer<DisplayModel> close_handler) throws Exception
+    {   // Default: Same as openNewWindow
+        return openNewWindow(model, close_handler);
+    }
 
     /** Create toolkit widgets for a display model.
      *
@@ -318,6 +371,12 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
         throttle.scheduleUpdate(representation);
     }
 
+    /** @param enable Enable updates, or pause? */
+    public void enable(final boolean enable)
+    {
+        throttle.enable(enable);
+    }
+
     /** Execute command in toolkit's UI thread.
      *
      *  <p>If already on the UI thread, command
@@ -399,6 +458,7 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
 
     /** Show file "Save As" dialog for selecting/entering a new file name
      *
+     *  @param widget Widget, used to create and position the dialog
      *  @param initial_value Initial path and file name
      *  @return Path and file name or <code>null</code>
      */
@@ -410,6 +470,19 @@ abstract public class ToolkitRepresentation<TWP extends Object, TW> implements E
      *          Boolean value will indicate successful playback
      */
     abstract public Future<Boolean> playAudio(final String url);
+
+    /** Open a file with the OS-assigned default tool
+     *
+     *  <p>RCP-based representation can override with
+     *  RCP-based default editor for the file
+     *
+     *  @param path Path to file
+     *  @throws Exception on error
+     */
+    public void openFile(final String path) throws Exception
+    {
+        Desktop.getDesktop().open(new File(path));
+    }
 
     /** Execute callable in toolkit's UI thread.
      *  @param <T> Type to return

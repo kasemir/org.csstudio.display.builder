@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.model.ModelPlugin.logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -42,6 +43,8 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
     private static final String OPEN_DISPLAY = "open_display";
     private static final String WRITE_PV = "write_pv";
     private static final String EXECUTE_SCRIPT = "execute";
+    private static final String EXECUTE_COMMAND = "command";
+    private static final String OPEN_FILE = "open_file";
 
     /** Constructor
      *  @param descriptor Property descriptor
@@ -62,19 +65,34 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
     {
         if (value instanceof ActionInfo[])
             setValue(Arrays.asList((ActionInfo[]) value));
+        else if ((value instanceof Collection) &&
+                ((Collection<?>)value).isEmpty())
+           setValue(Collections.emptyList());
         else
             throw new Exception("Need ActionInfo[], got " + value);
     }
 
+    /** @param mode One of the modes from org.csstudio.opibuilder.runmode.RunModeService.DisplayMode
+     *  @return
+     */
     private Target modeToTargetConvert(int mode)
     {
-        if (mode == 0)
-            return OpenDisplayActionInfo.Target.REPLACE;
-
-        if ((mode >= 1) && (mode <= 6))
-            return OpenDisplayActionInfo.Target.TAB;
-
-        return OpenDisplayActionInfo.Target.WINDOW;
+        switch (mode)
+        {
+        // 0 - REPLACE
+        case 0: return OpenDisplayActionInfo.Target.REPLACE;
+        // 7 - NEW_WINDOW
+        case 7: return OpenDisplayActionInfo.Target.WINDOW;
+        // 8 - NEW_SHELL
+        case 8: return OpenDisplayActionInfo.Target.STANDALONE;
+        // 1 - NEW_TAB
+        // 2 - NEW_TAB_LEFT
+        // 3 - NEW_TAB_RIGHT
+        // 4 - NEW_TAB_TOP
+        // 5 - NEW_TAB_BOTTOM
+        // 6 - NEW_TAB_DETACHED
+        default: return OpenDisplayActionInfo.Target.TAB;
+        }
     }
 
     @Override
@@ -128,6 +146,22 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 }
                 writer.writeEndElement();
             }
+            else if (info instanceof OpenFileActionInfo)
+            {
+                final OpenFileActionInfo action = (OpenFileActionInfo) info;
+                writer.writeAttribute(XMLTags.TYPE, OPEN_FILE);
+                writer.writeStartElement(XMLTags.FILE);
+                writer.writeCharacters(action.getFile());
+                writer.writeEndElement();
+            }
+            else if (info instanceof ExecuteCommandActionInfo)
+            {
+                final ExecuteCommandActionInfo action = (ExecuteCommandActionInfo) info;
+                writer.writeAttribute(XMLTags.TYPE, EXECUTE_COMMAND);
+                writer.writeStartElement(XMLTags.COMMAND);
+                writer.writeCharacters(action.getCommand());
+                writer.writeEndElement();
+            }
             else
                 throw new Exception("Cannot write action of type " + info.getClass().getName());
             if (! info.getDescription().isEmpty())
@@ -152,12 +186,13 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
             if (OPEN_DISPLAY.equalsIgnoreCase(type)) // legacy used uppercase type name
             {   // Use <file>, falling back to legacy <path>
                 final String file = XMLUtil.getChildString(action_xml, XMLTags.FILE)
-                        .orElse(XMLUtil.getChildString(action_xml, "path")
-                                .orElse(""));
+                                           .orElse(XMLUtil.getChildString(action_xml, XMLTags.PATH)
+                                           .orElse(""));
 
                 OpenDisplayActionInfo.Target target = OpenDisplayActionInfo.Target.REPLACE;
                 // Legacy used <replace> with value 0/1/2 for TAB/REPLACE/WINDOW
                 final Optional<String> replace = XMLUtil.getChildString(action_xml, "replace");
+                // later it switched to <mode> with many more options
                 final Optional<String> mode = XMLUtil.getChildString(action_xml, "mode");
                 if (replace.isPresent())
                 {
@@ -167,9 +202,7 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                         target = OpenDisplayActionInfo.Target.WINDOW;
                 }
                 else if (mode.isPresent())
-                {
                     target = modeToTargetConvert(Integer.valueOf(mode.get()));
-                }
                 else
                     target = OpenDisplayActionInfo.Target.valueOf(
                             XMLUtil.getChildString(action_xml, XMLTags.TARGET)
@@ -214,11 +247,12 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 {
                     final String path = el.getAttribute(XMLTags.FILE);
                     final String text = XMLUtil.getChildString(el, XMLTags.TEXT).orElse(null);
-                    final ScriptInfo info = new ScriptInfo(path, text, Collections.emptyList());
+                    final ScriptInfo info = new ScriptInfo(path, text, false, Collections.emptyList());
                     actions.add(new ExecuteScriptActionInfo(description, info));
                 }
             }
-            else if (type.startsWith("EXECUTE_"))
+            else if ("EXECUTE_PYTHONSCRIPT".equalsIgnoreCase(type) ||
+                     "EXECUTE_JAVASCRIPT".equalsIgnoreCase(type))
             {
                 // Legacy XML:
                 // <action type="EXECUTE_PYTHONSCRIPT"> .. or "EXECUTE_JAVASCRIPT"
@@ -235,11 +269,50 @@ public class ActionsWidgetProperty extends WidgetProperty<List<ActionInfo>>
                 {
                     final String dialect = type.contains("PYTHON")
                             ? ScriptInfo.EMBEDDED_PYTHON : ScriptInfo.EMBEDDED_JAVASCRIPT;
-                    info = new ScriptInfo(dialect, text, Collections.emptyList());
+                    info = new ScriptInfo(dialect, text, false, Collections.emptyList());
                 }
                 else
-                    info = new ScriptInfo(path, null, Collections.emptyList());
+                    info = new ScriptInfo(path, null, false, Collections.emptyList());
                 actions.add(new ExecuteScriptActionInfo(description, info));
+            }
+            else if (OPEN_FILE.equalsIgnoreCase(type)) // legacy used uppercase type name
+            {   // Use <file>, falling back to legacy <path>
+                final String file = XMLUtil.getChildString(action_xml, XMLTags.FILE)
+                                           .orElse(XMLUtil.getChildString(action_xml, XMLTags.PATH)
+                                           .orElse(""));
+                actions.add(new OpenFileActionInfo(description, file));
+            }
+            else if (EXECUTE_COMMAND.equalsIgnoreCase(type) ||
+                    "EXECUTE_CMD".equalsIgnoreCase(type))
+            {
+                // Legacy:
+                // <action type="EXECUTE_CMD">
+                //   <command>echo Hello</command>
+                //   <command_directory>$(user.home)</command_directory>
+                //   <wait_time>10</wait_time>
+                //   <description>Hello</description>
+                // </action>
+                //
+                // New:
+                // <action type="command">
+                //   <command>echo Hello</command>
+                //   <description>Hello</description>
+                // </action>
+                String command = XMLUtil.getChildString(action_xml, XMLTags.COMMAND).orElse("");
+                String directory = XMLUtil.getChildString(action_xml, "command_directory")
+                                                .orElse(null);
+                // Legacy allowed "opi.dir" as magic macro.
+                // Commands are now by default resolved relative to the display file.
+                if ("$(opi.dir)".equals(directory))
+                    directory = null;
+                // Legacy allowed user.home as a 'current working directory'.
+                // Commands are now executed with their location as cwd.
+                if ("$(user.home)".equals(directory))
+                    directory = null;
+                // If a legacy directory was provided, locate command there
+                if (directory != null  &&  !directory.isEmpty())
+                    command = directory + "/" + command;
+                actions.add(new ExecuteCommandActionInfo(description, command));
             }
             else
                 logger.log(Level.WARNING, "Ignoring action of unknown type '" + type + "'");
