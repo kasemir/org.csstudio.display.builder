@@ -113,14 +113,18 @@ public class FontWidgetProperty extends WidgetProperty<WidgetFont>
                 size = Double.parseDouble(font_el.getAttribute("height")) / legacy_size_calibration;
             }
             else
-            {   // or   <fontdata fontName="Sans" height="20" style="3" />
+            {   // or   <fontdata fontName="Sans" height="20" style="3" pixels="true" />
+                // 'pixels' was added in Jan. 2017 to mark font data that's already in pixels
                 font_el = XMLUtil.getChildElement(property_xml, "fontdata");
                 if (font_el != null)
                 {
                     name = "";
                     family = font_el.getAttribute("fontName");
                     style = WidgetFontStyle.values()[Integer.parseInt(font_el.getAttribute(STYLE))];
-                    size = Double.parseDouble(font_el.getAttribute("height")) / legacy_size_calibration;
+                    final double raw_size = Double.parseDouble(font_el.getAttribute("height"));
+                    size = Boolean.parseBoolean(font_el.getAttribute("pixels"))
+                         ? raw_size
+                         : raw_size / legacy_size_calibration;
                 }
                 else
                     throw new Exception("Cannot parse font");

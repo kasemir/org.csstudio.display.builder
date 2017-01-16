@@ -40,7 +40,6 @@ import org.eclipse.swt.widgets.Shell;
  *  </ul>
  *  @author Kay Kasemir
  */
-@SuppressWarnings("nls")
 public class ControllerSWT extends ControllerBase
 {
     /** Optional shell used to track shell state */
@@ -227,5 +226,4 @@ public class ControllerSWT extends ControllerBase
         // Listen to user input from Plot UI, update model
         plot.addListener(new SWTPlotListener());
     }
-
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<display version="1.0.0">
+<display version="2.0.0">
   <name>Display</name>
   <width>1150</width>
   <height>2000</height>
@@ -343,8 +343,8 @@ and the "Active" label moves next to the selected mode.</text>
         <description>Tic-Tac-Toe</description>
       </action>
     </actions>
-    <x>521</x>
-    <y>791</y>
+    <x>411</x>
+    <y>831</y>
     <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
@@ -374,7 +374,7 @@ lengthy computation before updating the display.</text>
     <name>Label_22</name>
     <text>Search Path</text>
     <x>411</x>
-    <y>841</y>
+    <y>880</y>
     <width>130</width>
     <font>
       <font name="Header 2" family="Liberation Sans" style="BOLD" size="18.0">
@@ -387,14 +387,14 @@ lengthy computation before updating the display.</text>
 In addition, the location of each invoked script is added to allow
 "import" from files in the same location of the script.</text>
     <x>411</x>
-    <y>871</y>
+    <y>910</y>
     <width>452</width>
     <height>70</height>
   </widget>
   <widget type="label" version="2.0.0">
     <name>Label_28</name>
     <x>411</x>
-    <y>961</y>
+    <y>1000</y>
     <width>690</width>
     <height>170</height>
     <font>
@@ -422,7 +422,7 @@ widget.setPropertyValue("text", path)]]></text>
     <name>Label_29</name>
     <text>Current search path:</text>
     <x>411</x>
-    <y>931</y>
+    <y>970</y>
     <width>232</width>
     <height>30</height>
   </widget>
@@ -432,7 +432,7 @@ widget.setPropertyValue("text", path)]]></text>
 search path will grow over time as scripts are invoked
 from new locations.</text>
     <x>411</x>
-    <y>1141</y>
+    <y>1180</y>
     <width>452</width>
     <height>70</height>
     <font>
@@ -462,8 +462,8 @@ from new locations.</text>
         <description>Sudoku</description>
       </action>
     </actions>
-    <x>741</x>
-    <y>791</y>
+    <x>520</x>
+    <y>790</y>
     <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="action_button" version="3.0.0">
@@ -475,8 +475,8 @@ from new locations.</text>
         <description>Script Utils</description>
       </action>
     </actions>
-    <x>851</x>
-    <y>791</y>
+    <x>740</x>
+    <y>790</y>
     <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="label" version="2.0.0">
@@ -567,7 +567,7 @@ or the PV might have disconnected.</text>
         <description>Porting</description>
       </action>
     </actions>
-    <x>960</x>
+    <x>850</x>
     <y>790</y>
     <tooltip>$(actions)</tooltip>
   </widget>
@@ -671,5 +671,18 @@ to it, in this case by making the widget invisible.</text>
       <font name="Comment" family="Liberation Sans" style="ITALIC" size="14.0">
       </font>
     </font>
+  </widget>
+  <widget type="action_button" version="3.0.0">
+    <name>Action Button_8</name>
+    <actions>
+      <action type="open_display">
+        <file>conway/life.bob</file>
+        <target>replace</target>
+        <description>Conway</description>
+      </action>
+    </actions>
+    <x>524</x>
+    <y>831</y>
+    <tooltip>$(actions)</tooltip>
   </widget>
 </display>

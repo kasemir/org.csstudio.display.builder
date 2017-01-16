@@ -45,7 +45,7 @@ import org.eclipse.core.runtime.Path;
 public class DataBrowserWidgedModel extends AbstractContainerModel
 {
     /** Widget ID registered in plugin.xml */
-    final public static String ID = "org.csstudio.trends.databrowser3.opiwidget";
+    final public static String ID = "org.csstudio.trends.databrowser.opiwidget";
 
     /** Property for name of data browser configuration file */
     final public static String PROP_FILENAME = "filename";
@@ -80,8 +80,8 @@ public class DataBrowserWidgedModel extends AbstractContainerModel
         //model.setMacros(getAllMacros());
         try
         (
-                final InputStream input = SingleSourcePlugin.getResourceHelper().getInputStream(getExpandedFilename());
-                )
+            final InputStream input = SingleSourcePlugin.getResourceHelper().getInputStream(getExpandedFilename());
+        )
         {
             new XMLPersistence().load(model, input);
         }
@@ -122,10 +122,10 @@ public class DataBrowserWidgedModel extends AbstractContainerModel
         addProperty(new FilePathProperty(PROP_FILENAME, Messages.FileName,
                 WidgetPropertyCategory.Basic, EMPTY_PATH,
                 new String[]
-                        {
-                                Model.FILE_EXTENSION,
-                                Model.FILE_EXTENSION_OLD
-                        }));
+                {
+                        Model.FILE_EXTENSION,
+                        Model.FILE_EXTENSION_OLD
+                }));
         addProperty(new StringProperty(PROP_SELECTION_VALUE_PV,
                 "Selection Value PV (VTable)", WidgetPropertyCategory.Basic, ""));
         addProperty(new BooleanProperty(PROP_SHOW_VALUE_LABELS,

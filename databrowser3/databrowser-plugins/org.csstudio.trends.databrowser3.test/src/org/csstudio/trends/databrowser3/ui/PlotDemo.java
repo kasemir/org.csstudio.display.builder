@@ -27,6 +27,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import javafx.embed.swt.FXCanvas;
+import javafx.scene.Scene;
+
 /** (Headless) JUnit Plug-in demo of Plot
  *
  *  Simply displays the plot. Static data, no controller.
@@ -179,18 +182,19 @@ public class PlotDemo
         final GridLayout layout = new GridLayout(1, false);
         parent.setLayout(layout);
 
-        ModelBasedPlotSWT plot;
+        ModelBasedPlot plot;
         try
         {
-            plot = new ModelBasedPlotSWT(parent);
+            plot = new ModelBasedPlot(true);
         }
         catch (Exception e1)
         {
             e1.printStackTrace();
             return;
         }
-        //TODO: Fix or remove
-        //plot.getPlot().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
+        final FXCanvas canvas = new FXCanvas(parent, SWT.NONE);
+        canvas.setScene(new Scene(plot.getPlot()));
+        canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
 
         // [Done] button to end demo
         final Button ok = new Button(parent, SWT.PUSH);

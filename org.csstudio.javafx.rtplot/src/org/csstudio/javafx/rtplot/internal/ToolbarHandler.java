@@ -63,12 +63,13 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
 
     /** Construct tool bar
      *  @param plot {@link RTPlot} to control from tool bar
+     *  @param active React to mouse clicks?
      */
-    public ToolbarHandler(final RTPlot<XTYPE> plot)
+    public ToolbarHandler(final RTPlot<XTYPE> plot, final boolean active)
     {
         this.plot = plot;
         toolbar = new ToolBar();
-        makeGUI();
+        makeGUI(active);
     }
 
     /** @return The actual toolbar for {@link RTPlot} to handle its layout */
@@ -106,50 +107,54 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
         return this.addItem(new ImageView(icon), tool_tip);
     }
 
-    private void makeGUI()
+    private void makeGUI(final boolean active)
     {
-        addOptions();
-        addZoom();
-        addMouseModes();
+        addOptions(active);
+        addZoom(active);
+        addMouseModes(active);
         toolbar.getItems().add(new Separator());
-        addUndo();
+        addUndo(active);
 
         // Initially, panning is selected
         selectMouseMode(pan);
     }
 
-    private void addOptions()
+    private void addOptions(final boolean active)
     {
         final Button add_annotation = newButton(ToolIcons.ADD_ANNOTATION, Messages.AddAnnotation);
-        add_annotation.setOnAction(event ->
-        {
-            final AddAnnotationDialog<XTYPE> dialog = new AddAnnotationDialog<>(plot);
-            DialogHelper.positionDialog(dialog, add_annotation, 0, 0);
-            dialog.showAndWait();
-            edit_annotation.setDisable(! haveUserAnnotations());
-        });
 
         edit_annotation = newButton(ToolIcons.EDIT_ANNOTATION, Messages.EditAnnotation);
-        edit_annotation.setOnAction(event ->
-        {
-            final EditAnnotationDialog<XTYPE> dialog = new EditAnnotationDialog<XTYPE>(plot);
-            DialogHelper.positionDialog(dialog, edit_annotation, 0, 0);
-            dialog.showAndWait();
-            edit_annotation.setDisable(! haveUserAnnotations());
-        });
         // Enable if there are annotations to remove
         edit_annotation.setDisable(plot.getAnnotations().isEmpty());
-        plot.addListener(new RTPlotListener<XTYPE>()
-        {
-            @Override
-            public void changedAnnotations()
-            {
-                Platform.runLater(() -> edit_annotation.setDisable(! haveUserAnnotations()));
-            }
-        });
 
         crosshair = newToggleButton(ToolIcons.CROSSHAIR, Messages.Crosshair_Cursor);
-        crosshair.setOnAction(event ->  plot.showCrosshair(crosshair.isSelected()));
+
+        if (active)
+        {
+            add_annotation.setOnAction(event ->
+            {
+                final AddAnnotationDialog<XTYPE> dialog = new AddAnnotationDialog<>(plot);
+                DialogHelper.positionDialog(dialog, add_annotation, 0, 0);
+                dialog.showAndWait();
+                edit_annotation.setDisable(! haveUserAnnotations());
+            });
+            edit_annotation.setOnAction(event ->
+            {
+                final EditAnnotationDialog<XTYPE> dialog = new EditAnnotationDialog<XTYPE>(plot);
+                DialogHelper.positionDialog(dialog, edit_annotation, 0, 0);
+                dialog.showAndWait();
+                edit_annotation.setDisable(! haveUserAnnotations());
+            });
+            plot.addListener(new RTPlotListener<XTYPE>()
+            {
+                @Override
+                public void changedAnnotations()
+                {
+                    Platform.runLater(() -> edit_annotation.setDisable(! haveUserAnnotations()));
+                }
+            });
+            crosshair.setOnAction(event ->  plot.showCrosshair(crosshair.isSelected()));
+        }
     }
 
     /** @return Are there any user (non-internal) annotations? */
@@ -161,78 +166,84 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
         return false;
     }
 
-    private void addZoom()
+    private void addZoom(final boolean active)
     {
         final Button stagger = newButton(ToolIcons.STAGGER, Messages.Zoom_Stagger_TT);
-        stagger.setOnAction(event -> plot.stagger());
+        if (active)
+            stagger.setOnAction(event -> plot.stagger());
     }
 
-    private void addMouseModes()
+    private void addMouseModes(final boolean active)
     {
         zoom_in = newToggleButton(ToolIcons.ZOOM_IN, Messages.Zoom_In_TT);
         zoom_out = newToggleButton(ToolIcons.ZOOM_OUT, Messages.Zoom_Out_TT);
         pan = newToggleButton(ToolIcons.PAN, Messages.Pan_TT);
         pointer = newToggleButton(ToolIcons.POINTER, Messages.Plain_Pointer);
 
-        zoom_in.setOnAction(event ->
+        if (active)
         {
-            selectMouseMode(zoom_in);
-            plot.setMouseMode(MouseMode.ZOOM_IN);
-        });
-        zoom_out.setOnAction(event ->
-        {
-            selectMouseMode(zoom_out);
-            plot.setMouseMode(MouseMode.ZOOM_OUT);
-        });
-        pan.setOnAction(event ->
-        {
-            selectMouseMode(pan);
-            plot.setMouseMode(MouseMode.PAN);
-        });
-        pointer.setOnAction(event ->
-        {
-            selectMouseMode(pointer);
-            plot.setMouseMode(MouseMode.NONE);
-        });
+            zoom_in.setOnAction(event ->
+            {
+                selectMouseMode(zoom_in);
+                plot.setMouseMode(MouseMode.ZOOM_IN);
+            });
+            zoom_out.setOnAction(event ->
+            {
+                selectMouseMode(zoom_out);
+                plot.setMouseMode(MouseMode.ZOOM_OUT);
+            });
+            pan.setOnAction(event ->
+            {
+                selectMouseMode(pan);
+                plot.setMouseMode(MouseMode.PAN);
+            });
+            pointer.setOnAction(event ->
+            {
+                selectMouseMode(pointer);
+                plot.setMouseMode(MouseMode.NONE);
+            });
+        }
     }
 
-    private void addUndo()
+    private void addUndo(final boolean active)
     {
         final Button undo = newButton(ToolIcons.UNDO, Messages.Undo_TT);
-        undo.setOnAction(event -> plot.getUndoableActionManager().undoLast());
-
         final Button redo = newButton(ToolIcons.REDO, Messages.Redo_TT);
-        redo.setOnAction(event -> plot.getUndoableActionManager().redoLast());
-
         final UndoableActionManager undo_mgr = plot.getUndoableActionManager();
         undo.setDisable(!undo_mgr.canUndo());
         redo.setDisable(!undo_mgr.canRedo());
-        undo_mgr.addListener((to_undo, to_redo) ->
+
+        if (active)
         {
-            Platform.runLater(()->
+            undo.setOnAction(event -> plot.getUndoableActionManager().undoLast());
+            redo.setOnAction(event -> plot.getUndoableActionManager().redoLast());
+            undo_mgr.addListener((to_undo, to_redo) ->
             {
-                if (to_undo == null)
+                Platform.runLater(()->
                 {
-                    undo.setDisable(true);
-                    undo.setTooltip(new Tooltip(Messages.Undo_TT));
-                }
-                else
-                {
-                    undo.setDisable(false);
-                    undo.setTooltip(new Tooltip(NLS.bind(Messages.Undo_Fmt_TT, to_undo)));
-                }
-                if (to_redo == null)
-                {
-                    redo.setDisable(true);
-                    redo.setTooltip(new Tooltip(Messages.Redo_TT));
-                }
-                else
-                {
-                    redo.setDisable(false);
-                    redo.setTooltip(new Tooltip(NLS.bind(Messages.Redo_Fmt_TT, to_redo)));
-                }
+                    if (to_undo == null)
+                    {
+                        undo.setDisable(true);
+                        undo.setTooltip(new Tooltip(Messages.Undo_TT));
+                    }
+                    else
+                    {
+                        undo.setDisable(false);
+                        undo.setTooltip(new Tooltip(NLS.bind(Messages.Undo_Fmt_TT, to_undo)));
+                    }
+                    if (to_redo == null)
+                    {
+                        redo.setDisable(true);
+                        redo.setTooltip(new Tooltip(Messages.Redo_TT));
+                    }
+                    else
+                    {
+                        redo.setDisable(false);
+                        redo.setTooltip(new Tooltip(NLS.bind(Messages.Redo_Fmt_TT, to_redo)));
+                    }
+                });
             });
-        });
+        }
     }
 
     private Button newButton(final ToolIcons icon, final String tool_tip)

@@ -74,6 +74,15 @@ public class ModelResourceUtil extends ResourceUtil
                isURL(path);
     }
 
+    private static String[] splitPath(final String path)
+    {
+        // If path starts with "/",
+        // this would result in a list initial empty element.
+        if (path.startsWith("/"))
+            return path.substring(1).split("/");
+        return path.split("/");
+    }
+
     /** Obtain a relative path
      *
      *  <p>Returns original 'path' if it cannot be expressed
@@ -82,24 +91,26 @@ public class ModelResourceUtil extends ResourceUtil
      *  @param path Path to make relative, for example "/one/of/my/alternate_dirs/example.bob"
      *  @return Relative path, e.d. "../alternate_dirs/example.bob"
      */
-    public static String getRelativePath(final String parent, final String path)
+    public static String getRelativePath(final String parent, String path)
     {
-        // Locate common path elements
-        final String[] parent_elements = getDirectory(parent).split("/");
-        final String[] path_elements = normalize(path).split("/");
-        final int len = Math.min(parent_elements.length, path_elements.length);
-        int i;
-        for (i=0; i<len; ++i)
-            if (! parent_elements[i].equals(path_elements[i]))
-                break;
-        // Anything in common?
-        if (i == 0  ||
-            (i == 1 && parent_elements[0].length() == 0))
+        // If path already appears to be relative, leave it that way
+        path = normalize(path);
+        if (! isAbsolute(path))
             return path;
+
+        // Locate common path elements
+        final String[] parent_elements = splitPath(getDirectory(parent));
+        final String[] path_elements = splitPath(path);
+        final int len = Math.min(parent_elements.length, path_elements.length);
+        int common;
+        for (common=0; common<len; ++common)
+            if (! parent_elements[common].equals(path_elements[common]))
+                break;
+        final int difference = parent_elements.length - common;
 
         // Go 'up' from the parent directory to the common directory
         final StringBuilder relative = new StringBuilder();
-        for (int up = parent_elements.length - i; up > 0; --up)
+        for (int up = difference; up > 0; --up)
         {
             if (relative.length() > 0)
                 relative.append("/");
@@ -107,11 +118,11 @@ public class ModelResourceUtil extends ResourceUtil
         }
 
         // Go down from common directory
-        for (/**/; i<path_elements.length; ++i)
+        for (/**/; common<path_elements.length; ++common)
         {
             if (relative.length() > 0)
                 relative.append("/");
-            relative.append(path_elements[i]);
+            relative.append(path_elements[common]);
         }
 
         return relative.toString();
