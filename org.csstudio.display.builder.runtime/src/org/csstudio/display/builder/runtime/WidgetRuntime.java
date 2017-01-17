@@ -436,12 +436,17 @@ public class WidgetRuntime<MW extends Widget>
     {
         final String expanded = MacroHandler.replace(widget.getMacrosOrProperties(), pv_name);
         String name_to_check = expanded;
-        // For local PV, strip optional initializer
-        if (expanded.startsWith("loc://"))
+        // For local PV,
+        if (name_to_check.startsWith("loc://"))
         {
-            final int sep = expanded.indexOf('(');
+            // strip optional data type ...
+            int sep = name_to_check.indexOf('<');
             if (sep > 0)
-                name_to_check = expanded.substring(0, sep);
+                name_to_check = name_to_check.substring(0, sep);
+            // or initializer ..
+            sep = name_to_check.indexOf('(');
+            if (sep > 0)
+                name_to_check = name_to_check.substring(0, sep);
         }
         final List<RuntimePV> safe_pvs = writable_pvs;
         if (safe_pvs != null)
