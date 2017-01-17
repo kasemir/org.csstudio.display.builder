@@ -106,7 +106,6 @@ public class DataBrowserWidget extends VisibleWidget
     public DataBrowserWidget()
     {
         super(WIDGET_DESCRIPTOR.getType(), 200, 200);
-        model.setMacros(this.getMacrosOrProperties());
     }
 
     @Override

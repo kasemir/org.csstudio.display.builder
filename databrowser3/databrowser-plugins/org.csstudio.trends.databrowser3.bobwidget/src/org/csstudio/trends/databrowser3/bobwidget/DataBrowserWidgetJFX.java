@@ -139,6 +139,7 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Pane, DataBrowse
             if (safe_stream != null)
                 try
                 {
+                    model_widget.getDataBrowserModel().setMacros(model_widget.getEffectiveMacros());
                     new XMLPersistence().load(model_widget.getDataBrowserModel(), safe_stream);
                 }
                 catch (Exception ex)
