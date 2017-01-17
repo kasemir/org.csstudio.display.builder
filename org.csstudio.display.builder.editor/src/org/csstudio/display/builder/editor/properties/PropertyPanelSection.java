@@ -284,6 +284,8 @@ public class PropertyPanelSection extends GridPane
             final MacroizedWidgetProperty<?> macro_prop = (MacroizedWidgetProperty<?>)property;
             final TextField text = new TextField();
             text.setPromptText(macro_prop.getDefaultValue().toString());
+            // For now properties that hold a PV name contain "pv" in their name:
+            // "pv_name", "selection_value_pv", "x_pv", "y_pv", ...
             final MacroizedWidgetPropertyBinding binding = (property.getName().contains("pv"))
                 ? new MacroizedWidgetPropertyBinding(undo, text, macro_prop, other)
                 {

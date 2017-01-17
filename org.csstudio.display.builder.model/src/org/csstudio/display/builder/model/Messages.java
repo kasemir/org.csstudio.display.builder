@@ -74,6 +74,7 @@ public class Messages extends NLS
     public static String PlotWidget_PointSize;
     public static String PlotWidget_PointType;
     public static String PlotWidget_ScaleFont;
+    public static String PlotWidget_SelectionValuePV;
     public static String PlotWidget_ShowGrid;
     public static String PlotWidget_ShowLegend;
     public static String PlotWidget_ShowToolbar;

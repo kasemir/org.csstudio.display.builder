@@ -7,15 +7,14 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.bobwidget;
 
+import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineStyle;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLineWidth;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propMacros;
 
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Messages;
@@ -31,8 +30,6 @@ import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.XMLUtil;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
-import org.csstudio.display.builder.model.properties.CommonWidgetProperties.WidgetLineStyle;
-import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.widgets.VisibleWidget;
 import org.csstudio.trends.databrowser3.model.Model;
@@ -98,16 +95,13 @@ public class DataBrowserWidget extends VisibleWidget
     public static final WidgetPropertyDescriptor<Boolean> propShowToolbar =
         CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "show_toolbar", Messages.PlotWidget_ShowToolbar);
 
+    public static final WidgetPropertyDescriptor<String> propSelectionValuePV =
+        CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "selection_value_pv", Messages.PlotWidget_SelectionValuePV);
+
     private volatile WidgetProperty<Boolean> show_toolbar;
     private volatile WidgetProperty<String> filename;
     private volatile WidgetProperty<Macros> macros;
-
-    //TODO: more properties: show/hide legend, show/hide title, title text... others?
-
-    //TODO: configure these from border_color, border_width
-    private volatile WidgetProperty<WidgetColor> line_color;
-    private volatile WidgetProperty<Integer> line_width;
-    private volatile WidgetProperty<WidgetLineStyle> line_style;
+    private volatile WidgetProperty<String> selection_value_pv;
 
     public DataBrowserWidget()
     {
@@ -121,10 +115,8 @@ public class DataBrowserWidget extends VisibleWidget
         super.defineProperties(properties);
         properties.add(filename = propFile.createProperty(this, ""));
         properties.add(show_toolbar = propShowToolbar.createProperty(this, true));
-        properties.add(line_width = propLineWidth.createProperty(this, 2));
-        properties.add(line_color = propLineColor.createProperty(this, new WidgetColor(0, 0, 255)));
-        properties.add(line_style = propLineStyle.createProperty(this, WidgetLineStyle.SOLID));
         properties.add(macros = propMacros.createProperty(this, new Macros()));
+        properties.add(selection_value_pv = propSelectionValuePV.createProperty(this, ""));
     }
 
     @Override
@@ -153,7 +145,7 @@ public class DataBrowserWidget extends VisibleWidget
         return macros;
     }
 
-    /** @return 'text' property */
+    /** @return 'file' property */
     public WidgetProperty<String> propFile()
     {
         return filename;
@@ -165,31 +157,22 @@ public class DataBrowserWidget extends VisibleWidget
         return show_toolbar;
     }
 
-    /** @return 'show_toolbar' property */
-    public WidgetProperty<WidgetColor> propLineColor()
+    /** @return 'selection_value_pv' property */
+    public WidgetProperty<String> propSelectionValuePVName()
     {
-        return line_color;
+        return selection_value_pv;
     }
 
-    /** @return 'show_toolbar' property */
-    public WidgetProperty<Integer> propLineWidth()
-    {
-        return line_width;
-    }
-
-    /** @return 'show_toolbar' property */
-    public WidgetProperty<WidgetLineStyle> propLineStyle()
-    {
-        return line_style;
-    }
-
-
-    public Model getModel() {
+    /** @return {@link Model} of the data browser (samples, ...) */
+    public Model getDataBrowserModel()
+    {   // TODO Move this to the DataBrowserWidgetRuntime since it's really a runtime aspect
         return model;
     }
 
-    public Model cloneModel() {
-        //TODO: see about copying over live samples from old to new model
+    public Model cloneModel()
+    {
+        // TODO Move to DataBrowserWidgetRuntime
+        // XXX: see about copying over live samples from old to new model
         final Model model = new Model();
         model.setMacros(this.getMacrosOrProperties());
         try
@@ -197,44 +180,39 @@ public class DataBrowserWidget extends VisibleWidget
             final InputStream input = this.getFileInputStream();
             new XMLPersistence().load(model, input);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Cannot create copy of data browser", ex);
         }
         return model;
     }
 
-    public InputStream getFileInputStream(final String base_path) {
-        InputStream stream;
-        String file_path;
-
+    public InputStream getFileInputStream(final String base_path)
+    {
+        final String file_path;
         try
         {
             file_path = this.getExpandedFilename(base_path);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            //TODO: change to logging message
-            System.out.println("Failure resolving image path from base path: " + base_path);
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Failure resolving image path from base path: " + base_path, ex);
             return null;
         }
 
         try
         {
-            stream = ModelResourceUtil.openResourceStream(file_path);
+            return ModelResourceUtil.openResourceStream(file_path);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            //System.out.println("Failure loading plot file:" + file_path);
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Failure loading plot file: " + file_path, ex);
             return null;
         }
-
-        return stream;
     }
 
-    public InputStream getFileInputStream() {
+    public InputStream getFileInputStream()
+    {
         return this.getFileInputStream(this.filename.getValue());
     }
 
