@@ -15,9 +15,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.csstudio.apputil.macros.IMacroTableProvider;
 import org.csstudio.apputil.macros.InfiniteLoopException;
 import org.csstudio.apputil.macros.MacroTable;
 import org.csstudio.apputil.macros.MacroUtil;
+import org.csstudio.display.builder.model.macros.MacroValueProvider;
 import org.csstudio.opibuilder.model.AbstractContainerModel;
 import org.csstudio.opibuilder.model.AbstractWidgetModel;
 import org.csstudio.opibuilder.properties.BooleanProperty;
@@ -77,7 +79,9 @@ public class DataBrowserWidgedModel extends AbstractContainerModel
     public Model createDataBrowserModel() throws CoreException, Exception
     {
         final Model model = new Model();
-        //model.setMacros(getAllMacros());
+        final IMacroTableProvider opi_macros = getAllMacros();
+        final MacroValueProvider db_macros = name -> opi_macros.getMacroValue(name);
+        model.setMacros(db_macros);
         try
         (
             final InputStream input = SingleSourcePlugin.getResourceHelper().getInputStream(getExpandedFilename());

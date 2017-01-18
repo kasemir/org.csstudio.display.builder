@@ -20,7 +20,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.csstudio.ui.util;resolution:=optional,
  org.csstudio.opibuilder.widgets;bundle-version="1.0.5",
  org.csstudio.opibuilder;bundle-version="1.0.6",
- org.csstudio.javafx.rtplot;bundle-version="1.0.0"
+ org.csstudio.javafx.rtplot;bundle-version="1.0.0",
+ org.csstudio.display.builder.model
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Description: BOY widget that displays Data Browser plot

@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model.macros;
 /** Interface that provides a value for a macro
  *  @author Kay Kasemir
  */
+@FunctionalInterface
 public interface MacroValueProvider
 {
     /** Get value for macro
