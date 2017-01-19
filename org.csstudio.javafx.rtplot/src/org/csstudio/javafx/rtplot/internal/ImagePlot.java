@@ -18,6 +18,7 @@ import java.awt.image.DataBufferInt;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.ToDoubleFunction;
 import java.util.logging.Level;
 
 import org.csstudio.javafx.ChildCare;
@@ -32,6 +33,9 @@ import org.csstudio.javafx.rtplot.RegionOfInterest;
 import org.csstudio.javafx.rtplot.internal.undo.ChangeImageZoom;
 import org.csstudio.javafx.rtplot.internal.util.GraphicsUtils;
 import org.csstudio.javafx.rtplot.internal.util.LinearScreenTransform;
+import org.diirt.util.array.ArrayByte;
+import org.diirt.util.array.ArrayInt;
+import org.diirt.util.array.ArrayShort;
 import org.diirt.util.array.IteratorNumber;
 import org.diirt.util.array.ListNumber;
 
@@ -361,6 +365,22 @@ public class ImagePlot extends PlotCanvasBase
         x_axis.setBounds(image_area.x, image_area.height, image_area.width, x_axis_height);
     }
 
+    // Functionals for reading the next Number as an unsigned value
+    private static double getUnsignedByte(final IteratorNumber iter)
+    {
+        return Byte.toUnsignedInt(iter.nextByte());
+    }
+
+    private static double getUnsignedShort(final IteratorNumber iter)
+    {
+        return Short.toUnsignedInt(iter.nextShort());
+    }
+
+    private static double getUnsignedInt(final IteratorNumber iter)
+    {
+        return Integer.toUnsignedLong(iter.nextInt());
+    }
+
     /** Draw all components into image buffer */
     @Override
     protected BufferedImage updateImageBuffer()
@@ -395,22 +415,38 @@ public class ImagePlot extends PlotCanvasBase
         double min = this.min, max = this.max;
         final ColorMappingFunction color_mapping = this.color_mapping;
 
-        if (autoscale  &&  numbers != null)
-        {   // Compute min..max before layout of color bar
-            final IteratorNumber iter = numbers.iterator();
-            min = Double.MAX_VALUE;
-            max = Double.NEGATIVE_INFINITY;
-            while (iter.hasNext())
+        ToDoubleFunction<IteratorNumber> next_sample_func = IteratorNumber::nextDouble;
+        if (numbers != null)
+        {
+            if (unsigned)
             {
-                final double sample = iter.nextDouble();
-                if (sample > max)
-                    max = sample;
-                if (sample < min)
-                    min = sample;
+                if (numbers instanceof ArrayShort)
+                    next_sample_func = ImagePlot::getUnsignedShort;
+                else if (numbers instanceof ArrayByte)
+                    next_sample_func = ImagePlot::getUnsignedByte;
+                else if (numbers instanceof ArrayInt)
+                    next_sample_func = ImagePlot::getUnsignedInt;
+                else
+                    logger.log(Level.WARNING, "Cannot handle unsigned data of type " + numbers.getClass().getName());
             }
-            logger.log(Level.FINE, "Autoscale range {0} .. {1}", new Object[] { min, max });
+
+            if (autoscale)
+            {   // Compute min..max before layout of color bar
+                final IteratorNumber iter = numbers.iterator();
+                min = Double.MAX_VALUE;
+                max = Double.NEGATIVE_INFINITY;
+                while (iter.hasNext())
+                {
+                    final double sample = next_sample_func.applyAsDouble(iter);
+                    if (sample > max)
+                        max = sample;
+                    if (sample < min)
+                        min = sample;
+                }
+                logger.log(Level.FINE, "Autoscale range {0} .. {1}", new Object[] { min, max });
+            }
+            colorbar_axis.setValueRange(min, max);
         }
-        colorbar_axis.setValueRange(min, max);
 
         if (need_layout.getAndSet(false))
             computeLayout(gc, area_copy, min, max);
@@ -426,56 +462,59 @@ public class ImagePlot extends PlotCanvasBase
 //        gc.drawLine(image_area.width-1, image_area.height-1, 0, image_area.height-1);
 //        gc.drawLine(0, image_area.height-1, 0, 0);
 
-        // Paint the image
-        final BufferedImage unscaled = drawData(data_width, data_height, numbers, unsigned, min, max, color_mapping);
-        if (unscaled != null)
+        if (numbers != null)
         {
-            // Transform from full axis range into data range,
-            // using the current 'zoom' state of each axis
-            final LinearScreenTransform t = new LinearScreenTransform();
-            AxisRange<Double> zoomed = x_axis.getValueRange();
-            t.config(min_x, max_x, 0, data_width);
-            // Round down .. up to always cover the image_area
-            final int src_x1 = Math.max(0,          (int)t.transform(zoomed.getLow()));
-            final int src_x2 = Math.min(data_width, (int)(t.transform(zoomed.getHigh()) + 1));
-
-            // Pixels of the image need to be aligned to their axis location,
-            // especially when zoomed way in and the pixels are huge.
-            // Turn pixel back into axis value, and then determine its destination on screen.
-            final int dst_x1 = x_axis.getScreenCoord(t.inverse(src_x1));
-            final int dst_x2 = x_axis.getScreenCoord(t.inverse(src_x2));
-
-            // For Y axis, min_y == bottom == data_height
-            zoomed = y_axis.getValueRange();
-            t.config(min_y, max_y, data_height, 0);
-            final int src_y1 = Math.max(0,           (int) t.transform(zoomed.getHigh()));
-            final int src_y2 = Math.min(data_height, (int) (t.transform(zoomed.getLow() ) + 1));
-            final int dst_y1 = y_axis.getScreenCoord(t.inverse(src_y1));
-            final int dst_y2 = y_axis.getScreenCoord(t.inverse(src_y2));
-
-            switch (interpolation)
+            // Paint the image
+            final BufferedImage unscaled = drawData(data_width, data_height, numbers, next_sample_func, min, max, color_mapping);
+            if (unscaled != null)
             {
-            case NONE:
-                gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-                break;
-            case INTERPOLATE:
-                gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-                break;
-            default:
-                // If image is smaller than screen area, show the actual pixels
-                if ((src_x2-src_x1) < image_area.width  &&   (src_y2-src_y1) < image_area.height)
+                // Transform from full axis range into data range,
+                // using the current 'zoom' state of each axis
+                final LinearScreenTransform t = new LinearScreenTransform();
+                AxisRange<Double> zoomed = x_axis.getValueRange();
+                t.config(min_x, max_x, 0, data_width);
+                // Round down .. up to always cover the image_area
+                final int src_x1 = Math.max(0,          (int)t.transform(zoomed.getLow()));
+                final int src_x2 = Math.min(data_width, (int)(t.transform(zoomed.getHigh()) + 1));
+
+                // Pixels of the image need to be aligned to their axis location,
+                // especially when zoomed way in and the pixels are huge.
+                // Turn pixel back into axis value, and then determine its destination on screen.
+                final int dst_x1 = x_axis.getScreenCoord(t.inverse(src_x1));
+                final int dst_x2 = x_axis.getScreenCoord(t.inverse(src_x2));
+
+                // For Y axis, min_y == bottom == data_height
+                zoomed = y_axis.getValueRange();
+                t.config(min_y, max_y, data_height, 0);
+                final int src_y1 = Math.max(0,           (int) t.transform(zoomed.getHigh()));
+                final int src_y2 = Math.min(data_height, (int) (t.transform(zoomed.getLow() ) + 1));
+                final int dst_y1 = y_axis.getScreenCoord(t.inverse(src_y1));
+                final int dst_y2 = y_axis.getScreenCoord(t.inverse(src_y2));
+
+                switch (interpolation)
+                {
+                case NONE:
                     gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-                else
-                    // If image is larger than screen area, use best possible interpolation
-                    // to avoid artifacts from statistically picking some specific nearest neighbor
+                    break;
+                case INTERPOLATE:
                     gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                    break;
+                default:
+                    // If image is smaller than screen area, show the actual pixels
+                    if ((src_x2-src_x1) < image_area.width  &&   (src_y2-src_y1) < image_area.height)
+                        gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+                    else
+                        // If image is larger than screen area, use best possible interpolation
+                        // to avoid artifacts from statistically picking some specific nearest neighbor
+                        gc.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                }
+                gc.setClip(image_area.x, image_area.y, image_area.width, image_area.height);
+                gc.drawImage(unscaled,
+                             dst_x1, dst_y1, dst_x2, dst_y2,
+                             src_x1,  src_y1,  src_x2,  src_y2,
+                             /* ImageObserver */ null);
+                gc.setClip(0, 0, area_copy.width, area_copy.height);
             }
-            gc.setClip(image_area.x, image_area.y, image_area.width, image_area.height);
-            gc.drawImage(unscaled,
-                         dst_x1, dst_y1, dst_x2, dst_y2,
-                         src_x1,  src_y1,  src_x2,  src_y2,
-                         /* ImageObserver */ null);
-            gc.setClip(0, 0, area_copy.width, area_copy.height);
         }
 
         // Axes
@@ -591,14 +630,14 @@ public class ImagePlot extends PlotCanvasBase
     /** @param data_width
      *  @param data_height
      *  @param numbers
-     *  @param unsigned
+     *  @param next_sample_func
      *  @param min
      *  @param max
      *  @param color_mapping
      *  @return {@link BufferedImage}, sized to match data
      */
     private static BufferedImage drawData(final int data_width, final int data_height, final ListNumber numbers,
-                                          final boolean unsigned,
+                                          final ToDoubleFunction<IteratorNumber> next_sample_func,
                                           final double min, final double max, final ColorMappingFunction color_mapping)
     {
         if (data_width <= 0  ||  data_height <= 0)
@@ -631,34 +670,17 @@ public class ImagePlot extends PlotCanvasBase
         final IteratorNumber iter = numbers.iterator();
         int idx = 0;
         final double span = max - min;
-        if (unsigned)
-        {   // Avoid 'unsigned' check inside the loop, instead copy the loop code
-            for (int y=0; y<data_height; ++y)
-                for (int x=0; x<data_width; ++x)
-                {
-                    final double sample = Integer.toUnsignedLong(iter.nextInt());
-                    double scaled = (sample - min) / span;
-                    if (scaled < 0.0)
-                        scaled = 0;
-                    else if (scaled > 1.0)
-                        scaled = 1.0;
-                    data[idx++] = color_mapping.getRGB(scaled);
-                }
-        }
-        else
-        {
-            for (int y=0; y<data_height; ++y)
-                for (int x=0; x<data_width; ++x)
-                {
-                    final double sample = iter.nextDouble();
-                    double scaled = (sample - min) / span;
-                    if (scaled < 0.0)
-                        scaled = 0;
-                    else if (scaled > 1.0)
-                        scaled = 1.0;
-                    data[idx++] = color_mapping.getRGB(scaled);
-                }
-        }
+        for (int y=0; y<data_height; ++y)
+            for (int x=0; x<data_width; ++x)
+            {
+                final double sample = next_sample_func.applyAsDouble(iter);
+                double scaled = (sample - min) / span;
+                if (scaled < 0.0)
+                    scaled = 0;
+                else if (scaled > 1.0)
+                    scaled = 1.0;
+                data[idx++] = color_mapping.getRGB(scaled);
+            }
 
         // final long nano = System.nanoTime() - start;
         // avg_nano = (avg_nano*3 + nano)/4;
@@ -901,7 +923,26 @@ public class ImagePlot extends PlotCanvasBase
             image_y = data_height - 1;
 
         final ListNumber data = image_data;
-        final double pixel = data == null ? Double.NaN : data.getDouble(image_x + image_y * data_width);
+        final double pixel;
+        if (data == null)
+            pixel = Double.NaN;
+        else
+        {
+            final int offset = image_x + image_y * data_width;
+            if (unsigned_data)
+            {
+                if (data instanceof ArrayByte)
+                    pixel = Byte.toUnsignedInt(data.getByte(offset));
+                else if (data instanceof ArrayShort)
+                        pixel = Short.toUnsignedInt(data.getShort(offset));
+                else if (data instanceof ArrayInt)
+                    pixel = Integer.toUnsignedLong(data.getInt(offset));
+                else
+                    pixel = data.getDouble(offset);
+            }
+            else
+                pixel = data.getDouble(offset);
+        }
         if (listener != null)
             listener.changedCursorInfo(x_val, y_val, image_x, image_y, pixel);
         requestRedraw();
