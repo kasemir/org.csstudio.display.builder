@@ -28,6 +28,7 @@ import org.csstudio.display.builder.model.widgets.ArrayWidget;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
 import org.csstudio.display.builder.model.widgets.ByteMonitorWidget;
 import org.csstudio.display.builder.model.widgets.CheckBoxWidget;
+import org.csstudio.display.builder.model.widgets.ClockWidget;
 import org.csstudio.display.builder.model.widgets.ComboWidget;
 import org.csstudio.display.builder.model.widgets.EllipseWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
@@ -119,6 +120,7 @@ public class WidgetFactory
         addWidgetType(BoolButtonWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ByteMonitorWidget.WIDGET_DESCRIPTOR);
         addWidgetType(CheckBoxWidget.WIDGET_DESCRIPTOR);
+        addWidgetType(ClockWidget.WIDGET_DESCRIPTOR);
         addWidgetType(ComboWidget.WIDGET_DESCRIPTOR);
         addWidgetType(EllipseWidget.WIDGET_DESCRIPTOR);
         addWidgetType(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR);

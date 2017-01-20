@@ -142,6 +142,8 @@ public class Messages extends NLS
     public static String WidgetProperties_BackgroundColor;
     public static String WidgetProperties_Bit;
     public static String WidgetProperties_BorderAlarmSensitive;
+    public static String WidgetProperties_BorderColor;
+    public static String WidgetProperties_BorderWidth;
     public static String WidgetProperties_CellColors;
     public static String WidgetProperties_Class;
     public static String WidgetProperties_ColorMap;
@@ -155,6 +157,8 @@ public class Messages extends NLS
     public static String WidgetProperties_CursorYPV;
     public static String WidgetProperties_DataHeight;
     public static String WidgetProperties_DataWidth;
+    public static String WidgetProperties_DateColor;
+    public static String WidgetProperties_DateVisible;
     public static String WidgetProperties_Direction;
     public static String WidgetProperties_EmptyColor;
     public static String WidgetProperties_Enabled;
@@ -201,6 +205,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ResizeBehavior;
     public static String WidgetProperties_Rotation;
     public static String WidgetProperties_Rules;
+    public static String WidgetProperties_Running;
     public static String WidgetProperties_ScaleFactor;
     public static String WidgetProperties_ScaleFormat;
     public static String WidgetProperties_Scripts;
@@ -213,6 +218,7 @@ public class Messages extends NLS
     public static String WidgetProperties_ShowMinorTicks;
     public static String WidgetProperties_ShowScale;
     public static String WidgetProperties_ShowUnits;
+    public static String WidgetProperties_Skin;
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Text;
     public static String WidgetProperties_Tooltip;

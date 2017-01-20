@@ -37,6 +37,7 @@ import org.csstudio.display.builder.model.widgets.ArrayWidget;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
 import org.csstudio.display.builder.model.widgets.ByteMonitorWidget;
 import org.csstudio.display.builder.model.widgets.CheckBoxWidget;
+import org.csstudio.display.builder.model.widgets.ClockWidget;
 import org.csstudio.display.builder.model.widgets.ComboWidget;
 import org.csstudio.display.builder.model.widgets.EllipseWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
@@ -71,6 +72,7 @@ import org.csstudio.display.builder.representation.javafx.widgets.ArrayRepresent
 import org.csstudio.display.builder.representation.javafx.widgets.BoolButtonRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ByteMonitorRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.CheckBoxRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.ClockRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.ComboRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.EllipseRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.EmbeddedDisplayRepresentation;
@@ -233,6 +235,7 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
         factories.put(BoolButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new BoolButtonRepresentation());
         factories.put(ByteMonitorWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ByteMonitorRepresentation());
         factories.put(CheckBoxWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new CheckBoxRepresentation());
+        factories.put(ClockWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ClockRepresentation());
         factories.put(ComboWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ComboRepresentation());
         factories.put(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new EmbeddedDisplayRepresentation());
         factories.put(EllipseWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new EllipseRepresentation());

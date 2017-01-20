@@ -80,6 +80,14 @@
          </alternates>
       </widget>
       <widget
+            category="MISC"
+            class="org.csstudio.display.builder.model.widgets.ClockWidget"
+            description="%ClockWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/clock.png"
+            name="%ClockWidget_Name"
+            type="clock">
+      </widget>
+      <widget
             category="CONTROL"
             class="org.csstudio.display.builder.model.widgets.ComboWidget"
             description="%ComboWidget_Description"
