@@ -459,11 +459,14 @@ public class Model
         // Add to model
         items.add(item);
         item.setModel(this);
-        if (is_running  &&  item instanceof PVItem)
-            ((PVItem)item).start();
         // Notify listeners of new item
+        // This allows controller to add item to plot
         for (ModelListener listener : listeners)
             listener.itemAdded(item);
+        // Now start PV, which might update the plot's labels to
+        // reflect units and thus must happen after listeners have been called
+        if (is_running  &&  item instanceof PVItem)
+            ((PVItem)item).start();
     }
 
     /** Remove item from the model.

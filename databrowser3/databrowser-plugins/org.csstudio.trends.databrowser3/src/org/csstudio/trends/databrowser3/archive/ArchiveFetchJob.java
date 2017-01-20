@@ -26,12 +26,12 @@ import org.csstudio.trends.databrowser3.model.PVItem;
 import org.csstudio.trends.databrowser3.model.RequestType;
 import org.csstudio.trends.databrowser3.model.TimeHelper;
 import org.csstudio.trends.databrowser3.preferences.Preferences;
+import org.diirt.vtype.VType;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.osgi.util.NLS;
-import org.diirt.vtype.VType;
 
 /** Eclipse Job for fetching archived data.
  *  <p>
@@ -217,7 +217,7 @@ public class ArchiveFetchJob extends Job
             final Instant end, final ArchiveFetchJobListener listener, boolean enableConcurrency)
     {
         super(NLS.bind(Messages.ArchiveFetchJobFmt,
-                new Object[] { item.getName(), TimeHelper.format(start),
+                new Object[] { item.getResolvedDisplayName(), TimeHelper.format(start),
                         TimeHelper.format(end) }));
         this.item = item;
         this.start = start;
