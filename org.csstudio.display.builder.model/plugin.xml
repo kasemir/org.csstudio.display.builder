@@ -102,6 +102,14 @@
          </alternates>
       </widget>
       <widget
+            category="MISC"
+            class="org.csstudio.display.builder.model.widgets.DigitalClockWidget"
+            description="%DigitalClockWidget_Description"
+            icon="platform:/plugin/org.csstudio.display.builder.model/icons/digital-clock.png"
+            name="%DigitalClockWidget_Name"
+            type="digital_clock">
+      </widget>
+      <widget
             category="GRAPHIC"
             class="org.csstudio.display.builder.model.widgets.EllipseWidget"
             description="%EllipseWidget_Description"

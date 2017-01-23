@@ -52,12 +52,13 @@ public class ClockWidget extends VisibleWidget {
     public enum Skin {
 
         CLOCK(Clock.ClockSkinType.CLOCK),
-        DIGITAL(Clock.ClockSkinType.DIGITAL),
+        DB(Clock.ClockSkinType.DB),
+        FAT(Clock.ClockSkinType.FAT),
         INDUSTRIAL(Clock.ClockSkinType.INDUSTRIAL),
+        LCD(Clock.ClockSkinType.LCD),
         PEAR(Clock.ClockSkinType.PEAR),
         PLAIN(Clock.ClockSkinType.PLAIN),
         SLIM(Clock.ClockSkinType.SLIM),
-        TEXT(Clock.ClockSkinType.TEXT),
         TILE(Clock.ClockSkinType.TILE),
         YOTA2(Clock.ClockSkinType.YOTA2);
 
@@ -90,12 +91,20 @@ public class ClockWidget extends VisibleWidget {
     public static final WidgetPropertyDescriptor<Boolean>     propRunning               = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "running",                  Messages.WidgetProperties_Running);
     public static final WidgetPropertyDescriptor<WidgetColor> propSecondColor           = CommonWidgetProperties.newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "second_color",             Messages.WidgetProperties_SecondColor);
     public static final WidgetPropertyDescriptor<Boolean>     propSecondVisible         = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "second_visible",           Messages.WidgetProperties_SecondVisible);
+    public static final WidgetPropertyDescriptor<Boolean>     propShadowsEnabled        = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "shadows_enabled",          Messages.WidgetProperties_ShadowsEnabled);
     public static final WidgetPropertyDescriptor<Skin>        propSkin                  = new WidgetPropertyDescriptor<Skin>                 (WidgetPropertyCategory.WIDGET,   "skin",                     Messages.WidgetProperties_Skin) {
         @Override
         public EnumWidgetProperty<Skin> createProperty ( Widget widget, Skin defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
+    public static final WidgetPropertyDescriptor<WidgetColor> propTextColor             = CommonWidgetProperties.newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "text_color",               Messages.WidgetProperties_TextColor);
+    public static final WidgetPropertyDescriptor<Boolean>     propTextVisible           = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "text_visible",             Messages.WidgetProperties_TextVisible);
+    public static final WidgetPropertyDescriptor<WidgetColor> propTickLabelColor        = CommonWidgetProperties.newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "tick_label_color",         Messages.WidgetProperties_TickLabelColor);
+    public static final WidgetPropertyDescriptor<Boolean>     propTickLabelVisible      = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "tick_label_visible",       Messages.WidgetProperties_TickLabelVisible);
+    public static final WidgetPropertyDescriptor<String>      propTitle                 = CommonWidgetProperties.newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "title",                    Messages.WidgetProperties_Title);
+    public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor            = CommonWidgetProperties.newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "title_color",              Messages.WidgetProperties_TitleColor);
+    public static final WidgetPropertyDescriptor<Boolean>     propTitleVisible          = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "title_visible",            Messages.WidgetProperties_TitleVisible);
 
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<WidgetColor> borderColor;
@@ -115,7 +124,15 @@ public class ClockWidget extends VisibleWidget {
     private volatile WidgetProperty<Boolean>     running;
     private volatile WidgetProperty<WidgetColor> secondColor;
     private volatile WidgetProperty<Boolean>     secondVisible;
+    private volatile WidgetProperty<Boolean>     shadowsEnabled;
     private volatile WidgetProperty<Skin>        skin;
+    private volatile WidgetProperty<WidgetColor> textColor;
+    private volatile WidgetProperty<Boolean>     textVisible;
+    private volatile WidgetProperty<WidgetColor> tickLabelColor;
+    private volatile WidgetProperty<Boolean>     tickLabelVisible;
+    private volatile WidgetProperty<String>      title;
+    private volatile WidgetProperty<WidgetColor> titleColor;
+    private volatile WidgetProperty<Boolean>     titleVisible;
     private volatile WidgetProperty<Boolean>     transparent;
 
     public ClockWidget ( ) {
@@ -194,8 +211,40 @@ public class ClockWidget extends VisibleWidget {
         return secondVisible;
     }
 
+    public WidgetProperty<Boolean> propShadowsEnabled ( ) {
+        return shadowsEnabled;
+    }
+
     public WidgetProperty<Skin> propSkin ( ) {
         return skin;
+    }
+
+    public WidgetProperty<WidgetColor> propTextColor ( ) {
+        return textColor;
+    }
+
+    public WidgetProperty<Boolean> propTextVisible ( ) {
+        return textVisible;
+    }
+
+    public WidgetProperty<WidgetColor> propTickLabelColor ( ) {
+        return tickLabelColor;
+    }
+
+    public WidgetProperty<Boolean> propTickLabelVisible ( ) {
+        return tickLabelVisible;
+    }
+
+    public WidgetProperty<String> propTitle ( ) {
+        return title;
+    }
+
+    public WidgetProperty<WidgetColor> propTitleColor ( ) {
+        return titleColor;
+    }
+
+    public WidgetProperty<Boolean> propTitleVisible ( ) {
+        return titleVisible;
     }
 
     public WidgetProperty<Boolean> propTransparent ( ) {
@@ -207,27 +256,35 @@ public class ClockWidget extends VisibleWidget {
 
         super.defineProperties(properties);
 
-        properties.add(skin = propSkin.createProperty(this, Skin.PLAIN));
+        properties.add(skin                  = propSkin.createProperty(this, Skin.PLAIN));
 
-        properties.add(borderWidth           = propBorderWidth.createProperty(this, 4.7));
+        properties.add(background            = propBackgroundColor.createProperty(this, new WidgetColor(230, 230, 153)));
         properties.add(borderColor           = propBorderColor.createProperty(this, new WidgetColor(153, 230, 230)));
-        properties.add(dateVisible           = propDateVisible.createProperty(this, false));
+        properties.add(borderWidth           = propBorderWidth.createProperty(this, 4.7));
         properties.add(dateColor             = propDateColor.createProperty(this, new WidgetColor(102, 51, 102)));
+        properties.add(dateVisible           = propDateVisible.createProperty(this, false));
         properties.add(hourColor             = propHourColor.createProperty(this, new WidgetColor(255, 127, 80)));
-        properties.add(hourTickMarkVisible   = propHourTickMarkVisible.createProperty(this, true));
         properties.add(hourTickMarkColor     = propHourTickMarkColor.createProperty(this, new WidgetColor(196, 127, 80)));
+        properties.add(hourTickMarkVisible   = propHourTickMarkVisible.createProperty(this, true));
         properties.add(knobColor             = propKnobColor.createProperty(this, new WidgetColor(196, 127, 80)));
         properties.add(minuteColor           = propMinuteColor.createProperty(this, new WidgetColor(255, 136, 98)));
-        properties.add(minuteTickMarkVisible = propMinuteTickMarkVisible.createProperty(this, true));
         properties.add(minuteTickMarkColor   = propMinuteTickMarkColor.createProperty(this, new WidgetColor(196, 136, 98)));
-        properties.add(secondVisible         = propSecondVisible.createProperty(this, true));
+        properties.add(minuteTickMarkVisible = propMinuteTickMarkVisible.createProperty(this, true));
         properties.add(secondColor           = propSecondColor.createProperty(this, new WidgetColor(98, 196, 136)));
-        properties.add(background            = propBackgroundColor.createProperty(this, new WidgetColor(230, 230, 153)));
+        properties.add(secondVisible         = propSecondVisible.createProperty(this, true));
+        properties.add(shadowsEnabled        = propShadowsEnabled.createProperty(this, true));
+        properties.add(textColor             = propTextColor.createProperty(this, new WidgetColor(136, 196, 136)));
+        properties.add(textVisible           = propTextVisible.createProperty(this, false));
+        properties.add(tickLabelColor        = propTickLabelColor.createProperty(this, new WidgetColor(196, 136, 136)));
+        properties.add(tickLabelVisible      = propTickLabelVisible.createProperty(this, true));
+        properties.add(title                 = propTitle.createProperty(this, ""));
+        properties.add(titleColor            = propTitleColor.createProperty(this, new WidgetColor(136, 196, 136)));
+        properties.add(titleVisible          = propTitleVisible.createProperty(this, false));
         properties.add(transparent           = propTransparent.createProperty(this, false));
 
-        properties.add(discreteHours = propDiscreteHours.createProperty(this, false));
-        properties.add(discreteMinutes = propDiscreteMinutes.createProperty(this, false));
-        properties.add(discreteSeconds = propDiscreteSeconds.createProperty(this, false));
+        properties.add(discreteHours         = propDiscreteHours.createProperty(this, false));
+        properties.add(discreteMinutes       = propDiscreteMinutes.createProperty(this, false));
+        properties.add(discreteSeconds       = propDiscreteSeconds.createProperty(this, false));
 
         //  Properties not visible in the property sheet.
         running = propRunning.createProperty(this, true);

@@ -182,6 +182,8 @@ public class Messages extends NLS
     public static String WidgetProperties_HourTickMarkColor;
     public static String WidgetProperties_HourTickMarkVisible;
     public static String WidgetProperties_LabelsFromPV;
+    public static String WidgetProperties_LcdCrystalEnabled;
+    public static String WidgetProperties_LcdDesign;
     public static String WidgetProperties_Increment;
     public static String WidgetProperties_Insets;
     public static String WidgetProperties_Interactive;
@@ -223,6 +225,7 @@ public class Messages extends NLS
     public static String WidgetProperties_Scripts;
     public static String WidgetProperties_Selection;
     public static String WidgetProperties_SelectionPV;
+    public static String WidgetProperties_ShadowsEnabled;
     public static String WidgetProperties_ShowHigh;
     public static String WidgetProperties_ShowHiHi;
     public static String WidgetProperties_ShowLow;
@@ -233,6 +236,13 @@ public class Messages extends NLS
     public static String WidgetProperties_Skin;
     public static String WidgetProperties_StretchToFit;
     public static String WidgetProperties_Text;
+    public static String WidgetProperties_TextColor;
+    public static String WidgetProperties_TextVisible;
+    public static String WidgetProperties_TickLabelColor;
+    public static String WidgetProperties_TickLabelVisible;
+    public static String WidgetProperties_Title;
+    public static String WidgetProperties_TitleColor;
+    public static String WidgetProperties_TitleVisible;
     public static String WidgetProperties_Tooltip;
     public static String WidgetProperties_Transparent;
     public static String WidgetProperties_Type;
