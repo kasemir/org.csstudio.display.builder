@@ -160,6 +160,9 @@ public class Messages extends NLS
     public static String WidgetProperties_DateColor;
     public static String WidgetProperties_DateVisible;
     public static String WidgetProperties_Direction;
+    public static String WidgetProperties_DiscreteHours;
+    public static String WidgetProperties_DiscreteMinutes;
+    public static String WidgetProperties_DiscreteSeconds;
     public static String WidgetProperties_EmptyColor;
     public static String WidgetProperties_Enabled;
     public static String WidgetProperties_File;
@@ -175,11 +178,15 @@ public class Messages extends NLS
     public static String WidgetProperties_HeightPVName;
     public static String WidgetProperties_Horizontal;
     public static String WidgetProperties_HorizontalAlignment;
+    public static String WidgetProperties_HourColor;
+    public static String WidgetProperties_HourTickMarkColor;
+    public static String WidgetProperties_HourTickMarkVisible;
     public static String WidgetProperties_LabelsFromPV;
     public static String WidgetProperties_Increment;
     public static String WidgetProperties_Insets;
     public static String WidgetProperties_Interactive;
     public static String WidgetProperties_Interpolation;
+    public static String WidgetProperties_KnobColor;
     public static String WidgetProperties_LevelHigh;
     public static String WidgetProperties_LevelHiHi;
     public static String WidgetProperties_LevelLow;
@@ -191,6 +198,9 @@ public class Messages extends NLS
     public static String WidgetProperties_MajorTickStepHint;
     public static String WidgetProperties_Maximum;
     public static String WidgetProperties_Minimum;
+    public static String WidgetProperties_MinuteColor;
+    public static String WidgetProperties_MinuteTickMarkColor;
+    public static String WidgetProperties_MinuteTickMarkVisible;
     public static String WidgetProperties_MultiLine;
     public static String WidgetProperties_Name;
     public static String WidgetProperties_OffColor;
@@ -208,6 +218,8 @@ public class Messages extends NLS
     public static String WidgetProperties_Running;
     public static String WidgetProperties_ScaleFactor;
     public static String WidgetProperties_ScaleFormat;
+    public static String WidgetProperties_SecondColor;
+    public static String WidgetProperties_SecondVisible;
     public static String WidgetProperties_Scripts;
     public static String WidgetProperties_Selection;
     public static String WidgetProperties_SelectionPV;
