@@ -12,7 +12,7 @@ import static org.csstudio.display.builder.model.ModelPlugin.logger;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CountDownLatch;
 
 /** Test helper: Delayed access to a file
  *
@@ -21,21 +21,25 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("nls")
 public class DelayedStream implements Callable<InputStream>
 {
+    private final CountDownLatch delay = new CountDownLatch(1);
     private final String filename;
-    private final int seconds;
 
-    public DelayedStream(final String filename, final int seconds)
+    public DelayedStream(final String filename)
     {
         this.filename = filename;
-        this.seconds = seconds;
     }
 
     @Override
     public InputStream call() throws Exception
     {
         logger.warning("Delaying file access.. on " + Thread.currentThread().getName());
-        TimeUnit.SECONDS.sleep(seconds);
+        delay.await();
         logger.warning("Finally opening the file");
         return new FileInputStream(filename);
+    }
+
+    public void proceed()
+    {
+        delay.countDown();
     }
 }
