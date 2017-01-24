@@ -199,9 +199,12 @@ public class DisplayEditor
             }
         });
 
+        // De-select all widgets if plain left mouse button is clicked on background
         model_root.setOnMousePressed(event ->
         {
-            if ( event.isControlDown() )
+            // Don't do that on control-click (to add/remove to current selection)
+            // nor on right button (to open context menu)
+            if (event.isControlDown()   ||   ! event.isPrimaryButtonDown())
                 return;
             logger.log(Level.FINE, "Mouse pressed in 'editor', de-select all widgets");
             event.consume();
