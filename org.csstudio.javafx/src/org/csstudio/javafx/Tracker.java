@@ -51,6 +51,8 @@ public class Tracker extends Group
     /** Tracker position at start of drag */
     private Rectangle2D orig;
 
+    private boolean showLocationAndSize = true;
+
     /** Create tracker */
     public Tracker()
     {
@@ -89,6 +91,14 @@ public class Tracker extends Group
     public void setListener(final TrackerListener listener)
     {
         this.listener = listener;
+    }
+
+    protected void setShowLocationAndSize ( boolean show ) {
+
+        this.showLocationAndSize = show;
+
+        setPosition(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight());
+
     }
 
     /** @return 'Handle' type rectangle */
@@ -418,11 +428,11 @@ public class Tracker extends Group
         handle_left.setY(y + (height - HANDLE_SIZE)/2);
 
         locationLabel.setText(MessageFormat.format("{0,number,#########0}, {1,number,#########0}", x, y));
-        locationLabel.setVisible(width > 40 && height > 20);
+        locationLabel.setVisible(showLocationAndSize && ( width > 40 && height > 20 ));
         locationLabel.relocate(x + 3, y + 3);
 
         sizeLabel.setText(MessageFormat.format("{0,number,#########0}, {1,number,#########0}", width, height));
-        sizeLabel.setVisible(width > 20 && height > 10);
+        sizeLabel.setVisible(showLocationAndSize && ( width > 20 && height > 10 ));
         sizeLabel.relocate(x + width - sizeLabel.getWidth() - 3, y + height - sizeLabel.getHeight() - 3);
 
     }
