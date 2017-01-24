@@ -132,62 +132,97 @@ This will automatically save the file, so any pending changes
 will be written to the *.bob file.
 </p>
 
+<h3>Adding Widgets</h3>
 
-<h3><a name="drag_and_drop">Drag &amp; Drop</a></h3>
+<p>There are two fundamental ways of adding widgets to a display:
+</p>
 
-<p>Most of the editing is performed dragging things around:</p>
 <ul>
-	<li>adding widgets dragging them from the <em>Widget Palette</em> into the editor,</li>
-	<li>selecting multiple widgets "rubber banding" around them,</li>
-	<li>moving existing widgets,</li>
-	<li>resizing existing widgets,</li>
-	<li>adding text, images or files from outside into the editor.</li>
+<li>Select widget in Palette and "Rubberband" the desired location:<br/>
+    Click on a widget type in the <em>Widget Palette</em>,
+    then draw a "Rubberband" type rectangle in the editor,
+    i.e. click the left mouse button where the top-left corner
+    of the new widget should be.
+    Keeping the left mouse button depressed,
+    drag the mouse to the desired bottom-right corner of the new widget.
+    Release the mouse button to create the new widget in the
+    desired location with the desired size.
+</li>
+<li>Drag a widget from the Palette:<br/>
+    Click on a widget type in the <em>Widget Palette</em>,
+    and drag it, keeping the left mouse button depressed,
+    into the editor.
+    As soon as the mouse button is released,
+    the widget is added to the editor.
+
+    <strong>Note:</strong> While dragging the widget,
+    the dragging outline image is not displayed on all platforms
+    because of a known issue in the FXCanvas class on Java 8. It will be solved in the
+    upcoming Java 9 release.
+</li>
 </ul>
 
-<h4>Adding Widgets</h4>
+<p>
+Either way you add a widget, if the <em>Align widgets to Grid</em> option is selected in the toolbar,
+the new widget location will snap to the closest grid position.
+</p>
+<p>
+The newly added widget will be automatically selected,
+allowing you to quickly move or resize it as described below.
+</p>
 
 <img src="images/DragAndDrop_adding_widget.png" alt="Adding widgets from Widget Palette." style="float:right;margin:0 0 0px 8px;"/>
 
-<p>
-	Widgets can be added dragging them from the <em>Widget Palette</em> into the editor.
-	As soon as the mouse button is released the widget is added to the editor:
-</p>
+<h3>Editing Widgets</h3>
 
+<p>Most of the editing is performed dragging things around:</p>
 <ul>
-	<li>at the cursor position, if the <em>Align widgets to Grid</em> button is not selected,</li>
-	<li>aligned to the closest grid position, if the <em>Align widgets to Grid</em>
-		button is selected.</li>
+	<li>Add widgets dragging them from the <em>Widget Palette</em> into the editor as described above,</li>
+	<li>select one or more widgets by "rubber banding" around them,</li>
+	<li>move selected widgets,</li>
+	<li>resize selected widgets,</li>
+	<li>add text, images or files by dragging it from outside into the editor.</li>
 </ul>
 
+
+<h4 style="clear:right">Selecting Widgets</h4>
+
 <p>
-	The added widget will be automatically selected, allowing to be quickly moved or
-	resized.
+The easiest way to select a single widget is by clicking on it.
+De-select it by clicking it again, or by clicking on the background
+of the display where there is no widget.
+</p>
+<p>
+To select multiple widgets, hold the 'Control' key
+and then click on widgets to add them to the selection.
+To de-select one widget from a multi-widget selection,
+hold the 'Control' key and then click
+on an already selected widget.
+</p>
+
+
+<h4>Rubber Band Selection</h4>
+
+<p>
+The easiest way to select multiple nearby widgets is by rubber banding around it.
+Click on the editor's background and, while keeping the mouse button depressed,
+drag until the dashed rubber band encloses all the widgets of interest.
+When you release the mouse button,
+the selected widgets will be surrounded by the selection outline.
 </p>
 
 <p>
-	<strong>Note:</strong> The dragging outline image is not displayed on all platforms
-	because of a known issue in the FXCanvas class on Java 8. It will be solved in the
-	upcoming Java 9 release.
-</p>
-
-<h4 style="clear:right">Rubber Band Selection</h4>
-
-<p>
-	A single widget can be selected clicking on it. Single and multiple widgets can be selected
-	also rubber banding around it, i.e. Clicking on the editor's white background and, while
-	keeping the mouse button depressed, dragging unting the dashed rubber band encloses all
-	the interested widgets. When the mouse button will be released, selected widgets will be
-	surrounded by the selection outline.
-</p>
-
-<p>
-	Once one or more widgets are selected, they can be moved and resized as a single entity,
-	as explained in the following paragraphs.
+Once one or more widgets are selected, they can be moved and resized as a single entity,
+as explained in the following paragraphs.
+In addition, the properties of all selected widgets can be adjusted in the
+<a href="#properties">Properties Panel</a>.
 </p>
 
 <center>
 	<img src="images/DragAndDrop_rubber_band_selection.png" alt="Rubber band selection." width="600"/>
 </center>
+
+
 
 <h4>Moving Widgets</h4>
 
@@ -310,7 +345,7 @@ will be written to the *.bob file.
 <h4>Dropping Text</h4>
 
 <p>
-	A text can be composeb by a single or multiple lines, an each line can be
+	Text may be composed of a single or multiple lines. Each line could be
 	interpreted as a PV name. For this reason a dialog will open allowing to select
 	a single Label widget (displaying the whole text), multiple Label Widgets
 	(displaying a line each), or multiple widgets (of the same type) using each
