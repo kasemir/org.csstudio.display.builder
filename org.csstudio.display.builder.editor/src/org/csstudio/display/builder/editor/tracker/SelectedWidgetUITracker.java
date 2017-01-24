@@ -147,13 +147,16 @@ public class SelectedWidgetUITracker extends Tracker
 
     }
 
-    public void setModel(final DisplayModel model)
-    {
+    public void setModel ( final DisplayModel model ) {
+
         grid_constraint.configure(model);
+
+        setShowLocationAndSize(model.propLocationAndSizeVisible().getValue());
+        model.propLocationAndSizeVisible().addPropertyListener( ( p, o, n ) -> setShowLocationAndSize(n));
+
     }
 
-    public DisplayModel getModel()
-    {
+    public DisplayModel getModel ( ) {
         return grid_constraint.getModel();
     }
 
