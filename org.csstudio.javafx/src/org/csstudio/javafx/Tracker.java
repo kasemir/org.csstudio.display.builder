@@ -65,7 +65,6 @@ public class Tracker extends Group
     public Tracker(final Rectangle2D restriction)
     {
         this.restriction = restriction;
-        setAutoSizeChildren(true);
 
         tracker.getStyleClass().add("tracker");
 
@@ -111,17 +110,19 @@ public class Tracker extends Group
         return handle;
     }
 
-    private Label createLabel ( TextAlignment talign, Pos align ) {
-
+    private Label createLabel(final TextAlignment talign, final Pos align)
+    {
         final Label lbl = new Label("-, -");
 
         lbl.getStyleClass().add("location_size");
         lbl.setTextAlignment(talign);
         lbl.setAlignment(align);
         lbl.setPrefSize(100, 20);
+        // When clicking/dragging the tracker,
+        // don't allow the label to capture mouse clicks.
+        lbl.setMouseTransparent(true);
 
         return lbl;
-
     }
 
     void hookEvents()
@@ -434,7 +435,6 @@ public class Tracker extends Group
         sizeLabel.setText(MessageFormat.format("{0,number,#########0}, {1,number,#########0}", width, height));
         sizeLabel.setVisible(showLocationAndSize && ( width > 20 && height > 10 ));
         sizeLabel.relocate(x + width - sizeLabel.getWidth() - 3, y + height - sizeLabel.getHeight() - 3);
-
     }
 
     private void notifyListenerOfChange()

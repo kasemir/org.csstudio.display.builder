@@ -273,6 +273,9 @@ public class SelectedWidgetUITracker extends Tracker
         // Create text field, aligned with widget, but assert minimum size
         final MacroizedWidgetProperty<String> property = (MacroizedWidgetProperty<String>)check.get();
         inline_editor = new TextField(property.getSpecification());
+        // 'Managed' text field would assume some default size,
+        // but we set the exact size in here
+        inline_editor.setManaged(false);
         inline_editor.setPromptText(property.getDescription()); // Not really shown since TextField will have focus
         inline_editor.setTooltip(new Tooltip(property.getDescription()));
         inline_editor.relocate(tracker.getX(), tracker.getY());
