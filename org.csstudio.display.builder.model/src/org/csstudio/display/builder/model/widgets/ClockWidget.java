@@ -55,7 +55,6 @@ public class ClockWidget extends VisibleWidget {
         DB(Clock.ClockSkinType.DB),
         FAT(Clock.ClockSkinType.FAT),
         INDUSTRIAL(Clock.ClockSkinType.INDUSTRIAL),
-        LCD(Clock.ClockSkinType.LCD),
         PEAR(Clock.ClockSkinType.PEAR),
         PLAIN(Clock.ClockSkinType.PLAIN),
         SLIM(Clock.ClockSkinType.SLIM),
