@@ -19,6 +19,9 @@ import org.csstudio.display.builder.model.ModelPlugin;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.properties.ActionInfo;
+import org.csstudio.display.builder.model.properties.ActionInfo.ActionType;
+import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo;
+import org.csstudio.display.builder.model.properties.OpenDisplayActionInfo.Target;
 import org.csstudio.display.builder.rcp.RuntimeViewPart;
 import org.csstudio.display.builder.representation.ToolkitListener;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
@@ -195,7 +198,24 @@ public class ContextMenuSupport
 
             // Actions of the widget
             for (ActionInfo info : context_menu_widget.propActions().getValue())
-                manager.add(new ActionInfoWrapper(context_menu_widget, info));
+            {
+                if (info.getType() == ActionType.OPEN_DISPLAY)
+                {
+                    // Add variant for all the available Target types: Replace, new Tab, ...
+                    final OpenDisplayActionInfo open_info = (OpenDisplayActionInfo) info;
+                    for (Target target : Target.values())
+                    {
+                        final String desc = target == Target.REPLACE
+                                          ? open_info.getDescription()
+                                          : open_info.getDescription() + " (" + target + ")";
+                        manager.add(new ActionInfoWrapper(context_menu_widget,
+                                       new OpenDisplayActionInfo(desc, open_info.getFile(),
+                                                                 open_info.getMacros(), target)));
+                    }
+                }
+                else
+                    manager.add(new ActionInfoWrapper(context_menu_widget, info));
+            }
 
             // Actions of the widget runtime
             final WidgetRuntime<Widget> runtime = RuntimeUtil.getRuntime(context_menu_widget);
