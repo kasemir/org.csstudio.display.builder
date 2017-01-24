@@ -9,7 +9,7 @@ if os.name == 'java':
     import sys, _socket
 
     def checkSocketLib():
-        # Workaround: Detect closed NIO_GROUP and ee-create it
+        # Workaround: Detect closed NIO_GROUP and re-create it
         try:
             if _socket.NIO_GROUP.isShutdown():
                 _socket.NIO_GROUP = _socket.NioEventLoopGroup(2, _socket.DaemonThreadFactory("PyScan-Netty-Client-%s"))
