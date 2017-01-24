@@ -175,7 +175,6 @@ public class SelectedWidgetUITracker extends Tracker
         result = snapConstrain(result.getX(), result.getY());
 
         return result;
-
     }
 
     /** Apply enabled constraints to requested position

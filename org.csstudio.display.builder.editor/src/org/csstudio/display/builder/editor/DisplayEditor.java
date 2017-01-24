@@ -240,11 +240,13 @@ public class DisplayEditor
         // Create widget of that type
         final Widget widget = desc.createWidget();
 
-        // Size to rubberbanded region
-        widget.propX().setValue((int)region.getMinX());
-        widget.propY().setValue((int)region.getMinY());
-        widget.propWidth().setValue((int)region.getWidth());
-        widget.propHeight().setValue((int)region.getHeight());
+        // Size to rubberbanded region, optionally constrained by grid
+        final Point2D location = selection_tracker.gridConstrain(region.getMinX(), region.getMinY());
+        widget.propX().setValue((int) location.getX());
+        widget.propY().setValue((int) location.getY());
+        final Point2D size = selection_tracker.gridConstrain(region.getWidth(), region.getHeight());
+        widget.propWidth().setValue((int) size.getX());
+        widget.propHeight().setValue((int) size.getY());
 
         // Add to model
         final ChildrenProperty target = model.runtimeChildren();
