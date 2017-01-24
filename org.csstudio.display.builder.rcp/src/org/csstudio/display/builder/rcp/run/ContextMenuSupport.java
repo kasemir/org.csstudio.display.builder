@@ -205,6 +205,9 @@ public class ContextMenuSupport
                     final OpenDisplayActionInfo open_info = (OpenDisplayActionInfo) info;
                     for (Target target : Target.values())
                     {
+                        // STANDALONE can be achieved via StandaloneAction on new display
+                        if (target == Target.STANDALONE)
+                            continue;
                         final String desc = target == Target.REPLACE
                                           ? open_info.getDescription()
                                           : open_info.getDescription() + " (" + target + ")";
