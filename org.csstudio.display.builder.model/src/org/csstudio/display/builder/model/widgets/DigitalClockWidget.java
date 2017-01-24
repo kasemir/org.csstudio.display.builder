@@ -109,7 +109,7 @@ public class DigitalClockWidget extends VisibleWidget {
 
         super.defineProperties(properties);
 
-        properties.add(lcdDesign         = propLcdDesign.createProperty(this, LcdDesign.AMBER));
+        properties.add(lcdDesign         = propLcdDesign.createProperty(this, LcdDesign.SECTIONS));
 
         properties.add(lcdCrystalEnabled = propLcdCrystalEnabled.createProperty(this, true));
         properties.add(dateVisible       = propDateVisible.createProperty(this, true));
