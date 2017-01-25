@@ -49,6 +49,12 @@ public class ClockWidget extends VisibleWidget {
         }
     };
 
+    /**
+     * This enumeration is used to reduce the choices from the original enumeration.
+     *
+     * @author claudiorosati, European Spallation Source ERIC
+     * @version 1.0.0 25 Jan 2017
+     */
     public enum Skin {
 
         CLOCK(Clock.ClockSkinType.CLOCK),

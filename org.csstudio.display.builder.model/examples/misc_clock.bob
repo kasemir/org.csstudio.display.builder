@@ -90,7 +90,7 @@
   </widget>
   <widget type="digital_clock" version="2.0.0">
     <name>Digital Clock_1</name>
-    <lcd_design>24</lcd_design>
+    <lcd_design>0</lcd_design>
     <x>230</x>
     <y>210</y>
     <shadows_enabled>false</shadows_enabled>
@@ -107,7 +107,6 @@
   </widget>
   <widget type="clock" version="2.0.0">
     <name>Clock_1</name>
-    <skin>5</skin>
     <x>30</x>
     <y>330</y>
     <width>160</width>
@@ -164,19 +163,19 @@
   </widget>
   <widget type="clock" version="2.0.0">
     <name>Clock_2</name>
-    <skin>7</skin>
+    <skin>6</skin>
     <x>230</x>
     <y>330</y>
     <width>160</width>
     <height>160</height>
     <border_width>0.0</border_width>
     <date_color>
-      <color red="153" green="102" blue="0">
+      <color red="230" green="77" blue="77">
       </color>
     </date_color>
     <date_visible>true</date_visible>
     <hour_color>
-      <color red="255" green="255" blue="255">
+      <color red="230" green="77" blue="77">
       </color>
     </hour_color>
     <minute_color>
@@ -184,7 +183,7 @@
       </color>
     </minute_color>
     <second_color>
-      <color red="204" green="51" blue="51">
+      <color red="230" green="77" blue="77">
       </color>
     </second_color>
     <title>SLIM</title>
@@ -197,5 +196,23 @@
     <y>500</y>
     <width>160</width>
     <horizontal_alignment>1</horizontal_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_5</name>
+    <text>Shadows disabled</text>
+    <x>410</x>
+    <y>210</y>
+    <width>130</width>
+    <height>90</height>
+    <vertical_alignment>1</vertical_alignment>
+  </widget>
+  <widget type="label" version="2.0.0">
+    <name>Label_6</name>
+    <text>Shadows enabled</text>
+    <x>410</x>
+    <y>110</y>
+    <width>130</width>
+    <height>90</height>
+    <vertical_alignment>1</vertical_alignment>
   </widget>
 </display>

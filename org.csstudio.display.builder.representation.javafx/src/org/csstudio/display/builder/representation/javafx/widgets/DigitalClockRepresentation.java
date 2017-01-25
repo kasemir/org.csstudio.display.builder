@@ -14,11 +14,11 @@ import java.util.Objects;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.DigitalClockWidget;
+import org.csstudio.display.builder.model.widgets.DigitalClockWidget.Design;
 
 import eu.hansolo.medusa.Clock;
 import eu.hansolo.medusa.Clock.ClockSkinType;
 import eu.hansolo.medusa.ClockBuilder;
-import eu.hansolo.medusa.LcdDesign;
 
 
 /**
@@ -66,7 +66,7 @@ public class DigitalClockRepresentation extends RegionBaseRepresentation<Clock, 
             value = model_widget.propLcdDesign().getValue();
 
             if ( !Objects.equals(value, jfx_node.getLcdDesign()) ) {
-                jfx_node.setLcdDesign((LcdDesign) value);
+                jfx_node.setLcdDesign(((Design) value).design());
             }
 
             value = model_widget.propDateVisible().getValue();
@@ -114,7 +114,7 @@ public class DigitalClockRepresentation extends RegionBaseRepresentation<Clock, 
 
         Clock clock = ClockBuilder.create()
                                   .skinType(ClockSkinType.LCD)
-                                  .lcdDesign(model_widget.propLcdDesign().getValue())
+                                  .lcdDesign(model_widget.propLcdDesign().getValue().design())
                                   .prefHeight(model_widget.propHeight().getValue())
                                   .prefWidth(model_widget.propWidth().getValue())
                                   //--------------------------------------------------------
@@ -141,7 +141,7 @@ public class DigitalClockRepresentation extends RegionBaseRepresentation<Clock, 
         });
         clock.lcdDesignProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propLcdDesign().getValue()) ) {
-                model_widget.propLcdDesign().setValue(n);
+                model_widget.propLcdDesign().setValue(Design.valueOf(n.name()));
             }
         });
         clock.runningProperty().addListener( ( s, o, n ) -> {
