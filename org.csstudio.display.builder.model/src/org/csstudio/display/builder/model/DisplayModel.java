@@ -96,12 +96,16 @@ public class DisplayModel extends Widget
         newIntegerPropertyDescriptor(WidgetPropertyCategory.MISC, "grid_step_y", Messages.WidgetProperties_GridStepY,
                                      4, Integer.MAX_VALUE);
 
+    /** 'location_and_size_visible' property */
+    public static final WidgetPropertyDescriptor<Boolean> propLocationAndSizeVisible = newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC, "location_and_size_visible", Messages.WidgetProperties_LocationAndSizeVisible);
+
     private volatile WidgetProperty<Macros> macros;
     private volatile WidgetProperty<WidgetColor> background;
     private volatile WidgetProperty<Boolean> gridVisible;
     private volatile WidgetProperty<WidgetColor> gridColor;
     private volatile WidgetProperty<Integer> gridStepX;
     private volatile WidgetProperty<Integer> gridStepY;
+    private volatile WidgetProperty<Boolean> locationAndSizeVisible;
     private volatile ChildrenProperty children;
 
     /** Create display model */
@@ -163,6 +167,7 @@ public class DisplayModel extends Widget
         properties.add(gridColor = propGridColor.createProperty(this, WidgetColorService.getColor(NamedWidgetColors.GRID)));
         properties.add(gridStepX = propGridStepX.createProperty(this, 10));
         properties.add(gridStepY = propGridStepY.createProperty(this, 10));
+        properties.add(locationAndSizeVisible = propLocationAndSizeVisible.createProperty(this, true));
         properties.add(children = new ChildrenProperty(this));
     }
 
@@ -247,4 +252,11 @@ public class DisplayModel extends Widget
     {
         return gridVisible;
     }
+
+    /** @return 'location_and_size_visible' property */
+    public WidgetProperty<Boolean> propLocationAndSizeVisible()
+    {
+        return locationAndSizeVisible;
+    }
+
 }
