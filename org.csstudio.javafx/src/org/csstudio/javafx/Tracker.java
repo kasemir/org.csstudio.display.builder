@@ -23,8 +23,6 @@ import javafx.scene.text.TextAlignment;
 
 /** Tracker is a 'rubberband' type rectangle with handles to move or resize.
  *
- *  TODO Check pixel by pixel if tracker has the correct size
- *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
@@ -43,6 +41,8 @@ public class Tracker extends Group
     private final Rectangle handle_top_left, handle_top, handle_top_right,
                             handle_right, handle_bottom_right, handle_bottom,
                             handle_bottom_left, handle_left;
+
+    /** Indicators for location and size of tracker */
     private final Label locationLabel, sizeLabel;
 
     /** Mouse position at start of drag. -1 used to indicate 'not active' */
@@ -51,6 +51,7 @@ public class Tracker extends Group
     /** Tracker position at start of drag */
     private Rectangle2D orig;
 
+    /** Show the location and size? */
     private boolean showLocationAndSize = true;
 
     /** Create tracker */
@@ -87,17 +88,17 @@ public class Tracker extends Group
         hookEvents();
     }
 
+    /** @param listener Listener to notify of tracker changes */
     public void setListener(final TrackerListener listener)
     {
         this.listener = listener;
     }
 
-    protected void setShowLocationAndSize ( boolean show ) {
-
+    /** @param show Show location and size indicators? */
+    public void showLocationAndSize(final boolean show)
+    {
         this.showLocationAndSize = show;
-
         setPosition(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight());
-
     }
 
     /** @return 'Handle' type rectangle */
@@ -112,12 +113,12 @@ public class Tracker extends Group
 
     private Label createLabel(final TextAlignment talign, final Pos align)
     {
-        final Label lbl = new Label("-, -");
+        // Initial text is used to determine size
+        final Label lbl = new Label("000, 000");
 
         lbl.getStyleClass().add("location_size");
         lbl.setTextAlignment(talign);
         lbl.setAlignment(align);
-        lbl.setPrefSize(100, 20);
         // When clicking/dragging the tracker,
         // don't allow the label to capture mouse clicks.
         lbl.setMouseTransparent(true);
@@ -229,7 +230,6 @@ public class Tracker extends Group
             final Point2D l = constrain(orig.getMinX() + dx, orig.getMinY());
             setPosition(l.getX(), orig.getMinY(), orig.getWidth() - (l.getX() - orig.getMinX()), orig.getHeight());
         });
-
     }
 
     /** Allow derived class to constrain positions
@@ -249,23 +249,23 @@ public class Tracker extends Group
     }
 
     /** @param event {@link MouseEvent} */
-    protected void startDrag ( final MouseEvent event ) {
-
+    protected void startDrag(final MouseEvent event)
+    {
         // Take snapshot of current positions
-        if ( event == null ) {
+        if ( event == null )
+        {
             start_x = -1;
             start_y = -1;
-        } else {
-
+        }
+        else
+        {
             event.consume();
 
             start_x = event.getX();
             start_y = event.getY();
-
         }
 
         orig = new Rectangle2D(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight());
-
     }
 
     /** @param event {@link MouseEvent} */
@@ -275,8 +275,8 @@ public class Tracker extends Group
     }
 
     /** @param event {@link MouseEvent} */
-    protected void endMouseDrag ( final MouseEvent event ) {
-
+    protected void endMouseDrag(final MouseEvent event)
+    {
         if ( start_x < 0 )
             return;
 
@@ -287,87 +287,84 @@ public class Tracker extends Group
 
         start_x = -1;
         start_y = -1;
-
     }
 
-    /**
-     * Allow move/resize with cursor keys, and abord Dran & Drop operations with ESC key.
-     * <p>
-     * Shift: Resize
+    /** Allow move/resize with cursor keys, and abort Drag & Drop operations with ESC key.
+     *  <p>
+     *  Shift: Resize
      *
-     * @param event {@link KeyEvent}
+     *  @param event {@link KeyEvent}
      */
-    private void handleKeyEvent ( final KeyEvent event ) {
-
+    private void handleKeyEvent(final KeyEvent event)
+    {
         // Consume handled event to keep the key focus,
         // which is otherwise lost to the 'tab-order' traversal
         final KeyCode code = event.getCode();
         boolean notify = false;
 
-        switch ( code ) {
-            case UP:
-                if ( event.isShiftDown() ) {
-                    setPosition(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight() - 1);
-                } else {
-                    setPosition(tracker.getX(), tracker.getY() - 1, tracker.getWidth(), tracker.getHeight());
-                }
+        switch (code)
+        {
+        case UP:
+            if (event.isShiftDown())
+                setPosition(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight() - 1);
+            else
+                setPosition(tracker.getX(), tracker.getY() - 1, tracker.getWidth(), tracker.getHeight());
+            notify = true;
+            break;
+        case DOWN:
+            if (event.isShiftDown())
+                setPosition(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight() + 1);
+            else
+                setPosition(tracker.getX(), tracker.getY() + 1, tracker.getWidth(), tracker.getHeight());
+            notify = true;
+            break;
+        case LEFT:
+            if (event.isShiftDown())
+                setPosition(tracker.getX(), tracker.getY(), tracker.getWidth() - 1, tracker.getHeight());
+            else
+                setPosition(tracker.getX() - 1, tracker.getY(), tracker.getWidth(), tracker.getHeight());
+            notify = true;
+            break;
+        case RIGHT:
+            if (event.isShiftDown())
+                setPosition(tracker.getX(), tracker.getY(), tracker.getWidth() + 1, tracker.getHeight());
+            else
+                setPosition(tracker.getX() + 1, tracker.getY(), tracker.getWidth(), tracker.getHeight());
+            notify = true;
+            break;
+        case ESCAPE:
+            if (start_x >= 0)
+            {
+                setPosition(orig);
+                endMouseDrag(null);
                 notify = true;
-                break;
-            case DOWN:
-                if ( event.isShiftDown() ) {
-                    setPosition(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight() + 1);
-                } else {
-                    setPosition(tracker.getX(), tracker.getY() + 1, tracker.getWidth(), tracker.getHeight());
-                }
-                notify = true;
-                break;
-            case LEFT:
-                if ( event.isShiftDown() ) {
-                    setPosition(tracker.getX(), tracker.getY(), tracker.getWidth() - 1, tracker.getHeight());
-                } else {
-                    setPosition(tracker.getX() - 1, tracker.getY(), tracker.getWidth(), tracker.getHeight());
-                }
-                notify = true;
-                break;
-            case RIGHT:
-                if ( event.isShiftDown() ) {
-                    setPosition(tracker.getX(), tracker.getY(), tracker.getWidth() + 1, tracker.getHeight());
-                } else {
-                    setPosition(tracker.getX() + 1, tracker.getY(), tracker.getWidth(), tracker.getHeight());
-                }
-                notify = true;
-                break;
-            case ESCAPE:
-                if ( start_x >= 0 ) {
-                    setPosition(orig);
-                    endMouseDrag(null);
-                    notify = true;
-                }
-                break;
-            default:
-                return;
+            }
+            break;
+        default:
+            return;
         }
 
         event.consume();
 
-        if ( notify ) {
+        if (notify)
             notifyListenerOfChange();
-        }
 
-        if ( code != KeyCode.ESCAPE ) {
+        if (code != KeyCode.ESCAPE)
+        {
             // Reset tracker as if we started at this position.
             // That way, a sequence of cursor key moves turns into individual
             // undo-able actions.
             orig = new Rectangle2D(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight());
         }
-
     }
 
+    /** Update location and size of tracker
+     *  @param position
+     */
     public final void setPosition(final Rectangle2D position)
     {
         setPosition(position.getMinX(), position.getMinY(), position.getWidth(), position.getHeight());
     }
-
 
     /** Update location and size of tracker
      *  @param x
@@ -434,6 +431,8 @@ public class Tracker extends Group
 
         sizeLabel.setText(MessageFormat.format("{0,number,#########0}, {1,number,#########0}", width, height));
         sizeLabel.setVisible(showLocationAndSize && ( width > 20 && height > 10 ));
+        // Slight issue:
+        // The text was just set, layout may not have happened, so getWidth() is wrong until the next update
         sizeLabel.relocate(x + width - sizeLabel.getWidth() - 3, y + height - sizeLabel.getHeight() - 3);
     }
 

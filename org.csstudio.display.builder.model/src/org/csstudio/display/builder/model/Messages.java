@@ -183,7 +183,6 @@ public class Messages extends NLS
     public static String WidgetProperties_LimitsFromPV;
     public static String WidgetProperties_LineColor;
     public static String WidgetProperties_LineWidth;
-    public static String WidgetProperties_LocationAndSizeVisible;
     public static String WidgetProperties_Macros;
     public static String WidgetProperties_MajorTickStepHint;
     public static String WidgetProperties_Maximum;

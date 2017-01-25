@@ -48,6 +48,17 @@ public abstract class ActionDescription
         }
     };
 
+    /** Enable/disable showing widget coordinates in tracker */
+    public static final ActionDescription ENABLE_COORDS =
+        new ActionDescription("icons/coords.png", Messages.ShowCoordinates)
+    {
+        @Override
+        public void run(final DisplayEditor editor, final boolean selected)
+        {
+            editor.getSelectedWidgetUITracker().showLocationAndSize(selected);
+        }
+    };
+
     /** Move widget to back */
     public static final ActionDescription TO_BACK =
         new ActionDescription("icons/toback.png", Messages.MoveToBack)
