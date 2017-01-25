@@ -7,14 +7,19 @@
  ******************************************************************************/
 package org.csstudio.javafx;
 
+import java.text.MessageFormat;
+
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.TextAlignment;
 
 /** Tracker is a 'rubberband' type rectangle with handles to move or resize.
  *
@@ -38,12 +43,15 @@ public class Tracker extends Group
     private final Rectangle handle_top_left, handle_top, handle_top_right,
                             handle_right, handle_bottom_right, handle_bottom,
                             handle_bottom_left, handle_left;
+    private final Label locationLabel, sizeLabel;
 
     /** Mouse position at start of drag. -1 used to indicate 'not active' */
     private double start_x = -1, start_y = -1;
 
     /** Tracker position at start of drag */
     private Rectangle2D orig;
+
+    private boolean showLocationAndSize = true;
 
     /** Create tracker */
     public Tracker()
@@ -57,7 +65,6 @@ public class Tracker extends Group
     public Tracker(final Rectangle2D restriction)
     {
         this.restriction = restriction;
-        setAutoSizeChildren(false);
 
         tracker.getStyleClass().add("tracker");
 
@@ -70,9 +77,12 @@ public class Tracker extends Group
         handle_bottom_left = createHandle();
         handle_left = createHandle();
 
+        locationLabel = createLabel(TextAlignment.LEFT, Pos.TOP_LEFT);
+        sizeLabel = createLabel(TextAlignment.RIGHT, Pos.BOTTOM_RIGHT);
+
         getChildren().addAll(tracker, handle_top_left, handle_top, handle_top_right,
                 handle_right, handle_bottom_right,
-                handle_bottom, handle_bottom_left, handle_left);
+                handle_bottom, handle_bottom_left, handle_left, locationLabel, sizeLabel);
 
         hookEvents();
     }
@@ -80,6 +90,14 @@ public class Tracker extends Group
     public void setListener(final TrackerListener listener)
     {
         this.listener = listener;
+    }
+
+    protected void setShowLocationAndSize ( boolean show ) {
+
+        this.showLocationAndSize = show;
+
+        setPosition(tracker.getX(), tracker.getY(), tracker.getWidth(), tracker.getHeight());
+
     }
 
     /** @return 'Handle' type rectangle */
@@ -90,6 +108,21 @@ public class Tracker extends Group
         handle.setOnMousePressed(this::startDrag);
         handle.setOnMouseReleased(this::endMouseDrag);
         return handle;
+    }
+
+    private Label createLabel(final TextAlignment talign, final Pos align)
+    {
+        final Label lbl = new Label("-, -");
+
+        lbl.getStyleClass().add("location_size");
+        lbl.setTextAlignment(talign);
+        lbl.setAlignment(align);
+        lbl.setPrefSize(100, 20);
+        // When clicking/dragging the tracker,
+        // don't allow the label to capture mouse clicks.
+        lbl.setMouseTransparent(true);
+
+        return lbl;
     }
 
     void hookEvents()
@@ -394,6 +427,14 @@ public class Tracker extends Group
         handle_left.setVisible(height > HANDLE_SIZE);
         handle_left.setX(x - HANDLE_SIZE);
         handle_left.setY(y + (height - HANDLE_SIZE)/2);
+
+        locationLabel.setText(MessageFormat.format("{0,number,#########0}, {1,number,#########0}", x, y));
+        locationLabel.setVisible(showLocationAndSize && ( width > 40 && height > 20 ));
+        locationLabel.relocate(x + 3, y + 3);
+
+        sizeLabel.setText(MessageFormat.format("{0,number,#########0}, {1,number,#########0}", width, height));
+        sizeLabel.setVisible(showLocationAndSize && ( width > 20 && height > 10 ));
+        sizeLabel.relocate(x + width - sizeLabel.getWidth() - 3, y + height - sizeLabel.getHeight() - 3);
     }
 
     private void notifyListenerOfChange()

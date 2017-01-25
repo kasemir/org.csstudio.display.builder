@@ -6,10 +6,7 @@
         <!-- Topics are duplicated in display.builder.html -->
         <topic label="Overview" href="doc/display.builder.html#overview"/>
         <topic label="Getting Started" href="doc/display.builder.html#get_started"/>
-        <topic href="doc/display.builder.html#editor" label="Display Editor">
-           <topic href="doc/display.builder.html#drag_and_drop" label="Drag &amp; Drop">
-           </topic>
-        </topic>
+        <topic label="Editor" href="doc/display.builder.html#editor"/>
         <topic label="BOY *.opi Conversion" href="doc/display.builder.html#conversion"/>
         <topic label="Widget Classes" href="doc/display.builder.html#classes"/>
         <topic label="Display Runtime" href="doc/display.builder.html#runtime"/>

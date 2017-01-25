@@ -68,12 +68,28 @@ public class Preferences
             SCROLL_STEP = "scroll_step",
             USE_TRACE_NAMES = "use_trace_names";
 
+    /** Which string to use in preferences (for backward compatibility) **/
+    private static final String LEGACY_ID = "org.csstudio.trends.databrowser2";
+
+    /** Support setups where a plugin_customization.ini provided settings
+     *  for org.csstudio.trends.databrowser:
+     *
+     *  Check if there are settings for the LEGACY_ID.
+     *  If not, use the current ID
+     */
+    private static String determineID(final IPreferencesService prefs, final String key)
+    {
+        if (prefs.getString(LEGACY_ID, key, null, null) == null)
+            return Activator.PLUGIN_ID;
+        return LEGACY_ID;
+    }
+
     public static boolean isAutomaticHistoryRefresh()
     {
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs == null) // Allow some JUnit tests without prefs
             return Boolean.FALSE;
-        return prefs.getBoolean(Activator.PREFERENCES_ID, AUTOMATIC_HISTORY_REFRESH, Boolean.FALSE, null);
+        return prefs.getBoolean(determineID(prefs, AUTOMATIC_HISTORY_REFRESH), AUTOMATIC_HISTORY_REFRESH, Boolean.FALSE, null);
     }
 
     public static Duration getTimeSpan()
@@ -81,13 +97,13 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs == null) // Allow some JUnit tests without prefs
             return Duration.ofSeconds(60);
-        return TimeDuration.ofSeconds(prefs.getDouble(Activator.PREFERENCES_ID, TIME_SPAN, 60.0*60.0, null));
+        return TimeDuration.ofSeconds(prefs.getDouble(determineID(prefs, TIME_SPAN), TIME_SPAN, 60.0*60.0, null));
     }
 
     public static double getScanPeriod()
     {
         final IPreferencesService prefs = Platform.getPreferencesService();
-        return prefs.getDouble(Activator.PREFERENCES_ID, SCAN_PERIOD, 1.0, null);
+        return prefs.getDouble(determineID(prefs, SCAN_PERIOD), SCAN_PERIOD, 1.0, null);
     }
 
     public static Duration getScrollStep()
@@ -96,8 +112,8 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs != null)
         {   // Check related legacy preference, then current one
-            scroll_step = prefs.getInt(Activator.PREFERENCES_ID, "future_buffer", scroll_step, null);
-            scroll_step = prefs.getInt(Activator.PREFERENCES_ID, SCROLL_STEP, scroll_step, null);
+            scroll_step = prefs.getInt(determineID(prefs, "future_buffer"), "future_buffer", scroll_step, null);
+            scroll_step = prefs.getInt(determineID(prefs, SCROLL_STEP), SCROLL_STEP, scroll_step, null);
         }
         return Duration.ofSeconds(scroll_step);
     }
@@ -107,7 +123,7 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs == null) // Allow some JUnit tests without prefs
             return 5000;
-        return prefs.getInt(Activator.PREFERENCES_ID, BUFFER_SIZE, 5000, null);
+        return prefs.getInt(determineID(prefs, BUFFER_SIZE), BUFFER_SIZE, 5000, null);
     }
 
     public static double getUpdatePeriod()
@@ -115,7 +131,7 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs == null) // Allow some JUnit tests without prefs
             return 1.0;
-        return prefs.getDouble(Activator.PREFERENCES_ID, UPDATE_PERIOD, 1.0, null);
+        return prefs.getDouble(determineID(prefs, UPDATE_PERIOD), UPDATE_PERIOD, 1.0, null);
     }
 
     public static int getLineWidth()
@@ -123,7 +139,7 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs == null)
             return 2;
-        return prefs.getInt(Activator.PREFERENCES_ID, LINE_WIDTH, 2, null);
+        return prefs.getInt(determineID(prefs, LINE_WIDTH), LINE_WIDTH, 2, null);
     }
 
     public static int getOpacity()
@@ -131,7 +147,7 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs == null)
             return 20;
-        return prefs.getInt(Activator.PREFERENCES_ID, OPACITY, 20, null);
+        return prefs.getInt(determineID(prefs, OPACITY), OPACITY, 20, null);
     }
 
     public static TraceType getTraceType()
@@ -139,7 +155,7 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs != null)
         {
-            final String type_name = prefs.getString(Activator.PREFERENCES_ID, TRACE_TYPE, TraceType.AREA.name(), null);
+            final String type_name = prefs.getString(determineID(prefs, TRACE_TYPE), TRACE_TYPE, TraceType.AREA.name(), null);
             try
             {
                 return TraceType.valueOf(type_name);
@@ -157,20 +173,20 @@ public class Preferences
         long delay = 1000;
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs != null)
-            delay = prefs.getLong(Activator.PREFERENCES_ID, ARCHIVE_FETCH_DELAY, delay, null);
+            delay = prefs.getLong(determineID(prefs, ARCHIVE_FETCH_DELAY), ARCHIVE_FETCH_DELAY, delay, null);
         return delay;
     }
 
     public static int getPlotBins()
     {
         final IPreferencesService prefs = Platform.getPreferencesService();
-        return prefs.getInt(Activator.PREFERENCES_ID, PLOT_BINS, 800, null);
+        return prefs.getInt(determineID(prefs, PLOT_BINS), PLOT_BINS, 800, null);
     }
 
     public static ArchiveServerURL[] getArchiveServerURLs()
     {
         final IPreferencesService prefs = Platform.getPreferencesService();
-        final String urls = prefs.getString(Activator.PREFERENCES_ID, URLS, "", null).trim();
+        final String urls = prefs.getString(determineID(prefs, URLS), URLS, "", null).trim();
         if (urls.length() <= 0)
             return new ArchiveServerURL[0];
 
@@ -190,7 +206,7 @@ public class Preferences
     {
         final ArrayList<ArchiveDataSource> archives = new ArrayList<ArchiveDataSource>();
         final IPreferencesService prefs = Platform.getPreferencesService();
-        final String urls = prefs.getString(Activator.PREFERENCES_ID, ARCHIVES, "", null);
+        final String urls = prefs.getString(determineID(prefs, ARCHIVES), ARCHIVES, "", null);
         // data source specs are separated by '*'
         final String specs[] = urls.split(ITEM_SEPARATOR_RE);
         for (String spec : specs)
@@ -222,7 +238,7 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs == null)
             return false;
-        return prefs.getBoolean(Activator.PREFERENCES_ID, USE_DEFAULT_ARCHIVES, false, null);
+        return prefs.getBoolean(determineID(prefs, USE_DEFAULT_ARCHIVES), USE_DEFAULT_ARCHIVES, false, null);
     }
 
     /** @return <code>true</code> to use auto scale by default.
@@ -232,7 +248,7 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs == null)
             return false;
-        return prefs.getBoolean(Activator.PREFERENCES_ID, USE_AUTO_SCALE, false, null);
+        return prefs.getBoolean(determineID(prefs, USE_AUTO_SCALE), USE_AUTO_SCALE, false, null);
     }
 
     /** @return <code>true</code> to prompt for errors */
@@ -241,7 +257,7 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs == null)
             return false;
-        return prefs.getBoolean(Activator.PREFERENCES_ID, PROMPT_FOR_ERRORS, false, null);
+        return prefs.getBoolean(determineID(prefs, PROMPT_FOR_ERRORS), PROMPT_FOR_ERRORS, false, null);
     }
 
     /** @return Archive rescale setting */
@@ -253,7 +269,7 @@ public class Preferences
         try
         {
             return ArchiveRescale.valueOf(
-                    prefs.getString(Activator.PREFERENCES_ID, ARCHIVE_RESCALE,
+                    prefs.getString(determineID(prefs, ARCHIVE_RESCALE), ARCHIVE_RESCALE,
                             ArchiveRescale.STAGGER.name(), null));
         }
         catch (Throwable ex)
@@ -269,7 +285,7 @@ public class Preferences
         String shortcuts = "1 Day,-1 days|7 Days,-7 days";
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs != null)
-            shortcuts = prefs.getString(Activator.PREFERENCES_ID, TIME_SPAN_SHORTCUTS, shortcuts, null);
+            shortcuts = prefs.getString(determineID(prefs, TIME_SPAN_SHORTCUTS), TIME_SPAN_SHORTCUTS, shortcuts, null);
         final List<List<String>> items = new ArrayList<>();
         for (String item : shortcuts.split("\\|"))
         {
@@ -295,7 +311,7 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs == null)
             return null;
-        String pltRepo = prefs.getString(Activator.PREFERENCES_ID, PLT_REPOSITORY,
+        String pltRepo = prefs.getString(determineID(prefs, PLT_REPOSITORY), PLT_REPOSITORY,
                 null, null);
         if (pltRepo == null || pltRepo.trim().isEmpty())
             return null;
@@ -306,8 +322,8 @@ public class Preferences
     {
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs == null)
-            return null;
-        return prefs.getString(Activator.PREFERENCES_ID, EMAIL_DEFAULT_SENDER, null, null);
+            return "";
+        return prefs.getString(determineID(prefs, EMAIL_DEFAULT_SENDER), EMAIL_DEFAULT_SENDER, "", null);
     }
 
     /** @return <code>true</code> to hide search view on rap version. */
@@ -316,7 +332,7 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs == null)
             return false;
-        return prefs.getBoolean(Activator.PREFERENCES_ID, RAP_HIDE_SEARCH_VIEW, false, null);
+        return prefs.getBoolean(determineID(prefs, RAP_HIDE_SEARCH_VIEW), RAP_HIDE_SEARCH_VIEW, false, null);
     }
 
     /** @return <code>true</code> to hide properties view on rap version */
@@ -325,7 +341,7 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs == null)
             return false;
-        return prefs.getBoolean(Activator.PREFERENCES_ID, RAP_HIDE_PROPERTIES_VIEW, false, null);
+        return prefs.getBoolean(determineID(prefs, RAP_HIDE_PROPERTIES_VIEW), RAP_HIDE_PROPERTIES_VIEW, false, null);
     }
 
     /** @return <code>true</code> to authentication is required to open data browser in rap. */
@@ -334,7 +350,7 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs == null)
             return false;
-        return prefs.getBoolean(Activator.PREFERENCES_ID, SECURE_DATA_BROWSER, false, null);
+        return prefs.getBoolean(determineID(prefs, SECURE_DATA_BROWSER), SECURE_DATA_BROWSER, false, null);
     }
 
     public static boolean useTraceNames()
@@ -342,7 +358,7 @@ public class Preferences
         final IPreferencesService prefs = Platform.getPreferencesService();
         if (prefs == null) // Allow some JUnit tests without prefs
             return Boolean.TRUE;
-        return prefs.getBoolean(Activator.PREFERENCES_ID, USE_TRACE_NAMES, Boolean.TRUE, null);
+        return prefs.getBoolean(determineID(prefs, USE_TRACE_NAMES), USE_TRACE_NAMES, Boolean.TRUE, null);
     }
 
 }

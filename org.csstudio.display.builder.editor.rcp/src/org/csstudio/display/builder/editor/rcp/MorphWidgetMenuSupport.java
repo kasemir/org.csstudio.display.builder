@@ -14,6 +14,7 @@ import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.undo.AddWidgetAction;
 import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
 import org.csstudio.display.builder.model.ChildrenProperty;
+import org.csstudio.display.builder.model.RuntimeWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
@@ -106,16 +107,22 @@ public class MorphWidgetMenuSupport
             final Set<WidgetProperty<?>> props = widget.getProperties();
             for (WidgetProperty<?> prop : props)
             {
-                final Optional<WidgetProperty<Object>> new_prop = new_widget.checkProperty(prop.getName());
-                if (new_prop.isPresent())
-                    try
-                    {
-                        new_prop.get().setValueFromObject(prop.getValue());
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.log(Level.WARNING, "Cannot morph " + prop, ex);
-                    }
+                final Optional<WidgetProperty<Object>> check = new_widget.checkProperty(prop.getName());
+                if (! check.isPresent())
+                    continue;
+                final WidgetProperty<Object> new_prop = check.get();
+                if (new_prop.isReadonly())
+                    continue;
+                if (new_prop instanceof RuntimeWidgetProperty)
+                    continue;
+                try
+                {
+                    new_prop.setValueFromObject(prop.getValue());
+                }
+                catch (Exception ex)
+                {
+                    logger.log(Level.WARNING, "Cannot morph " + prop, ex);
+                }
             }
             return new_widget;
         }

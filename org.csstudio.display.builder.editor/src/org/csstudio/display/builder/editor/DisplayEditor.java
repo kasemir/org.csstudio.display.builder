@@ -31,6 +31,7 @@ import org.csstudio.display.builder.editor.util.WidgetTransfer;
 import org.csstudio.display.builder.model.ChildrenProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
+import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.persist.ModelReader;
 import org.csstudio.display.builder.model.persist.ModelWriter;
 import org.csstudio.display.builder.model.widgets.ArrayWidget;
@@ -112,6 +113,7 @@ public class DisplayEditor
     private DisplayModel model;
     private SplitPane root;
     private ScrollPane model_root;
+    private Palette palette;
     private Group model_parent;
 
     /** @param toolkit JFX Toolkit
@@ -143,7 +145,7 @@ public class DisplayEditor
 
         scroll_body.getChildren().add(edit_tools);
 
-        final Palette palette = new Palette(this);
+        palette = new Palette(this);
         final Node palette_node = palette.create();
 
         root = new SplitPane();
@@ -197,20 +199,32 @@ public class DisplayEditor
             }
         });
 
+        // De-select all widgets if plain left mouse button is clicked on background
         model_root.setOnMousePressed(event ->
         {
-            if ( event.isControlDown() )
+            // Don't do that on control-click (to add/remove to current selection)
+            // nor on right button (to open context menu)
+            if (event.isControlDown()   ||   ! event.isPrimaryButtonDown())
                 return;
             logger.log(Level.FINE, "Mouse pressed in 'editor', de-select all widgets");
             event.consume();
             selection.clear();
         });
 
-        new Rubberband(model_root, edit_tools, this::selectWidgetsInRegion);
+        new Rubberband(model_root, edit_tools, this::handleRubberbandSelection);
         new PointsBinding(edit_tools, selection, undo);
 
         WidgetTransfer.addDropSupport(model_root, group_handler, selection_tracker, this::addWidgets);
+    }
 
+    private void handleRubberbandSelection(final Rectangle2D region, final boolean update_existing)
+    {
+        // Is a widget type to be created selected in the palette?
+        final WidgetDescriptor desc = palette.getSelectedWidgetType();
+        if (desc == null)
+            selectWidgetsInRegion(region, update_existing);
+        else
+            createWidget(region, desc);
     }
 
     private void selectWidgetsInRegion(final Rectangle2D region, final boolean update_existing)
@@ -222,6 +236,31 @@ public class DisplayEditor
                 selection.toggleSelection(widget);
         else
             selection.setSelection(found);
+    }
+
+    private void createWidget(final Rectangle2D region, final WidgetDescriptor desc)
+    {
+        // Create widget of that type
+        final Widget widget = desc.createWidget();
+
+        // Size to rubberbanded region, optionally constrained by grid
+        final Point2D location = selection_tracker.gridConstrain(region.getMinX(), region.getMinY());
+        widget.propX().setValue((int) location.getX());
+        widget.propY().setValue((int) location.getY());
+        final Point2D size = selection_tracker.gridConstrain(region.getWidth(), region.getHeight());
+        widget.propWidth().setValue((int) size.getX());
+        widget.propHeight().setValue((int) size.getY());
+
+        // Add to model
+        final ChildrenProperty target = model.runtimeChildren();
+        widget_naming.setDefaultName(model, widget);
+        undo.execute(new AddWidgetAction(target, widget));
+
+        // De-activate the palette, so rubberband will from now on select widgets
+        palette.clearSelectedWidgetType();
+
+        // Select the new widget
+        selection.setSelection(Arrays.asList(widget));
     }
 
     /** @param widgets Widgets to be added to existing model */
