@@ -482,6 +482,20 @@
     <tooltip>$(actions)</tooltip>
   </widget>
   <widget type="action_button" version="3.0.0">
+    <name>Action Button_25</name>
+    <actions>
+      <action type="open_display">
+        <file>use_classes.bob</file>
+        <target>replace</target>
+        <description>Classes</description>
+      </action>
+    </actions>
+    <y>281</y>
+    <width>120</width>
+    <height>26</height>
+    <tooltip>$(actions)</tooltip>
+  </widget>
+  <widget type="action_button" version="3.0.0">
     <name>Action Button_24</name>
     <actions>
       <action type="open_display">
