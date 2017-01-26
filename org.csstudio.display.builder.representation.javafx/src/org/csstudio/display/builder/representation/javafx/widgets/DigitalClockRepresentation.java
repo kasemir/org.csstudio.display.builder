@@ -134,6 +134,16 @@ public class DigitalClockRepresentation extends RegionBaseRepresentation<Clock, 
                 model_widget.propDateVisible().setValue(n);
             }
         });
+        clock.layoutXProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(n, model_widget.propX().getValue()) ) {
+                model_widget.propX().setValue(n.intValue());
+            }
+        });
+        clock.layoutYProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(n, model_widget.propY().getValue()) ) {
+                model_widget.propY().setValue(n.intValue());
+            }
+        });
         clock.lcdCrystalEnabledProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propLcdCrystalEnabled().getValue()) ) {
                 model_widget.propLcdCrystalEnabled().setValue(n);
@@ -142,6 +152,16 @@ public class DigitalClockRepresentation extends RegionBaseRepresentation<Clock, 
         clock.lcdDesignProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propLcdDesign().getValue()) ) {
                 model_widget.propLcdDesign().setValue(Design.valueOf(n.name()));
+            }
+        });
+        clock.prefHeightProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(n, model_widget.propHeight().getValue()) ) {
+                model_widget.propHeight().setValue(n.intValue());
+            }
+        });
+        clock.prefWidthProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(n, model_widget.propWidth().getValue()) ) {
+                model_widget.propWidth().setValue(n.intValue());
             }
         });
         clock.runningProperty().addListener( ( s, o, n ) -> {

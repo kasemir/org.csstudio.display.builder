@@ -32,6 +32,10 @@
             type="clock">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.ComboRepresentation"
+            type="combo">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.DigitalClockRepresentation"
             type="digital_clock">
       </representation>
@@ -44,6 +48,10 @@
             type="embedded">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.GaugeRepresentation"
+            type="gauge">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.GroupRepresentation"
             type="group">
       </representation>
@@ -54,6 +62,10 @@
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.LEDRepresentation"
             type="led">
+      </representation>
+      <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.MeterRepresentation"
+            type="meter">
       </representation>
       <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.MultiStateLEDRepresentation"
@@ -84,6 +96,14 @@
             type="rectangle">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.ScaledSliderRepresentation"
+            type="scaledslider">
+      </representation>
+      <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.ScrollBarRepresentation"
+            type="scrollbar">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.SpinnerRepresentation"
             type="spinner">
       </representation>
@@ -112,28 +132,16 @@
             type="thermometer">
       </representation>
       <representation
-            class="org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation"
-            type="image">
-      </representation>
-      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.WebBrowserRepresentation"
             type="webbrowser">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.plots.ImageRepresentation"
+            type="image">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.plots.XYPlotRepresentation"
             type="xyplot">
-      </representation>
-      <representation
-            class="org.csstudio.display.builder.representation.javafx.widgets.ScaledSliderRepresentation"
-            type="scaledslider">
-      </representation>
-      <representation
-            class="org.csstudio.display.builder.representation.javafx.widgets.ScrollBarRepresentation"
-            type="scrollbar">
-      </representation>
-      <representation
-            class="org.csstudio.display.builder.representation.javafx.widgets.ComboRepresentation"
-            type="combo">
       </representation>
    </extension>
 </plugin>

@@ -114,7 +114,7 @@ public class DigitalClockWidget extends VisibleWidget {
     public static final WidgetPropertyDescriptor<Boolean> propRunning           = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "running", Messages.WidgetProperties_Running);
     public static final WidgetPropertyDescriptor<Boolean> propSecondVisible     = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "second_visible", Messages.WidgetProperties_SecondVisible);
     public static final WidgetPropertyDescriptor<Boolean> propShadowsEnabled    = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "shadows_enabled", Messages.WidgetProperties_ShadowsEnabled);
-    public static final WidgetPropertyDescriptor<String>  propTitle             = CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "title", Messages.WidgetProperties_Title);
+    public static final WidgetPropertyDescriptor<String>  propTitle             = CommonWidgetProperties.newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY, "title", Messages.WidgetProperties_Title);
     public static final WidgetPropertyDescriptor<Boolean> propTitleVisible      = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "title_visible", Messages.WidgetProperties_TitleVisible);
 
     private volatile WidgetProperty<Boolean> dateVisible;

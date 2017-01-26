@@ -323,6 +323,16 @@ public class ClockRepresentation extends RegionBaseRepresentation<Clock, ClockWi
                 model_widget.propKnobColor().setValue(JFXUtil.convert(n));
             }
         });
+        clock.layoutXProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(n, model_widget.propX().getValue()) ) {
+                model_widget.propX().setValue(n.intValue());
+            }
+        });
+        clock.layoutYProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(n, model_widget.propY().getValue()) ) {
+                model_widget.propY().setValue(n.intValue());
+            }
+        });
         clock.minuteColorProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, JFXUtil.convert(model_widget.propMinuteColor().getValue())) ) {
                 model_widget.propMinuteColor().setValue(JFXUtil.convert(n));
@@ -336,6 +346,16 @@ public class ClockRepresentation extends RegionBaseRepresentation<Clock, ClockWi
         clock.minuteTickMarksVisibleProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propMinuteTickMarkVisible().getValue()) ) {
                 model_widget.propMinuteTickMarkVisible().setValue(n);
+            }
+        });
+        clock.prefHeightProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(n, model_widget.propHeight().getValue()) ) {
+                model_widget.propHeight().setValue(n.intValue());
+            }
+        });
+        clock.prefWidthProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(n, model_widget.propWidth().getValue()) ) {
+                model_widget.propWidth().setValue(n.intValue());
             }
         });
         clock.runningProperty().addListener( ( s, o, n ) -> {

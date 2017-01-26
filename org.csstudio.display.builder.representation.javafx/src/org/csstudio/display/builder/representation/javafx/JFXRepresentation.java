@@ -42,9 +42,11 @@ import org.csstudio.display.builder.model.widgets.ComboWidget;
 import org.csstudio.display.builder.model.widgets.DigitalClockWidget;
 import org.csstudio.display.builder.model.widgets.EllipseWidget;
 import org.csstudio.display.builder.model.widgets.EmbeddedDisplayWidget;
+import org.csstudio.display.builder.model.widgets.GaugeWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.model.widgets.LEDWidget;
 import org.csstudio.display.builder.model.widgets.LabelWidget;
+import org.csstudio.display.builder.model.widgets.MeterWidget;
 import org.csstudio.display.builder.model.widgets.MultiStateLEDWidget;
 import org.csstudio.display.builder.model.widgets.PictureWidget;
 import org.csstudio.display.builder.model.widgets.PolygonWidget;
@@ -78,10 +80,12 @@ import org.csstudio.display.builder.representation.javafx.widgets.ComboRepresent
 import org.csstudio.display.builder.representation.javafx.widgets.DigitalClockRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.EllipseRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.EmbeddedDisplayRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.GaugeRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.GroupRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LEDRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.LabelRepresentation;
+import org.csstudio.display.builder.representation.javafx.widgets.MeterRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.MultiStateLEDRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.PictureRepresentation;
 import org.csstudio.display.builder.representation.javafx.widgets.PolygonRepresentation;
@@ -227,43 +231,46 @@ public class JFXRepresentation extends ToolkitRepresentation<Parent, Node>
             register(entry.getKey(), entry.getValue());
     }
 
-    /** Add known representations as fallback in absence of registry information */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private static void registerKnownRepresentations(Map<String, WidgetRepresentationFactory<Parent, Node>> factories)
-    {
-        factories.put(ActionButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ActionButtonRepresentation());
-        factories.put(ArcWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ArcRepresentation());
-        factories.put(ArrayWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new ArrayRepresentation());
-        factories.put(BoolButtonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new BoolButtonRepresentation());
-        factories.put(ByteMonitorWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ByteMonitorRepresentation());
-        factories.put(CheckBoxWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new CheckBoxRepresentation());
+    /**
+     * Add known representations as fallback in absence of registry information
+     */
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
+    private static void registerKnownRepresentations ( Map<String, WidgetRepresentationFactory<Parent, Node>> factories ) {
+        factories.put(ActionButtonWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ActionButtonRepresentation());
+        factories.put(ArcWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ArcRepresentation());
+        factories.put(ArrayWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ArrayRepresentation());
+        factories.put(BoolButtonWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new BoolButtonRepresentation());
+        factories.put(ByteMonitorWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ByteMonitorRepresentation());
+        factories.put(CheckBoxWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new CheckBoxRepresentation());
         factories.put(ClockWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ClockRepresentation());
-        factories.put(ComboWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ComboRepresentation());
+        factories.put(ComboWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ComboRepresentation());
         factories.put(DigitalClockWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new DigitalClockRepresentation());
-        factories.put(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new EmbeddedDisplayRepresentation());
-        factories.put(EllipseWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new EllipseRepresentation());
-        factories.put(GroupWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new GroupRepresentation());
-        factories.put(ImageWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ImageRepresentation());
-        factories.put(LabelWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new LabelRepresentation());
-        factories.put(LEDWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new LEDRepresentation());
-        factories.put(MultiStateLEDWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new MultiStateLEDRepresentation());
-        factories.put(PictureWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new PictureRepresentation());
-        factories.put(PolygonWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new PolygonRepresentation());
-        factories.put(PolylineWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new PolylineRepresentation());
-        factories.put(ProgressBarWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ProgressBarRepresentation());
-        factories.put(RadioWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation) new RadioRepresentation());
-        factories.put(RectangleWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new RectangleRepresentation());
-        factories.put(ScaledSliderWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ScaledSliderRepresentation());
-        factories.put(SpinnerWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new SpinnerRepresentation());
-        factories.put(ScrollBarWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new ScrollBarRepresentation());
-        factories.put(TableWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TableRepresentation());
-        factories.put(TabsWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TabsRepresentation());
-        factories.put(TankWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TankRepresentation());
-        factories.put(TextEntryWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextEntryRepresentation());
-        factories.put(TextUpdateWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new TextUpdateRepresentation());
+        factories.put(EmbeddedDisplayWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new EmbeddedDisplayRepresentation());
+        factories.put(EllipseWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new EllipseRepresentation());
+        factories.put(GaugeWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new GaugeRepresentation());
+        factories.put(GroupWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new GroupRepresentation());
+        factories.put(ImageWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ImageRepresentation());
+        factories.put(LabelWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new LabelRepresentation());
+        factories.put(LEDWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new LEDRepresentation());
+        factories.put(MeterWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new MeterRepresentation());
+        factories.put(MultiStateLEDWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new MultiStateLEDRepresentation());
+        factories.put(PictureWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new PictureRepresentation());
+        factories.put(PolygonWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new PolygonRepresentation());
+        factories.put(PolylineWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new PolylineRepresentation());
+        factories.put(ProgressBarWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ProgressBarRepresentation());
+        factories.put(RadioWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new RadioRepresentation());
+        factories.put(RectangleWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new RectangleRepresentation());
+        factories.put(ScaledSliderWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ScaledSliderRepresentation());
+        factories.put(SpinnerWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new SpinnerRepresentation());
+        factories.put(ScrollBarWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ScrollBarRepresentation());
+        factories.put(TableWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TableRepresentation());
+        factories.put(TabsWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TabsRepresentation());
+        factories.put(TankWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TankRepresentation());
+        factories.put(TextEntryWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TextEntryRepresentation());
+        factories.put(TextUpdateWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new TextUpdateRepresentation());
         factories.put(ThermometerWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new ThermometerRepresentation());
-        factories.put(WebBrowserWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new WebBrowserRepresentation());
-        factories.put(XYPlotWidget.WIDGET_DESCRIPTOR.getType(), () -> (WidgetRepresentation)new XYPlotRepresentation());
+        factories.put(WebBrowserWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new WebBrowserRepresentation());
+        factories.put(XYPlotWidget.WIDGET_DESCRIPTOR.getType(), ( ) -> (WidgetRepresentation) new XYPlotRepresentation());
     }
 
     @SuppressWarnings("unchecked")
