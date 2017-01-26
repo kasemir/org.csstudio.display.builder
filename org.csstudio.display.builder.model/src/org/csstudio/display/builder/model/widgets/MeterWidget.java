@@ -63,7 +63,6 @@ public class MeterWidget extends VisibleWidget {
         LEVEL(Gauge.SkinType.LEVEL),
         LINEAR(Gauge.SkinType.LINEAR),
         QUARTER(Gauge.SkinType.QUARTER),
-        SPACE_X(Gauge.SkinType.SPACE_X),
         TILE_KPI(Gauge.SkinType.TILE_KPI),
         TILE_SPARK_LINE(Gauge.SkinType.TILE_SPARK_LINE),
         TILE_TEXT_KPI(Gauge.SkinType.TILE_TEXT_KPI),

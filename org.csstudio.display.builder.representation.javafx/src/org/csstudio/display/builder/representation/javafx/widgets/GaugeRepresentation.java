@@ -50,20 +50,11 @@ public class GaugeRepresentation extends RegionBaseRepresentation<Gauge, GaugeWi
 
         if ( dirtyLook.checkAndClear() ) {
 
-//            value = model_widget.propBorderDesign().getValue().design();
-//
-//            if ( !Objects.equals(value, jfx_node.getGaugeDesign()) ) {
-//                jfx_node.setGaugeDesign((GaugeDesign) value);
-//            }
-
             value = model_widget.propSkin().getValue().skinType();
 
             if ( !Objects.equals(value, jfx_node.getSkinType()) ) {
                 jfx_node.setSkinType((Gauge.SkinType) value);
             }
-//            if ( !Objects.equals(value, jfx_node.getGauge().getSkinType()) ) {
-//                jfx_node.getGauge().setSkinType((Gauge.SkinType) value);
-//            }
 
         }
 
@@ -80,16 +71,6 @@ public class GaugeRepresentation extends RegionBaseRepresentation<Gauge, GaugeWi
                                   //  Previous properties must be set first.
                                   //--------------------------------------------------------
                                   .build();
-
-//        FGauge fgauge = FGaugeBuilder.create()
-//                                     .gauge(gauge)
-//                                     .gaugeDesign(model_widget.propBorderDesign().getValue().design())
-//                                     .prefHeight(model_widget.propHeight().getValue())
-//                                     .prefWidth(model_widget.propWidth().getValue())
-//                                     //--------------------------------------------------------
-//                                     //  Previous properties must be set first.
-//                                     //--------------------------------------------------------
-//                                     .build();
 
         gauge.layoutXProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propX().getValue()) ) {
@@ -125,7 +106,6 @@ public class GaugeRepresentation extends RegionBaseRepresentation<Gauge, GaugeWi
         model_widget.propWidth().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::geometryChanged);
 
-        model_widget.propBorderDesign().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
 
     }

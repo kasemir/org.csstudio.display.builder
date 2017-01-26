@@ -21,7 +21,6 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 
 import eu.hansolo.medusa.Gauge;
-import eu.hansolo.medusa.GaugeDesign;
 
 
 /**
@@ -46,38 +45,6 @@ public class GaugeWidget extends VisibleWidget {
     };
 
     /**
-     * This enumeration is a trick to have the original enumeration sorted.
-     * This because the combo box showing the values is not made to sort the values.
-     *
-     * @author claudiorosati, European Spallation Source ERIC
-     * @version 1.0.0 25 Jan 2017
-     */
-    public enum BorderDesign {
-
-        BLACK_METAL(GaugeDesign.BLACK_METAL),
-        BRASS(GaugeDesign.BRASS),
-        ENZO(GaugeDesign.ENZO),
-        FLAT(GaugeDesign.FLAT),
-        GOLD(GaugeDesign.GOLD),
-        METAL(GaugeDesign.METAL),
-        NONE(GaugeDesign.NONE),
-        STEEL(GaugeDesign.STEEL),
-        TILTED_BLACK(GaugeDesign.TILTED_BLACK),
-        TRANSPARENT(GaugeDesign.TRANSPARENT);
-
-        private final GaugeDesign design;
-
-        BorderDesign ( GaugeDesign design ) {
-            this.design = design;
-        }
-
-        public GaugeDesign design ( ) {
-            return design;
-        }
-
-    }
-
-    /**
      * This enumeration is used to reduce the choices from the original enumeration.
      *
      * @author claudiorosati, European Spallation Source ERIC
@@ -95,6 +62,7 @@ public class GaugeWidget extends VisibleWidget {
         SIMPLE_DIGITAL(Gauge.SkinType.SIMPLE_DIGITAL),
         SIMPLE_SECTION(Gauge.SkinType.SIMPLE_SECTION),
         SLIM(Gauge.SkinType.SLIM),
+        SPACE_X(Gauge.SkinType.SPACE_X),
         TINY(Gauge.SkinType.TINY);
 
         private final Gauge.SkinType skinType;
@@ -109,12 +77,6 @@ public class GaugeWidget extends VisibleWidget {
 
     }
 
-    public static final WidgetPropertyDescriptor<BorderDesign> propBorderDesign          = new WidgetPropertyDescriptor<BorderDesign>         (WidgetPropertyCategory.WIDGET,   "border_design",            Messages.WidgetProperties_BorderDesign) {
-        @Override
-        public EnumWidgetProperty<BorderDesign> createProperty ( Widget widget, BorderDesign defaultValue ) {
-            return new EnumWidgetProperty<>(this, widget, defaultValue);
-        }
-    };
     public static final WidgetPropertyDescriptor<Skin>         propSkin                  = new WidgetPropertyDescriptor<Skin>                 (WidgetPropertyCategory.WIDGET,   "skin",                     Messages.WidgetProperties_Skin) {
         @Override
         public EnumWidgetProperty<Skin> createProperty ( Widget widget, Skin defaultValue ) {
@@ -122,15 +84,10 @@ public class GaugeWidget extends VisibleWidget {
         }
     };
 
-    private volatile WidgetProperty<BorderDesign> borderDesign;
-    private volatile WidgetProperty<Skin>         skin;
+    private volatile WidgetProperty<Skin> skin;
 
     public GaugeWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 120, 120);
-    }
-
-    public WidgetProperty<BorderDesign> propBorderDesign ( ) {
-        return borderDesign;
     }
 
     public WidgetProperty<Skin> propSkin ( ) {
@@ -142,7 +99,6 @@ public class GaugeWidget extends VisibleWidget {
 
         super.defineProperties(properties);
 
-        properties.add(borderDesign          = propBorderDesign.createProperty(this, BorderDesign.NONE));
         properties.add(skin                  = propSkin.createProperty(this, Skin.SIMPLE_SECTION));
 
     }
