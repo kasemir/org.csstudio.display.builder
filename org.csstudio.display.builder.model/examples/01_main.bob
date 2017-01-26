@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <display version="2.0.0">
   <name>Main</name>
+  <width>810</width>
+  <grid_color>
+    <color red="127" green="127" blue="127">
+    </color>
+  </grid_color>
   <widget type="label" version="2.0.0">
     <name>Label</name>
     <text>Display Builder Examples</text>
@@ -175,9 +180,9 @@
     <name>Action Button_6</name>
     <actions>
       <action type="open_display">
-        <file>06_runtime.bob</file>
+        <file>10_scripts.bob</file>
         <target>replace</target>
-        <description>Runtime</description>
+        <description>Scripts</description>
       </action>
     </actions>
     <y>241</y>
@@ -480,26 +485,13 @@
     <name>Action Button_24</name>
     <actions>
       <action type="open_display">
-        <file>10_scripts.bob</file>
+        <file>misc_clock.bob</file>
         <target>replace</target>
-        <description>Scripts</description>
+        <description>Clocks</description>
       </action>
     </actions>
-    <y>280</y>
-    <width>120</width>
-    <height>26</height>
-    <tooltip>$(actions)</tooltip>
-  </widget>
-  <widget type="action_button" version="3.0.0">
-    <name>Action Button_25</name>
-    <actions>
-      <action type="open_display">
-        <file>use_classes.bob</file>
-        <target>replace</target>
-        <description>Classes</description>
-      </action>
-    </actions>
-    <y>321</y>
+    <x>471</x>
+    <y>361</y>
     <width>120</width>
     <height>26</height>
     <tooltip>$(actions)</tooltip>

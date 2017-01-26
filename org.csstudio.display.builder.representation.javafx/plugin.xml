@@ -28,6 +28,14 @@
             type="checkbox">
       </representation>
       <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.ClockRepresentation"
+            type="clock">
+      </representation>
+      <representation
+            class="org.csstudio.display.builder.representation.javafx.widgets.DigitalClockRepresentation"
+            type="digital_clock">
+      </representation>
+      <representation
             class="org.csstudio.display.builder.representation.javafx.widgets.EllipseRepresentation"
             type="ellipse">
       </representation>
