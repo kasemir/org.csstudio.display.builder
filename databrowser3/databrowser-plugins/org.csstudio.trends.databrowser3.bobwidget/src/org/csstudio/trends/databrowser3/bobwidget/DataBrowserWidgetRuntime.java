@@ -89,7 +89,7 @@ public class DataBrowserWidgetRuntime  extends WidgetRuntime<DataBrowserWidget>
 
             for (ModelItem item : widget.getDataBrowserModel().getItems())
             {
-                names.add(item.getDisplayName());
+                names.add(item.getResolvedDisplayName());
                 final Optional<PlotDataItem<Instant>> sample = item.getSelectedSample();
                 if (sample.isPresent())
                 {
