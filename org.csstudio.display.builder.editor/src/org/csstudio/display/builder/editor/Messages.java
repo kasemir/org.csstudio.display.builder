@@ -46,6 +46,7 @@ public class Messages extends NLS
     public static String ScriptCountFMT;
     public static String SetPropertyFmt;
     public static String SetWidgetPoints;
+    public static String ShowCoordinates;
     public static String Snap;
     public static String Undo_TT;
     public static String UpdateWidgetLocation;
