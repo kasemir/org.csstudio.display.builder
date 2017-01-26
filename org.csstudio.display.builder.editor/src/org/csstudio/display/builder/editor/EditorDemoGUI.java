@@ -180,6 +180,7 @@ public class EditorDemoGUI
                 new Separator(),
                 createToggleButton(ActionDescription.ENABLE_GRID),
                 createToggleButton(ActionDescription.ENABLE_SNAP),
+                createToggleButton(ActionDescription.ENABLE_COORDS),
                 new Separator(),
                 back_button,
                 front_button,

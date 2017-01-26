@@ -40,6 +40,7 @@ public class DisplayEditorToolbarContributor extends EditorActionBarContributor
         null, // Marker for Separator
         EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_GRID),
         EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_SNAP),
+        EditorPartAction.forToggledActionDescription(ActionDescription.ENABLE_COORDS),
         null, // Marker for Separator
         EditorPartAction.forActionDescription(ActionDescription.TO_BACK),
         EditorPartAction.forActionDescription(ActionDescription.TO_FRONT),

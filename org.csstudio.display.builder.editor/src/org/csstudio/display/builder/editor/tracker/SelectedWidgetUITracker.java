@@ -144,19 +144,15 @@ public class SelectedWidgetUITracker extends Tracker
 
         // When tracker moved, update widgets
         setListener(this::updateWidgetsFromTracker);
-
     }
 
-    public void setModel ( final DisplayModel model ) {
-
+    public void setModel(final DisplayModel model)
+    {
         grid_constraint.configure(model);
-
-        setShowLocationAndSize(model.propLocationAndSizeVisible().getValue());
-        model.propLocationAndSizeVisible().addPropertyListener( ( p, o, n ) -> setShowLocationAndSize(n));
-
     }
 
-    public DisplayModel getModel ( ) {
+    public DisplayModel getModel()
+    {
         return grid_constraint.getModel();
     }
 
@@ -496,7 +492,7 @@ public class SelectedWidgetUITracker extends Tracker
     }
 
     @Override
-    protected void endMouseDrag (final MouseEvent event)
+    protected void endMouseDrag(final MouseEvent event)
     {   // Hide snap lines when drag ends
         super.endMouseDrag(event);
         snap_constraint.setVisible(false);

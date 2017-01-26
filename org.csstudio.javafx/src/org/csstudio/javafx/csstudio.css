@@ -32,4 +32,5 @@
     -fx-font-size: 8.5px;
     -fx-padding: 0 0 0 0;
     -fx-text-fill: crimson;
+    -fx-background-color: rgba(255,255,255, 0.7);
 }
