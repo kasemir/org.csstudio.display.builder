@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014-2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2014-2017 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 
+import org.csstudio.javafx.BufferUtil;
 import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.rtplot.Annotation;
 import org.csstudio.javafx.rtplot.AxisRange;
@@ -468,8 +469,9 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
 
         plot_processor.autoscale();
 
-        final BufferedImage image = new BufferedImage(area_copy.width, area_copy.height, BufferedImage.TYPE_INT_ARGB);
-        final Graphics2D gc = image.createGraphics();
+        final BufferUtil buffer = BufferUtil.getBufferedImage(area_copy.width, area_copy.height);
+        final BufferedImage image = buffer.getImage();
+        final Graphics2D gc = buffer.getGraphics();
 
         // Really need AA for text to avoid anemic fonts.
         // AA for lines results in some fuzzyness,
