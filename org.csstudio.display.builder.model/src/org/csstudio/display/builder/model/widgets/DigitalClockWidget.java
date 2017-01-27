@@ -103,19 +103,22 @@ public class DigitalClockWidget extends VisibleWidget {
 
     }
 
-    public static final WidgetPropertyDescriptor<Boolean> propDateVisible       = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "date_visible",        Messages.WidgetProperties_DateVisible);
-    public static final WidgetPropertyDescriptor<Boolean> propLcdCrystalEnabled = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.WIDGET,   "lcd_crystal_enabled", Messages.WidgetProperties_LcdCrystalEnabled);
     public static final WidgetPropertyDescriptor<Design>  propLcdDesign         = new WidgetPropertyDescriptor<Design>               (WidgetPropertyCategory.WIDGET,   "lcd_design",          Messages.WidgetProperties_LcdDesign) {
         @Override
         public EnumWidgetProperty<Design> createProperty ( Widget widget, Design defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<Boolean> propRunning           = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "running", Messages.WidgetProperties_Running);
-    public static final WidgetPropertyDescriptor<Boolean> propSecondVisible     = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "second_visible", Messages.WidgetProperties_SecondVisible);
-    public static final WidgetPropertyDescriptor<Boolean> propShadowsEnabled    = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "shadows_enabled", Messages.WidgetProperties_ShadowsEnabled);
-    public static final WidgetPropertyDescriptor<String>  propTitle             = CommonWidgetProperties.newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY, "title", Messages.WidgetProperties_Title);
-    public static final WidgetPropertyDescriptor<Boolean> propTitleVisible      = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "title_visible", Messages.WidgetProperties_TitleVisible);
+
+    public static final WidgetPropertyDescriptor<Boolean> propDateVisible       = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "date_visible",        Messages.WidgetProperties_DateVisible);
+    public static final WidgetPropertyDescriptor<Boolean> propSecondVisible     = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "second_visible",      Messages.WidgetProperties_SecondVisible);
+    public static final WidgetPropertyDescriptor<String>  propTitle             = CommonWidgetProperties.newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "title",               Messages.WidgetProperties_Title);
+    public static final WidgetPropertyDescriptor<Boolean> propTitleVisible      = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "title_visible",       Messages.WidgetProperties_TitleVisible);
+
+    public static final WidgetPropertyDescriptor<Boolean> propRunning           = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "running",             Messages.WidgetProperties_Running);
+
+    public static final WidgetPropertyDescriptor<Boolean> propLcdCrystalEnabled = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC,     "lcd_crystal_enabled", Messages.WidgetProperties_LcdCrystalEnabled);
+    public static final WidgetPropertyDescriptor<Boolean> propShadowsEnabled    = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC,     "shadows_enabled",     Messages.WidgetProperties_ShadowsEnabled);
 
     private volatile WidgetProperty<Boolean> dateVisible;
     private volatile WidgetProperty<Boolean> lcdCrystalEnabled;
@@ -168,13 +171,14 @@ public class DigitalClockWidget extends VisibleWidget {
         super.defineProperties(properties);
 
         properties.add(lcdDesign         = propLcdDesign.createProperty(this, Design.SECTIONS));
-        properties.add(lcdCrystalEnabled = propLcdCrystalEnabled.createProperty(this, true));
 
         properties.add(dateVisible       = propDateVisible.createProperty(this, true));
         properties.add(secondVisible     = propSecondVisible.createProperty(this, true));
-        properties.add(shadowsEnabled    = propShadowsEnabled.createProperty(this, true));
         properties.add(title             = propTitle.createProperty(this, ""));
         properties.add(titleVisible      = propTitleVisible.createProperty(this, false));
+
+        properties.add(lcdCrystalEnabled = propLcdCrystalEnabled.createProperty(this, true));
+        properties.add(shadowsEnabled    = propShadowsEnabled.createProperty(this, true));
 
         //  Properties not visible in the property sheet.
         running = propRunning.createProperty(this, true);
