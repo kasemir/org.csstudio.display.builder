@@ -22,8 +22,6 @@ import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 
-import eu.hansolo.medusa.Gauge;
-
 
 /**
  * Widget displaying and editing a numeric PV value.
@@ -53,41 +51,32 @@ public class GaugeWidget extends PVWidget {
      * @version 1.0.0 25 Jan 2017
      */
     public enum Skin {
-
-        BAR(Gauge.SkinType.BAR),
-        DIGITAL(Gauge.SkinType.DIGITAL),
-        FLAT(Gauge.SkinType.FLAT),
-        GAUGE(Gauge.SkinType.GAUGE),
-        MODERN(Gauge.SkinType.MODERN),
-        SECTION(Gauge.SkinType.SECTION),
-        SIMPLE(Gauge.SkinType.SIMPLE),
-        SIMPLE_DIGITAL(Gauge.SkinType.SIMPLE_DIGITAL),
-        SIMPLE_SECTION(Gauge.SkinType.SIMPLE_SECTION),
-        SLIM(Gauge.SkinType.SLIM),
-        SPACE_X(Gauge.SkinType.SPACE_X),
-        TINY(Gauge.SkinType.TINY);
-
-        private final Gauge.SkinType skinType;
-
-        Skin ( Gauge.SkinType skinType ) {
-            this.skinType = skinType;
-        }
-
-        public Gauge.SkinType skinType ( ) {
-            return skinType;
-        }
-
+        BAR,
+        DIGITAL,
+        FLAT,
+        GAUGE,
+        MODERN,
+        SECTION,
+        SIMPLE,
+        SIMPLE_DIGITAL,
+        SIMPLE_SECTION,
+        SLIM,
+        SPACE_X,
+        TINY
     }
 
-    public static final WidgetPropertyDescriptor<Boolean>     propAnimated   = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "animated",    Messages.WidgetProperties_Animated);
     public static final WidgetPropertyDescriptor<Skin>        propSkin       = new WidgetPropertyDescriptor<Skin>                 (WidgetPropertyCategory.WIDGET,   "skin",        Messages.WidgetProperties_Skin) {
         @Override
         public EnumWidgetProperty<Skin> createProperty ( Widget widget, Skin defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
+
     public static final WidgetPropertyDescriptor<String>      propTitle      = CommonWidgetProperties.newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "title",       Messages.WidgetProperties_Title);
-    public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor = CommonWidgetProperties.newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "title_color", Messages.WidgetProperties_TitleColor);
+
+    public static final WidgetPropertyDescriptor<Boolean>     propAnimated   = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "animated",    Messages.WidgetProperties_Animated);
+
+    public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor = CommonWidgetProperties.newColorPropertyDescriptor  (WidgetPropertyCategory.MISC,     "title_color", Messages.WidgetProperties_TitleColor);
 
     private volatile WidgetProperty<Boolean>     animated;
     private volatile WidgetProperty<Skin>        skin;
@@ -122,9 +111,10 @@ public class GaugeWidget extends PVWidget {
         properties.add(skin       = propSkin.createProperty(this, Skin.SIMPLE_SECTION));
 
         properties.add(title      = propTitle.createProperty(this, ""));
-        properties.add(titleColor = propTitleColor.createProperty(this, new WidgetColor(136, 196, 136)));
 
         properties.add(animated   = propAnimated.createProperty(this, true));
+
+        properties.add(titleColor = propTitleColor.createProperty(this, new WidgetColor(136, 196, 136)));
 
     }
 

@@ -22,8 +22,6 @@ import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 
-import eu.hansolo.medusa.Gauge;
-
 
 /**
  * Widget displaying and editing a numeric PV value.
@@ -53,43 +51,34 @@ public class MeterWidget extends PVWidget {
      * @version 1.0.0 25 Jan 2017
      */
     public enum Skin {
-
-        AMP(Gauge.SkinType.AMP),
-        BATTERY(Gauge.SkinType.BATTERY),
-        BULLET_CHART(Gauge.SkinType.BULLET_CHART),
-        CHARGE(Gauge.SkinType.CHARGE),
-        DASHBOARD(Gauge.SkinType.DASHBOARD),
-        HORIZONTAL(Gauge.SkinType.HORIZONTAL),
-        INDICATOR(Gauge.SkinType.INDICATOR),
-        KPI(Gauge.SkinType.KPI),
-        LEVEL(Gauge.SkinType.LEVEL),
-        LINEAR(Gauge.SkinType.LINEAR),
-        QUARTER(Gauge.SkinType.QUARTER),
-        TILE_KPI(Gauge.SkinType.TILE_KPI),
-        TILE_SPARK_LINE(Gauge.SkinType.TILE_SPARK_LINE),
-        TILE_TEXT_KPI(Gauge.SkinType.TILE_TEXT_KPI),
-        VERTICAL(Gauge.SkinType.VERTICAL);
-
-        private final Gauge.SkinType skinType;
-
-        Skin ( Gauge.SkinType skinType ) {
-            this.skinType = skinType;
-        }
-
-        public Gauge.SkinType skinType ( ) {
-            return skinType;
-        }
-
+        AMP,
+        BATTERY,
+        BULLET_CHART,
+        CHARGE,
+        DASHBOARD,
+        HORIZONTAL,
+        INDICATOR,
+        KPI,
+        LEVEL,
+        LINEAR,
+        QUARTER,
+        TILE_KPI,
+        TILE_SPARK_LINE,
+        TILE_TEXT_KPI,
+        VERTICAL
     }
 
-    public static final WidgetPropertyDescriptor<Boolean>     propAnimated   = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "animated",    Messages.WidgetProperties_Animated);
     public static final WidgetPropertyDescriptor<Skin>        propSkin       = new WidgetPropertyDescriptor<Skin>                 (WidgetPropertyCategory.WIDGET,   "skin",        Messages.WidgetProperties_Skin) {
         @Override
         public EnumWidgetProperty<Skin> createProperty ( Widget widget, Skin defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
+
     public static final WidgetPropertyDescriptor<String>      propTitle      = CommonWidgetProperties.newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "title",       Messages.WidgetProperties_Title);
+
+    public static final WidgetPropertyDescriptor<Boolean>     propAnimated   = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "animated",    Messages.WidgetProperties_Animated);
+
     public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor = CommonWidgetProperties.newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "title_color", Messages.WidgetProperties_TitleColor);
 
     private volatile WidgetProperty<Boolean>     animated;
@@ -125,9 +114,10 @@ public class MeterWidget extends PVWidget {
         properties.add(skin       = propSkin.createProperty(this, Skin.HORIZONTAL));
 
         properties.add(title      = propTitle.createProperty(this, ""));
-        properties.add(titleColor = propTitleColor.createProperty(this, new WidgetColor(136, 196, 136)));
 
         properties.add(animated   = propAnimated.createProperty(this, true));
+
+        properties.add(titleColor = propTitleColor.createProperty(this, new WidgetColor(136, 196, 136)));
 
     }
 
