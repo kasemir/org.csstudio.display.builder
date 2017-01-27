@@ -18,7 +18,9 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
+import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
+import org.csstudio.display.builder.model.properties.WidgetColor;
 
 import eu.hansolo.medusa.Gauge;
 
@@ -29,7 +31,7 @@ import eu.hansolo.medusa.Gauge;
  * @author Claudio Rosati, European Spallation Source ERIC
  * @version 1.0.0 25 Jan 2017
  */
-public class MeterWidget extends VisibleWidget {
+public class MeterWidget extends PVWidget {
 
     public static final WidgetDescriptor WIDGET_DESCRIPTOR = new WidgetDescriptor(
         "meter",
@@ -80,21 +82,39 @@ public class MeterWidget extends VisibleWidget {
 
     }
 
-    public static final WidgetPropertyDescriptor<Skin>        propSkin                  = new WidgetPropertyDescriptor<Skin>                 (WidgetPropertyCategory.WIDGET,   "skin",                     Messages.WidgetProperties_Skin) {
+    public static final WidgetPropertyDescriptor<Boolean>     propAnimated   = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "animated",    Messages.WidgetProperties_Animated);
+    public static final WidgetPropertyDescriptor<Skin>        propSkin       = new WidgetPropertyDescriptor<Skin>                 (WidgetPropertyCategory.WIDGET,   "skin",        Messages.WidgetProperties_Skin) {
         @Override
         public EnumWidgetProperty<Skin> createProperty ( Widget widget, Skin defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
+    public static final WidgetPropertyDescriptor<String>      propTitle      = CommonWidgetProperties.newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "title",       Messages.WidgetProperties_Title);
+    public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor = CommonWidgetProperties.newColorPropertyDescriptor  (WidgetPropertyCategory.DISPLAY,  "title_color", Messages.WidgetProperties_TitleColor);
 
+    private volatile WidgetProperty<Boolean>     animated;
     private volatile WidgetProperty<Skin>        skin;
+    private volatile WidgetProperty<String>      title;
+    private volatile WidgetProperty<WidgetColor> titleColor;
 
     public MeterWidget ( ) {
-        super(WIDGET_DESCRIPTOR.getType(), 120, 120);
+        super(WIDGET_DESCRIPTOR.getType(), 240, 120);
+    }
+
+    public WidgetProperty<Boolean> propAnimated ( ) {
+        return animated;
     }
 
     public WidgetProperty<Skin> propSkin ( ) {
         return skin;
+    }
+
+    public WidgetProperty<String> propTitle ( ) {
+        return title;
+    }
+
+    public WidgetProperty<WidgetColor> propTitleColor ( ) {
+        return titleColor;
     }
 
     @Override
@@ -102,7 +122,12 @@ public class MeterWidget extends VisibleWidget {
 
         super.defineProperties(properties);
 
-        properties.add(skin                  = propSkin.createProperty(this, Skin.HORIZONTAL));
+        properties.add(skin       = propSkin.createProperty(this, Skin.HORIZONTAL));
+
+        properties.add(title      = propTitle.createProperty(this, ""));
+        properties.add(titleColor = propTitleColor.createProperty(this, new WidgetColor(136, 196, 136)));
+
+        properties.add(animated   = propAnimated.createProperty(this, true));
 
     }
 
