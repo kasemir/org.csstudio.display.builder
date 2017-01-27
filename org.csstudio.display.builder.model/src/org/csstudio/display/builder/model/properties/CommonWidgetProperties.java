@@ -587,4 +587,5 @@ public class CommonWidgetProperties
     /** Runtime 'connected' property: Are all PVs of the widget connected? */
     public static final WidgetPropertyDescriptor<Boolean> runtimePropConnected =
             newBooleanPropertyDescriptor(WidgetPropertyCategory.RUNTIME, "connected", Messages.WidgetProperties_Connected);
+
 }

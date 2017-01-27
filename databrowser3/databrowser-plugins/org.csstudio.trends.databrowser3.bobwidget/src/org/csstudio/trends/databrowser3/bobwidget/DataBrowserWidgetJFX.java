@@ -9,13 +9,17 @@ package org.csstudio.trends.databrowser3.bobwidget;
 
 import static org.csstudio.trends.databrowser3.Activator.logger;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.ModelThreadPool;
 import org.csstudio.display.builder.representation.javafx.widgets.JFXBaseRepresentation;
+import org.csstudio.trends.databrowser3.model.Model;
 import org.csstudio.trends.databrowser3.persistence.XMLPersistence;
 import org.csstudio.trends.databrowser3.ui.ControllerJFX;
 import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
@@ -107,19 +111,28 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Pane, DataBrowse
 
     private void fileChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
     {
-        String base_path = new_value;
         try
         {
-            model_file_stream = model_widget.getFileInputStream(base_path);
-            if (model_file_stream == null)
+            // Data browser model updates currently need to happen on the UI thread. Bummer.
+            // At least use background thread to read file into memory, avoiding file access delays on UI thread.
+            final InputStream file_stream = Objects.requireNonNull(model_widget.getFileInputStream(new_value));
+            final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            byte[] temp = new byte[1024];
+            while (true)
             {
-                System.out.println("Null stream for base path: " + base_path);
-                return;
+                final int len = file_stream.read(temp);
+                if (len < 0)
+                    break;
+                buffer.write(temp, 0, len);
             }
+            file_stream.close();
+            buffer.close();
+            model_file_stream = new ByteArrayInputStream(buffer.toByteArray());
         }
         catch (Exception ex)
         {
-            logger.log(Level.WARNING, "Failure resolving image path from base path: " + base_path, ex);
+            logger.log(Level.WARNING, "Failure resolving image path from base path: " + new_value, ex);
+            model_file_stream = null;
             return;
         }
 
@@ -139,8 +152,12 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Pane, DataBrowse
             if (safe_stream != null)
                 try
                 {
-                    model_widget.getDataBrowserModel().setMacros(model_widget.getEffectiveMacros());
-                    new XMLPersistence().load(model_widget.getDataBrowserModel(), safe_stream);
+                    final Model db_model = model_widget.getDataBrowserModel();
+                    db_model.setMacros(model_widget.getEffectiveMacros());
+                    new XMLPersistence().load(db_model, safe_stream);
+
+                    // Override settings in *.plt file with those of widget
+                    db_model.setToolbarVisible(model_widget.propShowToolbar().getValue());
                 }
                 catch (Exception ex)
                 {
@@ -148,13 +165,9 @@ public class DataBrowserWidgetJFX extends JFXBaseRepresentation<Pane, DataBrowse
                 }
         }
         if (dirty_opts.checkAndClear())
-        {
             plot.getPlot().showToolbar(model_widget.propShowToolbar().getValue());
-        }
         if (dirty_size.checkAndClear())
-        {
-            plot.getPlot().setPrefWidth(model_widget.propWidth().getValue());
-            plot.getPlot().setPrefHeight(model_widget.propHeight().getValue());
-        }
+            plot.getPlot().setPrefSize(model_widget.propWidth().getValue(),
+                                       model_widget.propHeight().getValue());
     }
 }
