@@ -13,6 +13,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propTransparent;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
@@ -83,6 +84,7 @@ public class ClockWidget extends VisibleWidget {
     public static final WidgetPropertyDescriptor<WidgetColor> propHourTickMarkColor     = CommonWidgetProperties.newColorPropertyDescriptor  (WidgetPropertyCategory.MISC,     "hour_tick_mark_color",     Messages.WidgetProperties_HourTickMarkColor);
     public static final WidgetPropertyDescriptor<Boolean>     propHourTickMarkVisible   = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC,     "hour_tick_mark_visible",   Messages.WidgetProperties_HourTickMarkVisible);
     public static final WidgetPropertyDescriptor<WidgetColor> propKnobColor             = CommonWidgetProperties.newColorPropertyDescriptor  (WidgetPropertyCategory.MISC,     "knob_color",               Messages.WidgetProperties_KnobColor);
+    public static final WidgetPropertyDescriptor<String>      propLocale                = CommonWidgetProperties.newStringPropertyDescriptor (WidgetPropertyCategory.MISC,     "locale",                   Messages.WidgetProperties_Locale);
     public static final WidgetPropertyDescriptor<WidgetColor> propMinuteColor           = CommonWidgetProperties.newColorPropertyDescriptor  (WidgetPropertyCategory.MISC,     "minute_color",             Messages.WidgetProperties_MinuteColor);
     public static final WidgetPropertyDescriptor<WidgetColor> propMinuteTickMarkColor   = CommonWidgetProperties.newColorPropertyDescriptor  (WidgetPropertyCategory.MISC,     "minute_tick_mark_color",   Messages.WidgetProperties_MinuteTickMarkColor);
     public static final WidgetPropertyDescriptor<Boolean>     propMinuteTickMarkVisible = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC,     "minute_tick_mark_visible", Messages.WidgetProperties_MinuteTickMarkVisible);
@@ -106,6 +108,7 @@ public class ClockWidget extends VisibleWidget {
     private volatile WidgetProperty<WidgetColor> hourTickMarkColor;
     private volatile WidgetProperty<Boolean>     hourTickMarkVisible;
     private volatile WidgetProperty<WidgetColor> knobColor;
+    private volatile WidgetProperty<String>      locale;
     private volatile WidgetProperty<WidgetColor> minuteColor;
     private volatile WidgetProperty<WidgetColor> minuteTickMarkColor;
     private volatile WidgetProperty<Boolean>     minuteTickMarkVisible;
@@ -173,6 +176,10 @@ public class ClockWidget extends VisibleWidget {
 
     public WidgetProperty<WidgetColor> propKnobColor ( ) {
         return knobColor;
+    }
+
+    public WidgetProperty<String> propLocale ( ) {
+        return locale;
     }
 
     public WidgetProperty<WidgetColor> propMinuteColor ( ) {
@@ -264,6 +271,7 @@ public class ClockWidget extends VisibleWidget {
         properties.add(hourTickMarkColor     = propHourTickMarkColor.createProperty(this, new WidgetColor(196, 127, 80)));
         properties.add(hourTickMarkVisible   = propHourTickMarkVisible.createProperty(this, true));
         properties.add(knobColor             = propKnobColor.createProperty(this, new WidgetColor(196, 127, 80)));
+        properties.add(locale                = propLocale.createProperty(this, Locale.getDefault().toLanguageTag()));
         properties.add(minuteColor           = propMinuteColor.createProperty(this, new WidgetColor(255, 136, 98)));
         properties.add(minuteTickMarkColor   = propMinuteTickMarkColor.createProperty(this, new WidgetColor(196, 136, 98)));
         properties.add(minuteTickMarkVisible = propMinuteTickMarkVisible.createProperty(this, true));

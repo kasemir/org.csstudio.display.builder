@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model.widgets;
 
 
 import java.util.List;
+import java.util.Locale;
 
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
@@ -97,11 +98,13 @@ public class DigitalClockWidget extends VisibleWidget {
     public static final WidgetPropertyDescriptor<Boolean> propRunning           = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "running",             Messages.WidgetProperties_Running);
 
     public static final WidgetPropertyDescriptor<Boolean> propLcdCrystalEnabled = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC,     "lcd_crystal_enabled", Messages.WidgetProperties_LcdCrystalEnabled);
+    public static final WidgetPropertyDescriptor<String>  propLocale            = CommonWidgetProperties.newStringPropertyDescriptor (WidgetPropertyCategory.MISC,     "locale",              Messages.WidgetProperties_Locale);
     public static final WidgetPropertyDescriptor<Boolean> propShadowsEnabled    = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC,     "shadows_enabled",     Messages.WidgetProperties_ShadowsEnabled);
 
     private volatile WidgetProperty<Boolean> dateVisible;
     private volatile WidgetProperty<Boolean> lcdCrystalEnabled;
     private volatile WidgetProperty<Design>  lcdDesign;
+    private volatile WidgetProperty<String>  locale;
     private volatile WidgetProperty<Boolean> running;
     private volatile WidgetProperty<Boolean> secondVisible;
     private volatile WidgetProperty<Boolean> shadowsEnabled;
@@ -122,6 +125,10 @@ public class DigitalClockWidget extends VisibleWidget {
 
     public WidgetProperty<Design> propLcdDesign ( ) {
         return lcdDesign;
+    }
+
+    public WidgetProperty<String> propLocale ( ) {
+        return locale;
     }
 
     public WidgetProperty<Boolean> propRunning ( ) {
@@ -157,6 +164,7 @@ public class DigitalClockWidget extends VisibleWidget {
         properties.add(titleVisible      = propTitleVisible.createProperty(this, false));
 
         properties.add(lcdCrystalEnabled = propLcdCrystalEnabled.createProperty(this, true));
+        properties.add(locale            = propLocale.createProperty(this, Locale.getDefault().toLanguageTag()));
         properties.add(shadowsEnabled    = propShadowsEnabled.createProperty(this, true));
 
         //  Properties not visible in the property sheet.
