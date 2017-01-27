@@ -9,7 +9,11 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 
+import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
+
+import java.util.Locale;
 import java.util.Objects;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -19,6 +23,7 @@ import org.csstudio.display.builder.model.widgets.DigitalClockWidget.Design;
 import eu.hansolo.medusa.Clock;
 import eu.hansolo.medusa.Clock.ClockSkinType;
 import eu.hansolo.medusa.ClockBuilder;
+import eu.hansolo.medusa.LcdDesign;
 
 
 /**
@@ -63,10 +68,10 @@ public class DigitalClockRepresentation extends RegionBaseRepresentation<Clock, 
 
         if ( dirtyLook.checkAndClear() ) {
 
-            value = model_widget.propLcdDesign().getValue();
+            value = LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name());
 
             if ( !Objects.equals(value, jfx_node.getLcdDesign()) ) {
-                jfx_node.setLcdDesign(((Design) value).design());
+                jfx_node.setLcdDesign((LcdDesign) value);
             }
 
             value = model_widget.propDateVisible().getValue();
@@ -79,6 +84,24 @@ public class DigitalClockRepresentation extends RegionBaseRepresentation<Clock, 
 
             if ( !Objects.equals(value, jfx_node.isLcdCrystalEnabled()) ) {
                 jfx_node.setLcdCrystalEnabled((boolean) value);
+            }
+
+            value = model_widget.propLocale().getValue();
+
+            if ( value != null ) {
+
+                Locale l = Locale.getDefault();
+
+                try {
+                    l = Locale.forLanguageTag(value.toString());
+                } catch ( Exception ex ) {
+                    logger.log(Level.WARNING, "Unable to convert \"{0}\" to a Local instance [{1}].", new Object[] { value.toString(), ex.getMessage()});
+                }
+
+                if ( !l.equals(jfx_node.getLocale()) ) {
+                    jfx_node.setLocale(l);
+                }
+
             }
 
             value = model_widget.propSecondVisible().getValue();
@@ -114,7 +137,7 @@ public class DigitalClockRepresentation extends RegionBaseRepresentation<Clock, 
 
         Clock clock = ClockBuilder.create()
                                   .skinType(ClockSkinType.LCD)
-                                  .lcdDesign(model_widget.propLcdDesign().getValue().design())
+                                  .lcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()))
                                   .prefHeight(model_widget.propHeight().getValue())
                                   .prefWidth(model_widget.propWidth().getValue())
                                   //--------------------------------------------------------
@@ -128,6 +151,16 @@ public class DigitalClockRepresentation extends RegionBaseRepresentation<Clock, 
                                   .title(model_widget.propTitle().getValue())
                                   .titleVisible(model_widget.propTitleVisible().getValue())
                                   .build();
+
+        String locale = model_widget.propLocale().getValue();
+
+        if ( locale != null ) {
+            try {
+                jfx_node.setLocale(Locale.forLanguageTag(locale.toString()));
+            } catch ( Exception ex ) {
+                logger.log(Level.WARNING, "Unable to convert \"{0}\" to a Local instance [{1}].", new Object[] { locale.toString(), ex.getMessage()});
+            }
+        }
 
         clock.dateVisibleProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propDateVisible().getValue()) ) {
@@ -152,6 +185,11 @@ public class DigitalClockRepresentation extends RegionBaseRepresentation<Clock, 
         clock.lcdDesignProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propLcdDesign().getValue()) ) {
                 model_widget.propLcdDesign().setValue(Design.valueOf(n.name()));
+            }
+        });
+        clock.localeProperty().addListener( ( s, o, n ) -> {
+            if ( n != null && !Objects.equals(n.toLanguageTag(), model_widget.propLocale().getValue()) ) {
+                model_widget.propLocale().setValue(n.toLanguageTag());
             }
         });
         clock.prefHeightProperty().addListener( ( s, o, n ) -> {
@@ -206,6 +244,7 @@ public class DigitalClockRepresentation extends RegionBaseRepresentation<Clock, 
         model_widget.propDateVisible().addUntypedPropertyListener(this::lookChanged);
         model_widget.propLcdCrystalEnabled().addUntypedPropertyListener(this::lookChanged);
         model_widget.propLcdDesign().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propLocale().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSecondVisible().addUntypedPropertyListener(this::lookChanged);
         model_widget.propShadowsEnabled().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTitle().addUntypedPropertyListener(this::lookChanged);
