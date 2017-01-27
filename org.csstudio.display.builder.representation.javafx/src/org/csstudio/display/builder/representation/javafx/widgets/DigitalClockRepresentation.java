@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.widgets.DigitalClockWidget.Design;
 import eu.hansolo.medusa.Clock;
 import eu.hansolo.medusa.Clock.ClockSkinType;
 import eu.hansolo.medusa.ClockBuilder;
+import eu.hansolo.medusa.LcdDesign;
 
 
 /**
@@ -63,10 +64,10 @@ public class DigitalClockRepresentation extends RegionBaseRepresentation<Clock, 
 
         if ( dirtyLook.checkAndClear() ) {
 
-            value = model_widget.propLcdDesign().getValue();
+            value = LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name());
 
             if ( !Objects.equals(value, jfx_node.getLcdDesign()) ) {
-                jfx_node.setLcdDesign(((Design) value).design());
+                jfx_node.setLcdDesign((LcdDesign) value);
             }
 
             value = model_widget.propDateVisible().getValue();
@@ -114,7 +115,7 @@ public class DigitalClockRepresentation extends RegionBaseRepresentation<Clock, 
 
         Clock clock = ClockBuilder.create()
                                   .skinType(ClockSkinType.LCD)
-                                  .lcdDesign(model_widget.propLcdDesign().getValue().design())
+                                  .lcdDesign(LcdDesign.valueOf(model_widget.propLcdDesign().getValue().name()))
                                   .prefHeight(model_widget.propHeight().getValue())
                                   .prefWidth(model_widget.propWidth().getValue())
                                   //--------------------------------------------------------

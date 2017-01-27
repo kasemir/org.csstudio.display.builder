@@ -83,7 +83,7 @@ public class ClockRepresentation extends RegionBaseRepresentation<Clock, ClockWi
 
         if ( dirtyLook.checkAndClear() ) {
 
-            value = model_widget.propSkin().getValue().skinType();
+            value = ClockSkinType.valueOf(model_widget.propSkin().getValue().name());
 
             if ( !Objects.equals(value, jfx_node.getSkinType()) ) {
                 jfx_node.setSkinType((ClockSkinType) value);
@@ -229,7 +229,7 @@ public class ClockRepresentation extends RegionBaseRepresentation<Clock, ClockWi
     protected Clock createJFXNode ( ) throws Exception {
 
         Clock clock = ClockBuilder.create()
-                                  .skinType(model_widget.propSkin().getValue().skinType())
+                                  .skinType(ClockSkinType.valueOf(model_widget.propSkin().getValue().name()))
                                   .prefHeight(model_widget.propHeight().getValue())
                                   .prefWidth(model_widget.propWidth().getValue())
                                   //--------------------------------------------------------

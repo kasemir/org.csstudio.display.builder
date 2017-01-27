@@ -25,8 +25,6 @@ import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 
-import eu.hansolo.medusa.Clock;
-
 
 /**
  * Widget displaying date and/or time.
@@ -49,34 +47,16 @@ public class ClockWidget extends VisibleWidget {
         }
     };
 
-    /**
-     * This enumeration is used to reduce the choices from the original enumeration.
-     *
-     * @author claudiorosati, European Spallation Source ERIC
-     * @version 1.0.0 25 Jan 2017
-     */
     public enum Skin {
-
-        CLOCK(Clock.ClockSkinType.CLOCK),
-        DB(Clock.ClockSkinType.DB),
-        FAT(Clock.ClockSkinType.FAT),
-        INDUSTRIAL(Clock.ClockSkinType.INDUSTRIAL),
-        PEAR(Clock.ClockSkinType.PEAR),
-        PLAIN(Clock.ClockSkinType.PLAIN),
-        SLIM(Clock.ClockSkinType.SLIM),
-        TILE(Clock.ClockSkinType.TILE),
-        YOTA2(Clock.ClockSkinType.YOTA2);
-
-        private final Clock.ClockSkinType skinType;
-
-        Skin ( Clock.ClockSkinType skinType ) {
-            this.skinType = skinType;
-        }
-
-        public Clock.ClockSkinType skinType() {
-            return skinType;
-        }
-
+        CLOCK,
+        DB,
+        FAT,
+        INDUSTRIAL,
+        PEAR,
+        PLAIN,
+        SLIM,
+        TILE,
+        YOTA2
     }
 
     public static final WidgetPropertyDescriptor<Skin>        propSkin                  = new WidgetPropertyDescriptor<Skin>                 (WidgetPropertyCategory.WIDGET,   "skin",                     Messages.WidgetProperties_Skin) {
@@ -278,7 +258,7 @@ public class ClockWidget extends VisibleWidget {
         properties.add(discreteSeconds       = propDiscreteSeconds.createProperty(this, false));
 
         properties.add(borderColor           = propBorderColor.createProperty(this, new WidgetColor(153, 230, 230)));
-        properties.add(borderWidth           = propBorderWidth.createProperty(this, 4.7));
+        properties.add(borderWidth           = propBorderWidth.createProperty(this, 0.0));
         properties.add(dateColor             = propDateColor.createProperty(this, new WidgetColor(102, 51, 102)));
         properties.add(hourColor             = propHourColor.createProperty(this, new WidgetColor(255, 127, 80)));
         properties.add(hourTickMarkColor     = propHourTickMarkColor.createProperty(this, new WidgetColor(196, 127, 80)));
