@@ -52,64 +52,68 @@ public class MorphWidgetMenuSupport
     {
         final WidgetDescriptor descriptor;
 
-        MorphAction(WidgetDescriptor descr)
+        MorphAction(final WidgetDescriptor descr)
         {
             descriptor = descr;
             setText(descriptor.getName());
-            ImageDescriptor image = null;
             try
             {
-                image = ImageDescriptor.createFromImageData(new ImageData(descriptor.getIconStream()));
+                setImageDescriptor(ImageDescriptor.createFromImageData(new ImageData(descriptor.getIconStream())));
             }
             catch (Exception ex)
             {
                 logger.log(Level.WARNING, "Cannot create menu icon for widget type " + descr.getType(), ex);
             }
-            setImageDescriptor(image);
         }
 
         @Override
         public void run()
         {
             final WidgetSelectionHandler selection = editor.getWidgetSelectionHandler();
-            List<Widget> widgets = new ArrayList<>(selection.getSelection());
+
+            // Copy selected widgets.
+            // List may be modified during iteration for widgets inside an ArrayWidget
+            final List<Widget> widgets = new ArrayList<>(selection.getSelection());
             final List<Widget> replacements = new ArrayList<>();
-            for (Widget widget : widgets)
+
+            // Iterate in a way that allows modification of 'widgets' inside the loop
+            for (int i=0;  i<widgets.size();  /**/)
             {
+                final Widget widget = widgets.get(i);
+                // Already of correct type?
                 if (widget.getType().equals(descriptor.getType()))
                     continue;
                 final ChildrenProperty target = ChildrenProperty.getParentsChildren(widget);
-                //ArrayWidgets should avoid holding elements of different types in their list of children,
-                //in order to avoid errors with matching element properties.
+                // All array elements of an ArrayWidget must have the same type
+                // to avoid errors with matching element properties.
                 if (target.getWidget() instanceof ArrayWidget)
                 {
+                    // Replace _all_ children of ArrayWidget, not just the selected ones
                     final List<Widget> children = new ArrayList<>(target.getValue());
-                    //remove all children of ArrayWidget from editor
                     editor.getUndoableActionManager().execute(new RemoveWidgetsAction(children));
-
-                    //add copies of selected children to editor
-                    children.retainAll(widgets);
                     for (Widget child : children)
                     {
-                        final Widget new_widget = createNewWidget(child);
-                        editor.getUndoableActionManager().execute(new AddWidgetAction(target, new_widget));
-                        replacements.add(new_widget);
+                        final Widget replacement = createNewWidget(child);
+                        editor.getUndoableActionManager().execute(new AddWidgetAction(target, replacement));
+                        replacements.add(replacement);
                     }
 
-                    //ignore children in subsequent iterations
-                    // TODO Don't modify list being iterated
-                    children.remove(widget);
+                    // Remove _all_ potentially selected array elements
+                    // from the widgets to be replaced
                     widgets.removeAll(children);
+                    // No need for ++i since `widgets` has been updated
                 }
                 else
                 {
-                    final Widget new_widget = createNewWidget(widget);
+                    final Widget replacement = createNewWidget(widget);
                     editor.getUndoableActionManager().execute(new RemoveWidgetsAction(Arrays.asList(widget)));
-                    editor.getUndoableActionManager().execute(new AddWidgetAction(target, new_widget));
-                    replacements.add(new_widget);
+                    editor.getUndoableActionManager().execute(new AddWidgetAction(target, replacement));
+                    replacements.add(replacement);
+                    ++i;
                 }
             }
 
+            // Change selection from removed widgets to replacements
             selection.setSelection(replacements);
         }
 
@@ -183,7 +187,6 @@ public class MorphWidgetMenuSupport
                         info.setEnabled(false);
                         manager.add(new Separator());
                         manager.add(info);
-                        manager.add(new Separator());
                     }
                     manager.add(new MorphAction(descr));
                 }
@@ -194,9 +197,9 @@ public class MorphWidgetMenuSupport
         return mm;
     }
 
-    private Menu createMenu(MenuManager mm, Composite parent)
+    private Menu createMenu(final MenuManager mm, final Composite parent)
     {
-        Menu menu = mm.createContextMenu(parent);
+        final Menu menu = mm.createContextMenu(parent);
         menu.setVisible(true);
         return menu;
     }
