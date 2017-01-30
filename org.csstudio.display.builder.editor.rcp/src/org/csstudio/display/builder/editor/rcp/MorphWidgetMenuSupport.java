@@ -28,6 +28,7 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.ArrayWidget;
+import org.csstudio.display.builder.util.undo.CompoundUndoableAction;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
@@ -76,6 +77,8 @@ public class MorphWidgetMenuSupport
             final List<Widget> widgets = new ArrayList<>(selection.getSelection());
             final List<Widget> replacements = new ArrayList<>();
 
+            final CompoundUndoableAction steps = new CompoundUndoableAction("Morph to " + descriptor.getName());
+
             // Iterate in a way that allows modification of 'widgets' inside the loop
             for (int i=0;  i<widgets.size();  /**/)
             {
@@ -90,11 +93,11 @@ public class MorphWidgetMenuSupport
                 {
                     // Replace _all_ children of ArrayWidget, not just the selected ones
                     final List<Widget> children = new ArrayList<>(target.getValue());
-                    editor.getUndoableActionManager().execute(new RemoveWidgetsAction(children));
+                    steps.execute(new RemoveWidgetsAction(children));
                     for (Widget child : children)
                     {
                         final Widget replacement = createNewWidget(child);
-                        editor.getUndoableActionManager().execute(new AddWidgetAction(target, replacement));
+                        steps.execute(new AddWidgetAction(target, replacement));
                         replacements.add(replacement);
                     }
 
@@ -106,12 +109,15 @@ public class MorphWidgetMenuSupport
                 else
                 {
                     final Widget replacement = createNewWidget(widget);
-                    editor.getUndoableActionManager().execute(new RemoveWidgetsAction(Arrays.asList(widget)));
-                    editor.getUndoableActionManager().execute(new AddWidgetAction(target, replacement));
+                    steps.execute(new RemoveWidgetsAction(Arrays.asList(widget)));
+                    steps.execute(new AddWidgetAction(target, replacement));
                     replacements.add(replacement);
                     ++i;
                 }
             }
+
+            // Add to undo (steps have already been executed)
+            editor.getUndoableActionManager().add(steps);
 
             // Change selection from removed widgets to replacements
             selection.setSelection(replacements);
