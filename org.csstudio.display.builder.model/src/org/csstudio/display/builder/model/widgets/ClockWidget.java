@@ -33,6 +33,7 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
  * @author Claudio Rosati, European Spallation Source ERIC
  * @version 1.0.0 18 Jan 2017
  */
+@SuppressWarnings("nls")
 public class ClockWidget extends VisibleWidget {
 
     public static final WidgetDescriptor WIDGET_DESCRIPTOR = new WidgetDescriptor(

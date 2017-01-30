@@ -31,6 +31,7 @@ import javafx.scene.paint.Paint;
  * @author Claudio Rosati, European Spallation Source ERIC
  * @version 1.0.0 18 Jan 2017
  */
+@SuppressWarnings("nls")
 public class ClockRepresentation extends RegionBaseRepresentation<Clock, ClockWidget> {
 
     private final DirtyFlag dirtyBehavior = new DirtyFlag();
