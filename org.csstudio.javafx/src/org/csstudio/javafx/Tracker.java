@@ -114,7 +114,7 @@ public class Tracker extends Group
     private Label createLabel(final TextAlignment talign, final Pos align)
     {
         // Initial text is used to determine size
-        final Label lbl = new Label("000, 000");
+        final Label lbl = new Label("\u00A0\u00A000, 00\u00A0\u00A0");
 
         lbl.getStyleClass().add("location_size");
         lbl.setTextAlignment(talign);
@@ -425,12 +425,12 @@ public class Tracker extends Group
         handle_left.setX(x - HANDLE_SIZE);
         handle_left.setY(y + (height - HANDLE_SIZE)/2);
 
-        locationLabel.setText(MessageFormat.format("{0,number,#########0}, {1,number,#########0}", x, y));
-        locationLabel.setVisible(showLocationAndSize && ( width > 40 && height > 20 ));
+        locationLabel.setText(MessageFormat.format("\u00A0\u00A0{0,number,###0}, {1,number,###0}\u00A0\u00A0", x, y));
+        locationLabel.setVisible(showLocationAndSize && ( width > 50 && height > 20 ));
         locationLabel.relocate(x + 3, y + 3);
 
-        sizeLabel.setText(MessageFormat.format("{0,number,#########0}, {1,number,#########0}", width, height));
-        sizeLabel.setVisible(showLocationAndSize && ( width > 20 && height > 10 ));
+        sizeLabel.setText(MessageFormat.format("\u00A0\u00A0{0,number,###0}, {1,number,###0}\u00A0\u00A0", width, height));
+        sizeLabel.setVisible(showLocationAndSize && ( width > 25 && height > 10 ));
         // Slight issue:
         // The text was just set, layout may not have happened, so getWidth() is wrong until the next update
         sizeLabel.relocate(x + width - sizeLabel.getWidth() - 3, y + height - sizeLabel.getHeight() - 3);
