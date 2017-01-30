@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import org.csstudio.display.builder.editor.Messages;
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.undo.SetMacroizedWidgetPropertyAction;
 import org.csstudio.display.builder.editor.undo.UpdateWidgetLocationAction;
@@ -33,6 +34,8 @@ import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.model.widgets.GroupWidget;
 import org.csstudio.display.builder.representation.ToolkitRepresentation;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
+import org.csstudio.display.builder.util.undo.CompoundUndoableAction;
+import org.csstudio.display.builder.util.undo.UndoableAction;
 import org.csstudio.display.builder.util.undo.UndoableActionManager;
 import org.csstudio.javafx.Tracker;
 
@@ -371,6 +374,11 @@ public class SelectedWidgetUITracker extends Tracker
             final double dw = current.getWidth()  - original.getWidth();
             final double dh = current.getHeight() - original.getHeight();
             final int N = orig_position.size();
+
+            // Use compound action if there's more than one widget
+            final CompoundUndoableAction compound = N>1
+                ? new CompoundUndoableAction(Messages.UpdateWidgetLocation)
+                : null;
             for (int i=0; i<N; ++i)
             {
                 final Widget widget = widgets.get(i);
@@ -415,12 +423,18 @@ public class SelectedWidgetUITracker extends Tracker
                 if (! widget.propHeight().isUsingWidgetClass())
                     widget.propHeight().setValue((int) Math.max(1, orig.getHeight() + dh));
 
-                undo.add(new UpdateWidgetLocationAction(widget,
-                                                        orig_parent_children,
-                                                        parent_children,
-                                                        (int) orig.getMinX(),  (int) orig.getMinY(),
-                                                        (int) orig.getWidth(), (int) orig.getHeight()));
+                final UndoableAction step = new UpdateWidgetLocationAction(widget,
+                                                                           orig_parent_children,
+                                                                           parent_children,
+                                                                           (int) orig.getMinX(),  (int) orig.getMinY(),
+                                                                           (int) orig.getWidth(), (int) orig.getHeight());
+                if (compound == null)
+                    undo.add(step);
+                else
+                    compound.add(step);
             }
+            if (compound != null)
+                undo.add(compound);
         }
         catch (Exception ex)
         {
