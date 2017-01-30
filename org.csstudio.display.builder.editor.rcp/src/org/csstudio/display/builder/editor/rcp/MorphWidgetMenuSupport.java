@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Copyright (c) 2015-2017 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp;
 
 import static org.csstudio.display.builder.rcp.Plugin.logger;
@@ -29,14 +36,12 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 
-/**
- * Helper for creating the SWT/RCP context menu to morph widgets (replace
- * widgets with a particular type of widget) in editor.
+/** Helper for creating the SWT/RCP context menu to morph widgets (replace
+ *  widgets with a particular type of widget) in editor.
  *
- * Intended to for use as a sub-menu in editor's main context menu.
+ *  Intended as a sub-menu in editor's main context menu.
  *
- * @author Amanda Carpenter
- *
+ *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
 public class MorphWidgetMenuSupport
@@ -55,9 +60,10 @@ public class MorphWidgetMenuSupport
             try
             {
                 image = ImageDescriptor.createFromImageData(new ImageData(descriptor.getIconStream()));
-            } catch (Exception e)
+            }
+            catch (Exception ex)
             {
-                logger.log(Level.WARNING, "Cannot create menu icon for widget type " + descr.getType(), e);
+                logger.log(Level.WARNING, "Cannot create menu icon for widget type " + descr.getType(), ex);
             }
             setImageDescriptor(image);
         }
@@ -66,7 +72,8 @@ public class MorphWidgetMenuSupport
         public void run()
         {
             final WidgetSelectionHandler selection = editor.getWidgetSelectionHandler();
-            List<Widget> widgets = new ArrayList<Widget>(selection.getSelection());
+            List<Widget> widgets = new ArrayList<>(selection.getSelection());
+            final List<Widget> replacements = new ArrayList<>();
             for (Widget widget : widgets)
             {
                 if (widget.getType().equals(descriptor.getType()))
@@ -76,7 +83,7 @@ public class MorphWidgetMenuSupport
                 //in order to avoid errors with matching element properties.
                 if (target.getWidget() instanceof ArrayWidget)
                 {
-                    List<Widget> children = new ArrayList<Widget>(target.getValue());
+                    final List<Widget> children = new ArrayList<>(target.getValue());
                     //remove all children of ArrayWidget from editor
                     editor.getUndoableActionManager().execute(new RemoveWidgetsAction(children));
 
@@ -86,9 +93,11 @@ public class MorphWidgetMenuSupport
                     {
                         final Widget new_widget = createNewWidget(child);
                         editor.getUndoableActionManager().execute(new AddWidgetAction(target, new_widget));
+                        replacements.add(new_widget);
                     }
 
                     //ignore children in subsequent iterations
+                    // TODO Don't modify list being iterated
                     children.remove(widget);
                     widgets.removeAll(children);
                 }
@@ -97,8 +106,11 @@ public class MorphWidgetMenuSupport
                     final Widget new_widget = createNewWidget(widget);
                     editor.getUndoableActionManager().execute(new RemoveWidgetsAction(Arrays.asList(widget)));
                     editor.getUndoableActionManager().execute(new AddWidgetAction(target, new_widget));
+                    replacements.add(new_widget);
                 }
             }
+
+            selection.setSelection(replacements);
         }
 
         private Widget createNewWidget(final Widget widget)
