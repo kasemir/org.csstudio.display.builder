@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2016 Oak Ridge National Laboratory.
+ * Copyright (c) 2015-2017 Oak Ridge National Laboratory.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.ToDoubleFunction;
 import java.util.logging.Level;
 
+import org.csstudio.javafx.BufferUtil;
 import org.csstudio.javafx.ChildCare;
 import org.csstudio.javafx.PlatformInfo;
 import org.csstudio.javafx.Tracker;
@@ -398,8 +399,9 @@ public class ImagePlot extends PlotCanvasBase
             return null;
 
         in_update = true;
-        final BufferedImage image = new BufferedImage(area_copy.width, area_copy.height, BufferedImage.TYPE_INT_ARGB);
-        final Graphics2D gc = image.createGraphics();
+        final BufferUtil buffer = BufferUtil.getBufferedImage(area_copy.width, area_copy.height);
+        final BufferedImage image = buffer.getImage();
+        final Graphics2D gc = buffer.getGraphics();
 
         gc.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         gc.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
