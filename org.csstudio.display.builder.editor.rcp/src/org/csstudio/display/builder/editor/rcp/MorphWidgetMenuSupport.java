@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Copyright (c) 2015-2017 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *******************************************************************************/
 package org.csstudio.display.builder.editor.rcp;
 
 import static org.csstudio.display.builder.rcp.Plugin.logger;
@@ -14,12 +21,14 @@ import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.undo.AddWidgetAction;
 import org.csstudio.display.builder.editor.undo.RemoveWidgetsAction;
 import org.csstudio.display.builder.model.ChildrenProperty;
+import org.csstudio.display.builder.model.RuntimeWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
 import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetFactory;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.ArrayWidget;
+import org.csstudio.display.builder.util.undo.CompoundUndoableAction;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
@@ -28,14 +37,12 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 
-/**
- * Helper for creating the SWT/RCP context menu to morph widgets (replace
- * widgets with a particular type of widget) in editor.
+/** Helper for creating the SWT/RCP context menu to morph widgets (replace
+ *  widgets with a particular type of widget) in editor.
  *
- * Intended to for use as a sub-menu in editor's main context menu.
+ *  Intended as a sub-menu in editor's main context menu.
  *
- * @author Amanda Carpenter
- *
+ *  @author Amanda Carpenter
  */
 @SuppressWarnings("nls")
 public class MorphWidgetMenuSupport
@@ -46,58 +53,74 @@ public class MorphWidgetMenuSupport
     {
         final WidgetDescriptor descriptor;
 
-        MorphAction(WidgetDescriptor descr)
+        MorphAction(final WidgetDescriptor descr)
         {
             descriptor = descr;
             setText(descriptor.getName());
-            ImageDescriptor image = null;
             try
             {
-                image = ImageDescriptor.createFromImageData(new ImageData(descriptor.getIconStream()));
-            } catch (Exception e)
-            {
-                logger.log(Level.WARNING, "Cannot create menu icon for widget type " + descr.getType(), e);
+                setImageDescriptor(ImageDescriptor.createFromImageData(new ImageData(descriptor.getIconStream())));
             }
-            setImageDescriptor(image);
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot create menu icon for widget type " + descr.getType(), ex);
+            }
         }
 
         @Override
         public void run()
         {
             final WidgetSelectionHandler selection = editor.getWidgetSelectionHandler();
-            List<Widget> widgets = new ArrayList<Widget>(selection.getSelection());
-            for (Widget widget : widgets)
+
+            // Copy selected widgets.
+            // List may be modified during iteration for widgets inside an ArrayWidget
+            final List<Widget> widgets = new ArrayList<>(selection.getSelection());
+            final List<Widget> replacements = new ArrayList<>();
+
+            final CompoundUndoableAction steps = new CompoundUndoableAction("Morph to " + descriptor.getName());
+
+            // Iterate in a way that allows modification of 'widgets' inside the loop
+            for (int i=0;  i<widgets.size();  /**/)
             {
+                final Widget widget = widgets.get(i);
+                // Already of correct type?
                 if (widget.getType().equals(descriptor.getType()))
                     continue;
                 final ChildrenProperty target = ChildrenProperty.getParentsChildren(widget);
-                //ArrayWidgets should avoid holding elements of different types in their list of children,
-                //in order to avoid errors with matching element properties.
+                // All array elements of an ArrayWidget must have the same type
+                // to avoid errors with matching element properties.
                 if (target.getWidget() instanceof ArrayWidget)
                 {
-                    List<Widget> children = new ArrayList<Widget>(target.getValue());
-                    //remove all children of ArrayWidget from editor
-                    editor.getUndoableActionManager().execute(new RemoveWidgetsAction(children));
-
-                    //add copies of selected children to editor
-                    children.retainAll(widgets);
+                    // Replace _all_ children of ArrayWidget, not just the selected ones
+                    final List<Widget> children = new ArrayList<>(target.getValue());
+                    steps.execute(new RemoveWidgetsAction(children));
                     for (Widget child : children)
                     {
-                        final Widget new_widget = createNewWidget(child);
-                        editor.getUndoableActionManager().execute(new AddWidgetAction(target, new_widget));
+                        final Widget replacement = createNewWidget(child);
+                        steps.execute(new AddWidgetAction(target, replacement));
+                        replacements.add(replacement);
                     }
 
-                    //ignore children in subsequent iterations
-                    children.remove(widget);
+                    // Remove _all_ potentially selected array elements
+                    // from the widgets to be replaced
                     widgets.removeAll(children);
+                    // No need for ++i since `widgets` has been updated
                 }
                 else
                 {
-                    final Widget new_widget = createNewWidget(widget);
-                    editor.getUndoableActionManager().execute(new RemoveWidgetsAction(Arrays.asList(widget)));
-                    editor.getUndoableActionManager().execute(new AddWidgetAction(target, new_widget));
+                    final Widget replacement = createNewWidget(widget);
+                    steps.execute(new RemoveWidgetsAction(Arrays.asList(widget)));
+                    steps.execute(new AddWidgetAction(target, replacement));
+                    replacements.add(replacement);
+                    ++i;
                 }
             }
+
+            // Add to undo (steps have already been executed)
+            editor.getUndoableActionManager().add(steps);
+
+            // Change selection from removed widgets to replacements
+            selection.setSelection(replacements);
         }
 
         private Widget createNewWidget(final Widget widget)
@@ -106,16 +129,22 @@ public class MorphWidgetMenuSupport
             final Set<WidgetProperty<?>> props = widget.getProperties();
             for (WidgetProperty<?> prop : props)
             {
-                final Optional<WidgetProperty<Object>> new_prop = new_widget.checkProperty(prop.getName());
-                if (new_prop.isPresent())
-                    try
-                    {
-                        new_prop.get().setValueFromObject(prop.getValue());
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.log(Level.WARNING, "Cannot morph " + prop, ex);
-                    }
+                final Optional<WidgetProperty<Object>> check = new_widget.checkProperty(prop.getName());
+                if (! check.isPresent())
+                    continue;
+                final WidgetProperty<Object> new_prop = check.get();
+                if (new_prop.isReadonly())
+                    continue;
+                if (new_prop instanceof RuntimeWidgetProperty)
+                    continue;
+                try
+                {
+                    new_prop.setValueFromObject(prop.getValue());
+                }
+                catch (Exception ex)
+                {
+                    logger.log(Level.WARNING, "Cannot morph " + prop, ex);
+                }
             }
             return new_widget;
         }
@@ -164,7 +193,6 @@ public class MorphWidgetMenuSupport
                         info.setEnabled(false);
                         manager.add(new Separator());
                         manager.add(info);
-                        manager.add(new Separator());
                     }
                     manager.add(new MorphAction(descr));
                 }
@@ -175,9 +203,9 @@ public class MorphWidgetMenuSupport
         return mm;
     }
 
-    private Menu createMenu(MenuManager mm, Composite parent)
+    private Menu createMenu(final MenuManager mm, final Composite parent)
     {
-        Menu menu = mm.createContextMenu(parent);
+        final Menu menu = mm.createContextMenu(parent);
         menu.setVisible(true);
         return menu;
     }

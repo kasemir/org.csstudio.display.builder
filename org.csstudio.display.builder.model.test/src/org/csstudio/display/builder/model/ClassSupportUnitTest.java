@@ -18,7 +18,8 @@ import static org.junit.Assert.assertThat;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.concurrent.Callable;
+import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
@@ -169,16 +170,30 @@ public class ClassSupportUnitTest
         assertThat(last_log_message.get(), containsString("more than once"));
     }
 
+    // Time-based test, may occasionally fail because background thread doesn't get to run as expected
     @Test
     public void testService() throws Exception
     {
-        final Callable<InputStream> delayed_stream = new DelayedStream("../org.csstudio.display.builder.model/examples/classes.bcf", 4);
+        final DelayedStream delayed_stream = new DelayedStream("../org.csstudio.display.builder.model/examples/classes.bcf");
         WidgetClassesService.loadWidgetClasses(new String[] { "test" }, name -> delayed_stream.call());
 
         long start = System.currentTimeMillis();
-        final WidgetClassSupport widget_classes = WidgetClassesService.getWidgetClasses();
+        WidgetClassSupport widget_classes = WidgetClassesService.getWidgetClasses();
         long end = System.currentTimeMillis();
+        // Could not open the classes.bcf, but still returned a non-null default
         assertThat(widget_classes, not(nullValue()));
         System.out.println(String.format("Load time with similated delay: %.1f seconds", (end - start)/1000.0));
+
+        Collection<String> classes = widget_classes.getWidgetClasses("label");
+        System.out.println("Default classes for 'label': " + classes);
+        assertThat(classes.size(), equalTo(1));
+
+        // Allow loading of actual file
+        delayed_stream.proceed();
+        TimeUnit.SECONDS.sleep(2);
+        widget_classes = WidgetClassesService.getWidgetClasses();
+        classes = widget_classes.getWidgetClasses("label");
+        System.out.println("Updated classes for 'label': " + classes);
+        assertThat(classes, hasItem("COMMENT"));
     }
 }

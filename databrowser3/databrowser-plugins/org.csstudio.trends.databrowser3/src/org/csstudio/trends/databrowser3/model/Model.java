@@ -85,8 +85,6 @@ public class Model
 
     /** Axes configurations */
     final private List<AxisConfig> axes = new CopyOnWriteArrayList<AxisConfig>();
-    //TODO: Separate config for x axis?
-    //final private AxisConfig x_axis = null;
 
     /** All the items in this model */
     final private List<ModelItem> items = new CopyOnWriteArrayList<ModelItem>();
@@ -265,12 +263,6 @@ public class Model
             return null;
         }
     }
-
-    //TODO: separate config for x axis?
-    //    public AxisConfig getXAxis()
-    //    {
-    //        return x_axis;
-    //    }
 
     /** Locate index of value axis
      *  @param axis Value axis configuration
@@ -467,11 +459,14 @@ public class Model
         // Add to model
         items.add(item);
         item.setModel(this);
-        if (is_running  &&  item instanceof PVItem)
-            ((PVItem)item).start();
         // Notify listeners of new item
+        // This allows controller to add item to plot
         for (ModelListener listener : listeners)
             listener.itemAdded(item);
+        // Now start PV, which might update the plot's labels to
+        // reflect units and thus must happen after listeners have been called
+        if (is_running  &&  item instanceof PVItem)
+            ((PVItem)item).start();
     }
 
     /** Remove item from the model.

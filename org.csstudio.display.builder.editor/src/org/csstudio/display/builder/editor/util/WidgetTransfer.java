@@ -39,6 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.Messages;
+import org.csstudio.display.builder.editor.palette.Palette;
 import org.csstudio.display.builder.editor.tracker.SelectedWidgetUITracker;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.Widget;
@@ -109,7 +110,8 @@ public class WidgetTransfer
      *  @param desc Description of widget type to drag
      *  @param image Image to represent the widget, or <code>null</code>
      */
-    public static void addDragSupport(final Node source, final DisplayEditor editor, final WidgetDescriptor descriptor, final Image image)
+    public static void addDragSupport(final Node source, final DisplayEditor editor,
+                                      final Palette palette, final WidgetDescriptor descriptor, final Image image)
     {
         source.setOnDragDetected( ( MouseEvent event ) ->
         {
@@ -149,7 +151,12 @@ public class WidgetTransfer
 
             event.consume();
         });
-        source.setOnDragDone(event -> editor.getAutoScrollHandler().canceTimeline());
+        source.setOnDragDone(event ->
+        {   // Widget was dropped
+            // -> Stop scrolling, clear the selected palette entry
+            editor.getAutoScrollHandler().canceTimeline();
+            palette.clearSelectedWidgetType();
+        });
     }
 
     /** Add support for dropping widgets
@@ -264,8 +271,7 @@ public class WidgetTransfer
             g2d.drawImage(bbImage, (int) ( ( width - w ) / 2.0 ), (int) ( ( height - h ) / 2.0 ), null);
         }
 
-        WritableImage dImage = new WritableImage(width, height);
-
+        final WritableImage dImage = new WritableImage(width, height);
         SwingFXUtils.toFXImage(bImage, dImage);
 
         return dImage;
@@ -759,7 +765,6 @@ public class WidgetTransfer
         }
 
         return url;
-
     }
 
     private static String reduceURL(String url, int leftSlash, int rightSlash)

@@ -13,8 +13,6 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import org.csstudio.display.builder.model.properties.NamedWidgetColor;
@@ -88,6 +86,9 @@ public class ColorUnitTest
     }
 
     /** Test fetching named colors from service
+     *
+     *  Time-based test, may occasionally fail because background thread doesn't get to run as expected
+     *
      *  @throws Exception on error
      */
     @Test(timeout=30000)
@@ -95,7 +96,7 @@ public class ColorUnitTest
     {
         System.out.println("On " + Thread.currentThread().getName());
 
-        // Default colors do now include 'STOP'
+        // Default colors do not include 'STOP'
         NamedWidgetColors colors = WidgetColorService.getColors();
         NamedWidgetColor color = colors.getColor("STOP").orElse(null);
         assertThat(color, nullValue());
@@ -103,8 +104,7 @@ public class ColorUnitTest
         int delay_seconds = 10;
 
         // Load colors, using a source with artificial delay
-        final Callable<InputStream> slow_color_source =
-            new DelayedStream("../org.csstudio.display.builder.model/examples/color.def", delay_seconds);
+        final DelayedStream slow_color_source = new DelayedStream("../org.csstudio.display.builder.model/examples/color.def");
         WidgetColorService.loadColors(new String[] { "Slow file" }, file -> slow_color_source.call());
 
         // Getting the colors is now delayed by the WidgetColorService.LOAD_DELAY
@@ -119,6 +119,7 @@ public class ColorUnitTest
         assertThat(color, nullValue());
 
         // The file is still loading, and eventually we should get it
+        slow_color_source.proceed();
         TimeUnit.SECONDS.sleep(delay_seconds);
         start = System.currentTimeMillis();
         colors = WidgetColorService.getColors();

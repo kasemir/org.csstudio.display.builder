@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.editor.palette;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,10 +20,10 @@ import org.csstudio.display.builder.model.WidgetFactory;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -46,8 +47,13 @@ public class Palette
 
     private final DisplayEditor editor;
 
-    /** @param selection Selection handler */
-    public Palette ( final DisplayEditor editor ) {
+    private Collection<Pane> groups;
+
+    private WidgetDescriptor active_widget_type = null;
+
+    /** @param editor {@link DisplayEditor} */
+    public Palette (final DisplayEditor editor)
+    {
         this.editor = editor;
     }
 
@@ -59,6 +65,7 @@ public class Palette
         final VBox palette = new VBox();
 
         final Map<WidgetCategory, Pane> palette_groups = createWidgetCategoryPanes(palette);
+        groups = palette_groups.values();
         createWidgetEntries(palette_groups);
 
         final ScrollPane palette_scroll = new ScrollPane(palette);
@@ -102,7 +109,7 @@ public class Palette
     {
         for (final WidgetDescriptor desc : WidgetFactory.getInstance().getWidgetDescriptions())
         {
-            final Button button = new Button(desc.getName());
+            final ToggleButton button = new ToggleButton(desc.getName());
             final Image icon = WidgetIcons.getIcon(desc.getType());
             if (icon != null)
                 button.setGraphic(new ImageView(icon));
@@ -111,7 +118,37 @@ public class Palette
             button.setTooltip(new Tooltip(desc.getDescription()));
             palette_groups.get(desc.getCategory()).getChildren().add(button);
 
-            WidgetTransfer.addDragSupport(button, editor, desc, icon);
+            button.setOnAction(event ->
+            {
+                // Remember the widget-to-create via rubberband
+                active_widget_type = desc;
+
+                // De-select all _other_ buttons
+                for (Pane pane : groups)
+                    for (Node other : pane.getChildren())
+                        if (other instanceof ToggleButton  && other != button)
+                            ((ToggleButton)other).setSelected(false);
+            });
+
+            WidgetTransfer.addDragSupport(button, editor, this, desc, icon);
         }
+    }
+
+    /** @return Selected widget type or <code>null</code> */
+    public WidgetDescriptor getSelectedWidgetType()
+    {
+        return active_widget_type;
+    }
+
+    /** Clear the currently selected widget type */
+    public void clearSelectedWidgetType()
+    {
+        active_widget_type = null;
+
+        // De-select all buttons
+        for (Pane pane : groups)
+            for (Node other : pane.getChildren())
+                if (other instanceof ToggleButton)
+                    ((ToggleButton)other).setSelected(false);
     }
 }

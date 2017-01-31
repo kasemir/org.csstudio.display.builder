@@ -26,3 +26,12 @@
     -fx-arc-width: 3;
     -fx-arc-height: 3;
 }
+
+.location_size
+{
+    -fx-font-size: 8.5px;
+    -fx-padding: 1 1 1 1;
+    -fx-text-fill: white;
+    -fx-background-radius: 15;
+    -fx-background-color: rgba(10, 10, 10, 0.66);
+}

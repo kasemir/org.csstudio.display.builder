@@ -10,20 +10,30 @@ package org.csstudio.trends.databrowser3.bobwidget;
 import static org.csstudio.display.builder.model.widgets.plots.PlotWidgetProperties.propToolbar;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.Widget;
-import org.csstudio.display.builder.model.WidgetProperty;
+import org.csstudio.display.builder.model.macros.MacroHandler;
 import org.csstudio.display.builder.runtime.Messages;
 import org.csstudio.display.builder.runtime.RuntimeAction;
 import org.csstudio.display.builder.runtime.WidgetRuntime;
 import org.csstudio.display.builder.runtime.pv.PVFactory;
 import org.csstudio.display.builder.runtime.pv.RuntimePV;
-import org.csstudio.display.builder.runtime.pv.RuntimePVListener;
+import org.csstudio.javafx.rtplot.data.PlotDataItem;
+import org.csstudio.trends.databrowser3.model.ModelItem;
+import org.csstudio.trends.databrowser3.model.ModelListener;
+import org.csstudio.trends.databrowser3.model.ModelListenerAdapter;
+import org.csstudio.trends.databrowser3.model.TimeHelper;
+import org.diirt.util.array.ArrayDouble;
+import org.diirt.util.array.ListDouble;
 import org.diirt.vtype.VType;
+import org.diirt.vtype.ValueFactory;
 
 /** Runtime for the DataBrowserWidget
  *
@@ -32,7 +42,6 @@ import org.diirt.vtype.VType;
 @SuppressWarnings("nls")
 public class DataBrowserWidgetRuntime  extends WidgetRuntime<DataBrowserWidget>
 {
-
     private class ToggleToolbarAction extends RuntimeAction
     {
         private final Widget widget;
@@ -60,19 +69,59 @@ public class DataBrowserWidgetRuntime  extends WidgetRuntime<DataBrowserWidget>
         }
     }
 
-    private final List<RuntimeAction> runtime_actions = new ArrayList<>(1);
-
-    private static class Subscription
+    private class ModelSampleSelectionListener extends ModelListenerAdapter
     {
-        final RuntimePV pv;
-        final RuntimePVListener listener;
-        Subscription(final RuntimePV pv, final RuntimePVListener listener)
+        private ListDouble convert(final List<Double> values)
         {
-            this.pv = pv;
-            this.listener = listener;
+            final double[] array = new double[values.size()];
+            for (int i=0; i<array.length; ++i)
+                array[i] = values.get(i);
+            return new ArrayDouble(array);
+        }
+
+        @Override
+        public void selectedSamplesChanged()
+        {
+            // Create VTable value from selected samples
+            final List<String> names = new ArrayList<>();
+            final List<String> times = new ArrayList<>();
+            final List<Double> values = new ArrayList<>();
+
+            for (ModelItem item : widget.getDataBrowserModel().getItems())
+            {
+                names.add(item.getResolvedDisplayName());
+                final Optional<PlotDataItem<Instant>> sample = item.getSelectedSample();
+                if (sample.isPresent())
+                {
+                    times.add(TimeHelper.format(sample.get().getPosition()));
+                    values.add(sample.get().getValue());
+                }
+                else
+                {
+                    times.add("-");
+                    values.add(Double.NaN);
+                }
+            }
+            final VType value = ValueFactory.newVTable(
+                    Arrays.asList(String.class, String.class, double.class),
+                    Arrays.asList("Trace", "Timestamp", "Value"),
+                    Arrays.<Object>asList(names,times, convert(values)));
+            try
+            {
+                selection_pv.write(value);
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot update selection PV", ex);
+            }
         }
     }
-    private final List<Subscription> subscriptions = new ArrayList<>();
+
+    private final List<RuntimeAction> runtime_actions = new ArrayList<>(1);
+
+    private ModelListener db_model_listener;
+
+    private RuntimePV selection_pv;
 
     @Override
     public void initialize(final DataBrowserWidget widget)
@@ -93,36 +142,37 @@ public class DataBrowserWidgetRuntime  extends WidgetRuntime<DataBrowserWidget>
     {
         super.start();
 
-        //        for (TraceWidgetProperty trace : widget.propTraces().getValue())
-        //        {
-        //            bind(trace.traceXPV(), trace.traceXValue());
-        //            bind(trace.traceYPV(), trace.traceYValue());
-        //            bind(trace.traceErrorPV(), trace.traceErrorValue());
-        //        }
-    }
+        String pv_name = widget.propSelectionValuePVName().getValue();
+        if (! pv_name.isEmpty())
+            pv_name = MacroHandler.replace(widget.getEffectiveMacros(), pv_name);
+        if (! pv_name.isEmpty())
+        {
+            final RuntimePV pv = PVFactory.getPV(pv_name);
+            addPV(pv);
+            selection_pv = pv;
 
-    private void bind(final WidgetProperty<String> name, final WidgetProperty<VType> value) throws Exception
-    {
-        final String pv_name = name.getValue();
-        if (pv_name.isEmpty())
-            return;
-        logger.log(Level.FINER,  "Connecting {0} to {1}", new Object[] { widget, pv_name });
-        final RuntimePV pv = PVFactory.getPV(pv_name);
-        final RuntimePVListener listener = new PropertyUpdater(value);
-        pv.addListener(listener);
-        subscriptions.add(new Subscription(pv, listener));
-        addPV(pv);
+            db_model_listener = new ModelSampleSelectionListener();
+            widget.getDataBrowserModel().addListener(db_model_listener);
+        }
     }
 
     @Override
     public void stop()
     {
-        for (Subscription sub : subscriptions)
+        if (db_model_listener != null)
         {
-            sub.pv.removeListener(sub.listener);
-            PVFactory.releasePV(sub.pv);
-            removePV(sub.pv);
+            widget.getDataBrowserModel().removeListener(db_model_listener);
+            db_model_listener = null;
         }
+
+        final RuntimePV pv = selection_pv;
+        if (pv != null)
+        {
+            removePV(pv);
+            PVFactory.releasePV(pv);
+            selection_pv = null;
+        }
+
         super.stop();
     }
 }
