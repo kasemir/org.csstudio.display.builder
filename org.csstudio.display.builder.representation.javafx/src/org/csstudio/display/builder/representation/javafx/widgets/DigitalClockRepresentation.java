@@ -30,6 +30,7 @@ import eu.hansolo.medusa.LcdDesign;
  * @author Claudio Rosati, European Spallation Source ERIC
  * @version 1.0.0 23 Jan 2017
  */
+@SuppressWarnings("nls")
 public class DigitalClockRepresentation extends RegionBaseRepresentation<Clock, DigitalClockWidget> {
 
     private final DirtyFlag dirtyBehavior = new DirtyFlag();
