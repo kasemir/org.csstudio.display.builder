@@ -9,7 +9,11 @@
 package org.csstudio.display.builder.representation.javafx.widgets;
 
 
+import static org.csstudio.display.builder.representation.ToolkitRepresentation.logger;
+
+import java.util.Locale;
 import java.util.Objects;
+import java.util.logging.Level;
 
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
@@ -27,6 +31,7 @@ import javafx.scene.paint.Paint;
  * @author Claudio Rosati, European Spallation Source ERIC
  * @version 1.0.0 18 Jan 2017
  */
+@SuppressWarnings("nls")
 public class ClockRepresentation extends RegionBaseRepresentation<Clock, ClockWidget> {
 
     private final DirtyFlag dirtyBehavior = new DirtyFlag();
@@ -83,7 +88,7 @@ public class ClockRepresentation extends RegionBaseRepresentation<Clock, ClockWi
 
         if ( dirtyLook.checkAndClear() ) {
 
-            value = model_widget.propSkin().getValue().skinType();
+            value = ClockSkinType.valueOf(model_widget.propSkin().getValue().name());
 
             if ( !Objects.equals(value, jfx_node.getSkinType()) ) {
                 jfx_node.setSkinType((ClockSkinType) value);
@@ -141,6 +146,24 @@ public class ClockRepresentation extends RegionBaseRepresentation<Clock, ClockWi
 
             if ( !Objects.equals(value, jfx_node.getKnobColor()) ) {
                 jfx_node.setKnobColor((Color) value);
+            }
+
+            value = model_widget.propLocale().getValue();
+
+            if ( value != null ) {
+
+                Locale l = Locale.getDefault();
+
+                try {
+                    l = Locale.forLanguageTag(value.toString());
+                } catch ( Exception ex ) {
+                    logger.log(Level.WARNING, "Unable to convert \"{0}\" to a Local instance [{1}].", new Object[] { value.toString(), ex.getMessage()});
+                }
+
+                if ( !l.equals(jfx_node.getLocale()) ) {
+                    jfx_node.setLocale(l);
+                }
+
             }
 
             value = JFXUtil.convert(model_widget.propMinuteColor().getValue());
@@ -229,7 +252,7 @@ public class ClockRepresentation extends RegionBaseRepresentation<Clock, ClockWi
     protected Clock createJFXNode ( ) throws Exception {
 
         Clock clock = ClockBuilder.create()
-                                  .skinType(model_widget.propSkin().getValue().skinType())
+                                  .skinType(ClockSkinType.valueOf(model_widget.propSkin().getValue().name()))
                                   .prefHeight(model_widget.propHeight().getValue())
                                   .prefWidth(model_widget.propWidth().getValue())
                                   //--------------------------------------------------------
@@ -262,6 +285,16 @@ public class ClockRepresentation extends RegionBaseRepresentation<Clock, ClockWi
                                   .titleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()))
                                   .titleVisible(model_widget.propTitleVisible().getValue())
                                   .build();
+
+        String locale = model_widget.propLocale().getValue();
+
+        if ( locale != null ) {
+            try {
+                jfx_node.setLocale(Locale.forLanguageTag(locale.toString()));
+            } catch ( Exception ex ) {
+                logger.log(Level.WARNING, "Unable to convert \"{0}\" to a Local instance [{1}].", new Object[] { locale.toString(), ex.getMessage()});
+            }
+        }
 
         clock.backgroundPaintProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, JFXUtil.convert(model_widget.propBackgroundColor().getValue())) ) {
@@ -321,6 +354,11 @@ public class ClockRepresentation extends RegionBaseRepresentation<Clock, ClockWi
         clock.knobColorProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, JFXUtil.convert(model_widget.propKnobColor().getValue())) ) {
                 model_widget.propKnobColor().setValue(JFXUtil.convert(n));
+            }
+        });
+        clock.localeProperty().addListener( ( s, o, n ) -> {
+            if ( n != null && !Objects.equals(n.toLanguageTag(), model_widget.propLocale().getValue()) ) {
+                model_widget.propLocale().setValue(n.toLanguageTag());
             }
         });
         clock.minuteColorProperty().addListener( ( s, o, n ) -> {
@@ -416,6 +454,7 @@ public class ClockRepresentation extends RegionBaseRepresentation<Clock, ClockWi
         model_widget.propHourTickMarkColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propHourTickMarkVisible().addUntypedPropertyListener(this::lookChanged);
         model_widget.propKnobColor().addUntypedPropertyListener(this::lookChanged);
+        model_widget.propLocale().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMinuteColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMinuteTickMarkColor().addUntypedPropertyListener(this::lookChanged);
         model_widget.propMinuteTickMarkVisible().addUntypedPropertyListener(this::lookChanged);

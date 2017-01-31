@@ -27,16 +27,25 @@ with improvements:
 Try Nightly Snapshot
 --------------------
 
+Since Feb. 2017, the SNS products include the display builder:
+
 1. Download the 'Basic EPICS' or SNS version of CS-Studio from http://ics-web.sns.ornl.gov/css/nightly
 2. Start css with command-line options `-vmargs -Dorg.osgi.framework.bundle.parent=ext  -Dosgi.framework.extensions=org.eclipse.fx.osgi`. Instead of using the command line option,
    these settings can also be added to the product's css.ini file (Windows, Linux)
    or the css.app/Contents/Info.plist (Mac OS X).
-3. Open the menu `Help`, `Install New Software`. Enter `http://ics-web.sns.ornl.gov/css/display.builder`
-   as a site, select the display builder for installation, follow the steps in the installation dialog, restart.
-4. Open the menu `CS-Studio`, `Utilities`, `Install Samples` to install the `Display Builder` examples.
-5. In the Navigator, open the `Display Builder/01_main.bob` file in the editor, look around,
+
+When you use a different CS-Studio product that doesn't already include the display builder,
+you may be able to add it.
+Open the menu `Help`, `Install New Software`. Enter `http://ics-web.sns.ornl.gov/css/display.builder`
+as a site, select the display builder for installation, follow the steps in the installation dialog, restart.
+
+
+Finally, check the display builder examples:
+
+1. Open the menu `CS-Studio`, `Utilities`, `Install Samples` to install the `Display Builder` examples.
+2. From the Navigator, open the `Display Builder/01_main.bob` file in the editor, look around,
    press the green `Execute` button in the toolbar.
-6. In the Navigator, right-click on some folder and invoke `New/Other..`, `Display Editor/New Display` to create your first own display.
+3. In the Navigator, right-click on some folder and invoke `New/Other..`, `Display Editor/New Display` to create your first own display.
 
 
 Development Details

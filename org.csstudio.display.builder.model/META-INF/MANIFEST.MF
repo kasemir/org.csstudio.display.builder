@@ -7,8 +7,7 @@ Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.core.runtime,
  org.diirt.vtype,
  org.csstudio.display.builder.util;bundle-version="1.0.0",
- org.diirt.util,
- eu.hansolo.medusa
+ org.diirt.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Localization: plugin

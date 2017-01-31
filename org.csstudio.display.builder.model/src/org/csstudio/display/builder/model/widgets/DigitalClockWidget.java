@@ -10,6 +10,7 @@ package org.csstudio.display.builder.model.widgets;
 
 
 import java.util.List;
+import java.util.Locale;
 
 import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.Widget;
@@ -21,8 +22,6 @@ import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
 import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 
-import eu.hansolo.medusa.LcdDesign;
-
 
 /**
  * Widget displaying date and/or time.
@@ -30,6 +29,7 @@ import eu.hansolo.medusa.LcdDesign;
  * @author Claudio Rosati, European Spallation Source ERIC
  * @version 1.0.0 23 Jan 2017
  */
+@SuppressWarnings("nls")
 public class DigitalClockWidget extends VisibleWidget {
 
     public static final WidgetDescriptor WIDGET_DESCRIPTOR = new WidgetDescriptor(
@@ -45,81 +45,67 @@ public class DigitalClockWidget extends VisibleWidget {
         }
     };
 
-    /**
-     * This enumeration is a trick to have the original enumeration sorted.
-     * This because the combo box showing the values is not made to sort the values.
-     *
-     * @author claudiorosati, European Spallation Source ERIC
-     * @version 1.0.0 25 Jan 2017
-     */
     public enum Design {
-
-        AMBER(LcdDesign.AMBER),
-        BEIGE(LcdDesign.BEIGE),
-        BLACK(LcdDesign.BLACK),
-        BLACK_RED(LcdDesign.BLACK_RED),
-        BLACK_YELLOW(LcdDesign.BLACK_YELLOW),
-        BLUE(LcdDesign.BLUE),
-        BLUE2(LcdDesign.BLUE2),
-        BLUE_BLACK(LcdDesign.BLUE_BLACK),
-        BLUE_BLUE(LcdDesign.BLUE_BLUE),
-        BLUE_DARKBLUE(LcdDesign.BLUE_DARKBLUE),
-        BLUE_GRAY(LcdDesign.BLUE_GRAY),
-        BLUE_LIGHTBLUE(LcdDesign.BLUE_LIGHTBLUE),
-        BLUE_LIGHTBLUE2(LcdDesign.BLUE_LIGHTBLUE2),
-        DARKAMBER(LcdDesign.DARKAMBER),
-        DARKBLUE(LcdDesign.DARKBLUE),
-        DARKGREEN(LcdDesign.DARKGREEN),
-        DARKPURPLE(LcdDesign.DARKPURPLE),
-        GRAY(LcdDesign.GRAY),
-        GRAY_PURPLE(LcdDesign.GRAY_PURPLE),
-        GREEN(LcdDesign.GREEN),
-        GREEN_BLACK(LcdDesign.GREEN_BLACK),
-        GREEN_DARKGREEN(LcdDesign.GREEN_DARKGREEN),
-        LIGHTBLUE(LcdDesign.LIGHTBLUE),
-        LIGHTGREEN(LcdDesign.LIGHTGREEN),
-        LIGHTGREEN_BLACK(LcdDesign.LIGHTGREEN_BLACK),
-        ORANGE(LcdDesign.ORANGE),
-        PURPLE(LcdDesign.PURPLE),
-        RED(LcdDesign.RED),
-        RED_DARKRED(LcdDesign.RED_DARKRED),
-        SECTIONS(LcdDesign.SECTIONS),
-        STANDARD(LcdDesign.STANDARD),
-        STANDARD_GREEN(LcdDesign.STANDARD_GREEN),
-        WHITE(LcdDesign.WHITE),
-        YELLOW(LcdDesign.YELLOW),
-        YELLOW_BLACK(LcdDesign.YELLOW_BLACK),
-        YOCTOPUCE(LcdDesign.YOCTOPUCE);
-
-        private final LcdDesign design;
-
-        Design ( LcdDesign design ) {
-            this.design = design;
-        }
-
-        public LcdDesign design ( ) {
-            return design;
-        }
-
+        AMBER,
+        BEIGE,
+        BLACK,
+        BLACK_RED,
+        BLACK_YELLOW,
+        BLUE,
+        BLUE2,
+        BLUE_BLACK,
+        BLUE_BLUE,
+        BLUE_DARKBLUE,
+        BLUE_GRAY,
+        BLUE_LIGHTBLUE,
+        BLUE_LIGHTBLUE2,
+        DARKAMBER,
+        DARKBLUE,
+        DARKGREEN,
+        DARKPURPLE,
+        GRAY,
+        GRAY_PURPLE,
+        GREEN,
+        GREEN_BLACK,
+        GREEN_DARKGREEN,
+        LIGHTBLUE,
+        LIGHTGREEN,
+        LIGHTGREEN_BLACK,
+        ORANGE,
+        PURPLE,
+        RED,
+        RED_DARKRED,
+        SECTIONS,
+        STANDARD,
+        STANDARD_GREEN,
+        WHITE,
+        YELLOW,
+        YELLOW_BLACK,
+        YOCTOPUCE
     }
 
-    public static final WidgetPropertyDescriptor<Boolean> propDateVisible       = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "date_visible",        Messages.WidgetProperties_DateVisible);
-    public static final WidgetPropertyDescriptor<Boolean> propLcdCrystalEnabled = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "lcd_crystal_enabled", Messages.WidgetProperties_LcdCrystalEnabled);
     public static final WidgetPropertyDescriptor<Design>  propLcdDesign         = new WidgetPropertyDescriptor<Design>               (WidgetPropertyCategory.WIDGET,   "lcd_design",          Messages.WidgetProperties_LcdDesign) {
         @Override
         public EnumWidgetProperty<Design> createProperty ( Widget widget, Design defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
-    public static final WidgetPropertyDescriptor<Boolean> propRunning           = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "running", Messages.WidgetProperties_Running);
-    public static final WidgetPropertyDescriptor<Boolean> propSecondVisible     = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "second_visible", Messages.WidgetProperties_SecondVisible);
-    public static final WidgetPropertyDescriptor<Boolean> propShadowsEnabled    = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "shadows_enabled", Messages.WidgetProperties_ShadowsEnabled);
-    public static final WidgetPropertyDescriptor<String>  propTitle             = CommonWidgetProperties.newStringPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "title", Messages.WidgetProperties_Title);
-    public static final WidgetPropertyDescriptor<Boolean> propTitleVisible      = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "title_visible", Messages.WidgetProperties_TitleVisible);
+
+    public static final WidgetPropertyDescriptor<Boolean> propDateVisible       = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "date_visible",        Messages.WidgetProperties_DateVisible);
+    public static final WidgetPropertyDescriptor<Boolean> propSecondVisible     = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "second_visible",      Messages.WidgetProperties_SecondVisible);
+    public static final WidgetPropertyDescriptor<String>  propTitle             = CommonWidgetProperties.newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "title",               Messages.WidgetProperties_Title);
+    public static final WidgetPropertyDescriptor<Boolean> propTitleVisible      = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "title_visible",       Messages.WidgetProperties_TitleVisible);
+
+    public static final WidgetPropertyDescriptor<Boolean> propRunning           = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "running",             Messages.WidgetProperties_Running);
+
+    public static final WidgetPropertyDescriptor<Boolean> propLcdCrystalEnabled = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC,     "lcd_crystal_enabled", Messages.WidgetProperties_LcdCrystalEnabled);
+    public static final WidgetPropertyDescriptor<String>  propLocale            = CommonWidgetProperties.newStringPropertyDescriptor (WidgetPropertyCategory.MISC,     "locale",              Messages.WidgetProperties_Locale);
+    public static final WidgetPropertyDescriptor<Boolean> propShadowsEnabled    = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC,     "shadows_enabled",     Messages.WidgetProperties_ShadowsEnabled);
 
     private volatile WidgetProperty<Boolean> dateVisible;
     private volatile WidgetProperty<Boolean> lcdCrystalEnabled;
     private volatile WidgetProperty<Design>  lcdDesign;
+    private volatile WidgetProperty<String>  locale;
     private volatile WidgetProperty<Boolean> running;
     private volatile WidgetProperty<Boolean> secondVisible;
     private volatile WidgetProperty<Boolean> shadowsEnabled;
@@ -140,6 +126,10 @@ public class DigitalClockWidget extends VisibleWidget {
 
     public WidgetProperty<Design> propLcdDesign ( ) {
         return lcdDesign;
+    }
+
+    public WidgetProperty<String> propLocale ( ) {
+        return locale;
     }
 
     public WidgetProperty<Boolean> propRunning ( ) {
@@ -169,12 +159,14 @@ public class DigitalClockWidget extends VisibleWidget {
 
         properties.add(lcdDesign         = propLcdDesign.createProperty(this, Design.SECTIONS));
 
-        properties.add(lcdCrystalEnabled = propLcdCrystalEnabled.createProperty(this, true));
         properties.add(dateVisible       = propDateVisible.createProperty(this, true));
         properties.add(secondVisible     = propSecondVisible.createProperty(this, true));
-        properties.add(shadowsEnabled    = propShadowsEnabled.createProperty(this, true));
         properties.add(title             = propTitle.createProperty(this, ""));
         properties.add(titleVisible      = propTitleVisible.createProperty(this, false));
+
+        properties.add(lcdCrystalEnabled = propLcdCrystalEnabled.createProperty(this, true));
+        properties.add(locale            = propLocale.createProperty(this, Locale.getDefault().toLanguageTag()));
+        properties.add(shadowsEnabled    = propShadowsEnabled.createProperty(this, true));
 
         //  Properties not visible in the property sheet.
         running = propRunning.createProperty(this, true);

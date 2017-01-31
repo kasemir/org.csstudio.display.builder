@@ -7,10 +7,11 @@
  ******************************************************************************/
 package org.csstudio.display.builder.util.undo;
 
+import static org.csstudio.display.builder.util.Plugin.logger;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /** Manager for {@link UndoableAction}s
  *
@@ -20,7 +21,6 @@ import java.util.logging.Logger;
 @SuppressWarnings("nls")
 public class UndoableActionManager
 {
-    private final Logger logger = Logger.getLogger(getClass().getName());
     private final SizeLimitedStack<UndoableAction> undoStack;
     private final SizeLimitedStack<UndoableAction> redoStack;
     private final List<UndoRedoListener> listeners = new CopyOnWriteArrayList<>();
