@@ -12,7 +12,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newIntegerPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
@@ -213,7 +213,7 @@ public class ScaledSliderWidget extends PVWidget
         properties.add(minimum = propMinimum.createProperty(this, 0.0));
         properties.add(maximum = propMaximum.createProperty(this, 100.0));
         properties.add(limits_from_pv = propLimitsFromPV.createProperty(this, true));
-        properties.add(enabled = propEnabled.createProperty(this, true));
+        properties.add(enabled = runtimePropEnabled.createProperty(this, true));
         properties.add(show_scale = propShowScale.createProperty(this, true));
         properties.add(show_minor_ticks = propShowMinorTicks.createProperty(this, true));
         properties.add(major_tick_step_hint = propMajorTickStepHint.createProperty(this, 40));
@@ -283,7 +283,7 @@ public class ScaledSliderWidget extends PVWidget
     }
 
     /** @return 'enabled' property */
-    public WidgetProperty<Boolean> propEnabled()
+    public WidgetProperty<Boolean> runtimePropEnabled()
     {
         return enabled;
     }

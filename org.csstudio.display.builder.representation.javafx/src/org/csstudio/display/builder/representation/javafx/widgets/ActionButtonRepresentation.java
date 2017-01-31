@@ -235,7 +235,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
         model_widget.propHeight().addUntypedPropertyListener(this::representationChanged);
         model_widget.propText().addUntypedPropertyListener(this::representationChanged);
         model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propEnabled().addUntypedPropertyListener(this::representationChanged);
+        model_widget.runtimePropEnabled().addUntypedPropertyListener(this::representationChanged);
 
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::buttonChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::buttonChanged);
@@ -288,7 +288,7 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             base.setPrefSize(model_widget.propWidth().getValue(),
                              model_widget.propHeight().getValue());
             base.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
-            base.setDisable(! model_widget.propEnabled().getValue());
+            base.setDisable(! model_widget.runtimePropEnabled().getValue());
         }
     }
 }

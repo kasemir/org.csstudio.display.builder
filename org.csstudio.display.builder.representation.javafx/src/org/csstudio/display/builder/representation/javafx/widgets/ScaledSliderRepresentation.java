@@ -106,7 +106,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.propShowScale().addUntypedPropertyListener(this::layoutChanged);
         model_widget.propScaleFormat().addUntypedPropertyListener(this::layoutChanged);
         model_widget.propShowMinorTicks().addUntypedPropertyListener(this::layoutChanged);
-        model_widget.propEnabled().addUntypedPropertyListener(this::layoutChanged);
+        model_widget.runtimePropEnabled().addUntypedPropertyListener(this::layoutChanged);
         model_widget.propIncrement().addPropertyListener(this::layoutChanged);
 
         model_widget.propLevelHi().addUntypedPropertyListener(this::limitsChanged);
@@ -281,7 +281,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         super.updateChanges();
         if (dirty_layout.checkAndClear())
         {
-            jfx_node.setDisable(! model_widget.propEnabled().getValue());
+            jfx_node.setDisable(! model_widget.runtimePropEnabled().getValue());
 
             final boolean horizontal = model_widget.propHorizontal().getValue();
             slider.setOrientation(horizontal ? Orientation.HORIZONTAL : Orientation.VERTICAL);

@@ -135,7 +135,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
         if (this.active == active)
             return;
         // Don't enable when widget is disabled
-        if (active  &&  !model_widget.propEnabled().getValue())
+        if (active  &&  !model_widget.runtimePropEnabled().getValue())
             return;
         this.active = active;
         dirty_style.mark();
@@ -200,7 +200,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
         model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
+        model_widget.runtimePropEnabled().addUntypedPropertyListener(this::styleChanged);
 
         model_widget.propFormat().addUntypedPropertyListener(this::contentChanged);
         model_widget.propPrecision().addUntypedPropertyListener(this::contentChanged);
@@ -275,7 +275,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
             // Don't disable the widget, because that would also remove the
             // context menu etc.
             // Just apply a style that matches the disabled look.
-            final boolean enabled = model_widget.propEnabled().getValue();
+            final boolean enabled = model_widget.runtimePropEnabled().getValue();
             jfx_node.setEditable(enabled);
             if (! enabled)
                 style += "-fx-opacity: 0.4;";
