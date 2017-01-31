@@ -13,6 +13,7 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
+import org.csstudio.javafx.Styles;
 import org.diirt.vtype.Display;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueUtil;
@@ -162,7 +163,13 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         super.updateChanges();
         if (dirty_size.checkAndClear())
         {
-            jfx_node.setDisable(! model_widget.runtimePropEnabled().getValue());
+            final boolean enabled = model_widget.runtimePropEnabled().getValue();
+            jfx_node.setDisable(! enabled);
+            if (enabled)
+                jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
+            else
+                jfx_node.getStyleClass().add(Styles.NOT_ENABLED);
+
             jfx_node.setPrefHeight(model_widget.propHeight().getValue());
             jfx_node.setPrefWidth(model_widget.propWidth().getValue());
             jfx_node.setMin(min);

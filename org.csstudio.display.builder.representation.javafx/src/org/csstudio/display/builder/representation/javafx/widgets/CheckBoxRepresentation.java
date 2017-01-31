@@ -16,6 +16,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.CheckBoxWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.csstudio.javafx.Styles;
 import org.diirt.vtype.VType;
 
 import javafx.scene.control.ButtonBase;
@@ -29,7 +30,7 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
 {
     private final DirtyFlag dirty_size = new DirtyFlag();
     private final DirtyFlag dirty_content = new DirtyFlag();
-    private final DirtyFlag dirty_label = new DirtyFlag();
+    private final DirtyFlag dirty_style = new DirtyFlag();
 
     protected volatile int bit = 0;
     protected volatile int value = 0;
@@ -71,7 +72,8 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
 
         labelChanged(model_widget.propLabel(), null, model_widget.propLabel().getValue());
         model_widget.propLabel().addPropertyListener(this::labelChanged);
-        model_widget.propFont().addUntypedPropertyListener(this::fontChanged);
+        model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
+        model_widget.runtimePropEnabled().addUntypedPropertyListener(this::styleChanged);
 
         bitChanged(model_widget.propBit(), null, model_widget.propBit().getValue());
         model_widget.propBit().addPropertyListener(this::bitChanged);
@@ -90,13 +92,13 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
     private void labelChanged(final WidgetProperty<String> property, final String old_value, final String new_value)
     {
         label = new_value != null ? new_value : model_widget.propLabel().getValue();
-        dirty_label.mark();
+        dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
 
-    private void fontChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
+    private void styleChanged(final WidgetProperty<?> property, final Object old_value, final Object new_value)
     {
-        dirty_label.mark();
+        dirty_style.mark();
         toolkit.scheduleUpdate(this);
     }
 
@@ -132,10 +134,19 @@ public class CheckBoxRepresentation extends JFXBaseRepresentation<CheckBox, Chec
         }
         if (dirty_content.checkAndClear())
             jfx_node.setSelected(state);
-        if (dirty_label.checkAndClear())
+        if (dirty_style.checkAndClear())
         {
             jfx_node.setText(label);
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
+
+            // Don't disable the widget, because that would also remove the
+            // context menu etc.
+            // Just apply a style that matches the disabled look.
+            final boolean enabled = model_widget.runtimePropEnabled().getValue();
+            if (enabled)
+                jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
+           else
+                jfx_node.getStyleClass().add(Styles.NOT_ENABLED);
         }
     }
 }

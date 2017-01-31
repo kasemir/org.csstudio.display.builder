@@ -15,6 +15,9 @@ import javafx.scene.Scene;
 @SuppressWarnings("nls")
 public class Styles
 {
+    /** Style used to cause enabled/disabled appearance */
+    public final static String NOT_ENABLED = "not_enabled";
+
     /** @param scene Scene where style sheet for csstudio is added */
     public static void setSceneStyle(final Scene scene)
     {

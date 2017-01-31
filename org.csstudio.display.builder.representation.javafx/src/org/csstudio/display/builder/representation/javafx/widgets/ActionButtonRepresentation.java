@@ -23,6 +23,7 @@ import org.csstudio.display.builder.model.properties.StringWidgetProperty;
 import org.csstudio.display.builder.model.widgets.ActionButtonWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.csstudio.display.builder.representation.javafx.Messages;
+import org.csstudio.javafx.Styles;
 import org.eclipse.osgi.util.NLS;
 
 import javafx.geometry.Side;
@@ -288,7 +289,13 @@ public class ActionButtonRepresentation extends RegionBaseRepresentation<Pane, A
             base.setPrefSize(model_widget.propWidth().getValue(),
                              model_widget.propHeight().getValue());
             base.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
-            base.setDisable(! model_widget.runtimePropEnabled().getValue());
+
+            final boolean enabled = model_widget.runtimePropEnabled().getValue();
+            base.setDisable(! enabled);
+            if (enabled)
+                jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
+            else
+                jfx_node.getStyleClass().add(Styles.NOT_ENABLED);
         }
     }
 }

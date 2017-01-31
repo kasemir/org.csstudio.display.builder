@@ -16,6 +16,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.ComboWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.csstudio.javafx.Styles;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 
@@ -189,6 +190,13 @@ public class ComboRepresentation extends RegionBaseRepresentation<ComboBox<Strin
             }
         }
         if (dirty_enable.checkAndClear())
-            jfx_node.setDisable(! model_widget.runtimePropEnabled().getValue());
+        {
+            final boolean enabled = model_widget.runtimePropEnabled().getValue();
+            jfx_node.setDisable(! enabled);
+            if (enabled)
+                jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
+            else
+                jfx_node.getStyleClass().add(Styles.NOT_ENABLED);
+        }
     }
 }

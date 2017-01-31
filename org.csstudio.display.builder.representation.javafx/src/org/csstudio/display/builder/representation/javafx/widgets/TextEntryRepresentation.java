@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.csstudio.javafx.Styles;
 import org.diirt.vtype.VType;
 
 import javafx.scene.control.TextArea;
@@ -269,6 +270,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
             // http://stackoverflow.com/questions/27700006/how-do-you-change-the-background-color-of-a-textfield-without-changing-the-border
             final WidgetColor back_color = active ? active_color : model_widget.propBackgroundColor().getValue();
             style += "-fx-control-inner-background: " + JFXUtil.webRGB(back_color) + ";";
+            jfx_node.setStyle(style);
 
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
 
@@ -277,10 +279,10 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
             // Just apply a style that matches the disabled look.
             final boolean enabled = model_widget.runtimePropEnabled().getValue();
             jfx_node.setEditable(enabled);
-            if (! enabled)
-                style += "-fx-opacity: 0.4;";
-
-            jfx_node.setStyle(style);
+            if (enabled)
+                jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
+           else
+                jfx_node.getStyleClass().add(Styles.NOT_ENABLED);
         }
         if (active)
             return;
