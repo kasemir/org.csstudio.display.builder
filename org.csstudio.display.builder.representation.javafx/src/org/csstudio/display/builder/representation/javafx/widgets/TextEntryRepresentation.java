@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.properties.WidgetColor;
 import org.csstudio.display.builder.model.util.FormatOptionHandler;
 import org.csstudio.display.builder.model.widgets.TextEntryWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.csstudio.javafx.Styles;
 import org.diirt.vtype.VType;
 
 import javafx.scene.control.TextArea;
@@ -135,7 +136,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
         if (this.active == active)
             return;
         // Don't enable when widget is disabled
-        if (active  &&  !model_widget.propEnabled().getValue())
+        if (active  &&  !model_widget.runtimePropEnabled().getValue())
             return;
         this.active = active;
         dirty_style.mark();
@@ -200,7 +201,7 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
         model_widget.propForegroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::styleChanged);
         model_widget.propFont().addUntypedPropertyListener(this::styleChanged);
-        model_widget.propEnabled().addUntypedPropertyListener(this::styleChanged);
+        model_widget.runtimePropEnabled().addUntypedPropertyListener(this::styleChanged);
 
         model_widget.propFormat().addUntypedPropertyListener(this::contentChanged);
         model_widget.propPrecision().addUntypedPropertyListener(this::contentChanged);
@@ -269,18 +270,19 @@ public class TextEntryRepresentation extends RegionBaseRepresentation<TextInputC
             // http://stackoverflow.com/questions/27700006/how-do-you-change-the-background-color-of-a-textfield-without-changing-the-border
             final WidgetColor back_color = active ? active_color : model_widget.propBackgroundColor().getValue();
             style += "-fx-control-inner-background: " + JFXUtil.webRGB(back_color) + ";";
+            jfx_node.setStyle(style);
 
             jfx_node.setFont(JFXUtil.convert(model_widget.propFont().getValue()));
 
             // Don't disable the widget, because that would also remove the
             // context menu etc.
             // Just apply a style that matches the disabled look.
-            final boolean enabled = model_widget.propEnabled().getValue();
+            final boolean enabled = model_widget.runtimePropEnabled().getValue();
             jfx_node.setEditable(enabled);
-            if (! enabled)
-                style += "-fx-opacity: 0.4;";
-
-            jfx_node.setStyle(style);
+            if (enabled)
+                jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
+           else
+                jfx_node.getStyleClass().add(Styles.NOT_ENABLED);
         }
         if (active)
             return;

@@ -13,6 +13,7 @@ import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.ScrollBarWidget;
+import org.csstudio.javafx.Styles;
 import org.diirt.vtype.Display;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueUtil;
@@ -89,7 +90,7 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         model_widget.propHorizontal().addPropertyListener(this::sizeChanged);
         model_widget.propBarLength().addPropertyListener(this::sizeChanged);
         model_widget.propIncrement().addPropertyListener(this::sizeChanged);
-        model_widget.propEnabled().addPropertyListener(this::sizeChanged);
+        model_widget.runtimePropEnabled().addPropertyListener(this::sizeChanged);
 
         //Since both the widget's PV value and the ScrollBar node's value property might be
         //written to independently during runtime, both must be listened to.
@@ -162,7 +163,13 @@ public class ScrollBarRepresentation extends RegionBaseRepresentation<ScrollBar,
         super.updateChanges();
         if (dirty_size.checkAndClear())
         {
-            jfx_node.setDisable(! model_widget.propEnabled().getValue());
+            final boolean enabled = model_widget.runtimePropEnabled().getValue();
+            jfx_node.setDisable(! enabled);
+            if (enabled)
+                jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
+            else
+                jfx_node.getStyleClass().add(Styles.NOT_ENABLED);
+
             jfx_node.setPrefHeight(model_widget.propHeight().getValue());
             jfx_node.setPrefWidth(model_widget.propWidth().getValue());
             jfx_node.setMin(min);

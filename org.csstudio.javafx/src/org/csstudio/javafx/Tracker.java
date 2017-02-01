@@ -134,7 +134,14 @@ public class Tracker extends Group
         {
             if (start_x < 0)
                 return;
-            final double dx = event.getX() - start_x,  dy = event.getY() - start_y;
+            double dx = event.getX() - start_x,  dy = event.getY() - start_y;
+            if (event.isShiftDown())
+            {   // Restrict to horizontal or vertical move
+                if (Math.abs(dx) > Math.abs(dy))
+                    dy = 0;
+                else
+                    dx = 0;
+            }
             final Point2D pos = constrain(orig.getMinX() + dx, orig.getMinY() + dy);
             setPosition(pos.getX(), pos.getY(), orig.getWidth(), orig.getHeight());
         });

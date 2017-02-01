@@ -19,6 +19,7 @@ import org.csstudio.display.builder.model.util.ModelResourceUtil;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.BoolButtonWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.csstudio.javafx.Styles;
 import org.diirt.vtype.VEnum;
 import org.diirt.vtype.VType;
 
@@ -107,7 +108,7 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
         model_widget.propFont().addUntypedPropertyListener(this::representationChanged);
         model_widget.propForegroundColor().addUntypedPropertyListener(this::representationChanged);
         model_widget.propBackgroundColor().addUntypedPropertyListener(this::representationChanged);
-        model_widget.propEnabled().addUntypedPropertyListener(this::representationChanged);
+        model_widget.runtimePropEnabled().addUntypedPropertyListener(this::representationChanged);
         model_widget.propBit().addPropertyListener(this::bitChanged);
         model_widget.runtimePropValue().addPropertyListener(this::valueChanged);
 
@@ -210,7 +211,14 @@ public class BoolButtonRepresentation extends RegionBaseRepresentation<ButtonBas
             final int size = Math.max(wid, hei);
             led.setRadiusX(size / 15.0);
             led.setRadiusY(size / 10.0);
-            jfx_node.setDisable(! model_widget.propEnabled().getValue());
+
+            final boolean enabled = model_widget.runtimePropEnabled().getValue();
+            jfx_node.setDisable(! enabled);
+            if (enabled)
+                jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
+            else
+                jfx_node.getStyleClass().add(Styles.NOT_ENABLED);
+
             update_value = true;
         }
         if (update_value)
