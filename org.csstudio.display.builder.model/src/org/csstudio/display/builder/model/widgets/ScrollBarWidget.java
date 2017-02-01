@@ -9,7 +9,7 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newDoublePropertyDescriptor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propHorizontal;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propIncrement;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propLimitsFromPV;
@@ -111,7 +111,7 @@ public class ScrollBarWidget extends PVWidget
         properties.add(show_value_tip = propShowValueTip.createProperty(this, true));
         properties.add(bar_length = propBarLength.createProperty(this, 10.0));
         properties.add(increment = propIncrement.createProperty(this, 1.0));
-        properties.add(enabled = propEnabled.createProperty(this, true));
+        properties.add(enabled = runtimePropEnabled.createProperty(this, true));
     }
 
     @Override
@@ -163,7 +163,7 @@ public class ScrollBarWidget extends PVWidget
     }
 
     /** @return 'enabled' property */
-    public WidgetProperty<Boolean> propEnabled()
+    public WidgetProperty<Boolean> runtimePropEnabled()
     {
         return enabled;
     }

@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.csstudio.display.builder.runtime;
 
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propPVName;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropValue;
 import static org.csstudio.display.builder.runtime.RuntimePlugin.logger;
@@ -169,7 +169,7 @@ public class WidgetRuntime<MW extends Widget>
                 // For widgets that can be 'enabled',
                 // update the enablement based on write access
                 // to the primary PV
-                addPV(pv, widget.checkProperty(propEnabled).isPresent());
+                addPV(pv, widget.checkProperty(runtimePropEnabled).isPresent());
             }
             catch (Exception ex)
             {

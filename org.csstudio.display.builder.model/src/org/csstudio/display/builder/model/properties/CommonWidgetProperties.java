@@ -564,9 +564,9 @@ public class CommonWidgetProperties
         }
     };
 
-    /** 'enabled' property: Is widget enabled, or should it not allow user actions? */
-    public static final WidgetPropertyDescriptor<Boolean> propEnabled =
-            newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "enabled", Messages.WidgetProperties_Enabled);
+    /** Runtime 'enabled' property: Is widget enabled, or should it not allow user actions? */
+    public static final WidgetPropertyDescriptor<Boolean> runtimePropEnabled =
+            newBooleanPropertyDescriptor(WidgetPropertyCategory.RUNTIME, "enabled", Messages.WidgetProperties_Enabled);
 
     /** 'limits_from_pv' property: Use limits from PV's meta data? */
     public static final WidgetPropertyDescriptor<Boolean> propLimitsFromPV =

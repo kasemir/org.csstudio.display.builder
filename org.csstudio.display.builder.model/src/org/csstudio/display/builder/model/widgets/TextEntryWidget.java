@@ -9,7 +9,7 @@ package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBackgroundColor;
-import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propEnabled;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropEnabled;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propForegroundColor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFormat;
@@ -127,7 +127,7 @@ public class TextEntryWidget extends PVWidget
         properties.add(format = propFormat.createProperty(this, FormatOption.DEFAULT));
         properties.add(precision = propPrecision.createProperty(this, -1));
         properties.add(show_units = propShowUnits.createProperty(this, true));
-        properties.add(enabled = propEnabled.createProperty(this, true));
+        properties.add(enabled = runtimePropEnabled.createProperty(this, true));
         properties.add(wrap_words = propWrapWords.createProperty(this, false));
         properties.add(multi_line = propMultiLine.createProperty(this, false));
     }
@@ -169,7 +169,7 @@ public class TextEntryWidget extends PVWidget
     }
 
     /** @return 'enabled' property */
-    public WidgetProperty<Boolean> propEnabled()
+    public WidgetProperty<Boolean> runtimePropEnabled()
     {
         return enabled;
     }

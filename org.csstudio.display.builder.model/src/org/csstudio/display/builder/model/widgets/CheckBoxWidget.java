@@ -11,6 +11,7 @@ import static org.csstudio.display.builder.model.properties.CommonWidgetProperti
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propBit;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.runtimePropEnabled;
 
 import java.util.Arrays;
 import java.util.List;
@@ -53,6 +54,7 @@ public class CheckBoxWidget extends PVWidget
     public static final WidgetPropertyDescriptor<Boolean> propAutoSize =
         newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "auto_size", Messages.AutoSize);
 
+    private volatile WidgetProperty<Boolean> enabled;
     private volatile WidgetProperty<Integer> bit;
     private volatile WidgetProperty<String> label;
     private volatile WidgetProperty<WidgetFont> font;
@@ -66,6 +68,7 @@ public class CheckBoxWidget extends PVWidget
         properties.add(label = propLabel.createProperty(this, Messages.Checkbox_Label));
         properties.add(font = propFont.createProperty(this, NamedWidgetFonts.DEFAULT));
         properties.add(auto_size = propAutoSize.createProperty(this, false));
+        properties.add(enabled = runtimePropEnabled.createProperty(this, true));
     }
 
     public CheckBoxWidget()
@@ -97,4 +100,9 @@ public class CheckBoxWidget extends PVWidget
         return auto_size;
     }
 
+    /** @return 'enabled' property */
+    public WidgetProperty<Boolean> runtimePropEnabled()
+    {
+        return enabled;
+    }
 }

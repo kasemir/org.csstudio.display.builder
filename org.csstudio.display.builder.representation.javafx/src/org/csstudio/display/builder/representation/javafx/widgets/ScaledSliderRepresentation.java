@@ -17,6 +17,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.ScaledSliderWidget;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.csstudio.javafx.Styles;
 import org.diirt.vtype.Display;
 import org.diirt.vtype.VType;
 import org.diirt.vtype.ValueUtil;
@@ -106,7 +107,7 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         model_widget.propShowScale().addUntypedPropertyListener(this::layoutChanged);
         model_widget.propScaleFormat().addUntypedPropertyListener(this::layoutChanged);
         model_widget.propShowMinorTicks().addUntypedPropertyListener(this::layoutChanged);
-        model_widget.propEnabled().addUntypedPropertyListener(this::layoutChanged);
+        model_widget.runtimePropEnabled().addUntypedPropertyListener(this::layoutChanged);
         model_widget.propIncrement().addPropertyListener(this::layoutChanged);
 
         model_widget.propLevelHi().addUntypedPropertyListener(this::limitsChanged);
@@ -281,7 +282,12 @@ public class ScaledSliderRepresentation extends RegionBaseRepresentation<GridPan
         super.updateChanges();
         if (dirty_layout.checkAndClear())
         {
-            jfx_node.setDisable(! model_widget.propEnabled().getValue());
+            final boolean enabled = model_widget.runtimePropEnabled().getValue();
+            jfx_node.setDisable(! enabled);
+            if (enabled)
+                jfx_node.getStyleClass().remove(Styles.NOT_ENABLED);
+            else
+                jfx_node.getStyleClass().add(Styles.NOT_ENABLED);
 
             final boolean horizontal = model_widget.propHorizontal().getValue();
             slider.setOrientation(horizontal ? Orientation.HORIZONTAL : Orientation.VERTICAL);

@@ -7,6 +7,17 @@
     -fx-background-color: rgb(255, 100, 0, 0.2);
 }
 
+/** When widgets are disabled, they try to simply disable the Java FX node,
+ *  but that can as a side-effect remove access to the context menu,
+ *  or prevent copying the current value of a text field.
+ *
+ *  This style is then assigned as an alternative,
+ *  which results in a similar appearance.
+ */
+.not_enabled
+{
+    -fx-opacity: 0.4;
+}
 
 /** Tracker */
 .tracker
