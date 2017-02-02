@@ -121,7 +121,7 @@ public abstract class ControllerBase
             // All completed. Do something to the plot?
             final ArchiveRescale rescale = model.getArchiveRescale();
             if (rescale == ArchiveRescale.STAGGER)
-                plot.getPlot().stagger();
+                plot.getPlot().stagger(false);
             else
                 doUpdate();
         }

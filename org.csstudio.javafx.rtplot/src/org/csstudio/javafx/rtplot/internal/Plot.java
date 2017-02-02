@@ -911,9 +911,15 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
             requestRedraw();
     }
 
-    /** Stagger the range of axes */
-    public void stagger()
+    /** Stagger the range of axes
+     *  @param disable_autoscale Disable autoscaling, or keep it as is?
+     */
+    public void stagger(final boolean disable_autoscale)
     {
+        if (disable_autoscale)
+            for (YAxisImpl<XTYPE> axis : y_axes)
+                if (axis.setAutoscale(false))
+                    fireAutoScaleChange(axis);
         plot_processor.stagger();
     }
 

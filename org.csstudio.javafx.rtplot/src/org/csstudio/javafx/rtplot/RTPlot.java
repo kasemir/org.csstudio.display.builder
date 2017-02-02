@@ -117,7 +117,7 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         else if (event.getCode() == KeyCode.L)
             plot.showLegend(! plot.isLegendVisible());
         else if (event.getCode() == KeyCode.S)
-            plot.stagger();
+            plot.stagger(true);
         else if (event.getCode() == KeyCode.A)
             plot.enableAutoScale();
         else if (event.isControlDown())
@@ -266,10 +266,12 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
         return plot.isCrosshairVisible();
     }
 
-    /** Stagger the range of axes */
-    public void stagger()
+    /** Stagger the range of axes
+     *  @param disable_autoscale Disable autoscaling, or keep it as is?
+     */
+    public void stagger(final boolean disable_autoscale)
     {
-        plot.stagger();
+        plot.stagger(disable_autoscale);
     }
 
     /** @param mode New {@link MouseMode}
