@@ -338,8 +338,6 @@ public abstract class ControllerBase
                         }
                         ++i;
                     }
-                    //TODO: separate config for x axis?
-                    //plot.updateXAxis(model.getXAxis());
                 }
                 else  // New or removed axis: Recreate the whole plot
                     createPlotTraces();

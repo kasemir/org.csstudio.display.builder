@@ -80,7 +80,7 @@ public class ModelBasedPlot
             public void changedXAxis(final Axis<Instant> x_axis)
             {
                 final AxisRange<Instant> range = x_axis.getValueRange();
-                listener.ifPresent((l) -> l.timeAxisChanged(plot.isScrolling(), range.getLow(), range.getHigh()));
+                listener.ifPresent(l -> l.timeAxisChanged(plot.isScrolling(), range.getLow(), range.getHigh()));
             }
 
             @Override
@@ -88,7 +88,14 @@ public class ModelBasedPlot
             {
                 final int index = plot.getYAxes().indexOf(y_axis);
                 final AxisRange<Double> range = y_axis.getValueRange();
-                listener.ifPresent((l) -> l.valueAxisChanged(index, range.getLow(), range.getHigh()));
+                listener.ifPresent(l -> l.valueAxisChanged(index, range.getLow(), range.getHigh()));
+            }
+
+            @Override
+            public void changedAutoScale(final YAxis<Instant> y_axis)
+            {
+                final int index = plot.getYAxes().indexOf(y_axis);
+                listener.ifPresent(l -> l.autoScaleChanged(index, y_axis.isAutoscale()));
             }
 
             @Override
@@ -106,7 +113,7 @@ public class ModelBasedPlot
                                                        annotation.getPosition(), annotation.getValue(),
                                                        annotation.getOffset(), annotation.getText()));
                 }
-                listener.ifPresent((l) -> l.changedAnnotations(annotations));
+                listener.ifPresent(l -> l.changedAnnotations(annotations));
             }
 
             @Override
@@ -114,19 +121,19 @@ public class ModelBasedPlot
             {
                 for (Trace<Instant> trace : plot.getTraces())
                     findModelItem(trace).setSelectedSample(trace.getSelectedSample());
-                listener.ifPresent((l) -> l.selectedSamplesChanged());
+                listener.ifPresent(l -> l.selectedSamplesChanged());
             }
 
             @Override
             public void changedToolbar(final boolean visible)
             {
-                listener.ifPresent((l) -> l.changedToolbar(visible));
+                listener.ifPresent(l -> l.changedToolbar(visible));
             }
 
             @Override
             public void changedLegend(final boolean visible)
             {
-                listener.ifPresent((l) -> l.changedLegend(visible));
+                listener.ifPresent(l -> l.changedLegend(visible));
             }
         });
     }

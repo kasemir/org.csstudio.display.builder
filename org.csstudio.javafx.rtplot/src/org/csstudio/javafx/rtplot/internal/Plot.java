@@ -936,8 +936,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     /** Notify listeners */
     public void fireAutoScaleChange(final YAxisImpl<XTYPE> axis)
     {
-        // XXX remove
-        System.out.println("Autochange off for " + axis.getName());
         for (RTPlotListener<XTYPE> listener : listeners)
             listener.changedAutoScale(axis);
     }
