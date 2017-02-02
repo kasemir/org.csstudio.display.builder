@@ -299,7 +299,7 @@ public class PlotProcessor<XTYPE extends Comparable<XTYPE>>
             // 'Stagger' tends to be on-demand,
             // or executed infrequently as archived data arrives after a zoom operation
             // -> Use undo, which also notifies listeners
-            plot.getUndoableActionManager().execute(new ChangeAxisRanges<>(plot, Messages.Zoom_Stagger, y_axes, original_ranges, new_ranges));
+            plot.getUndoableActionManager().execute(new ChangeAxisRanges<>(plot, Messages.Zoom_Stagger, y_axes, original_ranges, new_ranges, null));
         });
     }
 

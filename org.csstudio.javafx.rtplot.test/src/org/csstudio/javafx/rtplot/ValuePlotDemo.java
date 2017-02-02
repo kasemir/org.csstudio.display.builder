@@ -123,6 +123,7 @@ public class ValuePlotDemo extends Application
         {
             plot.getYAxes().get(0).setValueRange(12.0, -12.0);
             plot.getYAxes().get(0).setAutoscale(false);
+            plot.getYAxes().get(0).setAutoscale(true);
         }
 
 
