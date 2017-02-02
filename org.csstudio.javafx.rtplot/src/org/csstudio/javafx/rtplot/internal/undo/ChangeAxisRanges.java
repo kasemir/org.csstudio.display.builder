@@ -7,6 +7,7 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal.undo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.csstudio.display.builder.util.undo.UndoableAction;
@@ -25,10 +26,11 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
     final private Axis<XTYPE> x_axis;
     final private AxisRange<XTYPE> original_x_range, new_x_range;
     final private List<YAxisImpl<XTYPE>> yaxes;
-    final private List<AxisRange<Double>> original_yranges;
-    final private List<AxisRange<Double>> new_yranges;
+    final private List<AxisRange<Double>> original_yranges, new_yranges;
+    final private List<Boolean> original_autoscale, new_autoscale;
 
-    /** @param plot Plot
+    /** Complete axes change
+     *  @param plot Plot
      *  @param name Name of the action
      *  @param x_axis X Axis or <code>null</code>
      *  @param original_x_range Original ..
@@ -36,6 +38,7 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
      *  @param y_axes Y Axes or <code>null</code>
      *  @param original_y_ranges Original
      *  @param new_y_ranges .. and new value ranges, or <code>null</code>
+     *  @param original_autoscale Original autoscale or <code>null</code>. The 'new' autoscale will be all <code>false</code>.
      */
     public ChangeAxisRanges(final Plot<XTYPE> plot,
             final String name,
@@ -44,7 +47,8 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
             final AxisRange<XTYPE> new_x_range,
             final List<YAxisImpl<XTYPE>> y_axes,
             final List<AxisRange<Double>> original_y_ranges,
-            final List<AxisRange<Double>> new_y_ranges)
+            final List<AxisRange<Double>> new_y_ranges,
+            final List<Boolean> original_autoscale)
     {
         super(name);
         this.plot = plot;
@@ -54,16 +58,30 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
         this.yaxes = y_axes;
         this.original_yranges = original_y_ranges;
         this.new_yranges = new_y_ranges;
-        if (yaxes != null)
+        this.original_autoscale = original_autoscale;
+        if (yaxes == null)
+            new_autoscale = null;
+        else
         {
             if (y_axes.size() != original_y_ranges.size())
                 throw new IllegalArgumentException(y_axes.size() + " Y axes, but " + original_y_ranges.size() + " orig. ranges");
             if (y_axes.size() != new_y_ranges.size())
                 throw new IllegalArgumentException(y_axes.size() + " Y axes, but " + new_y_ranges.size() + " new ranges");
+            if (original_autoscale == null)
+                new_autoscale = null;
+            else
+            {
+                if (y_axes.size() != original_autoscale.size())
+                    throw new IllegalArgumentException(y_axes.size() + " Y axes, but " + original_autoscale.size() + " original autoscale");
+                new_autoscale = new ArrayList<>(original_autoscale.size());
+                for (int i=0; i<y_axes.size(); ++i)
+                    new_autoscale.add(false);
+            }
         }
     }
 
-    /** @param plot Plot
+    /** X Axis change
+     *  @param plot Plot
      *  @param name Name of the action
      *  @param x_axis X Axis or <code>null</code>
      *  @param original_x_range Original ..
@@ -74,21 +92,24 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
             final AxisRange<XTYPE> original_x_range,
             final AxisRange<XTYPE> new_x_range)
     {
-        this(plot, name, x_axis, original_x_range, new_x_range, null, null, null);
+        this(plot, name, x_axis, original_x_range, new_x_range, null, null, null, null);
     }
 
-    /** @param plot Plot
+    /** Y axes change
+     *  @param plot Plot
      *  @param name Name of the action
      *  @param y_axes Y Axes or <code>null</code>
      *  @param original_y_ranges Original
      *  @param new_y_ranges .. and new value ranges, or <code>null</code>
+     *  @param original_autoscale Original autoscale or <code>null</code>. The 'new' autoscale will be all <code>false</code>.
      */
     public ChangeAxisRanges(final Plot<XTYPE> plot, final String name,
             final List<YAxisImpl<XTYPE>> y_axes,
             final List<AxisRange<Double>> original_y_ranges,
-            final List<AxisRange<Double>> new_y_ranges)
+            final List<AxisRange<Double>> new_y_ranges,
+            final List<Boolean> original_autoscale)
     {
-        this(plot, name, null, null, null, y_axes, original_y_ranges, new_y_ranges);
+        this(plot, name, null, null, null, y_axes, original_y_ranges, new_y_ranges, original_autoscale);
     }
 
 
@@ -98,7 +119,7 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
         if (x_axis != null)
             setXRange(new_x_range);
         if (yaxes != null)
-            setRange(new_yranges);
+            setRange(new_yranges, new_autoscale);
     }
 
     @Override
@@ -107,7 +128,7 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
         if (x_axis != null)
             setXRange(original_x_range);
         if (yaxes != null)
-            setRange(original_yranges);
+            setRange(original_yranges, original_autoscale);
     }
 
     private void setXRange(AxisRange<XTYPE> range)
@@ -120,20 +141,20 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
         }
     }
 
-    private void setRange(final List<AxisRange<Double>> ranges)
+    private void setRange(final List<AxisRange<Double>> ranges,
+                          final List<Boolean> autoscale)
     {
+
+        if (autoscale != null)
+            System.out.println("Items: " + autoscale.size());
         for (int i=0; i<yaxes.size(); ++i)
         {
             final AxisRange<Double> range = ranges.get(i);
             final YAxisImpl<XTYPE> axis = yaxes.get(i);
+            if (autoscale != null  &&  axis.setAutoscale(autoscale.get(i)))
+                plot.fireAutoScaleChange(axis);
             if (axis.setValueRange(range.getLow(), range.getHigh()))
-            {   // Manually adjusting the axis range disables autoscale
-                // (setAutoscale() will trigger another layout/refresh,
-                //  likely handled by update throttle)
-                if (axis.isAutoscale())
-                    axis.setAutoscale(false);
                 plot.fireYAxisChange(axis);
-            }
         }
     }
 }
