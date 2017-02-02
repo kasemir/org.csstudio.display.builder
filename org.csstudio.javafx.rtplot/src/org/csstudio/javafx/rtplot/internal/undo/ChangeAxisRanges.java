@@ -7,8 +7,8 @@
  ******************************************************************************/
 package org.csstudio.javafx.rtplot.internal.undo;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.csstudio.display.builder.util.undo.UndoableAction;
 import org.csstudio.javafx.rtplot.Axis;
@@ -38,6 +38,50 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
      *  @param y_axes Y Axes or <code>null</code>
      *  @param original_y_ranges Original
      *  @param new_y_ranges .. and new value ranges, or <code>null</code>
+     *  @param original_autoscale Original
+     *  @param new_autoscale .. and new autoscale, or <code>null</code>
+     */
+    public ChangeAxisRanges(final Plot<XTYPE> plot,
+            final String name,
+            final Axis<XTYPE> x_axis,
+            final AxisRange<XTYPE> original_x_range,
+            final AxisRange<XTYPE> new_x_range,
+            final List<YAxisImpl<XTYPE>> y_axes,
+            final List<AxisRange<Double>> original_y_ranges,
+            final List<AxisRange<Double>> new_y_ranges,
+            final List<Boolean> original_autoscale,
+            final List<Boolean> new_autoscale)
+    {
+        super(name);
+        this.plot = plot;
+        this.x_axis = x_axis;
+        this.original_x_range = original_x_range;
+        this.new_x_range = new_x_range;
+        this.yaxes = y_axes;
+        this.original_yranges = original_y_ranges;
+        this.new_yranges = new_y_ranges;
+        this.original_autoscale = original_autoscale;
+        this.new_autoscale = new_autoscale;
+        if (yaxes != null)
+        {
+            if (y_axes.size() != original_y_ranges.size())
+                throw new IllegalArgumentException(y_axes.size() + " Y axes, but " + original_y_ranges.size() + " orig. ranges");
+            if (y_axes.size() != new_y_ranges.size())
+                throw new IllegalArgumentException(y_axes.size() + " Y axes, but " + new_y_ranges.size() + " new ranges");
+            if (new_autoscale != null  &&  y_axes.size() != original_autoscale.size())
+                throw new IllegalArgumentException(y_axes.size() + " Y axes, but " + original_autoscale.size() + " original autoscale");
+        }
+    }
+
+    /** Complete axes change
+     *  @param plot Plot
+     *  @param name Name of the action
+     *  @param x_axis X Axis or <code>null</code>
+     *  @param original_x_range Original ..
+     *  @param new_x_range .. and new X range, or <code>null</code>
+     *  @param y_axes Y Axes or <code>null</code>
+     *  @param original_y_ranges Original
+     *  @param new_y_ranges .. and new value ranges, or <code>null</code>
      *  @param original_autoscale Original autoscale or <code>null</code>. The 'new' autoscale will be all <code>false</code>.
      */
     public ChangeAxisRanges(final Plot<XTYPE> plot,
@@ -50,34 +94,13 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
             final List<AxisRange<Double>> new_y_ranges,
             final List<Boolean> original_autoscale)
     {
-        super(name);
-        this.plot = plot;
-        this.x_axis = x_axis;
-        this.original_x_range = original_x_range;
-        this.new_x_range = new_x_range;
-        this.yaxes = y_axes;
-        this.original_yranges = original_y_ranges;
-        this.new_yranges = new_y_ranges;
-        this.original_autoscale = original_autoscale;
-        if (yaxes == null)
-            new_autoscale = null;
-        else
-        {
-            if (y_axes.size() != original_y_ranges.size())
-                throw new IllegalArgumentException(y_axes.size() + " Y axes, but " + original_y_ranges.size() + " orig. ranges");
-            if (y_axes.size() != new_y_ranges.size())
-                throw new IllegalArgumentException(y_axes.size() + " Y axes, but " + new_y_ranges.size() + " new ranges");
-            if (original_autoscale == null)
-                new_autoscale = null;
-            else
-            {
-                if (y_axes.size() != original_autoscale.size())
-                    throw new IllegalArgumentException(y_axes.size() + " Y axes, but " + original_autoscale.size() + " original autoscale");
-                new_autoscale = new ArrayList<>(original_autoscale.size());
-                for (int i=0; i<y_axes.size(); ++i)
-                    new_autoscale.add(false);
-            }
-        }
+        this(plot, name, x_axis, original_x_range, new_x_range,
+             y_axes, original_y_ranges, new_y_ranges,
+             original_autoscale,
+             original_autoscale == null
+                                ? null
+                                : original_autoscale.stream().map(v -> false).collect(Collectors.toList())
+             );
     }
 
     /** X Axis change
@@ -144,9 +167,6 @@ public class ChangeAxisRanges<XTYPE extends Comparable<XTYPE>> extends UndoableA
     private void setRange(final List<AxisRange<Double>> ranges,
                           final List<Boolean> autoscale)
     {
-
-        if (autoscale != null)
-            System.out.println("Items: " + autoscale.size());
         for (int i=0; i<yaxes.size(); ++i)
         {
             final AxisRange<Double> range = ranges.get(i);

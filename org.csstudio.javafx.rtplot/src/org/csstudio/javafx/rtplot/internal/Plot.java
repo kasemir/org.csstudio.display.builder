@@ -874,8 +874,6 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
                 new_range.add(axis.getValueRange());
                 fireYAxisChange(axis);
             }
-
-            System.out.println(y_axes.size() + ", " + old_autoscale.size());
             undo.execute(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_Out,
                     x_axis, orig_x, x_axis.getValueRange(),
                     y_axes, old_range, new_range, old_autoscale));
@@ -917,6 +915,46 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
     public void stagger()
     {
         plot_processor.stagger();
+    }
+
+    /** Enable autoscale
+     *
+     *  <p>.. for the value axis currently under the cursor,
+     *  or all axes.
+     */
+    public void enableAutoScale()
+    {
+        final Point2D current = mouse_current.orElse(null);
+        if (current == null)
+            return;
+
+        // Which axes to autoscale?
+        final List<YAxisImpl<XTYPE>> axes = new ArrayList<>();
+        final List<AxisRange<Double>> ranges =  new ArrayList<>();
+        final List<Boolean> original_auto = new ArrayList<>();
+        final List<Boolean> new_auto = new ArrayList<>();
+
+        // Autoscale all if mouse in general plot region
+        final boolean all = plot_area.getBounds().contains(current.getX(), current.getY());
+        for (YAxisImpl<XTYPE> axis : y_axes)
+            if (all  ||  axis.getBounds().contains(current.getX(), current.getY()))
+            {   // Autoscale this axis
+                if (!axis.isAutoscale())
+                {
+                    axes.add(axis);
+                    ranges.add(axis.getValueRange());
+                    original_auto.add(false);
+                    new_auto.add(true);
+                }
+                // Only this axis?
+                if (! all)
+                    break;
+            }
+        if (! axes.isEmpty())
+            undo.execute(new ChangeAxisRanges<XTYPE>(this, Messages.Zoom_In,
+                                                     null, null, null,
+                                                     axes, ranges, ranges,
+                                                     original_auto, new_auto));
     }
 
     /** Notify listeners */

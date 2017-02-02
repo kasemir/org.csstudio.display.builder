@@ -118,6 +118,8 @@ public class RTPlot<XTYPE extends Comparable<XTYPE>> extends BorderPane
             plot.showLegend(! plot.isLegendVisible());
         else if (event.getCode() == KeyCode.S)
             plot.stagger();
+        else if (event.getCode() == KeyCode.A)
+            plot.enableAutoScale();
         else if (event.isControlDown())
             toolbar.selectMouseMode(MouseMode.ZOOM_IN);
         else if (event.isAltDown())
