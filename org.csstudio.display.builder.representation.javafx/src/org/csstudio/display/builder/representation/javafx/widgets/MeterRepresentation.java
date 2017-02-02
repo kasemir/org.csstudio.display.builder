@@ -18,6 +18,7 @@ import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
+import javafx.geometry.Orientation;
 import javafx.scene.paint.Color;
 
 
@@ -63,10 +64,41 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
 
         if ( dirtyLook.checkAndClear() ) {
 
-            value = Gauge.SkinType.valueOf(model_widget.propSkin().getValue().name());
+            final MeterWidget.Skin skin = model_widget.propSkin().getValue();
+            final Gauge.SkinType skinType;
 
-            if ( !Objects.equals(value, jfx_node.getSkinType()) ) {
-                jfx_node.setSkinType((Gauge.SkinType) value);
+            switch ( skin ) {
+                case THREE_QUARTERS:
+                    skinType = Gauge.SkinType.GAUGE;
+                    break;
+                case LINEAR_H:
+                case LINEAR_V:
+                    skinType = Gauge.SkinType.LINEAR;
+                    break;
+                default:
+                    skinType = Gauge.SkinType.valueOf(skin.name());
+                    break;
+            }
+
+            if ( !Objects.equals(skinType, jfx_node.getSkinType()) ) {
+
+                jfx_node.setSkinType(skinType);
+
+                switch ( skin ) {
+                    case THREE_QUARTERS:
+                        jfx_node.setAngleRange(270);
+                        jfx_node.setStartAngle(0);
+                        break;
+                    case LINEAR_H:
+                        jfx_node.setOrientation(Orientation.HORIZONTAL);
+                        break;
+                    case LINEAR_V:
+                        jfx_node.setOrientation(Orientation.VERTICAL);
+                        break;
+                    default:
+                        break;
+                }
+
             }
 
             value = model_widget.propTitle().getValue();
@@ -88,8 +120,24 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
     @Override
     protected Gauge createJFXNode ( ) throws Exception {
 
+        final MeterWidget.Skin skin = model_widget.propSkin().getValue();
+        final Gauge.SkinType skinType;
+
+        switch ( skin ) {
+            case THREE_QUARTERS:
+                skinType = Gauge.SkinType.GAUGE;
+                break;
+            case LINEAR_H:
+            case LINEAR_V:
+                skinType = Gauge.SkinType.LINEAR;
+                break;
+            default:
+                skinType = Gauge.SkinType.valueOf(skin.name());
+                break;
+        }
+
         Gauge gauge = GaugeBuilder.create()
-                                  .skinType(Gauge.SkinType.valueOf(model_widget.propSkin().getValue().name()))
+                                  .skinType(skinType)
                                   .prefHeight(model_widget.propHeight().getValue())
                                   .prefWidth(model_widget.propWidth().getValue())
                                   //--------------------------------------------------------
@@ -99,6 +147,26 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
                                   .title(model_widget.propTitle().getValue())
                                   .titleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()))
                                   .build();
+
+        switch ( skin ) {
+            case THREE_QUARTERS:
+                gauge.setAngleRange(270);
+                gauge.setStartAngle(0);
+                break;
+            case LINEAR_H:
+                gauge.setOrientation(Orientation.HORIZONTAL);
+                break;
+            case LINEAR_V:
+                gauge.setOrientation(Orientation.VERTICAL);
+                break;
+            default:
+                break;
+        }
+
+        if ( skin == MeterWidget.Skin.THREE_QUARTERS ) {
+            gauge.setAngleRange(270);
+            gauge.setStartAngle(0);
+        }
 
         gauge.animatedProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propAnimated().getValue()) ) {

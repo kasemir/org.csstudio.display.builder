@@ -52,19 +52,12 @@ public class MeterWidget extends PVWidget {
      */
     public enum Skin {
         AMP,
-        BATTERY,
-        BULLET_CHART,
-        CHARGE,
-        DASHBOARD,
+        GAUGE,
         HORIZONTAL,
-        INDICATOR,
-        KPI,
-        LEVEL,
-        LINEAR,
+        LINEAR_H,
+        LINEAR_V,
         QUARTER,
-        TILE_KPI,
-        TILE_SPARK_LINE,
-        TILE_TEXT_KPI,
+        THREE_QUARTERS,
         VERTICAL
     }
 
