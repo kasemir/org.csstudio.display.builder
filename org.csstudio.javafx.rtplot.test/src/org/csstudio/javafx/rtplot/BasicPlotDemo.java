@@ -64,7 +64,7 @@ public class BasicPlotDemo extends Application
 //		plot.getYAxes().get(1).setAutoscale(true);
 
         // c) Stagger
-        plot.stagger();
+        plot.stagger(false);
 
         plot.showCrosshair(true);
 
