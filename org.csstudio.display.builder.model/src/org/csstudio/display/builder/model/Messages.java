@@ -177,6 +177,7 @@ public class Messages extends NLS
     public static String WidgetProperties_GridVisible;
     public static String WidgetProperties_Height;
     public static String WidgetProperties_HeightPVName;
+    public static String WidgetProperties_HighlightZones;
     public static String WidgetProperties_Horizontal;
     public static String WidgetProperties_HorizontalAlignment;
     public static String WidgetProperties_HourColor;

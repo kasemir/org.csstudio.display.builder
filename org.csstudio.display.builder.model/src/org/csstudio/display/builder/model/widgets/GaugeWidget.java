@@ -9,6 +9,10 @@
 package org.csstudio.display.builder.model.widgets;
 
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newColorPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
+
 import java.util.List;
 
 import org.csstudio.display.builder.model.Messages;
@@ -18,7 +22,6 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
-import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 import org.csstudio.display.builder.model.properties.WidgetColor;
 
@@ -65,18 +68,18 @@ public class GaugeWidget extends PVWidget {
         TINY
     }
 
-    public static final WidgetPropertyDescriptor<Skin>        propSkin       = new WidgetPropertyDescriptor<Skin>                 (WidgetPropertyCategory.WIDGET,   "skin",        Messages.WidgetProperties_Skin) {
+    public static final WidgetPropertyDescriptor<Skin>        propSkin       = new WidgetPropertyDescriptor<Skin>(WidgetPropertyCategory.WIDGET,   "skin",        Messages.WidgetProperties_Skin) {
         @Override
         public EnumWidgetProperty<Skin> createProperty ( Widget widget, Skin defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
 
-    public static final WidgetPropertyDescriptor<String>      propTitle      = CommonWidgetProperties.newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "title",       Messages.WidgetProperties_Title);
+    public static final WidgetPropertyDescriptor<String>      propTitle      = newStringPropertyDescriptor       (WidgetPropertyCategory.DISPLAY,  "title",       Messages.WidgetProperties_Title);
 
-    public static final WidgetPropertyDescriptor<Boolean>     propAnimated   = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "animated",    Messages.WidgetProperties_Animated);
+    public static final WidgetPropertyDescriptor<Boolean>     propAnimated   = newBooleanPropertyDescriptor      (WidgetPropertyCategory.BEHAVIOR, "animated",    Messages.WidgetProperties_Animated);
 
-    public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor = CommonWidgetProperties.newColorPropertyDescriptor  (WidgetPropertyCategory.MISC,     "title_color", Messages.WidgetProperties_TitleColor);
+    public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor = newColorPropertyDescriptor        (WidgetPropertyCategory.MISC,     "title_color", Messages.WidgetProperties_TitleColor);
 
     private volatile WidgetProperty<Boolean>     animated;
     private volatile WidgetProperty<Skin>        skin;

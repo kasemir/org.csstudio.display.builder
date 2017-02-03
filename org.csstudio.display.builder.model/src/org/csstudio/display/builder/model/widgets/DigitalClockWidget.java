@@ -9,6 +9,9 @@
 package org.csstudio.display.builder.model.widgets;
 
 
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newStringPropertyDescriptor;
+
 import java.util.List;
 import java.util.Locale;
 
@@ -19,7 +22,6 @@ import org.csstudio.display.builder.model.WidgetDescriptor;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyCategory;
 import org.csstudio.display.builder.model.WidgetPropertyDescriptor;
-import org.csstudio.display.builder.model.properties.CommonWidgetProperties;
 import org.csstudio.display.builder.model.properties.EnumWidgetProperty;
 
 
@@ -84,23 +86,23 @@ public class DigitalClockWidget extends VisibleWidget {
         YOCTOPUCE
     }
 
-    public static final WidgetPropertyDescriptor<Design>  propLcdDesign         = new WidgetPropertyDescriptor<Design>               (WidgetPropertyCategory.WIDGET,   "lcd_design",          Messages.WidgetProperties_LcdDesign) {
+    public static final WidgetPropertyDescriptor<Design>  propLcdDesign         = new WidgetPropertyDescriptor<Design>(WidgetPropertyCategory.WIDGET,   "lcd_design",          Messages.WidgetProperties_LcdDesign) {
         @Override
         public EnumWidgetProperty<Design> createProperty ( Widget widget, Design defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
 
-    public static final WidgetPropertyDescriptor<Boolean> propDateVisible       = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "date_visible",        Messages.WidgetProperties_DateVisible);
-    public static final WidgetPropertyDescriptor<Boolean> propSecondVisible     = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "second_visible",      Messages.WidgetProperties_SecondVisible);
-    public static final WidgetPropertyDescriptor<String>  propTitle             = CommonWidgetProperties.newStringPropertyDescriptor (WidgetPropertyCategory.DISPLAY,  "title",               Messages.WidgetProperties_Title);
-    public static final WidgetPropertyDescriptor<Boolean> propTitleVisible      = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY,  "title_visible",       Messages.WidgetProperties_TitleVisible);
+    public static final WidgetPropertyDescriptor<Boolean> propDateVisible       = newBooleanPropertyDescriptor        (WidgetPropertyCategory.DISPLAY,  "date_visible",        Messages.WidgetProperties_DateVisible);
+    public static final WidgetPropertyDescriptor<Boolean> propSecondVisible     = newBooleanPropertyDescriptor        (WidgetPropertyCategory.DISPLAY,  "second_visible",      Messages.WidgetProperties_SecondVisible);
+    public static final WidgetPropertyDescriptor<String>  propTitle             = newStringPropertyDescriptor         (WidgetPropertyCategory.DISPLAY,  "title",               Messages.WidgetProperties_Title);
+    public static final WidgetPropertyDescriptor<Boolean> propTitleVisible      = newBooleanPropertyDescriptor        (WidgetPropertyCategory.DISPLAY,  "title_visible",       Messages.WidgetProperties_TitleVisible);
 
-    public static final WidgetPropertyDescriptor<Boolean> propRunning           = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.BEHAVIOR, "running",             Messages.WidgetProperties_Running);
+    public static final WidgetPropertyDescriptor<Boolean> propRunning           = newBooleanPropertyDescriptor        (WidgetPropertyCategory.BEHAVIOR, "running",             Messages.WidgetProperties_Running);
 
-    public static final WidgetPropertyDescriptor<Boolean> propLcdCrystalEnabled = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC,     "lcd_crystal_enabled", Messages.WidgetProperties_LcdCrystalEnabled);
-    public static final WidgetPropertyDescriptor<String>  propLocale            = CommonWidgetProperties.newStringPropertyDescriptor (WidgetPropertyCategory.MISC,     "locale",              Messages.WidgetProperties_Locale);
-    public static final WidgetPropertyDescriptor<Boolean> propShadowsEnabled    = CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.MISC,     "shadows_enabled",     Messages.WidgetProperties_ShadowsEnabled);
+    public static final WidgetPropertyDescriptor<Boolean> propLcdCrystalEnabled = newBooleanPropertyDescriptor        (WidgetPropertyCategory.MISC,     "lcd_crystal_enabled", Messages.WidgetProperties_LcdCrystalEnabled);
+    public static final WidgetPropertyDescriptor<String>  propLocale            = newStringPropertyDescriptor         (WidgetPropertyCategory.MISC,     "locale",              Messages.WidgetProperties_Locale);
+    public static final WidgetPropertyDescriptor<Boolean> propShadowsEnabled    = newBooleanPropertyDescriptor        (WidgetPropertyCategory.MISC,     "shadows_enabled",     Messages.WidgetProperties_ShadowsEnabled);
 
     private volatile WidgetProperty<Boolean> dateVisible;
     private volatile WidgetProperty<Boolean> lcdCrystalEnabled;
