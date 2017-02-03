@@ -14,6 +14,7 @@ import java.util.Objects;
 import org.csstudio.display.builder.model.DirtyFlag;
 import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.widgets.MeterWidget;
+import org.csstudio.display.builder.model.widgets.MeterWidget.Skin;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 
 import eu.hansolo.medusa.Gauge;
@@ -31,6 +32,7 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
     private final DirtyFlag dirtyBehavior = new DirtyFlag();
     private final DirtyFlag dirtyGeometry = new DirtyFlag();
     private final DirtyFlag dirtyLook = new DirtyFlag();
+    private MeterWidget.Skin skin = null;
 
     @Override
     public void updateChanges ( ) {
@@ -64,25 +66,30 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
 
         if ( dirtyLook.checkAndClear() ) {
 
-            final MeterWidget.Skin skin = model_widget.propSkin().getValue();
-            final Gauge.SkinType skinType;
+            value = model_widget.propSkin().getValue();
 
-            switch ( skin ) {
-                case THREE_QUARTERS:
-                    skinType = Gauge.SkinType.GAUGE;
-                    break;
-                case LINEAR_H:
-                case LINEAR_V:
-                    skinType = Gauge.SkinType.LINEAR;
-                    break;
-                default:
-                    skinType = Gauge.SkinType.valueOf(skin.name());
-                    break;
-            }
+            if ( !Objects.equals(value, skin) ) {
 
-            if ( !Objects.equals(skinType, jfx_node.getSkinType()) ) {
+                skin = (Skin) value;
+
+                final Gauge.SkinType skinType;
+
+                switch ( skin ) {
+                    case THREE_QUARTERS:
+                        skinType = Gauge.SkinType.GAUGE;
+                        break;
+                    case LINEAR_H:
+                    case LINEAR_V:
+                        skinType = Gauge.SkinType.LINEAR;
+                        break;
+                    default:
+                        skinType = Gauge.SkinType.valueOf(skin.name());
+                        break;
+                }
 
                 jfx_node.setSkinType(skinType);
+                jfx_node.setPrefWidth(model_widget.propWidth().getValue());
+                jfx_node.setPrefHeight(model_widget.propHeight().getValue());
 
                 switch ( skin ) {
                     case THREE_QUARTERS:
@@ -120,7 +127,8 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
     @Override
     protected Gauge createJFXNode ( ) throws Exception {
 
-        final MeterWidget.Skin skin = model_widget.propSkin().getValue();
+        skin = model_widget.propSkin().getValue();
+
         final Gauge.SkinType skinType;
 
         switch ( skin ) {
@@ -161,11 +169,6 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
                 break;
             default:
                 break;
-        }
-
-        if ( skin == MeterWidget.Skin.THREE_QUARTERS ) {
-            gauge.setAngleRange(270);
-            gauge.setStartAngle(0);
         }
 
         gauge.animatedProperty().addListener( ( s, o, n ) -> {
