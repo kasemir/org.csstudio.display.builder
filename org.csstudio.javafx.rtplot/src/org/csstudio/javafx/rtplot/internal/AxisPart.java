@@ -300,11 +300,14 @@ public abstract class AxisPart<T extends Comparable<T>> extends PlotPart impleme
 
     /** {@inheritDoc} */
     @Override
-    public void setAutoscale(boolean do_autoscale)
+    public boolean setAutoscale(boolean do_autoscale)
     {
+        if (autoscale == do_autoscale)
+            return false;
         autoscale = do_autoscale;
         requestLayout();
         requestRefresh();
+        return true;
     }
 
     /** {@inheritDoc} */
