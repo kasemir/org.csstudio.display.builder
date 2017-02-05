@@ -170,7 +170,7 @@ public class ToolbarHandler<XTYPE extends Comparable<XTYPE>>
     {
         final Button stagger = newButton(ToolIcons.STAGGER, Messages.Zoom_Stagger_TT);
         if (active)
-            stagger.setOnAction(event -> plot.stagger());
+            stagger.setOnAction(event -> plot.stagger(true));
     }
 
     private void addMouseModes(final boolean active)
