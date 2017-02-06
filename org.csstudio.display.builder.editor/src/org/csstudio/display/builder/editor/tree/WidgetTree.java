@@ -27,6 +27,7 @@ import org.csstudio.display.builder.model.WidgetProperty;
 import org.csstudio.display.builder.model.WidgetPropertyListener;
 import org.csstudio.display.builder.model.widgets.TabsWidget;
 import org.csstudio.display.builder.model.widgets.TabsWidget.TabItemProperty;
+import org.csstudio.javafx.TreeHelper;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -79,13 +80,7 @@ public class WidgetTree
         logger.log(Level.FINE, "{0} changed name", widget);
 
         final TreeItem<WidgetOrTab> item = Objects.requireNonNull(widget2tree.get(widget));
-        // 'setValue' triggers a refresh of the item,
-        // but only if value is different..
-        Platform.runLater(() ->
-        {
-            item.setValue(null);
-            item.setValue(WidgetOrTab.of(widget));
-        });
+        Platform.runLater(() -> TreeHelper.triggerTreeItemRefresh(item));
     };
 
     /** Listener to changes in a TabWidget's tabs */
@@ -101,9 +96,7 @@ public class WidgetTree
     private final WidgetPropertyListener<String> tab_name_listener = (tab_name, old_name, new_name) ->
     {
         final TreeItem<WidgetOrTab> tab_item = Objects.requireNonNull(tab_name2tree.get(tab_name));
-        final WidgetOrTab wot = tab_item.getValue();
-        tab_item.setValue(null);
-        tab_item.setValue(wot);
+        TreeHelper.triggerTreeItemRefresh(tab_item);
     };
 
     /** Cell factory that displays {@link WidgetOrTab} info in tree cell */
