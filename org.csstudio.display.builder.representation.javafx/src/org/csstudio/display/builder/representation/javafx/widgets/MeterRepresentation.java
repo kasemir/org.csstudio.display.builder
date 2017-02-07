@@ -285,6 +285,11 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
                 model_widget.propAnimated().setValue(n);
             }
         });
+        gauge.highlightSectionsProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(n, model_widget.propHighlightZones().getValue()) ) {
+                model_widget.propHighlightZones().setValue(n);
+            }
+        });
         gauge.knobPositionProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, Pos.valueOf(model_widget.propKnobPosition().getValue().name())) ) {
                 model_widget.propKnobPosition().setValue(KnobPosition.valueOf(n.name()));
@@ -303,11 +308,6 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
         gauge.prefHeightProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propHeight().getValue()) ) {
                 model_widget.propHeight().setValue(n.intValue());
-            }
-        });
-        gauge.highlightSectionsProperty().addListener( ( s, o, n ) -> {
-            if ( !Objects.equals(n, model_widget.propHighlightZones().getValue()) ) {
-                model_widget.propHighlightZones().setValue(n);
             }
         });
         gauge.prefWidthProperty().addListener( ( s, o, n ) -> {
