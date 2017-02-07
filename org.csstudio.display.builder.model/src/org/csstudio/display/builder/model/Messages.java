@@ -140,6 +140,7 @@ public class Messages extends NLS
     public static String WidgetProperties_AngleSize;
     public static String WidgetProperties_AngleStart;
     public static String WidgetProperties_Animated;
+    public static String WidgetProperties_AnimationDuration;
     public static String WidgetProperties_BackgroundColor;
     public static String WidgetProperties_Bit;
     public static String WidgetProperties_BorderAlarmSensitive;

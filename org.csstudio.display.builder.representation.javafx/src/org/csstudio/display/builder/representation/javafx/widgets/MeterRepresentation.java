@@ -22,7 +22,9 @@ import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.MeterWidget;
 import org.csstudio.display.builder.model.widgets.MeterWidget.Skin;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
+import org.diirt.vtype.Display;
 import org.diirt.vtype.VType;
+import org.diirt.vtype.ValueUtil;
 
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
@@ -42,24 +44,20 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
     private static final Color MAJOR_COLOR       = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR));
     private static final Color MAJOR_COLOR_LIGHT = MAJOR_COLOR.deriveColor(0.0, 1.0, 1.0, 0.2);
 
-    private final DirtyFlag     dirtyBehavior = new DirtyFlag();
-    private final DirtyFlag     dirtyGeometry = new DirtyFlag();
-    private final DirtyFlag     dirtyLimits   = new DirtyFlag();
-    private final DirtyFlag     dirtyLook     = new DirtyFlag();
-    private final DirtyFlag     dirtyValue    = new DirtyFlag();
-    private volatile double     high          = Double.NaN;
-    private volatile Section    highZone      = null;
-    private volatile double     hihi          = Double.NaN;
-    private volatile Section    hihiZone      = null;
-    private volatile double     lolo          = Double.NaN;
-    private volatile Section    loloZone      = null;
-    private volatile double     low           = Double.NaN;
-    private volatile Section    lowZone       = null;
-    private volatile double     max           = 100.0;
-    private volatile double     min           = 0.0;
-    private MeterWidget.Skin    skin          = null;
-    private final AtomicBoolean updatingValue = new AtomicBoolean(false);
-    private final List<Section> zones         = new ArrayList<>(4);
+    private final DirtyFlag     dirtyBehavior  = new DirtyFlag();
+    private final DirtyFlag     dirtyGeometry  = new DirtyFlag();
+    private final DirtyFlag     dirtyLimits    = new DirtyFlag();
+    private final DirtyFlag     dirtyLook      = new DirtyFlag();
+    private final DirtyFlag     dirtyValue     = new DirtyFlag();
+    private volatile double     high           = Double.NaN;
+    private volatile double     hihi           = Double.NaN;
+    private volatile double     lolo           = Double.NaN;
+    private volatile double     low            = Double.NaN;
+    private volatile double     max            = 100.0;
+    private volatile double     min            = 0.0;
+    private MeterWidget.Skin    skin           = null;
+    private final AtomicBoolean updatingValue  = new AtomicBoolean(false);
+    private volatile boolean    zonesHighlight = true;
 
     @Override
     public void updateChanges ( ) {
@@ -74,10 +72,10 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
                 jfx_node.setAnimated((boolean) value);
             }
 
-            value = model_widget.propHighlightZones().getValue();
+            value = model_widget.propAnimationDuration().getValue();
 
-            if ( !Objects.equals(value, jfx_node.isHighlightSections()) ) {
-                jfx_node.setHighlightSections((boolean) value);
+            if ( !Objects.equals(value, jfx_node.getAnimationDuration()) ) {
+                jfx_node.setAnimationDuration((long) value);
             }
 
         }
@@ -156,7 +154,11 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
         }
 
         if ( dirtyLimits.checkAndClear() ) {
-
+            jfx_node.setHighlightSections(zonesHighlight);
+            jfx_node.setMaxValue(max);
+            jfx_node.setMinValue(min);
+            jfx_node.setSectionsVisible(areZonesVisible());
+            jfx_node.setSections(createZones());
         }
 
         if ( dirtyValue.checkAndClear() && updatingValue.compareAndSet(false, true) ) {
@@ -165,13 +167,19 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
                 final VType vtype = model_widget.runtimePropValue().getValue();
                 double newval = VTypeUtil.getValueNumber(vtype).doubleValue();
 
-                if ( newval < min ) {
-                    newval = min;
-                } else if ( newval > max ) {
-                    newval = max;
-                }
+                if ( !Double.isNaN(newval) ) {
 
-                jfx_node.setValue(newval);
+                    if ( newval < min ) {
+                        newval = min;
+                    } else if ( newval > max ) {
+                        newval = max;
+                    }
+
+                    jfx_node.setValue(newval);
+
+                } else {
+//  TODO: CR: do something!!!
+                }
 
             } finally {
                 updatingValue.set(false);
@@ -179,6 +187,13 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
 
         }
 
+    }
+
+    private boolean areZonesVisible ( ) {
+        return model_widget.propShowLoLo().getValue()
+            || model_widget.propShowLow().getValue()
+            || model_widget.propShowHigh().getValue()
+            || model_widget.propShowHiHi().getValue();
     }
 
     @Override
@@ -211,9 +226,13 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
                                   //  Previous properties must be set first.
                                   //--------------------------------------------------------
                                   .animated(model_widget.propAnimated().getValue())
-                                  .highlightSections(model_widget.propHighlightZones().getValue())
-                                  .sections(zones.toArray(new Section[zones.size()]))
-                                  .sectionsVisible(model_widget.propShowLoLo().getValue() || model_widget.propShowLow().getValue() || model_widget.propShowHigh().getValue() || model_widget.propShowHiHi().getValue())
+                                  .animationDuration(model_widget.propAnimationDuration().getValue())
+                                  .autoScale(true)
+                                  .highlightSections(zonesHighlight)
+                                  .maxValue(max)
+                                  .minValue(min)
+                                  .sections(createZones())
+                                  .sectionsVisible(areZonesVisible())
                                   .title(model_widget.propTitle().getValue())
                                   .titleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()))
                                   .value(( max + min ) / 2.0)
@@ -283,7 +302,7 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
     protected void registerListeners ( ) {
 
         model_widget.propAnimated().addUntypedPropertyListener(this::behaviorChanged);
-        model_widget.propHighlightZones().addUntypedPropertyListener(this::behaviorChanged);
+        model_widget.propAnimationDuration().addUntypedPropertyListener(this::behaviorChanged);
 
         model_widget.propVisible().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propX().addUntypedPropertyListener(this::geometryChanged);
@@ -295,6 +314,7 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
         model_widget.propTitle().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTitleColor().addUntypedPropertyListener(this::lookChanged);
 
+        model_widget.propHighlightZones().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelHiHi().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelHight().addUntypedPropertyListener(this::limitsChanged);
         model_widget.propLevelLoLo().addUntypedPropertyListener(this::limitsChanged);
@@ -315,6 +335,33 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
 
     }
 
+    private Section[] createZones ( ) {
+
+        boolean highlight = model_widget.propHighlightZones().getValue();
+        boolean loloNaN = Double.isNaN(lolo);
+        boolean hihiNaN = Double.isNaN(hihi);
+        List<Section> sections = new ArrayList<>(4);
+
+        if ( !loloNaN ) {
+            sections.add(highlight ? new Section(min, lolo, MAJOR_COLOR_LIGHT, MAJOR_COLOR) : new Section(min, lolo, MAJOR_COLOR));
+        }
+
+        if ( !Double.isNaN(low) ) {
+            sections.add(highlight ? new Section(loloNaN ? min : lolo, low, MINOR_COLOR_LIGHT, MINOR_COLOR) : new Section(loloNaN ? min : lolo, low, MINOR_COLOR));
+        }
+
+        if ( !Double.isNaN(high) ) {
+            sections.add(highlight ? new Section(high, hihiNaN ? max : hihi, MINOR_COLOR_LIGHT, MINOR_COLOR) : new Section(high, hihiNaN ? max : hihi, MINOR_COLOR));
+        }
+
+        if ( !hihiNaN ) {
+            sections.add(highlight ? new Section(hihi, max, MAJOR_COLOR_LIGHT, MAJOR_COLOR) : new Section(hihi, max, MAJOR_COLOR));
+        }
+
+        return sections.toArray(new Section[sections.size()]);
+
+    }
+
     private void behaviorChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
         dirtyBehavior.mark();
         toolkit.scheduleUpdate(this);
@@ -326,9 +373,10 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
     }
 
     private void limitsChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
-        dirtyLimits.mark();
-        updateLimits();
-        toolkit.scheduleUpdate(this);
+        if ( updateLimits() ) {
+            dirtyLimits.mark();
+            toolkit.scheduleUpdate(this);
+        }
     }
 
     private void lookChanged ( final WidgetProperty<?> property, final Object old_value, final Object new_value ) {
@@ -336,7 +384,84 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
         toolkit.scheduleUpdate(this);
     }
 
-    private void updateLimits ( ) {
+    private boolean updateLimits ( ) {
+
+        boolean somethingChanged = false;
+
+        //  Model's values.
+        double new_min = model_widget.propMinimum().getValue();
+        double new_max = model_widget.propMaximum().getValue();
+        double new_lolo = model_widget.propLevelLoLo().getValue();
+        double new_low = model_widget.propLevelLow().getValue();
+        double new_high = model_widget.propLevelHight().getValue();
+        double new_hihi = model_widget.propLevelHiHi().getValue();
+        boolean new_highlight = model_widget.propHighlightZones().getValue();
+
+        if ( model_widget.propLimitsFromPV().getValue() ) {
+
+            //  Try to get display range from PV.
+            final Display display_info = ValueUtil.displayOf(model_widget.runtimePropValue().getValue());
+
+            if ( display_info != null ) {
+                new_min = display_info.getLowerCtrlLimit();
+                new_max = display_info.getUpperCtrlLimit();
+                new_lolo = display_info.getLowerAlarmLimit();
+                new_low = display_info.getLowerWarningLimit();
+                new_high = display_info.getUpperWarningLimit();
+                new_hihi = display_info.getUpperAlarmLimit();
+            }
+
+        }
+
+        if ( !model_widget.propShowLoLo().getValue() ) {
+            new_lolo = Double.NaN;
+        }
+        if ( !model_widget.propShowLow().getValue() ) {
+            new_low = Double.NaN;
+        }
+        if ( !model_widget.propShowHigh().getValue() ) {
+            new_high = Double.NaN;
+        }
+        if ( !model_widget.propShowHiHi().getValue() ) {
+            new_hihi = Double.NaN;
+        }
+
+        //  If invalid limits, fall back to 0..100 range.
+        if ( !( Double.isNaN(new_min) || Double.isNaN(new_max) || new_min < new_max ) ) {
+            new_min = 0.0;
+            new_max = 100.0;
+        }
+
+        if ( Double.compare(min, new_min) != 0 ) {
+            min = new_min;
+            somethingChanged = true;
+        }
+        if ( Double.compare(max, new_max) != 0 ) {
+            max = new_max;
+            somethingChanged = true;
+        }
+        if ( Double.compare(lolo, new_lolo) != 0 ) {
+            lolo = new_lolo;
+            somethingChanged = true;
+        }
+        if ( Double.compare(low, new_low) != 0 ) {
+            low = new_low;
+            somethingChanged = true;
+        }
+        if ( Double.compare(high, new_high) != 0 ) {
+            high = new_high;
+            somethingChanged = true;
+        }
+        if ( Double.compare(hihi, new_hihi) != 0 ) {
+            hihi = new_hihi;
+            somethingChanged = true;
+        }
+        if ( zonesHighlight != new_highlight ) {
+            zonesHighlight = new_highlight;
+            somethingChanged = true;
+        }
+
+        return somethingChanged;
 
     }
 

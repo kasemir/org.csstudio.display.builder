@@ -26,6 +26,7 @@ import org.diirt.vtype.VType;
  *  helpers for creating them.
  *
  *  @author Kay Kasemir
+ *  @author Claudio Rosati, European Spallation Source ERIC
  */
 @SuppressWarnings("nls")
 public class CommonWidgetProperties
@@ -94,6 +95,35 @@ public class CommonWidgetProperties
             public WidgetProperty<Integer> createProperty(final Widget widget, final Integer value)
             {
                 return new IntegerWidgetProperty(this, widget, value, min, max);
+            }
+        };
+    }
+
+    /**
+     * Constructor for Long property
+     *
+     * @param category Widget property category
+     * @param name Internal name of the property
+     * @param description Human-readable description
+     */
+    public static final WidgetPropertyDescriptor<Long> newLongPropertyDescriptor ( final WidgetPropertyCategory category, final String name, final String description ) {
+        return newLongPropertyDescriptor(category, name, description, Long.MIN_VALUE, Long.MAX_VALUE);
+    }
+
+    /**
+     * Constructor for Long property
+     *
+     * @param category Widget property category
+     * @param name Internal name of the property
+     * @param description Human-readable description
+     * @param min Minimum value
+     * @param max Maximum value
+     */
+    public static final WidgetPropertyDescriptor<Long> newLongPropertyDescriptor ( final WidgetPropertyCategory category, final String name, final String description, final long min, final long max ) {
+        return new WidgetPropertyDescriptor<Long>(category, name, description) {
+            @Override
+            public WidgetProperty<Long> createProperty ( final Widget widget, final Long value ) {
+                return new LongWidgetProperty(this, widget, value, min, max);
             }
         };
     }
