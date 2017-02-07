@@ -20,6 +20,7 @@ import org.csstudio.display.builder.model.persist.NamedWidgetColors;
 import org.csstudio.display.builder.model.persist.WidgetColorService;
 import org.csstudio.display.builder.model.util.VTypeUtil;
 import org.csstudio.display.builder.model.widgets.MeterWidget;
+import org.csstudio.display.builder.model.widgets.MeterWidget.KnobPosition;
 import org.csstudio.display.builder.model.widgets.MeterWidget.Skin;
 import org.csstudio.display.builder.representation.javafx.JFXUtil;
 import org.diirt.vtype.Display;
@@ -29,7 +30,9 @@ import org.diirt.vtype.ValueUtil;
 import eu.hansolo.medusa.Gauge;
 import eu.hansolo.medusa.GaugeBuilder;
 import eu.hansolo.medusa.Section;
+import eu.hansolo.medusa.TickLabelLocation;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
 
 
@@ -44,20 +47,21 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
     private static final Color MAJOR_COLOR       = JFXUtil.convert(WidgetColorService.getColor(NamedWidgetColors.ALARM_MAJOR));
     private static final Color MAJOR_COLOR_LIGHT = MAJOR_COLOR.deriveColor(0.0, 1.0, 1.0, 0.2);
 
-    private final DirtyFlag     dirtyBehavior  = new DirtyFlag();
-    private final DirtyFlag     dirtyGeometry  = new DirtyFlag();
-    private final DirtyFlag     dirtyLimits    = new DirtyFlag();
-    private final DirtyFlag     dirtyLook      = new DirtyFlag();
-    private final DirtyFlag     dirtyValue     = new DirtyFlag();
-    private volatile double     high           = Double.NaN;
-    private volatile double     hihi           = Double.NaN;
-    private volatile double     lolo           = Double.NaN;
-    private volatile double     low            = Double.NaN;
-    private volatile double     max            = 100.0;
-    private volatile double     min            = 0.0;
-    private MeterWidget.Skin    skin           = null;
-    private final AtomicBoolean updatingValue  = new AtomicBoolean(false);
-    private volatile boolean    zonesHighlight = true;
+    private final DirtyFlag          dirtyBehavior  = new DirtyFlag();
+    private final DirtyFlag          dirtyGeometry  = new DirtyFlag();
+    private final DirtyFlag          dirtyLimits    = new DirtyFlag();
+    private final DirtyFlag          dirtyLook      = new DirtyFlag();
+    private final DirtyFlag          dirtyValue     = new DirtyFlag();
+    private volatile double          high           = Double.NaN;
+    private volatile double          hihi           = Double.NaN;
+    private volatile double          lolo           = Double.NaN;
+    private volatile double          low            = Double.NaN;
+    private volatile double          max            = 100.0;
+    private volatile double          min            = 0.0;
+    private MeterWidget.Skin         skin           = null;
+    private MeterWidget.KnobPosition knobPosition   = null;
+    private final AtomicBoolean      updatingValue  = new AtomicBoolean(false);
+    private volatile boolean         zonesHighlight = true;
 
     @Override
     public void updateChanges ( ) {
@@ -121,6 +125,12 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
                 jfx_node.setSkinType(skinType);
                 jfx_node.setPrefWidth(model_widget.propWidth().getValue());
                 jfx_node.setPrefHeight(model_widget.propHeight().getValue());
+                jfx_node.setAutoScale(true);
+                jfx_node.setCheckAreasForValue(false);
+                jfx_node.setCheckSectionsForValue(false);
+                jfx_node.setCheckThreshold(false);
+                jfx_node.setLedVisible(false);
+                jfx_node.setTickLabelLocation(TickLabelLocation.INSIDE);
 
                 switch ( skin ) {
                     case THREE_QUARTERS:
@@ -136,6 +146,16 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
                     default:
                         break;
                 }
+
+            }
+
+            value = model_widget.propKnobPosition().getValue();
+
+            if ( !Objects.equals(value,  knobPosition) ) {
+
+                knobPosition = (KnobPosition) value;
+
+                jfx_node.setKnobPosition(Pos.valueOf(knobPosition.name()));
 
             }
 
@@ -201,6 +221,7 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
 
         updateLimits();
 
+        knobPosition = model_widget.propKnobPosition().getValue();
         skin = model_widget.propSkin().getValue();
 
         final Gauge.SkinType skinType;
@@ -228,11 +249,17 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
                                   .animated(model_widget.propAnimated().getValue())
                                   .animationDuration(model_widget.propAnimationDuration().getValue())
                                   .autoScale(true)
+                                  .checkAreasForValue(false)
+                                  .checkSectionsForValue(false)
+                                  .checkThreshold(false)
                                   .highlightSections(zonesHighlight)
+                                  .knobPosition(Pos.valueOf(knobPosition.name()))
+                                  .ledVisible(false)
                                   .maxValue(max)
                                   .minValue(min)
                                   .sections(createZones())
                                   .sectionsVisible(areZonesVisible())
+                                  .tickLabelLocation(TickLabelLocation.INSIDE)
                                   .title(model_widget.propTitle().getValue())
                                   .titleColor(JFXUtil.convert(model_widget.propTitleColor().getValue()))
                                   .value(( max + min ) / 2.0)
@@ -256,6 +283,11 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
         gauge.animatedProperty().addListener( ( s, o, n ) -> {
             if ( !Objects.equals(n, model_widget.propAnimated().getValue()) ) {
                 model_widget.propAnimated().setValue(n);
+            }
+        });
+        gauge.knobPositionProperty().addListener( ( s, o, n ) -> {
+            if ( !Objects.equals(n, Pos.valueOf(model_widget.propKnobPosition().getValue().name())) ) {
+                model_widget.propKnobPosition().setValue(KnobPosition.valueOf(n.name()));
             }
         });
         gauge.layoutXProperty().addListener( ( s, o, n ) -> {
@@ -310,6 +342,7 @@ public class MeterRepresentation extends RegionBaseRepresentation<Gauge, MeterWi
         model_widget.propWidth().addUntypedPropertyListener(this::geometryChanged);
         model_widget.propHeight().addUntypedPropertyListener(this::geometryChanged);
 
+        model_widget.propKnobPosition().addUntypedPropertyListener(this::lookChanged);
         model_widget.propSkin().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTitle().addUntypedPropertyListener(this::lookChanged);
         model_widget.propTitleColor().addUntypedPropertyListener(this::lookChanged);

@@ -53,9 +53,27 @@ public class MeterWidget extends PVWidget {
     };
 
     /**
+     * The position of the knov in non-LINEAR meters.
+     *
+     * @author Claudio Rosati, European Spallation Source ERIC
+     * @version 1.0.0 7 Feb 2017
+     */
+    public enum KnobPosition {
+        BOTTOM_CENTER,
+        BOTTOM_LEFT,
+        BOTTOM_RIGHT,
+        CENTER,
+        CENTER_LEFT,
+        CENTER_RIGHT,
+        TOP_CENTER,
+        TOP_LEFT,
+        TOP_RIGHT
+    }
+
+    /**
      * This enumeration is used to reduce the choices from the original enumeration.
      *
-     * @author claudiorosati, European Spallation Source ERIC
+     * @author Claudio Rosati, European Spallation Source ERIC
      * @version 1.0.0 25 Jan 2017
      */
     public enum Skin {
@@ -69,46 +87,53 @@ public class MeterWidget extends PVWidget {
         VERTICAL
     }
 
-    public static final WidgetPropertyDescriptor<Skin>        propSkin           = new WidgetPropertyDescriptor<Skin>(WidgetPropertyCategory.WIDGET,   "skin",           Messages.WidgetProperties_Skin) {
+    public static final WidgetPropertyDescriptor<Skin>         propSkin              = new WidgetPropertyDescriptor<Skin>        (WidgetPropertyCategory.WIDGET,   "skin",               Messages.WidgetProperties_Skin) {
         @Override
         public EnumWidgetProperty<Skin> createProperty ( Widget widget, Skin defaultValue ) {
             return new EnumWidgetProperty<>(this, widget, defaultValue);
         }
     };
+    public static final WidgetPropertyDescriptor<KnobPosition> propKnobPosition      = new WidgetPropertyDescriptor<KnobPosition>(WidgetPropertyCategory.WIDGET,   "knob_position",      Messages.WidgetProperties_KnobPosition) {
+        @Override
+        public EnumWidgetProperty<KnobPosition> createProperty ( Widget widget, KnobPosition defaultValue ) {
+            return new EnumWidgetProperty<>(this, widget, defaultValue);
+        }
+    };
 
-    public static final WidgetPropertyDescriptor<Double>      propLevelHiHi         = newDoublePropertyDescriptor    (WidgetPropertyCategory.DISPLAY,  "level_hihi",         Messages.WidgetProperties_LevelHiHi);
-    public static final WidgetPropertyDescriptor<Double>      propLevelHigh         = newDoublePropertyDescriptor    (WidgetPropertyCategory.DISPLAY,  "level_high",         Messages.WidgetProperties_LevelHigh);
-    public static final WidgetPropertyDescriptor<Double>      propLevelLoLo         = newDoublePropertyDescriptor    (WidgetPropertyCategory.DISPLAY,  "level_lolo",         Messages.WidgetProperties_LevelLoLo);
-    public static final WidgetPropertyDescriptor<Double>      propLevelLow          = newDoublePropertyDescriptor    (WidgetPropertyCategory.DISPLAY,  "level_low",          Messages.WidgetProperties_LevelLow);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowHiHi          = newBooleanPropertyDescriptor   (WidgetPropertyCategory.DISPLAY,  "show_hihi",          Messages.WidgetProperties_ShowHiHi);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowHigh          = newBooleanPropertyDescriptor   (WidgetPropertyCategory.DISPLAY,  "show_high",          Messages.WidgetProperties_ShowHigh);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowLoLo          = newBooleanPropertyDescriptor   (WidgetPropertyCategory.DISPLAY,  "show_lolo",          Messages.WidgetProperties_ShowLoLo);
-    public static final WidgetPropertyDescriptor<Boolean>     propShowLow           = newBooleanPropertyDescriptor   (WidgetPropertyCategory.DISPLAY,  "show_low",           Messages.WidgetProperties_ShowLow);
-    public static final WidgetPropertyDescriptor<Boolean>     propHighlightZones    = newBooleanPropertyDescriptor   (WidgetPropertyCategory.DISPLAY,  "highligh_zones",     Messages.WidgetProperties_HighlightZones);
-    public static final WidgetPropertyDescriptor<String>      propTitle             = newStringPropertyDescriptor    (WidgetPropertyCategory.DISPLAY,  "title",              Messages.WidgetProperties_Title);
+    public static final WidgetPropertyDescriptor<Double>       propLevelHiHi         = newDoublePropertyDescriptor               (WidgetPropertyCategory.DISPLAY,  "level_hihi",         Messages.WidgetProperties_LevelHiHi);
+    public static final WidgetPropertyDescriptor<Double>       propLevelHigh         = newDoublePropertyDescriptor               (WidgetPropertyCategory.DISPLAY,  "level_high",         Messages.WidgetProperties_LevelHigh);
+    public static final WidgetPropertyDescriptor<Double>       propLevelLoLo         = newDoublePropertyDescriptor               (WidgetPropertyCategory.DISPLAY,  "level_lolo",         Messages.WidgetProperties_LevelLoLo);
+    public static final WidgetPropertyDescriptor<Double>       propLevelLow          = newDoublePropertyDescriptor               (WidgetPropertyCategory.DISPLAY,  "level_low",          Messages.WidgetProperties_LevelLow);
+    public static final WidgetPropertyDescriptor<Boolean>      propShowHiHi          = newBooleanPropertyDescriptor              (WidgetPropertyCategory.DISPLAY,  "show_hihi",          Messages.WidgetProperties_ShowHiHi);
+    public static final WidgetPropertyDescriptor<Boolean>      propShowHigh          = newBooleanPropertyDescriptor              (WidgetPropertyCategory.DISPLAY,  "show_high",          Messages.WidgetProperties_ShowHigh);
+    public static final WidgetPropertyDescriptor<Boolean>      propShowLoLo          = newBooleanPropertyDescriptor              (WidgetPropertyCategory.DISPLAY,  "show_lolo",          Messages.WidgetProperties_ShowLoLo);
+    public static final WidgetPropertyDescriptor<Boolean>      propShowLow           = newBooleanPropertyDescriptor              (WidgetPropertyCategory.DISPLAY,  "show_low",           Messages.WidgetProperties_ShowLow);
+    public static final WidgetPropertyDescriptor<Boolean>      propHighlightZones    = newBooleanPropertyDescriptor              (WidgetPropertyCategory.DISPLAY,  "highligh_zones",     Messages.WidgetProperties_HighlightZones);
+    public static final WidgetPropertyDescriptor<String>       propTitle             = newStringPropertyDescriptor               (WidgetPropertyCategory.DISPLAY,  "title",              Messages.WidgetProperties_Title);
 
-    public static final WidgetPropertyDescriptor<Boolean>     propAnimated          = newBooleanPropertyDescriptor   (WidgetPropertyCategory.BEHAVIOR, "animated",           Messages.WidgetProperties_Animated);
-    public static final WidgetPropertyDescriptor<Long>        propAnimationDuration = newLongPropertyDescriptor      (WidgetPropertyCategory.BEHAVIOR, "animation_duration", Messages.WidgetProperties_AnimationDuration, 10L, 10000L);
+    public static final WidgetPropertyDescriptor<Boolean>      propAnimated          = newBooleanPropertyDescriptor              (WidgetPropertyCategory.BEHAVIOR, "animated",           Messages.WidgetProperties_Animated);
+    public static final WidgetPropertyDescriptor<Long>         propAnimationDuration = newLongPropertyDescriptor                 (WidgetPropertyCategory.BEHAVIOR, "animation_duration", Messages.WidgetProperties_AnimationDuration, 10L, 10000L);
 
-    public static final WidgetPropertyDescriptor<WidgetColor> propTitleColor        = newColorPropertyDescriptor     (WidgetPropertyCategory.DISPLAY,  "title_color",        Messages.WidgetProperties_TitleColor);
+    public static final WidgetPropertyDescriptor<WidgetColor>  propTitleColor        = newColorPropertyDescriptor                (WidgetPropertyCategory.DISPLAY,  "title_color",        Messages.WidgetProperties_TitleColor);
 
-    private volatile WidgetProperty<Boolean>     animated;
-    private volatile WidgetProperty<Long>        animation_duration;
-    private volatile WidgetProperty<Boolean>     highligh_zones;
-    private volatile WidgetProperty<Double>      level_high;
-    private volatile WidgetProperty<Double>      level_hihi;
-    private volatile WidgetProperty<Double>      level_lolo;
-    private volatile WidgetProperty<Double>      level_low;
-    private volatile WidgetProperty<Boolean>     limits_from_pv;
-    private volatile WidgetProperty<Double>      maximum;
-    private volatile WidgetProperty<Double>      minimum;
-    private volatile WidgetProperty<Boolean>     show_high;
-    private volatile WidgetProperty<Boolean>     show_hihi;
-    private volatile WidgetProperty<Boolean>     show_lolo;
-    private volatile WidgetProperty<Boolean>     show_low;
-    private volatile WidgetProperty<Skin>        skin;
-    private volatile WidgetProperty<String>      title;
-    private volatile WidgetProperty<WidgetColor> titleColor;
+    private volatile WidgetProperty<Boolean>      animated;
+    private volatile WidgetProperty<Long>         animation_duration;
+    private volatile WidgetProperty<Boolean>      highligh_zones;
+    private volatile WidgetProperty<KnobPosition> knob_position;
+    private volatile WidgetProperty<Double>       level_high;
+    private volatile WidgetProperty<Double>       level_hihi;
+    private volatile WidgetProperty<Double>       level_lolo;
+    private volatile WidgetProperty<Double>       level_low;
+    private volatile WidgetProperty<Boolean>      limits_from_pv;
+    private volatile WidgetProperty<Double>       maximum;
+    private volatile WidgetProperty<Double>       minimum;
+    private volatile WidgetProperty<Boolean>      show_high;
+    private volatile WidgetProperty<Boolean>      show_hihi;
+    private volatile WidgetProperty<Boolean>      show_lolo;
+    private volatile WidgetProperty<Boolean>      show_low;
+    private volatile WidgetProperty<Skin>         skin;
+    private volatile WidgetProperty<String>       title;
+    private volatile WidgetProperty<WidgetColor>  titleColor;
 
     public MeterWidget ( ) {
         super(WIDGET_DESCRIPTOR.getType(), 240, 120);
@@ -124,6 +149,10 @@ public class MeterWidget extends PVWidget {
 
     public WidgetProperty<Boolean> propHighlightZones ( ) {
         return highligh_zones;
+    }
+
+    public WidgetProperty<KnobPosition> propKnobPosition ( ) {
+        return knob_position;
     }
 
     public WidgetProperty<Double> propLevelHiHi ( ) {
@@ -188,6 +217,7 @@ public class MeterWidget extends PVWidget {
         super.defineProperties(properties);
 
         properties.add(skin               = propSkin.createProperty(this, Skin.HORIZONTAL));
+        properties.add(knob_position      = propKnobPosition.createProperty(this, KnobPosition.BOTTOM_CENTER));
 
         properties.add(level_hihi         = propLevelHiHi.createProperty(this, 90.0));
         properties.add(level_high         = propLevelHigh.createProperty(this, 80.0));

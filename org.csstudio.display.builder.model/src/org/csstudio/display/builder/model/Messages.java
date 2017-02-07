@@ -184,14 +184,15 @@ public class Messages extends NLS
     public static String WidgetProperties_HourColor;
     public static String WidgetProperties_HourTickMarkColor;
     public static String WidgetProperties_HourTickMarkVisible;
-    public static String WidgetProperties_LabelsFromPV;
-    public static String WidgetProperties_LcdCrystalEnabled;
-    public static String WidgetProperties_LcdDesign;
     public static String WidgetProperties_Increment;
     public static String WidgetProperties_Insets;
     public static String WidgetProperties_Interactive;
     public static String WidgetProperties_Interpolation;
     public static String WidgetProperties_KnobColor;
+    public static String WidgetProperties_KnobPosition;
+    public static String WidgetProperties_LabelsFromPV;
+    public static String WidgetProperties_LcdCrystalEnabled;
+    public static String WidgetProperties_LcdDesign;
     public static String WidgetProperties_LevelHigh;
     public static String WidgetProperties_LevelHiHi;
     public static String WidgetProperties_LevelLow;
