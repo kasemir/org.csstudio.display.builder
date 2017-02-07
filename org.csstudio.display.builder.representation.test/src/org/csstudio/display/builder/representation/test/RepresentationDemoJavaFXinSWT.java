@@ -10,14 +10,12 @@ package org.csstudio.display.builder.representation.test;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
 
 import org.csstudio.display.builder.model.DisplayModel;
+import org.csstudio.display.builder.rcp.JFX_SWT_Wrapper;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import javafx.embed.swt.FXCanvas;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 
@@ -26,6 +24,8 @@ import javafx.scene.Scene;
  */
 public class RepresentationDemoJavaFXinSWT
 {
+    private static JFXRepresentation toolkit;
+
     public static void main(final String[] args) throws Exception
     {
         //final DisplayModel model = ExampleModels.getModel(1);
@@ -34,33 +34,21 @@ public class RepresentationDemoJavaFXinSWT
         final Display display = new Display();
         final Shell shell = new Shell(display);
         shell.setText(model.getPropertyValue(propName));
-        shell.setLayout(new RowLayout());
+        shell.setLayout(new FillLayout());
 
-        // Requires defining classpath variable JFXSWT as
-        // ${JVM}/jre/lib/jfxswt.jar
-        // TODO On older Ubuntu Linux, crashes in here. GTK2/3 conflict?
-        // OK on RedHat 6
-        final FXCanvas fx_canvas = new FXCanvas(shell, SWT.NONE)
+        final JFX_SWT_Wrapper wrapper = new JFX_SWT_Wrapper(shell, () ->
         {
-            @Override
-            public Point computeSize(int wHint, int hHint, boolean changed)
-            {
-                getScene().getWindow().sizeToScene();
-                final int width = (int) getScene().getWidth();
-                final int height = (int) getScene().getHeight();
-                return new Point(width, height);
-            }
-        };
+            toolkit = new JFXRepresentation(false);
+            return new Scene(toolkit.createModelRoot());
+        });
 
-        final JFXRepresentation toolkit = new JFXRepresentation(false);
-        final Scene scene = new Scene(toolkit.createModelRoot());
+        final Scene scene = wrapper.getScene();
         JFXRepresentation.setSceneStyle(scene);
         final Parent parent = toolkit.getModelParent();
         toolkit.representModel(parent, model);
 
         final DummyRuntime runtime = new DummyRuntime(model);
 
-        fx_canvas.setScene(scene);
         shell.open();
 
         while (!shell.isDisposed())

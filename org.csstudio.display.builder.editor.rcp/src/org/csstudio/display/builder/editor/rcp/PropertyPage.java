@@ -10,11 +10,11 @@ package org.csstudio.display.builder.editor.rcp;
 import org.csstudio.display.builder.editor.DisplayEditor;
 import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.properties.PropertyPanel;
+import org.csstudio.display.builder.rcp.JFX_SWT_Wrapper;
 import org.csstudio.display.builder.representation.javafx.AutocompleteMenu;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.ISaveablePart;
@@ -22,7 +22,6 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.properties.IPropertySheetPage;
 
-import javafx.embed.swt.FXCanvas;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 
@@ -77,7 +76,7 @@ public class PropertyPage extends Page implements IPropertySheetPage, IAdaptable
     };
     private final PropertyPanel property_panel;
 
-    private FXCanvas canvas;
+    private Control canvas;
 
     public PropertyPage(final DisplayEditor editor)
     {
@@ -89,12 +88,16 @@ public class PropertyPage extends Page implements IPropertySheetPage, IAdaptable
     @Override
     public void createControl(final Composite parent)
     {
-        canvas = new FXCanvas(parent, SWT.NONE);
-        // StackPane w/ panel as single child to 'fill' the available space.
-        final StackPane root = new StackPane(property_panel);
-        final Scene scene = new Scene(root, 200.0, 400.0);
-        EditorUtil.setSceneStyle(scene);
-        canvas.setScene(scene);
+        new JFX_SWT_Wrapper(parent, () ->
+        {
+            // StackPane w/ panel as single child to 'fill' the available space.
+            final StackPane root = new StackPane(property_panel);
+            final Scene scene = new Scene(root, 200.0, 400.0);
+            EditorUtil.setSceneStyle(scene);
+            return scene;
+        });
+
+        canvas = JFX_SWT_Wrapper.findFXCanvas(parent);
     }
 
     @Override

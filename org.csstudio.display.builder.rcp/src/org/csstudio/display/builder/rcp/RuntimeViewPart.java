@@ -29,9 +29,8 @@ import org.csstudio.display.builder.rcp.run.ZoomAction;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
+import org.eclipse.fx.ui.workbench3.FXViewPart;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IMemento;
@@ -44,26 +43,21 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.part.ViewPart;
 
-import javafx.embed.swt.FXCanvas;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 
-/** Part that hosts display builder runtime
- *
- *  <p>Hosts FXCanvas in SWT
+/** Part that hosts display builder runtime and JFX scene in SWT
  *
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class RuntimeViewPart extends ViewPart
+public class RuntimeViewPart extends FXViewPart
 {
-	// FXViewPart saves a tiny bit of code, but this allow more control over the FXCanvas.
 	// e4view would allow E4-like POJO, but unclear how representation
 	// would then best find the newly created RuntimeViewPart to set its input etc.
-	// --> Using E3 ViewPart
+	// --> Using E3 FXViewPart
 	public static final String ID = "org.csstudio.display.builder.rcp.run.RuntimeViewPart";
 
     /** Property on the 'root' Group of the JFX scene that holds RuntimeViewPart */
@@ -81,9 +75,9 @@ public class RuntimeViewPart extends ViewPart
     /** Widget that triggered a context menu */
     private volatile WeakReference<Widget> active_widget = null;
 
-    private FXCanvas fx_canvas;
-
     private RCP_JFXRepresentation representation;
+
+    private Scene scene;
 
     private Parent root;
 
@@ -105,7 +99,7 @@ public class RuntimeViewPart extends ViewPart
 	// would save the most CPU, but restart takes enough time for user
 	// to notice initial disconnect state, and certain widgets (plots)
 	// would loose their history.
-	// Profiling revealed that FXCanvas updates are already suppressed
+	// Profiling revealed that FX Canvas updates are already suppressed
 	// by the framework, and pausing the representation skips the JFX node updates,
 	// resulting in significant CPU reduction while hidden.
 	private final IPartListener2 show_hide_listener = new IPartListener2()
@@ -243,33 +237,27 @@ public class RuntimeViewPart extends ViewPart
     @Override
     public void createPartControl(final Composite parent)
     {
-	    RCPHacks.hideUnrelatedUI(getSite().getPage());
-
+        RCPHacks.hideUnrelatedUI(getSite().getPage());
         parent.setLayout(new FillLayout());
-        fx_canvas = new FXCanvas(parent, SWT.NONE);
 
-        representation = new RCP_JFXRepresentation(this);
-        final Scene scene = new Scene(representation.createModelRoot());
-        JFXRepresentation.setSceneStyle(scene);
-        root = representation.getModelParent();
-        root.getProperties().put(ROOT_RUNTIME_VIEW_PART, this);
-        fx_canvas.setScene(scene);
+        // This calls createFxScene()
+        super.createPartControl(parent);
 
         JFXCursorFix.apply(scene, parent.getDisplay());
 
         createToolbarItems();
 
-        new ContextMenuSupport(this, fx_canvas, representation);
+        new ContextMenuSupport(this, JFX_SWT_Wrapper.findFXCanvas(parent), representation);
 
         parent.addDisposeListener(e -> onDispose());
 
         // Load persisted DisplayInfo?
         if (display_info.isPresent())
         {
-        	loadDisplayFile(display_info.get());
-        	// This view was restored by Eclipse after a restart.
-        	// It's not opened from an action,
-        	// so nobody else will hook the runtime listener:
+            loadDisplayFile(display_info.get());
+            // This view was restored by Eclipse after a restart.
+            // It's not opened from an action,
+            // so nobody else will hook the runtime listener:
             RuntimeUtil.hookRepresentationListener(representation);
         }
 
@@ -277,7 +265,7 @@ public class RuntimeViewPart extends ViewPart
 
         // Representation for each widget adds a context menu just for the widget.
         // Add context menu to scene, tied to the model.
-        fx_canvas.getScene().setOnContextMenuRequested(event ->
+        scene.setOnContextMenuRequested(event ->
         {
             final DisplayModel model = active_model;
             if (model != null)
@@ -293,7 +281,25 @@ public class RuntimeViewPart extends ViewPart
         getSite().getPage().addPartListener(show_hide_listener);
     }
 
-	public RCP_JFXRepresentation getRepresentation()
+    @Override
+    protected Scene createFxScene()
+    {
+        representation = new RCP_JFXRepresentation(this);
+        scene = new Scene(representation.createModelRoot());
+        JFXRepresentation.setSceneStyle(scene);
+        root = representation.getModelParent();
+        root.getProperties().put(ROOT_RUNTIME_VIEW_PART, this);
+        return scene;
+    }
+
+	@Override
+    protected void setFxFocus()
+    {
+	    if (root != null)
+	        root.requestFocus();
+    }
+
+    public RCP_JFXRepresentation getRepresentation()
 	{
 	    return representation;
 	}
@@ -330,16 +336,9 @@ public class RuntimeViewPart extends ViewPart
         // Assert UI update on UI thread
         representation.execute(() ->
         {
-            final Rectangle bounds = fx_canvas.getBounds();
             final TextArea text = new TextArea(message);
             text.setEditable(false);
-            // Try to fill the view.
-            // Use default if layout has not happened on new view.
-            if (bounds.isEmpty())
-                text.setPrefSize(1000, 800);
-            else
-                text.setPrefSize(bounds.width, bounds.height);
-
+            text.setPrefSize(1000, 800);
             JFXRepresentation.getChildren(root).setAll(text);
         });
     }
@@ -499,11 +498,5 @@ public class RuntimeViewPart extends ViewPart
         representation.shutdown();
         // No longer track when view is hidden/restored
         getSite().getPage().removePartListener(show_hide_listener);
-    }
-
-	@Override
-    public void setFocus()
-    {
-	    fx_canvas.setFocus();
     }
 }
