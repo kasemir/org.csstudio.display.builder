@@ -54,18 +54,14 @@ public class GaugeWidget extends PVWidget {
      * @version 1.0.0 25 Jan 2017
      */
     public enum Skin {
-        BAR,
+        DASHBOARD,
         DIGITAL,
         FLAT,
-        GAUGE,
         MODERN,
         SECTION,
-        SIMPLE,
         SIMPLE_DIGITAL,
         SIMPLE_SECTION,
-        SLIM,
-        SPACE_X,
-        TINY
+        SLIM
     }
 
     public static final WidgetPropertyDescriptor<Skin>        propSkin       = new WidgetPropertyDescriptor<Skin>(WidgetPropertyCategory.WIDGET,   "skin",        Messages.WidgetProperties_Skin) {
