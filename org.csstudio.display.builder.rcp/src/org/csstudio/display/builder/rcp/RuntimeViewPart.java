@@ -255,7 +255,7 @@ public class RuntimeViewPart extends ViewPart
         root.getProperties().put(ROOT_RUNTIME_VIEW_PART, this);
         fx_canvas.setScene(scene);
 
-        JFXCursorFix.apply(scene, fx_canvas);
+        JFXCursorFix.apply(scene, parent.getDisplay());
 
         createToolbarItems();
 

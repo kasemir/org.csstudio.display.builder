@@ -164,7 +164,7 @@ public class DisplayEditorPart extends EditorPart
         final Scene scene = new Scene(root);
         EditorUtil.setSceneStyle(scene);
 
-        JFXCursorFix.apply(scene, fx_canvas);
+        JFXCursorFix.apply(scene, parent.getDisplay());
 
         // Observed UI freeze in this call.
         // Unsure what to do.

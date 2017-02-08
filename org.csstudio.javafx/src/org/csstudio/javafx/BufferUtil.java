@@ -24,6 +24,7 @@ import javafx.application.Platform;
  *
  *  @author Kay Kasemir
  */
+@SuppressWarnings("nls")
 public class BufferUtil
 {
     final private BufferedImage image;
