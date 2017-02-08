@@ -7,6 +7,8 @@
  ******************************************************************************/
 package org.csstudio.trends.databrowser3.editor;
 
+import static org.csstudio.trends.databrowser3.Activator.logger;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -139,7 +141,7 @@ public class DataBrowserEditor extends EditorPart
         }
         catch (Exception ex)
         {
-            Activator.getLogger().log(Level.SEVERE, "Cannot create DataBrowserEditor", ex); //$NON-NLS-1$
+            logger.log(Level.SEVERE, "Cannot create DataBrowserEditor", ex);
             return null;
         }
         return editor;
@@ -315,13 +317,13 @@ public class DataBrowserEditor extends EditorPart
         {
             plot = new ModelBasedPlot(true);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Cannot create plot", ex);
         }
         final Scene scene = new Scene(plot.getPlot());
         plot_canvas.setScene(scene);
-        JFXCursorFix.apply(scene, plot_canvas);
+        JFXCursorFix.apply(scene, parent.getDisplay());
         fixCanvasDragAndDrop(plot_canvas);
 
         // Create and start controller
@@ -555,8 +557,7 @@ public class DataBrowserEditor extends EditorPart
     @Override
     public void setFocus()
     {
-        //TODO: plot set focus
-        //plot.getPlot().setFocus();
+        // NOP
     }
 
     /** {@inheritDoc} */

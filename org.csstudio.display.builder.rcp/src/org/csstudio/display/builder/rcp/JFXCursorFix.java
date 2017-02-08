@@ -13,11 +13,11 @@ import java.lang.reflect.Method;
 import java.util.logging.Level;
 
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.widgets.Display;
 
 import com.sun.javafx.cursor.CursorFrame;
 
 import javafx.beans.value.ChangeListener;
-import javafx.embed.swt.FXCanvas;
 import javafx.embed.swt.SWTFXUtils;
 import javafx.scene.Cursor;
 import javafx.scene.ImageCursor;
@@ -30,7 +30,10 @@ import javafx.scene.Scene;
 @SuppressWarnings({"nls","restriction"})
 public class JFXCursorFix
 {
-    public static void apply(final Scene scene, final FXCanvas fx_canvas)
+    /** @param scene JavaFX Scene where cursor is monitored
+     *  @param display SWT Display where the scene's cursor is set
+     */
+    public static void apply(final Scene scene, final Display display)
     {
         // Track JFX cursor, update SWT cursor
         final ChangeListener<Cursor> cursor_listener = (prop, old, newCursor) ->
@@ -46,7 +49,7 @@ public class JFXCursorFix
                 final double hotspotX = ((ImageCursor) newCursor).getHotspotX();
                 final double hotspotY = ((ImageCursor) newCursor).getHotspotY();
                 org.eclipse.swt.graphics.Cursor swtCursor = new org.eclipse.swt.graphics.Cursor(
-                        fx_canvas.getDisplay(), imageData, (int) hotspotX, (int) hotspotY);
+                        display, imageData, (int) hotspotX, (int) hotspotY);
                 // Set platform cursor on CursorFrame so that it can be
                 // retrieved by FXCanvas' HostContainer
                 // which ultimately sets the cursor on the FXCanvas
