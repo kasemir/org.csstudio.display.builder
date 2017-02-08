@@ -30,6 +30,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.csstudio.logbook.ui;bundle-version="3.0.0",
  org.csstudio.openfile;bundle-version="3.2.0",
  org.csstudio.javafx;bundle-version="1.0.0",
+ org.csstudio.javafx.swt;bundle-version="1.0.0",
  org.csstudio.display.builder.representation.javafx;bundle-version="1.0.0",
  org.csstudio.display.builder.runtime;bundle-version="1.0.0",
  org.csstudio.display.builder.util;bundle-version="1.0.0"

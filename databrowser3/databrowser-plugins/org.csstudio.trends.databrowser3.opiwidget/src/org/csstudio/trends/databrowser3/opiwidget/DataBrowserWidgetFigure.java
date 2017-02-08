@@ -11,14 +11,14 @@ import static org.csstudio.trends.databrowser3.Activator.logger;
 
 import java.util.logging.Level;
 
+import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.csstudio.opibuilder.editparts.AbstractBaseEditPart;
 import org.csstudio.opibuilder.editparts.ExecutionMode;
 import org.csstudio.opibuilder.widgets.figures.AbstractSWTWidgetFigure;
 import org.csstudio.trends.databrowser3.ui.ModelBasedPlot;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
-import javafx.embed.swt.FXCanvas;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -29,7 +29,7 @@ import javafx.scene.control.Label;
  *  @author Kay Kasemir
  */
 @SuppressWarnings("nls")
-public class DataBrowserWidgetFigure extends AbstractSWTWidgetFigure<FXCanvas>
+public class DataBrowserWidgetFigure extends AbstractSWTWidgetFigure<Control>
 {
     /** Data Browser plot */
     private ModelBasedPlot plot;
@@ -45,26 +45,24 @@ public class DataBrowserWidgetFigure extends AbstractSWTWidgetFigure<FXCanvas>
     }
 
     @Override
-    protected FXCanvas createSWTWidget(final Composite parent, final int style)
+    protected Control createSWTWidget(final Composite parent, final int style)
     {
-        final FXCanvas canvas = new FXCanvas(parent, SWT.NONE);
-
-        Parent root;
-        try
+        final JFX_SWT_Wrapper wrapper = new JFX_SWT_Wrapper(parent, () ->
         {
-            plot = new ModelBasedPlot(editPart.getExecutionMode() == ExecutionMode.RUN_MODE);
-            root = plot.getPlot();
-        }
-        catch (Exception ex)
-        {
-            logger.log(Level.WARNING, "Cannot create Data Browser OPI Widget's plot", ex);
-            root = new Label("Cannot initialize Plot");
-        }
-        final Scene scene = new Scene(root);
-
-        canvas.setScene(scene);
-
-        return canvas;
+            Parent root;
+            try
+            {
+                plot = new ModelBasedPlot(editPart.getExecutionMode() == ExecutionMode.RUN_MODE);
+                root = plot.getPlot();
+            }
+            catch (Exception ex)
+            {
+                logger.log(Level.WARNING, "Cannot create Data Browser OPI Widget's plot", ex);
+                root = new Label("Cannot initialize Plot");
+            }
+            return new Scene(root);
+        });
+        return JFX_SWT_Wrapper.findFXCanvas(parent);
     }
 
     /** @return Data Browser Plot */
