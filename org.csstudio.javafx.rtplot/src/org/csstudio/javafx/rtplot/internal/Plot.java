@@ -474,6 +474,8 @@ public class Plot<XTYPE extends Comparable<XTYPE>> extends PlotCanvasBase
         plot_processor.autoscale();
 
         final BufferUtil buffer = BufferUtil.getBufferedImage(area_copy.width, area_copy.height);
+        if (buffer == null)
+            return null;
         final BufferedImage image = buffer.getImage();
         final Graphics2D gc = buffer.getGraphics();
 
