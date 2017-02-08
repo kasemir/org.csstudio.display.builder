@@ -16,6 +16,7 @@ import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.representation.javafx.JFXStageRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
+import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.csstudio.vtype.pv.PV;
 import org.csstudio.vtype.pv.PVPool;
 import org.csstudio.vtype.pv.RefCountMap;

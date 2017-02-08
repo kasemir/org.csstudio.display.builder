@@ -13,11 +13,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.csstudio.javafx.rtplot.RTTimePlot;
+import org.csstudio.javafx.swt.ImageConverter;
 import org.csstudio.logbook.Attachment;
 import org.csstudio.logbook.AttachmentBuilder;
 import org.csstudio.logbook.LogEntryBuilder;
 import org.csstudio.logbook.LogbookClientManager;
-import org.csstudio.javafx.rtplot.RTTimePlot;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.ui.util.CustomMediaFactory;
 import org.csstudio.ui.util.thread.UIBundlingThread;
@@ -34,13 +35,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.handlers.IHandlerService;
 
-import javafx.embed.swt.SWTFXUtils;
-
 /**
  * Action to send image of plot to logbook.
  *
  * @author Davy Dequidt
  */
+@SuppressWarnings("nls")
 public class SendToElogAction extends Action {
     final private Shell shell;
     final private RTTimePlot graph;
@@ -141,7 +141,7 @@ public class SendToElogAction extends Action {
     private Attachment createImageAttachment() throws Exception {
         // Dump image into buffer
         ImageLoader loader = new ImageLoader();
-        loader.data = new ImageData[] { SWTFXUtils.fromFXImage(graph.getImage(), null) };
+        loader.data = new ImageData[] { ImageConverter.convertToSWT(graph.getImage()) };
 
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         loader.save(buf, SWT.IMAGE_PNG);

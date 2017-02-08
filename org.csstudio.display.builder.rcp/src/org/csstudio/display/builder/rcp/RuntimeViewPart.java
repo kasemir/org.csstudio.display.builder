@@ -29,6 +29,8 @@ import org.csstudio.display.builder.rcp.run.ZoomAction;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
+import org.csstudio.javafx.swt.JFXCursorFix;
+import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.eclipse.fx.ui.workbench3.FXViewPart;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.layout.FillLayout;

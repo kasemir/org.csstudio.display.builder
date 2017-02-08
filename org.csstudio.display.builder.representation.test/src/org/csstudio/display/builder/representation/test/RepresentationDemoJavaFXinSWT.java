@@ -10,8 +10,8 @@ package org.csstudio.display.builder.representation.test;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propName;
 
 import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.rcp.JFX_SWT_Wrapper;
 import org.csstudio.display.builder.representation.javafx.JFXRepresentation;
+import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;

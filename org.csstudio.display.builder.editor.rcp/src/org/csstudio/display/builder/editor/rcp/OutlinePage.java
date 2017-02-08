@@ -11,7 +11,7 @@ import org.csstudio.display.builder.editor.EditorUtil;
 import org.csstudio.display.builder.editor.WidgetSelectionHandler;
 import org.csstudio.display.builder.editor.tree.WidgetTree;
 import org.csstudio.display.builder.model.DisplayModel;
-import org.csstudio.display.builder.rcp.JFX_SWT_Wrapper;
+import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.swt.widgets.Composite;

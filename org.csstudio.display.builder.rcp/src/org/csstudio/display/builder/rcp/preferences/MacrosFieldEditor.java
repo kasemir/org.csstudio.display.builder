@@ -9,8 +9,8 @@ package org.csstudio.display.builder.rcp.preferences;
 
 import org.csstudio.display.builder.model.macros.MacroXMLUtil;
 import org.csstudio.display.builder.model.macros.Macros;
-import org.csstudio.display.builder.rcp.JFX_SWT_Wrapper;
 import org.csstudio.display.builder.representation.javafx.MacrosTable;
+import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
