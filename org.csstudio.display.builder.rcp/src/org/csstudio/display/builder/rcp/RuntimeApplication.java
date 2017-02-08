@@ -32,7 +32,7 @@ import javafx.stage.Stage;
  *
  *  <p>"Standalone" runtime
  *
- *  May need command-line options
+ *  Needs command-line options
  *  -vmargs -Dosgi.requiredJavaVersion=1.8 -Xms256m -Xmx1024m
  *  -Dorg.osgi.framework.bundle.parent=ext -Dosgi.framework.extensions=org.eclipse.fx.osgi
  *
