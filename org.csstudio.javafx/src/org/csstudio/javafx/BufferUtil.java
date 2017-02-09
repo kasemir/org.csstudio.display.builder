@@ -7,9 +7,14 @@
  ******************************************************************************/
 package org.csstudio.javafx;
 
+import static org.csstudio.javafx.Activator.logger;
+
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
 
 import javafx.application.Platform;
 
@@ -37,7 +42,7 @@ public class BufferUtil
      *
      *  @param width Width
      *  @param height Height
-     *  @return {@link BufferUtil}
+     *  @return {@link BufferUtil} or <code>null</code> if interrupted, error
      */
     public static BufferUtil getBufferedImage(final int width, final int height)
     {
@@ -52,7 +57,16 @@ public class BufferUtil
 
         try
         {
-            return result.get();
+            return result.get(500, TimeUnit.MILLISECONDS);
+        }
+        catch (InterruptedException ex)
+        {
+            return null;
+        }
+        catch (TimeoutException ex)
+        {
+            logger.log(Level.WARNING, "Skipping image update", ex);
+            return null;
         }
         catch (Exception ex)
         {

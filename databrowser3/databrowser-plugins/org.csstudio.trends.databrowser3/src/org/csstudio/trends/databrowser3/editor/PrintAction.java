@@ -10,6 +10,7 @@ package org.csstudio.trends.databrowser3.editor;
 import java.util.logging.Logger;
 
 import org.csstudio.javafx.rtplot.RTTimePlot;
+import org.csstudio.javafx.swt.ImageConverter;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.SWTMediaPool;
 import org.eclipse.jface.action.Action;
@@ -24,8 +25,6 @@ import org.eclipse.swt.printing.PrinterData;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
-
-import javafx.embed.swt.SWTFXUtils;
 
 /** An Action for printing the current image.
  *  @author Kay Kasemir
@@ -78,7 +77,7 @@ public class PrintAction extends Action
     public void run()
     {
         // Get snapshot. Disposed at end of printing
-        final Image snapshot = media_pool.get(SWTFXUtils.fromFXImage(graph.getImage(), null));
+        final Image snapshot = media_pool.get(ImageConverter.convertToSWT(graph.getImage()));
 
         if (snapshot == null)
         {

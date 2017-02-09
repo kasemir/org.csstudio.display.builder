@@ -22,6 +22,7 @@ import org.csstudio.javafx.rtplot.RTValuePlot;
 import org.csstudio.javafx.rtplot.Trace;
 import org.csstudio.javafx.rtplot.TraceType;
 import org.csstudio.javafx.rtplot.data.TimeDataSearch;
+import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.csstudio.trends.databrowser3.Activator;
 import org.csstudio.trends.databrowser3.Messages;
 import org.csstudio.trends.databrowser3.editor.DataBrowserAwareView;
@@ -45,11 +46,11 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Slider;
 import org.eclipse.swt.widgets.Text;
 
-import javafx.embed.swt.FXCanvas;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 
@@ -218,12 +219,15 @@ public class WaveformView extends DataBrowserAwareView
         // =====================
         // ======= Plot ========
         // =====================
-        final FXCanvas plot_canvas = new FXCanvas(parent, SWT.NONE);
-        plot = new RTValuePlot(true);
-        plot.getXAxis().setName(Messages.WaveformIndex);
-        plot.getYAxes().get(0).setName(Messages.WaveformAmplitude);
-        plot.getYAxes().get(0).setAutoscale(true);
-        plot_canvas.setScene(new Scene(plot));
+        new JFX_SWT_Wrapper(parent, () ->
+        {
+            plot = new RTValuePlot(true);
+            plot.getXAxis().setName(Messages.WaveformIndex);
+            plot.getYAxes().get(0).setName(Messages.WaveformAmplitude);
+            plot.getYAxes().get(0).setAutoscale(true);
+            return new Scene(plot);
+        });
+        final Control plot_canvas = JFX_SWT_Wrapper.findFXCanvas(parent);
         plot_canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
 
         // <<<<<< Slider >>>>>>

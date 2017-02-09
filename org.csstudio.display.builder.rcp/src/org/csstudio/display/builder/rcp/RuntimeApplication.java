@@ -16,16 +16,15 @@ import org.csstudio.display.builder.model.persist.ModelLoader;
 import org.csstudio.display.builder.representation.javafx.JFXStageRepresentation;
 import org.csstudio.display.builder.runtime.ActionUtil;
 import org.csstudio.display.builder.runtime.RuntimeUtil;
+import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.csstudio.vtype.pv.PV;
 import org.csstudio.vtype.pv.PVPool;
 import org.csstudio.vtype.pv.RefCountMap;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import javafx.embed.swt.FXCanvas;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
 
@@ -33,7 +32,7 @@ import javafx.stage.Stage;
  *
  *  <p>"Standalone" runtime
  *
- *  May need command-line options
+ *  Needs command-line options
  *  -vmargs -Dosgi.requiredJavaVersion=1.8 -Xms256m -Xmx1024m
  *  -Dorg.osgi.framework.bundle.parent=ext -Dosgi.framework.extensions=org.eclipse.fx.osgi
  *
@@ -103,12 +102,12 @@ public class RuntimeApplication implements IApplication
     {
         // TODO Load named color, font configs
 
-        // Creating an FXCanvas results in a combined
+        // Creating an FX Canvas results in a combined
         // SWT and JavaFX setup with common UI thread.
-        // Shell that's created as a parent for the FXCanvas is never shown.
+        // Shell that's created as a parent for the FX Canvas is never shown.
         display = Display.getDefault();
         final Shell temp_shell = new Shell(display);
-        new FXCanvas(temp_shell, SWT.NONE);
+        new JFX_SWT_Wrapper(temp_shell, () -> null);
         temp_shell.close();
 
         final Stage stage = new Stage();

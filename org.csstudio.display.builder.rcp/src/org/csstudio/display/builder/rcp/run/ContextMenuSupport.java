@@ -38,7 +38,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
-import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchActionConstants;
@@ -128,7 +128,7 @@ public class ContextMenuSupport
      *  @param parent Parent SWT widget
      *  @param representation Representation
      */
-    public ContextMenuSupport(final RuntimeViewPart view, final Composite parent, final RCP_JFXRepresentation representation)
+    public ContextMenuSupport(final RuntimeViewPart view, final Control parent, final RCP_JFXRepresentation representation)
     {
         this.view = view;
         final IWorkbenchPartSite site = view.getSite();
