@@ -10,12 +10,12 @@ package org.csstudio.display.builder.rcp.preferences;
 import org.csstudio.display.builder.model.macros.MacroXMLUtil;
 import org.csstudio.display.builder.model.macros.Macros;
 import org.csstudio.display.builder.representation.javafx.MacrosTable;
+import org.csstudio.javafx.swt.JFX_SWT_Wrapper;
 import org.eclipse.jface.preference.FieldEditor;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
-import javafx.embed.swt.FXCanvas;
 import javafx.scene.Scene;
 
 /** Preference field editor for macros
@@ -26,7 +26,7 @@ import javafx.scene.Scene;
  */
 public class MacrosFieldEditor extends FieldEditor
 {
-    private FXCanvas fxcanvas;
+    private Control fxcanvas;
     private MacrosTable table;
 
     public MacrosFieldEditor(final String name, final String labelText,
@@ -54,10 +54,12 @@ public class MacrosFieldEditor extends FieldEditor
     {
         if (fxcanvas == null)
         {
-            fxcanvas = new FXCanvas(parent, SWT.NONE);
-            table = new MacrosTable(new Macros());
-            final Scene scene = new Scene(table.getNode());
-            fxcanvas.setScene(scene);
+            new JFX_SWT_Wrapper(parent, () ->
+            {
+                table = new MacrosTable(new Macros());
+                return new Scene(table.getNode());
+            });
+            fxcanvas = JFX_SWT_Wrapper.findFXCanvas(parent);
         }
     }
 
