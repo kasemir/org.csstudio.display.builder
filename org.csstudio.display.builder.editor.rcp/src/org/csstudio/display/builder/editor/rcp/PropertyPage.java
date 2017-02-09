@@ -88,7 +88,7 @@ public class PropertyPage extends Page implements IPropertySheetPage, IAdaptable
     @Override
     public void createControl(final Composite parent)
     {
-        new JFX_SWT_Wrapper(parent, () ->
+        final JFX_SWT_Wrapper wrapper = new JFX_SWT_Wrapper(parent, () ->
         {
             // StackPane w/ panel as single child to 'fill' the available space.
             final StackPane root = new StackPane(property_panel);
@@ -96,8 +96,7 @@ public class PropertyPage extends Page implements IPropertySheetPage, IAdaptable
             EditorUtil.setSceneStyle(scene);
             return scene;
         });
-
-        canvas = JFX_SWT_Wrapper.findFXCanvas(parent);
+        canvas = wrapper.getFXCanvas();
     }
 
     @Override

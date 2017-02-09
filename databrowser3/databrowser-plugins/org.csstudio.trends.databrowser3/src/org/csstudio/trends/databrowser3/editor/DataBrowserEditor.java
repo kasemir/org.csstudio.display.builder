@@ -320,7 +320,7 @@ public class DataBrowserEditor extends EditorPart
             return new Scene(plot.getPlot());
         });
 
-        final Control plot_canvas = JFX_SWT_Wrapper.findFXCanvas(parent);
+        final Control plot_canvas = wrapper.getFXCanvas();
         final Scene scene = wrapper.getScene();
         JFXCursorFix.apply(scene, parent.getDisplay());
         fixCanvasDragAndDrop(plot_canvas);

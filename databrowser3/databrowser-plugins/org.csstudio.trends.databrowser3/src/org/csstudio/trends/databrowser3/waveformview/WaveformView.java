@@ -219,7 +219,7 @@ public class WaveformView extends DataBrowserAwareView
         // =====================
         // ======= Plot ========
         // =====================
-        new JFX_SWT_Wrapper(parent, () ->
+        final JFX_SWT_Wrapper wrapper = new JFX_SWT_Wrapper(parent, () ->
         {
             plot = new RTValuePlot(true);
             plot.getXAxis().setName(Messages.WaveformIndex);
@@ -227,7 +227,7 @@ public class WaveformView extends DataBrowserAwareView
             plot.getYAxes().get(0).setAutoscale(true);
             return new Scene(plot);
         });
-        final Control plot_canvas = JFX_SWT_Wrapper.findFXCanvas(parent);
+        final Control plot_canvas = wrapper.getFXCanvas();
         plot_canvas.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, layout.numColumns, 1));
 
         // <<<<<< Slider >>>>>>
