@@ -7,7 +7,7 @@
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Dosgi.requiredJavaVersion=1.8 -Xms256m -Xmx1024m -Dorg.osgi.framework.bundle.parent=ext -Dosgi.framework.extensions=org.eclipse.fx.osgi
+      <vmArgs>-Dosgi.requiredJavaVersion=1.8 -Xms256m -Xmx1024m -Dorg.osgi.framework.bundle.parent=ext -Dosgi.framework.extensions=org.eclipse.fx.osgi -Dorg.osgi.framework.system.packages.extra=sun.misc
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
@@ -24,7 +24,6 @@
    </vm>
 
    <plugins>
-      <plugin id="com.diffplug.osgi.extension.sun.misc" fragment="true"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.ibm.icu"/>
       <plugin id="eu.hansolo.medusa"/>
